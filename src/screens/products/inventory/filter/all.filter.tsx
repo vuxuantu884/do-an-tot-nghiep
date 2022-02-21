@@ -25,7 +25,6 @@ import { getCollectionRequestAction } from "domain/actions/product/collection.ac
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { CountryResponse } from "model/content/country.model";
-import SelectPaging from "component/custom/SelectPaging";
 import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config"; 
@@ -41,6 +40,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { primaryColor } from "utils/global-styles/variables";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import TextShowMore from "component/container/show-more/text-show-more";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -575,48 +575,20 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 </Col>
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.designer_codes} label="Nhà thiết kế">
-                    <SelectPaging
-                      metadata={designers.metadata}
-                      placeholder="Chọn nhà thiết kế"
-                      showSearch={false}
-                      showArrow
-                      allowClear
-                      tagRender={tagRender} 
+                    <AccountSearchPaging 
                       mode="multiple"
-                      maxTagCount="responsive" 
-                      searchPlaceholder="Tìm kiếm nhân viên"
-                      onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                      onSearch={(key) => getAccounts(key, 1, true, false)}
-                    >
-                      {designers.items.map((item) => (
-                        <SelectPaging.Option key={item.code} value={item.code}>
-                          {`${item.code} - ${item.full_name}`}
-                        </SelectPaging.Option>
-                      ))}
-                    </SelectPaging>
+                      placeholder="Chọn nhà thiết kế"
+                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                    />
                   </Item>  
                 </Col> 
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.merchandiser_codes} label="Merchandiser">
-                    <SelectPaging
-                          metadata={wins.metadata}
-                          placeholder="Chọn Merchandiser"
-                          showSearch={false}
-                          showArrow
-                          allowClear
-                          tagRender={tagRender} 
-                          mode="multiple"
-                          maxTagCount="responsive" 
-                          searchPlaceholder="Tìm kiếm nhân viên"
-                          onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                          onSearch={(key) => getAccounts(key, 1, false, true)}
-                        >
-                          {wins.items?.map((item) => (
-                            <SelectPaging.Option key={item.id} value={item.code}>
-                             {`${item.code} - ${item.full_name}`}
-                            </SelectPaging.Option>
-                          ))}
-                      </SelectPaging>
+                    <AccountSearchPaging 
+                      mode="multiple"
+                      placeholder="Chọn Merchandiser"
+                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                    />
                   </Item>  
                 </Col> 
               </Row>

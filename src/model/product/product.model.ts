@@ -157,7 +157,8 @@ export interface VariantResponse extends BaseObject {
   variant_images:Array<VariantImage>,
   transfer_quantity: number,
   variant_id: number,
-  variant_name?: string
+  variant_name?: string,
+ real_quantity?: number
 }
 
 export interface VariantView extends BaseObject {
@@ -192,15 +193,17 @@ export interface VariantView extends BaseObject {
 
 
 export interface VariantSearchQuery extends BaseQuery {
-  info?: string, 
-  barcode?: string, 
-  brand?: string, 
+  info?: string,
+  barcode?: string,
+  brand?: string,
   made_in?:string,
   from_inventory?:number,
   to_inventory?:number,
   merchandiser?:string,
   from_create_date?:Date,
+  from_created_date?:Date,
   to_create_date?:Date,
+  to_created_date?:Date,
   size?:string,
   status?:string,
   main_color?:string,
@@ -261,7 +264,7 @@ export interface VariantRequest {
 export interface VariantUpdateRequest {
   id:number|null,
   barcode: string|null,
-  color_id: number|null, 
+  color_id: number|null,
   composite:boolean,
   height: number|null,
   length: number|null,
@@ -275,7 +278,7 @@ export interface VariantUpdateRequest {
   status: string,
   deleted: boolean,
   supplier_id:number|null
-  width: number|null, 
+  width: number|null,
   weight: number|null,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceRequest>,

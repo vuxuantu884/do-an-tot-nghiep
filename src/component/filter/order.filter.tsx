@@ -620,7 +620,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			}
 			list.push({
 				key: 'services',
-        name: 'Đơn tự giao hàng',
+        		name: 'Đơn tự giao hàng',
 				value: <React.Fragment>{text}</React.Fragment>
 			})
     }
@@ -634,7 +634,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 		
-		if (initialValues.coordinator_codes.length) {
+		if (initialValues.coordinator_codes.length ) {
 			let text = getFilterString(coordinatorFound, "full_name", UrlConfig.ACCOUNTS, "code", "coordinator_codes");
 			list.push({
 				key: 'coordinator_codes',

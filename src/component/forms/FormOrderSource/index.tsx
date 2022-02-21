@@ -3,7 +3,7 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 import { strForSearch } from "utils/RemoveDiacriticsString";
 
 type FormValuesType = {

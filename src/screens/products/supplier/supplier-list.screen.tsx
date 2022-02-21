@@ -139,18 +139,11 @@ const ListSupplierScreen: React.FC = () => {
     },
     {
       title: "Merchandiser",
-      dataIndex: "contacts",
+      dataIndex: "pic",
+      render: (_, item: SupplierResponse) => (
+        <span>{`${item.pic_code} - ${item.pic}`}</span>
+      ),
       visible: true,
-      render: (contacts: Array<SupplierContactResposne>) => {
-        let index = contacts.findIndex((value) => value.is_default);
-        if(index === -1) {
-          if(contacts.length > 0) {
-            return contacts[0].name;
-          }
-          return '';
-        }
-        return contacts[index].name;
-      },
     },
     {
       title: "Trạng thái",
@@ -167,7 +160,7 @@ const ListSupplierScreen: React.FC = () => {
       dataIndex: "scorecard",
       align: "center",
       visible: true,
-    }, 
+    },
     {
       title: "Quốc gia",
       dataIndex: "country_name",
@@ -193,7 +186,7 @@ const ListSupplierScreen: React.FC = () => {
       dataIndex: "created_date",
       visible: false,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },   
+    },
     {
       title: "Loại",
       dataIndex: "type_name",
@@ -241,7 +234,7 @@ const ListSupplierScreen: React.FC = () => {
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
   }, [dispatch, params, searchSupplierCallback, selected]);
 
-  const onDelete = useCallback(() => { 
+  const onDelete = useCallback(() => {
     if (selected && selected.length > 0) {
       selected.forEach(e => {
         dispatch(SupplierDeleteAction(e.id, deleteCallback));
@@ -259,7 +252,7 @@ const ListSupplierScreen: React.FC = () => {
   );
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
-      case ACTIONS_INDEX.DELETE: 
+      case ACTIONS_INDEX.DELETE:
       if (selected.length === 0) {
         showWarning("Vui lòng chọn nhà cung cấp cần xóa");
         return;

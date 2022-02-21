@@ -34,6 +34,7 @@ import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showInfo, showSuccess, showWarning} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 import { StyledComponent } from "../style";
+import { getQueryParams, useQuery } from "utils/useQuery";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -41,9 +42,10 @@ const ACTIONS_INDEX = {
   ACTIVE: 3,
   INACTIVE: 4,
   DELETE: 5,
-};  
+};
 
 const TabProductWrapper: React.FC = () => {
+  const query = useQuery();
   const dispatch = useDispatch();
   const history = useHistory();
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
@@ -92,9 +94,11 @@ const TabProductWrapper: React.FC = () => {
     ];
   },[selected]);
 
-  const [params, setParams] = useState<ProductWrapperSearchQuery>(
-    {} as ProductWrapperSearchQuery
-  );
+  let dataQuery: ProductWrapperSearchQuery = {
+    ...getQueryParams(query),
+  };
+
+  const [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<ProductResponse>>>([
     {
@@ -233,7 +237,7 @@ const TabProductWrapper: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => { 
+  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => {
     dispatch(hideLoading());
     setTableLoading(false);
     if (!!result) {
@@ -241,7 +245,7 @@ const TabProductWrapper: React.FC = () => {
     }
   }, [dispatch]);
 
-  const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => { 
+  const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => {
     dispatch(hideLoading());
     setTableLoading(false);
     showSuccess("Xóa sản phẩm thành công");
@@ -266,10 +270,14 @@ const TabProductWrapper: React.FC = () => {
   const onFilter = useCallback(
     (values) => {
       let {info} = values;
+
       values.info = info && info.trim();
-      let newParams = {...params, ...values, page: 1};
-      setParams(newParams);
-      let queryParam = generateQuery(newParams);
+      let newPrams = { ...params, ...{
+          ...values,
+          info: values.info || params.info
+        }, page: 1 };
+      setParams(newPrams);
+      let queryParam = generateQuery(newPrams);
       history.replace(`${ProductTabUrl.PRODUCTS}?${queryParam}`);
     },
     [params, history]
@@ -277,10 +285,10 @@ const TabProductWrapper: React.FC = () => {
 
   const onDeleteSuccess = useCallback((res: any) => {
     if (res) {
-      setSelected([]); 
+      setSelected([]);
       dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
     }
-   
+
   }, [dispatch, setSearchResultDelete, params]);
 
   const onUpdateSuccess = useCallback(
@@ -330,10 +338,10 @@ const TabProductWrapper: React.FC = () => {
         case ACTIONS_INDEX.INACTIVE:
           onInactive(selected[0]);
           break;
-        case ACTIONS_INDEX.DELETE: 
+        case ACTIONS_INDEX.DELETE:
           setConfirmDelete(true);
           break;
-       case ACTIONS_INDEX.EXPORT_EXCEL: 
+       case ACTIONS_INDEX.EXPORT_EXCEL:
           showInfo("Tính năng đang phát triển");
           break;
         case 3:

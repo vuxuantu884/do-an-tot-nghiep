@@ -1,5 +1,5 @@
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import { Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Col, Divider, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
@@ -93,7 +93,14 @@ function CardProductBottom(props: PropType) {
 									Chiết khấu:
 								</Typography.Link>
 							) : (
-								<div>Chiết khấu:</div>
+								<div>
+									Chiết khấu 
+									<span style={{margin: "0 0 0 5px"}}>
+										<Tooltip title="Tắt chiết khấu tự động để nhập chiết khấu đơn hàng" >
+											<InfoCircleOutlined />
+										</Tooltip>
+									</span>
+								</div>
 							)}
 
 							{items && discountRate !== 0 && (
@@ -133,9 +140,17 @@ function CardProductBottom(props: PropType) {
 									}}
 								>
 									Mã giảm giá:
+										
 								</Typography.Link>
 							) : (
-								<div>Mã giảm giá:</div>
+								<div>
+									Mã giảm giá 
+									<span style={{margin: "0 0 0 5px"}}>
+										<Tooltip title="Tắt chiết khấu tự động để nhập mã giảm giá" >
+											<InfoCircleOutlined />
+										</Tooltip>
+									</span>
+								</div>
 							)}
 
 							{couponInputText && couponInputText !== "" && (

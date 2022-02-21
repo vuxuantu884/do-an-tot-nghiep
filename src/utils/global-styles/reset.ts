@@ -32,6 +32,7 @@ export const reset = css`
   }
   body {
     color: ${textBodyColor};
+    word-break: break-word;
   }
   a {
     color: ${textLinkColor};

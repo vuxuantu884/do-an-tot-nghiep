@@ -79,6 +79,7 @@ export const StyledComponent = styled.div`
         border-radius: 0;
         border-left: none;
         > .ant-select-selector {
+          border-color: ${borderColor} !important;
           border-radius: 0;
           border-left: none;
         }

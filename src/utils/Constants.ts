@@ -307,3 +307,43 @@ export const GENDER_OPTIONS = [
     value: "other",
   },
 ];
+
+export const ECOMMERCE_JOB_TYPE = {
+  STOCK: "stock",
+  VARIANT: "variant",
+  ORDER: "order",
+  IMPORT: "import",
+  EXPORT: "export",
+  SYNC_VARIANT: "sync-variant"
+}
+
+export const LABEL_JOB_TYPE = [
+  {
+    label: "stock",
+    display: "Đồng bộ tồn"
+  },
+  {
+    label: "variant",
+    display: "Tải sản phẩm"
+  },
+  {
+    label: "order",
+    display: "Tải đơn hàng"
+  },
+  {
+    label: "import",
+    display: "Đồng bộ sản phẩm"
+  },
+  {
+    label: "export",
+    display: "Xuất sản phẩm"
+  },
+  {
+    label: "sync-variant",
+    display: "Đồng bộ sản phẩm"
+  },
+]
+
+export const getJobType = (type: String) => {
+  return LABEL_JOB_TYPE.find(item => item.label === type)
+}

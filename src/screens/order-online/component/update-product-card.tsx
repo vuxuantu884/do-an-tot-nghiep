@@ -132,20 +132,22 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     ),
     align: "right",
     width: "15%",
-    className: "yody-table-discount text-right",
+    className: "yody-table-discount text-right 32",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
         <div>
           {l.discount_items.length > 0 && l.discount_items[0].value !== null
             ? formatCurrency(l.discount_items[0].value)
             : 0}
-            <div className="d-flex justify-content-end yody-table-discount-converted">
-              <Typography.Text type="danger">
-                <span style={{fontSize: "0.857rem"}}>
-                  {Math.round(l.discount_items[0]?.rate * 100)/100}%
-                </span>
-              </Typography.Text>
-            </div>
+            {l.discount_items[0]?.rate ? (
+              <div className="d-flex justify-content-end yody-table-discount-converted">
+                <Typography.Text type="danger">
+                  <span style={{fontSize: "0.857rem"}}>
+                    {Math.round(l.discount_items[0]?.rate * 100 || 0)/100}%
+                  </span>
+                </Typography.Text>
+              </div>
+            ) : null}
         </div>
       );
     },
