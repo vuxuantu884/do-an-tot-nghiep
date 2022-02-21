@@ -44,7 +44,7 @@ import InventoryStep from "./components/InventoryTransferStep";
 import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
@@ -278,6 +278,8 @@ const DetailTicket: FC = () => {
       })
       setDataTable(dataTemp);
     }
+    setKeySearch("");
+    setResultSearch([]);
   },[resultSearch, dataTable]);
 
   function getTotalRealQuantity() {
@@ -385,39 +387,37 @@ const DetailTicket: FC = () => {
       dataUpdate.version = data?.version;
       dispatch(receivedInventoryTransferAction(data.id, dataUpdate, createCallback));
     }
-  }, [createCallback, data, dataTable, dispatch, stores])
+  }, [createCallback, data, dataTable, dispatch, stores]);
+
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => { 
+      if (keyCode === "Enter" && code){ 
+        barCode ="";  
+        setKeySearch("");  
+        
+        if (RegUtil.BARCODE_NUMBER.test(code)) {
+          const item: VariantResponse  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
+          
+          if (item && item.id) { 
+           const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],data?.from_store_id ?? null);
+           if (variant && variant.items && variant.items.length > 0) {  
+             item.available = variant.items[variant.items.length-1].available;
+             item.on_hand = variant.items[variant.items.length-1].on_hand;
+           }
+           onSelectProduct(item.id.toString(),item); 
+          }
+        }
+      } 
+      else{
+        const txtSearchProductElement: any =
+          document.getElementById("product_search_variant");
+
+        onSearchProduct(txtSearchProductElement?.value); 
+      } 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[dispatch,onSelectProduct, onSearchProduct]);
 
   const eventKeydown = useCallback(
-    (event: KeyboardEvent) => {
-     const handleSearchProduct = async (keyCode: string, code: string) => { 
-       if (keyCode === "Enter" && code){ 
-         setKeySearch("");  
-         barCode ="";  
-         
-         if (RegUtil.BARCODE_NUMBER.test(code) && event) {
-           const item: VariantResponse  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-           
-           if (item && item.id) { 
-            const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],data?.from_store_id ?? null);
-            if (variant && variant.items && variant.items.length > 0) {  
-              item.available = variant.items[variant.items.length-1].available;
-              item.on_hand = variant.items[variant.items.length-1].on_hand;
-              onSelectProduct(item.id.toString(),item); 
-            }else{ 
-              showError("Không tìm thấy sản phẩm");
-           } 
-           }else{  
-             showError("Không tìm thấy sản phẩm");
-           }
-         }
-       } 
-       else{
-         const txtSearchProductElement: any =
-           document.getElementById("product_search_variant");
-
-         onSearchProduct(txtSearchProductElement?.value); 
-       } 
-     };
+    (event: KeyboardEvent) => { 
 
      if (event.target instanceof HTMLInputElement) {
        if (event.target.id === "product_search_variant") {
@@ -435,7 +435,7 @@ const DetailTicket: FC = () => {
      
    },
    // eslint-disable-next-line react-hooks/exhaustive-deps
-   [onSelectProduct, dispatch, onSearchProduct]
+   [handleSearchProduct]
  );
 
   const onSelect = useCallback((o,v)=>{
