@@ -63,7 +63,6 @@ import { callApiNative } from "utils/ApiUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
-import BaseResponse from "base/base.response";
 export interface InventoryParams {
   id: string;
 }
@@ -400,13 +399,13 @@ const DetailTicket: FC = () => {
            
            if (item && item.id) { 
             const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],data?.from_store_id ?? null);
-            console.log('variant', variant);
             if (variant && variant.items && variant.items.length > 0) {  
               item.available = variant.items[variant.items.length-1].available;
+              item.on_hand = variant.items[variant.items.length-1].on_hand;
               onSelectProduct(item.id.toString(),item); 
             }else{ 
               showError("Không tìm thấy sản phẩm");
-            } 
+           } 
            }else{  
              showError("Không tìm thấy sản phẩm");
            }
