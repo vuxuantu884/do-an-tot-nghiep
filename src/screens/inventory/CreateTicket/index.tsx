@@ -246,18 +246,20 @@ const CreateTicket: FC = () => {
 
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.id === selectedItem.id
+        (variant: VariantResponse) => variant.sku === selectedItem.sku
       )
     ) {
       setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
     }else{
       dataTemp?.forEach((e: VariantResponse) => {
-        if (e.id === selectedItem.id) {
+        if (e.sku === selectedItem.sku) {
           e.transfer_quantity += 1;
         }
       })
       setDataTable(dataTemp);
     }
+    setKeySearch("");
+    setResultSearch([]);
   },[resultSearch, dataTable]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
@@ -544,44 +546,42 @@ const CreateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "unset";
       }
     });
+  
+  }, [dataTable]);   
 
-  }, [dataTable]);
-
-  const eventKeydown = useCallback(
-     (event: KeyboardEvent) => {
-      const handleSearchProduct = async (keyCode: string, code: string) => {
-        if (keyCode === "Enter" && code){
-          setKeySearch("");
-          barCode ="";
-
-          if (RegUtil.BARCODE_NUMBER.test(code) && event) {
-            const storeId = form.getFieldValue("from_store_id");
-            if (!storeId) {
-              showError("Vui lòng chọn kho gửi");
-              return;
-            }
-            const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-            if (item && item.id) {
-              const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
-              if (variant && variant.items && variant.items.length > 0) {
-                item.available = variant.items[variant.items.length-1].available;
-                item.on_hand = variant.items[variant.items.length-1].on_hand;
-                onSelectProduct(item.id.toString(),item);
-              }else{
-                showError("Không tìm thấy sản phẩm");
-            }
-            }else{
-              showError("Không tìm thấy sản phẩm");
-            }
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => { 
+    if (keyCode === "Enter" && code){ 
+      barCode ="";  
+      setKeySearch("");  
+      
+      if (RegUtil.BARCODE_NUMBER.test(code)) {
+        const storeId = form.getFieldValue("from_store_id");
+        if (!storeId) {
+          showError("Vui lòng chọn kho gửi");
+          return;
+        }
+        const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
+        if (item && item.id) { 
+          const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
+          if (variant && variant.items && variant.items.length > 0) {  
+            item.available = variant.items[variant.items.length-1].available;
+            item.on_hand = variant.items[variant.items.length-1].on_hand;
           }
+          onSelectProduct(item.id.toString(),item); 
         }
-        else{
-          const txtSearchProductElement: any =
-            document.getElementById("product_search_variant");
+      }
+    } 
+    else{
+      const txtSearchProductElement: any =
+        document.getElementById("product_search_variant");
 
-          onSearchProduct(txtSearchProductElement?.value);
-        }
-      };
+      onSearchProduct(txtSearchProductElement?.value); 
+    } 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[dispatch,onSelectProduct, onSearchProduct, form]);
+  
+  const eventKeydown = useCallback(
+     (event: KeyboardEvent) => { 
 
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
@@ -591,7 +591,7 @@ const CreateTicket: FC = () => {
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
             () => handleSearchProduct(event.key, barCode),
-            500
+            600
           );
           return;
         }
@@ -599,7 +599,7 @@ const CreateTicket: FC = () => {
 
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onSelectProduct,form, dispatch, onSearchProduct]
+    [handleSearchProduct]
   );
 
   const onSelect = useCallback((o,v)=>{
