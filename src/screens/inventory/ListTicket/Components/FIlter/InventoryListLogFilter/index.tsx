@@ -264,6 +264,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       }
       const valuesForm = {
         ...values,
+        condition: values.condition ? values.condition.trim() : null,
         from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
         to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
 

@@ -300,6 +300,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       }
       const valuesForm = {
         ...values,
+        condition: values.condition ? values.condition.trim() : null,
         from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
         to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
         from_transfer_date: isFromTransferDate ? moment(isFromTransferDate) : null,
