@@ -31,8 +31,7 @@ import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import {DATE_FORMAT} from "utils/DateUtils";
 import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "screens/inventory-adjustment/constants";
-import { AppConfig } from "../../../../../config/app.config";
-import AccountSearchPaging from "../../../../../component/custom/select-search/account-select-paging";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Panel} = Collapse;
 type InventoryAdjustmentFilterProps = {
