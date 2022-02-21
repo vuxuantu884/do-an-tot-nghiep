@@ -33,6 +33,8 @@ export interface StoreResponse extends BaseObject {
   type: string,
   type_name: string,
   reference_id?: number,
+  department_h3_id?: number,
+  department_h3?: string,
 }
 
 export interface StoreQuery extends BaseQuery {
