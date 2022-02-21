@@ -63,7 +63,7 @@ import { Link } from "react-router-dom";
 import { InventoryResponse } from "model/inventory";  
 import { callApiNative } from "utils/ApiUtils";
 import { getAccountDetail } from "service/accounts/account.service";
-import { getStoreApi } from "service/inventory/transfer/index.service";import {
+import { getStoreApi, inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";import {
   AccountStoreResponse
 } from "model/account/account.model";
 import { RegUtil } from "utils/RegUtils"; 
@@ -561,11 +561,14 @@ const CreateTicket: FC = () => {
             }
             const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
             if (item && item.id) { 
-              // if (!item.available || item.available === 0) {
-              //   showError("Không đủ tồn kho gửi");
-              //   return;
-              // }  
-              onSelectProduct(item.id.toString(),item); 
+              const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
+              if (variant && variant.items && variant.items.length > 0) {  
+                item.available = variant.items[variant.items.length-1].available;
+                item.on_hand = variant.items[variant.items.length-1].on_hand;
+                onSelectProduct(item.id.toString(),item); 
+              }else{ 
+                showError("Không tìm thấy sản phẩm");
+            } 
             }else{ 
               showError("Không tìm thấy sản phẩm");
             }

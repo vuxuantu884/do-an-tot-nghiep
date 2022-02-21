@@ -561,7 +561,7 @@
             color: $label-color;
         }
         &-dropdown {
-            border-radius: $border-radius/2;
+            border-radius: calc($border-radius/2);
             padding: 10px 0;
             box-shadow: rgba(70, 128, 160, 0.4) 0 0 5px;
             &-hashtag {
@@ -585,14 +585,14 @@
     }
 
     //select tree
-    .-select-tree-treenode-checkbox-checked:after {
-        border-color: $primary-color;
+    &-select-tree-treenode-checkbox-checked:after {
+        border-color: #2a2a86;
     }
-    .-select-tree-checkbox-indeterminate .ant-select-tree-checkbox-inner {
+    &-select-tree-checkbox-indeterminate .ant-select-tree-checkbox-inner {
         background-color: $primary-color;
         border-color: $primary-color;
     }
-    .-select-tree-checkbox-indeterminate .ant-select-tree-checkbox-inner::after {
+    &-select-tree-checkbox-indeterminate .ant-select-tree-checkbox-inner::after {
         height: 2px;
         background-color: $white;
     }
@@ -621,7 +621,7 @@
     &-tooltip {
         &-inner {
             min-height: 25px;
-            border-radius: $border-radius/2;
+            border-radius: calc($border-radius/2);
             padding: 3px 20px;
             a {
                 color: $white;
@@ -637,7 +637,7 @@
     }
     //Tag
     &-tag {
-        border-radius: $border-radius/2;
+        border-radius: calc($border-radius/2);
         border-color: $background-color-secondary;
         background-color: $background-color-secondary;
         padding: 2px 8px;
