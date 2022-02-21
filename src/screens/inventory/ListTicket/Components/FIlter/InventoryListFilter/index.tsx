@@ -29,6 +29,7 @@ import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/ListTicket/co
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { FormatTextMonney } from "utils/FormatMonney";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const { Panel } = Collapse;
@@ -645,23 +646,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.created_by.length ? ["1"]: []}>
                   <Panel header="Người tạo" key="1" className="header-filter">
                     <Item name="created_by">
-                      <Select
-                        maxTagCount="responsive"
-                        mode="multiple" showSearch placeholder="Chọn người tạo"
-                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {accounts.map((item, index) => (
-                          <Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.code.toString()}
-                          >
-                            {`${item.full_name} - ${item.code}`}
-                          </Option>
-                        ))}
-                      </Select>
+                      <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
                     </Item>
                   </Panel>
                 </Collapse>
