@@ -29,8 +29,7 @@ import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/ListTicket/co
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { FormatTextMonney } from "utils/FormatMonney";
-import { AppConfig } from "../../../../../../config/app.config";
-import AccountSearchPaging from "../../../../../../component/custom/select-search/account-select-paging";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
