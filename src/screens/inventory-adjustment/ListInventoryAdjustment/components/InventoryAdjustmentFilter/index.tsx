@@ -333,6 +333,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       }
       const valuesForm = {
         ...values,
+        code: values.code ? values.code.trim() : null,
         from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
         to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
         from_adjusted_date: isFromAdjustedBy ? moment(isFromAdjustedBy) : null,
