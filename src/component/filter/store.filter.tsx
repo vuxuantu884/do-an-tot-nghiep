@@ -6,7 +6,7 @@ import {
   FormInstance,
   Input,
   Row,
-  Select
+  Select, TreeSelect,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect,  useState } from "react";
@@ -22,7 +22,7 @@ import "assets/css/custom-filter.scss";
 import { DepartmentResponse } from "model/account/department.model";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomSelect from "component/custom/select.custom";
-import TreeDepartment from "component/tree-node/tree-department";
+import TreeDepartment from "screens/settings/department/component/TreeDepartment";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
@@ -95,7 +95,10 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
         <Form
           className="form-search"
           onFinish={onFinish}
-          initialValues={params}
+          initialValues={{
+            ...params,
+            department_id: params.department_id ? Number(params.department_id) : null
+          }}
           layout="inline"
         >
           <Form.Item name="info" className="input-search">
@@ -103,15 +106,26 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               prefix={<img src={search} alt="" />}
               placeholder="Tên/ Mã cửa hàng/ Sđt"
             />
-          </Form.Item> 
-          <Form.Item name="department_ids" style={{ maxWidth: 310, minWidth:250 }}>
-            <TreeDepartment listDepartment={listDepartment} placeholder="Chọn trực thuộc" />
+          </Form.Item>
+          <Form.Item name="department_id" style={{ maxWidth: 310, minWidth:250 }}>
+            <TreeSelect
+              placeholder="Chọn trực thuộc"
+              treeDefaultExpandAll
+              className="selector"
+              allowClear
+              showSearch
+              treeNodeFilterProp='title'
+            >
+              {listDepartment?.map((item, index) => (
+                <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+              ))}
+            </TreeSelect>
           </Form.Item>
           <Form.Item name="status">
-            <CustomSelect  
-            allowClear 
-            showArrow 
-            style={{ width: 180 }} 
+            <CustomSelect
+            allowClear
+            showArrow
+            style={{ width: 180 }}
             placeholder="Chọn trạng thái">
               {storeStatusList?.map((item) => (
                 <Option key={item.value} value={item.value}>

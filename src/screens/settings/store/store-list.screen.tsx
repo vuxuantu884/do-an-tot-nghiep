@@ -57,6 +57,7 @@ const initQuery: StoreQuery = {
   from_square: "",
   to_square: "",
   type: "",
+  department_id: null,
 };
 
 const StoreListScreen: React.FC = () => {
@@ -86,7 +87,7 @@ const StoreListScreen: React.FC = () => {
     items: [],
   });
   const [selected, setSelected] = useState<Array<StoreResponse>>([]);
-  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
+  const [listDepartment, setDepartment] = useState<any>();
 
   //phân quyền
   const [allowReadStore] = useAuthorization({
@@ -131,7 +132,7 @@ const StoreListScreen: React.FC = () => {
       fixed: "left",
       render: (value, record) => {
         return (
-          <div 
+          <div
             className="data-hover"
             onClick={() => history.push(`${UrlConfig.STORE}/${record.id}`)}>
             {value}
@@ -350,7 +351,6 @@ const StoreListScreen: React.FC = () => {
 
   const onMenuClick = useCallback(
     (index: number) => {
-      console.log(index, selected);
 
       if (index === actions[0].id && selected.length === 1) {
         history.push(`${UrlConfig.STORE}/${selected[0].id}/update`);
@@ -371,17 +371,17 @@ const StoreListScreen: React.FC = () => {
     );
   }, []);
 
-  const onResDepartment = useCallback((data: DepartmentResponse | false) => {
-    if (data && data.children) {
-      setDepartment(data.children);
-    };
+  const onResDepartment = useCallback((data: DepartmentResponse | Array<DepartmentResponse> | false) => {
+    if (data) {
+      setDepartment(data);
+    }
   }, []);
 
   useEffect(() => {
     if (isFirstLoad.current) {
       // dispatch(DepartmentGetListAction(setDepartment));
       dispatch(
-        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT, onResDepartment)
+        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
       );
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));

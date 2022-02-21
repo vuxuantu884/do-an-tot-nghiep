@@ -59,6 +59,7 @@ export interface StoreQuery extends BaseQuery {
     to_square?: number|'',
     type: string|'',
     ids?: Array<number>| Array<string>,
+    department_id: string | null
   }
 
   export interface BaseStoreRequest {
@@ -84,10 +85,10 @@ export interface StoreQuery extends BaseQuery {
     vm_code: string|null,
     department_id: number|null
   }
-  
+
   export interface StoreCreateRequest extends BaseStoreRequest {
   }
-  
+
   export interface StoreUpdateRequest extends BaseStoreRequest {
     version: number,
   }
