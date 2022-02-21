@@ -620,7 +620,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			}
 			list.push({
 				key: 'services',
-        		name: 'Đơn tự giao hàng',
+        name: 'Đơn tự giao hàng',
 				value: <React.Fragment>{text}</React.Fragment>
 			})
     }
@@ -634,7 +634,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 		
-		if (initialValues.coordinator_codes.length ) {
+		if (initialValues.coordinator_codes.length) {
 			let text = getFilterString(coordinatorFound, "full_name", UrlConfig.ACCOUNTS, "code", "coordinator_codes");
 			list.push({
 				key: 'coordinator_codes',
@@ -1128,48 +1128,32 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 								/>
 							</Col>
 							<Col span={8} xxl={8}>
-								<p>Tổng tiền</p>
-								<div className="date-range">
-									<Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
-										<InputNumber
-											className="price_min"
-											formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-											placeholder="Từ"
-											min="0"
-											max="100000000"
-										/>
-									</Item>
-
-									<div className="swap-right-icon"><SwapRightOutlined /></div>
-									<Item name="price_max" style={{ width: '45%', marginBottom: 0 }}>
-										<InputNumber
-											className="site-input-right price_max"
-											formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-											placeholder="Đến"
-											min="0"
-											max="1000000000"
-										/>
-									</Item>
-								</div>
-							</Col>
-							<Col span={8} xxl={8}>
-								<Item name="shipper_codes" label="Đối tác giao hàng">
-									<CustomSelect
-										mode="multiple" showSearch allowClear
-										showArrow placeholder="Chọn đối tác giao hàng"
-										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
-										optionFilterProp="children"
-										getPopupContainer={trigger => trigger.parentNode}
+								<Item name="marketer_codes" label="Nhân viên marketing">
+									<AccountCustomSearchSelect
+										placeholder="Tìm theo họ tên hoặc mã nhân viên"
+										dataToSelect={accountData}
+										setDataToSelect={setAccountData}
+										initDataToSelect={accounts}
+										mode="multiple"
+										getPopupContainer={(trigger: any) => trigger.parentNode}
 										maxTagCount='responsive'
-									>
-										{shippers && shippers.map((shipper) => (
-											<CustomSelect.Option key={shipper.code} value={shipper.code}>
-												{shipper.code} - {shipper.name}
-											</CustomSelect.Option>
-										))}
-									</CustomSelect>
+									/>
 								</Item>
 							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="coordinator_codes" label="Nhân viên điều phối">
+									<AccountCustomSearchSelect
+										placeholder="Tìm theo họ tên hoặc mã nhân viên"
+										dataToSelect={accountData}
+										setDataToSelect={setAccountData}
+										initDataToSelect={accounts}
+										mode="multiple"
+										getPopupContainer={(trigger: any) => trigger.parentNode}
+										maxTagCount='responsive'
+									/>
+								</Item>
+							</Col>
+							
 							<Col span={8} xxl={8}>
 								<p>Ngày dự kiến nhận hàng</p>
 								<CustomFilterDatePicker
@@ -1302,6 +1286,49 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									))}
                 </div>
               </Col>
+							<Col span={8} xxl={8}>
+								<p>Tổng tiền</p>
+								<div className="date-range">
+									<Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
+										<InputNumber
+											className="price_min"
+											formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+											placeholder="Từ"
+											min="0"
+											max="100000000"
+										/>
+									</Item>
+
+									<div className="swap-right-icon"><SwapRightOutlined /></div>
+									<Item name="price_max" style={{ width: '45%', marginBottom: 0 }}>
+										<InputNumber
+											className="site-input-right price_max"
+											formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+											placeholder="Đến"
+											min="0"
+											max="1000000000"
+										/>
+									</Item>
+								</div>
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="shipper_codes" label="Đối tác giao hàng">
+									<CustomSelect
+										mode="multiple" showSearch allowClear
+										showArrow placeholder="Chọn đối tác giao hàng"
+										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+										optionFilterProp="children"
+										getPopupContainer={trigger => trigger.parentNode}
+										maxTagCount='responsive'
+									>
+										{shippers && shippers.map((shipper) => (
+											<CustomSelect.Option key={shipper.code} value={shipper.code}>
+												{shipper.code} - {shipper.name}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
+								</Item>
+							</Col>
 						</Row>
 					</Form>}
 				</BaseFilter>
@@ -1317,7 +1344,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						)
 					})}
 				</div>
-
+	
 			)}
 		</StyledComponent>
 	);
