@@ -28,6 +28,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { AppConfig } from "config/app.config";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -352,6 +353,13 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 showSearch
                 allowClear
                 onClear={() => formSearchRef?.current?.submit()}
+                filterOption={(input: String, option: any) => {
+                  if (option.props.value) {
+                    return strForSearch(option.props.children).includes(strForSearch(input));
+                  }
+
+                  return false;
+                }}
               >
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
@@ -377,6 +385,13 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 optionFilterProp="children"
                 allowClear
                 onClear={() => formSearchRef?.current?.submit()}
+                filterOption={(input: String, option: any) => {
+                  if (option.props.value) {
+                    return strForSearch(option.props.children).includes(strForSearch(input));
+                  }
+
+                  return false;
+                }}
               >
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
