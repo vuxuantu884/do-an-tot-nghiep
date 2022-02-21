@@ -29,7 +29,7 @@ import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
-import UrlConfig from "config/url.config"; 
+import UrlConfig from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -65,9 +65,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
   convertCategory,
-  formatCurrency,
+  formatCurrency, formatCurrencyForProduct,
   Products,
-  replaceFormatString
+  replaceFormatString,
 } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
@@ -110,12 +110,12 @@ const initialRequest: ProductRequestView = {
   saleable: true,
   variant_prices: [
     {
-      retail_price: 0,
+      retail_price: "",
       currency: AppConfig.currency,
       import_price: "",
       wholesale_price: "",
       cost_price: "",
-      tax_percent: 0,
+      tax_percent: "",
     },
   ],
   material_id: null,
@@ -219,7 +219,7 @@ const ProductCreateScreen: React.FC = () => {
     }
   );
   //end category
-  //end state 
+  //end state
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
@@ -237,7 +237,7 @@ const ProductCreateScreen: React.FC = () => {
       }
     },
     []
-  ); 
+  );
 
   const onCategoryChange = useCallback(
     (value: number) => {
@@ -312,7 +312,7 @@ const ProductCreateScreen: React.FC = () => {
             variant_images: [],
           });
         }
-        
+
         let uniqueObjArray = [
           ...new Map(newVariants.map((item) => [item["sku"], item])).values(),
       ];
@@ -355,7 +355,7 @@ const ProductCreateScreen: React.FC = () => {
       const sizerCode = objSize?.children.substr(0,3);
       const newSize = {id: value, code: sizerCode } as SizeResponse;
       let filter = [...variants.filter(e=>e.size !== null).map(e=>({id: e.size_id, code: e.size})), newSize] as Array<SizeResponse>;
-      
+
       setSizeSelected([...filter]);
       listVariantsFilter(colorSelected, filter);
     },
@@ -367,7 +367,7 @@ const ProductCreateScreen: React.FC = () => {
       const colorCode = objColor?.children.substr(0,3);
       const newColor = {id: value, name: colorCode,  code: colorCode } as ColorResponse;
       let filter = [...variants.filter(e=>e.color !== null).map(e=>({id: e.color_id,name: e.color, code: e.color})), newColor] as Array<ColorResponse>;
-      
+
        setColorSelected([...filter]);
        listVariantsFilter(filter, sizeSelected);
     },
@@ -447,7 +447,7 @@ const ProductCreateScreen: React.FC = () => {
           })
         }
       });
-      
+
     })
     setCareLabels(careLabels);
   }, [careLabelsString]);
@@ -648,7 +648,7 @@ const ProductCreateScreen: React.FC = () => {
     dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
     }));
-  }, [dispatch]); 
+  }, [dispatch]);
 
   useEffect(() => {
     if (!isLoadMaterData.current) {
@@ -739,7 +739,7 @@ const ProductCreateScreen: React.FC = () => {
                 }
               >
                 <Row gutter={50}>
-                  
+
                 </Row>
                 <Row gutter={50}>
                 <Col span={24} md={12} sm={24}>
@@ -890,7 +890,7 @@ const ProductCreateScreen: React.FC = () => {
                           onPageChange={(key, page) => getCollections(key, page)}
                           onSearch={(key) => getCollections(key, 1)}
                         >
-      
+
                           {collections.items.map((item) => (
                             <SelectPaging.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.name}`}
@@ -901,7 +901,7 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row gutter={50}>
-                  <Col span={24} md={12} sm={24}> 
+                  <Col span={24} md={12} sm={24}>
                     <Item name="material" hidden={true}></Item>
                     <Item name="material_id" label="Chất liệu">
                       <CustomSelect
@@ -1116,7 +1116,7 @@ const ProductCreateScreen: React.FC = () => {
                           className="custom-header"
                           extra={
                             <div>
-                              <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{ 
+                              <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{
                                 setIsChangeDescription(e.target.checked ? true: false)
                                 }}>Lấy thông tin mô tả từ chất liệu</Checkbox>
                             </div>
@@ -1155,7 +1155,7 @@ const ProductCreateScreen: React.FC = () => {
                     icon: <InfoCircleOutlined />,
                   }}
                 >
-                  <AccountSearchPaging 
+                  <AccountSearchPaging
                     placeholder="Chọn Merchandiser"
                     fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                    />
@@ -1165,7 +1165,7 @@ const ProductCreateScreen: React.FC = () => {
                   label="Thiết kế"
                   tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
                 >
-                  <AccountSearchPaging 
+                  <AccountSearchPaging
                     placeholder="Chọn thiết kế"
                     fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                    />
@@ -1205,8 +1205,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
-                                  default={0}
-                                  format={(a: string) => formatCurrency(a)}
+                                  format={(a: string) => formatCurrencyForProduct(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1232,7 +1231,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
-                                  format={(a: string) => formatCurrency(a)}
+                                  format={(a: string) => formatCurrencyForProduct(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1258,7 +1257,7 @@ const ProductCreateScreen: React.FC = () => {
                               >
                                 <NumberInput
                                   maxLength={15}
-                                  format={(a: string) => formatCurrency(a)}
+                                  format={(a: string) => formatCurrencyForProduct(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1286,7 +1285,7 @@ const ProductCreateScreen: React.FC = () => {
                               >
                                 <NumberInput
                                   maxLength={15}
-                                  format={(a: string) => formatCurrency(a)}
+                                  format={(a: string) => formatCurrencyForProduct(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }

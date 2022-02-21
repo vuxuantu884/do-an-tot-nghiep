@@ -154,7 +154,6 @@ const StoreCreateScreen: React.FC = () => {
     debounceSearchStoreNameRef.current = setTimeout(() => {
       dispatch(
         StoreValidateAction({name: value}, (data) => {
-          console.log(data);
           if (data instanceof Array) {
             callback("Tên cửa hàng đã tồn tại");
           } else {
@@ -177,9 +176,9 @@ const StoreCreateScreen: React.FC = () => {
     };
   }, []);
 
-   const onResDepartment = useCallback((data: DepartmentResponse | false) => {
-    if (data && data.children) {
-      setLstDepartment(data.children);
+   const onResDepartment = useCallback((data: any) => {
+    if (data) {
+      setLstDepartment(data);
     };
   }, []);
 
@@ -211,7 +210,7 @@ const StoreCreateScreen: React.FC = () => {
         )
       );
       dispatch(
-        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT, onResDepartment)
+        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
       );
     }
     firstload.current = true;
@@ -446,7 +445,6 @@ const StoreCreateScreen: React.FC = () => {
                       <Select
                         onChange={(value) => {
                           if (value === "inactive") {
-                            console.log(formMain.getFieldsValue(true));
                             formMain.setFieldsValue({
                               is_saleable: false,
                             });

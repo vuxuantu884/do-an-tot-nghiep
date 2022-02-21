@@ -30,6 +30,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { FormatTextMonney } from "utils/FormatMonney";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -300,6 +301,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       }
       const valuesForm = {
         ...values,
+        condition: values.condition ? values.condition.trim() : null,
         from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
         to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
         from_transfer_date: isFromTransferDate ? moment(isFromTransferDate) : null,
@@ -428,6 +430,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   showSearch
                   allowClear
                   onClear={() => formSearchRef?.current?.submit()}
+                  filterOption={(input: String, option: any) => {
+                    if (option.props.value) {
+                      return strForSearch(option.props.children).includes(strForSearch(input));
+                    }
+
+                    return false;
+                  }}
                 >
                   {Array.isArray(stores) &&
                     stores.length > 0 &&
@@ -453,6 +462,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   optionFilterProp="children"
                   allowClear
                   onClear={() => formSearchRef?.current?.submit()}
+                filterOption={(input: String, option: any) => {
+                  if (option.props.value) {
+                    return strForSearch(option.props.children).includes(strForSearch(input));
+                  }
+
+                  return false;
+                }}
                 >
                   {Array.isArray(stores) &&
                     stores.length > 0 &&
