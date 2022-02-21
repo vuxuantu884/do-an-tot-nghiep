@@ -115,7 +115,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
     ...initQuery,
     ...getQueryParams(query),
   };
-  
+
   const history = useHistory();
   let [params, setPrams] = useState<InventoryTransferLogSearchQuery>(dataQuery);
 
@@ -149,7 +149,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
       render: (value: string) => {
 
         const dataItem = JSON.parse(value);
-        
+
         return <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${dataItem?.id}`}>{dataItem?.code}</Link>
       }
     },
@@ -272,7 +272,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
     () => {
       setPrams(initQuery);
       let queryParam = generateQuery(initQuery);
-      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#2?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}/histories?${queryParam}`);
     },
     [history]
   );
@@ -293,7 +293,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
       )
     );
   }, [dispatch, setDataAccounts]);
-  
+
   //get list
   useEffect(() => {
     dispatch(getListLogInventoryTransferAction(params, setSearchResult));

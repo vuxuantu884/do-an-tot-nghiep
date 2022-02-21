@@ -301,8 +301,7 @@ const UpdateTicket: FC = () => {
         (variant: VariantResponse) => variant.sku === newResult.sku
       )
     )  {
-      debugger
-      setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
+      setDataTable((prev: any) => prev.concat([{...newResult, transfer_quantity: 1}]));
     }else{
       dataTemp?.forEach((e: VariantResponse) => {
         if (e.sku === selectedItem.sku) {

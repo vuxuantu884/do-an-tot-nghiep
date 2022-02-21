@@ -13,7 +13,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useMemo, useState } from "react";
+import React, { createRef, useCallback, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
@@ -26,6 +26,8 @@ import { InventoryTransferLogSearchQuery, Store } from "model/inventory/transfer
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
+import { AppConfig } from "config/app.config";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -99,11 +101,11 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       action: Array.isArray(params.action) ? params.action : [params.action],
       updated_by: Array.isArray(params.updated_by) ? params.updated_by : [params.updated_by],
   }}, [params])
-  
+
   const [visible, setVisible] = useState(false);
   const [isFromCreatedDate, setIsFromCreatedDate] = useState(initialValues.from_created_date? moment(initialValues.from_created_date, "DD-MM-YYYY") : null);
   const [isToCreatedDate, setIsToCreatedDate] = useState(initialValues.to_created_date? moment(initialValues.to_created_date, "DD-MM-YYYY") : null);
-  
+
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false
   }, [isLoading])
@@ -115,7 +117,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     (dates, dateString, type) => {
       let fromDateString = null;
       let toDateString = null;
-    
+
       if (dates) {
         fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
         toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
@@ -166,7 +168,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     (type, value) => {
     let minValue = null;
     let maxValue = null;
-    
+
     switch(value) {
       case 'today':
         minValue = moment().startOf('day')
@@ -191,11 +193,11 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       case 'lastmonth':
         minValue = moment().startOf('month').subtract(1, 'months')
         maxValue = moment().endOf('month').subtract(1, 'months')
-        break  
+        break
       default:
         break
     }
-  
+
     switch(type) {
       case 'create_date':
         if (createDateClick === value ) {
@@ -216,7 +218,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      
+
       switch(tag.key) {
         case 'action':
           onFilter && onFilter({...params, action: []});
@@ -234,7 +236,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       }
     },
     [onFilter, params]
-  );  
+  );
 
   const onFinish = useCallback(
     (values) => {
@@ -263,8 +265,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
         ...values,
         from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
         to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
-        
-      }      
+
+      }
       onFilter && onFilter(valuesForm);
     },
     [isFromCreatedDate, isToCreatedDate, onFilter]
@@ -276,14 +278,14 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       let textAction = ""
 
       if (initialValues.action.length > 1) {
-        
+
         initialValues.action.forEach(actionValue => {
           const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
           textAction = status ? textAction + status.name + "; " : textAction
         })
 
       } else if (initialValues.action.length === 1) {
-        
+
         initialValues.action.forEach(actionValue => {
           const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
           textAction = status ? textAction + status.name : textAction
@@ -299,16 +301,16 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     }
     if (initialValues.updated_by.length) {
       let textAccount = ""
-      
+
       if (initialValues.updated_by.length > 1) {
-        
+
       initialValues.updated_by.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
 
       } else if (initialValues.updated_by.length === 1) {
-  
+
         initialValues.updated_by.forEach(i => {
           const findAccount = accounts?.find(item => item.code === i)
           textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
@@ -332,11 +334,11 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     }
 
     return list
-  }, [initialValues, accounts]);  
-    
+  }, [initialValues, accounts]);
+
   return (
     <InventoryFiltersWrapper>
-      <div className="custom-filter"> 
+      <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
             <Item
@@ -431,22 +433,11 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.updated_by.length ? ["1"]: []}>
                   <Panel header="Người sửa" key="1" className="header-filter">
                     <Item name="updated_by">
-                      <Select
-                        mode="multiple" showSearch placeholder="Chọn người sửa"
-                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {accounts.map((item, index) => (
-                          <Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.code.toString()}
-                          >
-                            {`${item.full_name} - ${item.code}`}
-                          </Option>
-                        ))}
-                      </Select>
+                      <AccountSearchPaging
+                        mode="tags"
+                        placeholder="Chọn người sửa"
+                        fixedQuery={{ account_id: [AppConfig.WIN_DEPARTMENT],status: "active" }}
+                      />
                     </Item>
                   </Panel>
                 </Collapse>
@@ -478,7 +469,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                       </CustomSelect>
                     </Item>
                   </Panel>
-                  
+
                 </Collapse>
               </Col>
             </Row>
