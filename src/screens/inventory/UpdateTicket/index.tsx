@@ -72,7 +72,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { AccountStoreResponse } from "model/account/account.model";
 import { callApiNative } from "utils/ApiUtils";
-import { getStoreApi } from "service/inventory/transfer/index.service";
+import { getStoreApi, inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
@@ -707,11 +707,14 @@ const UpdateTicket: FC = () => {
            }
            const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
            if (item && item.id) { 
-             // if (!item.available || item.available === 0) {
-             //   showError("Không đủ tồn kho gửi");
-             //   return;
-             // }  
-             onSelectProduct(item.id.toString(),item); 
+            const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
+            if (variant && variant.items && variant.items.length > 0) {  
+              item.available = variant.items[variant.items.length-1].available;
+              item.on_hand = variant.items[variant.items.length-1].on_hand;
+              onSelectProduct(item.id.toString(),item); 
+            }else{ 
+              showError("Không tìm thấy sản phẩm");
+           } 
            }else{ 
              showError("Không tìm thấy sản phẩm");
            }
