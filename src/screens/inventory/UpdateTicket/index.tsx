@@ -312,6 +312,7 @@ const UpdateTicket: FC = () => {
       setDataTable(dataTemp);
     }
     setKeySearch("");
+    barCode="";
     setResultSearch([]);
   },[resultSearch, dataTable]);
 
