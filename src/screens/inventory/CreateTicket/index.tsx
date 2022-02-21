@@ -260,7 +260,9 @@ const CreateTicket: FC = () => {
     }
     setKeySearch("");
     setResultSearch([]);
-  },[resultSearch, dataTable]);
+    
+    form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
+  },[resultSearch, dataTable, form]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
