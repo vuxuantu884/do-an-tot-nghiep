@@ -12,7 +12,26 @@ import { hideLoading } from 'domain/actions/loading.action';
 import { showError } from '../../../utils/ToastUtils';
 import { YodyAction } from 'base/base.action';
 import { PageResponse } from 'model/base/base-metadata.response';
-import { getBankAccountService, postBankAccountService, putBankAccountService,deleteBankAccountService } from 'service/bank/bank.service';
+import { getBankService,getBankAccountService, postBankAccountService, putBankAccountService,deleteBankAccountService } from 'service/bank/bank.service';
+
+function* getIdBankSaga(action:YodyAction){
+    const {setData}= action.payload;
+    yield put(showLoading());
+    try{
+        const response:BaseResponse<any>= yield call(getBankService);
+        if (isFetchApiSuccessful(response)) {
+            setData(response.data.bank_account);
+        } else {
+            yield put(fetchApiErrorAction(response, "Lấy thông tin ngân hàng"));
+        }
+    }
+    catch (e) {
+        showError("Lỗi Lấy thông tin ngân hàng");
+    }
+    finally {
+        yield put(hideLoading());
+    }
+}
 
 function* getIdBankAccountSaga(action:YodyAction){
     const {id,setData}= action.payload;
@@ -116,4 +135,5 @@ export default function* bankAccountSagas() {
     yield takeLatest(BankType.PUT_BANK_ACCOUNT, putBankAccountSaga);
     yield takeLatest(BankType.DELETE_BANK_ACCOUNT, deleteBankAccountSaga);
     yield takeLatest(BankType.GET_ID_BANK_ACCOUNT, getIdBankAccountSaga);
+    yield takeLatest(BankType.GET_BANK, getIdBankSaga);
 }

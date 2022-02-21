@@ -27,3 +27,7 @@ export const deleteBankAccountService=(id:number):Promise<BaseResponse<BankAccou
 export const getIdBankAccountService=(id:number):Promise<BaseResponse<BankAccountResponse>>=>{
     return BaseAxios.get(`${ApiConfig.ORDER}/bank-accounts/${id}`);
 }
+
+export const getBankService=():Promise<BaseResponse<any>>=>{
+    return BaseAxios.get(`${ApiConfig.CONTENT}/common/enums?fields=BANK_ACCOUNT`);
+}

@@ -2,20 +2,23 @@ import { Card, Checkbox, Col, Form, Input, Row, Select,FormInstance } from "antd
 import ContentContainer from "component/container/content.container";
 import TreeStore from "component/tree-node/tree-store";
 import UrlConfig from "config/url.config";
+import { getBankAction, postBankAccountAction } from "domain/actions/bank/bank.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import AddBankAccountBottombar from "../component/add-bank-account-bottombar";
+import {BankAccountRequest, BankAccountResponse} from 'model/bank/bank.model'
+import { showSuccess } from "utils/ToastUtils";
 
 const BankAccountCreateScreen: React.FC = () => {
 
   const initialValues = {
     account_number: "",
     account_holder: "",
-    bank_code: "",
+    bank_code: null,
     bank_name: "",
-    store_ids: [],
+    store: [],
     status: "true",
     default: false
   }
@@ -23,6 +26,7 @@ const BankAccountCreateScreen: React.FC = () => {
   const formRef = React.createRef<FormInstance>();
   const dispatch = useDispatch();
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
+  const [listBank,setListBank]= useState<any>([]);
 
   useEffect(() => {
     dispatch(
@@ -30,15 +34,44 @@ const BankAccountCreateScreen: React.FC = () => {
         setListStore(stores);
       })
     );
+
+    dispatch(getBankAction(setListBank));
   }, [dispatch]);
 
   const onSubmitForm = useCallback((value: any) => {
+    console.log("value",value);
+    let bankIndex=listBank.findIndex((p:any)=>p.value===value.bank_code);
+    let bankName=bankIndex!==-1?listBank[bankIndex].name:"";
 
-  }, [])
+    let storeAccess=listStore?.filter((p)=>value.store.some((single:any)=>single.toString()===p.id.toString()));
+    console.log("storeAccess",storeAccess);
+    
+    let stores:any=[];
+
+    storeAccess?.map((value)=>stores.push({
+      store_id:value.id,
+      store_code:value.code,
+      store_name:value.name
+    }));
+    
+    console.log("stores",stores);
+    
+    let request:BankAccountRequest={
+      ...value,
+      bank_name:bankName,
+      stores:stores
+    }
+
+    dispatch(postBankAccountAction(request,(data:BankAccountResponse)=>{
+      if(data)showSuccess("Thêm tài khoản ngân hàng thành công");
+    }));
+    
+  }, [dispatch, listBank, listStore])
 
   const onOkPress = useCallback(() => {
-    //goodsReceiptsForm.submit();
-  }, []);
+    formRef.current?.submit();
+  }, [formRef]);
+
   return (
     <ContentContainer
       title="Thêm tài khoản ngân hàng"
@@ -97,7 +130,7 @@ const BankAccountCreateScreen: React.FC = () => {
             <Col md={12}>
               <Form.Item
                 label="Ngân hàng"
-                name="bank_name"
+                name="bank_code"
                 rules={[
                   {
                     required: true,
@@ -111,9 +144,9 @@ const BankAccountCreateScreen: React.FC = () => {
                   placeholder="Chọn ngân hàng"
 
                 >
-                  <Select.Option key={1} value={1}>Vietcombank-0</Select.Option>
-                  <Select.Option key={2} value={2}>Vietcombank-1</Select.Option>
-                  <Select.Option key={3} value={3}>Vietcombank-2</Select.Option>
+                  {listBank.map((value:any, key:number)=>(
+                    <Select.Option key={key} value={value.value}>{value.name}</Select.Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>

@@ -1,17 +1,33 @@
 import { Button, Form, FormInstance, Input, Select } from "antd";
 import { FilterWrapper } from "component/container/filter.container";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import search from "assets/img/search.svg";
 import TreeStore from "component/tree-node/tree-store";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { useDispatch } from "react-redux";
 import { StoreResponse } from "model/core/store.model";
+import { BankAccountSearchQuery } from "model/bank/bank.model";
 
-const BankAccountFilter: React.FC = () => {
+type BankAccountType = {
+    params: BankAccountSearchQuery;
+    onFilter?: (values: BankAccountSearchQuery | Object) => void;
+}
+
+const BankAccountFilter: React.FC<BankAccountType> = (props: BankAccountType) => {
+    const { params, onFilter } = props;
     const dispatch = useDispatch();
     const [listStore, setListStore] = useState<Array<StoreResponse>>();
 
-    const formRef=React.createRef<FormInstance>();
+    const formRef = React.createRef<FormInstance>();
+
+    const onFinish = useCallback((value) => {
+        let query = {
+            ...value,
+            status:value.status==="true"?true:value.status==="false"?false:null
+        }
+        value.status =
+            onFilter && onFilter(query);
+    }, [onFilter]);
 
     useEffect(() => {
         dispatch(
@@ -26,6 +42,8 @@ const BankAccountFilter: React.FC = () => {
             <Form
                 layout="inline"
                 ref={formRef}
+                onFinish={onFinish}
+                initialValues={params}
             >
                 <FilterWrapper>
                     <Form.Item name="account_number" className="search" style={{ minWidth: 200 }}>
@@ -48,9 +66,8 @@ const BankAccountFilter: React.FC = () => {
                             allowClear
                             showArrow
                         >
-                            <Select.Option value={0} key={0}> Option 0</Select.Option>
-                            <Select.Option value={1} key={1}> Option 1</Select.Option>
-                            <Select.Option value={2} key={2}> Option 2</Select.Option>
+                            <Select.Option key={"true"} value={"true"}>active</Select.Option>
+                            <Select.Option key={"false"} value={"false"}>isactive</Select.Option>
                         </Select>
                     </Form.Item>
                     <Form.Item>

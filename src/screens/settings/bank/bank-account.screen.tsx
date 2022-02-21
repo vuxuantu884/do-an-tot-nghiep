@@ -197,7 +197,7 @@ const BankAccountScreen: React.FC = () => {
             extra={<ButtonCreate child="Thêm tài khoản ngân hàng" path={`${UrlConfig.BANK_ACCOUNT}/create`} />}
         >
             <Card>
-                <BankAccountFilter />
+                <BankAccountFilter params={params} onFilter={onFilter} />
 
                 <CustomTable
                     isLoading={tableLoading}

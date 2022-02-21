@@ -23,3 +23,7 @@ export const getIdBankAccountAction=(id:number, setData:(data:BankAccountRespons
 export const deleteBankAccountAction=(id:number, setData:(data:BankAccountResponse)=>void)=>{
     return BaseAction(BankType.DELETE_BANK_ACCOUNT,{id,setData});
 }
+
+export const getBankAction=(setData:(data:any)=>void)=>{
+    return BaseAction(BankType.GET_BANK,{setData});
+}
