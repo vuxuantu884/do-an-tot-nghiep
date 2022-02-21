@@ -53,7 +53,7 @@ const BankAccountScreen: React.FC = () => {
             align: "center",
             width: 150,
             render: (value, row, index) => {
-                return <span>{(params?.page ? params.page : 0 - 1) * (params?.limit ? params.limit : 0) + index + 1}</span>;
+                return <span>{(params?.page ? params.page-1 : 0) * (params?.limit ? params.limit : 0) + index + 1}</span>;
             }
         },
         {
@@ -82,7 +82,7 @@ const BankAccountScreen: React.FC = () => {
             render: (value, row, index) => (
                 <React.Fragment>
                     <span>
-                        {row?.store_ids?.map((item) => {
+                        {row?.stores?.map((item) => {
                             return <Tag color="green">{item.store_name}</Tag>;
                         })}
                     </span>
@@ -160,6 +160,14 @@ const BankAccountScreen: React.FC = () => {
         },
         [history, params]
     );
+
+    const onFilter=useCallback((value)=>{
+        let newParams={...params, ...value, page:1};
+        setPrams(newParams);
+
+        let queryParam= generateQuery(newParams);
+        history.push(`${UrlConfig.BANK_ACCOUNT}?${queryParam}`);
+    },[history, params])
 
     const handleSearchResult = useCallback(() => {
         setTableLoading(true);

@@ -8,7 +8,7 @@ export interface BankAccountResponse extends BaseObject{
     bank_name: string,
     status: boolean,
     default: boolean,
-    store_ids: BankStoreInAccount[],
+    stores: BankStoreInAccount[],
 }
 
 export interface BankAccountRequest extends BaseObject{
@@ -18,7 +18,7 @@ export interface BankAccountRequest extends BaseObject{
     bank_name: string,
     status: boolean,
     default: boolean,
-    store_ids: BankStoreInAccount[],
+    stores: BankStoreInAccount[],
 }
 
 export interface BankAccountSearchQuery extends BaseQuery {
@@ -39,7 +39,7 @@ export class BankAccountModel implements BankAccountRequest{
     account_holder= "";
     bank_code= "";
     bank_name= "";
-    store_ids= [];
+    stores= [];
     status= true;
     default= false;
 }

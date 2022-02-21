@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select } from "antd";
+import { Button, Form, FormInstance, Input, Select } from "antd";
 import { FilterWrapper } from "component/container/filter.container";
 import React, { useEffect, useState } from "react";
 import search from "assets/img/search.svg";
@@ -10,6 +10,8 @@ import { StoreResponse } from "model/core/store.model";
 const BankAccountFilter: React.FC = () => {
     const dispatch = useDispatch();
     const [listStore, setListStore] = useState<Array<StoreResponse>>();
+
+    const formRef=React.createRef<FormInstance>();
 
     useEffect(() => {
         dispatch(
@@ -23,6 +25,7 @@ const BankAccountFilter: React.FC = () => {
         <React.Fragment>
             <Form
                 layout="inline"
+                ref={formRef}
             >
                 <FilterWrapper>
                     <Form.Item name="account_number" className="search" style={{ minWidth: 200 }}>
