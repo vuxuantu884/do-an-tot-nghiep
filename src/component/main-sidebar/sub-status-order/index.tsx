@@ -54,7 +54,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       {
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "cho_sale_xac_nhan_lai","coordinator_confirmed", "doi_kho_hang"]
+				list: ["awaiting_coordinator_confirmation", "cho_sale_xac_nhan_lai","coordinator_confirmed", "doi_kho_hang", "4h_delivery"]
 			},
 			{
 				orderStatus: OrderStatus.FINALIZED,
@@ -148,7 +148,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       {
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "cho_sale_xac_nhan_lai","coordinator_confirmed", "doi_kho_hang"]
+				list: ["awaiting_coordinator_confirmation", "cho_sale_xac_nhan_lai","coordinator_confirmed", "doi_kho_hang", "4h_delivery"]
 			},
 		]
 		const filterStatus = (arr: any[]) => {
