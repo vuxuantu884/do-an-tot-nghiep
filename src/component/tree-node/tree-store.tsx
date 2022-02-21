@@ -78,7 +78,8 @@ const TreeStore = (props: Props) => {
             onChange={onChange}
             {...propConvert()}
             filterTreeNode={(search: any, item: any) => {
-                return item?.title.toLowerCase().includes(search.toLowerCase().trim());
+                //return item?.title.toLowerCase().includes(search.toLowerCase().trim());
+                return item?.title?.toString().toLowerCase().includes(search?.toString().toLowerCase());
             }}
         >
             {
