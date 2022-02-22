@@ -124,8 +124,6 @@ const BackAccountUpdateScreen: React.FC = () => {
         setInitialValues({...value});
     }, [BankAccountId, dispatch, listBank, listStore, userReducerAccount,isDefault,bankAccount]);
 
-    console.log(moment().toDate());
-
     return (
         <ContentContainer
             title="Sửa tài khoản ngân hàng"
