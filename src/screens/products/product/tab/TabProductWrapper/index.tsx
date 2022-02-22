@@ -35,6 +35,7 @@ import {showInfo, showSuccess, showWarning} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 import { StyledComponent } from "../style";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import { CollectionCreateRequest } from "model/product/collection.model";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -318,11 +319,14 @@ const TabProductWrapper: React.FC = () => {
   );
 
   const onInactive = useCallback(
-    (selected: ProductResponse) => {
+    (selected: any) => {
       const request = {
         ...selected,
         status: "inactive",
       };
+      if (selected.collections) {
+        selected.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
+      }
 
       dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
     },
