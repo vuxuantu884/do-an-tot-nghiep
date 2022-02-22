@@ -1,4 +1,4 @@
-import { SelectProps, Select } from "antd";
+import { SelectProps } from "antd";
 import { AccountPublicSearchQuery } from "model/account/account.model";
 import { BaseMetadata } from "model/base/base-metadata.response";
 import React, {ReactNode} from "react";
