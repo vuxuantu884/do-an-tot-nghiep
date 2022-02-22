@@ -54,8 +54,9 @@ type PurchaseOrderFilterProps = {
 };
 
 const listPOStatus = {
-  [POStatus.DRAFT]: "Đặt hàng",
+  [POStatus.DRAFT]: "Nháp",
   [POStatus.FINALIZED]: "Đã xác nhận",
+  [POStatus.STORED]: "Đã nhập kho",
   [POStatus.COMPLETED]: "Đã hoàn thành",
   [POStatus.FINISHED]: "Đã kết thúc",
   [POStatus.CANCELLED]: "Đã hủy",
@@ -713,7 +714,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               <Item name={filterFields.status}>
                 <CustomSelect
                   showArrow
-                  placeholder="Trạng thái đặt hàng"
+                  placeholder="Trạng thái đơn"
                   mode="multiple"
                   allowClear
                   tagRender={tagRender}
