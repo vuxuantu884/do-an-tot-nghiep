@@ -1,8 +1,6 @@
 export const AppConfig = {
   baseUrl: process.env.REACT_APP_BASE_URL || "http://localhost:3004",
-  timeOut: process.env.REACT_APP_TIME_OUT
-    ? parseInt(process.env.REACT_APP_TIME_OUT)
-    : 20000,
+  timeOut: process.env.REACT_APP_TIME_OUT ? parseInt(process.env.REACT_APP_TIME_OUT) : 20000,
   production: process.env.REACT_APP_PRODUCTION,
   ydPageUrl: process.env.REACT_APP_YDPAGE_URL,
   currency: "VNĐ",
@@ -25,6 +23,7 @@ export const AppConfig = {
   AUTH_SERVICE: process.env.REACT_APP_AUTH_SERVICE,
   PURCHASE_ORDER_SERVICE: process.env.REACT_APP_PURCHASE_ORDER_SERVICE,
   IMPORT_EXPORT_SERVICE: process.env.REACT_APP_IMPORT_EXPORT_SERVICE,
+  IMPORT_EXPORT_PRODUCT: process.env.REACT_APP_IMPORT_EXPORT_PRODUCT,
   INVENTORY_SERVICE: process.env.REACT_APP_INVENTORY_SERVICE,
   INVENTORY_TRANSFER_SERVICE: process.env.REACT_APP_INVENTORY_TRANSFER_SERVICE,
   LOYALTY_SERVICE: process.env.REACT_APP_LOYALTY_SERVICE,
