@@ -48,6 +48,7 @@ type POSupplierFormProps = {
   showBillingAddress: boolean;
   showSupplierAddress: boolean;
   hideExpand?: boolean;
+  stepStatus?: string;
 };
 const POSupplierForm: React.FC<POSupplierFormProps> = (
   props: POSupplierFormProps
@@ -60,6 +61,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     showBillingAddress,
     showSupplierAddress,
     hideExpand,
+    stepStatus,
   } = props;
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [data, setData] = useState<Array<SupplierResponse>>([]);
@@ -78,7 +80,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const [addressChangeType, setAddressChangeType] = useState<string>("");
   const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(isEdit);
 
-  
+
   const debouncedSearchSupplier = React.useMemo(() =>
     _.debounce((keyword: string) => {
       setLoadingSearch(true);
@@ -87,14 +89,14 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
       );
     }, 300),
     [dispatch, onResult]
-  ) 
+  )
 
   const onChangeKeySearchSupplier = useCallback(
     (keyword: string) => {
       debouncedSearchSupplier(keyword)
     },
     [debouncedSearchSupplier]
-  )   
+  )
 
   const ShowEditAddressModal = useCallback(
     (addressInfo: PurchaseAddress, type: string) => {
@@ -341,7 +343,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         let supplier_id = getFieldValue("supplier_id");
                         let billing_address: PurchaseAddress =
                           getFieldValue("billing_address");
-                        
+
                         return supplier_id ? (
                           <div className="padding-top-20">
                             <div className="title-address">
@@ -427,7 +429,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     className="font-weight-500"
                     style={{ paddingLeft: "34px", marginTop: "14px" }}
                   >
-                    {isEdit ? (
+                    {isEdit || (stepStatus === POStatus.COMPLETED || stepStatus === POStatus.FINISHED) ? (
                       <div>
                         <Form.Item
                           shouldUpdate={(prevValues, curValues) =>
@@ -497,7 +499,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         />
                       </Form.Item>
                     )}
-                    {isEdit ? (
+                    {isEdit || (stepStatus === POStatus.COMPLETED || stepStatus === POStatus.FINISHED) ? (
                       <div>
                         <Form.Item hidden name="supplier_note" noStyle>
                           <Input />
@@ -608,7 +610,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         let supplier_id = getFieldValue("supplier_id");
                         let supplier_address: PurchaseAddress =
                           getFieldValue("supplier_address");
-                          
+
                         return supplier_id && (
                           <div>
                             <div className="title-address">

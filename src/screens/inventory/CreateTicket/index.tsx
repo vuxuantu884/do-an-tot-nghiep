@@ -250,6 +250,7 @@ const CreateTicket: FC = () => {
       )
     ) {
       setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
+      dataTemp = dataTemp.concat([{...selectedItem, transfer_quantity: 1}]);
     }else{
       dataTemp?.forEach((e: VariantResponse) => {
         if (e.sku === selectedItem.sku) {
@@ -259,8 +260,11 @@ const CreateTicket: FC = () => {
       setDataTable(dataTemp);
     }
     setKeySearch("");
+    barCode="";
     setResultSearch([]);
-  },[resultSearch, dataTable]);
+    
+    form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
+  },[resultSearch, dataTable, form]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {

@@ -227,6 +227,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       dataIndex: "ecommerce_created_date",
       key: "received_status",
       align: "center",
+      width: "11%",
       render: (ecommerce_created_date) => (
         <div>{convertDateTimeFormat(ecommerce_created_date)}</div>
       ),
