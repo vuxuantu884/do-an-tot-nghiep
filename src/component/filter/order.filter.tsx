@@ -611,11 +611,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		if (initialValues.services.length > 0) {
 			let text = "";
 			for (let i = 0; i < services.length; i++) {
-				let abc = serviceListVariables.find(single=>single.value === services[i])
+				let selected = serviceListVariables.find(single=>single.value === services[i])
 				if (i < services.length - 1) {
-					text = text + abc?.title + splitCharacter
+					text = text + selected?.title + splitCharacter
 				} else {
-					text = text + abc?.title;
+					text = text + selected?.title;
 				}
 			}
 			list.push({
