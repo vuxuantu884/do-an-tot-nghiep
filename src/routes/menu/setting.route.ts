@@ -461,7 +461,7 @@ const setting: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.BANK_ACCOUNT}/update`,
+        path: `${UrlConfig.BANK_ACCOUNT}/update/:id`,
         exact: true,
         title: "Sửa tài khoản ngân hàng",
         icon: "icon-dot",

@@ -92,9 +92,9 @@ function* postBankAcountSaga(action: YodyAction) {
 }
 
 function* putBankAccountSaga(action: YodyAction) {
-    const { param, setData } = action.payload;
+    const { id,param, setData } = action.payload;
     try {
-        let response: BaseResponse<BankAccountResponse> = yield call(putBankAccountService, param);
+        let response: BaseResponse<BankAccountResponse> = yield call(putBankAccountService,id, param);
         if (isFetchApiSuccessful(response)) {
             setData(response.data);
         } else {

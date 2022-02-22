@@ -1,6 +1,6 @@
 import { Button, Form, FormInstance, Input, Select } from "antd";
 import { FilterWrapper } from "component/container/filter.container";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
 import TreeStore from "component/tree-node/tree-store";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
@@ -19,6 +19,10 @@ const BankAccountFilter: React.FC<BankAccountType> = (props: BankAccountType) =>
     const [listStore, setListStore] = useState<Array<StoreResponse>>();
 
     const formRef = React.createRef<FormInstance>();
+
+    const initialValues = useMemo(() => {
+        return { ...params }
+    }, [params])
 
     const onFinish = useCallback((value) => {
         let query = {
@@ -43,10 +47,10 @@ const BankAccountFilter: React.FC<BankAccountType> = (props: BankAccountType) =>
                 layout="inline"
                 ref={formRef}
                 onFinish={onFinish}
-                initialValues={params}
+                initialValues={initialValues}
             >
                 <FilterWrapper>
-                    <Form.Item name="account_number" className="search" style={{ minWidth: 200 }}>
+                    <Form.Item name="account_numbers" className="search" style={{ minWidth: 200 }}>
                         <Input
                             prefix={<img src={search} alt="" />}
                             placeholder="Tìm kiếm theo số tài khoản"
@@ -66,8 +70,8 @@ const BankAccountFilter: React.FC<BankAccountType> = (props: BankAccountType) =>
                             allowClear
                             showArrow
                         >
-                            <Select.Option key={"true"} value={"true"}>active</Select.Option>
-                            <Select.Option key={"false"} value={"false"}>isactive</Select.Option>
+                            <Select.Option key={"true"} value={"true"}>Áp dụng</Select.Option>
+                            <Select.Option key={"false"} value={"false"}>Ngưng áp dụng</Select.Option>
                         </Select>
                     </Form.Item>
                     <Form.Item>

@@ -12,8 +12,8 @@ export const postBankAccountAction=(param:BankAccountRequest,setData:(data:BankA
     return BaseAction(BankType.POST_BANK_ACCOUNT,{param,setData});
 }
 
-export const putBankAccountAction=(param:BankAccountRequest, setData:(data:BankAccountResponse)=>void)=>{
-    return BaseAction(BankType.PUT_BANK_ACCOUNT,{param,setData});
+export const putBankAccountAction=(id:number,param:BankAccountRequest, setData:(data:BankAccountResponse)=>void)=>{
+    return BaseAction(BankType.PUT_BANK_ACCOUNT,{id,param,setData});
 }
 
 export const getIdBankAccountAction=(id:number, setData:(data:BankAccountResponse)=>void)=>{

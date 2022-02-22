@@ -14,8 +14,8 @@ export interface BankAccountResponse extends BaseObject{
 export interface BankAccountRequest extends BaseObject{
     account_number: string,
     account_holder: string,
-    bank_code: string,
-    bank_name: string,
+    bank_code: string|null,
+    bank_name: string|null,
     status: boolean,
     default: boolean,
     stores: BankStoreInAccount[],
@@ -24,7 +24,7 @@ export interface BankAccountRequest extends BaseObject{
 export interface BankAccountSearchQuery extends BaseQuery {
     ids?:number|null;
     store_ids?:number[]|null;
-    account_number?:string|null;
+    account_numbers?:string|null;
     account_holders?:string|null;
     status?:boolean|null;
     is_default?:boolean|null;

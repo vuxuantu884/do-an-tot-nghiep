@@ -19,7 +19,7 @@ import { getBankAccountAction } from 'domain/actions/bank/bank.action';
 const initQuery: BankAccountSearchQuery = {
     ids: null,
     store_ids: [],
-    account_number: "",
+    account_numbers: "",
     account_holders: "",
     status: null,
     is_default: null,
@@ -47,13 +47,21 @@ const BankAccountScreen: React.FC = () => {
         items: []
     });
 
+    const handleEdit = (
+        e: React.MouseEvent<HTMLElement, MouseEvent>,
+        id: string | number
+    ) => {
+        e.stopPropagation();
+        history.push(`${UrlConfig.BANK_ACCOUNT}/update/${id}`);
+    };
+
     const defaultColumns: Array<ICustomTableColumType<BankAccountResponse>> = [
         {
             title: "STT",
             align: "center",
             width: 150,
             render: (value, row, index) => {
-                return <span>{(params?.page ? params.page-1 : 0) * (params?.limit ? params.limit : 0) + index + 1}</span>;
+                return <span>{(params?.page ? params.page - 1 : 0) * (params?.limit ? params.limit : 0) + index + 1}</span>;
             }
         },
         {
@@ -81,24 +89,24 @@ const BankAccountScreen: React.FC = () => {
             //width: 300,
             render: (value, row, index) => (
                 <React.Fragment>
-                    <span>
+                    {/* <span>
                         {row?.stores?.map((item) => {
                             return <Tag color="green">{item.store_name}</Tag>;
                         })}
-                    </span>
-                    {/* {row.store_ids.length < 3 ? (
+                    </span> */}
+                    {row.stores.length < 3 ? (
                         <span>
-                            {row?.store_ids?.map((item) => {
+                            {row?.stores?.map((item) => {
                                 return <Tag color="green">{item.store_name}</Tag>;
                             })}
                         </span>
                     ) : (
                         <span>
-                            <Tag color="green">{row.store[0].name}</Tag>
-                            <Tag color="green">{row.store[1].name}</Tag>
-                            <Tag color="green">+{row.store.length - 2}...</Tag>
+                            <Tag color="green">{row.stores[0].store_name}</Tag>
+                            <Tag color="green">{row.stores[1].store_name}</Tag>
+                            <Tag color="green">+{row.stores.length - 2}...</Tag>
                         </span>
-                    )} */}
+                    )}
                 </React.Fragment>
             ),
         },
@@ -137,9 +145,9 @@ const BankAccountScreen: React.FC = () => {
                     <div className="columnAction">
                         <Button
                             className="columnAction__singleButton columnAction__singleButton--edit"
-                        // onClick={(e) => {
-                        //   handleEdit(e, value);
-                        // }}
+                            onClick={(e) => {
+                                handleEdit(e, row.id);
+                            }}
                         >
                             <img src={iconEdit} alt="" className="icon--normal" />
                             Sửa
@@ -161,27 +169,29 @@ const BankAccountScreen: React.FC = () => {
         [history, params]
     );
 
-    const onFilter=useCallback((value)=>{
-        let newParams={...params, ...value, page:1};
+    const onFilter = useCallback((value) => {
+        let newParams = { ...params, ...value, page: 1 };
         setPrams(newParams);
 
-        let queryParam= generateQuery(newParams);
+        let queryParam = generateQuery(newParams);
         history.push(`${UrlConfig.BANK_ACCOUNT}?${queryParam}`);
-    },[history, params])
+    }, [history, params])
 
     const handleSearchResult = useCallback(() => {
         setTableLoading(true);
-        dispatch(getBankAccountAction(params, (data:PageResponse<BankAccountResponse>)=>{
+        dispatch(getBankAccountAction(params, (data: PageResponse<BankAccountResponse>) => {
             setData(data);
             setTableLoading(false);
         }));
     }, [dispatch, params]);
 
+
+
     useEffect(() => {
         handleSearchResult();
     }, [handleSearchResult]);
 
-    console.log("data",data)
+    console.log("data", data)
     return (
         <ContentContainer
             title="Tài khoản ngân hàng"

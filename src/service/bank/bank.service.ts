@@ -16,8 +16,8 @@ export const postBankAccountService=(param:BankAccountRequest):Promise<BaseRespo
     return BaseAxios.post(`${ApiConfig.ORDER}/bank-accounts`,param);
 }
 
-export const putBankAccountService=(param:BankAccountRequest):Promise<BaseResponse<BankAccountResponse>>=>{
-    return BaseAxios.put(`${ApiConfig.ORDER}/bank-accounts`, param);
+export const putBankAccountService=(id:number,param:BankAccountRequest):Promise<BaseResponse<BankAccountResponse>>=>{
+    return BaseAxios.put(`${ApiConfig.ORDER}/bank-accounts/${id}`, param);
 }
 
 export const deleteBankAccountService=(id:number):Promise<BaseResponse<BankAccountResponse>>=>{
