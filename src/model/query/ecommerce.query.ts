@@ -44,3 +44,9 @@ export interface RequestSyncStockQuery {
   shop_ids: Array<number> | null;
   variant_ids: Array<number> | null;
 }
+
+export interface RequestExportExcelQuery extends ProductEcommerceQuery {
+  category_id: number | null;
+  core_variant_id: any;
+  variant_ids: Array<number> | null;
+}

@@ -13,6 +13,21 @@ export interface ExportResponse extends BaseObject {
   url: string;
 }
 
+
+export interface ExportProductResponse extends BaseObject{
+  api_error: string;
+  download_type: string;
+  errors_msg: string;
+  finish: boolean;
+  process_id: number;
+  total: number | null;
+  total_created: Date;
+  total_error: string | null;
+  total_success: number | null;
+  total_updated: Date;
+  url: string;
+}
+
 export interface ImportRequest {
   url?: string;
   conditions?: string;
@@ -40,4 +55,4 @@ export interface ImportResponse extends BaseObject {
   error: number;
   url: string;
   message: string[];
-} 
+}
