@@ -338,7 +338,17 @@ const TabList: React.FC = () => {
         title: "Người duyệt",
         dataIndex: "activated_by",
         visible: true,
-        render: (value, record, index) => value,
+        render: (value, row) => {
+          return (
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${row.activated_by}`}
+              className="primary"
+              target="_blank"
+            >
+              {value}
+            </Link>
+          )
+        }
       },
       // {
       //   title: "Ngày nhập kho",

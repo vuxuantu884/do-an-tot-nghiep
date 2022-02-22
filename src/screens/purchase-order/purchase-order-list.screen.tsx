@@ -176,7 +176,6 @@ const PurchaseOrderListScreen: React.FC = () => {
               to={`${UrlConfig.SUPPLIERS}/${row.supplier_id}`}
               className="primary"
               target="_blank"
-              style={{ fontSize: "16px" }}
             >
               {value}
             </Link>
@@ -193,7 +192,6 @@ const PurchaseOrderListScreen: React.FC = () => {
               to={`${UrlConfig.ACCOUNTS}/${row.merchandiser_code}`}
               className="primary"
               target="_blank"
-              style={{ fontSize: "16px" }}
             >
               {`${row.merchandiser_code} - ${row.merchandiser}`}
             </Link>
@@ -327,14 +325,34 @@ const PurchaseOrderListScreen: React.FC = () => {
         title: "QC",
         dataIndex: 'qc',
         render: (value,row: PurchaseOrder) => {
-          if (!row || !row.qc_code || !row.qc) return "";
-          return <div>{`${row.qc_code} - ${row.qc}`}</div>;
+          if (!row || !row.qc_code || !row.qc) return;
+          return (
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${row.qc_code}`}
+              className="primary"
+              target="_blank"
+            >
+              {`${row.qc_code} - ${row.qc}`}
+            </Link>
+          )
         },
         visible: true,
       },
       {
         title: "Thiết kế",
         dataIndex: 'designer',
+        render: (value,row: PurchaseOrder) => {
+          if (!row || !row.designer_code || !row.designer) return;
+          return (
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${row.designer_code}`}
+              className="primary"
+              target="_blank"
+            >
+              {value}
+            </Link>
+          )
+        },
         visible: true,
       },
       {
