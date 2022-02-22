@@ -193,19 +193,35 @@ const TabList: React.FC = () => {
         title: "Nhà cung cấp",
         dataIndex: "purchase_order",
         visible: true,
-        render: (value) => value?.supplier,
-      },
+        render: (value, row) => {
+          return (
+            <Link
+              to={`${UrlConfig.SUPPLIERS}/${row.purchase_order.supplier_id}`}
+              className="primary"
+              target="_blank"
+              style={{ fontSize: "16px" }}
+            >
+              {value?.supplier}
+            </Link>
+          )
+        }      },
       {
         title: "Merchandiser",
         dataIndex: "purchase_order",
         visible: true,
-        render: (value) => (
-          <>
-            {value.merchandiser_code}
-            <br />
-            {value.merchandiser}
-          </>
-        ),
+        render: (value, row) => {
+          if (!row || !row.purchase_order.merchandiser_code || !row.purchase_order.merchandiser) return "";
+          return (
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${row.purchase_order.merchandiser_code}`}
+              className="primary"
+              target="_blank"
+              style={{ fontSize: "16px" }}
+            >
+              {`${row.purchase_order.merchandiser_code} - ${row.purchase_order.merchandiser}`}
+            </Link>
+          )
+        },
       },
       {
         title: "Kho nhận hàng dự kiến",
@@ -322,7 +338,17 @@ const TabList: React.FC = () => {
         title: "Người duyệt",
         dataIndex: "activated_by",
         visible: true,
-        render: (value, record, index) => value,
+        render: (value, row) => {
+          return (
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${row.activated_by}`}
+              className="primary"
+              target="_blank"
+            >
+              {value}
+            </Link>
+          )
+        }
       },
       // {
       //   title: "Ngày nhập kho",

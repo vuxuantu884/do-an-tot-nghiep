@@ -14,6 +14,7 @@ export interface PurchaseProcument extends BaseObject {
   note: string;
   actived_date: string|null;
   actived_by: string|null;
+  activated_by: string|null;
   stock_in_date: string|null;
   stock_in_by: string|null;
   store?: string;

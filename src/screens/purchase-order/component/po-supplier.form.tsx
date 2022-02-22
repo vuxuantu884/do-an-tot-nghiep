@@ -253,16 +253,16 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       >
                         {supplier}
                       </Link>
-                      {!isEdit && status === POStatus.DRAFT && (
-                        <Button
-                          className="icon-information-delete"
-                          onClick={removeSupplier}
-                          icon={<AiOutlineClose />}
-                        />
-                      )}
                       <PhoneOutlined />
                       <label>{phone}</label>
                     </Space>
+                    {!isEdit && status === POStatus.DRAFT && (
+                      <Button
+                        className="icon-information-delete"
+                        onClick={removeSupplier}
+                        icon={<AiOutlineClose />}
+                      />
+                    )}
                   </Row>
                   <Divider
                     style={{ padding: 0, marginTop: 10, marginBottom: 0 }}
@@ -373,28 +373,17 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                               </span>
                             </Row>
                             <Row className="customer-row-info">
-                              <span>
+                              <span className="mr-15">
                                 <EnvironmentFilled />{" "}
                                 {billing_address.full_address !== ""
                                   ? billing_address.full_address
                                   : "---"}
                               </span>
-                            </Row>
-                            <Row className="customer-row-info">
                               <span>
-                                {billing_address.country !== ""
-                                  ? billing_address.country
-                                  : ""}
-                                {billing_address.city !== null
-                                  ? " - " + billing_address.city
-                                  : ""}
-                                {billing_address.district !== null
-                                  ? " - " + billing_address.district
-                                  : ""}
-                                {billing_address.ward !== null &&
-                                  billing_address.ward !== undefined
-                                  ? " - " + billing_address.ward
-                                  : ""}
+                                {billing_address.country || "  "}
+                                {billing_address.city ? ` - ${billing_address.city}` : ""}
+                                {billing_address.district ? ` - ${billing_address.district}` : ""}
+                                {billing_address.ward ? ` - ${billing_address.ward}` : ""}
                               </span>
                             </Row>
                             <Row>
