@@ -232,7 +232,7 @@ function CardProductBottom(props: PropType) {
 						</strong>
 						<strong className="text-success font-size-price">
 							{totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
-								? !returnOrderInformation ? formatCurrency(Math.abs(totalAmountOrder)) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
+								? !returnOrderInformation ? formatCurrency(totalAmountOrder > 0 ? totalAmountOrder : 0) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
 								: formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
 						</strong>
 					</Row>

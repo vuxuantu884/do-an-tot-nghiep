@@ -1303,7 +1303,6 @@ function OrderCreateProduct(props: PropType) {
 						if(totalDiscountLineItems > totalDiscountOrder) {
 							let result = getApplyDiscountLineItem(response, items);
 							calculateChangeMoney(result, null);
-							console.log('result', result)
 						} else {
 							let itemsAfterRemove = items.map(single => {
 								removeDiscountItem(single)
@@ -1705,17 +1704,24 @@ function OrderCreateProduct(props: PropType) {
 		let _value = value;
 		let _rate = rate;
 		let _promotion: OrderDiscountRequest | null | undefined = null
-		if (items?.length === 0) {
+		if (!items || items?.length === 0) {
 			showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu!");
 		} else {
 			// setVisiblePickDiscount(false);
+			let totalOrderAmount = totalAmount(items);
 			setDiscountType(type);
 			if (type === MoneyType.MONEY) {
 				_value = value;
-				_rate = (value / orderAmount) * 100;
+				if(_value >= totalOrderAmount)	{
+					_value = totalOrderAmount;
+				}
+				_rate = (_value / orderAmount) * 100;
 			} else if (type === MoneyType.PERCENT) {
 				_rate = rate;
-				_value = (rate * orderAmount) / 100;
+				if(_rate >= 100)	{
+					_rate = 100;
+				}
+				_value = (_rate * orderAmount) / 100;
 			}
 			_promotion = {
 				amount: _value,
@@ -1771,7 +1777,6 @@ function OrderCreateProduct(props: PropType) {
 				}
 			})
 			discountTitleArr = _.uniq(discountTitleArr);
-			console.log('discountTitleArr', discountTitleArr)
 			if(discountTitleArr && discountTitleArr.length > 0) {
 				let title = "Chương trình chiết khấu: "
 				for (let i = 0; i < discountTitleArr.length; i++) {
@@ -1781,7 +1786,6 @@ function OrderCreateProduct(props: PropType) {
 						title = title + discountTitleArr[i] + "."
 					}
 				}
-				console.log('title', title)
 				form.setFieldsValue({
 					note: title
 				})
@@ -1800,9 +1804,17 @@ function OrderCreateProduct(props: PropType) {
 				let totalOrderAmount = totalAmount(_items);
 				if (discountType === MoneyType.MONEY) {
 					_value = promotion?.value || 0;
+					if(_value >= totalOrderAmount)	{
+						_value = totalOrderAmount;
+					} else if(totalOrderAmount === 0) {
+						_value = 0;
+					}
 					_rate = (_value / totalOrderAmount) * 100;
 				} else if (discountType === MoneyType.PERCENT) {
 					_rate = promotion?.rate || 0;
+					if(_rate >= 100)	{
+						_rate = 100;
+					}
 					_value = (_rate * totalOrderAmount) / 100;
 				}
 				_promotion = {

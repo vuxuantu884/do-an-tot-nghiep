@@ -1071,8 +1071,8 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
     return false;
   }
   let result = false;
-	let abc = getListItemsCanReturn(OrderDetail)
-  if(abc.length===0) {
+	let itemsCanReturn = getListItemsCanReturn(OrderDetail)
+  if(itemsCanReturn.length===0) {
     result = true;
   }
   return result;
@@ -1454,3 +1454,9 @@ export const splitEllipsis=(value:string,length:number,lastLength:number):string
 
   return `${strFirst} [...] ${strLast}`;
 };
+
+
+export const trimText = (text?: string) => {
+  if(!text) return
+  return text.replace(/(\s)+/g, '')
+}

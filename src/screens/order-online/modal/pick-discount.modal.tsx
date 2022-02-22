@@ -3,9 +3,11 @@ import {
   Input,
   InputNumber, Modal, Select
 } from "antd";
-import React, { createRef, useState } from "react";
+import NumberInput from "component/custom/number-input.custom";
+import React, { createRef, useEffect, useState } from "react";
 // import { useDispatch } from 'react-redux';
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { showError } from "utils/ToastUtils";
 
 type PropType = {
   visible: boolean;
@@ -18,13 +20,19 @@ type PropType = {
 };
 
 function PickDiscountModal (props: PropType) {
-  const { visible, onCancelDiscountModal, onOkDiscountModal, type, value, rate} = props;
+  const { visible, onCancelDiscountModal, onOkDiscountModal, type, value, rate, amount} = props;
   const [_type, setType] = useState<string>(type);
   const [_value, setValue] = useState<number>(value);
   const [_rate, setRate] = useState<number>(rate);
-
   const formRef = createRef<FormInstance>();
   const onSubmit = () => {
+    if (_type === "money" && _value > amount) {
+      showError("Chiết khấu không lớn hơn giá trị đơn hàng!");
+      return;
+    } else if(_type === "rate" &&_rate > 100 ) {
+      showError("Chiết khấu không lớn hơn 100%!");
+      return;
+    }
     onOkDiscountModal(_type, _value, _rate, "");
   };
 
@@ -32,10 +40,19 @@ function PickDiscountModal (props: PropType) {
     setType(type);
   };
 
-  const onchangeDiscount = (value: number) => {
+  const onchangeDiscount = (value: number|null) => {
+    if(!value) {
+      return;
+    }
     if (_type === "money") {
+      if(value > amount) {
+        showError("Chiết khấu không lớn hơn giá trị đơn hàng!");
+      }
       setValue(value);
     } else {
+      if(value > 100) {
+        showError("Chiết khấu không lớn hơn 100%!");
+      }
       setRate(value);
     }
   };
@@ -44,6 +61,19 @@ function PickDiscountModal (props: PropType) {
       onSubmit();
     }
   };
+  useEffect(() => {
+    if (_type === "money") {
+      if(_value > amount) {
+        setValue(amount);
+      } else if(_value < 0) {
+        setValue(0)
+      }
+    } else {
+      if(_rate > 100) {
+        setRate(100);
+      }
+    }
+  }, [_rate, _type, _value, amount])
   return (
     <Modal
       title="Chiết khấu đơn hàng"
@@ -74,16 +104,23 @@ function PickDiscountModal (props: PropType) {
                 <Select.Option value="percent">%</Select.Option>
                 <Select.Option value="money">₫</Select.Option>
               </Select>
-              <InputNumber
+              
+              <NumberInput
+                value={_type === "money" ? _value : _rate}
                 style={{ width: "83%" }}
+                format={(a: string) =>
+                  formatCurrency(a)
+                }
+                replace={(a: string) =>
+                  replaceFormatString(a)
+                }
                 className="hide-number-handle"
                 onFocus={(e) => e.target.select()}
-                value={_type === "money" ? _value : _rate}
                 min={0}
                 max={_type === "money" ? props.amount : 100}
-                formatter={(value) => formatCurrency(value ? value : "0")}
                 onChange={onchangeDiscount}
               />
+             
             </Input.Group>
           </Form.Item>
         </div>
