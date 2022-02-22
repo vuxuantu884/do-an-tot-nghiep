@@ -244,7 +244,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     },
     [dispatch, autoCompleteElement, customer]
   );
-  console.log(customer)
+
   useEffect(() => {
     window.addEventListener("keydown", event);
   }, [event]);
