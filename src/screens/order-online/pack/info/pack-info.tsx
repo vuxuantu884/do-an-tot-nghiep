@@ -12,22 +12,23 @@ import {
   FormInstance,
 } from "antd";
 import UrlConfig from "config/url.config";
-import {OrderPackContext} from "contexts/order-pack/order-pack-context";
-import {getFulfillments, getFulfillmentsPack} from "domain/actions/order/order.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreResponse} from "model/core/store.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { getFulfillments, getFulfillmentsPack } from "domain/actions/order/order.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderProductListModel,
 } from "model/response/order/order.response";
-import React, {createRef, useCallback, useContext, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
-import {formatCurrency, haveAccess} from "utils/AppUtils";
-import {showError, showSuccess} from "utils/ToastUtils";
+import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { formatCurrency, haveAccess } from "utils/AppUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
-import {setPackInfo} from "utils/LocalStorageUtils";
+import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
+import { FilterWrapper } from "component/container/filter.container";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
@@ -37,13 +38,12 @@ type PackInfoProps = {
 var barcode = "";
 
 const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
-  const {setFulfillmentsPackedItems, fulfillmentData} = props;
+  const { setFulfillmentsPackedItems, fulfillmentData } = props;
 
   const dispatch = useDispatch();
 
   //form
   const formRef = createRef<FormInstance>();
-  const [form] = Form.useForm();
 
   //useState
 
@@ -71,8 +71,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const shipName =
     listThirdPartyLogistics.length > 0 && orderResponse.length > 0
       ? listThirdPartyLogistics.find(
-          (x) => x.id === orderResponse[0].shipment.delivery_service_provider_id
-        )?.name
+        (x) => x.id === orderResponse[0].shipment.delivery_service_provider_id
+      )?.name
       : "";
 
   const dataCanAccess = useMemo(() => {
@@ -111,7 +111,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               // formRef.current?.validateFields(["order_request"]);
               let order_request = formRef.current?.getFieldValue(["order_request"]);
               if (order_request && orderResponse) {
-                formRef.current?.setFieldsValue({product_request: barcode});
+                formRef.current?.setFieldsValue({ product_request: barcode });
                 ProductRequestElement.select();
                 btnFinishPackElement?.click();
               }
@@ -159,7 +159,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         formRef.current?.validateFields(["store_request"]);
         formRef.current?.validateFields(["order_request"]);
         //formRef.current?.validateFields(["quality_request"]);
-
+        console.log("okok")
         btnFinishPackElement?.click();
         ProductRequestElement?.select();
       }
@@ -187,10 +187,10 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     setOrderResponse([]);
     setOrderList([]);
 
-    formRef.current?.setFieldsValue({product_request: ""});
-    formRef.current?.setFieldsValue({quality_request: ""});
-    formRef.current?.setFieldsValue({order_request: ""});
-    formRef.current?.setFieldsValue({store_request: ""});
+    formRef.current?.setFieldsValue({ product_request: "" });
+    formRef.current?.setFieldsValue({ quality_request: "" });
+    formRef.current?.setFieldsValue({ order_request: "" });
+    formRef.current?.setFieldsValue({ store_request: "" });
   };
   //event
 
@@ -200,7 +200,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       let item: any[] = [];
       orderResponse.forEach(function (value: any) {
         value.items.forEach(function (i: any) {
-          item.push({...i, pick: 0, color: "#E24343"});
+          item.push({ ...i, pick: 0, color: "#E24343" });
         });
       });
       setOrderList(item);
@@ -230,11 +230,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             if (data) {
               btnClearPackElement?.click();
 
-              let datas = {...fulfillmentData};
+              let datas = { ...fulfillmentData };
 
-              datas.metadata.total =
-                Number(datas.metadata.total) + Number(orderList.length);
+              // datas.metadata.total =
+              //   Number(datas.metadata.total) + Number(orderList.length);
               datas.items.push({
+                key: orderResponse[0].order_id,
                 order_id: orderResponse[0].order_id,
                 code: orderResponse[0].order_code,
                 shipment: shipName,
@@ -273,10 +274,11 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   const FinishPack = useCallback(() => {
     //let store_request = formRef.current?.getFieldValue(["store_request"]);
+
     let order_request = formRef.current?.getFieldValue(["order_request"]);
     let quality_request = formRef.current?.getFieldValue(["quality_request"]);
     let product_request = formRef.current?.getFieldValue(["product_request"]);
-
+    console.log("FinishPack", order_request, quality_request, product_request)
     if (order_request && product_request) {
       let indexPack = orderList.findIndex(
         (p) =>
@@ -297,10 +299,10 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
           setOrderList([...orderList]);
           if (Number(orderList[indexPack].quantity) === Number(orderList[indexPack].pick))
-            formRef.current?.setFieldsValue({product_request: ""});
+            formRef.current?.setFieldsValue({ product_request: "" });
         } else showError("Sản phẩm đã nhập đủ số lượng");
 
-        formRef.current?.setFieldsValue({quality_request: ""});
+        formRef.current?.setFieldsValue({ quality_request: "" });
       } else {
         showError("Sản phẩm này không có trong đơn hàng");
       }
@@ -311,7 +313,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const SttColumn = {
     title: () => (
       <div className="text-center">
-        <div style={{textAlign: "left"}}>STT</div>
+        <div style={{ textAlign: "left" }}>STT</div>
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -324,7 +326,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const ProductColumn = {
     title: () => (
       <div className="text-center">
-        <div style={{textAlign: "left"}}>Sản phẩm</div>
+        <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
     width: "30%",
@@ -340,7 +342,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           }}
         >
           <div className="d-flex align-items-center">
-            <div style={{width: "calc(100% - 32px)", float: "left"}}>
+            <div style={{ width: "calc(100% - 32px)", float: "left" }}>
               <div className="yody-pos-sku">
                 <Link
                   target="_blank"
@@ -377,17 +379,17 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const QualtityPickColumn = {
     title: () => (
       <div>
-        <span style={{color: "#222222", textAlign: "right"}}>Số lượng nhặt</span>
+        <span style={{ color: "#222222", textAlign: "right" }}>Số lượng nhặt</span>
       </div>
     ),
-    className: "yody-pos-price text-right",
+    className: "yody-columns-of-picks text-right",
     width: "15%",
     align: "center",
     render: (l: any, item: any, index: number) => {
       return (
         <div
           className="yody-pos-price"
-          style={{background: `${l.color}`, padding: "15px"}}
+          style={{ background: `${l.color}`, padding: "15px" }}
         >
           {formatCurrency(l.pick)}
         </div>
@@ -397,216 +399,190 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   const columns = [SttColumn, ProductColumn, QualtityOrderColumn, QualtityPickColumn];
 
+  console.log("window.screen",window.screen)
   return (
-    <Form layout="vertical" ref={formRef} form={form}>
-      <div style={{padding: "20px 0 0 0"}}>
-        <Row gutter={24} style={{marginLeft: "0px", marginRight: "0px"}}>
-          <Col md={8}>
-            <Form.Item
-              label="Cửa hàng"
-              name="store_request"
-              style={{width: "100%", paddingRight:"30px"}}
-            >
-              <Select
-                className="select-with-search"
-                showSearch
-                allowClear
-                placeholder="Chọn cửa hàng"
-                notFoundContent="Không tìm thấy kết quả"
-                onChange={(value?: number) => {
-                }}
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-                disabled={disableStoreId}
-              >
-                {dataCanAccess.map((item, index) => (
-                  <Select.Option key={index.toString()} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-
-          <Col md={8} >
-            <Form.Item 
-              label={
-                <React.Fragment>
-                  <span>Hãng vận chuyển:</span>
-                  <span>ID đơn hàng/Mã vận đơn:</span>
-                </React.Fragment>
-              }
-       
-              style={{width: "100%"}}
-             >
-              <Input.Group compact>
-                <Form.Item  
-                  name="delivery_provider_id"
-                  style={{width: "40%", margin:0}} 
-                >
-                  <Select 
-                    style={{width: "100%"}}
-                    showSearch
-                    allowClear
-                    placeholder="Chọn hãng vận chuyển"
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    {
-                      listThirdPartyLogistics.map((item,index)=>(
-                        <Select.Option key={index.toString()} value={item.id}>
-                        {item.name}
-                        </Select.Option>
-                      ))
-                    }
-                  </Select>
-                </Form.Item>
-                
-                <Form.Item noStyle 
-                  name="order_request"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="ID đơn hàng/Mã vận đơn"
-                    addonAfter={<img src={barcodeIcon} alt="" />}
-                    onPressEnter={(e: any) => {
-                      onKeyupOrder(e.target.value);
-                    }}
-                    style={{width: "60%"}}
-                    disabled={disableOrder}
-                    id="order_request"
-                  />
-                </Form.Item>
-              </Input.Group>
-            </Form.Item>
-          </Col>
-
-          <Col md={8}>
-            <Form.Item label="Sản phẩm:" style={{width: "100%", paddingLeft:"30px"}}>
-              <Input.Group compact className="select-with-search" style={{width: "100%"}}>
-                <Form.Item
-                  noStyle
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập sản phẩm",
-                    },
-                  ]}
-                  name="product_request"
-                >
-                  <Input
-                    style={{width: "50%"}}
-                    placeholder="Mã sản phẩm"
-                    onPressEnter={(e: any) => {
-                      onKeyupProduct(e.target.value);
-                    }}
-                    disabled={disableProduct}
-                  />
-                </Form.Item>
-                <Form.Item noStyle name="quality_request">
-                  <Input
-                    style={{width: "50%"}}
-                    placeholder="số lượng"
-                    addonAfter={<img src={barcodeIcon} alt="" />}
-                    //addonAfter={<ScanOutlined />}
-                    onPressEnter={(e: any) => {
-                      onKeyupQuality(e.target.value);
-                    }}
-                    disabled={disableQuality}
-                  />
-                </Form.Item>
-              </Input.Group>
-            </Form.Item>
-          </Col>
-        </Row>
-      </div>
-      <div>
-        {orderList && orderList.length > 0 && (
-          <Row
-            align="middle"
-            justify="space-between"
-            style={{
-              height: "40px",
-              borderTop: "1px solid #E5E5E5",
-              marginLeft: "14px",
-              marginRight: "14px",
-            }}
-            className="pack-info-order"
+    <React.Fragment>
+      <Form layout="vertical" ref={formRef}>
+        <div className="yody-row-flex gutter-15" style={{ marginTop: 24 }}>
+          <Form.Item
+            label="Cửa hàng"
+            name="store_request"
+            style={{ width: "100%", paddingRight: "30px" }}
           >
-            <Col md={8}>
-              <Space>
-                <span className="customer-detail-text">
-                  <strong>Đơn hàng:</strong>
-                  <Typography.Text
-                    type="success"
-                    style={{
-                      color: "#FCAF17",
-                      marginLeft: "5px",
-                    }}
-                  >
-                    {orderResponse[0]?.code}
-                  </Typography.Text>
-                </span>
-              </Space>
-            </Col>
+            <Select
+              className="select-with-search"
+              showSearch
+              allowClear
+              placeholder="Chọn cửa hàng"
+              notFoundContent="Không tìm thấy kết quả"
+              onChange={(value?: number) => {
+              }}
+              filterOption={(input, option) => {
+                if (option) {
+                  return (
+                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  );
+                }
+                return false;
+              }}
+              disabled={disableStoreId}
+            >
+              {dataCanAccess.map((item, index) => (
+                <Select.Option key={index.toString()} value={item.id}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <div className="ant-row ant-form-item">
 
-            <Col md={8}>
-              <Space>
-                <span className="customer-detail-text">
-                  <strong>Hãng vận chuyển:</strong>
-                  <Typography.Text
-                    type="success"
-                    style={{
-                      color: "#FCAF17",
-                      marginLeft: "5px",
-                    }}
-                  >
-                    {shipName}
-                  </Typography.Text>
-                </span>
-              </Space>
-            </Col>
+          </div>
 
-            <Col md={8}>
-              <Space>
-                <span className="customer-detail-text">
-                  <strong>Khách hàng: </strong>
-                  <Typography.Text
-                    type="success"
-                    style={{
-                      color: "#FCAF17",
-                      marginLeft: "5px",
-                    }}
-                  >
-                    {orderResponse[0].customer}
-                  </Typography.Text>
-                </span>
-              </Space>
-            </Col>
-          </Row>
-        )}
-      </div>
-      <div>
+          <Form.Item style={{ width: "100%" }}>
+            <Input.Group compact>
+              <Form.Item
+                label="Hãng vận chuyển:"
+                name="delivery_provider_id"
+                
+                style={+window.screen.availWidth>=1920?{ width: "220px", margin: 0 }:{ width: "150px", margin: 0 }}
+              >
+                <Select
+                  style={{ width: "100%" }}
+                  showSearch
+                  allowClear
+                  placeholder="Chọn hãng vận chuyển"
+                  notFoundContent="Không tìm thấy kết quả"
+                >
+                  {
+                    listThirdPartyLogistics.map((item, index) => (
+                      <Select.Option key={index.toString()} value={item.id}>
+                        {item.name}
+                      </Select.Option>
+                    ))
+                  }
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                label="ID đơn hàng/Mã vận đơn:"
+                name="order_request"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
+                  },
+                ]}
+                style={+window.screen.availWidth>=1920?{ width: "calc(100% - 220px)" }:{ width: "calc(100% - 150px)" }}
+              >
+                <Input
+                  placeholder="ID đơn hàng/Mã vận đơn"
+                  addonAfter={<img src={barcodeIcon} alt="" />}
+                  onPressEnter={(e: any) => {
+                    onKeyupOrder(e.target.value);
+                  }}
+
+                  disabled={disableOrder}
+                  id="order_request"
+                />
+              </Form.Item>
+            </Input.Group>
+          </Form.Item>
+
+          <Form.Item label="Sản phẩm:" style={{ width: "100%", paddingLeft: "30px" }}>
+            <Input.Group compact className="select-with-search" style={{ width: "100%" }}>
+              <Form.Item
+                noStyle
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập sản phẩm",
+                  },
+                ]}
+                name="product_request"
+              >
+                <Input
+                  style={{ width: "50%" }}
+                  placeholder="Mã sản phẩm"
+                  onPressEnter={(e: any) => {
+                    onKeyupProduct(e.target.value);
+                  }}
+                  disabled={disableProduct}
+                />
+              </Form.Item>
+              <Form.Item noStyle name="quality_request">
+                <Input
+                  style={{ width: "50%" }}
+                  placeholder="số lượng"
+                  addonAfter={<img src={barcodeIcon} alt="" />}
+                  //addonAfter={<ScanOutlined />}
+                  onPressEnter={(e: any) => {
+                    onKeyupQuality(e.target.value);
+                  }}
+                  disabled={disableQuality}
+                />
+              </Form.Item>
+            </Input.Group>
+          </Form.Item>
+        </div>
+      </Form>
+      {orderList && orderList.length > 0 && (
+        <div className="yody-row-flex gutter-15 yody-margin-bottom-24">
+          <div className="yody-row-item" style={{ paddingRight: "30px" }}>
+            <span className="customer-detail-text">
+              <strong>Đơn hàng:</strong>
+              <Typography.Text
+                type="success"
+                style={{
+                  color: "#FCAF17",
+                  marginLeft: "5px",
+                }}
+              >
+                {orderResponse[0]?.code}
+              </Typography.Text>
+            </span>
+          </div>
+          <div className="yody-row-item">
+            <span className="customer-detail-text">
+              <strong>Hãng vận chuyển:</strong>
+              <Typography.Text
+                type="success"
+                style={{
+                  color: "#FCAF17",
+                  marginLeft: "5px",
+                }}
+              >
+                {shipName}
+              </Typography.Text>
+            </span>
+          </div>
+          <div className="yody-row-item" style={{ paddingLeft: "30px" }}>
+            <span className="customer-detail-text">
+              <strong>Khách hàng: </strong>
+              <Typography.Text
+                type="success"
+                style={{
+                  color: "#FCAF17",
+                  marginLeft: "5px",
+                }}
+              >
+                {orderResponse[0]?.customer}
+              </Typography.Text>
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="yody-margin-bottom-24">
         <Row
           className="sale-product-box"
           justify="space-between"
-          style={{marginLeft: "14px", marginRight: "14px", marginTop: 12}}
+          style={{ marginLeft: "14px", marginRight: "14px", marginTop: 12 }}
         >
           <Table
             locale={{
               emptyText: (
                 <div className="sale_order_empty_product">
-                  <img src={emptyProduct} alt="empty product"/>
+                  <img src={emptyProduct} alt="empty product" />
                   <p>Không có dữ liệu!</p>
                 </div>
               ),
@@ -621,19 +597,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             footer={() =>
               orderList && orderList.length > 0 ? (
                 <div className="row-footer-custom">
-                  <div
-                    className="yody-foot-total-text"
-                    style={{
-                      width: "38%",
-                      float: "left",
-                      fontWeight: 700,
-                    }}
-                  >
+                  <div className="yody-foot-total-text">
                     TỔNG
                   </div>
                   <div
                     style={{
-                      width: "26.66%",
+                      width: "27.66%",
                       float: "left",
                       textAlign: "right",
                       fontWeight: 400,
@@ -648,7 +617,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   </div>
                   <div
                     style={{
-                      width: "24.18%",
+                      width: "23.18%",
                       float: "left",
                       textAlign: "right",
                       fontWeight: 400,
@@ -669,12 +638,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           />
         </Row>
       </div>
-      <div style={{padding: "15px 0 0 0"}}>
+      <div className="yody-row gutter-15 yody-margin-bottom-24">
         {orderList && orderList.length > 0 && (
-          <Row gutter={24} style={{marginLeft: "2.5px", marginRight: "2.5px"}}>
+          <Row gutter={24}>
             <Col md={12}>
               <Button
-                style={{padding: "0px 25px"}}
+                style={{ padding: "0px 25px" }}
                 onClick={onClickClearPack}
                 id="btnClearPack"
               >
@@ -683,7 +652,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             </Col>
             <Col md={12}>
               <Button
-                style={{display: "none"}}
+                style={{ display: "none" }}
                 id="btnFinishPack"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -696,11 +665,10 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Row>
         )}
       </div>
-    </Form>
-  );
+
+    </React.Fragment>
+  )
 };
 
 export default PackInfo;
-// function e(e: any): any {
-//   throw new Error("Function not implemented.");
-// }
+

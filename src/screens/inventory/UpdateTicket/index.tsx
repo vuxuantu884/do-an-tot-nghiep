@@ -77,6 +77,7 @@ import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const { Option } = Select;
 
@@ -229,7 +230,7 @@ const UpdateTicket: FC = () => {
     PageResponse<VariantResponse> | any
   >();
 
-  const onSearch = useCallback((value: string)=>{ 
+  const onSearch = useCallback((value: string)=>{
     setKeySearch(value);
   },[setKeySearch]);
 
@@ -272,8 +273,8 @@ const UpdateTicket: FC = () => {
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
-    if (item) 
-      selectedItem = item; 
+    if (item)
+      selectedItem = item;
 
     const variantPrice =
       selectedItem &&
@@ -294,8 +295,8 @@ const UpdateTicket: FC = () => {
       transfer_quantity: 1,
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
-    }; 
-    
+    };
+
     if (
       !dataTemp.some(
         (variant: VariantResponse) => variant.sku === newResult.sku
@@ -311,6 +312,7 @@ const UpdateTicket: FC = () => {
       setDataTable(dataTemp);
     }
     setKeySearch("");
+    barCode="";
     setResultSearch([]);
   },[resultSearch, dataTable]);
 
@@ -734,7 +736,7 @@ const UpdateTicket: FC = () => {
        if (event.target.id === "product_search_variant") {
          if (event.key !== "Enter" && event.key !== "Shift")
            barCode = barCode + event.key;
-        
+
          handleDelayActionWhenInsertTextInSearchInput(
            productAutoCompleteRef,
            () => handleSearchProduct(event.key, barCode),
@@ -743,7 +745,7 @@ const UpdateTicket: FC = () => {
          return;
        }
      }
-     
+
    },
    // eslint-disable-next-line react-hooks/exhaustive-deps
    [onSelectProduct,form, dispatch, onSearchProduct]
@@ -753,12 +755,12 @@ const UpdateTicket: FC = () => {
    onSelectProduct(o);
  },[onSelectProduct])
 
- useEffect(() => { 
+ useEffect(() => {
      window.addEventListener("keydown", eventKeydown);
      return () => {
        window.removeEventListener("keydown", eventKeydown);
      };
- }, [eventKeydown]);  
+ }, [eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -916,6 +918,13 @@ const UpdateTicket: FC = () => {
                               }
                             });
                           }}
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(strForSearch(input));
+                            }
+
+                            return false;
+                          }}
                         >
                           {fromStores &&
                             fromStores.map((item, index) => (
@@ -983,6 +992,13 @@ const UpdateTicket: FC = () => {
                                 setToStoreData(element);
                               }
                             });
+                          }}
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(strForSearch(input));
+                            }
+
+                            return false;
                           }}
                         >
                           {Array.isArray(stores) &&
@@ -1058,7 +1074,7 @@ const UpdateTicket: FC = () => {
                         prefix={<i className="icon-search icon" />}
                         ref={productSearchRef}
                       />
-                    </AutoComplete>  
+                    </AutoComplete>
                       <Button
                         onClick={() => {
                           if (form.getFieldValue("from_store_id")) {

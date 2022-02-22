@@ -60,15 +60,16 @@ import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { Link } from "react-router-dom";
-import { InventoryResponse } from "model/inventory";  
+import { InventoryResponse } from "model/inventory";
 import { callApiNative } from "utils/ApiUtils";
 import { getAccountDetail } from "service/accounts/account.service";
 import { getStoreApi, inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";import {
   AccountStoreResponse
 } from "model/account/account.model";
-import { RegUtil } from "utils/RegUtils"; 
+import { RegUtil } from "utils/RegUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { RefSelectProps } from "antd/lib/select";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const { Option } = Select;
 
@@ -76,7 +77,7 @@ let barCode = "";
 
 const VARIANTS_FIELD = "line_items";
 
-const CreateTicket: FC = () => { 
+const CreateTicket: FC = () => {
   const [fromStores,setFromStores] = useState<Array<AccountStoreResponse>>();
   const [form] = Form.useForm();
   const [quantityInput, setQuantityInput] = useState<any>({});
@@ -87,7 +88,7 @@ const CreateTicket: FC = () => {
   const productSearchRef = React.useRef<any>(null);
   const history = useHistory();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>); 
+  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
 
@@ -105,9 +106,9 @@ const CreateTicket: FC = () => {
 
     const amountNumber = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
     dataTableClone[index].amount = amountNumber;
-    
+
     setDataTable(dataTableClone);
-    
+
     form.setFieldsValue({ [VARIANTS_FIELD]: dataTableClone });
   }
 
@@ -146,7 +147,7 @@ const CreateTicket: FC = () => {
 
   const getMe = useCallback(async ()=>{
     const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
-    if (res && res.account_stores) { 
+    if (res && res.account_stores) {
       setFromStores(res.account_stores);
     }
   },[dispatch]);
@@ -216,7 +217,7 @@ const CreateTicket: FC = () => {
   },[dispatch, setResultSearch, form]);
 
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
-  
+
   const renderResult = useMemo(() => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
@@ -225,22 +226,22 @@ const CreateTicket: FC = () => {
         value: item.id.toString(),
       });
     });
-    
-    return options;
-  }, [resultSearch]); 
 
-  const onSearch = useCallback((value: string)=>{ 
+    return options;
+  }, [resultSearch]);
+
+  const onSearch = useCallback((value: string)=>{
     setKeySearch(value);
   },[setKeySearch]);
 
   const onSelectProduct = useCallback((value: string, item?: VariantResponse) => {
-    let dataTemp = [...dataTable]; 
+    let dataTemp = [...dataTable];
 
     let selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
-    if (item) 
+    if (item)
       selectedItem = item;
 
     if (
@@ -249,6 +250,7 @@ const CreateTicket: FC = () => {
       )
     ) {
       setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
+      dataTemp = dataTemp.concat([{...selectedItem, transfer_quantity: 1}]);
     }else{
       dataTemp?.forEach((e: VariantResponse) => {
         if (e.sku === selectedItem.sku) {
@@ -258,6 +260,7 @@ const CreateTicket: FC = () => {
       setDataTable(dataTemp);
     }
     setKeySearch("");
+    barCode="";
     setResultSearch([]);
     
     form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
@@ -358,24 +361,24 @@ const CreateTicket: FC = () => {
     [history]
   );
 
-  const onResultGetDetailVariantIds = useCallback( result => {    
+  const onResultGetDetailVariantIds = useCallback( result => {
     if (result) {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable, newOnHand; 
+        let newAvailable, newOnHand;
         result?.forEach((itemNew: InventoryResponse) => {
           if (itemNew.variant_id === itemOld.id) {
             newAvailable = itemNew.available;
             newOnHand = itemNew.on_hand;
           }
         });
-        return {  
+        return {
           ...itemOld,
           available: newAvailable,
           on_hand: newOnHand,
         };
       });
-      
+
       setDataTable(newDataTable);
     } else {
       setIsLoadingTable(false);
@@ -385,11 +388,11 @@ const CreateTicket: FC = () => {
     }
   }, [dataTable, form])
 
-  const onChangeFromStore = (storeId: number) => { 
+  const onChangeFromStore = (storeId: number) => {
     const variants_id = dataTable?.map((item: VariantResponse) => item.id);
 
     if (variants_id?.length > 0) {
-      setIsLoadingTable(true);     
+      setIsLoadingTable(true);
       dispatch(
         inventoryGetDetailVariantIdsAction(variants_id, storeId, onResultGetDetailVariantIds)
       );
@@ -419,12 +422,12 @@ const CreateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "unset";
       }
     });
-    
+
 
     if (countError > 0) {
       showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
       return;
-    } 
+    }
 
     stores.forEach((store) => {
       if (store?.id === Number(data?.from_store_id)) {
@@ -477,7 +480,7 @@ const CreateTicket: FC = () => {
 
     delete data.from_store_id;
     delete data.to_store_id;
-    
+
     setIsLoading(true);
     dispatch(creatInventoryTransferAction(data, createCallback));
   };
@@ -498,7 +501,7 @@ const CreateTicket: FC = () => {
     } else {
       if (thisInput) thisInput.style.borderColor = "unset";
     }
-    
+
     dataLineItems?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
       if (!element.transfer_quantity) {
@@ -515,7 +518,7 @@ const CreateTicket: FC = () => {
     });
   };
 
-  const isError = useMemo(()=>{ 
+  const isError = useMemo(()=>{
     if (!fromStoreData || !toStoreData || (fromStoreData.id === toStoreData.id))  return true
     let error = false;
 
@@ -526,9 +529,9 @@ const CreateTicket: FC = () => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
       if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
         error= true
-      } 
+      }
     });
-    
+
     return error;
   },[toStoreData, fromStoreData, dataTable])
 
@@ -588,7 +591,7 @@ const CreateTicket: FC = () => {
         if (event.target.id === "product_search_variant") {
           if (event.key !== "Enter" && event.key !== "Shift")
             barCode = barCode + event.key;
-         
+
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
             () => handleSearchProduct(event.key, barCode),
@@ -597,7 +600,7 @@ const CreateTicket: FC = () => {
           return;
         }
       }
-      
+
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [handleSearchProduct]
@@ -607,13 +610,13 @@ const CreateTicket: FC = () => {
     onSelectProduct(o);
   },[onSelectProduct])
 
-  useEffect(() => { 
+  useEffect(() => {
       window.addEventListener("keydown", eventKeydown);
       return () => {
         window.removeEventListener("keydown", eventKeydown);
       };
-  }, [eventKeydown]);  
-  
+  }, [eventKeydown]);
+
   const columns: ColumnsType<any> = [
     {
       title: "STT",
@@ -717,7 +720,7 @@ const CreateTicket: FC = () => {
         />
       ),
     },
-  ]; 
+  ];
 
   return (
       <ContentContainer
@@ -780,6 +783,13 @@ const CreateTicket: FC = () => {
                             }
                           });
                         }}
+                        filterOption={(input: String, option: any) => {
+                          if (option.props.value) {
+                            return strForSearch(option.props.children).includes(strForSearch(input));
+                          }
+
+                          return false;
+                        }}
                       >
                         {fromStores &&
                           fromStores.map((item, index) => (
@@ -830,6 +840,13 @@ const CreateTicket: FC = () => {
                               setToStoreData(element);
                             }
                           });
+                        }}
+                        filterOption={(input: String, option: any) => {
+                          if (option.props.value) {
+                            return strForSearch(option.props.children).includes(strForSearch(input));
+                          }
+
+                          return false;
                         }}
                       >
                         {Array.isArray(stores) &&
@@ -891,7 +908,7 @@ const CreateTicket: FC = () => {
                       prefix={<i className="icon-search icon" />}
                       ref={productSearchRef}
                     />
-                  </AutoComplete> 
+                  </AutoComplete>
                     <Button
                       onClick={() => {
                         if (form.getFieldValue("from_store_id")) {
@@ -990,7 +1007,7 @@ const CreateTicket: FC = () => {
             />
           )}
           {
-            isVisibleModalWarning && 
+            isVisibleModalWarning &&
             <ModalConfirm
               onCancel={() => {
                 setIsVisibleModalWarning(false);
@@ -1006,6 +1023,6 @@ const CreateTicket: FC = () => {
         </Form>
       </ContentContainer>
   );
-}; 
+};
 
 export default CreateTicket;

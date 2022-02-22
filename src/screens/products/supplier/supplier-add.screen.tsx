@@ -234,6 +234,7 @@ const CreateSupplierScreen: React.FC = () => {
       setListSupplier([]);
     }
     }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [dispatch, onGetSuccess, params]);
 
   useEffect(() => {

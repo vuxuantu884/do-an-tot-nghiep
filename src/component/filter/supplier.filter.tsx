@@ -11,6 +11,7 @@ import { SupplierQuery } from "model/core/supplier.model";
 import { useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import CustomSelectOne from "./component/select-one.custom";
+import {trimText} from "../../utils/AppUtils";
 
 type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -45,7 +46,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
 
   const onFinish = useCallback(
     (values: SupplierQuery) => {
-      onFilter && onFilter(values);
+      onFilter && onFilter({...values, condition: trimText(values.condition)});
     },
     [onFilter]
   );
@@ -99,13 +100,13 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
               placeholder="Tìm kiếm theo tên, mã, số điện thoại nhà cung cấp"
             />
           </Form.Item>
-         
+
           <Form.Item name="pics" style={{
                 width: 200,
               }}>
           <AccountSearchPaging placeholder="Chọn Merchandiser" mode="multiple" fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT]}}/>
           </Form.Item>
-          
+
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Lọc
@@ -133,10 +134,10 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           <Item name="status" label="Trạng thái">
               <CustomSelectOne span={12} data={getStatusObjFromEnum()} />
           </Item>
-        
+
           <Form.Item label="Thông tin liên hệ" name="contact">
             <Input placeholder="Tên/SDT người liên hệ" />
-          </Form.Item>       
+          </Form.Item>
 
           <Item label="Khu vực" name="district_id">
             <Select allowClear showSearch placeholder="Chọn khu vực" optionFilterProp="children">
@@ -157,7 +158,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
               ))}
             </Select>
           </Item>
-          
+
            <Form.Item name="type" label="Loại">
             <Select
               allowClear

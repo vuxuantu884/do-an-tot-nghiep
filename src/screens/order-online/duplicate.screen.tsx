@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import exportIcon from "assets/icon/export.svg";
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MenuAction } from "component/table/ActionButton";
 import OrderDuplicateFilter from "component/filter/order-duplicate.filter";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -40,7 +40,7 @@ const initQuery: DuplicateOrderSearchQuery = {
   issued_on_min: "",
   issued_on_max: "",
   search_term: "",
-  store_id: null
+  store_id: undefined
 }
 
 const CustomerDuplicate: React.FC = () => {
@@ -287,6 +287,9 @@ const CustomerDuplicate: React.FC = () => {
       setData(result);
     }))
   }, [dispatch, params]);
+
+  console.log("params",params);
+  
 
   return (
     <ContentContainer
