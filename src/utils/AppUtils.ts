@@ -1055,8 +1055,8 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
     return false;
   }
   let result = false;
-	let abc = getListItemsCanReturn(OrderDetail)
-  if(abc.length===0) {
+	let itemsCanReturn = getListItemsCanReturn(OrderDetail)
+  if(itemsCanReturn.length===0) {
     result = true;
   }
   return result;
