@@ -13,17 +13,22 @@ import {
   Input,
   Menu,
   Modal,
+  Radio,
+  Space,
   Select,
   Tooltip,
+  Progress,
 } from "antd";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import disconnectIcon from "assets/icon/disconnect.svg";
 import filterIcon from "assets/icon/filter.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
+import BaseResponse from "base/base.response";
 import BaseFilter from "component/filter/base.filter";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
+import { HttpStatus } from "config/http-status.config";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
 import {
@@ -37,6 +42,7 @@ import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   ProductEcommerceQuery,
+  RequestExportExcelQuery,
   RequestSyncStockQuery,
 } from "model/query/ecommerce.query";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -56,9 +62,10 @@ import {
 import ConnectedItemActionColumn from "screens/ecommerce/products/tab/connected-items/ConnectedItemActionColumn";
 import { StyledComponent } from "screens/ecommerce/products/tab/connected-items/styles";
 import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
+import { exportFileProduct, getFileProduct } from "service/other/export.service";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import SyncProductModal from "./SyncProductModal";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
@@ -105,6 +112,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
+
+  //export file excel
+  const [isShowExportExcelModal, setIsShowExportExcelModal] = useState(false);
+  const [isShowBtnExportProduct, setShowBtnExportProduct] = useState(true)
+  const [isTypeExportProduct, setTypeExportProduct] = useState(false)
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
+  const [exportProcessId, setExportProcessId] = useState<any>(null);
+
+  
 
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
@@ -320,6 +337,102 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       );
     }
   };
+
+  //handle export file
+  const handleExportExcelProduct = () => {
+    const itemSelected: any[] = [];
+    if (selectedRow && selectedRow.length > 0) {
+      selectedRow.forEach((item) => {
+        itemSelected.push(item.id);
+      });
+    }
+
+    setIdsItemSelected(itemSelected);
+    setIsShowExportExcelModal(true)
+  }
+
+  const cancelExportExcelProductModal = () => {
+    setIsShowExportExcelModal(false)
+  }
+
+  const onCancelProgressModal = () => {
+    setIsVisibleProgressModal(false);
+  }
+
+  const okExportExcelProduct = () => {
+    const RequestExportExcel: RequestExportExcelQuery = {
+      ...query,
+      category_id: null,
+      core_variant_id: null,
+      variant_ids: isTypeExportProduct ? idsItemSelected : [],
+    }
+
+    exportFileProduct(RequestExportExcel)
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setExportProcessId(response.data.process_id)
+          setIsVisibleProgressModal(true);
+          setIsShowExportExcelModal(false)
+        }
+      })
+      .catch((error) => {
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+
+      setExportProgress(0)
+  }
+
+  const checkExportFile = useCallback(() => {
+    let getProgressPromises: Promise<BaseResponse<any>> = getFileProduct(exportProcessId);
+
+    Promise.all([getProgressPromises]).then((responses) => {
+      responses.forEach((response) => {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          response.data.total !== null
+        ) {
+          if (!!response.data.url) {
+            setExportProgress(100);
+            setIsVisibleProgressModal(false);
+            showSuccess("Xuất file dữ liệu khách hàng thành công!");
+            window.open(response.data.url);
+            setExportProcessId(null)
+          } else {
+            if (response.data.total_success >= response.data.total) {
+              setExportProgress(99);
+            } else {
+              const percent = Math.floor(
+                (response.data.total_success / response.data.total) * 100
+              );
+              setExportProgress(percent);
+            }
+          }
+        }
+      });
+    });
+  }, [exportProcessId]);
+
+  useEffect(() => {
+    if (exportProgress === 100 || exportProcessId === null) return;
+
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [checkExportFile, exportProcessId, exportProgress]);
+
+  const handleCheckedExportProductSelected = () => {
+    setShowBtnExportProduct(false)
+    setTypeExportProduct(true)
+  }
+
+  const handleCheckedExportAllProductFilter = () => {
+    setShowBtnExportProduct(false)
+    setTypeExportProduct(false)
+  }
+
+  //end handle export file
 
   const convertDateTimeFormat = (dateTimeData: any) => {
     const formatDateTime = "DD/MM/YYYY HH:mm:ss";
@@ -617,6 +730,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <span onClick={handleDisconnectItemsSelected}>Hủy liên kết</span>
         </Menu.Item>
       )}
+
+      <Menu.Item key="1">
+        <span onClick={handleExportExcelProduct}>
+          Xuất excel
+        </span>
+      </Menu.Item>
     </Menu>
   );
 
@@ -1092,6 +1211,64 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         onCancel={() => cancelSyncStockModal()}
         onOk={(item, shop_ids) => okSyncStockModal(item, shop_ids)}
       />
+
+      <Modal
+          width="600px"
+          visible={isShowExportExcelModal}
+          title="Xuất excel sản phẩm"
+          okText="Tải về"
+          cancelText="Hủy"
+          onCancel={cancelExportExcelProductModal}
+          onOk={okExportExcelProduct}
+          okButtonProps={{
+            disabled: isShowBtnExportProduct
+          }}>
+          <Radio.Group>
+            <Space direction="vertical">
+            <Radio
+                value="1"
+                disabled={selectedRow.length <= 0}
+                onClick={handleCheckedExportProductSelected}
+              >
+                Tải sản phẩm đã chọn
+              </Radio>
+              <Radio
+                value="2"
+                onClick={handleCheckedExportAllProductFilter}
+              >
+                Tải toàn bộ sản phẩm(toàn bộ sản phẩm trong các trang được lọc)
+              </Radio>
+
+            </Space>
+          </Radio.Group>
+        </Modal>
+
+        {/* Progress export customer data */}
+        <Modal
+          onCancel={onCancelProgressModal}
+          visible={isVisibleProgressModal}
+          title="Xuất file"
+          centered
+          width={600}
+          footer={[
+            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
+              Thoát
+            </Button>,
+          ]}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ marginBottom: 15 }}>
+              Đang tạo file, vui lòng đợi trong giây lát
+            </div>
+            <Progress
+              type="circle"
+              strokeColor={{
+                "0%": "#108ee9",
+                "100%": "#87d068",
+              }}
+              percent={exportProgress}
+            />
+          </div>
+        </Modal>
     </StyledComponent>
   );
 };
