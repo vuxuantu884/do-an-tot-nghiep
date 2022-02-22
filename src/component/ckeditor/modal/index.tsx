@@ -178,9 +178,9 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
 
   useEffect(() => {
     if (isModalVisible && searchInputRef.current) {
-      let abc = searchInputRef.current;
-      if (abc) {
-        abc.focus();
+      let inputElement = searchInputRef.current;
+      if (inputElement) {
+        inputElement.focus();
       }
     }
   }, [isModalVisible, listKeywords]);
