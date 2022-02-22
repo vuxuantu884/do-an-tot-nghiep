@@ -7,6 +7,9 @@ import {
 } from "config/permissions/account.permisssion";
 import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
 import AccountMeScreen from "screens/settings/account/account.me.screen";
+import BankAccountScreen from "screens/settings/bank/bank-account.screen";
+import BankAccountCreateScreen from "screens/settings/bank/create/bank-account.create.screen";
+import BackAccountUpdateScreen from "screens/settings/bank/update/bank-account.update.screen";
 
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
@@ -435,6 +438,41 @@ const setting: Array<RouteMenu> = [
       },
     ],
   },
+  {
+    path: UrlConfig.BANK_ACCOUNT,
+    exact: true,
+    title: "Tài khoản ngân hàng",
+    subTitle: "",
+    icon: "icon-dot",
+    component: BankAccountScreen,
+    key: UrlConfig.BANK_ACCOUNT,
+    isShow: true,
+    header: null,
+    subMenu:[
+      {
+        path: `${UrlConfig.BANK_ACCOUNT}/create`,
+        exact: true,
+        title: "Thêm tài khoản ngân hàng",
+        icon: "icon-dot",
+        component: BankAccountCreateScreen,
+        key: "create-bank-account-setting",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.BANK_ACCOUNT}/update/:id`,
+        exact: true,
+        title: "Sửa tài khoản ngân hàng",
+        icon: "icon-dot",
+        component: BackAccountUpdateScreen,
+        key: "update-bank-account-setting",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ]
+  }
 ];
 
 export default setting;

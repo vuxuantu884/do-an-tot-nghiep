@@ -36,7 +36,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
   //useState
 
   const initialValuesCopy=useMemo(() => {
-    return {...initialValues, store_id:(Number)(initialValues?.store_id)}
+    return {...initialValues, store_id:(initialValues?.store_id)?(Number)(initialValues?.store_id):undefined}
   },[initialValues])
 
   const onChangeDate = useCallback(
@@ -98,6 +98,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
             <Select
               showSearch
               showArrow
+              allowClear
               optionFilterProp="children"
               placeholder="Chọn kho"
               style={{ width: "280px"}} 

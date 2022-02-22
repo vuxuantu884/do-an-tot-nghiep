@@ -236,7 +236,7 @@ export interface DuplicateOrderSearchQuery {
   issued_on_min:string|null;
   issued_on_max:string|null;
   search_term:string|null;
-  store_id:number|null
+  store_id?:number|null
 }
 
 export interface DuplicateOrderDetailQuery extends OrderSearchQuery{

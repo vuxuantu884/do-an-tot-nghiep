@@ -40,7 +40,7 @@ const initQuery: DuplicateOrderSearchQuery = {
   issued_on_min: "",
   issued_on_max: "",
   search_term: "",
-  store_id: null
+  store_id: undefined
 }
 
 const CustomerDuplicate: React.FC = () => {
@@ -287,6 +287,9 @@ const CustomerDuplicate: React.FC = () => {
       setData(result);
     }))
   }, [dispatch, params]);
+
+  console.log("params",params);
+  
 
   return (
     <ContentContainer
