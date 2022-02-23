@@ -1,14 +1,19 @@
-import {InfoCircleOutlined, SearchOutlined} from "@ant-design/icons";
-import {Card, Form, Input, Select} from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import {Card, Col, Form, FormInstance, Input, Row} from "antd";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import UrlConfig from "config/url.config";
 import {AccountResponse} from "model/account/account.model";
 import {OrderResponse} from "model/response/order/order.response";
-import React from "react";
+import React, {useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {Link} from "react-router-dom";
-import CustomInputTags from "component/custom/custom-input-tags";
+import { searchAccountPublicApi } from "service/accounts/account.service";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import {StyledComponent} from "./styles";
 
 type PropType = {
+  form: FormInstance<any>;
+  storeId?: number | null;
   accounts: AccountResponse[];
   tags: string;
   levelOrder?: number;
@@ -34,8 +39,106 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {accounts, onChangeTag, tags, orderDetail} = props;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {accounts, onChangeTag, tags, orderDetail, form, storeId} = props;
 
+  const dispatch = useDispatch();
+
+  const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
+  const [initValueMarketerCode, setInitValueMarketerCode] = useState("");
+
+  const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
+
+  const [assigneeAccountData, setAssigneeAccountData] = useState<Array<AccountResponse>>(
+    []
+  );
+  const [marketingAccountData, setMarketingAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+
+  const [initAssigneeAccountData, setInitAssigneeAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+  const [initMarketingAccountData, setInitMarketingAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+
+  useEffect(() => {
+    const pushCurrentValueToDataAccount = (fieldName: string) => {
+			let fieldNameValue = form.getFieldValue(fieldName);
+      if (fieldNameValue) {
+        switch (fieldName) {
+          case "assignee_code":
+            setInitValueAssigneeCode(fieldNameValue);
+            break;
+          case "marketer_code":
+            setInitValueMarketerCode(fieldNameValue);
+            break;
+          default:
+            break;
+        }
+        if (storeAccountData.some((single) => single.code === fieldNameValue)) {
+					setAssigneeAccountData(storeAccountData);
+					setMarketingAccountData(storeAccountData);
+        } else {
+					searchAccountPublicApi({
+						condition: fieldNameValue,
+					})
+						.then((response) => {
+							if (isFetchApiSuccessful(response)) {
+								if(response.data.items.length === 0) {
+									return;
+								}
+								let result = [...storeAccountData];
+								result.push(response.data.items[0]);
+								switch (fieldName) {
+									case "assignee_code":
+										setInitAssigneeAccountData(result);
+										setAssigneeAccountData(result);
+										break;
+									case "marketer_code":
+										setInitMarketingAccountData(result);
+										setMarketingAccountData(result);
+										break;
+									default:
+										break;
+								}
+							} else {
+								handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+							}
+						})
+						.catch((error) => {
+							console.log("error", error);
+						});
+
+				}
+      }
+    };
+    pushCurrentValueToDataAccount("assignee_code");
+    pushCurrentValueToDataAccount("marketer_code");
+  }, [dispatch, form, storeAccountData]);
+
+	useEffect(() => {
+		if(!storeId) {
+			return;
+		}
+		searchAccountPublicApi({
+			store_ids: [storeId],
+		})
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          setStoreAccountData(response.data.items);
+          setInitAssigneeAccountData(response.data.items);
+          setInitMarketingAccountData(response.data.items);
+        } else {
+          handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+        }
+      })
+			.catch((error) => {
+				console.log("error", error);
+			})
+	}, [dispatch, storeId])
+ 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
     if (!orderDetail?.linked_order_code) {
@@ -75,17 +178,96 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      <Card style={{padding: 12}}>
-        <Form.Item
-          label="NV Bán hàng"
-          name="assignee_code"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng chọn nhân viên bán hàng",
-            },
-          ]}
+      <Card className="padding-12 order-create-shipment" title="THÔNG TIN ĐƠN HÀNG">
+        <Row gutter={20}>
+          <Col span={12}
+           style={{padding: "0 5px 0 10px"}}
+          >
+            <Form.Item
+              name="assignee_code"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn nhân viên bán hàng",
+                },
+              ]}
+              className={"staff-form-input"}
+              >
+                <AccountCustomSearchSelect
+                  placeholder="Nhân viên bán hàng"
+                  initValue={initValueAssigneeCode}
+                  dataToSelect={assigneeAccountData}
+                  setDataToSelect={setAssigneeAccountData}
+                  initDataToSelect={initAssigneeAccountData}
+                />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}
+           style={{padding: "0 10px 0 5px"}}
+          >
+            <Form.Item
+            name="marketer_code"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng chọn nhân viên marketing",
+              },
+            ]}
+            className={"staff-form-input"}
+          >
+           <AccountCustomSearchSelect
+            placeholder="Nhân viên MKT"
+            initValue={initValueMarketerCode}
+            dataToSelect={marketingAccountData}
+            setDataToSelect={setMarketingAccountData}
+            initDataToSelect={initMarketingAccountData}
+          />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={20} style={{marginTop: 8}}>
+          <Col span={12}
+           style={{padding: "0 5px 0 10px"}}
+          >
+          <Form.Item
+          name="note"
+          tooltip={{
+            title: "Thêm thông tin ghi chú chăm sóc khách hàng",
+            icon: <InfoCircleOutlined />,
+          }}
+          className={"staff-form-input"}
         >
+          <Input.TextArea
+            className="note-form-input"
+            placeholder="Ghi chú nội bộ"
+            maxLength={500}
+            style={{minHeight: "60px"}}
+          />
+        </Form.Item>
+          </Col>
+
+          <Col span={12}
+           style={{padding: "0 10px 0 5px"}}
+          >
+          <Form.Item 
+           name="customer_note"
+           className={"staff-form-input"}
+          >
+          <Input.TextArea
+            className="note-form-input"
+            placeholder="Ghi chú của KH"
+            maxLength={500}
+            style={{minHeight: "60px"}}
+          />
+        </Form.Item>
+          </Col>
+        </Row>
+        {renderSplitOrder()}
+      </Card>
+        
+        {/* <Form.Item label="NV điều phối" name="coordinator_code">
           <Select
             className="select-with-search"
             notFoundContent="Không tìm thấy kết quả"
