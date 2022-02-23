@@ -221,7 +221,7 @@ ShippingServiceConfigDetailResponseModel[]
 			return FulFillmentStatus.SHIPPED;
 		}
 		if (OrderDetail?.status === OrderStatus.FINALIZED) {
-			if (OrderDetail.fulfillments === undefined || OrderDetail.fulfillments === null) {
+			if (!OrderDetail?.fulfillments || OrderDetail.fulfillments?.length === 0) {
 				return OrderStatus.FINALIZED;
 			} else {
 				if (

@@ -6,7 +6,7 @@ const searchDepartmentAction = (onResult: (result: Array<DepartmentResponse>|fal
   return BaseAction(DepartmentType.SEARCH_DEPARTMENT, {onResult})
 }
 
-const departmentDetailAction = (id: number | null, onResult: (result: DepartmentResponse|false) => void) => {
+const departmentDetailAction = (id: number | null | string, onResult: (result: DepartmentResponse | false) => void) => {
   return BaseAction(DepartmentType.DETAIL_DEPARTMENT, {id, onResult})
 }
 

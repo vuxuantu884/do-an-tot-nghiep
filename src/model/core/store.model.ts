@@ -32,7 +32,9 @@ export interface StoreResponse extends BaseObject {
   is_stocktaking: boolean,
   type: string,
   type_name: string,
-  reference_id?: number, 
+  reference_id?: number,
+  department_h3_id?: number,
+  department_h3?: string,
 }
 
 export interface StoreQuery extends BaseQuery {
@@ -57,6 +59,7 @@ export interface StoreQuery extends BaseQuery {
     to_square?: number|'',
     type: string|'',
     ids?: Array<number>| Array<string>,
+    department_id: string | null
   }
 
   export interface BaseStoreRequest {
@@ -82,10 +85,10 @@ export interface StoreQuery extends BaseQuery {
     vm_code: string|null,
     department_id: number|null
   }
-  
+
   export interface StoreCreateRequest extends BaseStoreRequest {
   }
-  
+
   export interface StoreUpdateRequest extends BaseStoreRequest {
     version: number,
   }

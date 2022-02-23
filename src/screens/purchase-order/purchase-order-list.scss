@@ -9,18 +9,18 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      border-color: $green;
+      border-color: $primary-color;
       border-width: 1px;
       border-style: solid;
     }
 
     &-full {
       @include round;
-      background-color: $green;
+      background-color: $primary-color;
     }
     &-partial {
       @include round;
-      background-image: linear-gradient(to right, $green 50%, $white 50%);
+      background-image: linear-gradient(to right, $primary-color 50%, $white 50%);
     }
     &-blank {
       @include round;
@@ -63,7 +63,7 @@
         &-item:last-child{
           margin-right: 0 !important;
         }
-        
+
       }
     }
     .search {

@@ -29,6 +29,8 @@ import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/ListTicket/co
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { FormatTextMonney } from "utils/FormatMonney";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -66,7 +68,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       status: Array.isArray(params.status) ? params.status : [params.status],
       created_by: Array.isArray(params.created_by) ? params.created_by : [params.created_by],
   }}, [params])
-  
+
   const [visible, setVisible] = useState(false);
   const [isFromCreatedDate, setIsFromCreatedDate] = useState(initialValues.from_created_date? moment(initialValues.from_created_date, "DD-MM-YYYY") : null);
   const [isToCreatedDate, setIsToCreatedDate] = useState(initialValues.to_created_date? moment(initialValues.to_created_date, "DD-MM-YYYY") : null);
@@ -74,7 +76,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   const [isToTransferDate, setIsToTransferDate] = useState(initialValues.to_transfer_date? moment(initialValues.to_transfer_date, "DD-MM-YYYY") : null);
   const [isFromReceiveDate, setIsFromReceiveDate] = useState(initialValues.from_receive_date? moment(initialValues.from_receive_date, "DD-MM-YYYY") : null);
   const [isToReceiveDate, setIsToReceiveDate] = useState(initialValues.to_receive_date? moment(initialValues.to_receive_date, "DD-MM-YYYY") : null);
-  
+
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false
   }, [isLoading])
@@ -162,7 +164,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     (type, value) => {
     let minValue = null;
     let maxValue = null;
-    
+
     switch(value) {
       case 'today':
         minValue = moment().startOf('day')
@@ -187,11 +189,11 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       case 'lastmonth':
         minValue = moment().startOf('month').subtract(1, 'months')
         maxValue = moment().endOf('month').subtract(1, 'months')
-        break  
+        break
       default:
         break
     }
-  
+
     switch(type) {
       case 'create_date':
         if (createDateClick === value ) {
@@ -299,13 +301,14 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       }
       const valuesForm = {
         ...values,
+        condition: values.condition ? values.condition.trim() : null,
         from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
         to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
         from_transfer_date: isFromTransferDate ? moment(isFromTransferDate) : null,
         to_transfer_date: isToTransferDate ? moment(isToTransferDate) : null,
         from_receive_date: isFromReceiveDate ? moment(isFromReceiveDate) : null,
         to_receive_date: isToReceiveDate ? moment(isToReceiveDate) : null,
-        
+
       }
       onFilter && onFilter(valuesForm);
     },
@@ -322,7 +325,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
             textStatus = status ? textStatus + status.name + "; " : textStatus
         })
       } else if (initialValues.status.length === 1) {
-      
+
         initialValues.status.forEach((statusValue) => {
           const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(status => status.value === statusValue)
             textStatus = status ? textStatus + status.name : textStatus
@@ -368,7 +371,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
             textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
         })
       } else if (initialValues.created_by.length === 1) {
-      
+
         initialValues.created_by.forEach((i) => {
           const findAccount = accounts?.find(item => item.code === i)
           textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
@@ -410,9 +413,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     return list
   }, [initialValues, accounts]);
 
-  return ( 
+  return (
     <InventoryFiltersWrapper>
-      <div className="custom-filter"> 
+      <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
               <Item
@@ -427,6 +430,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   showSearch
                   allowClear
                   onClear={() => formSearchRef?.current?.submit()}
+                  filterOption={(input: String, option: any) => {
+                    if (option.props.value) {
+                      return strForSearch(option.props.children).includes(strForSearch(input));
+                    }
+
+                    return false;
+                  }}
                 >
                   {Array.isArray(stores) &&
                     stores.length > 0 &&
@@ -452,6 +462,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   optionFilterProp="children"
                   allowClear
                   onClear={() => formSearchRef?.current?.submit()}
+                filterOption={(input: String, option: any) => {
+                  if (option.props.value) {
+                    return strForSearch(option.props.children).includes(strForSearch(input));
+                  }
+
+                  return false;
+                }}
                 >
                   {Array.isArray(stores) &&
                     stores.length > 0 &&
@@ -510,7 +527,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   <Panel header="Trạng thái" key="1" className="header-filter">
                     <Item name="status" style={{ margin: "10px 0px" }}>
                       <CustomSelect
-                        maxTagCount="responsive" 
+                        maxTagCount="responsive"
                         mode="multiple"
                         style={{ width: '100%'}}
                         showArrow
@@ -531,7 +548,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                       </CustomSelect>
                     </Item>
                   </Panel>
-                  
+
                 </Collapse>
               </Col>
             </Row>
@@ -629,23 +646,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.created_by.length ? ["1"]: []}>
                   <Panel header="Người tạo" key="1" className="header-filter">
                     <Item name="created_by">
-                      <Select
-                        maxTagCount="responsive"
-                        mode="multiple" showSearch placeholder="Chọn người tạo"
-                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {accounts.map((item, index) => (
-                          <Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.code.toString()}
-                          >
-                            {`${item.full_name} - ${item.code}`}
-                          </Option>
-                        ))}
-                      </Select>
+                      <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
                     </Item>
                   </Panel>
                 </Collapse>

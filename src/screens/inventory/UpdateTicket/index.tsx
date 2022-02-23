@@ -72,11 +72,12 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { AccountStoreResponse } from "model/account/account.model";
 import { callApiNative } from "utils/ApiUtils";
-import { getStoreApi } from "service/inventory/transfer/index.service";
+import { getStoreApi, inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const { Option } = Select;
 
@@ -229,7 +230,7 @@ const UpdateTicket: FC = () => {
     PageResponse<VariantResponse> | any
   >();
 
-  const onSearch = useCallback((value: string)=>{ 
+  const onSearch = useCallback((value: string)=>{
     setKeySearch(value);
   },[setKeySearch]);
 
@@ -272,8 +273,8 @@ const UpdateTicket: FC = () => {
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
-    if (item) 
-      selectedItem = item; 
+    if (item)
+      selectedItem = item;
 
     const variantPrice =
       selectedItem &&
@@ -294,15 +295,14 @@ const UpdateTicket: FC = () => {
       transfer_quantity: 1,
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
-    }; 
-    
+    };
+
     if (
       !dataTemp.some(
         (variant: VariantResponse) => variant.sku === newResult.sku
       )
     )  {
-      debugger
-      setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
+      setDataTable((prev: any) => prev.concat([{...newResult, transfer_quantity: 1}]));
     }else{
       dataTemp?.forEach((e: VariantResponse) => {
         if (e.sku === selectedItem.sku) {
@@ -311,6 +311,9 @@ const UpdateTicket: FC = () => {
       })
       setDataTable(dataTemp);
     }
+    setKeySearch("");
+    barCode="";
+    setResultSearch([]);
   },[resultSearch, dataTable]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
@@ -693,44 +696,47 @@ const UpdateTicket: FC = () => {
 
   }, [dataTable]);
 
-  const eventKeydown = useCallback(
-    (event: KeyboardEvent) => {
-     const handleSearchProduct = async (keyCode: string, code: string) => { 
-       if (keyCode === "Enter" && code){ 
-         setKeySearch("");  
-         barCode ="";  
-         
-         if (RegUtil.BARCODE_NUMBER.test(code) && event) {
-           const storeId = form.getFieldValue("from_store_id");
-           if (!storeId) {
-             showError("Vui lòng chọn kho gửi");
-             return;
-           }
-           const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-           if (item && item.id) { 
-             // if (!item.available || item.available === 0) {
-             //   showError("Không đủ tồn kho gửi");
-             //   return;
-             // }  
-             onSelectProduct(item.id.toString(),item); 
-           }else{ 
-             showError("Không tìm thấy sản phẩm");
-           }
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => { 
+    if (keyCode === "Enter" && code){ 
+      barCode ="";  
+      setKeySearch("");  
+      
+      if (RegUtil.BARCODE_NUMBER.test(code)) {
+        const storeId = form.getFieldValue("from_store_id");
+        if (!storeId) {
+          showError("Vui lòng chọn kho gửi");
+          return;
+        }
+        const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
+        if (item && item.id) { 
+         const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
+         if (variant && variant.items && variant.items.length > 0) {  
+           item.available = variant.items[variant.items.length-1].available;
+           item.on_hand = variant.items[variant.items.length-1].on_hand;
          }
-       } 
-       else{
-         const txtSearchProductElement: any =
-           document.getElementById("product_search_variant");
+         onSelectProduct(item.id.toString(),item); 
+        }
+      }
+    } 
+    else{
+      const txtSearchProductElement: any =
+        document.getElementById("product_search_variant");
 
-         onSearchProduct(txtSearchProductElement?.value); 
-       } 
-     };
+      onSearchProduct(txtSearchProductElement?.value); 
+    } 
+  },
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   [onSelectProduct,form, dispatch, onSearchProduct]
+  );
+
+  const eventKeydown = useCallback(
+    (event: KeyboardEvent) => { 
 
      if (event.target instanceof HTMLInputElement) {
        if (event.target.id === "product_search_variant") {
          if (event.key !== "Enter" && event.key !== "Shift")
            barCode = barCode + event.key;
-        
+
          handleDelayActionWhenInsertTextInSearchInput(
            productAutoCompleteRef,
            () => handleSearchProduct(event.key, barCode),
@@ -739,7 +745,7 @@ const UpdateTicket: FC = () => {
          return;
        }
      }
-     
+
    },
    // eslint-disable-next-line react-hooks/exhaustive-deps
    [onSelectProduct,form, dispatch, onSearchProduct]
@@ -749,12 +755,12 @@ const UpdateTicket: FC = () => {
    onSelectProduct(o);
  },[onSelectProduct])
 
- useEffect(() => { 
+ useEffect(() => {
      window.addEventListener("keydown", eventKeydown);
      return () => {
        window.removeEventListener("keydown", eventKeydown);
      };
- }, [eventKeydown]);  
+ }, [eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -912,6 +918,13 @@ const UpdateTicket: FC = () => {
                               }
                             });
                           }}
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(strForSearch(input));
+                            }
+
+                            return false;
+                          }}
                         >
                           {fromStores &&
                             fromStores.map((item, index) => (
@@ -979,6 +992,13 @@ const UpdateTicket: FC = () => {
                                 setToStoreData(element);
                               }
                             });
+                          }}
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(strForSearch(input));
+                            }
+
+                            return false;
                           }}
                         >
                           {Array.isArray(stores) &&
@@ -1054,7 +1074,7 @@ const UpdateTicket: FC = () => {
                         prefix={<i className="icon-search icon" />}
                         ref={productSearchRef}
                       />
-                    </AutoComplete>  
+                    </AutoComplete>
                       <Button
                         onClick={() => {
                           if (form.getFieldValue("from_store_id")) {

@@ -65,10 +65,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
   convertCategory,
-  formatCurrency,
+  formatCurrency, formatCurrencyForProduct,
   Products,
   replaceFormatString,
-  scrollAndFocusToDomElement
+  scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
@@ -126,7 +126,7 @@ const ProductDetailScreen: React.FC = () => {
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
-  const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]); 
+  const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const [status, setStatus] = useState<string>("inactive");
   const [active, setActive] = useState<number>(tempActive);
   const [isChange, setChange] = useState<boolean>(false);
@@ -195,7 +195,7 @@ const ProductDetailScreen: React.FC = () => {
     (imageId: number) => {
       let variants: Array<VariantResponse> = form.getFieldValue("variants");
       variants.forEach((item) => {
-        item.variant_images = item.variant_images === null ? [] : item.variant_images; 
+        item.variant_images = item.variant_images === null ? [] : item.variant_images;
         item.variant_images.forEach((item1) => {
           if (item1.image_id === imageId) {
             item1.product_avatar = true;
@@ -316,7 +316,7 @@ const ProductDetailScreen: React.FC = () => {
           })
         }
       });
-      
+
     })
     setCareLabels(careLabels);
   }, [careLabelsString]);
@@ -348,10 +348,10 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const update = useCallback(
-    (product: any) => { 
+    (product: any) => {
       if (product.collections) {
         product.collections = product.collections.map((e: CollectionCreateRequest)=>e.code);
-      }  
+      }
       setLoadingVariant(true);
       dispatch(productUpdateAction(idNumber, product, onResultUpdate));
     },
@@ -445,7 +445,7 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const onResultFinish = useCallback(
-    (data) => { 
+    (data) => {
       setLoadingVariant(false);
       setLoadingButton(false);
       if (!data) {
@@ -458,8 +458,8 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const onFinish = useCallback(
-    (values: ProductRequest) => {   
-      setLoadingButton(true);   
+    (values: ProductRequest) => {
+      setLoadingButton(true);
       dispatch(productUpdateAction(
         idNumber,
         {
@@ -521,7 +521,7 @@ const ProductDetailScreen: React.FC = () => {
             (data: false | Array<ProductUploadModel>) => {
               let index = fieldList.findIndex((item) => item.uid === uuid);
               if (!!data) {
-                if (index !== -1) { 
+                if (index !== -1) {
                   let variants: Array<VariantResponse> = form.getFieldValue("variants");
                   let hasVariantAvatar = false;
                   variants[active].variant_images = variants[active].variant_images === null ? [] : variants[active].variant_images;
@@ -578,7 +578,7 @@ const ProductDetailScreen: React.FC = () => {
   }, [form, isChangePrice]);
 
   const onOkPrice = useCallback(
-    (isOnly) => { 
+    (isOnly) => {
       setVisiblePrice(false);
       if (isOnly) {
         form.submit();
@@ -599,21 +599,21 @@ const ProductDetailScreen: React.FC = () => {
         onCancel: () => {
           setModalConfirm({visible: false});
         },
-        onOk: () => { 
+        onOk: () => {
           setModalConfirm({visible: false});
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
         subTitle:
           "Sau khi quay lại thay đổi sẽ không được lưu.",
-      }); 
+      });
     }else{
       history.goBack();
     }
   }
 
   const resetProductDetail = useCallback(() => {
-    setChangePrice(false); 
+    setChangePrice(false);
     if (productDetailRef.current && typeof active === "number") {
       form.setFieldsValue(productDetailRef.current);
       let fieldList = Products.convertAvatarToFileList(
@@ -621,7 +621,7 @@ const ProductDetailScreen: React.FC = () => {
       );
       setFieldList(fieldList);
     }
-    showSuccess("Đặt lại dữ liệu thành công"); 
+    showSuccess("Đặt lại dữ liệu thành công");
   }, [productDetailRef, active, form]);
 
   const resetOnClick = useCallback(()=>{
@@ -631,18 +631,18 @@ const ProductDetailScreen: React.FC = () => {
         onCancel: () => {
           setModalConfirm({visible: false});
         },
-        onOk: () => { 
+        onOk: () => {
           setModalConfirm({visible: false});
-          resetProductDetail();  
+          resetProductDetail();
         },
         title: "Bạn có muốn đặt lại thông tin đã cập nhật",
         subTitle:
           "Sau khi đặt lại thay đổi sẽ không được lưu. Bạn có muốn đặt lại?",
-      }); 
+      });
     }else{
       resetProductDetail();
     }
-  },[form, dataOrigin, resetProductDetail]); 
+  },[form, dataOrigin, resetProductDetail]);
 
   const onActive = useCallback(
     (activeRow: number) => {
@@ -675,6 +675,7 @@ const ProductDetailScreen: React.FC = () => {
                 let fieldList = Products.convertAvatarToFileList(
                   variants[index].variant_images
                 );
+                setChange(false);
                 setFieldList(fieldList);
               }
             },
@@ -714,7 +715,7 @@ const ProductDetailScreen: React.FC = () => {
         }
       }
     },
-    [form, variantId]
+    [form]
   );
 
 
@@ -773,8 +774,8 @@ const ProductDetailScreen: React.FC = () => {
       >
         {data !== null && (
           <Form
-            form={form} 
-            initialValues={data} 
+            form={form}
+            initialValues={data}
             layout="vertical"
             // onFinishFailed={handleSubmitFail}
             onFinishFailed={({ errorFields }: any) => {
@@ -977,7 +978,7 @@ const ProductDetailScreen: React.FC = () => {
                                 onPageChange={(key, page) => getCollections(key, page)}
                                 onSearch={(key) => getCollections(key, 1)}
                               >
-            
+
                                 {collections.items.map((item) => (
                                   <SelectPaging.Option key={item.code} value={item.code}>
                                     {`${item.code} - ${item.name}`}
@@ -1037,7 +1038,7 @@ const ProductDetailScreen: React.FC = () => {
                               ))}
                             </CustomSelect>
                           </Item>
-                        </Col> 
+                        </Col>
                         <Col span={24} md={12} sm={24}>
                           <Item label="Thông tin bảo quản">
                             {careLabels.map((item: any) => (
@@ -1077,7 +1078,7 @@ const ProductDetailScreen: React.FC = () => {
                             expandIcon={({isActive}) =>
                               isActive ? <MinusOutlined /> : <PlusOutlined />
                             }
-                            className="padding-0" 
+                            className="padding-0"
                           >
                               <Collapse.Panel
                                 header="Mô tả sản phẩm"
@@ -1085,7 +1086,7 @@ const ProductDetailScreen: React.FC = () => {
                                 className="custom-header"
                                 extra={
                                   <div>
-                                    <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{  
+                                    <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{
                                       setIsChangeDescription(e.target.checked ? true: false)
                                       }}>Lấy thông tin mô tả từ chất liệu</Checkbox>
                                   </div>
@@ -1160,10 +1161,10 @@ const ProductDetailScreen: React.FC = () => {
 
                       <Item name="designer_code" label="Thiết kế" tooltip={{
                         title: "Chọn nhân viên thiết kế",
-                        icon: <InfoCircleOutlined />, 
+                        icon: <InfoCircleOutlined />,
                       }}>
                         <AccountSearchPaging
-                          placeholder="Chọn nhân viên thiết kế"                
+                          placeholder="Chọn nhân viên thiết kế"
                           fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                         /></Item>
                     </div>
@@ -1193,7 +1194,7 @@ const ProductDetailScreen: React.FC = () => {
                           (element: VariantResponse) => !element.id
                         );
 
-                        const newItem = {
+                        const newItem: any = {
                           id: null,
                           variant_images: [],
                           name: data.name,
@@ -1208,14 +1209,14 @@ const ProductDetailScreen: React.FC = () => {
                           sku: data.code,
                           variant_prices: [
                             {
-                              retail_price: 0,
+                              retail_price: "",
                               currency_code: AppConfig.currency,
                               import_price: "",
                               wholesale_price: "",
                               cost_price: "",
                               tax_percent: 0,
                             },
-                          ], 
+                          ],
                           length_unit:
                             lengthUnitList && lengthUnitList.length > 0
                               ? lengthUnitList[0].value
@@ -1330,8 +1331,8 @@ const ProductDetailScreen: React.FC = () => {
                                         </Row>
                                       );
                                     }}
-                                  </Form.Item> 
-                                  <Row gutter={50}> 
+                                  </Form.Item>
+                                  <Row gutter={50}>
                                     <Col span={24} md={12}>
                                       <Item
                                         name={[name, "name"]}
@@ -1345,7 +1346,7 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                     <Col span={24} md={12}>
-                                      
+
                                       <Item
                                         name={[name, "supplier_id"]}
                                         label="Nhà cung cấp"
@@ -1406,9 +1407,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <NumberInput
                                                       onChange={onChangePrice}
-                                                      format={(a: string) =>
-                                                        formatCurrency(a)
-                                                      }
+                                                      format={(a: string) => formatCurrencyForProduct(a)}
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
                                                       }
@@ -1440,7 +1439,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     <NumberInput
                                                       onChange={onChangePrice}
                                                       format={(a: string) =>
-                                                        formatCurrency(a)
+                                                        formatCurrencyForProduct(a)
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
@@ -1470,7 +1469,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     <NumberInput
                                                       onChange={onChangePrice}
                                                       format={(a: string) =>
-                                                        formatCurrency(a)
+                                                        formatCurrencyForProduct(a)
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
@@ -1503,7 +1502,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     <NumberInput
                                                       onChange={onChangePrice}
                                                       format={(a: string) =>
-                                                        formatCurrency(a)
+                                                        formatCurrencyForProduct(a)
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
@@ -1569,14 +1568,14 @@ const ProductDetailScreen: React.FC = () => {
                                     </Form.List>
                                   </AuthWrapper>
                                   <Row gutter={50}>
-                                    <Col span={24} sm={12}> 
+                                    <Col span={24} sm={12}>
                                     <Item name={[name, "color_id"]} label="Màu sắc">
                                       <ColorSearchSelect/>
                                     </Item>
                                     <Item name={[name, "size_id"]} label="Kích cỡ">
                                       <SizeSearchSelect/>
                                     </Item>
-                                   
+
                                       <Item
                                         label="Kích thước (dài, rộng, cao)"
                                         tooltip={{

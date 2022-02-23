@@ -1,7 +1,7 @@
-import { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Table, Tag, Input, Timeline, Collapse } from "antd";
+import { Button, Card, Col, Row, Space, Table, Tag, Input, Timeline, Collapse, AutoComplete } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -36,7 +36,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
 import InventoryShipment, { deliveryService } from "../common/ChosesShipment";
-import { findAvatar, SumWeightInventory } from "utils/AppUtils";
+import { findAvatar, handleDelayActionWhenInsertTextInSearchInput, SumWeightInventory } from "utils/AppUtils";
 import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
@@ -44,8 +44,7 @@ import InventoryStep from "./components/InventoryTransferStep";
 import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
-import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
@@ -58,10 +57,17 @@ import { useReactToPrint } from "react-to-print";
 import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryTransferPermission, ShipmentInventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
-
+import { RefSelectProps } from "antd/lib/select";
+import { RegUtil } from "utils/RegUtils";
+import { callApiNative } from "utils/ApiUtils";
+import { getVariantByBarcode } from "service/product/variant.service";
+import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
+import { InventoryResponse } from "model/inventory";
 export interface InventoryParams {
   id: string;
 }
+
+let barCode = "";
 
 const ShipmentStatus = {
   CONFIRMED: "confirmed",
@@ -85,10 +91,12 @@ const DetailTicket: FC = () => {
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
-
+    
+  const [keySearch, setKeySearch] = useState<string>("");
+  const productAutoCompleteRef = createRef<RefSelectProps>();
 
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
-  const productSearchRef = createRef<CustomAutoComplete>();
+  const productSearchRef = React.useRef<any>(null);
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
@@ -161,26 +169,28 @@ const DetailTicket: FC = () => {
     PageResponse<VariantResponse> | any
   >();
 
-  const onSearchProduct = (value: string) => {
-    const storeId = data?.from_store_id;
-    if (!storeId) {
-      showError("Vui lòng chọn kho gửi");
-      return;
-    } else if (value.trim() !== "" && value.length >= 3) {
-      dispatch(
-        inventoryGetVariantByStoreAction(
-          {
-            status: "active",
-            limit: 10,
-            page: 1,
-            store_ids: storeId,
-            info: value.trim(),
-          },
-          setResultSearch
-        )
-      );
+  const onSearch = useCallback((value: string)=>{ 
+    setKeySearch(value);
+  },[setKeySearch]);
+
+  const onSearchProduct = useCallback(
+    (value: string) => {
+      const storeId = data?.from_store_id;
+      if (value.trim() !== "" && value.length >= 3) {
+        dispatch(
+          inventoryGetVariantByStoreAction(
+            {
+              status: "active",
+              limit: 10,
+              page: 1,
+              store_ids: storeId,
+              info: value.trim(),
+            },
+            setResultSearch
+          )
+        );
     }
-  };
+  },[dispatch,setResultSearch, data]);
 
   let textTag = '';
   let classTag = '';
@@ -219,16 +229,21 @@ const DetailTicket: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = (value: string) => {
+  const onSelectProduct = useCallback((value: string, item?: VariantResponse) => {
     const dataTemp = [...dataTable];
-    const selectedItem = resultSearch?.items?.find(
+    let selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
+
+    if (item) 
+    selectedItem = item; 
+
     const variantPrice =
       selectedItem &&
       selectedItem.variant_prices &&
       selectedItem.variant_prices[0] &&
       selectedItem.variant_prices[0].retail_price;
+
     const newResult = {
       sku: selectedItem.sku,
       barcode: selectedItem.barcode,
@@ -237,23 +252,36 @@ const DetailTicket: FC = () => {
       variant_image: findAvatar(selectedItem.variant_images),
       product_name: selectedItem.product.name,
       product_id: selectedItem.product.id,
-      available: selectedItem.available,
-      amount: 0,
+      available: selectedItem.available ?? 0,
+      amount: variantPrice,
       price: variantPrice,
-      transfer_quantity: 0,
-      real_quantity: 0,
+      transfer_quantity: 1,
+      real_quantity: 1,
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
     };
 
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.variant_id === newResult.variant_id
+        (variant: VariantResponse) => variant.sku === newResult.sku
       )
-    ) {
-      setDataTable((prev: any) => prev.concat([newResult]));
+    )  {
+      setDataTable((prev: any) => prev.concat([{...newResult}]));
+    }else{
+      dataTemp?.forEach((e: VariantResponse) => {
+        if (e.sku === selectedItem.sku) {
+          if (!e.real_quantity) {
+            e.real_quantity = 0
+          }
+          e.real_quantity += 1;
+        }
+      })
+      setDataTable(dataTemp);
     }
-  };
+    setKeySearch("");
+    barCode="";
+    setResultSearch([]);
+  },[resultSearch, dataTable]);
 
   function getTotalRealQuantity() {
     let total = 0;
@@ -360,7 +388,67 @@ const DetailTicket: FC = () => {
       dataUpdate.version = data?.version;
       dispatch(receivedInventoryTransferAction(data.id, dataUpdate, createCallback));
     }
-  }, [createCallback, data, dataTable, dispatch, stores])
+  }, [createCallback, data, dataTable, dispatch, stores]);
+
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => { 
+      if (keyCode === "Enter" && code){ 
+        barCode ="";  
+        setKeySearch("");  
+        
+        if (RegUtil.BARCODE_NUMBER.test(code)) {
+          const item: VariantResponse  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
+          
+          if (item && item.id) { 
+           const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],data?.from_store_id ?? null);
+           if (variant && variant.items && variant.items.length > 0) {  
+             item.available = variant.items[variant.items.length-1].available;
+             item.on_hand = variant.items[variant.items.length-1].on_hand;
+           }
+           onSelectProduct(item.id.toString(),item); 
+          }
+        }
+      } 
+      else{
+        const txtSearchProductElement: any =
+          document.getElementById("product_search_variant");
+
+        onSearchProduct(txtSearchProductElement?.value); 
+      } 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[dispatch,onSelectProduct, onSearchProduct]);
+
+  const eventKeydown = useCallback(
+    (event: KeyboardEvent) => { 
+
+     if (event.target instanceof HTMLInputElement) {
+       if (event.target.id === "product_search_variant") {
+         if (event.key !== "Enter" && event.key !== "Shift")
+           barCode = barCode + event.key;
+        
+         handleDelayActionWhenInsertTextInSearchInput(
+           productAutoCompleteRef,
+           () => handleSearchProduct(event.key, barCode),
+           500
+         );
+         return;
+       }
+     }
+     
+   },
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   [handleSearchProduct]
+ );
+
+  const onSelect = useCallback((o,v)=>{
+    onSelectProduct(o);
+  },[onSelectProduct])
+
+  useEffect(() => { 
+      window.addEventListener("keydown", eventKeydown);
+      return () => {
+        window.removeEventListener("keydown", eventKeydown);
+      };
+  }, [eventKeydown]); 
 
   const columns: ColumnsType<any> = [
     {
@@ -430,9 +518,9 @@ const DetailTicket: FC = () => {
       dataIndex: "amount",
       align: "center",
       width: 100,
-      render: (value) => {
+      render: (value, row: LineItem) => {
         return <NumberFormat
-          value={value}
+          value={row.price * row.transfer_quantity}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -508,10 +596,10 @@ const DetailTicket: FC = () => {
       title: "Thành tiền",
       dataIndex: "amount",
       align: "center",
-      width: 200,
-      render: (value) => {
+      width: 120,
+      render: (value, row: LineItem) => {
         return <NumberFormat
-          value={value}
+          value={row.price * row.transfer_quantity}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -525,7 +613,7 @@ const DetailTicket: FC = () => {
       width: 100,
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-          return <NumberInput
+          return <NumberInput 
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
@@ -547,7 +635,7 @@ const DetailTicket: FC = () => {
       render: (item, row: LineItem) => {
         const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
         if (totalDifference) {
-          return <NumberFormat
+          return <NumberFormat 
             value={totalDifference}
             className="foo"
             displayType={"text"}
@@ -792,19 +880,31 @@ const DetailTicket: FC = () => {
                       {
                         data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
                         <Input.Group className="display-flex">
-                          <CustomAutoComplete
-                            id="#product_search_variant"
-                            dropdownClassName="product"
-                            placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
-                            onSearch={onSearchProduct}
-                            dropdownMatchSelectWidth={456}
+                          <AutoComplete
+                            notFoundContent={
+                              keySearch.length >= 3
+                                ? "Không tìm thấy sản phẩm"
+                                : undefined
+                            }
+                            value={keySearch}
+                            ref={productAutoCompleteRef}
+                            onSelect={onSelect}
                             style={{ width: "100%" }}
-                            showAdd={true}
-                            textAdd="Thêm mới sản phẩm"
-                            onSelect={onSelectProduct}
+                            dropdownClassName="product dropdown-search-header"
+                            dropdownMatchSelectWidth={635}
+                            className="w-100 searchProductId"
+                            onSearch={onSearch}
                             options={renderResult}
-                            ref={productSearchRef}
-                          />
+                            id="product_search_variant"
+                          >
+                            <Input
+                              size="middle"
+                              className="yody-search"
+                              placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                              prefix={<i className="icon-search icon" />}
+                              ref={productSearchRef}
+                            />
+                          </AutoComplete>  
                           <Button
                             onClick={() => {
                               setVisibleManyProduct(true);

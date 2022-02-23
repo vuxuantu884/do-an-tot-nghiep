@@ -268,18 +268,34 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_name: size.updated_name,
     updated_date: size.updated_date,
     version: size.version,
-    code: size.code, 
+    code: size.code,
   };
   return sizeConvert;
 };
 
 export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
   try {
-		if(typeof currency ==="number") {
-			currency = Math.round(currency);
-		} else if(typeof currency ==="string") {
-			currency = Math.round(Number(currency));
-		}
+    if(typeof currency ==="number") {
+      currency = Math.round(currency);
+    } else if(typeof currency ==="string") {
+      currency = Math.round(Number(currency));
+    }
+    let format = currency.toString();
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
+  } catch (e) {
+    return "";
+  }
+};
+
+export const formatCurrencyForProduct = (currency: number | string | boolean, sep: string = ","): string => {
+  try {
+    if (currency === null || currency === undefined || currency === '') return '';
+
+    if(typeof currency ==="number") {
+      currency = Math.round(currency);
+    } else if(typeof currency ==="string") {
+      currency = Math.round(Number(currency));
+    }
     let format = currency.toString();
     return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
   } catch (e) {
@@ -1022,7 +1038,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
 	let newReturnItems = _.cloneDeep(_orderReturnItems);
 	let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
-  
+
   for (const singleOrder of normalItems) {
 		// trường hợp line item trùng nhau
     let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
@@ -1055,8 +1071,8 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
     return false;
   }
   let result = false;
-	let abc = getListItemsCanReturn(OrderDetail)
-  if(abc.length===0) {
+	let itemsCanReturn = getListItemsCanReturn(OrderDetail)
+  if(itemsCanReturn.length===0) {
     result = true;
   }
   return result;
@@ -1106,7 +1122,7 @@ export const getAccountCodeFromCodeAndName = (text: string | null | undefined) =
 	let result = null;
 	if(text) {
 		result = text.split(splitString)[0].trim();
-	} 
+	}
 	return result;
 };
 
@@ -1222,10 +1238,10 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
       );
       switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
         case ShipmentMethod.EMPLOYEE:
-          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment?.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
+          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment?.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
           break;
         case ShipmentMethod.EXTERNAL_SERVICE:
-          result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}` 
+          result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}`
           break;
         case ShipmentMethod.EXTERNAL_SHIPPER:
           result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
@@ -1390,26 +1406,24 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 	let result = orderSources;
 	let departmentSources:SourceResponse[] = [];
 	if(departmentIds && departmentIds.length > 0) {
-		for (const departmentId of departmentIds) {
-			const query = {
-				department_id: departmentId,
-			}
-			try {
-				let response = await getSourcesWithParamsService(query);
-				if(response.data.items) {
-					for (const item of response.data.items) {
-						let index = departmentSources.findIndex(single => single.id ===item.id);
-						if(index === -1) {
-							departmentSources.push(item)
-						}
-					}
-				}
-				
-			} catch (error) {
-				console.log('error', error)
-			}
-		}
-	} 
+    const query = {
+      department_ids: departmentIds,
+    }
+    try {
+      let response = await getSourcesWithParamsService(query);
+      if(response.data.items) {
+        for (const item of response.data.items) {
+          let index = departmentSources.findIndex(single => single.id ===item.id);
+          if(index === -1) {
+            departmentSources.push(item)
+          }
+        }
+      }
+
+    } catch (error) {
+      console.log('error', error)
+    }
+	}
 	if(departmentSources.length > 0) {
 		result = [...departmentSources]
 	}
@@ -1440,3 +1454,9 @@ export const splitEllipsis=(value:string,length:number,lastLength:number):string
 
   return `${strFirst} [...] ${strLast}`;
 };
+
+
+export const trimText = (text?: string) => {
+  if(!text) return
+  return text.replace(/(\s)+/g, '')
+}

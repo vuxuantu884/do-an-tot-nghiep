@@ -31,6 +31,7 @@ import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import {DATE_FORMAT} from "utils/DateUtils";
 import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "screens/inventory-adjustment/constants";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Panel} = Collapse;
 type InventoryAdjustmentFilterProps = {
@@ -114,10 +115,10 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
-      
+
     let fromDateString = null;
     let toDateString = null;
-  
+
     if (dates) {
       fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
       toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
@@ -332,6 +333,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       }
       const valuesForm = {
         ...values,
+        code: values.code ? values.code.trim() : null,
         from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
         to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
         from_adjusted_date: isFromAdjustedBy ? moment(isFromAdjustedBy) : null,
@@ -356,16 +358,16 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     let list = [];
     if (initialValues?.status?.length) {
       let textStatus = "";
-      
+
       if (initialValues.status.length > 1) {
-        
+
         initialValues.status.forEach((statusValue) => {
           const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
             (status) => status.value === statusValue
           );
           textStatus = status ? textStatus + status.name + "; " : textStatus;
         });
-  
+
       } else if (initialValues.status.length === 1) {
 
         initialValues.status.forEach((statusValue) => {
@@ -384,16 +386,16 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     }
     if (initialValues?.audit_type?.length) {
       let auditTypeName = "";
-      
+
       if (initialValues.audit_type.length > 1) {
-        
+
         initialValues.audit_type.forEach((value) => {
           const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
             (auditType) => auditType.value === value
           );
           auditTypeName = auditType ? auditTypeName + auditType.name + "; " : auditTypeName;
         });
-  
+
       } else if (initialValues.audit_type.length === 1) {
 
         initialValues.audit_type.forEach((value) => {
@@ -429,7 +431,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
             textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
         })
       } else if (initialValues.created_name.length === 1) {
-      
+
         initialValues.created_name.forEach((i) => {
           const findAccount = accounts?.find(item => item.code === i)
           textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
@@ -735,27 +737,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                     >
                       <Panel header="Người tạo" key="1" className="header-filter">
                         <Item name="created_name">
-                          <CustomSelect
-                            mode="multiple"
-                            showSearch
-                            showArrow
-                            maxTagCount="responsive"
-                            placeholder="Chọn người tạo"
-                            notFoundContent="Không tìm thấy kết quả"
-                            style={{width: "100%"}}
-                            optionFilterProp="children"
-                            getPopupContainer={(trigger) => trigger.parentNode}
-                          >
-                            {accounts.map((item, index) => (
-                              <CustomSelect.Option
-                                style={{width: "100%"}}
-                                key={index.toString()}
-                                value={item.code.toString()}
-                              >
-                                {`${item.full_name} - ${item.code}`}
-                              </CustomSelect.Option>
-                            ))}
-                          </CustomSelect>
+                          <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
                         </Item>
                       </Panel>
                     </Collapse>

@@ -101,7 +101,7 @@ const PODetailScreen: React.FC = () => {
   const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   const [isError, setError] = useState(false);
-  const [status, setStatus] = useState<string>(initPurchaseOrder.status); 
+  const [status, setStatus] = useState<string>(initPurchaseOrder.status);
 
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
@@ -132,7 +132,7 @@ const PODetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
-        setPurchaseItem(result); 
+        setPurchaseItem(result);
         formMain.setFieldsValue(result);
         setStatus(result.status);
       }
@@ -162,7 +162,7 @@ const PODetailScreen: React.FC = () => {
     setIsEditDetail(true);
     formMain.submit();
   }, [formMain]);
- 
+
   const onStoreResult = useCallback((result: PageResponse<StoreResponse> | false) => {
     if (!!result) {
       setListStore(result.items);
@@ -412,7 +412,7 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
-  useEffect(() => {  
+  useEffect(() => {
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
@@ -560,6 +560,7 @@ const PODetailScreen: React.FC = () => {
               listCountries={listCountries}
               listDistrict={listDistrict}
               formMain={formMain}
+              stepStatus={status}
             />
             <POProductForm isEdit={!isEditDetail} formMain={formMain} />
             <POInventoryForm

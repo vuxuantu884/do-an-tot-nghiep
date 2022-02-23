@@ -14,7 +14,7 @@ import {
   InventoryQueryField
 } from "model/inventory/field";
 import BaseFilter from "component/filter/base.filter";
-import React, { useCallback, useEffect, useState } from "react"; 
+import React, { useCallback, useEffect, useMemo, useState } from "react"; 
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { convertCategory, formatCurrency } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
@@ -150,7 +150,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     );
   }, [dispatch, setDataAccounts]);
 
-  const FilterList = ({ filters, resetField }: any) => {
+  const FilterList = useCallback(({ filters, resetField }: any) => {
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null; 
 
@@ -242,7 +242,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         })}
       </div>
     );
-  };
+  },[]);
 
   const openFilter = useCallback(() => {
     setVisible(true);

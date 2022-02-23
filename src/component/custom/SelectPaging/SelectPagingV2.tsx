@@ -27,7 +27,7 @@ const SelectPagingV2 = (props: Props) => {
 
   const onChange = (type: 'next' | 'prev') => {
     let newPage = type === 'next' ? metadata.page + 1 :  metadata.page - 1
-    if ( type === 'prev' && newPage >= 1 ||  type === 'next' && newPage <= totalPage) {
+    if ( (type === 'prev' && newPage >= 1) ||  (type === 'next' && newPage <= totalPage)) {
       onPageChange && onPageChange(key, newPage);
     }
   }

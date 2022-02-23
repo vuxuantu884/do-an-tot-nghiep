@@ -39,7 +39,9 @@ const UrlConfig = {
   DISCOUNT: `/discounts`,
   PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
-  PACK_SUPPORT:`/orders-pack`
+  PACK_SUPPORT:`/orders-pack`,
+  BANK:`/bank`,
+  BANK_ACCOUNT:`/bank-account`,
 };
 
 export const ProductTabUrl = {

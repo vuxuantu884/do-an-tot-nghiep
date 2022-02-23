@@ -164,10 +164,10 @@ const StoreUpdateScreen: React.FC = () => {
         setAccounts(data.items);
     }, [] );
 
-   const onResDepartment = useCallback((data: DepartmentResponse | false) => {
-     if (data && data.children) {
-       setLstDepartment(data.children);
-     };
+   const onResDepartment = useCallback((data: any) => {
+     if (data) {
+       setLstDepartment(data);
+     }
    }, []);
 
   useEffect(() => {
@@ -187,7 +187,7 @@ const StoreUpdateScreen: React.FC = () => {
         )
       );
       dispatch(
-        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT, onResDepartment)
+        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
       );
     }
     firstload.current = true;
@@ -246,7 +246,6 @@ const StoreUpdateScreen: React.FC = () => {
                         StoreValidateAction(
                           {id: idNumber, name: e.target.value},
                           (data) => {
-                            console.log(data);
                             if (data instanceof Array) {
                               formMain.setFields([
                                 {
@@ -432,7 +431,6 @@ const StoreUpdateScreen: React.FC = () => {
                     <Select
                       onChange={(value) => {
                         if (value === "inactive") {
-                          console.log(formMain.getFieldsValue(true));
                           formMain.setFieldsValue({
                             is_saleable: false,
                           });

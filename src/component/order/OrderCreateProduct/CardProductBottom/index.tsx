@@ -94,12 +94,12 @@ function CardProductBottom(props: PropType) {
 								</Typography.Link>
 							) : (
 								<div>
-									Chiết khấu 
-									<span style={{margin: "0 0 0 5px"}}>
-										<Tooltip title="Tắt chiết khấu tự động để nhập chiết khấu đơn hàng" >
+									<Tooltip title="Tắt chiết khấu tự động để nhập chiết khấu đơn hàng" >
+										Chiết khấu 
+										<span style={{margin: "0 0 0 5px"}}>
 											<InfoCircleOutlined />
-										</Tooltip>
-									</span>
+										</span>
+									</Tooltip>
 								</div>
 							)}
 
@@ -144,12 +144,12 @@ function CardProductBottom(props: PropType) {
 								</Typography.Link>
 							) : (
 								<div>
+									<Tooltip title="Tắt chiết khấu tự động để nhập mã giảm giá" >
 									Mã giảm giá 
-									<span style={{margin: "0 0 0 5px"}}>
-										<Tooltip title="Tắt chiết khấu tự động để nhập mã giảm giá" >
+										<span style={{margin: "0 0 0 5px"}}>
 											<InfoCircleOutlined />
-										</Tooltip>
-									</span>
+										</span>
+									</Tooltip>
 								</div>
 							)}
 
@@ -232,7 +232,7 @@ function CardProductBottom(props: PropType) {
 						</strong>
 						<strong className="text-success font-size-price">
 							{totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
-								? !returnOrderInformation ? formatCurrency(Math.abs(totalAmountOrder)) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
+								? !returnOrderInformation ? formatCurrency(totalAmountOrder > 0 ? totalAmountOrder : 0) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
 								: formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
 						</strong>
 					</Row>
