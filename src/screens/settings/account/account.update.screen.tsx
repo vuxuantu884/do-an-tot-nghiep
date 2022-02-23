@@ -146,7 +146,7 @@ const AccountUpdateScreen: React.FC = () => {
     },
     [history, userCode]
   );
-  
+
   const onFinish = useCallback(
     (values: AccountRequest) => {
       if (idNumber.current !== 0) {
@@ -527,12 +527,12 @@ const AccountUpdateScreen: React.FC = () => {
                         </Item>
                         <Col md={8}>
                           <Item
-                            label="Bộ phận"
+                            label="Phòng ban"
                             name={[name, "department_id"]}
                             fieldKey={[fieldKey, "department_id"]}
                           >
                             <TreeSelect
-                              placeholder="Chọn bộ phận"
+                              placeholder="Chọn phòng ban"
                               treeDefaultExpandAll
                               className="selector"
                               allowClear

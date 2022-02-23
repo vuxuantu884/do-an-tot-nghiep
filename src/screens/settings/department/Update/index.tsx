@@ -131,14 +131,14 @@ const DepartmentUpdateScreen: React.FC = () => {
     <ContentContainer
       isError={error}
       isLoading={isLoading}
-      title="Quản lý bộ phận"
+      title="Quản lý phòng ban"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý bộ phận",
+          name: "Quản lý phòng ban",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -160,7 +160,7 @@ const DepartmentUpdateScreen: React.FC = () => {
           form={form}
           layout="vertical"
         >
-          <Card title="Thông tin bộ phận">
+          <Card title="Thông tin phòng ban">
             <Form.Item name="status" hidden>
               <Input />
             </Form.Item>
@@ -170,13 +170,13 @@ const DepartmentUpdateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập mã bộ phận",
+                      message: "Vui lòng nhập mã phòng ban",
                     },
                   ]}
-                  label="Mã bộ phận"
+                  label="Mã phòng ban"
                   name="code"
                 >
-                  <Input maxLength={13} placeholder="Nhập mã bộ phận" />
+                  <Input maxLength={13} placeholder="Nhập mã phòng ban" />
                 </Form.Item>
               </Col>
               <Col span={8}>
@@ -184,13 +184,13 @@ const DepartmentUpdateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập tên bộ phận",
+                      message: "Vui lòng nhập tên phòng ban",
                     },
                   ]}
-                  label="Tên bộ phận"
+                  label="Tên phòng ban"
                   name="name"
                 >
-                  <Input maxLength={255} placeholder="Tên bộ phận" />
+                  <Input maxLength={255} placeholder="Tên phòng ban" />
                 </Form.Item>
               </Col>
             </Row>
@@ -199,9 +199,9 @@ const DepartmentUpdateScreen: React.FC = () => {
                 <AccountSearchSelect name="manager_code" label="Quản lý" form={form} />
               </Col>
               <Col span={8}>
-                <Form.Item name="parent_id" label="Thuộc về bộ phận">
+                <Form.Item name="parent_id" label="Thuộc về phòng ban">
                   <TreeSelect
-                    placeholder="Chọn bộ phận"
+                    placeholder="Chọn phòng ban"
                     treeDefaultExpandAll
                     className="selector"
                     allowClear
@@ -217,8 +217,8 @@ const DepartmentUpdateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={8}>
-                <Form.Item 
-                  name="phone" 
+                <Form.Item
+                  name="phone"
                   label="Số điện thoại"
                   rules={[
                     {

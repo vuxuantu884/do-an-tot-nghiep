@@ -102,7 +102,7 @@ const AccountCreateScreen: React.FC = () => {
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-  
+
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
@@ -183,19 +183,19 @@ const AccountCreateScreen: React.FC = () => {
   // }, [listStore]);
   //end memo
 
-  const backAction = ()=>{  
+  const backAction = ()=>{
     setModalConfirm({
       visible: true,
       onCancel: () => {
         setModalConfirm({visible: false});
       },
-      onOk: () => { 
+      onOk: () => {
         history.push(UrlConfig.ACCOUNTS);
       },
       title: "Bạn có muốn quay lại?",
       subTitle:
         "Sau khi quay lại thay đổi sẽ không được lưu.",
-    }); 
+    });
   };
 
   useEffect(() => {
@@ -266,7 +266,7 @@ const AccountCreateScreen: React.FC = () => {
                 label="Mã nhân viên"
                 name="code"
                 rules={[
-                  { required: true, message: "Vui lòng nhập mã nhân viên" }, 
+                  { required: true, message: "Vui lòng nhập mã nhân viên" },
                   {
                     message: "Mã nhân viên không đúng định dạng",
                     pattern: RegUtil.BOTH_NUMBER_AND_STRING
@@ -492,7 +492,7 @@ const AccountCreateScreen: React.FC = () => {
                         <Item
                           hidden
                           noStyle
-                          label="Bộ phận"
+                          label="Phòng ban"
                           name={[name, "id"]}
                           fieldKey={[fieldKey, "id"]}
                         >
@@ -501,7 +501,7 @@ const AccountCreateScreen: React.FC = () => {
                         <Item
                           hidden
                           noStyle
-                          label="Bộ phận"
+                          label="Phòng ban"
                           name={[name, "code"]}
                           fieldKey={[fieldKey, "code"]}
                         >
@@ -510,7 +510,7 @@ const AccountCreateScreen: React.FC = () => {
                         <Item
                           hidden
                           noStyle
-                          label="Bộ phận"
+                          label="Phòng ban"
                           name={[name, "account_id"]}
                           fieldKey={[fieldKey, "account_id"]}
                         >
@@ -518,12 +518,12 @@ const AccountCreateScreen: React.FC = () => {
                         </Item>
                         <Col md={8}>
                           <Item
-                            label="Bộ phận"
+                            label="Phòng ban"
                             name={[name, "department_id"]}
                             fieldKey={[fieldKey, "department_id"]}
                           >
                             <TreeSelect
-                              placeholder="Chọn bộ phận"
+                              placeholder="Chọn phòng ban"
                               treeDefaultExpandAll
                               className="selector"
                               allowClear
