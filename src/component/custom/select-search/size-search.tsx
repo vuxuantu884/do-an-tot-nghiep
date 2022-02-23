@@ -68,7 +68,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
 
   /**
    * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
-   */
+   */ 
   useEffect(() => {
     const getIntialValue = async () => {
       let initIds: any = [];
@@ -95,7 +95,19 @@ function SizeSelect(props: SelectContentProps): ReactElement {
         let totalItems: SizeResponse[] = [];
         if (initSelectedResponse?.items && defaultOptons?.length > 0) {
           // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
-          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultOptons], key!);
+          // DUOCNC thêm đoạn xóa loại bỏ bản ghi trùng lặp
+          let set = new Set();
+          let mergeItems = [...initSelectedResponse.items,...defaultOptons];
+          totalItems = mergeItems.filter(item => {
+            if (!set.has(item.id)) {
+              set.add(item.id);
+              return true;
+            }
+            return false;
+          }, set);
+           totalItems = _.uniqBy(totalItems, key!);
+           console.log('totalItems',totalItems);
+           
         } else if (defaultOptons) {
           totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
