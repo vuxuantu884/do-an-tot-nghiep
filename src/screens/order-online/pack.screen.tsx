@@ -1,5 +1,5 @@
-import React, {useLayoutEffect} from "react";
-import {Card, Row, Tabs, Col} from "antd";
+import React, { useLayoutEffect } from "react";
+import { Card, Row, Tabs, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack/info/pack-info";
@@ -9,32 +9,34 @@ import {
   DeliveryServicesGetList,
   getChannels,
 } from "domain/actions/order/order.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {useEffect, useState} from "react";
+import { PageResponse } from "model/base/base-metadata.response";
+import { useEffect, useState } from "react";
 import {
   ChannelsResponse,
   DeliveryServiceResponse,
 } from "model/response/order/order.response";
-import {useDispatch} from "react-redux";
-import {OrderPackContext} from "contexts/order-pack/order-pack-context";
-import {StoreResponse} from "model/core/store.model";
-import {StoreGetListAction} from "domain/actions/core/store.action";
-import {GoodsReceiptsTypeResponse} from "model/response/pack/pack.response";
-import {getGoodsReceiptsType} from "domain/actions/goods-receipts/goods-receipts.action";
+import { useDispatch } from "react-redux";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
+import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
 import PackReportHandOver from "./pack/info/pack-report-hand-over";
-import {getQueryParams, useQuery} from "utils/useQuery";
-import "assets/css/_pack.scss";
+import { getQueryParams, useQuery } from "utils/useQuery";
+// import "assets/css/_pack.scss";
 import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
+import { StyledComponent } from "./pack/styles";
+import './pack/styles.scss';
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
   const query = useQuery();
-  const newParam:any=getQueryParams(query);
+  const newParam: any = getQueryParams(query);
   const history = useHistory();
   //useState
 
@@ -94,15 +96,15 @@ const PackSupportScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
-  
+
   useLayoutEffect(() => {
     setActiveTab(newParam.tab);
   }, [newParam.tab]);
-  
+
   const handleClickTab = (value: string) => {
     setActiveTab(value);
-    
-    let queryParam = generateQuery({...newParam,tab:value});
+
+    let queryParam = generateQuery({ ...newParam, tab: value });
     history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
   };
 
@@ -124,38 +126,41 @@ const PackSupportScreen: React.FC = () => {
           },
         ]}
       >
-        <Row gutter={24}>
-          <Col xs={24}>
-            <Card className="pack-card">
-              <Tabs activeKey={activeTab} onChange={handleClickTab}>
-                <TabPane tab="Đóng gói" key="1">
-                  <PackInfo
-                    setFulfillmentsPackedItems={setData}
-                    fulfillmentData={data}
-                  ></PackInfo>
-                </TabPane>
-                <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
-                  <PackReportHandOver query={query} />
-                </TabPane>
-              </Tabs>
-            </Card>
-          </Col>
-        </Row>
-        {activeTab !== "2" && (
-          <div>
-            <Row gutter={24}>
-              <Col xs={24}>
-                <PackList data={data} />
-              </Col>
-            </Row>
+        <StyledComponent>
+          <Row gutter={24}>
+            <Col xs={24}>
+              <Card className="pack-card">
+                <Tabs activeKey={activeTab} onChange={handleClickTab}>
+                  <TabPane tab="Đóng gói" key="1">
+                    <PackInfo
+                      setFulfillmentsPackedItems={setData}
+                      fulfillmentData={data}
+                    ></PackInfo>
+                  </TabPane>
+                  <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
+                    <PackReportHandOver query={query} />
+                  </TabPane>
+                </Tabs>
+              </Card>
+            </Col>
+          </Row>
+          {activeTab !== "2" && (
+            <div>
+              <Row gutter={24}>
+                <Col xs={24}>
+                  <PackList data={data} />
+                </Col>
+              </Row>
 
-            <Row gutter={24}>
-              <Col xs={24}>
-                <AddReportHandOver />
-              </Col>
-            </Row>
-          </div>
-        )}
+              <Row gutter={24}>
+                <Col xs={24}>
+                  <AddReportHandOver />
+                </Col>
+              </Row>
+            </div>
+          )}
+        </StyledComponent>
+
       </ContentContainer>
     </OrderPackContext.Provider>
   );
