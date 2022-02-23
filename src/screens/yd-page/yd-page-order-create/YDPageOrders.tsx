@@ -1189,6 +1189,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                   </Col>
                   <Col span={24}>
                     <CreateOrderSidebar
+                      form={form}
+                      storeId={storeId}
                       accounts={accounts}
                       tags={tags}
                       onChangeTag={onChangeTag}

@@ -314,6 +314,17 @@
       width: 100%;
     }
   }
+
+  .order-create-shipment {
+    .ant-card-head {
+      .ant-card-head-wrapper {
+        .ant-card-head-title {
+          padding: 6px 0 0 0;
+        }
+      }
+    }
+  }
+
   .ant-select {
     width: 100% !important;
   }
