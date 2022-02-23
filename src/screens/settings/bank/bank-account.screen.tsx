@@ -71,7 +71,7 @@ const BankAccountScreen: React.FC = () => {
             dataIndex: "account_number",
             render: (value, row: BankAccountResponse, index) => {
                 return <React.Fragment>
-                    <Link target="_blank" to={`${UrlConfig.ORDER}/${row.account_number}`}>
+                    <Link target="_blank" to={`${UrlConfig.BANK_ACCOUNT}/update/${row.id}`}>
                         {value}
                     </Link>
                     <div style={{ fontSize: "0.86em" }}>
