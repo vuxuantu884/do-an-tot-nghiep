@@ -33,6 +33,14 @@ export const StyledWrapper = styled.div`
   }
   .inventory-table {
     margin-top: 20px;
+
+    .border-red {
+      border-color: #FF0000 !important;
+    }
+
+    .border-orange {
+      border-color: #FFA500FF !important;
+    }
   }
   
   .inventory-info {
