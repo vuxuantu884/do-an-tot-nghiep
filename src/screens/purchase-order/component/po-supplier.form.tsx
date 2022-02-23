@@ -30,15 +30,17 @@ import addressIcon from "assets/img/user-pin.svg";
 import noteCustomer from "assets/img/note-customer.svg";
 import { Link } from "react-router-dom";
 import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
-import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { AddressType, POStatus } from "utils/Constants";
-import SupplierAddModal from "screens/products/supplier/modal/supplier-add-modal.screen";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { RegUtil } from "utils/RegUtils";
 import UrlConfig from "config/url.config";
 import _ from "lodash";
+import loadable from "@loadable/component";
+
+const SupplierAddModal = loadable(() => import("screens/products/supplier/modal/supplier-add-modal.screen"))
+const EditAddressModal = loadable(() => import("../modal/edit-address"))
 
 type POSupplierFormProps = {
   listCountries: Array<CountryResponse>;

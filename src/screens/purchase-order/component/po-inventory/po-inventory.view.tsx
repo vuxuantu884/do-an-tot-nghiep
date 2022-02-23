@@ -1,13 +1,15 @@
 import { Form, Row, Space } from "antd";
 import React, { useCallback } from "react";
 import classNames from "classnames";
-import TabAll from "./tab1";
-import TabInvetory from "./tab2";
-import TabConfirmed from "./tab3";
-import TabDraft from "./tab4";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { POField } from "model/purchase-order/po-field";
 import POProgressView from "../po-progress-view";
+import loadable from "@loadable/component";
+
+const TabAll = loadable(() => import("./tab1"))
+const TabInvetory = loadable(() => import("./tab2"))
+const TabConfirmed = loadable(() => import("./tab3"))
+const TabDraft = loadable(() => import("./tab4"))
 
 type POInventoryViewProps = {
   id?: number;
@@ -61,7 +63,6 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         {({ getFieldValue }) => {
           let planned_quantity = getFieldValue(POField.planned_quantity);
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
-          console.log(receipt_quantity - planned_quantity);
           return (
             <POProgressView
               remainTitle={receipt_quantity - planned_quantity > 0 ? "SL NHẬP DƯ" : "SL CÒN LẠI"}

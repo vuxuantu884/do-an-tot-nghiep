@@ -17,18 +17,20 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { POStatus, ProcumentStatus } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
-import ProcumentConfirmModal from "../modal/procument-confirm.modal";
-import ProcumentInventoryModal from "../modal/procument-inventory.modal";
-import ProcumentModal from "../modal/procument.modal";
 import POInventoryDraft from "./po-inventory/POInventoryDraft";
 import POInventoryView from "./po-inventory/po-inventory.view";
 import deliveryIcon from "assets/icon/delivery.svg";
 import procument from "assets/icon/procument.svg";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import POEditDraftProcurementModal from "../modal/POEditDraftProcurementModal";
 import { PoUpdateAction } from "domain/actions/po/po.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import loadable from "@loadable/component";
+
+const ProcumentConfirmModal = loadable(() => import("../modal/procument-confirm.modal"))
+const ProcumentInventoryModal = loadable(() => import("../modal/procument-inventory.modal"))
+const ProcumentModal = loadable(() => import("../modal/procument.modal"))
+const POEditDraftProcurementModal = loadable(() => import("../modal/POEditDraftProcurementModal"))
 
 export type POInventoryFormProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;

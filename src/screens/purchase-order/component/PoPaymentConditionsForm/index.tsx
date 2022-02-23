@@ -8,8 +8,10 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { formatCurrency } from "utils/AppUtils";
 import { PoPaymentMethod } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import POCreatePaymentModal from "../../modal/POCreatePayment";
 import { POPaymentConditionsFormStyled } from "./styles";
+import loadable from "@loadable/component";
+
+const POCreatePaymentModal = loadable(() => import("../../modal/POCreatePayment"))
 
 type POPaymentConditionsFormProps = {
   listPayment: Array<PoPaymentConditions>;
@@ -35,7 +37,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
     formMainEdit,
     isEditDetail,
   } = props;
- 
+
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [paymentsData, setPaymentsData] = useState<Array<PurchasePayments>>([]);
   const [paymentsDataDraft, setPaymentsDataDraft] = useState<

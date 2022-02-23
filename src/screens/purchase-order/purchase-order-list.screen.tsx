@@ -174,7 +174,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.SUPPLIERS}/${row.supplier_id}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {value}
@@ -190,7 +190,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.merchandiser_code}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {`${row.merchandiser_code} - ${row.merchandiser}`}
@@ -329,7 +329,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.qc_code}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {`${row.qc_code} - ${row.qc}`}
@@ -346,7 +346,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.designer_code}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {value}
@@ -562,8 +562,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         title="Quản lý đơn đặt hàng"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
+            name: "Kho hàng",
           },
           {
             name: "Đặt hàng",

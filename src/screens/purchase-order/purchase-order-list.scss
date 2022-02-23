@@ -32,6 +32,12 @@
     text-align: center;
     white-space: unset;
   }
+  .link-underline {
+    color: inherit;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .base-filter {

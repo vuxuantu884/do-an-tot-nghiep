@@ -1,9 +1,9 @@
 import { PrinterFilled, SaveFilled } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
+import loadable from '@loadable/component'
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
@@ -52,8 +52,10 @@ import POReturnList from "./component/po-return-list";
 import POStep from "./component/po-step";
 import POSupplierForm from "./component/po-supplier.form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
-import ModalExport from "./modal/ModalExport";
 import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
+
+const ModalDeleteConfirm = loadable(() => import("component/modal/ModalDeleteConfirm"))
+const ModalExport = loadable(() => import("./modal/ModalExport"))
 
 const ActionMenu = {
   EXPORT: 1,
@@ -341,11 +343,45 @@ const PODetailScreen: React.FC = () => {
     );
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
 
-  const renderButton = useMemo(() => {
-    switch (status) {
-      case POStatus.DRAFT:
-        return (
-          <>
+  const renderButton = useCallback(() => {
+    const checkRender = () => {
+      switch (status) {
+        case POStatus.DRAFT:
+          return (
+            <>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
+                <Button
+                  type="primary"
+                  className="create-button-custom ant-btn-outline"
+                  loading={isEditDetail && loadingSaveDraftButton}
+                  onClick={() => {
+                    if (isEditDetail) {
+                      setStatusAction(POStatus.DRAFT);
+                      formMain.submit();
+                    } else {
+                      setIsEditDetail(!isEditDetail);
+                    }
+                  }}
+                >
+                  {isEditDetail ? "Lưu nháp" : "Sửa đặt hàng"}
+                </Button>
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
+                <Button
+                  type="primary"
+                  onClick={onConfirmButton}
+                  className="create-button-custom"
+                  loading={loadingConfirmButton}
+                >
+                  Duyệt
+                </Button>
+              </AuthWrapper>
+            </>
+          );
+        case POStatus.CANCELLED:
+          return null;
+        default:
+          return (
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
               <Button
                 type="primary"
@@ -353,51 +389,58 @@ const PODetailScreen: React.FC = () => {
                 loading={isEditDetail && loadingSaveDraftButton}
                 onClick={() => {
                   if (isEditDetail) {
-                    setStatusAction(POStatus.DRAFT);
+                    setStatusAction(status);
                     formMain.submit();
                   } else {
                     setIsEditDetail(!isEditDetail);
                   }
                 }}
               >
-                {isEditDetail ? "Lưu nháp" : "Sửa đặt hàng"}
+                {isEditDetail ? "Lưu lại" : "Sửa"}
               </Button>
             </AuthWrapper>
-            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
-              <Button
-                type="primary"
-                onClick={onConfirmButton}
-                className="create-button-custom"
-                loading={loadingConfirmButton}
-              >
-                Duyệt
-              </Button>
-            </AuthWrapper>
-          </>
-        );
-      case POStatus.CANCELLED:
-        return null;
-      default:
-        return (
-          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
-            <Button
-              type="primary"
-              className="create-button-custom ant-btn-outline"
-              loading={isEditDetail && loadingSaveDraftButton}
-              onClick={() => {
-                if (isEditDetail) {
-                  setStatusAction(status);
-                  formMain.submit();
-                } else {
-                  setIsEditDetail(!isEditDetail);
-                }
-              }}
-            >
-              {isEditDetail ? "Lưu lại" : "Sửa"}
-            </Button>
-          </AuthWrapper>
-        );
+          );
+      }
     }
+
+    return (
+      <>
+        <div id="test" className="page-filter">
+          <Space direction="horizontal">
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
+              <Button
+                type="link"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrint && handlePrint();
+                }}
+                icon={<PrinterFilled style={{ fontSize: 28 }} />}
+              />
+            </AuthWrapper>
+            <Button
+              type="link"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleExport();
+              }}
+              icon={<SaveFilled style={{ fontSize: 28 }} />}
+            />
+            <div style={{ display: "none" }}>
+              <div className="printContent" ref={printElementRef}>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: purify.sanitize(printContent),
+                  }}
+                />
+              </div>
+            </div>
+            <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
+          </Space>
+        </div>
+        {checkRender()}
+      </>
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     formMain,
     isEditDetail,
@@ -477,8 +520,7 @@ const PODetailScreen: React.FC = () => {
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
+          name: "Kho hàng",
         },
         {
           name: "Đặt hàng",
@@ -490,38 +532,6 @@ const PODetailScreen: React.FC = () => {
       ]}
       extra={poData && <POStep poData={poData} />}
     >
-      <div id="test" className="page-filter">
-        <Space direction="horizontal">
-          <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
-          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
-            <Button
-              type="link"
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePrint && handlePrint();
-              }}
-              icon={<PrinterFilled style={{ fontSize: 28 }} />}
-            ></Button>
-          </AuthWrapper>
-          <Button
-            type="link"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleExport();
-            }}
-            icon={<SaveFilled style={{ fontSize: 28 }} />}
-          ></Button>
-          <div style={{ display: "none" }}>
-            <div className="printContent" ref={printElementRef}>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: purify.sanitize(printContent),
-                }}
-              ></div>
-            </div>
-          </div>
-        </Space>
-      </div>
       <Form
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
@@ -617,7 +627,7 @@ const PODetailScreen: React.FC = () => {
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
           height={80}
-          rightComponent={renderButton}
+          rightComponent={renderButton()}
         />
       </Form>
       {renderModalDelete()}
