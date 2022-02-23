@@ -150,7 +150,7 @@ const OrdersMapping: React.FC = () => {
         if (response.code === HttpStatus.SUCCESS && processData &&  !isNullOrUndefined(processData.total)) {
           setProgressData(processData);
           const progressCount = processData.total_created + processData.total_updated + processData.total_error;
-          if (progressCount >= processData.total || processData.finish) {
+          if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
