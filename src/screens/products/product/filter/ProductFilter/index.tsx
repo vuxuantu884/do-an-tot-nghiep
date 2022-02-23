@@ -340,7 +340,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.size:
                     component = (
-                      <SizeSearchSelect onSelect={(key, option) => getSizes(option?.key || key, 1)}/> // để tạm onslect để lấy key hiển thị ra filter list
+                      <SizeSearchSelect key="code" onSelect={(key, option) => getSizes(option?.key || key, 1)}/> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
                   case SearchVariantField.color:
