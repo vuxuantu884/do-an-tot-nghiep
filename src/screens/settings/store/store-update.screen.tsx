@@ -55,6 +55,7 @@ import TreeDepartment from "../department/component/TreeDepartment";
 import { DepartmentResponse } from "model/account/department.model";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { showSuccess } from "utils/ToastUtils";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -561,18 +562,7 @@ const StoreUpdateScreen: React.FC = () => {
                       icon: <InfoCircleOutlined />,
                     }}
                   >
-                    <CustomSelect
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      placeholder="Chọn VM phụ trách"
-                    >
-                      {accounts.map((item) => (
-                        <CustomSelect.Option key={item.code} value={item.code}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                    <AccountSearchPaging placeholder="Chọn VM phụ trách"/>
                   </Item>
                 </Col>
                 </Row>
