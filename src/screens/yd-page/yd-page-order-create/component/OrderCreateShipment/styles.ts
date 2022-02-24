@@ -81,4 +81,8 @@ export const StyledComponent = styled.div`
     }
   }
 
+  .ant-picker {
+    border-radius: 2px;
+  }
+
 `;

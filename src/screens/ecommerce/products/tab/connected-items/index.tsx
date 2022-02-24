@@ -146,8 +146,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       shop_ids: [],
       connect_status: "connected",
       update_stock_status: null,
-      sku_or_name_core: "",
-      sku_or_name_ecommerce: "",
+      sku_or_name_core: null,
+      sku_or_name_ecommerce: null,
       connected_date_from: null,
       connected_date_to: null,
     }),
@@ -161,8 +161,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     shop_ids: [],
     connect_status: "connected",
     update_stock_status: null,
-    sku_or_name_core: "",
-    sku_or_name_ecommerce: "",
+    sku_or_name_core: null,
+    sku_or_name_ecommerce: null,
     connected_date_from: null,
     connected_date_to: null,
   });
@@ -202,8 +202,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
-          showSuccess("Đồng bộ tồn kho sản phẩm thành công");
-          reloadPage();
+          handleSyncStockJob(result.process_id)
         }
       })
     );

@@ -56,6 +56,7 @@ import {RegUtil} from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
 import { strForSearch } from "utils/RemoveDiacriticsString";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Item} = Form;
 const {Panel} = Collapse;
@@ -247,12 +248,13 @@ const StoreCreateScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
+                    normalize={value => value.trimStart()}
                     rules={[
                       {required: true, message: "Vui lòng nhập tên cửa hàng"},
-                      {max: 255, message: "Tên danh mục không quá 255 kí tự"},
+                      {max: 255, message: "Tên cửa hàng không quá 255 kí tự"},
                       {
                         pattern: RegUtil.STRINGUTF8,
-                        message: "Tên danh mục không gồm kí tự đặc biệt",
+                        message: "Tên cửa hàng không gồm kí tự đặc biệt",
                       },
                       {
                         validator: (rule, value, callback) => {
@@ -578,18 +580,7 @@ const StoreCreateScreen: React.FC = () => {
                       icon: <InfoCircleOutlined />,
                     }}
                   >
-                    <CustomSelect
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      placeholder="Chọn VM phụ trách"
-                    >
-                      {accounts.map((item) => (
-                        <CustomSelect.Option key={item.code} value={item.code}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                    <AccountSearchPaging placeholder="Chọn VM phụ trách"/>
                   </Item>
                 </Col>
               </Row>
