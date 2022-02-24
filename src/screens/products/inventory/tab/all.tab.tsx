@@ -628,6 +628,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         }}
       />
       <CustomTable
+        className="small-padding"
         bordered
         isRowSelection
         isLoading={loading}

@@ -35,6 +35,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
   return (
     <div>
       <CustomTable
+        className="small-padding"
         dataSource={data.items}
         pagination={{
           total: data.metadata.total,

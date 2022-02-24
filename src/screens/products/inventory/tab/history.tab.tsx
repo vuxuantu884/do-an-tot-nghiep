@@ -8,7 +8,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom"; 
+import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -171,7 +171,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
           text = `+${text}`;
         }
         return text;
-      } 
+      }
     },
     {
       align: "right",
@@ -191,11 +191,11 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       render: (item: HistoryInventoryResponse)=>{
         return (
           <>
-           {item.account_code ?  
+           {item.account_code ?
             <div>
-                <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}> 
-                  {item.account_code} 
-                </Link>  
+                <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}>
+                  {item.account_code}
+                </Link>
             </div> : ""}
             <div>
               {item.account ?? ""}
@@ -209,7 +209,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
-  
+
   const onSelect = useCallback((selectedRow: Array<HistoryInventoryResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
@@ -217,15 +217,15 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       })
     );
   }, []);
-  
+
   useLayoutEffect(() => {
-    setColumn(defaultColumns); 
-    const search = new URLSearchParams(history.location.search); 
+    setColumn(defaultColumns);
+    const search = new URLSearchParams(history.location.search);
     if (search) {
       let condition =  search.get('condition');
       condition = condition && condition.trim();
       const store_ids =  search.get('store_ids');
-      if ((condition && condition !== null)) { 
+      if ((condition && condition !== null)) {
         setPrams({...params, condition: condition ?? ""});
       }
       if ((store_ids && store_ids !== null)) {
@@ -242,7 +242,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     dispatch(inventoryGetHistoryAction(temps, onResult));
   }, 300),
   [dispatch, params, onResult]
-) 
+)
 
   const onChangeKeySearch = useCallback(
     (keyword: string) => {
@@ -254,7 +254,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   useEffect(() => {
     setLoading(true);
     dispatch(inventoryGetHistoryAction(params, onResult));
-  }, [dispatch, onResult, params]) 
+  }, [dispatch, onResult, params])
 
   return (
     <div>
@@ -270,6 +270,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         }}
       />
       <CustomTable
+        className="small-padding"
         isLoading={loading}
         isRowSelection
         dataSource={data.items}

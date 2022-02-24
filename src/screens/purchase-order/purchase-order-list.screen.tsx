@@ -601,6 +601,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               listStore={listStore}
             />
             <CustomTable
+              className="small-padding"
               bordered
               isRowSelection
               isLoading={tableLoading}

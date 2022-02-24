@@ -404,7 +404,7 @@ const TabProductWrapper: React.FC = () => {
         dataSource={data.items}
         columns={columnFinal}
         rowKey={(item: ProductResponse) => item.id}
-        className="yody-table-product-search"
+        className="yody-table-product-search small-padding"
       />
       <ModalSettingColumn
         visible={showSettingColumn}
