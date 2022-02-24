@@ -229,9 +229,10 @@ const StoreUpdateScreen: React.FC = () => {
               </Item>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
+                  normalize={value => value.trimStart()}
                   rules={[
-                    {required: true, message: "Vui lòng nhập tên danh mục"},
-                    {max: 255, message: "Tên danh mục không quá 255 kí tự"},
+                    {required: true, message: "Vui lòng nhập tên cửa hàng"},
+                    {max: 255, message: "Tên cửa hàng không quá 255 kí tự"},
                     {
                       pattern: RegUtil.STRINGUTF8,
                       message: "Tên danh mục không gồm kí tự đặc biệt",
