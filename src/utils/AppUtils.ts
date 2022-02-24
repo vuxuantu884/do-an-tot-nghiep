@@ -1394,7 +1394,16 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
       dispatch(unauthorizedAction());
       break;
     case HttpStatus.FORBIDDEN:
-      showError(`${textApiInformation}: ${response.message}`);
+      showError(`${textApiInformation}: ${response?.message}`);
+      break;
+    case HttpStatus.NOT_FOUND:
+      showError(`${textApiInformation}: ${response?.message}`);
+      break;
+    case HttpStatus.SERVER_ERROR:
+      showError(`${textApiInformation}: ${response?.message}`);
+      break;
+    case HttpStatus.BAD_REQUEST:
+      response?.errors?.forEach((e:any) => showError(e));
       break;
     default:
       response?.errors?.forEach((e:any) => showError(e));
