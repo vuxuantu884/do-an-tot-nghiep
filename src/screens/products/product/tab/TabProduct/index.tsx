@@ -436,6 +436,7 @@ const TabProduct: React.FC = () => {
         onClickOpen={() => setShowSettingColumn(true)}
       />
       <CustomTable
+        className="small-padding"
         bordered
         selectedRowKey={rowKey}
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}

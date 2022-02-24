@@ -1,28 +1,30 @@
 import {FilterOutlined} from "@ant-design/icons";
-import {Button, Collapse, Form, FormInstance, Input, Space, Tag} from "antd";
+import {Button, Col, Collapse, Form, FormInstance, Input, Row, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import BaseFilter from "component/filter/base.filter";
-import CustomRangepicker, {
+import {
   StyledButton,
 } from "component/filter/component/range-picker.custom";
 import {MenuAction} from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import {StoreResponse} from "model/core/store.model";
-import {InventoryQuery} from "model/inventory";
+import {InventoryQuery, HistoryInventoryQuery} from "model/inventory";
 import {
   AvdHistoryInventoryFilter,
   HistoryInventoryMappingField,
   HistoryInventoryQueryField,
 } from "model/inventory/field";
 import moment from "moment";
-import {useCallback, useEffect, useState} from "react";
-import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
+import {createRef, useCallback, useEffect, useState} from "react";
+import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import {DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon} from "utils/DateUtils";
 import {QuantityButtonStyle} from "./history-filter.style";
 import TreeStore from "./TreeStore";
 
 interface HistoryInventoryFilterProps {
-  params: InventoryQuery;
+  params: HistoryInventoryQuery;
   listStore: Array<StoreResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
@@ -40,10 +42,11 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
 ) => {
   const {params, listStore, onFilter, openColumn} = props;
   const [visible, setVisible] = useState(false);
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
-  const [tempAdvanceFilters, setTempAdvanceFilters] = useState<any>({});
+  const [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const [dateClick, setDateClick] = useState('');
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
+  const formRef = createRef<FormInstance>();
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
@@ -52,20 +55,35 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
   }, []);
 
   const onBaseFinish = useCallback(
-    (values: InventoryQuery) => {
-      let data = formBaseFilter.getFieldsValue(true);
-      onFilter && onFilter(data);
+    (values: HistoryInventoryQuery) => {
+      onFilter && onFilter(values);
     },
-    [formBaseFilter, onFilter]
+    [onFilter]
   );
 
   const onAdvanceFinish = useCallback(
-    (values: InventoryQuery) => {
-      let data = formAdvanceFilter.getFieldsValue(true);
+    (values: any) => {
+      let data = {
+        ...formAdvanceFilter.getFieldsValue(true),
+        ...values
+      };
+
+      if (data.from_transaction_date)
+        data.from_transaction_date = getStartOfDayCommon(values.from_transaction_date)?.format();
+
+      if (data.to_transaction_date)
+        data.to_transaction_date = getEndOfDayCommon(values.to_transaction_date)?.format();
+
+      if (data.to_quantity===1)
+          data.to_quantity = '0'
+      if (data.from_quantity===1)
+          data.from_quantity = '0'
+
+      setAdvanceFilters(data);
 
       onFilter && onFilter(data);
     },
-    [formAdvanceFilter, onFilter]
+    [onFilter, formAdvanceFilter]
   );
 
   const onFilterClick = useCallback(() => {
@@ -85,28 +103,28 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
 
   const resetField = useCallback(
     (field: string) => {
-      formBaseFilter.setFieldsValue({
-        ...formBaseFilter.getFieldsValue(true),
-        [field]: undefined,
-      });
-      formAdvanceFilter.setFieldsValue({
-        ...formAdvanceFilter.getFieldsValue(true),
-        [field]: undefined,
-      });
-      formBaseFilter.submit();
+      formAdvanceFilter.resetFields([field]);
+      formBaseFilter.resetFields([field]);
+      formAdvanceFilter.submit();
     },
     [formBaseFilter, formAdvanceFilter]
   );
 
-  useEffect(() => {
-    setAdvanceFilters({...params});
-  }, [params]);
 
   useEffect(() => {
-    formBaseFilter.setFieldsValue({...advanceFilters});
-    formAdvanceFilter.setFieldsValue({...advanceFilters});
-    setTempAdvanceFilters(advanceFilters);
-  }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
+    const { from_quantity,from_transaction_date, to_transaction_date, to_quantity} = params;
+    const filter = {
+      ...params,
+      [HistoryInventoryQueryField.from_transaction_date]: formatDateFilter(from_transaction_date),
+      [HistoryInventoryQueryField.to_transaction_date]: formatDateFilter(to_transaction_date),
+      [HistoryInventoryQueryField.from_quantity]: from_quantity ? Number(from_quantity) : null,
+      [HistoryInventoryQueryField.to_quantity]: to_quantity ? Number(to_quantity) : null,
+    };
+
+    formAdvanceFilter.setFieldsValue(filter);
+    setAdvanceFilters(filter);
+  }, [formAdvanceFilter, params]);
+
   return (
     <div className="inventory-filter">
       <Form.Provider
@@ -136,7 +154,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             to_transaction_date,
             //quantity change
           };
-          
+
           formBaseFilter.setFieldsValue({...data});
           formAdvanceFilter?.setFieldsValue({
             ...data,
@@ -145,7 +163,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
       >
         <Form
           onFinish={onBaseFinish}
-          initialValues={advanceFilters}
+          initialValues={params}
           form={formBaseFilter}
           name={`baseHistory`}
           layout="inline"
@@ -159,13 +177,13 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                 onChange={(e)=>{props.onChangeKeySearch(e.target.value)}}
               />
             </Item>
-            <Item 
-              name={HistoryInventoryQueryField.store_ids} 
+            <Item
+              name={HistoryInventoryQueryField.store_ids}
               className="store"
               style={{ minWidth: '220px'}}
             >
-              <TreeStore 
-                form={formBaseFilter} 
+              <TreeStore
+                form={formBaseFilter}
                 name={HistoryInventoryQueryField.store_ids}
                 placeholder="Chọn cửa hàng"
                 listStore={listStore}
@@ -197,32 +215,35 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
           <Form
             name={`avdHistoryInventory`}
             onFinish={onAdvanceFinish}
-            initialValues={{}}
             form={formAdvanceFilter}
+            ref={formRef}
+            layout="vertical"
           >
-            <Space className="po-filter" direction="vertical" style={{width: "100%"}}>
-              {Object.keys(AvdHistoryInventoryFilter).map((field) => {
-                return (
-                  <Collapse key={field}>
-                    <Panel
-                      key="1"
-                      className={tempAdvanceFilters[field] ? "active" : ""}
-                      header={
-                        <span>{HistoryInventoryMappingField[field]?.toUpperCase()}</span>
-                      }
-                    >
-                      <Item name={field}>
-                        {field === AvdHistoryInventoryFilter.transaction_date ? (
-                          <CustomRangepicker />
-                        ) : (
-                          <QuantityChange form={formAdvanceFilter} />
-                        )}
-                      </Item>
-                    </Panel>
-                  </Collapse>
-                );
-              })}
-            </Space>
+            {Object.keys(HistoryInventoryMappingField).filter(e=>e !== "quantity").map((field) => {
+                  let component: any = null;
+                  switch (field) {
+                    case AvdHistoryInventoryFilter.transaction_date:
+                      component = <CustomFilterDatePicker
+                        fieldNameFrom={HistoryInventoryQueryField.from_transaction_date}
+                        fieldNameTo={HistoryInventoryQueryField.to_transaction_date}
+                        activeButton={dateClick}
+                        setActiveButton={setDateClick}
+                        formRef={formRef}
+                      />;
+                      break;
+                    case AvdHistoryInventoryFilter.quantity_change:
+                      component = <QuantityChange form={formAdvanceFilter} />;
+                      break;
+                    }
+                  return (
+                    <Row>
+                      <Col span={24} key={field}>
+                        <div className="font-weight-500">{HistoryInventoryMappingField[field]}</div>
+                        <Item name={field}>{component}</Item>
+                      </Col>
+                    </Row>
+                  );
+                })}
           </Form>
         </BaseFilter>
       </Form.Provider>
@@ -230,46 +251,52 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
   );
 };
 
-const FilterList = ({filters, resetField}: any) => {
+const keysDateFilter = ['transaction_date', 'quantity'];
+
+const FilterList = ({filters,resetField}: any) => {
+  const newFilters = {...filters};
   let filtersKeys = Object.keys(filters);
   let renderTxt: any = null;
+  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
+  filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
   return (
     <div>
-      {filtersKeys.map((filterKey) => {
+      {[...newKeys, ...filtersKeys].map((filterKey) => {
         let value = filters[filterKey];
-        
-        if (!value && filterKey === AvdHistoryInventoryFilter.transaction_date) return null;
-        
-        if (!HistoryInventoryMappingField[filterKey] && (['to_quantity','from_quantity'].indexOf(filterKey) === -1) ) 
-          return null;
-        
+
+        if ((value === null || value === undefined)
+          && (filters[`from_${filterKey}`] === undefined || filters[`from_${filterKey}`] === null)
+          && (filters[`to_${filterKey}`] === undefined || filters[`to_${filterKey}`]) === null) return null;
+        if (!HistoryInventoryMappingField[filterKey]) return null;
+
         switch (filterKey) {
           case AvdHistoryInventoryFilter.transaction_date:
-            let [from, to] = value;
-            let formatedFrom = moment(from).utc().format(DATE_FORMAT.DDMMYYY),
-              formatedTo = moment(to).utc().format(DATE_FORMAT.DDMMYYY);
-            let fixedDate = checkFixedDate(from, to);
-            if (fixedDate)
-              renderTxt = `${HistoryInventoryMappingField[filterKey]} : ${fixedDate}`;
-            else
-              renderTxt = `${HistoryInventoryMappingField[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+             renderTxt = `${HistoryInventoryMappingField.transaction_date} 
+            : ${filters[`from_${filterKey}`] ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'} 
+            ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
             break;
-          case HistoryInventoryQueryField.to_quantity:
-            if (value === null) {
-              return null;
-            }
-            renderTxt = `${HistoryInventoryMappingField[AvdHistoryInventoryFilter.quantity_change]}: Trừ`;
-            break;
-          case HistoryInventoryQueryField.from_quantity:
-            if (value === null) {
-              return null;
-            }
-            renderTxt = `${HistoryInventoryMappingField[AvdHistoryInventoryFilter.quantity_change]}: Cộng`;
+         case 'quantity':
+            renderTxt =
+              `${HistoryInventoryMappingField[AvdHistoryInventoryFilter.quantity_change]}: 
+              ${filters[HistoryInventoryQueryField.to_quantity] === 0 ? `Trừ`: `Cộng`}`;
             break;
         }
         return (
           <Tag
-            onClose={() => resetField(filterKey)}
+            onClose={() => {
+              if (filterKey === AvdHistoryInventoryFilter.transaction_date) {
+                resetField(HistoryInventoryQueryField.from_transaction_date);
+                resetField(HistoryInventoryQueryField.to_transaction_date);
+                return;
+              }
+              if (filterKey === "quantity") {
+                resetField(HistoryInventoryQueryField.from_quantity);
+                resetField(HistoryInventoryQueryField.to_quantity);
+                return;
+              }
+              resetField(filterKey)
+            }
+              }
             key={filterKey}
             className="fade"
             closable
@@ -290,7 +317,7 @@ const QuantityChange = ({form}: QuantityChangeProps) => {
       <StyledButton
         className={"btn-item"}
         onClick={() => {
-          form.setFieldsValue({[HistoryInventoryQueryField.to_quantity]: 0});
+          form.setFieldsValue({[HistoryInventoryQueryField.to_quantity]: 1});
           form.setFieldsValue({[HistoryInventoryQueryField.from_quantity]: null});
         }}
       >
@@ -300,7 +327,7 @@ const QuantityChange = ({form}: QuantityChangeProps) => {
         className={"btn-item"}
         onClick={() => {
           form.setFieldsValue({[HistoryInventoryQueryField.to_quantity]: null});
-          form.setFieldsValue({[HistoryInventoryQueryField.from_quantity]: 0});
+          form.setFieldsValue({[HistoryInventoryQueryField.from_quantity]: 1});
         }}
       >
         Cộng <br /> (Nhập hàng)
