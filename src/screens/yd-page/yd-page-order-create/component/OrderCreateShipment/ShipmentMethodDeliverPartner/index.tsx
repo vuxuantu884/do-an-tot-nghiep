@@ -205,9 +205,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </div>
         )}
         <Row gutter={20}>
-          <Col span={12}>
+          <Col span={12}
+           style={{padding: "0 5px 0 10px"}}
+          >
             <Form.Item className="form-input-deliver">
               <NumberInput
+                style={{textAlign: "left"}}
                 // format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="COD"
@@ -222,9 +225,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={12}
+           style={{padding: "0 10px 0 5px"}}
+          >
             <Form.Item className="form-input-deliver">
               <NumberInput
+                style={{textAlign: "left"}}
                 // format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="Phí ship báo khách"

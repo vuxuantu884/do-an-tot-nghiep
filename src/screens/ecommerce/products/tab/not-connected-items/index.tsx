@@ -54,7 +54,7 @@ import ResultConnectProductModal from "screens/ecommerce/products/tab/not-connec
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import filterIcon from "assets/icon/filter.svg";
 import saveIcon from "assets/icon/save.svg";
-import imgdefault from "assets/icon/img-default.svg";
+import imgDefault from "assets/icon/img-default.svg";
 
 import {
   StyledComponent,
@@ -71,8 +71,8 @@ import BaseResponse from "base/base.response";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
-
 let connectedYodyProductsRequest: object;
+let suggestVariants = window.localStorage.getItem("suggest")
 
 type NotConnectedItemsPropsType = {
   isReloadPage: boolean;
@@ -156,6 +156,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     sku_or_name_ecommerce: "",
     connected_date_from: null,
     connected_date_to: null,
+    suggest: suggestVariants
   });
 
 
@@ -411,9 +412,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <div className="item-searched-list">
             <div className="item-img">
               <img
-                src={avatar === "" ? imgdefault : avatar}
+                src={avatar === "" ? imgDefault : avatar}
                 alt="anh"
-                placeholder={imgdefault}
+                placeholder={imgDefault}
                 style={{ width: "40px", height: "40px", borderRadius: 5 }}
               />
             </div>
@@ -1032,7 +1033,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   };
 
   const handleSuggestItem = () => {
-    reloadPage()
+    if (query.suggest) {
+      window.localStorage.setItem("suggest", "");
+      const suggest = "";
+      const queryVariant = {...query, suggest};
+      setQuery(queryVariant);
+    } else {
+      window.localStorage.setItem("suggest", "suggested");
+      const suggest = "suggested";
+      const queryVariant = {...query, suggest};
+      setQuery(queryVariant);
+    }
+    window.location.reload();
   }
 
   const actionList = (

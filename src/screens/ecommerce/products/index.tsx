@@ -98,6 +98,17 @@ const Products: React.FC = () => {
     setIsVisibleConflictModal(false);
   }
 
+  window.onbeforeunload = (e) => {
+    if (processId){
+      const message = "Quá trình sẽ vẫn tiếp tục nếu bạn rời khỏi trang?"
+      e = e || window.event;
+      if (e){
+        e.returnValue = message;
+      }
+      return message
+    }
+  }
+
   // handle progress download modal
   const onCancelProgressDownloadOrder = () => {
     setIsVisibleExitDownloadProductsModal(true);
@@ -105,7 +116,7 @@ const Products: React.FC = () => {
 
   const onOKProgressDownloadOrder = () => {
     resetProgress();
-    redirectToNotConnectedItems();
+    // redirectToNotConnectedItems();
     setIsVisibleProgressModal(false);
   }
   // end
@@ -139,7 +150,7 @@ const Products: React.FC = () => {
         if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(processData.total)) {
           setProgressData(response.data);
           const progressCount = processData.total_created + processData.total_updated + processData.total_error;
-          if (progressCount >= processData.total || processData.finish) {
+          if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
@@ -221,11 +232,11 @@ const Products: React.FC = () => {
   };
   // end handle get product from ecommerce
 
-  const redirectToNotConnectedItems = () => {
-    setIsReloadPage(true);
-    handleOnchangeTab("not-connected-item");
-    setActiveTab("not-connected-item");
-  };
+  // const redirectToNotConnectedItems = () => {
+  //   setIsReloadPage(true);
+  //   handleOnchangeTab("not-connected-item");
+  //   setActiveTab("not-connected-item");
+  // };
 
   const redirectToTotalProducts = () => {
     setIsReloadPage(true);

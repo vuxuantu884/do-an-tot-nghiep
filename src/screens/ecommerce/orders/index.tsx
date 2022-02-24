@@ -864,7 +864,7 @@ const EcommerceOrders: React.FC = () => {
           const processData = response.data;
           setProgressData(processData);
           const progressCount = processData.total_created + processData.total_updated + processData.total_error;
-          if (progressCount >= processData.total || processData.finish) {
+          if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
@@ -897,6 +897,16 @@ const EcommerceOrders: React.FC = () => {
   }, [getProgress,  ]);
 // end progress download orders
 
+  window.onbeforeunload = (e) => {
+    if (processId){
+      const message = "Quá trình sẽ vẫn tiếp tục nếu bạn rời khỏi trang?"
+      e = e || window.event;
+      if (e){
+        e.returnValue = message;
+      }
+      return message
+    }
+  }
   return (
     <StyledComponent>
       <ContentContainer
