@@ -183,8 +183,8 @@ const BackAccountUpdateScreen: React.FC = () => {
                                         validator(_, value) {
                                             if (value.trim().length === 0)
                                                 return Promise.reject(new Error("Vui lòng nhập tên chủ tài khoản"));
-                                            if (value.length > 250)
-                                                return Promise.reject(new Error("Tên chủ tài khoản không vượt quá 250 kí tự"));
+                                            if (value.length > 50)
+                                                return Promise.reject(new Error("Tên chủ tài khoản không vượt quá 50 kí tự"));
                                             return Promise.resolve();
                                         }
                                     })
