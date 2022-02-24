@@ -1,14 +1,14 @@
 const InventoryQueryField = {
-  condition: 'condition', 
+  condition: 'condition',
   store_ids: 'store_ids',
   is_remain: 'is_remain',
-  created_date: 'created_date', 
+  created_date: 'created_date',
   status: 'status'
 }
 
 const AvdInventoryFilter = {
   info: 'info',
-  store_ids: 'store_ids', 
+  store_ids: 'store_ids',
   made_in_ids: 'made_in_ids',
   designer_codes: 'designer_codes',
   merchandiser_codes: 'merchandiser_codes',
@@ -44,18 +44,18 @@ const HistoryInventoryQueryField = {
   from_transaction_date: 'from_transaction_date',
   to_transaction_date: 'to_transaction_date',
   from_quantity: 'from_quantity',
-  to_quantity: 'to_quantity'  
+  to_quantity: 'to_quantity'
 }
 
 const AvdHistoryInventoryFilter = {
   transaction_date: 'transaction_date',
-  quantity_change: 'quantity_change', 
+  quantity_change: 'quantity_change',
 }
 
 const AvdAllFilter = {
   category: 'category',
   info: 'info',
-  store_ids: 'store_ids', 
+  store_ids: 'store_ids',
   made_in_ids: 'made_in_ids',
   designer_codes: 'designer_codes',
   merchandiser_codes: 'merchandiser_codes',
@@ -83,7 +83,7 @@ const InventoryColumnField = {
   retail_price: 'retail_price',
   on_hand: 'on_hand',
   available: 'available',
-  committed: 'committed', 
+  committed: 'committed',
   on_hold: 'on_hold',
   defect: 'defect',
   in_coming: 'in_coming',
@@ -96,14 +96,15 @@ const InventoryColumnField = {
 const HistoryInventoryMappingField = {
   [AvdHistoryInventoryFilter.transaction_date]: 'Thời gian',
   [AvdHistoryInventoryFilter.quantity_change]: 'Số lượng thay đổi',
+  quantity: 'Số lượng thay đổi',
 }
 
 export {InventoryQueryField,
    InventoryMappingField,
-   BasicInventoryFilter, 
-   AvdInventoryFilter, 
-   HistoryInventoryQueryField, 
-   AvdHistoryInventoryFilter, 
+   BasicInventoryFilter,
+   AvdInventoryFilter,
+   HistoryInventoryQueryField,
+   AvdHistoryInventoryFilter,
    HistoryInventoryMappingField,
    AvdAllFilter,
    AllInventoryMappingField,
