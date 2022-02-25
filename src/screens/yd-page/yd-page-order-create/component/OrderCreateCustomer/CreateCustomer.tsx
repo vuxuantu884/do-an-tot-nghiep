@@ -34,6 +34,7 @@ import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import {StyledComponent} from "./styles";
 
 type CreateCustomerProps = {
   newCustomerInfo?: YDpageCustomerRequest;
@@ -292,7 +293,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   }, [customerForm]);
 
   return (
-    <>
+    <StyledComponent>
       <Form
         form={customerForm}
         ref={formRef}
@@ -582,13 +583,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         <Row gutter={12} style={{ marginTop: 15 }}>
           <Col md={12}>
             <Checkbox
-              className="checkbox-style"
+              className={isVisibleShipping ? "checkbox-style send-order-box-default" : "checkbox-style"}
               onChange={() => {
                 setVisibleShipping(!isVisibleShipping);
               }}
               style={{ marginLeft: "3px" }}
               checked={isVisibleShipping}
-              //disabled={levelOrder > 3}
+              disabled={isVisibleShipping}
             >
               Thông tin của khách hàng cũng là thông tin giao hàng
             </Checkbox>
@@ -790,7 +791,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           </Col>
         </Row>
       )}
-    </>
+    </StyledComponent>
   );
 };
 
