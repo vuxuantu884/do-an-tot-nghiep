@@ -7,7 +7,6 @@ import UrlConfig from "config/url.config";
 import {
   getOrderMappingListAction,
   getShopEcommerceList,
-  syncStockEcommerceProduct,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
@@ -24,7 +23,6 @@ import { getIconByEcommerceId } from "screens/ecommerce/common/commonAction";
 
 import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
 const initQuery: GetOrdersMappingQuery = {
   page: 1,
@@ -60,13 +58,14 @@ type AllOrdersMappingProps = {
   isReloadPage: boolean;
   setRowDataFilter: (x: any) => void;
   handleDownloadSelectedOrders: (x: any) => void
+  handleSingleDownloadOrder: (x: any) => void
 };
 
 const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   props: AllOrdersMappingProps
 ) => {
   const dispatch = useDispatch();
-  const { isReloadPage,setRowDataFilter, handleDownloadSelectedOrders } = props;
+  const { isReloadPage,setRowDataFilter, handleDownloadSelectedOrders, handleSingleDownloadOrder } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useState<Array<AccountResponse>>();
@@ -97,39 +96,9 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
 
-  const handleSyncOrder = (rowData: any) => {
-    const requestSyncStockOrder = {
-      order_list: [
-        {
-          ecommerce_id: rowData.ecommerce_id,
-          shop_id: rowData.shop_id,
-          order_sn: rowData.ecommerce_order_code,
-        },
-      ],
-    };
-
-    dispatch(
-      syncStockEcommerceProduct(requestSyncStockOrder, (result) => {
-        if (!!result) {
-          if (result.update_total > 0) {
-            if (result.error_total > 0) {
-              showWarning(`Đồng bộ ${result.update_total} đơn hàng thành công.
-
-              Đồng bộ ${result.error_total} đơn hàng thất bại`);
-            } else {
-              showSuccess(`Đồng bộ ${result.update_total} đơn hàng thành công`);
-            }
-          } else {
-            showError(`Đồng bộ ${result.error_total} đơn hàng thất bại`);
-          }
-        }
-      })
-    );
-  };
-
   const tableRowActionList = [
     {
-      onClick: handleSyncOrder,
+      onClick: handleSingleDownloadOrder,
       actionName: "Đồng bộ đơn hàng",
     },
   ];

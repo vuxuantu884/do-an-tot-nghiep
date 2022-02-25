@@ -379,9 +379,16 @@ const OrderDetail = (props: PropType) => {
         order_sn: OrderDetail.reference_code,
         shop_id: OrderDetail.ecommerce_shop_id,
       }
-      dispatch(getEcommerceStoreAddress(ecommerceAddressQuery, setEcommerceStoreAddress));
+      dispatch(getEcommerceStoreAddress(ecommerceAddressQuery, ecommerceStoreAddressCallback));
     }
   }, [OrderDetail, dispatch])
+
+  const ecommerceStoreAddressCallback = (data: any) => {
+    if (data){
+      setVisibleLogisticConfirmModal(true);
+      setEcommerceStoreAddress(data)
+    }
+  }
 
   const orderActionsClick = useCallback(
     (type) => {
@@ -413,7 +420,6 @@ const OrderDetail = (props: PropType) => {
           break;
         case "confirm":
           handleEcommerceStoreAddress();
-          setVisibleLogisticConfirmModal(true);
           break;
         default:
           break;
