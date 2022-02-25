@@ -487,7 +487,7 @@ const OrderDetail = (props: PropType) => {
 
   // mã vận đơn: đối với ghtk, đến bước đóng gói sẽ load lại để lấy mã vận đơn
   useEffect(() => {
-    if(!OrderDetail?.fulfillments) {
+    if(!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
     const trackingCode =  OrderDetail?.fulfillments[0].shipment?.tracking_code;
