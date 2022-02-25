@@ -8,7 +8,7 @@ const AddBankAccountBottombar: React.FC<any> = (props: any) => {
         <StyledComponent>
             <div className="bottomBar">
                 <Row gutter={24}>
-                    <Col md={12} style={{ paddingLeft: "24px" }}>
+                    <Col md={12} style={{ display:"flex",justifyContent:"start" }}>
                         {/* <Link to={`${UrlConfig.PACK_SUPPORT}/`} style={{ float: "left", paddingTop: 10, paddingRight: 14, color: "#737373" }}>
                             <ArrowLeftOutlined />Quay lại danh sách
                         </Link> */}
@@ -22,7 +22,7 @@ const AddBankAccountBottombar: React.FC<any> = (props: any) => {
                             Quay lại danh sách
                         </Button>
                     </Col>
-                    <Col md={12} style={{ paddingRight: 43 }}>
+                    <Col md={12} style={{ display:"flex", justifyContent:"end", flexWrap:"wrap" }}>
                         <Button
                             style={{ width: 90, fontWeight: 400 }}
                             className="ant-btn-outline fixed-button cancle-button"
