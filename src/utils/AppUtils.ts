@@ -1408,6 +1408,7 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 	if(departmentIds && departmentIds.length > 0) {
     const query = {
       department_ids: departmentIds,
+      active: true,
     }
     try {
       let response = await getSourcesWithParamsService(query);
