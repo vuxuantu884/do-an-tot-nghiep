@@ -307,11 +307,14 @@ const TabProductWrapper: React.FC = () => {
   );
 
   const onActive = useCallback(
-    (selected: ProductWrapperResponse) => {
+    (selected: any) => {
       const request = {
         ...selected,
         status: "active",
       };
+      if (selected.collections) {
+        selected.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
+      }
 
       dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
     },
