@@ -14,6 +14,7 @@ import iconEdit from "assets/icon/edit.svg";
 import { RiCheckboxCircleLine } from "react-icons/ri";
 import ButtonCreate from "component/header/ButtonCreate";
 import { getBankAccountAction } from 'domain/actions/bank/bank.action';
+import { CheckOutlined } from "@ant-design/icons";
 
 
 const initQuery: BankAccountSearchQuery = {
@@ -119,8 +120,12 @@ const BankAccountScreen: React.FC = () => {
                 let text = row.default ? "text-success" : "text-error";
 
                 return (
-                    <div style={{ textAlign: "center", fontSize: "20px" }} className={text}>
-                        <RiCheckboxCircleLine />
+                    <div style={row.default ? { textAlign: "center", fontSize: "20px", color:"#2A2A86" }
+                        : { textAlign: "center", fontSize: "20px", display: "none" }}
+                        className={text}
+                    >
+                        {/* <RiCheckboxCircleLine /> */}
+                        <CheckOutlined />
                     </div>
                 );
             },
