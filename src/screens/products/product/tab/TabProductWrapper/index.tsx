@@ -308,12 +308,12 @@ const TabProductWrapper: React.FC = () => {
 
   const onActive = useCallback(
     (selected: any) => {
-      const request = {
+      let request = {
         ...selected,
         status: "active",
-      };
+      }; 
       if (selected.collections) {
-        selected.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
+        request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
       }
 
       dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
@@ -323,12 +323,13 @@ const TabProductWrapper: React.FC = () => {
 
   const onInactive = useCallback(
     (selected: any) => {
-      const request = {
+      let request = {
         ...selected,
         status: "inactive",
       };
+      
       if (selected.collections) {
-        selected.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
+        request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
       }
 
       dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
