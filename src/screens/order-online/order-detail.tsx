@@ -71,6 +71,7 @@ import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmM
 import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
 import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
 import { yellowColor } from "utils/global-styles/variables";
+import { getOrderDetail } from "service/order/order.service";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -483,6 +484,31 @@ const OrderDetail = (props: PropType) => {
     setShowPaymentPartialPayment(false);
     setPaymentMethod(2);
   }, [dispatch, onGetDetailSuccess, reload, OrderDetail, id]);
+
+  // mã vận đơn: đối với ghtk, đến bước đóng gói sẽ load lại để lấy mã vận đơn
+  useEffect(() => {
+    if(!OrderDetail?.fulfillments) {
+      return;
+    }
+    const trackingCode =  OrderDetail?.fulfillments[0].shipment?.tracking_code;
+    const pushingStatus =  OrderDetail?.fulfillments[0].shipment?.pushing_status;
+    let getTrackingCode = setInterval(()=> {
+      if (!trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed") {
+        getOrderDetail(id).then(response => {
+          if(response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
+            onGetDetailSuccess(response.data);
+            clearInterval(getTrackingCode);
+            showSuccess("Lấy mã vận đơn thành công!")
+          }
+        })
+      } else {
+        clearInterval(getTrackingCode);
+      }
+    }, 2000)
+    return () => {
+      clearInterval(getTrackingCode)
+    }
+  }, [OrderDetail?.fulfillments, id, onGetDetailSuccess, stepsStatusValue])
 
 	useEffect(() => {
     dispatch(
