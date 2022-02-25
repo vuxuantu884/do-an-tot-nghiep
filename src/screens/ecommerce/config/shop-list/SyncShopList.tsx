@@ -38,7 +38,7 @@ const SyncShopList: React.FC<SyncShopListProps> = (
     icon: "",
     id: "all",
     isActive: "",
-    key: 1,
+    key: 0,
   });
 
   const handleUpdate = (item: any) => {
