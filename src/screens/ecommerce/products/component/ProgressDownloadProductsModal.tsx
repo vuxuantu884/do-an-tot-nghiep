@@ -99,7 +99,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
 
             {processType === ECOMMERCE_JOB_TYPE.VARIANT &&
             <div>
-              <div>SP mới</div>
+              <div>SP cha mới</div>
               <div className="total-created">
                 {isNullOrUndefined(progressData?.total_created) ?
                   "--" :
@@ -115,7 +115,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
 
             {processType === ECOMMERCE_JOB_TYPE.VARIANT &&
                 <div>
-                  <div>SP cập nhật</div>
+                  <div>SP cha cập nhật</div>
                   <div className="total-updated">
                     {isNullOrUndefined(progressData?.total_updated) ?
                         "--" :
