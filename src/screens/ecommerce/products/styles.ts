@@ -93,6 +93,9 @@ export const StyledProductFilter = styled.div`
   }
 
   .render-shop-list {
+    max-height: 160px;
+    overflow-x: hidden;
+    overflow-y: scroll;
     .shop-name {
       padding: 5px 10px;
       white-space: nowrap;

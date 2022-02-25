@@ -80,6 +80,9 @@ export const StyledBaseFilter = styled.div`
 
 export const StyledRenderShopList = styled.div`
   .shop-list {
+    max-height: 160px;
+    overflow-x: hidden;
+    overflow-y: scroll;
     padding: 0 10px;
     .shop-name {
       padding: 5px 10px;
