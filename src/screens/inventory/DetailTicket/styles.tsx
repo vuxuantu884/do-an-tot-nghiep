@@ -37,6 +37,10 @@ export const StyledWrapper = styled.div`
     .border-red {
       border-color: #FF0000 !important;
     }
+    
+    .border-violet {
+      border-color: #EE82EEFF !important;
+    }
 
     .border-orange {
       border-color: #FFA500FF !important;
