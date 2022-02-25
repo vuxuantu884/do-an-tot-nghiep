@@ -36,6 +36,7 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
       title: "STT",
       align: "center",
       width: "13%",
+      key: "1",
       render: (l: any, v: any, i: any) => {
         return (
           <div>{i + 1}</div>
@@ -44,6 +45,7 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
     },
     {
       title: "Nội dung",
+      key: "2",
       render: (item: any, v: any, i: any) => {
         return (
           <div>
@@ -53,7 +55,6 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
       },
     }
   ]);
-
 
   return (
     <Modal
