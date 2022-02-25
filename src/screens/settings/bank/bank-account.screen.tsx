@@ -95,7 +95,7 @@ const BankAccountScreen: React.FC = () => {
                             return <Tag color="green">{item.store_name}</Tag>;
                         })}
                     </span> */}
-                    {row.stores.length < 3 ? (
+                    {row.stores.length < 5 ? (
                         <span>
                             {row?.stores?.map((item) => {
                                 return <Tag color="green">{item.store_name}</Tag>;
@@ -105,7 +105,10 @@ const BankAccountScreen: React.FC = () => {
                         <span>
                             <Tag color="green">{row.stores[0].store_name}</Tag>
                             <Tag color="green">{row.stores[1].store_name}</Tag>
-                            <Tag color="green">+{row.stores.length - 2}...</Tag>
+                            <Tag color="green">{row.stores[2].store_name}</Tag>
+                            <Tag color="green">{row.stores[3].store_name}</Tag>
+                            <Tag color="green">{row.stores[4].store_name}</Tag>
+                            <Tag color="green">+{row.stores.length - 5}...</Tag>
                         </span>
                     )}
                 </React.Fragment>
