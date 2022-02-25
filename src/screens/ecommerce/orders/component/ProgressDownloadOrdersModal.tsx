@@ -37,34 +37,6 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
     }
   }, [progressData?.errors_msg]);
 
-  // const columns: Array<ICustomTableColumType<any>> = [
-  //   {
-  //     title: "STT",
-  //     align: "center",
-  //     width: 70,
-  //     render: (value: any, row: any, index: any) => {
-  //       return <span>{index + 1}</span>;
-  //     },
-  //   },
-  //   {
-  //     title: "Mã đơn hàng",
-  //     dataIndex: "order_sn",
-  //     width: 155,
-  //   },
-  //   {
-  //     title: "Nội dung",
-  //     dataIndex: "error_message",
-  //     render: (value: any, item: any, index: number) => {
-  //       return (
-  //         <div>
-  //           {value[0]}
-  //         </div>
-  //       );
-  //     },
-  //   },
-  // ];
-
-
   return (
     <Modal
       width="620px"

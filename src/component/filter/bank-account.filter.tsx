@@ -50,21 +50,21 @@ const BankAccountFilter: React.FC<BankAccountType> = (props: BankAccountType) =>
                 initialValues={initialValues}
             >
                 <FilterWrapper>
-                    <Form.Item name="account_numbers" className="search" style={{ minWidth: 200 }}>
+                    <Form.Item name="account_numbers" className="search" style={{ width: "100%" }}>
                         <Input
                             prefix={<img src={search} alt="" />}
                             placeholder="Tìm kiếm theo số tài khoản"
                         />
                     </Form.Item>
 
-                    <Form.Item name="store_ids" style={{ width: 400 }}>
+                    <Form.Item name="store_ids" style={{ width: "75%" }}>
                         <TreeStore
                             name="store_ids"
                             listStore={listStore}
                         />
                     </Form.Item>
 
-                    <Form.Item name="status" style={{ width: 400 }}>
+                    <Form.Item name="status" style={{ width: "75%" }}>
                         <Select
                             placeholder="Chọn trạng thái"
                             allowClear
