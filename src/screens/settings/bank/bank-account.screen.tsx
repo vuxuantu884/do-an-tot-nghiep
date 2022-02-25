@@ -11,7 +11,7 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import iconEdit from "assets/icon/edit.svg";
-import { RiCheckboxCircleLine } from "react-icons/ri";
+// import { RiCheckboxCircleLine } from "react-icons/ri";
 import ButtonCreate from "component/header/ButtonCreate";
 import { getBankAccountAction } from 'domain/actions/bank/bank.action';
 import { CheckOutlined } from "@ant-design/icons";
