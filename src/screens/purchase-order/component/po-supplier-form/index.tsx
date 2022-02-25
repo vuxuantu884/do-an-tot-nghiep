@@ -205,7 +205,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                       <Button type="link" onClick={removeSupplier} icon={<AiOutlineClose />} />
                     )}
                   </Row>
-                  <Divider />
+                  <Divider style={{ marginBottom: 0 }} />
                   {isSelectSupplier && showBillingAddress && (
                     <>
                       <Form.Item hidden name="supplier_id">
@@ -228,7 +228,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                         field="billing_address"
                         onEdit={() => showEditAddressModal(billing_address, "billing_address")}
                       />
-                      <Divider />
+                      <Divider style={{ marginTop: 0 }} />
                       <div className="margin-top-bottom-10">
                         <Row>
                           <Checkbox
@@ -241,7 +241,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                       </div>
                       {isSendInvoice && (
                         <>
-                          <Divider />
+                          <Divider style={{ margin: 0 }} />
                           <POSupplierAddress
                             getFieldValue={getFieldValue}
                             field="supplier_address"
@@ -249,7 +249,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                               showEditAddressModal(supplier_address, "supplier_address")
                             }
                           />
-                          <Divider />
+                          <Divider style={{ marginTop: 0 }} />
                           {isEdit ||
                           stepStatus === POStatus.COMPLETED ||
                           stepStatus === POStatus.FINISHED ? (

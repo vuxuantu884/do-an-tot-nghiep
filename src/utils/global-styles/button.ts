@@ -22,6 +22,8 @@ export const globalCssCustomButton = css`
     color: inherit;
     border-color: ${borderColor};
     background-color: #ffffff;
+    display: flex;
+    align-items: center;
     &-icon-only {
       width: 42px;
       padding: 6px;
