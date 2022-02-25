@@ -7,9 +7,9 @@ const labelJob = [
     },
     {
       label: "variant",
-      display: "Tải sản phẩm",
+      display: "Tải sản phẩm cha",
       cancel_success_message: "Hủy tải sản phẩm thành công",
-      cancel_fail_message: "Hủy đồng bộ tồn thất bại"
+      cancel_fail_message: "Hủy tải sản phẩm tồn thất bại"
     },
     {
       label: "order",
