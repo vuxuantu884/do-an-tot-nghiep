@@ -236,11 +236,15 @@ function OrdersTable(props: PropTypes) {
 
   const renderShippingAddress = (orderDetail: OrderModel) => {
     let result = "";
-    let shippingAddress = orderDetail?.shipping_address;
-    if (!shippingAddress) {
-      return "";
+		let shippingAddress = orderDetail?.shipping_address;
+		if(!shippingAddress) {
+			return "";
+		}
+    const addressArr = [shippingAddress.name, shippingAddress.phone, shippingAddress.full_address, shippingAddress.ward, shippingAddress.district, shippingAddress.city];
+    const addressArrResult = addressArr.filter(address => address);
+    if(addressArrResult.length > 0) {
+      result = addressArrResult.join(" -- ")
     }
-    result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`;
     return <React.Fragment>{result}</React.Fragment>;
   };
 

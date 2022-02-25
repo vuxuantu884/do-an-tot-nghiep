@@ -161,37 +161,39 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       icon: "",
       id: "all",
       isActive: true,
-      key: 1,
-    },
-    {
-      title: "Sàn Tiki",
-      icon: ECOMMERCE_ICON.tiki,
-      id: "tiki",
-      isActive: false,
-      key: 2,
+      key: 0,
     },
     {
       title: "Sàn Shopee",
       icon: ECOMMERCE_ICON.shopee,
       id: "shopee",
       isActive: false,
-      key: 3,
+      key: 1,
     },
     {
       title: "Sàn Lazada",
       icon: ECOMMERCE_ICON.lazada,
       id: "lazada",
       isActive: false,
-      key: 4,
+      key: 2,
+    },
+    {
+      title: "Sàn Tiki",
+      icon: ECOMMERCE_ICON.tiki,
+      id: "tiki",
+      isActive: false,
+      key: 3,
     },
     {
       title: "Sàn Sendo",
       icon: ECOMMERCE_ICON.sendo,
       id: "sendo",
       isActive: false,
-      key: 5,
+      key: 4,
     },
   ]);
+
+  
 
   const configDataFiltered =
     configData &&
@@ -199,7 +201,7 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       if (activatedBtn?.id === "all") {
         return true;
       } else {
-        return item.ecommerce === activatedBtn.id;
+        return item.ecommerce_id === activatedBtn.key;
       }
     });
 
