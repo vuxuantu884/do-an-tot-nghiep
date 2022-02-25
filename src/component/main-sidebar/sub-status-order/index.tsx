@@ -38,28 +38,28 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 		const STATUS_ORDER_PARTNER = [
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l1",
-				list: ["goi_dien_l1", "goi_dien_l2", "goi_dien_l3"]
+				now: "first_call_attempt",
+				list: ["first_call_attempt", "second_call_attempt", "third_call_attempt"]
 			},
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l2",
-				list: ["goi_dien_l2", "goi_dien_l3"]
+				now: "second_call_attempt",
+				list: ["second_call_attempt", "third_call_attempt"]
 			},
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l3",
-				list: ["goi_dien_l3"]
+				now: "third_call_attempt",
+				list: ["third_call_attempt"]
 			},
       {
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "cho_sale_xac_nhan_lai","coordinator_confirmed", "doi_kho_hang", "4h_delivery"]
+				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "require_warehouse_change", "4h_delivery"]
 			},
 			{
 				orderStatus: OrderStatus.FINALIZED,
 				now: "merchandise_picking",
-				list: ["merchandise_picking", "doi_kho_hang"]
+				list: ["merchandise_picking", "require_warehouse_change"]
 			},
       {
 				orderStatus: OrderStatus.FINALIZED,
@@ -73,40 +73,40 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 			},
 			{
 				orderStatus: OrderStatus.FINISHED,
-				now: "giao_hang_thanh_cong",
-				list: ["giao_hang_thanh_cong"]
+				now: "shipped",
+				list: ["shipped"]
 			},
 			{
 				orderStatus: OrderStatus.CANCELLED,
-				now: "huy_don",
-				list: ["huy_don"]
+				now: "cancelled",
+				list: ["cancelled"]
 			},
 		]
 		const STATUS_ORDER_AT_STORE = [
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l1",
-				list: ["goi_dien_l1", "goi_dien_l2", "goi_dien_l3"]
+				now: "first_call_attempt",
+				list: ["first_call_attempt", "second_call_attempt", "third_call_attempt"]
 			},
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l2",
-				list: ["goi_dien_l2", "goi_dien_l3"]
+				now: "second_call_attempt",
+				list: ["second_call_attempt", "third_call_attempt"]
 			},
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l3",
-				list: ["goi_dien_l3"]
+				now: "third_call_attempt",
+				list: ["third_call_attempt"]
 			},
       {
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "coordinator_confirmed", "merchandise_picking", "doi_kho_hang"]
+				list: ["awaiting_coordinator_confirmation", "coordinator_confirmed", "merchandise_picking", "require_warehouse_change"]
 			},
 			{
 				orderStatus: OrderStatus.FINALIZED,
 				now: "merchandise_picking",
-				list: ["merchandise_picking", "doi_kho_hang"]
+				list: ["merchandise_picking", "require_warehouse_change"]
 			},
       {
 				orderStatus: OrderStatus.FINALIZED,
@@ -120,35 +120,35 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 			},
 			{
 				orderStatus: OrderStatus.FINISHED,
-				now: "giao_hang_thanh_cong",
-				list: ["giao_hang_thanh_cong"]
+				now: "shipped",
+				list: ["shipped"]
 			},
 			{
 				orderStatus: OrderStatus.CANCELLED,
-				now: "huy_don",
-				list: ["huy_don"]
+				now: "cancelled",
+				list: ["cancelled"]
 			},
 		]
 		const STATUS_ORDER_OTHER = [
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l1",
-				list: ["goi_dien_l1", "goi_dien_l2", "goi_dien_l3"]
+				now: "first_call_attempt",
+				list: ["first_call_attempt", "second_call_attempt", "third_call_attempt"]
 			},
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l2",
-				list: ["goi_dien_l2", "goi_dien_l3"]
+				now: "second_call_attempt",
+				list: ["second_call_attempt", "third_call_attempt"]
 			},
 			{
 				orderStatus: OrderStatus.DRAFT,
-				now: "goi_dien_l3",
-				list: ["goi_dien_l3"]
+				now: "third_call_attempt",
+				list: ["third_call_attempt"]
 			},
       {
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "cho_sale_xac_nhan_lai","coordinator_confirmed", "doi_kho_hang", "4h_delivery"]
+				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "require_warehouse_change", "4h_delivery"]
 			},
 		]
 		const filterStatus = (arr: any[]) => {

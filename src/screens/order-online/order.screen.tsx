@@ -473,6 +473,12 @@ ShippingServiceConfigDetailResponseModel[]
 
 		//Nếu là lưu nháp Fulfillment = [], payment = []
 		if (typeButton === OrderStatus.DRAFT) {
+			if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+				showError("Vui lòng cập nhật địa chỉ giao hàng!");
+				const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+				scrollAndFocusToDomElement(element);
+				return;
+			}
 			values.fulfillments = [];
 			// thêm payment vào đơn nháp
 			// values.payments = [];

@@ -556,7 +556,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   className="primary"
                   style={{ fontSize: "16px", margin: "0 10px", fontWeight: 500 }}
                 >
-                  {customer?.full_name?.toUpperCase()}
+                  {customer?.full_name.toUpperCase()}
                 </Link>{" "}
 
               </Col>
@@ -568,9 +568,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   className="customer-detail-text text-body"
                   style={{ marginRight: "10px", fontWeight: 500, fontSize: 16 }}
                 >
-                  {customer?.phone === undefined
-                    ? "0987654321"
-                    : customer?.phone}
+                  {customer?.phone}
                 </span>
               </Col>
             </Row>
