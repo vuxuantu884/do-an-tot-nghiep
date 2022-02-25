@@ -198,7 +198,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   );
 
   const OkAddressModal = useCallback(
-    (addressUpdate: PurchaseAddress, addressType: string) => {
+    (addressUpdate: PurchaseAddress, addressType?: string) => {
       if (addressType === AddressType.SUPPLIERADDRESS) {
         formMain.setFieldsValue({
           supplier_address: addressUpdate,

@@ -4,10 +4,8 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { HttpStatus } from "config/http-status.config";
@@ -32,7 +30,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
@@ -42,6 +39,11 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
+import loadable from "@loadable/component";
+
+const ModalDeleteConfirm = loadable(() => import("component/modal/ModalDeleteConfirm"))
+const ModalSettingColumn = loadable(() => import("component/table/ModalSettingColumn"))
+const ExportModal = loadable(() => import("screens/purchase-order/modal/export.modal"))
 
 const actionsDefault: Array<MenuAction> = [
   {

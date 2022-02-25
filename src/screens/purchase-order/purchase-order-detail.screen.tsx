@@ -1,4 +1,4 @@
-import { PrinterFilled, SaveFilled } from "@ant-design/icons";
+import {EditOutlined, PrinterFilled, FilePdfOutlined} from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
 import loadable from '@loadable/component'
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -50,7 +50,7 @@ import POPaymentForm from "./component/po-payment.form";
 import POProductForm from "./component/po-product.form";
 import POReturnList from "./component/po-return-list";
 import POStep from "./component/po-step";
-import POSupplierForm from "./component/po-supplier.form";
+import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
 
@@ -257,7 +257,6 @@ const PODetailScreen: React.FC = () => {
     [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
-    console.log('poData?.status', poData);
     if(poData?.status === POStatus.FINALIZED){
       setPaymentItem(undefined);
       setVisiblePaymentModal(true)
@@ -343,7 +342,7 @@ const PODetailScreen: React.FC = () => {
     );
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
 
-  const renderButton = useCallback(() => {
+  const renderButton = useMemo(() => {
     const checkRender = () => {
       switch (status) {
         case POStatus.DRAFT:
@@ -354,6 +353,8 @@ const PODetailScreen: React.FC = () => {
                   type="primary"
                   className="create-button-custom ant-btn-outline"
                   loading={isEditDetail && loadingSaveDraftButton}
+                  ghost
+                  icon={!isEditDetail && <EditOutlined />}
                   onClick={() => {
                     if (isEditDetail) {
                       setStatusAction(POStatus.DRAFT);
@@ -363,7 +364,7 @@ const PODetailScreen: React.FC = () => {
                     }
                   }}
                 >
-                  {isEditDetail ? "Lưu nháp" : "Sửa đặt hàng"}
+                  {isEditDetail ? "Lưu nháp" : "Chỉnh sửa"}
                 </Button>
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
@@ -387,6 +388,8 @@ const PODetailScreen: React.FC = () => {
                 type="primary"
                 className="create-button-custom ant-btn-outline"
                 loading={isEditDetail && loadingSaveDraftButton}
+                ghost
+                icon={!isEditDetail && <EditOutlined />}
                 onClick={() => {
                   if (isEditDetail) {
                     setStatusAction(status);
@@ -396,7 +399,7 @@ const PODetailScreen: React.FC = () => {
                   }
                 }}
               >
-                {isEditDetail ? "Lưu lại" : "Sửa"}
+                {isEditDetail ? "Lưu lại" : "Chỉnh sửa"}
               </Button>
             </AuthWrapper>
           );
@@ -405,36 +408,36 @@ const PODetailScreen: React.FC = () => {
 
     return (
       <>
-        <div id="test" className="page-filter">
+        <div id="test" className="page-filter" style={{ marginRight: -14 }}>
           <Space direction="horizontal">
-            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
-              <Button
-                type="link"
+            <Button
+                type="default"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handlePrint && handlePrint();
+                  handleExport();
                 }}
-                icon={<PrinterFilled style={{ fontSize: 28 }} />}
-              />
+                icon={<FilePdfOutlined />}
+            >Xuất file</Button>
+            <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" placement={'topCenter'} buttonStyle={{ borderRadius: 2 }} />
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
+                <Button
+                    type="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrint && handlePrint();
+                    }}
+                    icon={<PrinterFilled />}
+                >In</Button>
             </AuthWrapper>
-            <Button
-              type="link"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleExport();
-              }}
-              icon={<SaveFilled style={{ fontSize: 28 }} />}
-            />
             <div style={{ display: "none" }}>
-              <div className="printContent" ref={printElementRef}>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: purify.sanitize(printContent),
-                  }}
-                />
-              </div>
+                <div className="printContent" ref={printElementRef}>
+                    <div
+                        dangerouslySetInnerHTML={{
+                          __html: purify.sanitize(printContent),
+                        }}
+                    />
+                </div>
             </div>
-            <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
           </Space>
         </div>
         {checkRender()}
@@ -442,6 +445,7 @@ const PODetailScreen: React.FC = () => {
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    printContent,
     formMain,
     isEditDetail,
     loadingConfirmButton,
@@ -480,9 +484,10 @@ const PODetailScreen: React.FC = () => {
   }, [dispatch, poData?.id, poData]);
 
   const handleExport = () => {
+    console.log('printttt', printContent)
     var temp = document.createElement("div");
     temp.id = "temp";
-    temp.innerHTML = printContent;
+    temp.innerHTML = "<div>ahihihi</div>";
     let value = document.body.appendChild(temp);
     if (value === null) return;
     html2canvas(value).then((canvas) => {
@@ -627,7 +632,7 @@ const PODetailScreen: React.FC = () => {
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
           height={80}
-          rightComponent={renderButton()}
+          rightComponent={renderButton}
         />
       </Form>
       {renderModalDelete()}
