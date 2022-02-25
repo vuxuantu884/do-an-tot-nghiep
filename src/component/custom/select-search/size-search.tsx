@@ -27,7 +27,7 @@ SizeSelect.defaultProps = {
 };
 
 function SizeSelect(props: SelectContentProps): ReactElement {
-  const { id: name, value, mode, fixedQuery, key, ...selectProps } = props;
+  const { id: name, value, mode, fixedQuery, key, isFilter, ...selectProps } = props;
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
   const [data, setData] = React.useState<PageResponse<SizeResponse>>({
@@ -68,7 +68,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
 
   /**
    * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
-   */ 
+   */
   useEffect(() => {
     const getIntialValue = async () => {
       let initIds: any = [];
@@ -76,7 +76,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
       if (mode === "multiple" && Array.isArray(value)) {
         initIds = value;
       } else if (typeof value === "string" || typeof value === "number") {
-        initIds = [Number(value)];
+        initIds = [isFilter ? value : Number(value)];
       } else {
         initIds = [];
       }
@@ -88,7 +88,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
           dispatch,
           getSearchSize,
           {
-            ids: initIds,
+            ids: isFilter ? JSON.parse(initIds).code : initIds,
           }
         );
 
@@ -107,7 +107,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
           }, set);
            totalItems = _.uniqBy(totalItems, key!);
            console.log('totalItems',totalItems);
-           
+
         } else if (defaultOptons) {
           totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
@@ -137,7 +137,10 @@ function SizeSelect(props: SelectContentProps): ReactElement {
         handleSizeSearch({ code: key, page: page });
       }}>
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code} value={item.id}>
+        <SelectPagingV2.Option key={item.code} value={isFilter ? JSON.stringify({
+          code: item.id,
+          name: item.code
+        }) : item.id}>
           {`${item.code}`}
         </SelectPagingV2.Option>
       ))}

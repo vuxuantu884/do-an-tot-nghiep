@@ -420,7 +420,16 @@ const TabProduct: React.FC = () => {
   }, [dispatch]);
   useEffect(() => {
     setTableLoading(true);
-    dispatch(searchVariantsRequestAction(params, setSearchResult));
+    let newParams = {
+      ...params,
+      merchandiser: params.merchandiser ? JSON.parse(params.merchandiser).code : null,
+      designer: params.designer ? JSON.parse(params.designer).code : null,
+      size: params.size ? JSON.parse(params.size).code : null,
+      color: params.color ? JSON.parse(params.color).code : null,
+      main_color: params.main_color ? JSON.parse(params.main_color).code : null,
+      supplier: params.supplier ? JSON.parse(params.supplier).code : null
+    }
+    dispatch(searchVariantsRequestAction(newParams, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
   return (

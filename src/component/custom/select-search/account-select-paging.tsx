@@ -9,7 +9,8 @@ import { searchAccountPublicApi } from "service/accounts/account.service";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
 export interface SelectContentProps extends SelectProps<any> {
-  fixedQuery?: any; 
+  fixedQuery?: any;
+  isFilter?: boolean | false;
   [name: string]: any;
 }
 const defaultSelectProps: SelectProps<any> = {
@@ -28,7 +29,7 @@ SelectSearch.defaultProps = {
 };
 
 function SelectSearch(contentProps: SelectContentProps) {
-  const { id: name, value, mode, fixedQuery, key, ...selectProps } = contentProps;
+  const { id: name, value, mode, fixedQuery, key, isFilter, ...selectProps } = contentProps;
 
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
@@ -95,7 +96,7 @@ function SelectSearch(contentProps: SelectContentProps) {
           dispatch,
           searchAccountPublicApi,
           {
-            codes: initCodes,
+            codes: isFilter ? JSON.parse(initCodes).code : initCodes,
             ...fixedQuery,
           }
         );
@@ -133,7 +134,10 @@ function SelectSearch(contentProps: SelectContentProps) {
       {...selectProps}
       >
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code + name} value={item.code}>
+        <SelectPagingV2.Option key={item.code + name} value={isFilter ? JSON.stringify({
+          code: item.code,
+          name: item.full_name
+        }) : item.code}>
           {`${item.code} - ${item.full_name}`}
         </SelectPagingV2.Option>
       ))}

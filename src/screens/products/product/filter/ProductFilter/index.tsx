@@ -112,18 +112,31 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   });
 
   useEffect(() => {
-    const { made_in, size, color, main_color, supplier, brand } = params;
+    const { made_in, size, color, main_color, supplier, brand, merchandiser, designer } = params;
+
     const filter = {
       ...params,
       [SearchVariantField.from_created_date]: formatDateFilter(params.from_created_date),
       [SearchVariantField.to_created_date]: formatDateFilter(params.to_created_date),
       [SearchVariantField.made_in]: made_in ? Number(made_in) : null,
-      [SearchVariantField.size]: size ? Number(size) : null,
-      [SearchVariantField.color]: color ? Number(color) : null,
-      [SearchVariantField.main_color]: main_color ? Number(main_color) : null,
-      [SearchVariantField.supplier]: supplier ? Number(supplier) : null,
+      [SearchVariantField.size]: Array.isArray(size) ?
+        size.join() : size !== '' ? size : null,
+      [SearchVariantField.color]: Array.isArray(color) ?
+        color.join() : color !== '' ? color : null,
+      [SearchVariantField.main_color]: Array.isArray(main_color) ?
+        main_color.join() : main_color !== '' ? main_color : null,
+      [SearchVariantField.supplier]: Array.isArray(supplier) ?
+        supplier.join() : supplier !== '' ? supplier : null,
+      [SearchVariantField.merchandiser]: Array.isArray(merchandiser) ?
+        merchandiser.join() : merchandiser !== '' ? merchandiser : null,
+      [SearchVariantField.designer]: Array.isArray(designer) ?
+        designer.join() : designer !== '' ? designer : null,
       [SearchVariantField.brand]: brand ? brand : null
     };
+
+    if (supplier && supplier !== '') setTimeout(() => {
+      getSuppliers(JSON.parse(supplier).code, 1)
+    }, 0);
 
     formAvd.setFieldsValue(filter);
     setAdvanceFilters(filter);
@@ -243,17 +256,23 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
 
   const getSuppliers = useCallback((key: string, page: number) => {
     dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
-      setSupplier(data);
+      setSupplier({
+        ...suppliers,
+        items: [
+          ...suppliers.items,
+          ...data.items
+        ]
+      });
     }));
   }, [dispatch]);
 
-  useEffect(()=>{
+  useEffect(()=> {
     getAccounts("",1,true,true);
     getColors('', 1,false,true);
     getColors('', 1,true,false);
     getSuppliers('', 1);
     getSizes("",1);
-  },[getAccounts, getColors,getSizes, getSuppliers]);
+  },[getAccounts, getColors, getSizes, getSuppliers]);
 
   return (
     <StyledComponent>
@@ -280,15 +299,9 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         </Form>
         <FilterList
           filters={advanceFilters}
-          mainColors={mainColors}
-          colors={colors}
-          suppliers={suppliers}
-          lstSize={lstSize}
           listCountries={listCountries}
           listStatus={listStatus}
           resetField={resetField}
-          designers={designers}
-          wins={wins}
           listBrands={listBrands}
         />
         <BaseFilter
@@ -321,12 +334,12 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.designer:
                     component = (
-                      <AccountSearchPaging placeholder="Chọn thiết kế" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
+                      <AccountSearchPaging isFilter placeholder="Chọn thiết kế" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantField.merchandiser:
                     component = (
-                      <AccountSearchPaging placeholder="Chọn merchandiser" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
+                      <AccountSearchPaging isFilter placeholder="Chọn merchandiser" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantField.created_date:
@@ -340,17 +353,17 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.size:
                     component = (
-                      <SizeSearchSelect key="code" onSelect={(key, option) => getSizes(option?.key || key, 1)}/> // để tạm onslect để lấy key hiển thị ra filter list
+                      <SizeSearchSelect isFilter key="code" onSelect={(key, option) => getSizes(option?.key || key, 1)}/> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
                   case SearchVariantField.color:
                     component = (
-                      <ColorSearchSelect fixedQuery={{is_main_color:0}} onSelect={(key, option) =>{getColors(option?.key || key, 1,true,false)}}/> // để tạm onslect để lấy key hiển thị ra filter list
+                      <ColorSearchSelect isFilter fixedQuery={{is_main_color:0}} onSelect={(key, option) =>{getColors(option?.key || key, 1,true,false)}}/> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
                   case SearchVariantField.main_color:
                     component = (
-                      <ColorSearchSelect fixedQuery={{is_main_color:1}}  placeholder="Chọn màu sắc chủ đạo" onSelect={(key, option) =>{getColors(option?.key || key, 1,false, true)}}/> // để tạm onslect để lấy key hiển thị ra filter list
+                      <ColorSearchSelect isFilter fixedQuery={{is_main_color:1}}  placeholder="Chọn màu sắc chủ đạo" onSelect={(key, option) =>{getColors(option?.key || key, 1,false, true)}}/> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
                   case SearchVariantField.supplier:
@@ -366,7 +379,10 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         onSelect={()=>{}} // to disable onSearch when select item
                       >
                         {suppliers.items.map((item) => (
-                          <SelectPaging.Option key={item.id} value={item.id}>
+                          <SelectPaging.Option key={item.id} value={JSON.stringify({
+                            code: item.id,
+                            name: item.name
+                          })}>
                             {item.name}
                           </SelectPaging.Option>
                         ))}
@@ -410,13 +426,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
 const FilterList = ({
   filters,
   resetField,
-  colors,
-  mainColors,
-  suppliers,
   listCountries,
-  lstSize,
-  designers,
-  wins,
   listBrands,
 }: any) => {
   const newFilters = {...filters};
@@ -438,24 +448,13 @@ const FilterList = ({
             ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
             break;
           case SearchVariantField.color:
-            const color = colors.items.find((e: ColorResponse)=> e.id === value);
-            if (!color) return null;
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${color.name}`;
-            break;
           case SearchVariantField.main_color:
-            const mainColor = mainColors.items.find((e: ColorResponse)=> e.id === value);
-            if (!mainColor) return null;
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${mainColor.name}`;
-            break;
           case SearchVariantField.supplier:
-            const supplier = suppliers.items.find((e: SupplierResponse)=> e.id === value);
-            if (!supplier) return null;
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${supplier.name}`;
-            break;
           case SearchVariantField.size:
-            const size = lstSize.items.find((e: SizeResponse)=> e.id === value);
-            if (!size) return null;
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${size.code}`;
+          case SearchVariantField.merchandiser:
+          case SearchVariantField.designer:
+            if (!value) return null;
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${JSON.parse(value).name}`;
             break;
           case SearchVariantField.made_in:
             if (!listCountries) return null;
@@ -468,16 +467,6 @@ const FilterList = ({
             renderTxt = `${SearchVariantMapping[filterKey]} : ${
               value === "true" ? "Cho phép bán" : "Ngừng bán"
             }`;
-            break;
-          case SearchVariantField.merchandiser:
-            const win = wins.items.find((e: AccountResponse)=> e.code === value);
-            if (!win) return null;
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${win.full_name}`;
-            break;
-          case SearchVariantField.designer:
-            const designer = designers.items.find((e: AccountResponse)=> e.code === value);
-            if (!designer) return null;
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${designer.full_name}`;
             break;
           case SearchVariantField.brand:
             let index6 = listBrands.findIndex(
