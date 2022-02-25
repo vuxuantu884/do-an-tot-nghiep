@@ -4,5 +4,7 @@ export interface SourceSearchQuery extends BaseQuery {
   name?: string,
   channel_id?: number,
   department_ids?: number[],
+  reference_ids?: number[],
   ids?: number[],
+  active?: boolean,
 }
