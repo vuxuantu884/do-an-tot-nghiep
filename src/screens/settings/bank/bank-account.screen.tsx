@@ -209,7 +209,7 @@ const BankAccountScreen: React.FC = () => {
                     name: "Tài khoản ngân hàng",
                 },
             ]}
-            extra={<ButtonCreate child="Thêm tài khoản ngân hàng" path={`${UrlConfig.BANK_ACCOUNT}/create`} />}
+            extra={<ButtonCreate child="Thêm mới" path={`${UrlConfig.BANK_ACCOUNT}/create`} />}
         >
             <Card>
                 <BankAccountFilter params={params} onFilter={onFilter} />
