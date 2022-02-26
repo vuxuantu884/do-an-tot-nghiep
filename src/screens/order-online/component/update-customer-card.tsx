@@ -34,8 +34,12 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 		if(!shippingAddress) {
 			return "";
 		}
+    const addressArr = [shippingAddress.name, shippingAddress.phone, shippingAddress.full_address, shippingAddress.ward, shippingAddress.district, shippingAddress.city];
+    const addressArrResult = addressArr.filter(address => address);
     ///let second_phone_address=shippingAddress.second_phone?`-${shippingAddress.second_phone} -`:'-';
-		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
+    if(addressArrResult.length > 0) {
+      result = addressArrResult.join(" - ")
+    }
 		return result;
 	};
 

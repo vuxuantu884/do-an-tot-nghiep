@@ -1,4 +1,4 @@
-import { Modal, Form, Row, Col, DatePicker, Checkbox } from "antd";
+import { Modal, Form, Row, Col, DatePicker, Checkbox, Button } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { InventoryShipmentWrapper } from "./styles";
 import moment from "moment";
@@ -90,15 +90,16 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
     dataTicket,
     onOk,
   } = props;
-  
+
   const [shipmentForm] = Form.useForm();
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>("");
   const [serviceCode, setServiceCode] = useState<string>("");
   const [serviceFeeTotal, setServiceFeeTotal] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);  
+  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
   const dispatch = useDispatch();
 
   const serviceFee = useMemo(() => {
@@ -120,7 +121,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
   }, [infoFees]);
 
   const changeServiceType = (id: number, code: string, item: any, fee: number) => {
-    
+
     setHvc(id);
     setServiceCode(code);
     setServiceType(item);
@@ -136,9 +137,10 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
 
   const onFinish = useCallback(
     (data) => {
+      setLoading(true);
       if (dataTicket) {
         const deliveryTime = data.expected_delivery_time
-  
+
         data.delivery_service_id = hvc;
         data.delivery_service_code = serviceCode;
         data.delivery_service_name = serviceType;
@@ -155,8 +157,9 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
         data.who_paid = "";
         data.expected_delivery_time = deliveryTime && deliveryTime.utc().format();
         data.office_time = officeTime;
-        
+
         dispatch(createInventoryTransferShipmentAction(dataTicket.id, data, (result) => {
+          setLoading(false);
           onOk(result);
         }));
 
@@ -174,7 +177,14 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
       onOk={() => shipmentForm.submit()}
       visible={visible}
       centered
-      okText={"Chọn hãng vận chuyển"}
+      footer={[
+        <Button onClick={onCancel}>
+          Hủy
+        </Button>,
+        <Button loading={loading} type="primary" onClick={() => shipmentForm.submit()}>
+          Chọn hãng vận chuyển
+        </Button>,
+      ]}
       cancelText={"Hủy"}
       width={800}
     >
@@ -230,7 +240,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
             </Col>
           </Row>
           <Row>
-              
+
           <div
             className="ant-table ant-table-bordered custom-table"
             style={{ marginTop: 20 }}

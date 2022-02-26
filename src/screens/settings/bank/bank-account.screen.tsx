@@ -11,9 +11,10 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import iconEdit from "assets/icon/edit.svg";
-import { RiCheckboxCircleLine } from "react-icons/ri";
+// import { RiCheckboxCircleLine } from "react-icons/ri";
 import ButtonCreate from "component/header/ButtonCreate";
 import { getBankAccountAction } from 'domain/actions/bank/bank.action';
+import { CheckOutlined } from "@ant-design/icons";
 
 
 const initQuery: BankAccountSearchQuery = {
@@ -24,6 +25,10 @@ const initQuery: BankAccountSearchQuery = {
     status: null,
     is_default: null,
 };
+
+interface BankAccountResponseResult extends BankAccountResponse {
+    isShorten?: boolean,
+}
 
 const BankAccountScreen: React.FC = () => {
     const query = useQuery();
@@ -38,7 +43,7 @@ const BankAccountScreen: React.FC = () => {
 
     let [params, setPrams] = useState<BankAccountSearchQuery>(dataQuery);
 
-    const [data, setData] = useState<PageResponse<BankAccountResponse>>({
+    const [data, setData] = useState<PageResponse<BankAccountResponseResult>>({
         metadata: {
             limit: 0,
             page: 1,
@@ -47,15 +52,25 @@ const BankAccountScreen: React.FC = () => {
         items: []
     });
 
+    const showAllInOneRow = (index: number) => {
+        console.log("index", index);
+        let dataItemsClone = [...data.items];
+        dataItemsClone[index].isShorten = false;
+        setData({
+            ...data,
+            items: dataItemsClone,
+        })
+    }
+
     const handleEdit = (
         e: React.MouseEvent<HTMLElement, MouseEvent>,
         id: string | number
     ) => {
         e.stopPropagation();
-        history.push(`${UrlConfig.BANK_ACCOUNT}/update/${id}`);
+        history.push(`${UrlConfig.BANK_ACCOUNT}/${id}/edit`);
     };
 
-    const defaultColumns: Array<ICustomTableColumType<BankAccountResponse>> = [
+    const defaultColumns: Array<ICustomTableColumType<BankAccountResponseResult>> = [
         {
             title: "STT",
             align: "center",
@@ -71,7 +86,7 @@ const BankAccountScreen: React.FC = () => {
             dataIndex: "account_number",
             render: (value, row: BankAccountResponse, index) => {
                 return <React.Fragment>
-                    <Link target="_blank" to={`${UrlConfig.BANK_ACCOUNT}/update/${row.id}`}>
+                    <Link target="_blank" to={`${UrlConfig.BANK_ACCOUNT}/${row.id}/edit`}>
                         {value}
                     </Link>
                     <div style={{ fontSize: "0.86em" }}>
@@ -87,28 +102,33 @@ const BankAccountScreen: React.FC = () => {
             title: "Cửa hàng áp dụng",
             fixed: "left",
             //width: 300,
-            render: (value, row, index) => (
-                <React.Fragment>
-                    {/* <span>
-                        {row?.stores?.map((item) => {
-                            return <Tag color="green">{item.store_name}</Tag>;
-                        })}
-                    </span> */}
-                    {row.stores.length < 3 ? (
-                        <span>
-                            {row?.stores?.map((item) => {
-                                return <Tag color="green">{item.store_name}</Tag>;
+            render: (value, row, index) => {
+                console.log("row", row)
+                if (row.stores.length < 6 || !row?.isShorten) {
+                    return (
+                        <React.Fragment>
+                            {row?.stores?.map((item, index) => {
+                                return <span>{item?.store_name} {index + 1 < row.stores.length ? ", " : ""}</span>;
                             })}
-                        </span>
-                    ) : (
-                        <span>
-                            <Tag color="green">{row.stores[0].store_name}</Tag>
-                            <Tag color="green">{row.stores[1].store_name}</Tag>
-                            <Tag color="green">+{row.stores.length - 2}...</Tag>
-                        </span>
-                    )}
-                </React.Fragment>
-            ),
+                        </React.Fragment>
+                    );
+
+                } else {
+                    return (
+                        <React.Fragment>
+                            <span>
+                                <span>{row.stores[0]?.store_name}, </span>
+                                <span>{row.stores[1]?.store_name}, </span>
+                                <span>{row.stores[2]?.store_name}, </span>
+                                <span>{row.stores[3]?.store_name}, </span>
+                                <span>{row.stores[4]?.store_name}, </span>
+                                <span>{row.stores[5]?.store_name}, </span>
+                                <Button type="link" style={{ padding: 0 }} onClick={() => showAllInOneRow(index)}>...xem thêm</Button>
+                            </span>
+                        </React.Fragment>
+                    );
+                }
+            },
         },
         {
             title: "Mặc định",
@@ -119,8 +139,12 @@ const BankAccountScreen: React.FC = () => {
                 let text = row.default ? "text-success" : "text-error";
 
                 return (
-                    <div style={{ textAlign: "center", fontSize: "20px" }} className={text}>
-                        <RiCheckboxCircleLine />
+                    <div style={row.default ? { textAlign: "center", fontSize: "20px", color: "#2A2A86" }
+                        : { textAlign: "center", fontSize: "20px", display: "none" }}
+                        className={text}
+                    >
+                        {/* <RiCheckboxCircleLine /> */}
+                        <CheckOutlined />
                     </div>
                 );
             },
@@ -180,7 +204,16 @@ const BankAccountScreen: React.FC = () => {
     const handleSearchResult = useCallback(() => {
         setTableLoading(true);
         dispatch(getBankAccountAction(params, (data: PageResponse<BankAccountResponse>) => {
-            setData(data);
+            // setAbc(data.items);
+            let abc: BankAccountResponseResult[] = [...data.items]
+            const gg = abc.map(item => {
+                item.isShorten = true;
+                return item
+            })
+            setData({
+                ...data,
+                items: gg
+            })
             setTableLoading(false);
         }));
     }, [dispatch, params]);
@@ -204,7 +237,7 @@ const BankAccountScreen: React.FC = () => {
                     name: "Tài khoản ngân hàng",
                 },
             ]}
-            extra={<ButtonCreate child="Thêm tài khoản ngân hàng" path={`${UrlConfig.BANK_ACCOUNT}/create`} />}
+            extra={<ButtonCreate child="Thêm mới" path={`${UrlConfig.BANK_ACCOUNT}/create`} />}
         >
             <Card>
                 <BankAccountFilter params={params} onFilter={onFilter} />
@@ -221,7 +254,7 @@ const BankAccountScreen: React.FC = () => {
                     }}
                     dataSource={data.items}
                     columns={defaultColumns}
-                    rowKey={(item: BankAccountResponse) => item.id}
+                    rowKey={(item: BankAccountResponseResult) => item.id}
                     sticky={{ offsetScroll: 5, offsetHeader: 55 }}
                 />
             </Card>

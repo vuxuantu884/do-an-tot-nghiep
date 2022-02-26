@@ -14,26 +14,16 @@ type EditAddressModalProps = {
   listCountry: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
   addressInfo?: PurchaseAddress;
-  addressType: string;
+  addressType?: string;
   onCancel: () => void;
-  onOk: (addressUpdate: PurchaseAddress, addressType: string) => void;
+  onOk: (addressUpdate: PurchaseAddress, addressType?: string) => void;
 };
 const { Item } = Form;
 const { Option } = Select;
 
-const EditAddressModal: React.FC<EditAddressModalProps> = (
-  props: EditAddressModalProps
-) => {
+const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressModalProps) => {
   const dispatch = useDispatch();
-  const {
-    visible,
-    listCountry,
-    listDistrict,
-    onCancel,
-    onOk,
-    addressInfo,
-    addressType,
-  } = props;
+  const { visible, listCountry, listDistrict, onCancel, onOk, addressInfo } = props;
   const [formAddress] = Form.useForm();
   const [listWard, setListWard] = useState<Array<WardResponse>>([]);
   const [loadWard, setloadWard] = useState<boolean>(false);
@@ -88,28 +78,12 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
     },
     [formAddress, listWard]
   );
-  const onAddressFormFinish = useCallback(
-    (values: PurchaseAddress) => {
-      onOk(values, addressType);
-    },
-    [addressType, onOk]
-  );
-  const onOkPress = useCallback(() => {
-    // onOk();
-    formAddress.submit();
-  }, [formAddress]);
-  const handleCancel = () => {
-    onCancel();
-  };
+
+  const onAddressFormFinish = (values: PurchaseAddress) => onOk(values);
 
   useEffect(() => {
-    if (
-      addressInfo?.district_id !== null &&
-      addressInfo?.district_id !== undefined
-    ) {
-      dispatch(
-        WardGetByDistrictAction(addressInfo?.district_id, getListWardCallback)
-      );
+    if (addressInfo?.district_id !== null && addressInfo?.district_id !== undefined) {
+      dispatch(WardGetByDistrictAction(addressInfo?.district_id, getListWardCallback));
     }
   }, [addressInfo?.district_id, dispatch, getListWardCallback]);
   useEffect(() => {
@@ -125,16 +99,10 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
       okText="Lưu"
       cancelText="Hủy"
       className="update-customer-modal"
-      onOk={onOkPress}
+      onOk={() => formAddress.submit()}
       width={700}
-      onCancel={handleCancel}
-    >
-      <Form
-        layout="vertical"
-        form={formAddress}
-        scrollToFirstError
-        onFinish={onAddressFormFinish}
-      >
+      onCancel={onCancel}>
+      <Form layout="vertical" form={formAddress} scrollToFirstError onFinish={onAddressFormFinish}>
         <Row gutter={24}>
           <Col xs={24} lg={12}>
             <Item name="name" label="Người liên hệ">
@@ -151,8 +119,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
                   pattern: RegUtil.PHONE,
                   message: "Số điện thoại chưa đúng định dạng",
                 },
-              ]}
-            >
+              ]}>
               <Input placeholder=" Số điện thoại" maxLength={255} />
             </Item>
           </Col>
@@ -165,8 +132,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
                 placeholder="Chọn quốc gia"
                 allowClear
                 optionFilterProp="children"
-                disabled
-              >
+                disabled>
                 {listCountry?.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}
@@ -183,8 +149,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
                 className="selector"
                 placeholder="Chọn khu vực"
                 allowClear
-                optionFilterProp="children"
-              >
+                optionFilterProp="children">
                 {listDistrict?.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.city_name} - {item.name}
@@ -214,8 +179,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
                 placeholder="Chọn phường xã"
                 allowClear
                 optionFilterProp="children"
-                loading={loadWard}
-              >
+                loading={loadWard}>
                 {listWard?.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}

@@ -1,5 +1,5 @@
 import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Space, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import HashTag from "component/custom/hashtag";
@@ -155,7 +155,7 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
 
   let renderTxt: any = null;
   return (
-    <Space wrap={true} style={{ marginBottom: 20 }}>
+    <Row wrap>
       {[...newKeys, ...filtersKeys].map((filterKey) => {
         let value = filters[filterKey];
 
@@ -223,7 +223,7 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
           >{`${renderTxt}`}</Tag>
         );
       })}
-    </Space>
+    </Row>
   );
 };
 

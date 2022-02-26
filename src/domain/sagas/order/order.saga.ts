@@ -571,13 +571,13 @@ function* setSubStatusSaga(action: YodyAction) {
 		);
 		if (isFetchApiSuccessful(response)) {
 			showSuccess("Cập nhật trạng thái phụ đơn hàng thành công!");
-				handleData();
+			handleData();
 		} else {
-			handleError();
+			handleError && handleError();
 			yield put(fetchApiErrorAction(response, "Cập nhật trạng thái phụ đơn hàng"));
 		}
 	} catch (error) {
-		handleError()
+		handleError && handleError()
 		showError("Có lỗi khi cập nhật trạng thái phụ đơn hàng! Vui lòng thử lại sau!")
 	} finally {
 		yield put(hideLoading());

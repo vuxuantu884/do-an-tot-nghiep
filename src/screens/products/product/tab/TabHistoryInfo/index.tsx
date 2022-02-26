@@ -161,6 +161,7 @@ const TabHistoryInfo: React.FC = () => {
         actions={[]}
       />
       <CustomTable
+        className="small-padding"
         bordered
         rowKey={(record) => record.id}
         isRowSelection

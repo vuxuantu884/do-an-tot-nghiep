@@ -18,7 +18,7 @@ import {
   PhoneOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState, Fragment } from "react";
+import React, { useCallback, useMemo, useState, Fragment, lazy } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -30,15 +30,16 @@ import addressIcon from "assets/img/user-pin.svg";
 import noteCustomer from "assets/img/note-customer.svg";
 import { Link } from "react-router-dom";
 import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
-import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { AddressType, POStatus } from "utils/Constants";
-import SupplierAddModal from "screens/products/supplier/modal/supplier-add-modal.screen";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { RegUtil } from "utils/RegUtils";
 import UrlConfig from "config/url.config";
 import _ from "lodash";
+
+const SupplierAddModal = lazy(() => import("screens/products/supplier/modal/supplier-add-modal.screen"))
+const EditAddressModal = lazy(() => import("../modal/edit-address"))
 
 type POSupplierFormProps = {
   listCountries: Array<CountryResponse>;
@@ -196,7 +197,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   );
 
   const OkAddressModal = useCallback(
-    (addressUpdate: PurchaseAddress, addressType: string) => {
+    (addressUpdate: PurchaseAddress, addressType?: string) => {
       if (addressType === AddressType.SUPPLIERADDRESS) {
         formMain.setFieldsValue({
           supplier_address: addressUpdate,

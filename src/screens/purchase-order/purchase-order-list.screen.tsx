@@ -4,10 +4,8 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { HttpStatus } from "config/http-status.config";
@@ -28,11 +26,10 @@ import {
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
@@ -42,6 +39,10 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
+
+const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
+const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
+const ExportModal = lazy(() => import("screens/purchase-order/modal/export.modal"))
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -174,7 +175,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.SUPPLIERS}/${row.supplier_id}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {value}
@@ -190,7 +191,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.merchandiser_code}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {`${row.merchandiser_code} - ${row.merchandiser}`}
@@ -329,7 +330,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.qc_code}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {`${row.qc_code} - ${row.qc}`}
@@ -346,7 +347,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.designer_code}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
             >
               {value}
@@ -562,8 +563,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         title="Quản lý đơn đặt hàng"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
+            name: "Kho hàng",
           },
           {
             name: "Đặt hàng",
@@ -601,6 +601,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               listStore={listStore}
             />
             <CustomTable
+              className="small-padding"
               bordered
               isRowSelection
               isLoading={tableLoading}

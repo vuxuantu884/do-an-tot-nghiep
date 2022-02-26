@@ -368,7 +368,6 @@ function OrderCreateShipment(props: PropType) {
           </Col>
         </Row>
         <Row>
-          <span className="saleorder_shipment_method-heading">THÔNG TIN VẬN CHUYỂN</span>
           <div
             className="saleorder_shipment_method_btn 2"
             style={

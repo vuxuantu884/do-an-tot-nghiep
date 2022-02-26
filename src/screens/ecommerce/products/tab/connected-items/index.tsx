@@ -146,8 +146,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       shop_ids: [],
       connect_status: "connected",
       update_stock_status: null,
-      sku_or_name_core: "",
-      sku_or_name_ecommerce: "",
+      sku_or_name_core: null,
+      sku_or_name_ecommerce: null,
       connected_date_from: null,
       connected_date_to: null,
     }),
@@ -161,8 +161,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     shop_ids: [],
     connect_status: "connected",
     update_stock_status: null,
-    sku_or_name_core: "",
-    sku_or_name_ecommerce: "",
+    sku_or_name_core: null,
+    sku_or_name_ecommerce: null,
     connected_date_from: null,
     connected_date_to: null,
   });
@@ -394,7 +394,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           if (!!response.data.url) {
             setExportProgress(100);
             setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
+            showSuccess("Xuất file dữ liệu sản phẩm thành công!");
             window.open(response.data.url);
             setExportProcessId(null)
           } else {

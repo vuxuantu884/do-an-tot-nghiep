@@ -1,9 +1,9 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Form, FormInstance, Input, Select } from "antd";
+import { Card, Form, FormInstance, Input } from "antd";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomInputTags from "component/custom/custom-input-tags";
+import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
-import { setSubStatusAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
@@ -69,7 +69,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
     Array<AccountResponse>
   >([]);
 
-  const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(orderDetail?.sub_status_code);
+  const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
@@ -107,17 +107,9 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
       );
     }
   };
-  const handleChangeSubStatus = (sub_status_code: string) => {
-    if (orderDetail?.id) {
-      dispatch(setSubStatusAction(orderDetail?.id, sub_status_code, ()=>{
-        setValueSubStatusCode(sub_status_code)
-			},
-      ()=> {
-        form.setFieldsValue({
-          sub_status_code: orderDetail.sub_status_code
-        })
-      }));
-    }
+
+  const handleUpdateSubStatus = () => {
+    setCountChangeSubStatus(countChangeSubStatus + 1);
   };
 
   useEffect(() => {
@@ -275,31 +267,15 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
         {renderSplitOrder()}
       </Card>
       {listOrderSubStatus && (
-        <Card title="XỬ LÝ ĐƠN HÀNG">
-          <Form.Item name="sub_status_code">
-            <Select
-              showSearch
-              onChange={handleChangeSubStatus}
-              style={{width: "100%"}}
-              placeholder="Chọn trạng thái phụ"
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-              notFoundContent="Không tìm thấy trạng thái phụ"
-              value={valueSubStatusCode}
-              key={Math.random()}
-            >
-              {listOrderSubStatus.map((single) => {
-                return (
-                  <Select.Option value={single.code} key={single.code}>
-                    {single.sub_status}
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-        </Card>
+        <SubStatusOrder
+          subStatusCode={orderDetail?.sub_status_code}
+          status={orderDetail?.status}
+          orderId={orderDetail?.id}
+          fulfillments={orderDetail?.fulfillments}
+          handleUpdateSubStatus={handleUpdateSubStatus}
+          setReload={() => {}}
+          OrderDetailAllFulfillment={orderDetail}
+        />
       )}
       <Card title="THÔNG TIN BỔ SUNG">
         <Form.Item name="customer_note" label="Ghi chú của khách">

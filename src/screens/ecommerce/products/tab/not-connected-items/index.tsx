@@ -137,8 +137,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       shop_ids: [],
       connect_status: "waiting",
       update_stock_status: null,
-      sku_or_name_core: "",
-      sku_or_name_ecommerce: "",
+      sku_or_name_core: null,
+      sku_or_name_ecommerce: null,
       connected_date_from: null,
       connected_date_to: null,
     }),
@@ -152,17 +152,16 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     shop_ids: [],
     connect_status: "waiting",
     update_stock_status: null,
-    sku_or_name_core: "",
-    sku_or_name_ecommerce: "",
+    sku_or_name_core: null,
+    sku_or_name_ecommerce: null,
     connected_date_from: null,
     connected_date_to: null,
     suggest: suggestVariants
   });
 
-
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
-    if (!!result) {
+    if (result) {
       setVariantData(result);
     }
   }, []);
@@ -171,6 +170,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsLoading(true);
     dispatch(getProductEcommerceList(queryRequest, updateVariantData));
   }, [dispatch, updateVariantData]);
+
+  const handleSuggestItem = () => {
+    if (query.suggest) {
+      window.localStorage.setItem("suggest", "");
+      const queryVariant = {...query, suggest: ""};
+      setQuery(queryVariant);
+    } else {
+      window.localStorage.setItem("suggest", "suggested");
+      const queryVariant = {...query, suggest : "suggested"};
+      setQuery(queryVariant);
+    }
+    window.location.reload();
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -571,7 +583,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIdsItemSelected([item.id]);
   };
 
-  const [columns] = useState<any>([
+  const [columns,] = useState<any>([
     {
       title: "Ảnh",
       align: "center",
@@ -582,7 +594,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             src={item.ecommerce_image_url}
             style={{ height: "40px" }}
             alt=""
-          ></img>
+          />
         );
       },
     },
@@ -968,7 +980,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           if (!!response.data.url) {
             setExportProgress(100);
             setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
+            showSuccess("Xuất file dữ liệu sản phẩm thành công!");
             window.open(response.data.url);
             setExportProcessId(null)
           } else {
@@ -1032,21 +1044,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsShowDeleteItemModal(true);
   };
 
-  const handleSuggestItem = () => {
-    if (query.suggest) {
-      window.localStorage.setItem("suggest", "");
-      const suggest = "";
-      const queryVariant = {...query, suggest};
-      setQuery(queryVariant);
-    } else {
-      window.localStorage.setItem("suggest", "suggested");
-      const suggest = "suggested";
-      const queryVariant = {...query, suggest};
-      setQuery(queryVariant);
-    }
-    window.location.reload();
-  }
-
   const actionList = (
     <Menu>
       {allowProductsDelete &&
@@ -1055,7 +1052,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         </Menu.Item>
       }
       <Menu.Item key="2">
-        <span onClick={handleSuggestItem}>Gợi ý ghép nối</span>
+        <span onClick={handleSuggestItem}>{suggestVariants ? "Bỏ gợi ý ghép nối" : "Gợi ý ghép nối"}</span>
       </Menu.Item>
 
       <Menu.Item key="3">
