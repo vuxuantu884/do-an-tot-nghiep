@@ -27,7 +27,7 @@ const initQuery: BankAccountSearchQuery = {
 };
 
 interface BankAccountResponseResult extends BankAccountResponse {
-	isShorten?: boolean,
+    isShorten?: boolean,
 }
 
 const BankAccountScreen: React.FC = () => {
@@ -52,15 +52,15 @@ const BankAccountScreen: React.FC = () => {
         items: []
     });
 
-		const showAllInOneRow = (index: number) => {
-			console.log("index", index);
-			let dataItemsClone = [...data.items];
-			dataItemsClone[index].isShorten = false;
-			setData({
-				...data,
-				items: dataItemsClone,
-			})
-		}
+    const showAllInOneRow = (index: number) => {
+        console.log("index", index);
+        let dataItemsClone = [...data.items];
+        dataItemsClone[index].isShorten = false;
+        setData({
+            ...data,
+            items: dataItemsClone,
+        })
+    }
 
     const handleEdit = (
         e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -103,17 +103,17 @@ const BankAccountScreen: React.FC = () => {
             fixed: "left",
             //width: 300,
             render: (value, row, index) => {
-							console.log("row", row)
-								if (row.stores.length < 6 ||  !row?.isShorten) {
-									return (
-											<React.Fragment>
-															{row?.stores?.map((item,index) => {
-																	return <span>{item?.store_name} {index + 1 <row.stores.length?", " :""}</span>;
-															})}
-											</React.Fragment>
-									);
+                console.log("row", row)
+                if (row.stores.length < 6 || !row?.isShorten) {
+                    return (
+                        <React.Fragment>
+                            {row?.stores?.map((item, index) => {
+                                return <span>{item?.store_name} {index + 1 < row.stores.length ? ", " : ""}</span>;
+                            })}
+                        </React.Fragment>
+                    );
 
-								} else {
+                } else {
                     return (
                         <React.Fragment>
                             <span>
@@ -123,7 +123,7 @@ const BankAccountScreen: React.FC = () => {
                                 <span>{row.stores[3]?.store_name}, </span>
                                 <span>{row.stores[4]?.store_name}, </span>
                                 <span>{row.stores[5]?.store_name}, </span>
-                                <Button type="link" style={{padding:0}} onClick={() =>showAllInOneRow(index)}>...xem thêm</Button>
+                                <Button type="link" style={{ padding: 0 }} onClick={() => showAllInOneRow(index)}>...xem thêm</Button>
                             </span>
                         </React.Fragment>
                     );
@@ -139,7 +139,7 @@ const BankAccountScreen: React.FC = () => {
                 let text = row.default ? "text-success" : "text-error";
 
                 return (
-                    <div style={row.default ? { textAlign: "center", fontSize: "20px", color:"#2A2A86" }
+                    <div style={row.default ? { textAlign: "center", fontSize: "20px", color: "#2A2A86" }
                         : { textAlign: "center", fontSize: "20px", display: "none" }}
                         className={text}
                     >
@@ -204,16 +204,16 @@ const BankAccountScreen: React.FC = () => {
     const handleSearchResult = useCallback(() => {
         setTableLoading(true);
         dispatch(getBankAccountAction(params, (data: PageResponse<BankAccountResponse>) => {
-						// setAbc(data.items);
-						let abc: BankAccountResponseResult[] = [...data.items]
-						const gg = abc.map(item => {
-							item.isShorten = true;
-							return item
-						})
-						setData({
-							...data,
-							items: gg
-						})
+            // setAbc(data.items);
+            let abc: BankAccountResponseResult[] = [...data.items]
+            const gg = abc.map(item => {
+                item.isShorten = true;
+                return item
+            })
+            setData({
+                ...data,
+                items: gg
+            })
             setTableLoading(false);
         }));
     }, [dispatch, params]);
