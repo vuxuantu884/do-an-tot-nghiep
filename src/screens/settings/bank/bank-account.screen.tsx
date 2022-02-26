@@ -67,7 +67,7 @@ const BankAccountScreen: React.FC = () => {
         id: string | number
     ) => {
         e.stopPropagation();
-        history.push(`${UrlConfig.BANK_ACCOUNT}/update/${id}`);
+        history.push(`${UrlConfig.BANK_ACCOUNT}/${id}/edit`);
     };
 
     const defaultColumns: Array<ICustomTableColumType<BankAccountResponseResult>> = [
@@ -86,7 +86,7 @@ const BankAccountScreen: React.FC = () => {
             dataIndex: "account_number",
             render: (value, row: BankAccountResponse, index) => {
                 return <React.Fragment>
-                    <Link target="_blank" to={`${UrlConfig.BANK_ACCOUNT}/update/${row.id}`}>
+                    <Link target="_blank" to={`${UrlConfig.BANK_ACCOUNT}/${row.id}/edit`}>
                         {value}
                     </Link>
                     <div style={{ fontSize: "0.86em" }}>
