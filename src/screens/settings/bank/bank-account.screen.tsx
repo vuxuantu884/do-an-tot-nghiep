@@ -26,6 +26,10 @@ const initQuery: BankAccountSearchQuery = {
     is_default: null,
 };
 
+interface BankAccountResponseResult extends BankAccountResponse {
+	isShorten?: boolean,
+}
+
 const BankAccountScreen: React.FC = () => {
     const query = useQuery();
     const history = useHistory();
@@ -39,7 +43,7 @@ const BankAccountScreen: React.FC = () => {
 
     let [params, setPrams] = useState<BankAccountSearchQuery>(dataQuery);
 
-    const [data, setData] = useState<PageResponse<BankAccountResponse>>({
+    const [data, setData] = useState<PageResponse<BankAccountResponseResult>>({
         metadata: {
             limit: 0,
             page: 1,
@@ -47,6 +51,16 @@ const BankAccountScreen: React.FC = () => {
         },
         items: []
     });
+
+		const showAllInOneRow = (index: number) => {
+			console.log("index", index);
+			let dataItemsClone = [...data.items];
+			dataItemsClone[index].isShorten = false;
+			setData({
+				...data,
+				items: dataItemsClone,
+			})
+		}
 
     const handleEdit = (
         e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -56,7 +70,7 @@ const BankAccountScreen: React.FC = () => {
         history.push(`${UrlConfig.BANK_ACCOUNT}/update/${id}`);
     };
 
-    const defaultColumns: Array<ICustomTableColumType<BankAccountResponse>> = [
+    const defaultColumns: Array<ICustomTableColumType<BankAccountResponseResult>> = [
         {
             title: "STT",
             align: "center",
@@ -89,27 +103,27 @@ const BankAccountScreen: React.FC = () => {
             fixed: "left",
             //width: 300,
             render: (value, row, index) => {
+							console.log("row", row)
+								if (row.stores.length < 6 ||  !row?.isShorten) {
+									return (
+											<React.Fragment>
+															{row?.stores?.map((item,index) => {
+																	return <span>{item?.store_name} {index + 1 <row.stores.length?", " :""}</span>;
+															})}
+											</React.Fragment>
+									);
 
-                if (row.stores.length < 6) {
-                    return (
-                        <React.Fragment>
-                                {row?.stores?.map((item,index) => {
-                                    return <span>{item.store_name} {index + 1 <row.stores.length?", " :""}</span>;
-                                })}
-                        </React.Fragment>
-                    );
-                }
-                else {
+								} else {
                     return (
                         <React.Fragment>
                             <span>
-                                <span>{row.stores[0].store_name}, </span>
-                                <span>{row.stores[1].store_name}, </span>
-                                <span>{row.stores[2].store_name}, </span>
-                                <span>{row.stores[3].store_name}, </span>
-                                <span>{row.stores[4].store_name}, </span>
-                                <span>{row.stores[5].store_name}, </span>
-                                <Button type="link" style={{padding:0}}>...xem thêm</Button>
+                                <span>{row.stores[0]?.store_name}, </span>
+                                <span>{row.stores[1]?.store_name}, </span>
+                                <span>{row.stores[2]?.store_name}, </span>
+                                <span>{row.stores[3]?.store_name}, </span>
+                                <span>{row.stores[4]?.store_name}, </span>
+                                <span>{row.stores[5]?.store_name}, </span>
+                                <Button type="link" style={{padding:0}} onClick={() =>showAllInOneRow(index)}>...xem thêm</Button>
                             </span>
                         </React.Fragment>
                     );
@@ -190,7 +204,16 @@ const BankAccountScreen: React.FC = () => {
     const handleSearchResult = useCallback(() => {
         setTableLoading(true);
         dispatch(getBankAccountAction(params, (data: PageResponse<BankAccountResponse>) => {
-            setData(data);
+						// setAbc(data.items);
+						let abc: BankAccountResponseResult[] = [...data.items]
+						const gg = abc.map(item => {
+							item.isShorten = true;
+							return item
+						})
+						setData({
+							...data,
+							items: gg
+						})
             setTableLoading(false);
         }));
     }, [dispatch, params]);
@@ -231,7 +254,7 @@ const BankAccountScreen: React.FC = () => {
                     }}
                     dataSource={data.items}
                     columns={defaultColumns}
-                    rowKey={(item: BankAccountResponse) => item.id}
+                    rowKey={(item: BankAccountResponseResult) => item.id}
                     sticky={{ offsetScroll: 5, offsetHeader: 55 }}
                 />
             </Card>
