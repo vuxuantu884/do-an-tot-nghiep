@@ -16,17 +16,16 @@ import {
   Timeline
 } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { PoPaymentUpdateAction } from "domain/actions/po/po-payment.action";
 import { PoUpdateFinancialStatusAction } from "domain/actions/po/po.action";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { lazy, useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
-import PaymentModal from "screens/purchase-order/modal/payment.modal";
 import { formatCurrency } from "utils/AppUtils";
 import {
   PoFinancialStatus,
@@ -38,6 +37,9 @@ import {
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
+
+const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
+const PaymentModal = lazy(() => import("screens/purchase-order/modal/payment.modal"))
 
 type POPaymentFormProps = {
   poId: number;
@@ -66,7 +68,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     visible: false,
   });
 
-  
+
 
   const CancelPaymentModal = () => {
     setVisiblePaymentModal(false);

@@ -1,5 +1,5 @@
 import { Button, Row, Col, Form, Input } from "antd";
-import POSupplierForm from "./component/po-supplier.form";
+import POSupplierForm from "./component/po-supplier-form";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import POProductForm from "./component/po-product.form";
@@ -87,16 +87,16 @@ const POCreateScreen: React.FC = () => {
   const history = useHistory();
   const [formMain] = Form.useForm();
 
-  const [statusAction, setStatusAction] = useState<string>(""); 
+  const [statusAction, setStatusAction] = useState<string>("");
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
-  >([]); 
+  >([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [loadingDraftButton, setLoadingDraftButton] = useState(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
- 
+
   const createCallback = useCallback(
     (result: PurchaseOrder) => {
       if (result) {
@@ -137,7 +137,7 @@ const POCreateScreen: React.FC = () => {
           case POStatus.FINALIZED:
             setLoadingSaveButton(true);
             break;
-        } 
+        }
 
         dispatch(PoCreateAction(dataClone, createCallback));
       } else {
@@ -148,7 +148,24 @@ const POCreateScreen: React.FC = () => {
     [createCallback, dispatch, statusAction]
   );
 
-  useEffect(() => { 
+  const onFinishFailed = ({ errorFields }: { errorFields: any }) => {
+    setStatusAction("");
+    const element: any = document.getElementById(
+      errorFields[0].name.join("")
+    );
+    element?.focus();
+    const y =
+      element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+
+  const createPurchaseOrder = (status: string) => {
+    setStatusAction(status);
+    formMain.submit();
+  }
+
+  useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
@@ -175,17 +192,7 @@ const POCreateScreen: React.FC = () => {
     >
       <Form
         form={formMain}
-        onFinishFailed={({ errorFields }: any) => {
-          setStatusAction("");
-          const element: any = document.getElementById(
-            errorFields[0].name.join("")
-          );
-          element?.focus();
-          const y =
-            element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-          
-          window.scrollTo({ top: y, behavior: "smooth" });
-        }}
+        onFinishFailed={onFinishFailed}
         onFinish={onFinish}
         initialValues={initPurchaseOrder}
         layout="vertical"
@@ -251,10 +258,8 @@ const POCreateScreen: React.FC = () => {
                 type="primary"
                 className="create-button-custom ant-btn-outline fixed-button"
                 loading={loadingDraftButton}
-                onClick={() => {
-                  setStatusAction(POStatus.DRAFT);
-                  formMain.submit();
-                }}
+                onClick={() => createPurchaseOrder(POStatus.DRAFT)}
+                ghost
               >
                 Tạo nháp
               </Button>
@@ -264,10 +269,7 @@ const POCreateScreen: React.FC = () => {
                 type="primary"
                 className="create-button-custom"
                 loading={loadingSaveButton}
-                onClick={() => {
-                  setStatusAction(POStatus.FINALIZED);
-                  formMain.submit();
-                }}
+                onClick={() => createPurchaseOrder(POStatus.FINALIZED)}
               >
                 Tạo và xác nhận
               </Button>

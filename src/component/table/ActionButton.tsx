@@ -1,13 +1,15 @@
 
 import { DownOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Menu } from "antd";
+import {Button, Dropdown, DropDownProps, Menu} from "antd";
 import { ButtonType } from "antd/lib/button/button.d";
+import {CSSProperties} from "react";
 
-type ActionProps = {
+type ActionProps = Pick<DropDownProps, 'placement'> & {
   menu?: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   disabled?: boolean;
   type?: ButtonType;
+  buttonStyle?: CSSProperties | undefined
 };
 
 export interface MenuAction {
@@ -23,6 +25,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
     <Dropdown
       disabled={props.disabled}
       overlayStyle={{ minWidth: "10rem" }}
+      placement={props.placement}
       overlay={
         <Menu>
           {props.menu &&
@@ -41,7 +44,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
       }
       trigger={["click"]}
     >
-      <Button type={props.type ? props.type : "link"} className="action-button">
+      <Button type={props.type ? props.type : "link"} className="action-button" style={props.buttonStyle}>
         <div style={{ marginRight: 10 }}>Thao tác </div>
         <DownOutlined />
       </Button>
