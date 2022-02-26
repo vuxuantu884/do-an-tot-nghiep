@@ -39,7 +39,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
   const dispatch = useDispatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number>();
-  
+
   const renderSingleActionLogTitle = (action?: string) => {
     if (!action) {
       return;
@@ -70,24 +70,20 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       key: "updated_name",
       render: (updated_name: string, record: POLogHistory, index: number) => {
         const {  updated_by } = record;
-        if (index > 0 && updated_name !== logData[index-1]) {
-          return <></>
-        }else{
-          return (
-            (<div>
-              <div style={{ color: "#2A2A86" }}>
-                <Link
-                  target="_blank"
-                  to={`${UrlConfig.ACCOUNTS}/${updated_by}`}
-                  className="primary"
-                >
-                  {updated_by}
-                </Link>
-              </div>
-              <div>{updated_name}</div>
-            </div>)
-          )
-        }
+        return (
+          (<div>
+            <div style={{ color: "#2A2A86" }}>
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ACCOUNTS}/${updated_by}`}
+                className="primary"
+              >
+                {updated_by}
+              </Link>
+            </div>
+            <div>{updated_name}</div>
+          </div>)
+        )
       }
     },
     {
@@ -104,7 +100,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       key: "action",
       render: (status: string, record: POLogHistory) => {
         return (
-          <Button 
+          <Button
             type='link'
             style={{ paddingLeft: 0, color: "#2A2A86" }}
             onClick={() => {
