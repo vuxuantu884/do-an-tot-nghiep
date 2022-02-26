@@ -88,31 +88,33 @@ const BankAccountScreen: React.FC = () => {
             title: "Cửa hàng áp dụng",
             fixed: "left",
             //width: 300,
-            render: (value, row, index) => (
-                <React.Fragment>
-                    {/* <span>
-                        {row?.stores?.map((item) => {
-                            return <Tag color="green">{item.store_name}</Tag>;
-                        })}
-                    </span> */}
-                    {row.stores.length < 5 ? (
-                        <span>
-                            {row?.stores?.map((item) => {
-                                return <Tag color="green">{item.store_name}</Tag>;
-                            })}
-                        </span>
-                    ) : (
-                        <span>
-                            <Tag color="green">{row.stores[0].store_name}</Tag>
-                            <Tag color="green">{row.stores[1].store_name}</Tag>
-                            <Tag color="green">{row.stores[2].store_name}</Tag>
-                            <Tag color="green">{row.stores[3].store_name}</Tag>
-                            <Tag color="green">{row.stores[4].store_name}</Tag>
-                            <Tag color="green">+{row.stores.length - 5}...</Tag>
-                        </span>
-                    )}
-                </React.Fragment>
-            ),
+            render: (value, row, index) => {
+
+                if (row.stores.length < 6) {
+                    return (
+                        <React.Fragment>
+                                {row?.stores?.map((item,index) => {
+                                    return <span>{item.store_name} {index + 1 <row.stores.length?", " :""}</span>;
+                                })}
+                        </React.Fragment>
+                    );
+                }
+                else {
+                    return (
+                        <React.Fragment>
+                            <span>
+                                <span>{row.stores[0].store_name}, </span>
+                                <span>{row.stores[1].store_name}, </span>
+                                <span>{row.stores[2].store_name}, </span>
+                                <span>{row.stores[3].store_name}, </span>
+                                <span>{row.stores[4].store_name}, </span>
+                                <span>{row.stores[5].store_name}, </span>
+                                <Button type="link" style={{padding:0}}>...xem thêm</Button>
+                            </span>
+                        </React.Fragment>
+                    );
+                }
+            },
         },
         {
             title: "Mặc định",
