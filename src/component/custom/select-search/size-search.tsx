@@ -71,7 +71,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
    */
   useEffect(() => {
     const getIntialValue = async () => {
-      let initIds: any = [];
+      let initIds: any;
 
       if (mode === "multiple" && Array.isArray(value)) {
         initIds = value;
@@ -119,7 +119,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
       setIsSearching(false);
     };
     getIntialValue();
-  }, [dispatch, key, mode, value, defaultOptons]);
+  }, [isFilter, dispatch, key, mode, value, defaultOptons]);
 
   return (
     <SelectPagingV2

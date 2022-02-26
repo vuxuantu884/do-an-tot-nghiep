@@ -116,7 +116,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       setIsSearching(false);
     };
     getIntialValue().then();
-  }, [dispatch, mode, value, fixedQuery, key, defaultOptons]);
+  }, [isFilter, dispatch, mode, value, fixedQuery, key, defaultOptons]);
 
   return (
     <SelectPagingV2
