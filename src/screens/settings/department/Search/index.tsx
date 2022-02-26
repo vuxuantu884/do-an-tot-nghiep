@@ -48,7 +48,7 @@ const DepartmentSearchScreen: React.FC = () => {
     <>
       {allowReadDep ? (
         <ContentContainer
-          title="Quản lý bộ phận"
+          title="Quản lý phòng ban"
           isError={error}
           breadcrumb={[
             {
@@ -56,13 +56,13 @@ const DepartmentSearchScreen: React.FC = () => {
               path: UrlConfig.HOME,
             },
             {
-              name: "Quản lý bộ phận",
+              name: "Quản lý phòng ban",
             },
           ]}
           extra={
             allowCreateDep ? (
               <ButtonCreate
-                child="Thêm bộ phận"
+                child="Thêm phòng ban"
                 path={`${UrlConfig.DEPARTMENT}/create`}
               />
             ) : null
@@ -78,7 +78,7 @@ const DepartmentSearchScreen: React.FC = () => {
               sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
               columns={[
                 {
-                  title: "Mã bộ phận",
+                  title: "Mã phòng ban",
                   dataIndex: "code",
                   width: 120,
                   render: (text: string, item: DepartmentView) => {
@@ -86,7 +86,7 @@ const DepartmentSearchScreen: React.FC = () => {
                   },
                 },
                 {
-                  title: "Tên bộ phận",
+                  title: "Tên phòng ban",
                   dataIndex: "name",
                   width: 200,
                   render: (value: string, item: DepartmentView) => (
