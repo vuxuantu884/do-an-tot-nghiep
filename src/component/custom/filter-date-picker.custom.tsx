@@ -96,8 +96,8 @@ function CustomFilterDatePicker(props: PropTypes) {
 					maxValue = moment().endOf("month").format(format);
 					break;
 				case DATE_RANGE_SELECT.lastMonth:
-					minValue = moment().startOf("month").subtract(1, "months").format(format);
-					maxValue = moment().endOf("month").subtract(1, "months").format(format);
+					minValue = moment().subtract(1, "months").startOf("month").format(format);
+					maxValue = moment().subtract(1, "months").endOf("month").format(format);
 					break;
 				default:
 					break;
