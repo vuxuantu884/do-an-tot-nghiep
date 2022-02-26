@@ -624,7 +624,7 @@ const DetailTicket: FC = () => {
             className={value && value < row.transfer_quantity
               ? 'border-red'
               : value && value > row.transfer_quantity
-                ? 'border-violet'
+                ? 'border-orange'
                 : ''}
           />
         }
