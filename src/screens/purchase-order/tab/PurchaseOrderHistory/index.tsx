@@ -122,11 +122,11 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
           return (
             status_after === status_before ? (<span>{status_before}</span>) : (
               <div style={{display: "flex", alignItems: "center"}}>
-                <span>{status_before}&nbsp;&nbsp;</span>
+                { status_before && <span>{status_before}&nbsp;&nbsp;</span> }
                 {
-                  status_after && status_before && <HiOutlineArrowNarrowRight />
+                  status_after && status_before && (<><HiOutlineArrowNarrowRight />&nbsp;&nbsp;</>)
                 }
-                <span>&nbsp;&nbsp;{status_after}</span>
+                { status_after && <span>{status_after}</span> }
               </div>
             )
           );
