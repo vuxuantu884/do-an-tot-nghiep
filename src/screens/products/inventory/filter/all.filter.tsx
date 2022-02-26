@@ -150,7 +150,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     );
   }, [dispatch, setDataAccounts]);
 
-  const FilterList = useCallback(({ filters, resetField }: any) => {
+  const FilterList = ({ filters, resetField }: any) => {
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null;
 
@@ -242,7 +242,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         })}
       </div>
     );
-  },[]);
+  };
 
   const openFilter = useCallback(() => {
     setVisible(true);

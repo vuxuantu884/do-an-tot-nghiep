@@ -22,7 +22,6 @@ import {
   PoDetailAction
 } from "domain/actions/po/po.action";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
 import { ProcurementStatusName } from "../../../utils/Constants";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
@@ -66,15 +65,10 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     isDetail
   } = props;
 
-  type PurchaseOrderParam = {
-    id: string;
-  };
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
   const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(item);
-  const dispatch = useDispatch();
-  const { id } = useParams<PurchaseOrderParam>();
-  let idNumber = parseInt(id);
+  const dispatch = useDispatch(); 
   
   const [allowConfirm] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.procurements_confirm],
@@ -98,15 +92,15 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
 
   const ActionImport= {
     Ok: useCallback((res)=>{
-      if (idNumber) {
-        dispatch(PoDetailAction(idNumber, onDetail));
+      if (poData && poData.id) { 
+        dispatch(PoDetailAction(poData.id, onDetail));
       }
 
-    },[idNumber, dispatch, onDetail]),
+    },[poData, dispatch, onDetail]),
     Cancel: useCallback(()=>{
       setShowImportModal(false);
     },[]),
-  }
+  }   
 
   if (visible) {
     return (
@@ -138,6 +132,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         okText={isEdit ? "Lưu phiếu nhập kho" : (allowConfirm ? "Xác nhận nhập": "")}
       >
         {(onQuantityChange, onRemove, line_items) => {
+          console.log('line_items',line_items);
           
           return (
             <>
@@ -325,16 +320,16 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         }}
       </ProcumentCommonModal>
         <ModalImport
-        visible= {showImportModal}
-        onOk= {(res)=>{ActionImport.Ok(res)} }
-        onCancel= {ActionImport.Cancel}
-        title= "Nhập file hàng về"
-        subTitle= "hàng về"
-        okText= "Xác nhận"
-        templateUrl={AppConfig.PROCUMENT_IMPORT_TEMPLATE_URL}
-        forder="stock-transfer"
-        customParams={{conditions: `${item?.purchase_order.id},${item?.id}`,
-              type: "IMPORT_PROCUREMENT"}}
+          visible= {showImportModal}
+          onOk= {(res)=>{ActionImport.Ok(res)} }
+          onCancel= {ActionImport.Cancel}
+          title= "Nhập file hàng về"
+          subTitle= "hàng về"
+          okText= "Xác nhận"
+          templateUrl={AppConfig.PROCUMENT_IMPORT_TEMPLATE_URL}
+          forder="stock-transfer"
+          customParams={{conditions: `${poData?.id},${item?.id}`,
+                type: "IMPORT_PROCUREMENT"}}
       />
     </>
     );

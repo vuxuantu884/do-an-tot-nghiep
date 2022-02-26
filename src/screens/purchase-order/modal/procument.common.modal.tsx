@@ -294,7 +294,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
-  }, []);
+  }, [item, allProcurementItems,form,type]);
 
   const confirmDeletePhrase: string = useMemo(() => {
     if (!item) return "";
@@ -790,6 +790,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                           let line_items = getFieldValue(POProcumentField.procurement_items)
                             ? getFieldValue(POProcumentField.procurement_items)
                             : [];
+                            
                           if (props.children) {
                             return props.children(onQuantityChange, onRemove, line_items);
                           }
