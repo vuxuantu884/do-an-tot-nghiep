@@ -18,7 +18,7 @@ import {
   PhoneOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState, Fragment } from "react";
+import React, { useCallback, useMemo, useState, Fragment, lazy } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -37,10 +37,9 @@ import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { RegUtil } from "utils/RegUtils";
 import UrlConfig from "config/url.config";
 import _ from "lodash";
-import loadable from "@loadable/component";
 
-const SupplierAddModal = loadable(() => import("screens/products/supplier/modal/supplier-add-modal.screen"))
-const EditAddressModal = loadable(() => import("../modal/edit-address"))
+const SupplierAddModal = lazy(() => import("screens/products/supplier/modal/supplier-add-modal.screen"))
+const EditAddressModal = lazy(() => import("../modal/edit-address"))
 
 type POSupplierFormProps = {
   listCountries: Array<CountryResponse>;

@@ -23,7 +23,7 @@ import { PoUpdateFinancialStatusAction } from "domain/actions/po/po.action";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { lazy, useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { formatCurrency } from "utils/AppUtils";
@@ -37,10 +37,9 @@ import {
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
-import loadable from "@loadable/component";
 
-const ModalConfirm = loadable(() => import("component/modal/ModalConfirm"))
-const PaymentModal = loadable(() => import("screens/purchase-order/modal/payment.modal"))
+const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
+const PaymentModal = lazy(() => import("screens/purchase-order/modal/payment.modal"))
 
 type POPaymentFormProps = {
   poId: number;

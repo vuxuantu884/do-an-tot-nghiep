@@ -12,7 +12,7 @@ import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, {useCallback, useState, useEffect, useRef, lazy} from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { POStatus, ProcumentStatus } from "utils/Constants";
@@ -25,12 +25,11 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PoUpdateAction } from "domain/actions/po/po.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import loadable from "@loadable/component";
 
-const ProcumentConfirmModal = loadable(() => import("../modal/procument-confirm.modal"))
-const ProcumentInventoryModal = loadable(() => import("../modal/procument-inventory.modal"))
-const ProcumentModal = loadable(() => import("../modal/procument.modal"))
-const POEditDraftProcurementModal = loadable(() => import("../modal/POEditDraftProcurementModal"))
+const ProcumentConfirmModal = lazy(() => import("../modal/procument-confirm.modal"))
+const ProcumentInventoryModal = lazy(() => import("../modal/procument-inventory.modal"))
+const ProcumentModal = lazy(() => import("../modal/procument.modal"))
+const POEditDraftProcurementModal = lazy(() => import("../modal/POEditDraftProcurementModal"))
 
 export type POInventoryFormProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;

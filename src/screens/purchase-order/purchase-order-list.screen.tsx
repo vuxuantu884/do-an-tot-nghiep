@@ -26,7 +26,7 @@ import {
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
@@ -39,11 +39,10 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
-import loadable from "@loadable/component";
 
-const ModalDeleteConfirm = loadable(() => import("component/modal/ModalDeleteConfirm"))
-const ModalSettingColumn = loadable(() => import("component/table/ModalSettingColumn"))
-const ExportModal = loadable(() => import("screens/purchase-order/modal/export.modal"))
+const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
+const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
+const ExportModal = lazy(() => import("screens/purchase-order/modal/export.modal"))
 
 const actionsDefault: Array<MenuAction> = [
   {

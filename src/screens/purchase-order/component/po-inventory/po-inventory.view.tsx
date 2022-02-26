@@ -1,15 +1,14 @@
 import { Form, Row, Space } from "antd";
-import React, { useCallback } from "react";
+import React, { useCallback, lazy } from "react";
 import classNames from "classnames";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { POField } from "model/purchase-order/po-field";
 import POProgressView from "../po-progress-view";
-import loadable from "@loadable/component";
 
-const TabAll = loadable(() => import("./tab1"))
-const TabInvetory = loadable(() => import("./tab2"))
-const TabConfirmed = loadable(() => import("./tab3"))
-const TabDraft = loadable(() => import("./tab4"))
+const TabAll = lazy(() => import("./tab1"))
+const TabInvetory = lazy(() => import("./tab2"))
+const TabConfirmed = lazy(() => import("./tab3"))
+const TabDraft = lazy(() => import("./tab4"))
 
 type POInventoryViewProps = {
   id?: number;

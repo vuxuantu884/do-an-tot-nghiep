@@ -1,6 +1,5 @@
 import {EditOutlined, PrinterFilled, FilePdfOutlined} from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
-import loadable from '@loadable/component'
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -37,7 +36,7 @@ import {
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
@@ -54,8 +53,8 @@ import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
 
-const ModalDeleteConfirm = loadable(() => import("component/modal/ModalDeleteConfirm"))
-const ModalExport = loadable(() => import("./modal/ModalExport"))
+const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
+const ModalExport = lazy(() => import("./modal/ModalExport"))
 
 const ActionMenu = {
   EXPORT: 1,
@@ -631,7 +630,7 @@ const PODetailScreen: React.FC = () => {
           leftComponent={
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
-          height={80}
+          height={55}
           rightComponent={renderButton}
         />
       </Form>

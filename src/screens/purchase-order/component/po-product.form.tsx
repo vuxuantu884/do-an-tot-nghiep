@@ -24,7 +24,7 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
-import React, { createRef, useCallback, useMemo } from "react";
+import React, {createRef, lazy, useCallback, useMemo} from "react";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -42,9 +42,8 @@ import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { Link } from "react-router-dom";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { POStatus } from "utils/Constants";
-import loadable from "@loadable/component";
 
-const PickManyProductModal = loadable(() => import("../modal/pick-many-product.modal"))
+const PickManyProductModal = lazy(() => import("../modal/pick-many-product.modal"))
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
