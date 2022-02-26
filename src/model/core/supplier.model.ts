@@ -169,7 +169,8 @@ export interface SupplierContact {
   phone: string|null,
   website: string|null,
   is_default: boolean,
-  supplier_id: number|null
+  supplier_id: number|null,
+  position?: string | null
 }
 
 export interface SupplierPayment {
