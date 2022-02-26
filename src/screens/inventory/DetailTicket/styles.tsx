@@ -31,16 +31,29 @@ export const StyledWrapper = styled.div`
       margin-top: 20px;
     }
   }
+
   .inventory-table {
     margin-top: 20px;
+
+    .border-red {
+      border-color: #FF0000 !important;
+    }
+
+    .border-violet {
+      border-color: #EE82EEFF !important;
+    }
+
+    .border-orange {
+      border-color: yellow !important;
+    }
   }
-  
+
   .inventory-info {
     .ant-card-body {
       padding: 10px;
     }
   }
-  
+
   .inventory-note {
     .ant-card-body {
       padding: 10px 20px;
@@ -52,9 +65,11 @@ export const StyledWrapper = styled.div`
     justify-content: end;
     align-items: center;
     margin-top: 20px;
+
     & b {
       margin-right: 140px;
     }
+
     & span {
       margin-right: 100px;
     }
@@ -68,6 +83,7 @@ export const StyledWrapper = styled.div`
     height: 40px;
     border-radius: 3px;
     background-color: #f2f2f2;
+
     img {
       max-width: 30px;
       max-height: 40px;
@@ -84,7 +100,7 @@ export const StyledWrapper = styled.div`
   .bottom {
     &__right {
       .ant-space-align-center {
-        gap: 20px!important;
+        gap: 20px !important;
 
         a {
           color: #2A2A86;
@@ -110,13 +126,15 @@ export const StyledWrapper = styled.div`
       background-color: unset;
       color: #2a2a86;
       margin-left: 20px;
-      &:hover{
+
+      &:hover {
         background-color: #2a2a86;
         color: #fff;
       }
     }
   }
-  .ant-table-summary>tr>td, .ant-table-summary>tr>th {
+
+  .ant-table-summary > tr > td, .ant-table-summary > tr > th {
     border-bottom: none;
   }
 
@@ -124,15 +142,17 @@ export const StyledWrapper = styled.div`
     .ant-tag {
       padding: 2px 8px;
       border-radius: 20px;
-  
+
       &.${STATUS_INVENTORY_TRANSFER.TRANSFERRING.status} {
         background: ${BG_COLOR_TAG.TRANSFERRING.background};
         color: ${BG_COLOR_TAG.TRANSFERRING.color};
       }
+
       &.${STATUS_INVENTORY_TRANSFER.PENDING.status} {
         background: ${BG_COLOR_TAG.PENDING.background};
         color: ${BG_COLOR_TAG.PENDING.color};
       }
+
       &.${STATUS_INVENTORY_TRANSFER.RECEIVED.status} {
         background: ${BG_COLOR_TAG.RECEIVED.background};
         color: ${BG_COLOR_TAG.RECEIVED.color};
@@ -142,13 +162,16 @@ export const StyledWrapper = styled.div`
 
   .shipment {
     align-items: center;
+
     &-logo {
       width: 200px;
       margin-right: 20px;
+
       img {
         width: 100%;
       }
     }
+
     &-detail {
       & > span {
         color: #2A2A86;
@@ -169,19 +192,21 @@ export const StyledWrapper = styled.div`
     .ant-collapse-content {
       border: unset;
     }
+
     .ant-collapse-item {
       border: unset;
 
-      & .ant-collapse-header{
+      & .ant-collapse-header {
         position: absolute;
         right: 30px;
         z-index: 2;
       }
     }
 
-    .ant-timeline-item-last>.ant-timeline-item-content {
+    .ant-timeline-item-last > .ant-timeline-item-content {
       min-height: unset;
       top: -3px;
+
       & > span {
         padding: 0 10px;
       }

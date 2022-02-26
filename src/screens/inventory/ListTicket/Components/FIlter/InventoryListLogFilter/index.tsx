@@ -94,6 +94,9 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     accounts,
   } = props;
   const [formAdv] = Form.useForm();
+  const formRef = createRef<FormInstance>();
+  const formSearchRef = createRef<FormInstance>();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFromParams = {
     ...params,
     action: Array.isArray(params.action) ? params.action : [params.action],
@@ -103,24 +106,19 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
   };
   const initialValues = useMemo(() => {
     return filterFromParams;
-  }, [params]);
+  }, [filterFromParams]);
 
   useEffect(() => {
     formSearchRef.current?.setFieldsValue(params);
     formAdv.setFieldsValue(filterFromParams);
-  }, [params]);
+  }, [filterFromParams, formAdv, formSearchRef, params]);
 
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState('');
-  const [isFromCreatedDate, setIsFromCreatedDate] = useState(initialValues.from_created_date? moment(initialValues.from_created_date, "DD-MM-YYYY") : null);
-  const [isToCreatedDate, setIsToCreatedDate] = useState(initialValues.to_created_date? moment(initialValues.to_created_date, "DD-MM-YYYY") : null);
 
   const loadingFilter = useMemo(() => {
     return !!isLoading
   }, [isLoading])
-
-  const formRef = createRef<FormInstance>();
-  const formSearchRef = createRef<FormInstance>();
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -129,9 +127,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
-
-    setIsFromCreatedDate(null)
-    setIsToCreatedDate(null)
 
     setVisible(false);
   }, [onClearFilter]);
@@ -161,15 +156,13 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
           onFilter && onFilter({...params, updated_by: []});
           break;
         case 'created_date':
-          setIsFromCreatedDate(null);
-          setIsToCreatedDate(null);
           formAdv.resetFields(['from_created_date', 'to_created_date'])
           onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
           break;
         default: break
       }
     },
-    [onFilter, params]
+    [formAdv, onFilter, params]
   );
 
   const onFinish = useCallback(
@@ -208,7 +201,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
       onFilter && onFilter(valuesForm);
     },
-    [isFromCreatedDate, isToCreatedDate, onFilter]
+    [formAdv, onFilter]
   );
 
   let filters = useMemo(() => {
