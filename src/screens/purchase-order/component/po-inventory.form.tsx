@@ -476,6 +476,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         stores={stores}
         now={now}
         visible={visibleConfirm}
+        poData={poData}
         item={procumentInventory}
         onOk={(value: PurchaseProcument) => {
           onReciveProcument(value);

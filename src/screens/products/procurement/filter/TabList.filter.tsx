@@ -134,7 +134,7 @@ function TabListFilter(props: ProcurementFilterProps) {
         })}`
       );
     },
-    [formAdvanced]
+    [formBase,history]
   );
 
   const resetField = useCallback(
@@ -169,15 +169,7 @@ function TabListFilter(props: ProcurementFilterProps) {
       [SearchProcurementField.expect_receipt_to]: formatDateFilter(params[SearchProcurementField.expect_receipt_to])?.format(DATE_FORMAT.DDMMYYY),
       [ProcurementFilterItem.stores]: params.stores ? params.stores?.split(',').map((x: string) => parseInt(x)) : undefined,
     };
-  }
-
-  useEffect(() => {
-    const filters = convertParams(paramsUrl);
-
-    setAdvanceFilters(filters);
-    formAdvanced.setFieldsValue(filters);
-    handleClickStatus(paramsUrl.status);
-  }, [formAdvanced, paramsUrl]);
+  } 
 
   const parseDataToString = (data: ProcurementFilter) => {
     const params: ProcurementQuery = {} as ProcurementQuery;
@@ -226,7 +218,7 @@ function TabListFilter(props: ProcurementFilterProps) {
     );
   };
 
-  const handleClickStatus = (value: string) => {
+  const handleClickStatus = useCallback((value: string) => {
     let statusList = formAdvanced.getFieldValue('status') || [];
 
     if (!isArray(statusList)) {
@@ -250,7 +242,15 @@ function TabListFilter(props: ProcurementFilterProps) {
     });
 
     setSelectedStatuses([...statusList]);
-  };
+  },[formAdvanced]);
+
+  useEffect(() => {
+    const filters = convertParams(paramsUrl);
+
+    setAdvanceFilters(filters);
+    formAdvanced.setFieldsValue(filters);
+    handleClickStatus(paramsUrl.status);
+  }, [formAdvanced, paramsUrl, handleClickStatus]);
 
   useEffect(() => {
     dispatch(
