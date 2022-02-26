@@ -6,7 +6,6 @@ import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import TextEllipsis from "component/table/TextEllipsis";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { HttpStatus } from "config/http-status.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
@@ -14,7 +13,13 @@ import UrlConfig from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading } from "domain/actions/loading.action";
-import { createConfigPoAction, PODeleteAction, PoSearchAction, updateConfigPoAction } from "domain/actions/po/po.action";
+import {
+  createConfigPoAction,
+  PODeleteAction,
+  PoSearchAction,
+  PoUpdateNoteAction,
+  updateConfigPoAction
+} from "domain/actions/po/po.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -39,6 +44,7 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
+import EditNote from "../order-online/component/edit-note";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
@@ -145,6 +151,23 @@ const PurchaseOrderListScreen: React.FC = () => {
       return false;
     });
   }, [canDeletePO]);
+
+  const onUpdateCall = (result: PurchaseOrder | null) => {
+    if (result !== null) {
+      showSuccess("Cập nhật nhập hàng thành công");
+      dispatch(PoSearchAction({}, setSearchResult))
+    }
+    setTableLoading(false);
+  }
+
+  const onEditPurchaseOrder = (item: Pick<PurchaseOrder, "id" | "note" | "supplier_note">, value: string, name: "note" | "supplier_note") => {
+    setTableLoading(true)
+    dispatch(PoUpdateNoteAction(item.id, {
+      note: name === "note" ? value : item.note,
+      supplier_note: name === "supplier_note" ? value : item.supplier_note
+    }, onUpdateCall)
+    );
+  }
 
   const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = useMemo(() => {
     return [
@@ -399,14 +422,25 @@ const PurchaseOrderListScreen: React.FC = () => {
         title: "Ghi chú nội bộ",
         dataIndex: "note",
         visible: true,
-        render: (value)=>{
-          return <TextEllipsis value={value} />
+        render: (value, item: PurchaseOrder)=>{
+          return (
+            <div className="note">
+              <EditNote note={value} onOk={(value) => onEditPurchaseOrder(item, value, 'note')} />
+            </div>
+          )
         }
       },
       {
         title: "Ghi chú nhà cung cấp",
         dataIndex: "supplier_note",
         visible: true,
+        render: (value, item: PurchaseOrder)=>{
+          return (
+            <div className="note">
+              <EditNote note={value} onOk={(value) => onEditPurchaseOrder(item, value, 'supplier_note')} />
+            </div>
+          )
+        },
         width: 200,
       },
       {
@@ -423,6 +457,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         visible: true,
       },
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [columns, setColumn] =
