@@ -1,24 +1,21 @@
-
 import {
   Button,
   Col,
-  DatePicker,
   Form,
   FormInstance,
   Input,
   Row,
   Select,
-  Collapse,
   Tag,
   InputNumber,
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { FilterOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
@@ -31,8 +28,9 @@ import "assets/css/custom-filter.scss";
 import { FormatTextMonney } from "utils/FormatMonney";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { strForSearch } from "utils/RemoveDiacriticsString";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 
-const { Panel } = Collapse;
 type OrderFilterProps = {
   params: InventoryTransferSearchQuery;
   actions: Array<MenuAction>;
@@ -62,14 +60,29 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     stores,
     accounts,
   } = props;
+  const [formAdv] = Form.useForm();
+  const filterFromParams = {
+    ...params,
+    status: Array.isArray(params.status) ? params.status : [params.status],
+    created_by: Array.isArray(params.created_by) ? params.created_by : [params.created_by],
+    from_created_date: formatDateFilter(params.from_created_date),
+    to_created_date: formatDateFilter(params.to_created_date),
+    from_transfer_date: formatDateFilter(params.from_transfer_date),
+    to_transfer_date: formatDateFilter(params.to_transfer_date),
+    from_receive_date: formatDateFilter(params.from_receive_date),
+    to_receive_date: formatDateFilter(params.to_receive_date),
+  };
   const initialValues = useMemo(() => {
-    return {
-      ...params,
-      status: Array.isArray(params.status) ? params.status : [params.status],
-      created_by: Array.isArray(params.created_by) ? params.created_by : [params.created_by],
-  }}, [params])
+    return filterFromParams;
+  }, [params])
+
+  useEffect(() => {
+    formSearchRef.current?.setFieldsValue(params);
+    formAdv.setFieldsValue(filterFromParams);
+  }, [params]);
 
   const [visible, setVisible] = useState(false);
+  const [dateClick, setDateClick] = useState('');
   const [isFromCreatedDate, setIsFromCreatedDate] = useState(initialValues.from_created_date? moment(initialValues.from_created_date, "DD-MM-YYYY") : null);
   const [isToCreatedDate, setIsToCreatedDate] = useState(initialValues.to_created_date? moment(initialValues.to_created_date, "DD-MM-YYYY") : null);
   const [isFromTransferDate, setIsFromTransferDate] = useState(initialValues.from_transfer_date? moment(initialValues.from_transfer_date, "DD-MM-YYYY") : null);
@@ -78,43 +91,11 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   const [isToReceiveDate, setIsToReceiveDate] = useState(initialValues.to_receive_date? moment(initialValues.to_receive_date, "DD-MM-YYYY") : null);
 
   const loadingFilter = useMemo(() => {
-    return isLoading ? true : false
+    return !!isLoading
   }, [isLoading])
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
-
-  const onChangeRangeDate = useCallback(
-    (dates, dateString, type) => {
-
-      let fromDateString = null;
-      let toDateString = null;
-
-      if (dates) {
-        fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
-        toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
-      }
-      switch(type) {
-        case 'create_date':
-          setCreateDateClick('')
-          setIsFromCreatedDate(fromDateString)
-          setIsToCreatedDate(toDateString)
-          break;
-        case 'transfer_date':
-          setTransferDateClick('')
-          setIsFromTransferDate(fromDateString)
-          setIsToTransferDate(toDateString)
-          break;
-        case 'receive_date':
-          setTransferDateClick('')
-          setIsFromReceiveDate(fromDateString)
-          setIsToReceiveDate(toDateString)
-          break;
-        default: break
-      }
-    },
-    []
-  );
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -124,13 +105,10 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
 
-    setCreateDateClick('')
     setIsFromCreatedDate(null)
     setIsToCreatedDate(null)
-    setTransferDateClick('')
     setIsFromTransferDate(null)
     setIsToTransferDate(null)
-    setReceiveDateClick('')
     setIsFromReceiveDate(null)
     setIsToReceiveDate(null)
 
@@ -156,83 +134,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     [onMenuClick]
   );
 
-  const [createDateClick, setCreateDateClick] = useState('');
-  const [transferDateClick, setTransferDateClick] = useState('');
-  const [receiveDateClick, setReceiveDateClick] = useState('');
-
-  const clickOptionDate = useCallback(
-    (type, value) => {
-    let minValue = null;
-    let maxValue = null;
-
-    switch(value) {
-      case 'today':
-        minValue = moment().startOf('day')
-        maxValue = moment().endOf('day')
-        break
-      case 'yesterday':
-        minValue = moment().startOf('day').subtract(1, 'days')
-        maxValue = moment().endOf('day').subtract(1, 'days')
-        break
-      case 'thisweek':
-        minValue = moment().startOf('week')
-        maxValue = moment().endOf('week')
-        break
-      case 'lastweek':
-        minValue = moment().startOf('week').subtract(1, 'weeks')
-        maxValue = moment().endOf('week').subtract(1, 'weeks')
-        break
-      case 'thismonth':
-        minValue = moment().startOf('month')
-        maxValue = moment().endOf('month')
-        break
-      case 'lastmonth':
-        minValue = moment().startOf('month').subtract(1, 'months')
-        maxValue = moment().endOf('month').subtract(1, 'months')
-        break
-      default:
-        break
-    }
-
-    switch(type) {
-      case 'create_date':
-        if (createDateClick === value ) {
-          setCreateDateClick('')
-          setIsFromCreatedDate(null)
-          setIsToCreatedDate(null)
-        } else {
-          setCreateDateClick(value)
-          setIsFromCreatedDate(moment(minValue, 'DD-MM-YYYY'))
-          setIsToCreatedDate(moment(maxValue, 'DD-MM-YYYY'))
-        }
-        break
-      case 'transfer_date':
-        if (transferDateClick === value ) {
-          setTransferDateClick('')
-          setIsFromTransferDate(null)
-          setIsToTransferDate(null)
-        } else {
-          setTransferDateClick(value)
-          setIsFromTransferDate(moment(minValue, 'DD-MM-YYYY'))
-          setIsToTransferDate(moment(maxValue, 'DD-MM-YYYY'))
-        }
-        break
-      case 'receive_date':
-        if (receiveDateClick === value ) {
-          setReceiveDateClick('')
-          setIsFromReceiveDate(null)
-          setIsToReceiveDate(null)
-        } else {
-          setReceiveDateClick(value)
-          setIsFromReceiveDate(moment(minValue, 'DD-MM-YYYY'))
-          setIsToReceiveDate(moment(maxValue, 'DD-MM-YYYY'))
-        }
-        break
-      default:
-        break
-    }
-  }, [createDateClick, receiveDateClick, transferDateClick]);
-
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
@@ -253,22 +154,22 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, created_by: []});
           break;
         case 'created_date':
-          setCreateDateClick('')
           setIsFromCreatedDate(null)
           setIsToCreatedDate(null)
           onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
+          formAdv.resetFields(['from_created_date', 'to_created_date'])
           break;
         case 'transfer_date':
-          setTransferDateClick('')
           setIsFromTransferDate(null)
           setIsToTransferDate(null)
           onFilter && onFilter({...params, from_transfer_date: null, to_transfer_date: null});
+          formAdv.resetFields(['from_transfer_date', 'to_transfer_date'])
           break;
         case 'receive_date':
-          setReceiveDateClick('')
           setIsFromReceiveDate(null)
           setIsToReceiveDate(null)
           onFilter && onFilter({...params, from_receive_date: null, to_receive_date: null});
+          formAdv.resetFields(['from_receive_date', 'to_receive_date'])
           break;
         default: break
       }
@@ -302,13 +203,24 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       const valuesForm = {
         ...values,
         condition: values.condition ? values.condition.trim() : null,
-        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
-        to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
-        from_transfer_date: isFromTransferDate ? moment(isFromTransferDate) : null,
-        to_transfer_date: isToTransferDate ? moment(isToTransferDate) : null,
-        from_receive_date: isFromReceiveDate ? moment(isFromReceiveDate) : null,
-        to_receive_date: isToReceiveDate ? moment(isToReceiveDate) : null,
-
+        from_created_date: formAdv.getFieldValue('from_created_date')
+          ? getStartOfDayCommon(formAdv.getFieldValue('from_created_date'))?.format()
+          : null,
+        to_created_date: formAdv.getFieldValue('to_created_date')
+          ? getEndOfDayCommon(formAdv.getFieldValue('to_created_date'))?.format()
+          : null,
+        from_transfer_date: formAdv.getFieldValue('from_transfer_date')
+          ? getStartOfDayCommon(formAdv.getFieldValue('from_transfer_date'))?.format()
+          : null,
+        to_transfer_date: formAdv.getFieldValue('to_transfer_date')
+          ? getEndOfDayCommon(formAdv.getFieldValue('to_transfer_date'))?.format()
+          : null,
+        from_receive_date: formAdv.getFieldValue('from_receive_date')
+          ? getStartOfDayCommon(formAdv.getFieldValue('from_receive_date'))?.format()
+          : null,
+        to_receive_date: formAdv.getFieldValue('to_receive_date')
+          ? getEndOfDayCommon(formAdv.getFieldValue('to_receive_date'))?.format()
+          : null,
       }
       onFilter && onFilter(valuesForm);
     },
@@ -317,7 +229,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
   let filters = useMemo(() => {
     let list = []
-    if (initialValues.status.length) {
+    if (initialValues.status.length && initialValues.status[0]) {
       let textStatus = ""
       if (initialValues.status.length > 1) {
         initialValues.status.forEach((statusValue) => {
@@ -363,7 +275,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         value: textTotalAmount
       })
     }
-    if (initialValues.created_by.length) {
+    if (initialValues.created_by.length && initialValues.created_by[0]) {
       let textAccount = ""
       if (initialValues.created_by.length > 1) {
         initialValues.created_by.forEach((i) => {
@@ -455,20 +367,20 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 className="select-item"
               >
                 <Select
-                style={{width: '200px'}}
+                  style={{width: '200px'}}
                   placeholder="Kho nhận"
                   showArrow
                   showSearch
                   optionFilterProp="children"
                   allowClear
                   onClear={() => formSearchRef?.current?.submit()}
-                filterOption={(input: String, option: any) => {
-                  if (option.props.value) {
-                    return strForSearch(option.props.children).includes(strForSearch(input));
-                  }
+                  filterOption={(input: String, option: any) => {
+                    if (option.props.value) {
+                      return strForSearch(option.props.children).includes(strForSearch(input));
+                    }
 
-                  return false;
-                }}
+                    return false;
+                  }}
                 >
                   {Array.isArray(stores) &&
                     stores.length > 0 &&
@@ -512,225 +424,155 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         onCancel={onCancelFilter}
         visible={visible}
         className="order-filter-drawer"
-        width={500}
+        width={700}
       >
         {visible && <Form
           onFinish={onFinish}
           ref={formRef}
-          initialValues={params}
+          form={formAdv}
           layout="vertical"
+          initialValues={initialValues}
         >
           <BaseFilterWrapper>
             <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
-                  <Panel header="Trạng thái" key="1" className="header-filter">
-                    <Item name="status" style={{ margin: "10px 0px" }}>
-                      <CustomSelect
-                        maxTagCount="responsive"
-                        mode="multiple"
-                        style={{ width: '100%'}}
-                        showArrow
-                        placeholder="Chọn trạng thái"
-                        notFoundContent="Không tìm thấy kết quả"
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
+              <Col span={12}>
+                <Item label="Trạng thái" name="status" style={{ margin: "10px 0px" }}>
+                  <CustomSelect
+                    maxTagCount="responsive"
+                    mode="multiple"
+                    style={{ width: '100%'}}
+                    showArrow
+                    placeholder="Chọn trạng thái"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {STATUS_INVENTORY_TRANSFER_ARRAY.map((item, index) => (
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.value}
                       >
-                        {STATUS_INVENTORY_TRANSFER_ARRAY.map((item, index) => (
-                          <CustomSelect.Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.value}
-                          >
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Panel>
-
-                </Collapse>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label">Sản phẩm</div>
+                <Input.Group compact>
+                  <Item name="from_total_variant" style={{ width: '45%', textAlign: 'center' }}>
+                    <InputNumber
+                      className="price_min"
+                      placeholder="Từ"
+                      min="0"
+                      max="100000000"
+                    />
+                  </Item>
+                  <div
+                    className="site-input-split"
+                  >~</div>
+                  <Item name="to_total_variant" style={{width: '45%',textAlign: 'center'}}>
+                    <InputNumber
+                      className="site-input-right price_max"
+                      placeholder="Đến"
+                      min="0"
+                      max="1000000000"
+                    />
+                  </Item>
+                </Input.Group>
               </Col>
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}} className="price">
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.from_total_variant || initialValues.to_total_variant ? ["1"]: []}>
-                  <Panel header="Sản phẩm" key="1" className="header-filter">
-                    <Input.Group compact>
-                      <Item name="from_total_variant" style={{ width: '45%', textAlign: 'center' }}>
-                        <InputNumber
-                          className="price_min"
-                          placeholder="Từ"
-                          min="0"
-                          max="100000000"
-                        />
-                      </Item>
-                      <div
-                        className="site-input-split"
-                      >~</div>
-                      <Item name="to_total_variant" style={{width: '45%',textAlign: 'center'}}>
-                        <InputNumber
-                          className="site-input-right price_max"
-                          placeholder="Đến"
-                          min="0"
-                          max="1000000000"
-                        />
-                      </Item>
-                    </Input.Group>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}} className="price">
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.from_total_quantity || initialValues.to_total_quantity ? ["1"]: []}>
-                  <Panel header="Số lượng" key="1" className="header-filter">
-                    <Input.Group compact>
-                      <Item name="from_total_quantity" style={{ width: '45%', textAlign: 'center' }}>
-                        <InputNumber
-                          className="price_min"
-                          placeholder="Từ"
-                          min="0"
-                          max="100000000"
-                        />
-                      </Item>
-                      <div
-                        className="site-input-split"
-                      >~</div>
-                      <Item name="to_total_quantity" style={{width: '45%',textAlign: 'center'}}>
-                        <InputNumber
-                          className="site-input-right price_max"
-                          placeholder="Đến"
-                          min="0"
-                          max="1000000000"
-                        />
-                      </Item>
-                    </Input.Group>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}} className="price">
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.from_total_amount || initialValues.to_total_amount ? ["1"]: []}>
-                  <Panel header="Thành tiền" key="1" className="header-filter">
-                    <Input.Group compact>
-                      <Item name="from_total_amount" style={{ width: '45%', textAlign: 'center' }}>
-                        <InputNumber
-                          className="price_min"
-                          placeholder="Từ"
-                          formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
-                          min="0"
-                          max="100000000"
-                        />
-                      </Item>
-                      <div
-                        className="site-input-split"
-                      >~</div>
-                      <Item name="to_total_amount" style={{width: '45%',textAlign: 'center'}}>
-                        <InputNumber
-                          className="site-input-right price_max"
-                          placeholder="Đến"
-                          formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
-                          min="0"
-                          max="1000000000"
-                        />
-                      </Item>
-                    </Input.Group>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.created_by.length ? ["1"]: []}>
-                  <Panel header="Người tạo" key="1" className="header-filter">
-                    <Item name="created_by">
-                      <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.from_created_date && initialValues.to_created_date ? ["1"]: []}>
-                  <Panel header="Ngày tạo" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('create_date', 'yesterday')} className={createDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'today')} className={createDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'thisweek')} className={createDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('create_date', 'lastweek')} className={createDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'thismonth')} className={createDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'lastmonth')} className={createDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[isFromCreatedDate? moment(isFromCreatedDate, "DD-MM-YYYY") : null, isToCreatedDate? moment(isToCreatedDate, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'create_date')}
+              <Col span={12}>
+                <div className="label">Số lượng</div>
+                <Input.Group compact>
+                  <Item name="from_total_quantity" style={{ width: '45%', textAlign: 'center' }}>
+                    <InputNumber
+                      className="price_min"
+                      placeholder="Từ"
+                      min="0"
+                      max="100000000"
                     />
-                  </Panel>
-                </Collapse>
+                  </Item>
+                  <div
+                    className="site-input-split"
+                  >~</div>
+                  <Item name="to_total_quantity" style={{width: '45%',textAlign: 'center'}}>
+                    <InputNumber
+                      className="site-input-right price_max"
+                      placeholder="Đến"
+                      min="0"
+                      max="1000000000"
+                    />
+                  </Item>
+                </Input.Group>
+              </Col>
+              <Col span={12}>
+                <div className="label">Thành tiền</div>
+                <Input.Group compact>
+                  <Item name="from_total_amount" style={{ width: '45%', textAlign: 'center' }}>
+                    <InputNumber
+                      className="price_min"
+                      placeholder="Từ"
+                      formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                      min="0"
+                      max="100000000"
+                    />
+                  </Item>
+                  <div
+                    className="site-input-split"
+                  >~</div>
+                  <Item name="to_total_amount" style={{width: '45%',textAlign: 'center'}}>
+                    <InputNumber
+                      className="site-input-right price_max"
+                      placeholder="Đến"
+                      formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                      min="0"
+                      max="1000000000"
+                    />
+                  </Item>
+                </Input.Group>
               </Col>
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.from_transfer_date && initialValues.to_transfer_date ? ["1"]: []}>
-                  <Panel header="Ngày chuyển" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('transfer_date', 'yesterday')} className={transferDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('transfer_date', 'today')} className={transferDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('transfer_date', 'thisweek')} className={transferDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('transfer_date', 'lastweek')} className={transferDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('transfer_date', 'thismonth')} className={transferDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('transfer_date', 'lastmonth')} className={transferDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[
-                        isFromTransferDate? moment(isFromTransferDate, "DD-MM-YYYY") : null,
-                        isToTransferDate? moment(isToTransferDate, "DD-MM-YYYY") : null
-                      ]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'transfer_date')}
-                    />
-                  </Panel>
-                </Collapse>
+              <Col span={12}>
+                <Item label="Người tạo" name="created_by">
+                  <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
+                </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày tạo</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_created_date"
+                  fieldNameTo="to_created_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                />
               </Col>
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.from_receive_date && initialValues.to_receive_date ? ["1"]: []}>
-                  <Panel header="Ngày nhận" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('receive_date', 'yesterday')} className={receiveDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('receive_date', 'today')} className={receiveDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('receive_date', 'thisweek')} className={receiveDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('receive_date', 'lastweek')} className={receiveDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('receive_date', 'thismonth')} className={receiveDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('receive_date', 'lastmonth')} className={receiveDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[
-                        isFromReceiveDate? moment(isFromReceiveDate, "DD-MM-YYYY") : null,
-                        isToReceiveDate? moment(isToReceiveDate, "DD-MM-YYYY") : null
-                      ]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'receive_date')}
-                    />
-                  </Panel>
-                </Collapse>
+              <Col span={12}>
+                <div className="label-date">Ngày chuyển</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_transfer_date"
+                  fieldNameTo="to_transfer_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                />
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày nhận</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_receive_date"
+                  fieldNameTo="to_receive_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                />
               </Col>
             </Row>
           </BaseFilterWrapper>
@@ -739,7 +581,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       <div className="order-filter-tags">
         {filters && filters.map((filter: any, index) => {
           return (
-            <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+            <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
           )
         })}
       </div>

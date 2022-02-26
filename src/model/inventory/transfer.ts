@@ -14,12 +14,12 @@ export interface InventoryTransferSearchQuery {
   from_total_amount: number | null,
   to_total_amount: number | null,
   created_by: [],
-  from_created_date: string|null,
-  to_created_date: string|null,
-  from_transfer_date: string|null,
-  to_transfer_date: string|null,
-  from_receive_date: string|null,
-  to_receive_date: string|null
+  from_created_date: any,
+  to_created_date: any,
+  from_transfer_date: any,
+  to_transfer_date: any,
+  from_receive_date: any,
+  to_receive_date: any
 }
 
 export interface InventoryTransferLogSearchQuery{
@@ -30,8 +30,8 @@ export interface InventoryTransferLogSearchQuery{
   to_store_id: number | null,
   updated_by: [],
   action: [],
-  from_created_date: string|null,
-  to_created_date: string|null
+  from_created_date: any,
+  to_created_date: any
 }
 
 export interface Store extends BaseObject {

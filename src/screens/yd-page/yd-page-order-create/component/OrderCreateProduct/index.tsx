@@ -11,7 +11,7 @@ import {
 	Input,
 	Menu,
 	Row,
-	Select,
+	Select, Spin,
 	Table,
 	Tooltip
 } from "antd";
@@ -19,7 +19,7 @@ import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
-import XCloseBtn from "assets/icon/X_close.svg";
+// import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
@@ -88,18 +88,18 @@ import {
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
 	getTotalDiscount,
-	getTotalQuantity,
 	handleDelayActionWhenInsertTextInSearchInput,
 	handleFetchApiError,
 	haveAccess,
 	isFetchApiSuccessful,
 	replaceFormatString
 } from "utils/AppUtils";
-import { ACCOUNT_ROLE_ID, MoneyType } from "utils/Constants";
+import { MoneyType } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
-import { StyledComponent } from "./styles";
+import {StyledComponent, StyledRenderSearchVariant} from "./styles";
+import "./ordercreateproduct.scss"
 
 type PropType = {
 	storeId: number | null;
@@ -225,6 +225,8 @@ function OrderCreateProduct(props: PropType) {
 	const [isDisableOrderDiscount, setIsDisableOrderDiscount] = useState<boolean>(false);
 	const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
 	const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+
+	const [searchingVariant, setSearchingVariant] = useState<boolean>(false);
 	const [keySearchVariant, setKeySearchVariant] = useState("");
 	const [resultSearchVariant, setResultSearchVariant] = useState<
 		PageResponse<VariantResponse>
@@ -256,7 +258,7 @@ function OrderCreateProduct(props: PropType) {
 	const [couponInputText, setCouponInputText] = useState(coupon);
 
 	const lineItemQuantityInputTimeoutRef: MutableRefObject<any> = useRef();
-	const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
+	// const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
 	const lineItemDiscountInputTimeoutRef: MutableRefObject<any> = useRef();
 
 	const [storeArrayResponse, setStoreArrayResponse] =
@@ -499,16 +501,16 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
-	const onChangePrice = (value: number | null, index: number) => {
-		if (items) {
-			let _items = [...items];
-			if (value !== null && value !== _items[index].price) {
-				_items[index].price = value;
-				handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
-				calculateChangeMoney(_items);
-			}
-		}
-	};
+	// const onChangePrice = (value: number | null, index: number) => {
+	// 	if (items) {
+	// 		let _items = [...items];
+	// 		if (value !== null && value !== _items[index].price) {
+	// 			_items[index].price = value;
+	// 			handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
+	// 			calculateChangeMoney(_items);
+	// 		}
+	// 	}
+	// };
 
 	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
 		handleDelayApplyDiscountWhenChangeInput(lineItemDiscountInputTimeoutRef, _items, false);
@@ -520,37 +522,41 @@ function OrderCreateProduct(props: PropType) {
 	const renderSearchVariant = (item: VariantResponse) => {
 		let avatar = findAvatar(item.variant_images);
 		return (
-			<Row>
-				<Col
-					span={4}
-					style={{
-						alignItems: "center",
-						justifyContent: "center",
-						display: "flex",
-						padding: "4px 6px",
-					}}
-				>
-					<img
-						src={avatar === "" ? imgDefault : avatar}
-						alt="anh"
-						placeholder={imgDefault}
-						style={{ width: "50%", borderRadius: 5 }}
-					/>
-				</Col>
-				<Col span={14}>
-					<div style={{ padding: "5px 0" }}>
-						<span
-							className="searchDropdown__productTitle"
-							style={{ color: "#37394D" }}
-							title={item.name}
-						>
+			<StyledRenderSearchVariant>
+				<div className="variant-container">
+					<div
+						className="variant-img"
+						// style={{
+						// 	alignItems: "center",
+						// 	justifyContent: "center",
+						// 	display: "flex",
+						// 	padding: "4px 6px",
+						// 	width: 75,
+						// }}
+					>
+						<img
+							src={avatar === "" ? imgDefault : avatar}
+							alt="anh"
+							placeholder={imgDefault}
+							// style={{ width: "50%", borderRadius: 5 }}
+						/>
+					</div>
+
+					<div className="variant-name">
+						<Tooltip title={item.name}>
+							<span
+								className="name"
+								style={{ color: "#37394D" }}
+								title={item.name}
+							>
 							{item.name}
 						</span>
+						</Tooltip>
+
 						<div style={{ color: "#95A1AC" }}>{item.sku}</div>
 					</div>
-				</Col>
-				<Col span={6}>
-					<div style={{ textAlign: "right", padding: "0 20px" }}>
+
+					<div className="variant-price">
 						<div style={{ display: "inline-block", textAlign: "right" }}>
 							<Col style={{ color: "#222222" }}>
 								{`${findPrice(item.variant_prices, AppConfig.currency)} `}
@@ -579,8 +585,8 @@ function OrderCreateProduct(props: PropType) {
 							</div>
 						</div>
 					</div>
-				</Col>
-			</Row>
+				</div>
+			</StyledRenderSearchVariant>
 		);
 	};
 
@@ -609,15 +615,14 @@ function OrderCreateProduct(props: PropType) {
 	const ProductColumn = {
 		title: () => (
 			<div className="text-center">
-				<div style={{ textAlign: "left" }}>Sản phẩm</div>
+				<div style={{ textAlign: "left", marginLeft: 12}}>SẢN PHẨM</div>
 			</div>
 		),
-		width: "130px",
-		className: "yody-pos-name 2",
+		width: "90px",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
 			return (
 				<div
-					className="w-100"
+					className="yody-pos-name"
 					style={{
 						overflow: "hidden",
 						display: "flex",
@@ -690,14 +695,11 @@ function OrderCreateProduct(props: PropType) {
 
 	const AmountColumn = {
 		title: () => (
-			<div className="text-center">
-				<div style={{ textAlign: "center" }}>SL</div>
-				{items && getTotalQuantity(items) > 0 && (
-					<span style={{ color: "#2A2A86" }}>({formatCurrency(getTotalQuantity(items))})</span>
-				)}
+			<div className="text-center unbold">
+				<div style={{ textAlign: "center"}}>SL</div>
 			</div>
 		),
-		className: "yody-pos-quantity text-center",
+		// className: "yody-pos-quantity text-center",
 		width: "50px",
 		align: "right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
@@ -756,42 +758,17 @@ function OrderCreateProduct(props: PropType) {
 	const PriceColumn = {
 		title: () => (
 			<div>
-				<span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-				<span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+				<span className="unbold" style={{ color: "#222222", textAlign: "right" }}>Giá</span>
+				
 			</div>
 		),
-		className: "yody-pos-price text-right",
+		// className: "yody-pos-price text-right",
 		width: "80px",
 		align: "center",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
 			return (
-				<div ref={lineItemPriceInputTimeoutRef}>
-					<NumberInput
-						format={(a: string) => formatCurrency(a)}
-						replace={(a: string) => replaceFormatString(a)}
-						placeholder="VD: 100,000"
-						style={{
-							textAlign: "right",
-							width: "100%",
-							fontWeight: 500,
-							color: "#222222",
-							padding: "5px"
-						}}
-						maxLength={14}
-						minLength={0}
-						value={l.price}
-						onChange={(value) => {
-							onChangePrice(value, index);
-						}}
-						// disabled={levelOrder > 3 || isAutomaticDiscount}
-						disabled={
-							levelOrder > 3 ||
-							checkIfLineItemHasAutomaticDiscount(l) ||
-							couponInputText !== "" ||
-							promotion !== null ||
-							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin)
-						}
-					/>
+				<div className="yody-pos-varian-name">
+					{formatCurrency(l.price) + "đ"}
 				</div>
 			);
 		},
@@ -799,62 +776,15 @@ function OrderCreateProduct(props: PropType) {
 
 	const DiscountColumn = {
 		title: () => (
-			<div className="text-center">
+			<div className="text-center unbold">
 				<div>Chiết khấu</div>
 			</div>
 		),
 		align: "center",
-		width:  "120px",
-		className: "yody-table-discount text-right",
-		render: (l: OrderLineItemRequest, item: any, index: number) => {
-			return (
-				<div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup">
-					<DiscountGroup
-						price={l.price}
-						index={index}
-						discountRate={l.discount_items[0]?.rate ? l.discount_items[0]?.rate : 0}
-						discountValue={l.discount_items[0]?.value ? l.discount_items[0]?.value : 0}
-						totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
-						items={items}
-						handleCardItems={onDiscountItem}
-						disabled={
-							levelOrder > 3 ||
-							checkIfLineItemHasAutomaticDiscount(l) ||
-							couponInputText !== "" ||
-							checkIfOrderHasAutomaticDiscount()
-						}
-					/>
-				</div>
-			);
-		},
-	};
-
-	const TotalPriceColumn = {
-		title: () => (
-			<div className="text-center">
-				<span style={{ color: "#222222" }}>Tổng tiền</span>
-				<span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
-			</div>
-		),
-		align: "center",
-		className: "yody-table-total-money text-right",
-		width: "90px",
-		render: (l: OrderLineItemRequest, item: any, index: number) => {
-			return (
-				<div className="yody-pos-varian-name">
-					{formatCurrency(l.line_amount_after_line_discount)}
-				</div>
-			);
-		},
-	};
-
-	const ActionColumn = {
-		title: "",
-		// width: "50px",
-		className: "saleorder-product-card-action ",
-		render: (l: OrderLineItemRequest, item: any, index: number) => {
-			const menu = (
-				<Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+		width:  "110px",
+    render: (l: OrderLineItemRequest, item: any, index: number) => {
+      const menu = (
+				<Menu>
 					<Menu.Item key="1">
 						<Button
 							type="text"
@@ -890,44 +820,159 @@ function OrderCreateProduct(props: PropType) {
 							Thêm ghi chú
 						</Button>
 					</Menu.Item>
+          <Menu.Item key="3">
+						<Button
+							type="text"
+							onClick={() => onDeleteItem(index)}
+							className=""
+							style={{
+								paddingLeft: 24,
+								background: "transparent",
+								border: "none",
+							}}
+						>
+							Xóa sản phẩm
+						</Button>
+					</Menu.Item>
 				</Menu>
 			);
 			return (
-				<div
-					style={{
-						display: "flex",
-						justifyContent: "center",
-					}}
-				>
-					<div>
-						<Dropdown
-							overlay={menu}
-							trigger={["click"]}
-							placement="bottomRight"
-							disabled={levelOrder > 3}
-						>
-							<Button type="text" className="p-0 ant-btn-custom" style={{ border: "0px" }}>
-								<Tooltip title="Thêm thao tác">
-									<img src={arrowDownIcon} alt="" style={{ width: 17 }} />
-								</Tooltip>
-							</Button>
-						</Dropdown>
-						<Button
-							style={{ background: "transparent", border: "0px" }}
-							type="text"
-							className="p-0 ant-btn-custom"
-							onClick={() => onDeleteItem(index)}
-							disabled={levelOrder > 3}
-						>
-							<Tooltip title="Xóa sản phẩm">
-								<img src={XCloseBtn} alt="" style={{ width: 22 }} />
-							</Tooltip>
-						</Button>
-					</div>
-				</div>
+        <div className="discount-table-cell">
+          <Dropdown
+						overlay={menu}
+						trigger={["click"]}
+						placement="bottomRight"
+						disabled={levelOrder > 3}
+          >
+						<Tooltip title="Thao tác" placement="topRight">
+							<Button
+								className="action-button"
+								icon={<img src={arrowDownIcon} alt="" />}
+							/>
+						</Tooltip>
+          </Dropdown>
+
+					<DiscountGroup
+						price={l.price}
+						index={index}
+						discountRate={l.discount_items[0]?.rate ? l.discount_items[0]?.rate : 0}
+						discountValue={l.discount_items[0]?.value ? l.discount_items[0]?.value : 0}
+						totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
+						items={items}
+						handleCardItems={onDiscountItem}
+						disabled={
+							levelOrder > 3 ||
+							checkIfLineItemHasAutomaticDiscount(l) ||
+							couponInputText !== "" ||
+							checkIfOrderHasAutomaticDiscount()
+						}
+					/>
+        </div>
+				
 			);
 		},
 	};
+
+	// const TotalPriceColumn = {
+	// 	title: () => (
+	// 		<div className="text-center">
+	// 			<span style={{ color: "#222222" }}>Tổng tiền</span>
+	// 			<span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+	// 		</div>
+	// 	),
+	// 	align: "center",
+	// 	className: "yody-table-total-money text-right",
+	// 	width: "90px",
+	// 	render: (l: OrderLineItemRequest, item: any, index: number) => {
+	// 		return (
+	// 			<div className="yody-pos-varian-name">
+	// 				{formatCurrency(l.line_amount_after_line_discount)}
+	// 			</div>
+	// 		);
+	// 	},
+	// };
+
+	// const ActionColumn = {
+	// 	title: "",
+	// 	// width: "50px",
+	// 	className: "saleorder-product-card-action ",
+	// 	render: (l: OrderLineItemRequest, item: any, index: number) => {
+	// 		const menu = (
+	// 			<Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+	// 				<Menu.Item key="1">
+	// 					<Button
+	// 						type="text"
+	// 						onClick={() => showAddGiftModal(index)}
+	// 						className=""
+	// 						style={{
+	// 							paddingLeft: 24,
+	// 							background: "transparent",
+	// 							border: "none",
+	// 						}}
+	// 					>
+	// 						Thêm quà tặng
+	// 					</Button>
+	// 				</Menu.Item>
+	// 				<Menu.Item key="2">
+	// 					<Button
+	// 						type="text"
+	// 						onClick={() => {
+	// 							if (!items) {
+	// 								return;
+	// 							}
+	// 							let _items = [...items];
+	// 							_items[index].show_note = true;
+	// 							setItems(_items);
+	// 						}}
+	// 						className=""
+	// 						style={{
+	// 							paddingLeft: 24,
+	// 							background: "transparent",
+	// 							border: "none",
+	// 						}}
+	// 					>
+	// 						Thêm ghi chú
+	// 					</Button>
+	// 				</Menu.Item>
+  //
+	// 			</Menu>
+	// 		);
+	// 		return (
+	// 			<div
+	// 				style={{
+	// 					display: "flex",
+	// 					justifyContent: "center",
+	// 				}}
+	// 			>
+	// 				<div>
+	// 					<Dropdown
+	// 						overlay={menu}
+	// 						trigger={["click"]}
+	// 						placement="bottomRight"
+	// 						disabled={levelOrder > 3}
+	// 					>
+	// 						<Button type="text" className="p-0 ant-btn-custom" style={{ border: "0px" }}>
+	// 							<Tooltip title="Thêm thao tác">
+	// 								<img src={arrowDownIcon} alt="" style={{ width: 17 }} />
+	// 							</Tooltip>
+	// 						</Button>
+	// 					</Dropdown>
+	// 					<Button
+	// 						style={{ background: "transparent", border: "0px" }}
+	// 						type="text"
+	// 						className="p-0 ant-btn-custom"
+	// 						onClick={() => onDeleteItem(index)}
+	// 						disabled={levelOrder > 3}
+	// 					>
+	// 						<Tooltip title="Xóa sản phẩm">
+	// 							<img src={XCloseBtn} alt="" style={{ width: 22 }} />
+	// 						</Tooltip>
+	// 					</Button>
+	// 				</div>
+	// 			</div>
+	// 		);
+	// 	},
+	// };
 
 	const columns = [
 		ProductColumn,
@@ -935,8 +980,8 @@ function OrderCreateProduct(props: PropType) {
 		// inventoryColumn,
 		PriceColumn,
 		DiscountColumn,
-		TotalPriceColumn,
-		ActionColumn,
+		// TotalPriceColumn,
+		// ActionColumn,
 	];
 
 	const autoCompleteRef = createRef<RefSelectProps>();
@@ -1538,6 +1583,7 @@ function OrderCreateProduct(props: PropType) {
 						try {
 							await dispatch(
 								searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+									setSearchingVariant(false);
 									setResultSearchVariant(data);
 									setSearchProducts(false);
 									setIsShowProductSearch(true);
@@ -1556,6 +1602,8 @@ function OrderCreateProduct(props: PropType) {
 					setSearchProducts(false);
 				}
 			};
+
+			setSearchingVariant(true);
 			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
 				handleSearchProduct()
 			);
@@ -2016,14 +2064,14 @@ function OrderCreateProduct(props: PropType) {
             <Form.Item>
               <AutoComplete
                 notFoundContent={
-                  keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                  keySearchVariant.length >= 3 ? (searchingVariant ? <Spin size="small" /> : "Không tìm thấy sản phẩm") : undefined
                 }
                 id="search_product"
                 value={keySearchVariant}
                 ref={autoCompleteRef}
                 onSelect={onSearchVariantSelect}
                 dropdownClassName="search-layout dropdown-search-header"
-                dropdownMatchSelectWidth={456}
+                // dropdownMatchSelectWidth={456}
                 className="w-100"
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
@@ -2070,7 +2118,7 @@ function OrderCreateProduct(props: PropType) {
           locale={{
             emptyText: (
               <div className="sale_order_empty_product">
-                <img src={emptyProduct} alt="empty product"></img>
+                <img src={emptyProduct} alt="empty product"/>
                 <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
                 <Button
                   type="text"
@@ -2088,32 +2136,34 @@ function OrderCreateProduct(props: PropType) {
               </div>
             ),
           }}
-			rowKey={(item) => item.id.toString()}
+			    rowKey={(item) => item.id.toString()}
           columns={columns}
           dataSource={items}
           className="sale-product-box-table2 w-100"
           tableLayout="fixed"
           pagination={false}
-          scroll={{ x: 520 }}
+          // scroll={{ x: 520 }}
           sticky
           footer={() =>
             items && items.length > 0 ? (
               <div className="row-footer-custom">
-                <div style={{ width: "30%" }}>
-                  <div style={{ fontWeight: 700 }}>TỔNG</div>
-                  <div>{formatCurrency(getTotalAmount(items))}</div>
-                </div>
-                
-                <div style={{ width: "30%" }}>
-                  <div style={{ fontWeight: 700 }}>CK trên SP</div>
-                  <div style={{ color: "#ff4d4f" }}>{formatCurrency(getTotalDiscount(items))}</div>
+                <div style={{ flexGrow: 1 }}>
+                  <div  className= "unbold">TỔNG TIỀN</div>
+                  <div style={{ fontWeight: 700 }}>{formatCurrency(getTotalAmountAfterDiscount(items))} đ</div>
                 </div>
 
-                <div style={{ width: "30%" }}>
-                  <div style={{ fontWeight: 700 }}>Tổng tiền</div>
-                  <div style={{ color: "#000000", fontWeight: 700 }}>
-                    {formatCurrency(getTotalAmountAfterDiscount(items))}
-                  </div>
+								<div style={{ width: 20, fontWeight: 700 }} >=</div>
+
+                <div style={{ flexGrow: 1 }}>
+                  <div  className= "unbold">TỔNG</div>
+                  <div style={{ fontWeight: 700 }}>{formatCurrency(getTotalAmount(items))} đ</div>
+                </div>
+
+								<div style={{ width: 20, fontWeight: 700 }} >-</div>
+
+                <div style={{ flexGrow: 1 }}>
+                  <div  className= "unbold">TỔNG CK</div>
+                  <div style={{ fontWeight: 700 }}>{formatCurrency(getTotalDiscount(items))} đ</div>
                 </div>
               </div>
             ) : (

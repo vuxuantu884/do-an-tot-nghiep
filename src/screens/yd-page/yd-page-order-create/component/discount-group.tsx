@@ -4,6 +4,7 @@ import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
 import { formatCurrency, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue, replaceFormatString } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
+import "./discount-group.scss"
 
 type DiscountGroupProps = {
   price: number;
@@ -77,16 +78,19 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
   );
 
   return (
-    <div>
-      <Input.Group compact className="yd-discount-group">
+    <div className="yd-discount-group">
+      <Input.Group compact>
         <Select
           onChange={(value: string) => changeDiscountType(value)}
           value={selected}
+          suffixIcon={null}
+          className="discount-group-select"
         >
           <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
           <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
         </Select>
 				<NumberInput
+          style={{width:"100%"}}
 					className="hide-number-handle "
 					onChange={ChangeValueDiscount}
 					format={(a: string) =>
@@ -108,9 +112,10 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           }
 				/>
       </Input.Group>
+
       {showResult && (
-        <div className="d-flex justify-content-end yody-table-discount-converted">
-          <Text type="danger">
+        <div className="discount-rate-convert">
+          <Text type="danger" >
             {selected === MoneyType.MONEY
 							? (Math.round(props.discountRate * 100) / 100) + "%"
               : formatCurrency(props.discountValue)}
