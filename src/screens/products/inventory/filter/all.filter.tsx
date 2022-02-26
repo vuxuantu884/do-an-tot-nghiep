@@ -285,7 +285,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         })}
       </div>
     );
-  },[]);
+  };
 
   const openFilter = useCallback(() => {
     setVisible(true);

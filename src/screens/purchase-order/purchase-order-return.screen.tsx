@@ -8,7 +8,7 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import ContentContainer from "component/container/content.container";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import POSupplierForm from "./component/po-supplier.form";
+import POSupplierForm from "./component/po-supplier-form";
 import POReturnProductForm from "./component/po-return-product.form";
 import POReturnPaymentForm from "./component/po-return-payment.form";
 import POStep from "./component/po-step";

@@ -1,9 +1,8 @@
-import { PrinterFilled, SaveFilled } from "@ant-design/icons";
+import {EditOutlined, PrinterFilled, FilePdfOutlined} from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
@@ -37,7 +36,7 @@ import {
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
@@ -50,10 +49,12 @@ import POPaymentForm from "./component/po-payment.form";
 import POProductForm from "./component/po-product.form";
 import POReturnList from "./component/po-return-list";
 import POStep from "./component/po-step";
-import POSupplierForm from "./component/po-supplier.form";
+import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
-import ModalExport from "./modal/ModalExport";
 import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
+
+const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
+const ModalExport = lazy(() => import("./modal/ModalExport"))
 
 const ActionMenu = {
   EXPORT: 1,
@@ -255,7 +256,6 @@ const PODetailScreen: React.FC = () => {
     [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
-    console.log('poData?.status', poData);
     if(poData?.status === POStatus.FINALIZED){
       setPaymentItem(undefined);
       setVisiblePaymentModal(true)
@@ -342,63 +342,109 @@ const PODetailScreen: React.FC = () => {
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
 
   const renderButton = useMemo(() => {
-    switch (status) {
-      case POStatus.DRAFT:
-        return (
-          <>
+    const checkRender = () => {
+      switch (status) {
+        case POStatus.DRAFT:
+          return (
+            <>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
+                <Button
+                  type="primary"
+                  className="create-button-custom ant-btn-outline"
+                  loading={isEditDetail && loadingSaveDraftButton}
+                  ghost
+                  icon={!isEditDetail && <EditOutlined />}
+                  onClick={() => {
+                    if (isEditDetail) {
+                      setStatusAction(POStatus.DRAFT);
+                      formMain.submit();
+                    } else {
+                      setIsEditDetail(!isEditDetail);
+                    }
+                  }}
+                >
+                  {isEditDetail ? "Lưu nháp" : "Chỉnh sửa"}
+                </Button>
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
+                <Button
+                  type="primary"
+                  onClick={onConfirmButton}
+                  className="create-button-custom"
+                  loading={loadingConfirmButton}
+                >
+                  Duyệt
+                </Button>
+              </AuthWrapper>
+            </>
+          );
+        case POStatus.CANCELLED:
+          return null;
+        default:
+          return (
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
               <Button
                 type="primary"
                 className="create-button-custom ant-btn-outline"
                 loading={isEditDetail && loadingSaveDraftButton}
+                ghost
+                icon={!isEditDetail && <EditOutlined />}
                 onClick={() => {
                   if (isEditDetail) {
-                    setStatusAction(POStatus.DRAFT);
+                    setStatusAction(status);
                     formMain.submit();
                   } else {
                     setIsEditDetail(!isEditDetail);
                   }
                 }}
               >
-                {isEditDetail ? "Lưu nháp" : "Sửa đặt hàng"}
+                {isEditDetail ? "Lưu lại" : "Chỉnh sửa"}
               </Button>
             </AuthWrapper>
-            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
-              <Button
-                type="primary"
-                onClick={onConfirmButton}
-                className="create-button-custom"
-                loading={loadingConfirmButton}
-              >
-                Duyệt
-              </Button>
-            </AuthWrapper>
-          </>
-        );
-      case POStatus.CANCELLED:
-        return null;
-      default:
-        return (
-          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
-            <Button
-              type="primary"
-              className="create-button-custom ant-btn-outline"
-              loading={isEditDetail && loadingSaveDraftButton}
-              onClick={() => {
-                if (isEditDetail) {
-                  setStatusAction(status);
-                  formMain.submit();
-                } else {
-                  setIsEditDetail(!isEditDetail);
-                }
-              }}
-            >
-              {isEditDetail ? "Lưu lại" : "Sửa"}
-            </Button>
-          </AuthWrapper>
-        );
+          );
+      }
     }
+
+    return (
+      <>
+        <div id="test" className="page-filter" style={{ marginRight: -14 }}>
+          <Space direction="horizontal">
+            <Button
+                type="default"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleExport();
+                }}
+                icon={<FilePdfOutlined />}
+            >Xuất file</Button>
+            <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" placement={'topCenter'} buttonStyle={{ borderRadius: 2 }} />
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
+                <Button
+                    type="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrint && handlePrint();
+                    }}
+                    icon={<PrinterFilled />}
+                >In</Button>
+            </AuthWrapper>
+            <div style={{ display: "none" }}>
+                <div className="printContent" ref={printElementRef}>
+                    <div
+                        dangerouslySetInnerHTML={{
+                          __html: purify.sanitize(printContent),
+                        }}
+                    />
+                </div>
+            </div>
+          </Space>
+        </div>
+        {checkRender()}
+      </>
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    printContent,
     formMain,
     isEditDetail,
     loadingConfirmButton,
@@ -437,7 +483,7 @@ const PODetailScreen: React.FC = () => {
   }, [dispatch, poData?.id, poData]);
 
   const handleExport = () => {
-    var temp = document.createElement("div");
+    let temp = document.createElement("div");
     temp.id = "temp";
     temp.innerHTML = printContent;
     let value = document.body.appendChild(temp);
@@ -477,8 +523,7 @@ const PODetailScreen: React.FC = () => {
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
+          name: "Kho hàng",
         },
         {
           name: "Đặt hàng",
@@ -490,38 +535,6 @@ const PODetailScreen: React.FC = () => {
       ]}
       extra={poData && <POStep poData={poData} />}
     >
-      <div id="test" className="page-filter">
-        <Space direction="horizontal">
-          <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
-          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
-            <Button
-              type="link"
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePrint && handlePrint();
-              }}
-              icon={<PrinterFilled style={{ fontSize: 28 }} />}
-            ></Button>
-          </AuthWrapper>
-          <Button
-            type="link"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleExport();
-            }}
-            icon={<SaveFilled style={{ fontSize: 28 }} />}
-          ></Button>
-          <div style={{ display: "none" }}>
-            <div className="printContent" ref={printElementRef}>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: purify.sanitize(printContent),
-                }}
-              ></div>
-            </div>
-          </div>
-        </Space>
-      </div>
       <Form
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
@@ -616,7 +629,7 @@ const PODetailScreen: React.FC = () => {
           leftComponent={
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
-          height={80}
+          height={55}
           rightComponent={renderButton}
         />
       </Form>

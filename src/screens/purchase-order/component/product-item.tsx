@@ -13,14 +13,14 @@ export type ProductItemProps = {
 }
 
 const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
-  const { data, showCheckBox, checked, isTransfer } = props;
+  const { data, showCheckBox, checked, isTransfer, onChange = () => {} } = props;
   const avatar = Products.findAvatar(data.variant_images);
   const price_data = Products.findPrice(data.variant_prices, AppConfig.currency);
   return (
-    <div className="product-item">
+    <div className="product-item product-item-select" onClick={() => onChange(!checked)}>
       {
         showCheckBox && (
-          <Checkbox checked={checked} onChange={(e) => props.onChange && props.onChange(e.target.checked)} />
+          <Checkbox checked={checked} onChange={(e) => onChange(e.target.checked)} />
         )
       }
       <div className="product-item-image">

@@ -715,7 +715,7 @@ const ProductDetailScreen: React.FC = () => {
         }
       }
     },
-    [form]
+    [form,variantId]
   );
 
 

@@ -29,6 +29,16 @@ export const updatePurchaseOrder = (
   );
 };
 
+export const updateNotePurchaseOrder = (
+  id: number,
+  data: PurchaseOrder
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/notes`,
+    data
+  );
+};
+
 export const updatePurchaseOrderFinancialStatus = (
   id: number,
 ): Promise<BaseResponse<PurchaseOrder>> => {
@@ -130,8 +140,8 @@ export const deletePurchaseOrderConfigService = (
 export const getProcumentLogsService = (
   query: ProcumentLogQuery
 ): Promise<BaseResponse<PageResponse<PurchaseOrderActionLogResponse>>> => {
-  
-  let params = generateQuery(query); 
+
+  let params = generateQuery(query);
   return BaseAxios.get(
     `${ApiConfig.PURCHASE_ORDER}/procurements/logs?${params}`,
   );

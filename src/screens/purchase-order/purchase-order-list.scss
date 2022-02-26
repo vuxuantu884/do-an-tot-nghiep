@@ -32,6 +32,12 @@
     text-align: center;
     white-space: unset;
   }
+  .link-underline {
+    color: inherit;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .base-filter {
@@ -71,4 +77,10 @@
       min-width: 250px;
     }
   }
+}
+.note {
+  display: flex;
+}
+.text {
+  margin-right: 5px;
 }

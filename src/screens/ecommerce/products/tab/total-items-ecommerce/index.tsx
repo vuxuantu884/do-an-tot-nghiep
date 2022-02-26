@@ -753,7 +753,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           if (!!response.data.url) {
             setExportProgress(100);
             setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
+            showSuccess("Xuất file dữ liệu sản phẩm thành công!");
             window.open(response.data.url);
             setExportProcessId(null)
           } else {

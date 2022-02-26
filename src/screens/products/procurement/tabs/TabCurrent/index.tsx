@@ -7,7 +7,7 @@ import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import {
-  ApprovalPoProcumentAction,
+  ConfirmPoProcumentAction,
   PoProcumentDeleteAction,
   POSearchProcurement
 } from "domain/actions/po/po-procument.action";
@@ -103,7 +103,7 @@ const TabCurrent: React.FC = () => {
   );
 
   const onDetail = useCallback((result: PurchaseOrder | null) => {
-    if (result) {
+    if (result) { 
       setPurchaseOrderItem(result);
       setShowLoadingBeforeShowModal(-1);
     }
@@ -129,26 +129,30 @@ const TabCurrent: React.FC = () => {
     },
     [dispatch]
   );
+
+  const confirmResult = useCallback((result: PurchaseProcument | null)=>{
+    setShowLoadingBeforeShowModal(-1);
+    setIsLoadingReceive(false);
+    setIsVisibleReceiveModal(false);
+    showSuccess("Xác nhận phiếu nhập kho thành công");
+    search();
+  },[search]);
+
   const onReciveProcument = useCallback(
     (poId: number, purchaseProcument: PurchaseProcument) => {
       if (purchaseProcument && poId) {
         setIsLoadingReceive(true);
         dispatch(
-          ApprovalPoProcumentAction(
+          ConfirmPoProcumentAction(
             poId,
             purchaseProcument.id,
             purchaseProcument,
-            (result: PurchaseProcument | null) => {
-              setShowLoadingBeforeShowModal(-1);
-              setIsLoadingReceive(false);
-              setIsVisibleReceiveModal(false);
-              showSuccess("Xác nhận phiếu nhập kho thành công");
-            }
+            confirmResult
           )
         );
       }
     },
-    [dispatch]
+    [dispatch, confirmResult]
   );
 
   const checkConfirmProcurement = useCallback(()=>{
@@ -300,9 +304,11 @@ const TabCurrent: React.FC = () => {
   useEffect(() => {
     search();
   }, [search]);
+  
   return (
     <div className="margin-top-20">
       <CustomTable
+        isRowSelection
         selectedRowKey={selected.map(e=>e.id)}
         isLoading={loading}
         dataSource={data.items}
@@ -326,6 +332,7 @@ const TabCurrent: React.FC = () => {
         items={purchaseOrderItem.line_items}
         stores={[] as Array<StoreResponse>}
         procumentCode={''}
+        poData={purchaseOrderItem}
         now={moment(purchaseOrderItem.created_date)}
         visible={isVisibleReceiveModal && showLoadingBeforeShowModal === -1}
         item={selectedProcurement}
