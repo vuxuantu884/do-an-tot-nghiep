@@ -33,6 +33,20 @@ export const StyledComponent = styled.div`
       padding: 24px 0 0 0;
     }
   }
+  
+  .discount-table-cell {
+    .action-button {
+      background-color: white;
+      border: none;
+      width: fit-content;
+      height: 15px;
+      padding: 0;
+      display: flex;
+      float: right;
+      margin-bottom: 5px;
+    }
+  }
+  
   .saleorder-input-group-wrapper {
     .yody-table-discount-converted {
       font-size: 0.857rem;
@@ -54,7 +68,7 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  td.yody-pos-name {
+  .yody-pos-name {
     .yody-pos-varian-name {
       display: block;
       white-space: nowrap;
@@ -91,14 +105,7 @@ export const StyledComponent = styled.div`
   .yody-table-discount {
     .saleorder-input-group-wrapper {
       height: auto;
-      .yd-discount-group {
-        .ant-select {
-          width: auto !important;
-        }
-        .ant-input {
-          padding: 5px;
-        }
-      }
+      
       .ant-select-selector {
         padding: 0 7px;
       }
@@ -113,4 +120,37 @@ export const StyledComponent = styled.div`
     }
   }
 
+`;
+
+export const StyledRenderSearchVariant = styled.div`
+  .variant-container {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 10px;
+    
+    .variant-img {
+      padding: 5px;
+      width: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .variant-name {
+      width: 160px;
+      .name {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 42px;
+        line-height: 21px;
+      }
+    }
+    
+    .variant-price {
+      width: 110px;
+    }
+  }
 `;

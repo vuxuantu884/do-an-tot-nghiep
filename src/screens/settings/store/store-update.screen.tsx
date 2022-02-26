@@ -46,7 +46,6 @@ import {RegUtil} from "utils/RegUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -75,7 +74,6 @@ const StoreUpdateScreen: React.FC = () => {
   const history = useHistory();
   //end hook
   //State
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [formMain] = Form.useForm();
   const [data, setData] = useState<StoreResponse | null>(null);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
@@ -160,8 +158,7 @@ const StoreUpdateScreen: React.FC = () => {
 
   const onResult = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
-      if (data)
-        setAccounts(data.items);
+      if (data) {}
     }, [] );
 
    const onResDepartment = useCallback((data: any) => {

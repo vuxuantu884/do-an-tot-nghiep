@@ -79,7 +79,7 @@ const DepartmentCreateScreen: React.FC = () => {
   }, [dispatch, idNumber]);
   return (
     <ContentContainer
-      title="Quản lý bộ phận"
+      title="Quản lý phòng ban"
       isError={error}
       isLoading={loading}
       breadcrumb={[
@@ -88,7 +88,7 @@ const DepartmentCreateScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý bộ phận",
+          name: "Quản lý phòng ban",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -103,7 +103,7 @@ const DepartmentCreateScreen: React.FC = () => {
               <Card title="Thông tin chi tiết">
                 <Row gutter={50}>
                   <Col span={24}>
-                    <RowDetail title="Tên bộ phận" value={data.name} />
+                    <RowDetail title="Tên phòng ban" value={data.name} />
                   </Col>
                   <Col span={24}>
                     <RowDetail title="Quản lý" value={data.manager} />
@@ -144,7 +144,7 @@ const DepartmentCreateScreen: React.FC = () => {
                 }}
                 type="primary"
               >
-                Sửa bộ phận
+                Sửa phòng ban
               </Button>
             ) : (
               <></>

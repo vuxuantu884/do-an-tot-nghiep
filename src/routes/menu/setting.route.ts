@@ -5,7 +5,7 @@ import {
   AccountPermissions,
   DepartmentsPermissions,
 } from "config/permissions/account.permisssion";
-import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
+import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion";
 import AccountMeScreen from "screens/settings/account/account.me.screen";
 import BankAccountScreen from "screens/settings/bank/bank-account.screen";
 import BankAccountCreateScreen from "screens/settings/bank/create/bank-account.create.screen";
@@ -146,7 +146,7 @@ const setting: Array<RouteMenu> = [
         key: "account2",
         isShow: true,
         header: null,
-        subMenu: [], 
+        subMenu: [],
       },
       {
         path: `${UrlConfig.ACCOUNTS}/:code`,
@@ -165,7 +165,7 @@ const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.DEPARTMENT,
     exact: true,
-    title: "Quản lý bộ phận",
+    title: "Quản lý phòng ban",
     icon: "icon-dot",
     component: DepartmentSearchScreen,
     key: "subMenu910",
