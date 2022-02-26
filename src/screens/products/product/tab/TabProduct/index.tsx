@@ -291,7 +291,7 @@ const TabProduct: React.FC = () => {
       title:  "Sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => {
-        let strName=(i.name.trim()+"yody áo sơ mi nam chất liệu cà phê tay dài smm3010 - xanh ghi yody áo sơ mi nam chất liệu cà phê tay dài smm3010 - xanh ghi").toLocaleLowerCase();
+        let strName=(i.name.trim()).toLocaleLowerCase();
         strName=window.screen.width>=1920?splitEllipsis(strName,100,30)
           :window.screen.width>=1600?strName=splitEllipsis(strName,60,30)
           :window.screen.width>=1366?strName=splitEllipsis(strName,47,30):strName;
