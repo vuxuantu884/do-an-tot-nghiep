@@ -24,7 +24,7 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
-import React, { createRef, useCallback, useMemo } from "react";
+import React, {createRef, lazy, useCallback, useMemo} from "react";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -33,7 +33,6 @@ import ProductItem from "./product-item";
 // import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import PickManyProductModal from "../modal/pick-many-product.modal";
 // import ExpenseModal from "../modal/expense.modal";
 import { DiscountType, POField } from "model/purchase-order/po-field";
 // import { CostLine } from "model/purchase-order/cost-line.model";
@@ -43,6 +42,8 @@ import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { Link } from "react-router-dom";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { POStatus } from "utils/Constants";
+
+const PickManyProductModal = lazy(() => import("../modal/pick-many-product.modal"))
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
@@ -516,7 +517,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
-      
+
       formMain.setFieldsValue({
         line_items: [...data],
         tax_lines: tax_lines,
@@ -907,9 +908,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             format={(a: string) => formatCurrency(a ? a : 0, '')}
                             replace={(a: string) => replaceFormatString(a)}
                             onPressEnter={(e) => {
-                              const newPrice = e.target.value || 0;  
-                              const prices = [];   
-                              setPriceValue(newPrice);                       
+                              const newPrice = e.target.value || 0;
+                              const prices = [];
+                              setPriceValue(newPrice);
                               for (let index = 0; index < items.length; index++) {
                                 prices.push(newPrice);
                                 onPriceChange(
@@ -938,7 +939,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               const newList = [...listPrice];
                               newList[index] = inputValue || 0;
                               setListPrice(newList);
-                              
+
                               if (inputValue === null) {
                                 onPriceChange(
                                   0,
@@ -975,9 +976,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             isFloat
                             value={vatValue}
                             onPressEnter={(e) => {
-                              const newVat = e.target.value || 0;    
-                              const vats = []; 
-                              setVatValue(newVat);                         
+                              const newVat = e.target.value || 0;
+                              const vats = [];
+                              setVatValue(newVat);
                               for (let index = 0; index < items.length; index++) {
                                 vats.push(newVat);
                                 onTaxChange(
@@ -1132,12 +1133,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               <div className="product-item-name">
                                 <span className="product-item-name-detail">
                                   {value}
-                                </span>                              
+                                </span>
                               </div>
                               <div className="product-item-name">
                                 <span className="product-item-name-detail">
                                   {item.note}
-                                </span>                             
+                                </span>
                               </div>
                             </div>
                           </div>
