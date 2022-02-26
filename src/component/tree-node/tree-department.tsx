@@ -78,6 +78,6 @@ const TreeDepartment = (props: Props) => {
     );
 };
 TreeDepartment.defaultProps = {
-    placeholder: "Chọn bộ phận"
+    placeholder: "Chọn phòng ban"
 }
 export default TreeDepartment;
