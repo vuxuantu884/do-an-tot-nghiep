@@ -61,6 +61,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     accounts,
   } = props;
   const [formAdv] = Form.useForm();
+  const formRef = createRef<FormInstance>();
+  const formSearchRef = createRef<FormInstance>();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFromParams = {
     ...params,
     status: Array.isArray(params.status) ? params.status : [params.status],
@@ -74,28 +77,19 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   };
   const initialValues = useMemo(() => {
     return filterFromParams;
-  }, [params])
+  }, [filterFromParams])
 
   useEffect(() => {
     formSearchRef.current?.setFieldsValue(params);
     formAdv.setFieldsValue(filterFromParams);
-  }, [params]);
+  }, [filterFromParams, formAdv, formSearchRef, params]);
 
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState('');
-  const [isFromCreatedDate, setIsFromCreatedDate] = useState(initialValues.from_created_date? moment(initialValues.from_created_date, "DD-MM-YYYY") : null);
-  const [isToCreatedDate, setIsToCreatedDate] = useState(initialValues.to_created_date? moment(initialValues.to_created_date, "DD-MM-YYYY") : null);
-  const [isFromTransferDate, setIsFromTransferDate] = useState(initialValues.from_transfer_date? moment(initialValues.from_transfer_date, "DD-MM-YYYY") : null);
-  const [isToTransferDate, setIsToTransferDate] = useState(initialValues.to_transfer_date? moment(initialValues.to_transfer_date, "DD-MM-YYYY") : null);
-  const [isFromReceiveDate, setIsFromReceiveDate] = useState(initialValues.from_receive_date? moment(initialValues.from_receive_date, "DD-MM-YYYY") : null);
-  const [isToReceiveDate, setIsToReceiveDate] = useState(initialValues.to_receive_date? moment(initialValues.to_receive_date, "DD-MM-YYYY") : null);
 
   const loadingFilter = useMemo(() => {
     return !!isLoading
   }, [isLoading])
-
-  const formRef = createRef<FormInstance>();
-  const formSearchRef = createRef<FormInstance>();
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -104,13 +98,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
-
-    setIsFromCreatedDate(null)
-    setIsToCreatedDate(null)
-    setIsFromTransferDate(null)
-    setIsToTransferDate(null)
-    setIsFromReceiveDate(null)
-    setIsToReceiveDate(null)
 
     formSearchRef?.current?.setFieldsValue({
       condition: "",
@@ -154,27 +141,21 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, created_by: []});
           break;
         case 'created_date':
-          setIsFromCreatedDate(null)
-          setIsToCreatedDate(null)
           onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
           formAdv.resetFields(['from_created_date', 'to_created_date'])
           break;
         case 'transfer_date':
-          setIsFromTransferDate(null)
-          setIsToTransferDate(null)
           onFilter && onFilter({...params, from_transfer_date: null, to_transfer_date: null});
           formAdv.resetFields(['from_transfer_date', 'to_transfer_date'])
           break;
         case 'receive_date':
-          setIsFromReceiveDate(null)
-          setIsToReceiveDate(null)
           onFilter && onFilter({...params, from_receive_date: null, to_receive_date: null});
           formAdv.resetFields(['from_receive_date', 'to_receive_date'])
           break;
         default: break
       }
     },
-    [onFilter, params]
+    [formAdv, onFilter, params]
   );
 
   const onFinish = useCallback(
@@ -224,7 +205,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       }
       onFilter && onFilter(valuesForm);
     },
-    [isFromCreatedDate, isFromReceiveDate, isFromTransferDate, isToCreatedDate, isToReceiveDate, isToTransferDate, onFilter]
+    [formAdv, onFilter]
   );
 
   let filters = useMemo(() => {
