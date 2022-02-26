@@ -1689,7 +1689,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 		if(value.length > 1) {
 		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
 			 let query = {
-					name: value
+					name: value,
+          active: true
 			 }
 			 getSourcesWithParamsService(query).then((response) => {
 				 setListSource(response.data.items)

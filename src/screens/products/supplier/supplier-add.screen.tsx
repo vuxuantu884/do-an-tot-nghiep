@@ -69,6 +69,7 @@ const initRequest: SupplierCreateRequest = {
       phone: "",
       website: "",
       supplier_id: null,
+      position: ""
     },
   ],
   payments: [
@@ -170,6 +171,17 @@ const CreateSupplierScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
+      const {name, phone, fax, email, website, position} = values.contacts[0]
+      const { name: nameBankAccount, brand, number, beneficiary} = values.payments[0]
+
+      //Không tạo địa chỉ liên hệ nếu không nhập trường nào
+      if(!name && !position && !phone && !fax && !email && !website) {
+        values.contacts = []
+      }
+      //Không tạo thông tin thanh toán nếu không nhập trường nào
+      if(!nameBankAccount && !brand && !number && !beneficiary) {
+        values.payments = []
+      }
       setIsSubmitting(true);
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },

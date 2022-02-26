@@ -363,7 +363,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 		if(value.length > 1) {
 		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
 			 let query = {
-					name: value
+					name: value,
+          active: true,
 			 }
 			 getSourcesWithParamsService(query).then((response) => {
 				 setListSource(response.data.items)
@@ -436,6 +437,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
           const query:SourceSearchQuery = {
             ids: [OrderDetail?.source_id],
+            active: true,
           }
           getSourcesWithParamsService(query).then((responseSource) => {
             let items = responseSource.data.items;

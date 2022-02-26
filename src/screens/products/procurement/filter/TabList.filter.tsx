@@ -134,7 +134,7 @@ function TabListFilter(props: ProcurementFilterProps) {
         })}`
       );
     },
-    [formAdvanced]
+    [formBase, history]
   );
 
   const resetField = useCallback(
@@ -171,13 +171,39 @@ function TabListFilter(props: ProcurementFilterProps) {
     };
   }
 
+  const handleClickStatus = useCallback((value: string) => {
+    let statusList = formAdvanced.getFieldValue('status') || [];
+
+    if (!isArray(statusList)) {
+      statusList = statusList.split(',');
+    }
+
+    if (statusList && !statusList.includes(value)) {
+      statusList.push(value);
+    } else if (statusList && statusList.includes(value)) {
+      const index = statusList.indexOf(value);
+      if (index > -1) {
+        statusList.splice(index, 1);
+      }
+    } else {
+      statusList.push(value);
+    }
+
+    formAdvanced.setFieldsValue({
+      ...formAdvanced.getFieldsValue(),
+      status: statusList
+    });
+
+    setSelectedStatuses([...statusList]);
+  }, [formAdvanced]);
+
   useEffect(() => {
     const filters = convertParams(paramsUrl);
 
     setAdvanceFilters(filters);
     formAdvanced.setFieldsValue(filters);
     handleClickStatus(paramsUrl.status);
-  }, [formAdvanced, paramsUrl]);
+  }, [formAdvanced, handleClickStatus, paramsUrl]);
 
   const parseDataToString = (data: ProcurementFilter) => {
     const params: ProcurementQuery = {} as ProcurementQuery;
@@ -224,32 +250,6 @@ function TabListFilter(props: ProcurementFilterProps) {
         ...formAdvanceParams,
       })}`
     );
-  };
-
-  const handleClickStatus = (value: string) => {
-    let statusList = formAdvanced.getFieldValue('status') || [];
-
-    if (!isArray(statusList)) {
-      statusList = statusList.split(',');
-    }
-
-    if (statusList && !statusList.includes(value)) {
-      statusList.push(value);
-    } else if (statusList && statusList.includes(value)) {
-      const index = statusList.indexOf(value);
-      if (index > -1) {
-        statusList.splice(index, 1);
-      }
-    } else {
-      statusList.push(value);
-    }
-
-    formAdvanced.setFieldsValue({
-      ...formAdvanced.getFieldsValue(),
-      status: statusList
-    });
-
-    setSelectedStatuses([...statusList]);
   };
 
   useEffect(() => {

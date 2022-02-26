@@ -22,7 +22,7 @@ type Job = {
 };
 const JobColumn: Array<ColumnProps<Job>> = [
   {
-    title: "Bộ phận",
+    title: "Phòng ban",
     dataIndex: "department",
   },
   {

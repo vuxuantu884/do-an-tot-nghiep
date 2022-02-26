@@ -118,9 +118,10 @@ const Products: React.FC = () => {
     resetProgress();
     // redirectToNotConnectedItems();
     setIsVisibleProgressModal(false);
+    if (processType === "sync-variant"){
+      history.replace(`${history.location.pathname}#connected-item`);
+    }
   }
-  // end
-
   // handle exit download modal
   const onCancelExitDownloadProductsModal = () => {
     setIsVisibleExitDownloadProductsModal(false);

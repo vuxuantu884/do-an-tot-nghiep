@@ -18,7 +18,6 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
-import CustomSelect from "component/custom/select.custom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import {AppConfig} from "config/app.config";
 import UrlConfig from "config/url.config";
@@ -92,7 +91,6 @@ const StoreCreateScreen: React.FC = () => {
   const history = useHistory();
   //end hook
   //State
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<DistrictResponse>>([]);
   const [wards, setWards] = useState<Array<WardResponse>>([]);
@@ -172,15 +170,13 @@ const StoreCreateScreen: React.FC = () => {
   );
 
   const onResult = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (data) {
-      setAccounts(data.items);
-    };
+    if (data) {}
   }, []);
 
    const onResDepartment = useCallback((data: any) => {
     if (data) {
       setLstDepartment(data);
-    };
+    }
   }, []);
 
   const backAction = ()=>{

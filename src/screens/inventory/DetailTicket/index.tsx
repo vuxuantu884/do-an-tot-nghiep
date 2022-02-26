@@ -91,7 +91,7 @@ const DetailTicket: FC = () => {
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
-    
+
   const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
@@ -142,7 +142,7 @@ const DetailTicket: FC = () => {
         let dataId = sessionStorage.getItem(`id${result.id}`);
         if (dataLineItems) {
         }
-        
+
         if (dataLineItems && dataId === `${result.id}`) {
           setDataTable(JSON.parse(dataLineItems));
         }
@@ -150,7 +150,7 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
-        setDataShipment(result.shipment); 
+        setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
       }
     },
@@ -169,7 +169,7 @@ const DetailTicket: FC = () => {
     PageResponse<VariantResponse> | any
   >();
 
-  const onSearch = useCallback((value: string)=>{ 
+  const onSearch = useCallback((value: string)=>{
     setKeySearch(value);
   },[setKeySearch]);
 
@@ -199,7 +199,7 @@ const DetailTicket: FC = () => {
       textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
       classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
       break;
-    
+
     case STATUS_INVENTORY_TRANSFER.PENDING.status:
       textTag = STATUS_INVENTORY_TRANSFER.PENDING.name;
       classTag = STATUS_INVENTORY_TRANSFER.PENDING.status;
@@ -235,8 +235,8 @@ const DetailTicket: FC = () => {
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
-    if (item) 
-    selectedItem = item; 
+    if (item)
+    selectedItem = item;
 
     const variantPrice =
       selectedItem &&
@@ -300,7 +300,7 @@ const DetailTicket: FC = () => {
   }
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
-    
+
     const newResult = result?.map((item) => {
       const variantPrice =
         item &&
@@ -350,13 +350,13 @@ const DetailTicket: FC = () => {
       }
     },
     [history]
-  );  
+  );
 
   const onReceive = useCallback(() => {
     if (data && dataTable) {
       data.line_items = dataTable;
       let dataUpdate: any = {};
-      
+
       stores.forEach((store) => {
         if (store.id === Number(data?.from_store_id)) {
           dataUpdate.store_transfer = {
@@ -390,41 +390,41 @@ const DetailTicket: FC = () => {
     }
   }, [createCallback, data, dataTable, dispatch, stores]);
 
-  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => { 
-      if (keyCode === "Enter" && code){ 
-        barCode ="";  
-        setKeySearch("");  
-        
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
+      if (keyCode === "Enter" && code){
+        barCode ="";
+        setKeySearch("");
+
         if (RegUtil.BARCODE_NUMBER.test(code)) {
           const item: VariantResponse  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-          
-          if (item && item.id) { 
+
+          if (item && item.id) {
            const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],data?.from_store_id ?? null);
-           if (variant && variant.items && variant.items.length > 0) {  
+           if (variant && variant.items && variant.items.length > 0) {
              item.available = variant.items[variant.items.length-1].available;
              item.on_hand = variant.items[variant.items.length-1].on_hand;
            }
-           onSelectProduct(item.id.toString(),item); 
+           onSelectProduct(item.id.toString(),item);
           }
         }
-      } 
+      }
       else{
         const txtSearchProductElement: any =
           document.getElementById("product_search_variant");
 
-        onSearchProduct(txtSearchProductElement?.value); 
-      } 
+        onSearchProduct(txtSearchProductElement?.value);
+      }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dispatch,onSelectProduct, onSearchProduct]);
 
   const eventKeydown = useCallback(
-    (event: KeyboardEvent) => { 
+    (event: KeyboardEvent) => {
 
      if (event.target instanceof HTMLInputElement) {
        if (event.target.id === "product_search_variant") {
          if (event.key !== "Enter" && event.key !== "Shift")
            barCode = barCode + event.key;
-        
+
          handleDelayActionWhenInsertTextInSearchInput(
            productAutoCompleteRef,
            () => handleSearchProduct(event.key, barCode),
@@ -433,7 +433,7 @@ const DetailTicket: FC = () => {
          return;
        }
      }
-     
+
    },
    // eslint-disable-next-line react-hooks/exhaustive-deps
    [handleSearchProduct]
@@ -443,12 +443,12 @@ const DetailTicket: FC = () => {
     onSelectProduct(o);
   },[onSelectProduct])
 
-  useEffect(() => { 
+  useEffect(() => {
       window.addEventListener("keydown", eventKeydown);
       return () => {
         window.removeEventListener("keydown", eventKeydown);
       };
-  }, [eventKeydown]); 
+  }, [eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -613,7 +613,7 @@ const DetailTicket: FC = () => {
       width: 100,
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-          return <NumberInput 
+          return <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
@@ -621,11 +621,16 @@ const DetailTicket: FC = () => {
             onChange={(quantity) => {
               onRealQuantityChange(quantity, index);
             }}
+            className={value && value < row.transfer_quantity
+              ? 'border-red'
+              : value && value > row.transfer_quantity
+                ? 'border-orange'
+                : ''}
           />
         }
         else {
           return value ? value : 0;
-        } 
+        }
       },
     },
     {
@@ -635,7 +640,7 @@ const DetailTicket: FC = () => {
       render: (item, row: LineItem) => {
         const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
         if (totalDifference) {
-          return <NumberFormat 
+          return <NumberFormat
             value={totalDifference}
             className="foo"
             displayType={"text"}
@@ -653,7 +658,7 @@ const DetailTicket: FC = () => {
       render: (value: string, row, index) => {
         if (
           (parseInt(value) !== 0 &&
-            (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status 
+            (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
             || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
           )
           || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
@@ -689,7 +694,7 @@ const DetailTicket: FC = () => {
     );
   };
 
-  const saveSessionStorage = () => {    
+  const saveSessionStorage = () => {
     if (data) {
       sessionStorage.setItem(`dataItems${data.id}`, JSON.stringify(dataTable));
       sessionStorage.setItem(`id${data.id}`, data.id.toString());
@@ -704,7 +709,7 @@ const DetailTicket: FC = () => {
   }
 
   const onReload = useCallback(()=>{
-    dispatch(getDetailInventoryTransferAction(idNumber, onResult));  
+    dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   },[dispatch,idNumber,onResult])
 
   useEffect(() => {
@@ -712,7 +717,7 @@ const DetailTicket: FC = () => {
     else {
       const fromStoreData = stores.find(item => item.id === data?.from_store_id);
       const toStoreData = stores.find(item => item.id === data?.to_store_id);
-      
+
       let request = {
         from_city_id: fromStoreData?.city_id,
         from_city: fromStoreData?.city_name,
@@ -751,7 +756,7 @@ const DetailTicket: FC = () => {
         setStores
       )
     );
-    
+
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
@@ -867,7 +872,7 @@ const DetailTicket: FC = () => {
                       )
                     }
                 {
-                  (data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status 
+                  (data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
                     || data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
                     || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && (
                   <Card
@@ -904,7 +909,7 @@ const DetailTicket: FC = () => {
                               prefix={<i className="icon-search icon" />}
                               ref={productSearchRef}
                             />
-                          </AutoComplete>  
+                          </AutoComplete>
                           <Button
                             onClick={() => {
                               setVisibleManyProduct(true);
@@ -917,7 +922,7 @@ const DetailTicket: FC = () => {
                         </Input.Group>
                         )
                       }
-                      
+
                       <Table
                         className="inventory-table"
                         rowClassName="product-table-row"
@@ -960,7 +965,7 @@ const DetailTicket: FC = () => {
                               <Table.Summary.Cell align={"center"} index={5}>
                                 <b>{getTotalRealQuantity()}</b>
                               </Table.Summary.Cell>
-                              
+
                               <Table.Summary.Cell align={"center"} index={6}>
                                 <b>
                                   <NumberFormat
@@ -978,7 +983,7 @@ const DetailTicket: FC = () => {
                       {
                          data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  (
                           <div className="inventory-transfer-action">
-                            <AuthWrapper 
+                            <AuthWrapper
                               acceptPermissions={[InventoryTransferPermission.receive]}
                               acceptStoreIds={[data.to_store_id]}
                             >
@@ -999,7 +1004,7 @@ const DetailTicket: FC = () => {
                                 Nhận hàng
                               </Button>
                             </AuthWrapper>
-    
+
                           </div>
                        )
                       }
@@ -1008,12 +1013,12 @@ const DetailTicket: FC = () => {
                   )
                 }
                 {
-                  data.status !== STATUS_INVENTORY_TRANSFER.CANCELED.status && 
+                  data.status !== STATUS_INVENTORY_TRANSFER.CANCELED.status &&
                   <Card
                     title={"CHUYỂN HÀNG"}
-                    extra={ 
+                    extra={
                       data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&
-                        <AuthWrapper 
+                        <AuthWrapper
                           acceptPermissions={[ShipmentInventoryTransferPermission.create]}
                           acceptStoreIds={[data.from_store_id]}
                         >
@@ -1030,7 +1035,7 @@ const DetailTicket: FC = () => {
                       ((data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
                         || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
                         || data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status
-                        || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && data.shipment !==null ) && 
+                        || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && data.shipment !==null ) &&
                       <>
                         <Row className="shipment">
                           <div className="shipment-logo">
@@ -1045,7 +1050,7 @@ const DetailTicket: FC = () => {
                               onClick={() => {
                                 showSuccess('Đã copy');
                                 copy(data.shipment?.tracking_code);
-                              }} 
+                              }}
                             />
                           </div>
                         </Row>
@@ -1057,8 +1062,8 @@ const DetailTicket: FC = () => {
                                 dataShipment?.tracking_logs?.map(item => {
                                   return (
                                     <Timeline.Item>
-                                      <span><b>{item.shipping_message}</b></span> 
-                                      &#8226; 
+                                      <span><b>{item.shipping_message}</b></span>
+                                      &#8226;
                                       <span>{ConvertUtcToLocalDate(
                                           item.updated_date,
                                           "DD/MM/YYYY HH:mm"
@@ -1075,10 +1080,10 @@ const DetailTicket: FC = () => {
                     }
                     {
                       ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) 
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
                         && (data.shipment !== null && (data.shipment.status === ShipmentStatus.CONFIRMED || data.shipment.status === ShipmentStatus.TRANSFERRING)) ) && (
                         <div className="inventory-transfer-action">
-                          <AuthWrapper 
+                          <AuthWrapper
                             acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
                             acceptStoreIds={[data.from_store_id]}
                           >
@@ -1092,7 +1097,7 @@ const DetailTicket: FC = () => {
                           {
                             (data.shipment?.status === 'confirmed' &&
                             data.status ===  STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
-                              <AuthWrapper 
+                              <AuthWrapper
                                 acceptPermissions={[ShipmentInventoryTransferPermission.export]}
                                 acceptStoreIds={[data.from_store_id]}
                               >
@@ -1100,7 +1105,7 @@ const DetailTicket: FC = () => {
                                   className="export-button"
                                   type="primary"
                                   onClick={() => {
-                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, 
+                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id,
                                       onReload
                                       ));
                                   }}
@@ -1211,7 +1216,7 @@ const DetailTicket: FC = () => {
                 </Card>
               </Col>
             </Row>
-            <BottomBarContainer 
+            <BottomBarContainer
               leftComponent = {
                 <div onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)} style={{ cursor: "pointer" }}>
                   <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
@@ -1220,7 +1225,7 @@ const DetailTicket: FC = () => {
               }
               rightComponent={
                 <Space>
-                  <AuthWrapper 
+                  <AuthWrapper
                     acceptPermissions={[InventoryTransferPermission.print]}
                   >
                     <Button onClick={() => onPrintAction('inventory_transfer_bill')}>
@@ -1228,17 +1233,17 @@ const DetailTicket: FC = () => {
                       {" In vận đơn"}
                     </Button>
                   </AuthWrapper>
-                  <AuthWrapper 
+                  <AuthWrapper
                     acceptPermissions={[InventoryTransferPermission.print]}
                   >
                     <Button onClick={() => onPrintAction('inventory_transfer')}>
-                      <PrinterOutlined /> 
+                      <PrinterOutlined />
                       {" In phiếu chuyển"}
                     </Button>
                   </AuthWrapper>
                   {
-                   (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && data.shipment === null) &&  
-                    <AuthWrapper 
+                   (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && data.shipment === null) &&
+                    <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.cancel]}
                     >
                       <Button danger onClick={() => setIsDeleteTicket(true)}>
@@ -1249,14 +1254,14 @@ const DetailTicket: FC = () => {
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status ) && (
                       <>
-                        <AuthWrapper 
+                        <AuthWrapper
                           acceptPermissions={[InventoryTransferPermission.balance]}
                         >
                           <Button onClick={() => {}}>
                             Kiểm kho theo sản phẩm
                           </Button>
                         </AuthWrapper>
-                        <AuthWrapper 
+                        <AuthWrapper
                           acceptPermissions={[InventoryTransferPermission.balance]}
                         >
                           <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
@@ -1267,8 +1272,8 @@ const DetailTicket: FC = () => {
                     )
                   }
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && 
-                    <AuthWrapper 
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) &&
+                    <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.update]}
                       acceptStoreIds={[data.from_store_id]}
                     >
@@ -1284,8 +1289,8 @@ const DetailTicket: FC = () => {
                     </AuthWrapper>
                   }
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && 
-                    <AuthWrapper 
+                    (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) &&
+                    <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.clone]}
                     >
                       <Button
@@ -1310,7 +1315,7 @@ const DetailTicket: FC = () => {
           </div>
         </div>
         {
-          isVisibleModalWarning && 
+          isVisibleModalWarning &&
           <ModalConfirm
             onCancel={() => {
               setIsVisibleModalWarning(false);
@@ -1329,7 +1334,7 @@ const DetailTicket: FC = () => {
           />
         }
         {
-          isVisibleModalReceiveWarning && 
+          isVisibleModalReceiveWarning &&
           <ModalConfirm
             onCancel={() => {
               setIsVisibleModalReceiveWarning(false);
@@ -1386,7 +1391,7 @@ const DetailTicket: FC = () => {
           />
         )}
         {
-          isVisibleInventoryShipment && 
+          isVisibleInventoryShipment &&
           <InventoryShipment
             visible={isVisibleInventoryShipment}
             dataTicket={data}

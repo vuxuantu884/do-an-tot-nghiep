@@ -11,7 +11,6 @@ import { SupplierQuery } from "model/core/supplier.model";
 import { useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import CustomSelectOne from "./component/select-one.custom";
-import {trimText} from "../../utils/AppUtils";
 
 type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -46,7 +45,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
 
   const onFinish = useCallback(
     (values: SupplierQuery) => {
-      onFilter && onFilter({...values, condition: trimText(values.condition)});
+      onFilter && onFilter({...values, condition: values.condition?.trim()});
     },
     [onFilter]
   );

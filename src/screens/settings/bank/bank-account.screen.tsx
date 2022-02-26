@@ -11,9 +11,10 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import iconEdit from "assets/icon/edit.svg";
-import { RiCheckboxCircleLine } from "react-icons/ri";
+// import { RiCheckboxCircleLine } from "react-icons/ri";
 import ButtonCreate from "component/header/ButtonCreate";
 import { getBankAccountAction } from 'domain/actions/bank/bank.action';
+import { CheckOutlined } from "@ant-design/icons";
 
 
 const initQuery: BankAccountSearchQuery = {
@@ -94,7 +95,7 @@ const BankAccountScreen: React.FC = () => {
                             return <Tag color="green">{item.store_name}</Tag>;
                         })}
                     </span> */}
-                    {row.stores.length < 3 ? (
+                    {row.stores.length < 5 ? (
                         <span>
                             {row?.stores?.map((item) => {
                                 return <Tag color="green">{item.store_name}</Tag>;
@@ -104,7 +105,10 @@ const BankAccountScreen: React.FC = () => {
                         <span>
                             <Tag color="green">{row.stores[0].store_name}</Tag>
                             <Tag color="green">{row.stores[1].store_name}</Tag>
-                            <Tag color="green">+{row.stores.length - 2}...</Tag>
+                            <Tag color="green">{row.stores[2].store_name}</Tag>
+                            <Tag color="green">{row.stores[3].store_name}</Tag>
+                            <Tag color="green">{row.stores[4].store_name}</Tag>
+                            <Tag color="green">+{row.stores.length - 5}...</Tag>
                         </span>
                     )}
                 </React.Fragment>
@@ -119,8 +123,12 @@ const BankAccountScreen: React.FC = () => {
                 let text = row.default ? "text-success" : "text-error";
 
                 return (
-                    <div style={{ textAlign: "center", fontSize: "20px" }} className={text}>
-                        <RiCheckboxCircleLine />
+                    <div style={row.default ? { textAlign: "center", fontSize: "20px", color:"#2A2A86" }
+                        : { textAlign: "center", fontSize: "20px", display: "none" }}
+                        className={text}
+                    >
+                        {/* <RiCheckboxCircleLine /> */}
+                        <CheckOutlined />
                     </div>
                 );
             },
@@ -204,7 +212,7 @@ const BankAccountScreen: React.FC = () => {
                     name: "Tài khoản ngân hàng",
                 },
             ]}
-            extra={<ButtonCreate child="Thêm tài khoản ngân hàng" path={`${UrlConfig.BANK_ACCOUNT}/create`} />}
+            extra={<ButtonCreate child="Thêm mới" path={`${UrlConfig.BANK_ACCOUNT}/create`} />}
         >
             <Card>
                 <BankAccountFilter params={params} onFilter={onFilter} />

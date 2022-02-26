@@ -14,7 +14,7 @@ import {
   InventoryQueryField
 } from "model/inventory/field";
 import BaseFilter from "component/filter/base.filter";
-import React, { useCallback, useEffect, useMemo, useState } from "react"; 
+import React, { useCallback, useEffect, useState } from "react";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { convertCategory, formatCurrency } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,7 +27,7 @@ import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { CountryResponse } from "model/content/country.model";
 import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { AppConfig } from "config/app.config"; 
+import { AppConfig } from "config/app.config";
 import CustomModal from "component/modal/CustomModal";
 import { modalActionType } from "model/modal/modal.model";
 import FormSaveFilter from "./components/FormSaveFilter";
@@ -104,7 +104,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
-  
+
   const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
     setLstCollection(data.items);
   }, []);
@@ -152,9 +152,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
   const FilterList = useCallback(({ filters, resetField }: any) => {
     let filtersKeys = Object.keys(filters);
-    let renderTxt: any = null; 
+    let renderTxt: any = null;
 
-    return ( 
+    return (
       <div style={{wordBreak: 'break-word'}}>
         {filtersKeys.map((filterKey) => {
 
@@ -162,8 +162,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
           if (!value && value !==0) return null;
           if (value && Array.isArray(value)  && value.length === 0) return null;
-          if (!AllInventoryMappingField[filterKey]) return null; 
-          
+          if (!AllInventoryMappingField[filterKey]) return null;
+
           switch (filterKey) {
             case AvdAllFilter.category:
             case AvdAllFilter.category_ids:
@@ -179,7 +179,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 let madeinTag = "";
                 value.forEach((item: number) => {
                   const madein = listCountry?.find(e => e.id === item);
-                  
+
                   madeinTag = madein ? madeinTag + madein.name + "; " : collectionTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${madeinTag}`;
@@ -188,7 +188,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 let collectionTag = "";
                 value.forEach((item: string) => {
                   const colection = lstCollection?.find(e => e.code === item);
-                  
+
                   collectionTag = colection ? collectionTag + colection.name + "; " : collectionTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${collectionTag}`;
@@ -197,7 +197,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 let designerTag = "";
                 value.forEach((item: string) => {
                   const designer = designers.items?.find(e => e.code === item);
-                  
+
                   designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${designerTag}`;
@@ -206,7 +206,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 let merchandiserTag = "";
                 value.forEach((item: string) => {
                   const win = wins.items?.find(e => e.code === item);
-                  
+
                   merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
                 });
               renderTxt = `${AllInventoryMappingField[filterKey]} : ${merchandiserTag}`;
@@ -215,7 +215,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 let storeTag = "";
                 value.forEach((item: number) => {
                   const store = listStore?.find(e => e.id === item);
-                  
+
                   storeTag = store ? storeTag + store.name + "; " : storeTag
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
@@ -261,7 +261,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const getConfigInventory = useCallback(()=>{
     if (account && account.code) {
       dispatch(
-        getConfigInventoryAction( 
+        getConfigInventoryAction(
            account.code,
           (res)=>{
            if (res) {
@@ -293,8 +293,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         function(k, v) { return v === undefined ? null : v; }
       );;
       request.type = FILTER_CONFIG_TYPE.FILTER_INVENTORY;
-      request.json_content = json_content; 
-      
+      request.json_content = json_content;
+
       if (request.id && request.id !== null) {
         const config = lstConfigFilter?.find(e=>e.id.toString() === request.id.toString());
         if (lstConfigFilter && config) {
@@ -305,7 +305,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         dispatch(createConfigInventoryAction(request ,onResult));
       }
     }
-    
+
   }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
 
   const onBaseFinish = useCallback(
@@ -328,19 +328,19 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formAdvanceFilter.submit();
-  }, [formAdvanceFilter]); 
+  }, [formAdvanceFilter]);
 
   const resetField = useCallback(
-    (field: string) => { 
+    (field: string) => {
       let newFieldsValue = {
         ...formBaseFilter.getFieldsValue(true),
-        [field]: undefined, 
+        [field]: undefined,
       };
       if (field === AvdAllFilter.from_price) {
         newFieldsValue = {
           ...formBaseFilter.getFieldsValue(true),
-          [field]: undefined, 
-          [AvdAllFilter.to_price]: undefined, 
+          [field]: undefined,
+          [AvdAllFilter.to_price]: undefined,
         };
       }
       formBaseFilter.setFieldsValue({
@@ -374,7 +374,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           if (json_content[key] == null) json_content[key] = undefined;
         }, json_content);
         formAdvanceFilter.setFieldsValue(json_content);
-      } 
+      }
   },[lstConfigFilter, formAdvanceFilter]);
 
   const onCloseFilterConfig = useCallback(()=>{
@@ -399,16 +399,16 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     return (
       <span style={{marginRight: 20, display: "inline-flex"}}>
           <Tag onClick={(e)=>{
-              onSelectFilterConfig(props.index, props.id);  
+              onSelectFilterConfig(props.index, props.id);
               }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
-                    color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
+                    color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />}
                     closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
                       e.preventDefault();
-                      setConfigId(props.id); 
+                      setConfigId(props.id);
                       setIsShowConfirmDelete(true);
                     }}>
-              {props.name}  
-            </Tag> 
+              {props.name}
+            </Tag>
       </span>
     )
   }
@@ -426,9 +426,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     formAdvanceFilter.submit();
     setVisible(false);
     onCloseFilterConfig();
-  }, [formAdvanceFilter, onCloseFilterConfig]); 
+  }, [formAdvanceFilter, onCloseFilterConfig]);
 
-  useEffect(() => { 
+  useEffect(() => {
     formBaseFilter.setFieldsValue({...advanceFilters});
     formAdvanceFilter.setFieldsValue({...advanceFilters});
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
@@ -442,7 +442,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [params, dispatch,getConfigInventory, setDataCategory, setDataCollection]);
 
   useEffect(()=>{
-    getAccounts('', 1, true, true); 
+    getAccounts('', 1, true, true);
   },[getAccounts]);
 
   return (
@@ -470,7 +470,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 placeholder="Chọn cửa hàng"
                 listStore={listStore}
             />
-            </Item>  
+            </Item>
             <Item>
               <Button type="primary" htmlType="submit">
                 Lọc
@@ -502,11 +502,11 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
             onFinish={onAdvanceFinish}
             layout="vertical"
             initialValues={{}}
-            form={formAdvanceFilter} 
+            form={formAdvanceFilter}
           >
               {/* filters tag */}
               {
-                (lstConfigFilter && lstConfigFilter.length > 0) && 
+                (lstConfigFilter && lstConfigFilter.length > 0) &&
                 <Row>
                   <Item>
                     <Col span={24} className="tag-filter">
@@ -538,9 +538,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       placeholder="Chọn cửa hàng"
                       mode="multiple"
                       allowClear
-                      tagRender={tagRender} 
+                      tagRender={tagRender}
                       notFoundContent="Không tìm thấy kết quả"
-                      maxTagCount="responsive" 
+                      maxTagCount="responsive"
                     >
                       {listStore?.map((item) => (
                         <CustomSelect.Option key={item.id} value={item.id}>
@@ -548,8 +548,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         </CustomSelect.Option>
                       ))}
                     </CustomSelect>
-                  </Item>  
-                </Col> 
+                  </Item>
+                </Col>
               </Row>
               <Row gutter={25}>
                 <Col span={8}>
@@ -561,9 +561,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         placeholder="Chọn xuất xứ"
                         mode="multiple"
                         allowClear
-                        tagRender={tagRender} 
+                        tagRender={tagRender}
                         notFoundContent="Không tìm thấy kết quả"
-                        maxTagCount="responsive" 
+                        maxTagCount="responsive"
                       >
                         {listCountry?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id}>
@@ -575,22 +575,22 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 </Col>
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.designer_codes} label="Nhà thiết kế">
-                    <AccountSearchPaging 
+                    <AccountSearchPaging
                       mode="multiple"
                       placeholder="Chọn nhà thiết kế"
                       fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
-                  </Item>  
-                </Col> 
+                  </Item>
+                </Col>
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.merchandiser_codes} label="Merchandiser">
-                    <AccountSearchPaging 
+                    <AccountSearchPaging
                       mode="multiple"
                       placeholder="Chọn Merchandiser"
                       fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
-                  </Item>  
-                </Col> 
+                  </Item>
+                </Col>
               </Row>
               <Row gutter={25}>
               <Col span={8}>
@@ -602,9 +602,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                           placeholder="Chọn nhóm hàng"
                           mode="multiple"
                           allowClear
-                          tagRender={tagRender} 
+                          tagRender={tagRender}
                           notFoundContent="Không tìm thấy kết quả"
-                          maxTagCount="responsive" 
+                          maxTagCount="responsive"
                         >
                           {lstCollection?.map((item) => (
                             <CustomSelect.Option key={item.id} value={item.code}>
@@ -623,9 +623,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                           placeholder="Chọn danh mục"
                           mode="multiple"
                           allowClear
-                          tagRender={tagRender} 
+                          tagRender={tagRender}
                           notFoundContent="Không tìm thấy kết quả"
-                          maxTagCount="responsive" 
+                          maxTagCount="responsive"
                         >
                           {listCategory?.map((item) => (
                             <CustomSelect.Option key={item.id} value={item.id}>
@@ -633,9 +633,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             </CustomSelect.Option>
                         ))}
                       </CustomSelect>
-                  </Item>  
-                </Col> 
-                <Col span={8}> 
+                  </Item>
+                </Col>
+                <Col span={8}>
                     <Row className="price">
                       <Col span={24}>
                       <Item label="Giá bán">
@@ -664,10 +664,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             />
                           </Item>
                         </Input.Group>
-                    </Item>  
+                    </Item>
                       </Col>
-                    </Row> 
-                </Col>                       
+                    </Row>
+                </Col>
               </Row>
           </Form>
         </BaseFilter>
