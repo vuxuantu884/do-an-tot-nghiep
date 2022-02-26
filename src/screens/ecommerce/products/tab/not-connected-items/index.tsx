@@ -967,7 +967,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           if (!!response.data.url) {
             setExportProgress(100);
             setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
+            showSuccess("Xuất file dữ liệu sản phẩm thành công!");
             window.open(response.data.url);
             setExportProcessId(null)
           } else {
