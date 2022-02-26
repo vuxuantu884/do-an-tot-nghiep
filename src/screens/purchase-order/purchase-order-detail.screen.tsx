@@ -483,10 +483,9 @@ const PODetailScreen: React.FC = () => {
   }, [dispatch, poData?.id, poData]);
 
   const handleExport = () => {
-    console.log('printttt', printContent)
-    var temp = document.createElement("div");
+    let temp = document.createElement("div");
     temp.id = "temp";
-    temp.innerHTML = "<div>ahihihi</div>";
+    temp.innerHTML = printContent;
     let value = document.body.appendChild(temp);
     if (value === null) return;
     html2canvas(value).then((canvas) => {
