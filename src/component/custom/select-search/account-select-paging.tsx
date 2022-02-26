@@ -79,7 +79,7 @@ function SelectSearch(contentProps: SelectContentProps) {
    */
   useEffect(() => {
     const getIntialValue = async () => {
-      let initCodes: any = [];
+      let initCodes: any;
 
       if (mode === "multiple" && Array.isArray(value)) {
         initCodes = value;
@@ -115,7 +115,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       }
       setIsSearching(false);
     };
-    getIntialValue();
+    getIntialValue().then();
   }, [dispatch, mode, value, fixedQuery, key, defaultOptons]);
 
   return (

@@ -11,11 +11,9 @@ import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
 import { AppConfig } from "config/app.config";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getColorAction } from "domain/actions/product/color.action";
 import { sizeSearchAction } from "domain/actions/product/size.action";
-import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CountryResponse } from "model/content/country.model";
@@ -35,9 +33,6 @@ import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon }
 import { StyledComponent } from "./style";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
-
-let isWin = false;
-let isDesigner = false;
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -71,35 +66,21 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   const [dateClick, setDateClick] = useState('');
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
 
-  const [lstSize, setLstSize] = useState<PageResponse<SizeResponse>>(
+  const [, setLstSize] = useState<PageResponse<SizeResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
 
-  const [colors, setColors] = useState<PageResponse<ColorResponse>>(
+  const [, setColors] = useState<PageResponse<ColorResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
 
-  const [mainColors, setMainColors] = useState<PageResponse<ColorResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-
-  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-
-  const [designers, setDeisgners] = useState<PageResponse<AccountResponse>>(
+  const [, setMainColors] = useState<PageResponse<ColorResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
@@ -110,6 +91,22 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     items: [],
     metadata: { limit: 20, page: 1, total: 0 }
   });
+
+  const getSuppliers = useCallback((key: string, page: number) => {
+    dispatch(SupplierSearchAction({ ids: key, page: page }, (data: PageResponse<SupplierResponse>) => {
+      setSupplier((suppliers) => {
+        return {
+          ...suppliers,
+          items: [
+            ...suppliers.items,
+            ...data.items
+          ],
+          metadata: data.metadata,
+        }
+      });
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   useEffect(() => {
     const { made_in, size, color, main_color, supplier, brand, merchandiser, designer } = params;
@@ -134,13 +131,11 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
       [SearchVariantField.brand]: brand ? brand : null
     };
 
-    if (supplier && supplier !== '') setTimeout(() => {
-      getSuppliers(JSON.parse(supplier).code, 1)
-    }, 0);
+    if (supplier && supplier !== '') getSuppliers(JSON.parse(supplier).code, 1);
 
     formAvd.setFieldsValue(filter);
     setAdvanceFilters(filter);
-  }, [formAvd, params]);
+  }, [formAvd, getSuppliers, params]);
 
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
@@ -187,21 +182,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     [formAvd]
   );
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return false;
-      }
-      if (isWin) {
-        setWins(data);
-      }
-      if (isDesigner) {
-        setDeisgners(data);
-      }
-    },
-    []
-  );
-
   const setDataColors = useCallback(
     (data: PageResponse<ColorResponse>, isColors: boolean, isMainColors: boolean) => {
       if (!data) {
@@ -217,17 +197,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     []
   );
 
-  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
-    isDesigner = designer;
-    isWin = win;
-    dispatch(
-      searchAccountPublicAction(
-        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
-        setDataAccounts
-      )
-    );
-  }, [dispatch, setDataAccounts]);
-
   const getColors = useCallback((code: string, page: number, isColor: boolean, isMainColor: boolean) => {
     dispatch(
       getColorAction(
@@ -241,9 +210,9 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
 
   const setDataSizes = useCallback((res: PageResponse<SizeResponse>) => {
     if (res) {
-     setLstSize(res);
+      setLstSize(res);
     }
-   },[]);
+  },[]);
 
   const getSizes = useCallback((code: string, page: number)=>{
     dispatch(
@@ -254,25 +223,14 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     );
   },[dispatch, setDataSizes]);
 
-  const getSuppliers = useCallback((key: string, page: number) => {
-    dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
-      setSupplier({
-        ...suppliers,
-        items: [
-          ...suppliers.items,
-          ...data.items
-        ]
-      });
-    }));
-  }, [dispatch]);
-
   useEffect(()=> {
-    getAccounts("",1,true,true);
-    getColors('', 1,false,true);
-    getColors('', 1,true,false);
-    getSuppliers('', 1);
-    getSizes("",1);
-  },[getAccounts, getColors, getSizes, getSuppliers]);
+    getColors('', 1, false, true);
+    getColors('', 1, true, false);
+    getSizes('', 1);
+    setTimeout(() => {
+      getSuppliers('', 1);
+    }, 0);
+  },[getColors, getSizes, getSuppliers]);
 
   return (
     <StyledComponent>

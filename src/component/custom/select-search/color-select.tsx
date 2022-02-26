@@ -84,8 +84,6 @@ function ColorSelect(props: SelectContentProps): ReactElement {
     const getIntialValue = async () => {
       let initParams: any = [];
 
-      console.log(value)
-
       if (mode === "multiple" && Array.isArray(value)) {
         initParams = value;
       } else if (typeof value === "string" || typeof value === "number") {
@@ -93,8 +91,6 @@ function ColorSelect(props: SelectContentProps): ReactElement {
       } else {
         initParams = [];
       }
-
-      console.log(initParams)
 
       if (initParams.length > 0) {
         // call api lấy data của item(s) đang được chọn trước đó
