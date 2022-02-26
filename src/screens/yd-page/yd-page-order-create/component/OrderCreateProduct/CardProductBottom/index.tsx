@@ -217,7 +217,7 @@ function CardProductBottom(props: PropType) {
 					<Row className="paymentRow" justify="space-between">
 						<strong className="font-size-text">
 							{totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
-								? `Khách cần phải trả:`
+								? `Khách phải trả:`
 								: `Cần trả lại khách:`}
 						</strong>
 						<strong className="text-success font-size-price">
