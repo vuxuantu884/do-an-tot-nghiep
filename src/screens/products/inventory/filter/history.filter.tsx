@@ -1,5 +1,5 @@
 import {FilterOutlined} from "@ant-design/icons";
-import {Button, Col, Collapse, Form, FormInstance, Input, Row, Space, Tag} from "antd";
+import {Button, Col, Form, FormInstance, Input, Row, Tag} from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
@@ -35,7 +35,6 @@ interface HistoryInventoryFilterProps {
 }
 
 const {Item} = Form;
-const {Panel} = Collapse;
 
 const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
   props: HistoryInventoryFilterProps
