@@ -22,13 +22,11 @@ const InventoryListScreen: React.FC = () => {
     let redirectUrl = path;
     if (redirectUrl) {
         if (redirectUrl === InventoryTransferTabUrl.LIST) {
-          history.replace(redirectUrl);
           setActiveTab(InventoryTransferTabUrl.LIST);
         }
         if (redirectUrl === InventoryTransferTabUrl.HISTORIES) {
-          history.replace(redirectUrl);
           setActiveTab(InventoryTransferTabUrl.HISTORIES);
-        } 
+        }
     }
   }, [history, path]);
 

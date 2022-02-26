@@ -1,23 +1,20 @@
-
 import {
   Button,
   Col,
-  DatePicker,
   Form,
   FormInstance,
   Input,
   Row,
   Select,
-  Collapse,
   Tag,
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import React, { createRef, useCallback, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { FilterOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
@@ -29,6 +26,8 @@ import "assets/css/custom-filter.scss";
 import { AppConfig } from "config/app.config";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { strForSearch } from "utils/RemoveDiacriticsString";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -65,8 +64,6 @@ const ACTIONS_STATUS_ARRAY = [
   }
 ];
 
-const { Panel } = Collapse;
-
 type InventoryFilterProps = {
   params: InventoryTransferLogSearchQuery;
   actions: Array<MenuAction>;
@@ -96,44 +93,32 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     stores,
     accounts,
   } = props;
-  const initialValues = useMemo(() => {
-    return {
-      ...params,
-      action: Array.isArray(params.action) ? params.action : [params.action],
-      updated_by: Array.isArray(params.updated_by) ? params.updated_by : [params.updated_by],
-  }}, [params])
-
-  const [visible, setVisible] = useState(false);
-  const [isFromCreatedDate, setIsFromCreatedDate] = useState(initialValues.from_created_date? moment(initialValues.from_created_date, "DD-MM-YYYY") : null);
-  const [isToCreatedDate, setIsToCreatedDate] = useState(initialValues.to_created_date? moment(initialValues.to_created_date, "DD-MM-YYYY") : null);
-
-  const loadingFilter = useMemo(() => {
-    return isLoading ? true : false
-  }, [isLoading])
-
+  const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const filterFromParams = {
+    ...params,
+    action: Array.isArray(params.action) ? params.action : [params.action],
+    updated_by: Array.isArray(params.updated_by) ? params.updated_by : [params.updated_by],
+    from_created_date: formatDateFilter(params.from_created_date),
+    to_created_date: formatDateFilter(params.to_created_date),
+  };
+  const initialValues = useMemo(() => {
+    return filterFromParams;
+  }, [filterFromParams]);
 
-  const onChangeRangeDate = useCallback(
-    (dates, dateString, type) => {
-      let fromDateString = null;
-      let toDateString = null;
+  useEffect(() => {
+    formSearchRef.current?.setFieldsValue(params);
+    formAdv.setFieldsValue(filterFromParams);
+  }, [filterFromParams, formAdv, formSearchRef, params]);
 
-      if (dates) {
-        fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
-        toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
-      }
-      switch(type) {
-        case 'create_date':
-          setCreateDateClick('')
-          setIsFromCreatedDate(fromDateString)
-          setIsToCreatedDate(toDateString)
-          break;
-        default: break
-      }
-    },
-    []
-  );
+  const [visible, setVisible] = useState(false);
+  const [dateClick, setDateClick] = useState('');
+
+  const loadingFilter = useMemo(() => {
+    return !!isLoading
+  }, [isLoading])
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -142,10 +127,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
-
-    setCreateDateClick('')
-    setIsFromCreatedDate(null)
-    setIsToCreatedDate(null)
 
     setVisible(false);
   }, [onClearFilter]);
@@ -163,59 +144,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     [onMenuClick]
   );
 
-  const [createDateClick, setCreateDateClick] = useState('');
-
-  const clickOptionDate = useCallback(
-    (type, value) => {
-    let minValue = null;
-    let maxValue = null;
-
-    switch(value) {
-      case 'today':
-        minValue = moment().startOf('day')
-        maxValue = moment().endOf('day')
-        break
-      case 'yesterday':
-        minValue = moment().startOf('day').subtract(1, 'days')
-        maxValue = moment().endOf('day').subtract(1, 'days')
-        break
-      case 'thisweek':
-        minValue = moment().startOf('week')
-        maxValue = moment().endOf('week')
-        break
-      case 'lastweek':
-        minValue = moment().startOf('week').subtract(1, 'weeks')
-        maxValue = moment().endOf('week').subtract(1, 'weeks')
-        break
-      case 'thismonth':
-        minValue = moment().startOf('month')
-        maxValue = moment().endOf('month')
-        break
-      case 'lastmonth':
-        minValue = moment().startOf('month').subtract(1, 'months')
-        maxValue = moment().endOf('month').subtract(1, 'months')
-        break
-      default:
-        break
-    }
-
-    switch(type) {
-      case 'create_date':
-        if (createDateClick === value ) {
-          setCreateDateClick('')
-          setIsFromCreatedDate(null)
-          setIsToCreatedDate(null)
-        } else {
-          setCreateDateClick(value)
-          setIsFromCreatedDate(moment(minValue, 'DD-MM-YYYY'))
-          setIsToCreatedDate(moment(maxValue, 'DD-MM-YYYY'))
-        }
-        break
-      default:
-        break
-    }
-  }, [createDateClick]);
-
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
@@ -228,15 +156,13 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
           onFilter && onFilter({...params, updated_by: []});
           break;
         case 'created_date':
-          setCreateDateClick('');
-          setIsFromCreatedDate(null);
-          setIsToCreatedDate(null);
+          formAdv.resetFields(['from_created_date', 'to_created_date'])
           onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
           break;
         default: break
       }
     },
-    [onFilter, params]
+    [formAdv, onFilter, params]
   );
 
   const onFinish = useCallback(
@@ -265,13 +191,17 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       const valuesForm = {
         ...values,
         condition: values.condition ? values.condition.trim() : null,
-        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
-        to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
-
+        from_created_date: formAdv.getFieldValue('from_created_date')
+          ? getStartOfDayCommon(formAdv.getFieldValue('from_created_date'))?.format()
+          : null,
+        to_created_date: formAdv.getFieldValue('to_created_date')
+          ? getEndOfDayCommon(formAdv.getFieldValue('to_created_date'))?.format()
+          : null,
       }
+
       onFilter && onFilter(valuesForm);
     },
-    [isFromCreatedDate, isToCreatedDate, onFilter]
+    [formAdv, onFilter]
   );
 
   let filters = useMemo(() => {
@@ -440,78 +370,55 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
         {visible && <Form
           onFinish={onFinish}
           ref={formRef}
-          initialValues={params}
+          form={formAdv}
+          // initialValues={initialValues}
           layout="vertical"
         >
           <BaseFilterWrapper>
             <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.updated_by.length ? ["1"]: []}>
-                  <Panel header="Người sửa" key="1" className="header-filter">
-                    <Item name="updated_by">
-                      <AccountSearchPaging
-                        mode="tags"
-                        placeholder="Chọn người sửa"
-                        fixedQuery={{ account_id: [AppConfig.WIN_DEPARTMENT],status: "active" }}
-                      />
-                    </Item>
-                  </Panel>
-                </Collapse>
+              <Col span={12}>
+                <Item label="Người sửa" name="updated_by">
+                  <AccountSearchPaging
+                    mode="tags"
+                    placeholder="Chọn người sửa"
+                    fixedQuery={{ account_id: [AppConfig.WIN_DEPARTMENT],status: "active" }}
+                  />
+                </Item>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.action.length ? ["1"]: []}>
-                  <Panel header="Thao tác" key="1" className="header-filter">
-                    <Item name="action" style={{ margin: "10px 0px" }}>
-                      <CustomSelect
-                        mode="multiple"
-                        style={{ width: '100%'}}
-                        showArrow
-                        placeholder="Chọn thao tác"
-                        notFoundContent="Không tìm thấy kết quả"
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
+              <Col span={12}>
+                <Item label="Thao tác" name="action">
+                  <CustomSelect
+                    mode="multiple"
+                    style={{ width: '100%'}}
+                    showArrow
+                    placeholder="Chọn thao tác"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {ACTIONS_STATUS_ARRAY.map((item, index) => (
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.value}
                       >
-                        {ACTIONS_STATUS_ARRAY.map((item, index) => (
-                          <CustomSelect.Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.value}
-                          >
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Panel>
-
-                </Collapse>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
               </Col>
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.from_created_date && initialValues.to_created_date ? ["1"]: []}>
-                  <Panel header="Thời gian" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('create_date', 'yesterday')} className={createDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'today')} className={createDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'thisweek')} className={createDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('create_date', 'lastweek')} className={createDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'thismonth')} className={createDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('create_date', 'lastmonth')} className={createDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[isFromCreatedDate? moment(isFromCreatedDate, "DD-MM-YYYY") : null, isToCreatedDate? moment(isToCreatedDate, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'create_date')}
-                    />
-                  </Panel>
-                </Collapse>
+                <div className="label-date">Ngày tạo</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_created_date"
+                  fieldNameTo="to_created_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                />
               </Col>
             </Row>
           </BaseFilterWrapper>
@@ -520,7 +427,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       <div className="order-filter-tags">
         {filters && filters.map((filter: any, index) => {
           return (
-            <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+            <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
           )
         })}
       </div>

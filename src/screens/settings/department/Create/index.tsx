@@ -32,7 +32,7 @@ const DepartmentCreateScreen: React.FC = () => {
     },
     items: [],
   });
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [loading, setLoading] = useState<boolean>(false);
   //phân quyền
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
@@ -48,7 +48,7 @@ const DepartmentCreateScreen: React.FC = () => {
       dispatch(
         AccountSearchAction({...query, limit: 20}, (result) => {
           if (result) {
-            setAccounts(result); 
+            setAccounts(result);
           }
         })
       );
@@ -67,19 +67,19 @@ const DepartmentCreateScreen: React.FC = () => {
     }));
   }, [dispatch, history]);
 
-  const backAction = ()=>{  
+  const backAction = ()=>{
     setModalConfirm({
       visible: true,
       onCancel: () => {
         setModalConfirm({visible: false});
       },
-      onOk: () => { 
+      onOk: () => {
         history.push(UrlConfig.DEPARTMENT);
       },
       title: "Bạn có muốn quay lại?",
       subTitle:
         "Sau khi quay lại thay đổi sẽ không được lưu.",
-    }); 
+    });
   };
 
   useEffect(() => {
@@ -94,14 +94,14 @@ const DepartmentCreateScreen: React.FC = () => {
   }, [dispatch, searchAccount]);
   return (
     <ContentContainer
-      title="Quản lý bộ phận"
+      title="Quản lý phòng ban"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý bộ phận",
+          name: "Quản lý phòng ban",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -110,7 +110,7 @@ const DepartmentCreateScreen: React.FC = () => {
       ]}
     >
       <Form onFinish={onFinish} layout="vertical">
-        <Card title="Thông tin bộ phận">
+        <Card title="Thông tin phòng ban">
           <Form.Item name="status" hidden>
             <Input />
           </Form.Item>
@@ -120,17 +120,17 @@ const DepartmentCreateScreen: React.FC = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập mã bộ phận",
+                    message: "Vui lòng nhập mã phòng ban",
                   },
                   {
                     pattern: RegUtil.BOTH_NUMBER_AND_STRING,
-                    message: "Sai định dạng mã bộ phận"
+                    message: "Sai định dạng mã phòng ban"
                   }
                 ]}
-                label="Mã bộ phận"
+                label="Mã phòng ban"
                 name="code"
               >
-                <Input maxLength={13} placeholder="Nhập mã bộ phận" />
+                <Input maxLength={13} placeholder="Nhập mã phòng ban" />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -138,13 +138,13 @@ const DepartmentCreateScreen: React.FC = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập tên bộ phận",
+                    message: "Vui lòng nhập tên phòng ban",
                   },
                 ]}
-                label="Tên bộ phận"
+                label="Tên phòng ban"
                 name="name"
               >
-                <Input maxLength={255} placeholder="Tên bộ phận" />
+                <Input maxLength={255} placeholder="Tên phòng ban" />
               </Form.Item>
             </Col>
           </Row>
@@ -153,9 +153,9 @@ const DepartmentCreateScreen: React.FC = () => {
               <AccountSearchSelect name="manager_code" label="Quản lý" />
             </Col>
             <Col span={8}>
-              <Form.Item name="parent_id" label="Thuộc về bộ phận">
+              <Form.Item name="parent_id" label="Thuộc về phòng ban">
                 <TreeSelect
-                  placeholder="Chọn bộ phận"
+                  placeholder="Chọn phòng ban"
                   treeDefaultExpandAll
                   className="selector"
                   allowClear
@@ -171,8 +171,8 @@ const DepartmentCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={50}>
             <Col span={8}>
-              <Form.Item 
-                name="phone" 
+              <Form.Item
+                name="phone"
                 label="Số điện thoại"
                 rules={[
                   {
@@ -185,8 +185,8 @@ const DepartmentCreateScreen: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item 
-                name="address" 
+              <Form.Item
+                name="address"
                 label="Địa chỉ liên hệ"
               >
                 <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
@@ -200,7 +200,7 @@ const DepartmentCreateScreen: React.FC = () => {
           rightComponent={
             <Space>
               {allowCreateDep && <Button loading={loading} htmlType="submit" type="primary">
-                  Tạo bộ phận
+                  Tạo phòng ban
                 </Button>}
             </Space>
           }
@@ -218,6 +218,6 @@ const DepartmentCreateScreen: React.FC = () => {
       <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
-}; 
+};
 
 export default DepartmentCreateScreen;

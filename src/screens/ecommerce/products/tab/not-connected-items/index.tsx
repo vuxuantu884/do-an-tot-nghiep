@@ -54,7 +54,7 @@ import ResultConnectProductModal from "screens/ecommerce/products/tab/not-connec
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import filterIcon from "assets/icon/filter.svg";
 import saveIcon from "assets/icon/save.svg";
-import imgdefault from "assets/icon/img-default.svg";
+import imgDefault from "assets/icon/img-default.svg";
 
 import {
   StyledComponent,
@@ -71,8 +71,8 @@ import BaseResponse from "base/base.response";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
-
 let connectedYodyProductsRequest: object;
+let suggestVariants = window.localStorage.getItem("suggest")
 
 type NotConnectedItemsPropsType = {
   isReloadPage: boolean;
@@ -156,12 +156,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     sku_or_name_ecommerce: null,
     connected_date_from: null,
     connected_date_to: null,
+    suggest: suggestVariants
   });
-
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
-    if (!!result) {
+    if (result) {
       setVariantData(result);
     }
   }, []);
@@ -170,6 +170,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsLoading(true);
     dispatch(getProductEcommerceList(queryRequest, updateVariantData));
   }, [dispatch, updateVariantData]);
+
+  const handleSuggestItem = () => {
+    if (query.suggest) {
+      window.localStorage.setItem("suggest", "");
+      const queryVariant = {...query, suggest: ""};
+      setQuery(queryVariant);
+    } else {
+      window.localStorage.setItem("suggest", "suggested");
+      const queryVariant = {...query, suggest : "suggested"};
+      setQuery(queryVariant);
+    }
+    window.location.reload();
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -411,9 +424,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <div className="item-searched-list">
             <div className="item-img">
               <img
-                src={avatar === "" ? imgdefault : avatar}
+                src={avatar === "" ? imgDefault : avatar}
                 alt="anh"
-                placeholder={imgdefault}
+                placeholder={imgDefault}
                 style={{ width: "40px", height: "40px", borderRadius: 5 }}
               />
             </div>
@@ -570,7 +583,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIdsItemSelected([item.id]);
   };
 
-  const [columns] = useState<any>([
+  const [columns,] = useState<any>([
     {
       title: "Ảnh",
       align: "center",
@@ -581,7 +594,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             src={item.ecommerce_image_url}
             style={{ height: "40px" }}
             alt=""
-          ></img>
+          />
         );
       },
     },
@@ -1031,10 +1044,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsShowDeleteItemModal(true);
   };
 
-  const handleSuggestItem = () => {
-    reloadPage()
-  }
-
   const actionList = (
     <Menu>
       {allowProductsDelete &&
@@ -1043,7 +1052,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         </Menu.Item>
       }
       <Menu.Item key="2">
-        <span onClick={handleSuggestItem}>Gợi ý ghép nối</span>
+        <span onClick={handleSuggestItem}>{suggestVariants ? "Bỏ gợi ý ghép nối" : "Gợi ý ghép nối"}</span>
       </Menu.Item>
 
       <Menu.Item key="3">

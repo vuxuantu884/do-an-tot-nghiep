@@ -1,3 +1,4 @@
+import {ReactElement, ReactNode} from "react";
 import { useHistory } from "react-router";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -6,8 +7,8 @@ import classNames from 'classnames'
 
 interface BottomBarProps {
   back?: string | false;
-  leftComponent?: React.ReactNode;
-  rightComponent?: React.ReactNode;
+  leftComponent?: ReactNode;
+  rightComponent?: ReactNode | ReactElement;
   height?: number;
   backAction?:()=>void;
 }

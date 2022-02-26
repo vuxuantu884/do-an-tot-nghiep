@@ -202,8 +202,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
-          showSuccess("Đồng bộ tồn kho sản phẩm thành công");
-          reloadPage();
+          handleSyncStockJob(result.process_id)
         }
       })
     );

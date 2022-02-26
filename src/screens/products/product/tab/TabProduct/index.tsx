@@ -291,10 +291,10 @@ const TabProduct: React.FC = () => {
       title:  "Sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => {
-        let strName=i.name.trim();
-        strName=window.screen.width>=1920?splitEllipsis(strName,80,10)
-          :window.screen.width>=1600?strName=splitEllipsis(strName,55,10)
-          :window.screen.width>=1366?strName=splitEllipsis(strName,50,10):strName;
+        let strName=(i.name.trim()).toLocaleLowerCase();
+        strName=window.screen.width>=1920?splitEllipsis(strName,100,30)
+          :window.screen.width>=1600?strName=splitEllipsis(strName,60,30)
+          :window.screen.width>=1366?strName=splitEllipsis(strName,47,30):strName;
         return(
           <div>
             <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`} className="yody-text-ellipsis">
@@ -436,6 +436,7 @@ const TabProduct: React.FC = () => {
         onClickOpen={() => setShowSettingColumn(true)}
       />
       <CustomTable
+        className="small-padding"
         bordered
         selectedRowKey={rowKey}
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}

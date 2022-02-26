@@ -307,11 +307,14 @@ const TabProductWrapper: React.FC = () => {
   );
 
   const onActive = useCallback(
-    (selected: ProductWrapperResponse) => {
-      const request = {
+    (selected: any) => {
+      let request = {
         ...selected,
         status: "active",
-      };
+      }; 
+      if (selected.collections) {
+        request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
+      }
 
       dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
     },
@@ -320,12 +323,13 @@ const TabProductWrapper: React.FC = () => {
 
   const onInactive = useCallback(
     (selected: any) => {
-      const request = {
+      let request = {
         ...selected,
         status: "inactive",
       };
+      
       if (selected.collections) {
-        selected.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
+        request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
       }
 
       dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
@@ -404,7 +408,7 @@ const TabProductWrapper: React.FC = () => {
         dataSource={data.items}
         columns={columnFinal}
         rowKey={(item: ProductResponse) => item.id}
-        className="yody-table-product-search"
+        className="yody-table-product-search small-padding"
       />
       <ModalSettingColumn
         visible={showSettingColumn}

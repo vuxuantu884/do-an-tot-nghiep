@@ -1,7 +1,7 @@
 import { Card, Checkbox, Col, Form, Input, Row, Select, FormInstance } from "antd";
 import ContentContainer from "component/container/content.container";
 import TreeStore from "component/tree-node/tree-store";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { getBankAction, postBankAccountAction } from "domain/actions/bank/bank.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
@@ -28,7 +28,7 @@ const BankAccountCreateScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listBank, setListBank] = useState<any>([]);
-  const [isDefault,setIsDefault]=useState<boolean>(false);
+  const [isDefault, setIsDefault] = useState<boolean>(false);
 
   const userReducerAccount = useSelector((state: RootReducerType) => state.userReducer.account);
 
@@ -62,20 +62,20 @@ const BankAccountCreateScreen: React.FC = () => {
 
     let request: BankAccountRequest = {
       ...value,
-      status:value.status===1?true:value.status===2?false:null,
+      status: value.status === 1 ? true : value.status === 2 ? false : null,
       bank_name: bankName,
       stores: stores,
-      default:isDefault,
+      default: isDefault,
       updated_date: moment().toDate(),
       updated_by: userReducerAccount?.user_name,
       updated_name: userReducerAccount?.full_name,
     }
 
     dispatch(postBankAccountAction(request, (data: BankAccountResponse) => {
-      if(data) window.location.href=`${UrlConfig.BANK_ACCOUNT}`;
+      if (data) window.location.href = `${BASE_NAME_ROUTER}${UrlConfig.BANK_ACCOUNT}`;
     }));
 
-  }, [dispatch, listBank, listStore, userReducerAccount,isDefault])
+  }, [dispatch, listBank, listStore, userReducerAccount, isDefault])
 
   const onOkPress = useCallback(() => {
     formRef.current?.submit();
@@ -110,10 +110,15 @@ const BankAccountCreateScreen: React.FC = () => {
                 label="Số tài khoản"
                 name="account_number"
                 rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập số tài khoản",
-                  },
+                  () => ({
+                    validator(_, value) {
+                      if (value.trim().length === 0)
+                        return Promise.reject(new Error("Vui lòng nhập số tài khoản"));
+                      if (value.length > 100)
+                        return Promise.reject(new Error("Số tài khoản không vượt quá 100 kí tự"));
+                      return Promise.resolve();
+                    }
+                  })
                 ]}
               >
                 <Input placeholder="Nhập số tài khoản" />
@@ -124,11 +129,22 @@ const BankAccountCreateScreen: React.FC = () => {
               <Form.Item
                 label="Chủ tài khoản"
                 name="account_holder"
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng nhập tên chủ tài khoản",
+                //   },
+                // ]}
                 rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập tên chủ tài khoản",
-                  },
+                  () => ({
+                    validator(_, value) {
+                      if (value.trim().length === 0)
+                        return Promise.reject(new Error("Vui lòng nhập tên chủ tài khoản"));
+                      if (value.length > 50)
+                        return Promise.reject(new Error("Tên chủ tài khoản không vượt quá 50 kí tự"));
+                      return Promise.resolve();
+                    }
+                  })
                 ]}
               >
                 <Input placeholder="Nhập tên chủ tài khoản" />
@@ -194,7 +210,7 @@ const BankAccountCreateScreen: React.FC = () => {
               <Form.Item
                 name="default"
               >
-                <Checkbox onClick={(e:any)=>{
+                <Checkbox onClick={(e: any) => {
                   e.stopPropagation();
                   console.log(e.target.checked);
                   setIsDefault(e.target.checked);

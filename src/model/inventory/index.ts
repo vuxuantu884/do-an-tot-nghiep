@@ -87,7 +87,9 @@ export interface HistoryInventoryQuery extends BaseQuery {
   to_created_date?: string,
   from_transaction_date?: string,
   to_transaction_date?: string,
-  variant_id?: number
+  variant_id?: number,
+  to_quantity?: number,
+  from_quantity?: number,
 }
 
 

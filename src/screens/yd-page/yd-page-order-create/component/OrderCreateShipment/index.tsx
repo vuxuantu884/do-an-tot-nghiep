@@ -317,8 +317,9 @@ function OrderCreateShipment(props: PropType) {
   return (
     <StyledComponent>
       <div className="padding-12 orders-shipment">
-        <Row gutter={24}>
-          <Col span={11} style={{ paddingRight: 6 }}>
+      <span className="saleorder_shipment_method-heading">THÔNG TIN VẬN CHUYỂN</span>
+        <Row gutter={24} style={{padding: "6px 0"}}>
+          <Col span={11} style={{padding: "0 5px 0 10px"}}>
             <Form.Item name="dating_ship">
               <DatePicker
                 format={dateFormat}
@@ -330,7 +331,7 @@ function OrderCreateShipment(props: PropType) {
             </Form.Item>
           </Col>
 
-          <Col span={11} style={{ paddingLeft: 6 }}>
+          <Col span={11} style={{padding: "0 10px 0 5px"}}>
             <Form.Item name="requirements">
               <Select
                 className="select-with-search"
@@ -367,7 +368,6 @@ function OrderCreateShipment(props: PropType) {
           </Col>
         </Row>
         <Row>
-          <span className="saleorder_shipment_method-heading">THÔNG TIN VẬN CHUYỂN</span>
           <div
             className="saleorder_shipment_method_btn 2"
             style={

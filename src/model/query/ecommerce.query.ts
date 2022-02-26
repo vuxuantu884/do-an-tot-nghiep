@@ -9,6 +9,7 @@ export interface ProductEcommerceQuery extends BaseQuery {
   sku_or_name_core: String | null;
   connected_date_from: any | null;
   connected_date_to: any | null;
+  suggest?: String | null;
 }
 
 export interface PostProductEcommerceQuery {

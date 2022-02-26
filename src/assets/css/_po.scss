@@ -117,6 +117,9 @@
         border-radius: 3px;
       }
     }
+    &-select {
+      cursor: pointer;
+    }
     &-info {
       width: 100%;
       display: flex;
@@ -408,11 +411,11 @@
   .active {
     border: 1px solid #2a2a86;
     border-bottom: none;
-    height: 55px;
+    height: 61px;
     padding: 10px;
     border-radius: 3px 3px 0 0;
     background-color: white;
-    margin-top: 6px;
+    //margin-top: 6px;
     flex: 1 1;
     .tab {
       border: none;

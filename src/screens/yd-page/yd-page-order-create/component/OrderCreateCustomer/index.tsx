@@ -67,6 +67,9 @@ import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
 import { formatCurrency } from "../../../../../utils/AppUtils";
+import { getSourcesWithParamsService } from "service/order/order.service";
+import _, { debounce } from "lodash";
+import { SourceSearchQuery } from "model/request/source.request";
 //#end region
 
 type CustomerCardProps = {
@@ -367,7 +370,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [listSources]);
 
   useEffect(() => {
-    dispatch(getListSourceRequest(setListSource));
+    let query = {
+      name: '',
+      active: true
+    }
+    getSourcesWithParamsService(query).then((response) => {
+      setListSource(response.data.items)
+      }).catch((error) => {
+      console.log('error', error)
+    })
   }, [dispatch]);
 
   useEffect(() => {
@@ -430,6 +441,25 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         ? 0
         : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
+
+  function searchOrderSources(value:any) {
+    let query = {
+      name: value,
+      active: true
+    }
+    getSourcesWithParamsService(query).then((response) => {
+      setListSource(response.data.items)
+      }).catch((error) => {
+      console.log('error', error)
+    })
+          
+  }
+  const debounceSearchOrderSources = useCallback(debounce((nextValue) => searchOrderSources(nextValue), 800), [])
+  
+  const handleSearchOrderSources = (value: any) => {
+    debounceSearchOrderSources(value);
+  }
+
   return (
     <Card
       className="padding-12"
@@ -452,6 +482,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               showSearch
               placeholder="Nguồn đơn hàng"
               notFoundContent="Không tìm thấy kết quả"
+              onSearch={handleSearchOrderSources}
               filterOption={(input, option) => {
                 if (option) {
                   return (
@@ -556,7 +587,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   className="primary"
                   style={{ fontSize: "16px", margin: "0 10px", fontWeight: 500 }}
                 >
-                  {customer?.full_name?.toUpperCase()}
+                  {customer?.full_name.toUpperCase()}
                 </Link>{" "}
 
               </Col>
@@ -568,9 +599,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   className="customer-detail-text text-body"
                   style={{ marginRight: "10px", fontWeight: 500, fontSize: 16 }}
                 >
-                  {customer?.phone === undefined
-                    ? "0987654321"
-                    : customer?.phone}
+                  {customer?.phone}
                 </span>
               </Col>
             </Row>

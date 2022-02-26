@@ -3,13 +3,14 @@ import { Button, Card, Col, Form, Input, Row, Select, Timeline } from "antd";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, lazy } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { formatCurrency } from "utils/AppUtils";
 import { PoPaymentMethod } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import POCreatePaymentModal from "../../modal/POCreatePayment";
 import { POPaymentConditionsFormStyled } from "./styles";
+
+const POCreatePaymentModal = lazy(() => import("../../modal/POCreatePayment"))
 
 type POPaymentConditionsFormProps = {
   listPayment: Array<PoPaymentConditions>;
@@ -35,7 +36,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
     formMainEdit,
     isEditDetail,
   } = props;
- 
+
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [paymentsData, setPaymentsData] = useState<Array<PurchasePayments>>([]);
   const [paymentsDataDraft, setPaymentsDataDraft] = useState<

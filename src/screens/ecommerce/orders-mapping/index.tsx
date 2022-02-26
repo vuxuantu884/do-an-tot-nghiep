@@ -146,11 +146,11 @@ const OrdersMapping: React.FC = () => {
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        const processData = response.data;
-        if (response.code === HttpStatus.SUCCESS && processData &&  !isNullOrUndefined(processData.total)) {
+        if (response.code === HttpStatus.SUCCESS && response.data &&  !isNullOrUndefined(response.data.total)) {
+          const processData = response.data;
           setProgressData(processData);
           const progressCount = processData.total_created + processData.total_updated + processData.total_error;
-          if (progressCount >= processData.total || processData.finish) {
+          if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
@@ -186,6 +186,7 @@ const OrdersMapping: React.FC = () => {
   const [rowDataFilter, setRowDataFilter] = useState([]);
 
   const handleDownloadSelectedOrders = useCallback(() => {
+    console.log(rowDataFilter)
     const requestSyncStockOrder: any[] = [];
     rowDataFilter.forEach((item: any) => {
       requestSyncStockOrder.push({
@@ -216,6 +217,33 @@ const OrdersMapping: React.FC = () => {
     }
   }, [dispatch, rowDataFilter])
 
+  const handleSingleDownloadOrder = (rowData: any) => {
+    console.log(rowData)
+    const requestSyncStockOrder = {
+      order_list: [
+        {
+          ecommerce_id: rowData.ecommerce_id,
+          shop_id: rowData.shop_id,
+          order_sn: rowData.ecommerce_order_code,
+        },
+      ],
+    };
+
+    dispatch(
+        syncStockEcommerceProduct(requestSyncStockOrder, (data) => {
+          if (data) {
+            if (typeof data === "string") {
+              setIsVisibleConflictModal(true);
+            } else {
+              setProcessId(data.process_id);
+              setIsVisibleProgressModal(true);
+              setIsDownloading(true);
+            }
+          }
+        })
+    );
+  }
+  
   return (
     <OrdersMappingStyled>
       <ContentContainer
@@ -244,6 +272,7 @@ const OrdersMapping: React.FC = () => {
               isReloadPage={isReloadPage}
               setRowDataFilter={setRowDataFilter}
               handleDownloadSelectedOrders={handleDownloadSelectedOrders}
+              handleSingleDownloadOrder={handleSingleDownloadOrder}
           />
         }
 

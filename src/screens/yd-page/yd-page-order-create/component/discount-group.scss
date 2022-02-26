@@ -1,0 +1,18 @@
+@media screen and (max-width: 700px) {
+  .yd-discount-group {
+    .discount-group-select {
+      width: 65px !important;
+      .ant-select-selection-item {
+        padding: 0
+      }
+    }
+    .ant-input {
+      padding: 5px;
+    }
+
+    .discount-rate-convert {
+      font-size: 12px;
+      float: right;
+    }
+  }
+}

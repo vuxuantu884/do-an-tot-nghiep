@@ -21,6 +21,7 @@ function CustomerShippingAddressOrder(props: any) {
     handleChangeCustomer,
     handleSingleShippingAddress,
     handleShippingAddress,
+    setVisibleChangeAddress
   } = props;
   const dispatch = useDispatch();
 
@@ -50,6 +51,7 @@ function CustomerShippingAddressOrder(props: any) {
           }
         )
       );
+      setVisibleChangeAddress(false)
   };
 
   const shippingColumnFinal = () =>

@@ -1,17 +1,12 @@
 import {
   BarcodeOutlined,
-  CalendarOutlined,
-  DownOutlined,
   EnvironmentOutlined,
-  ManOutlined,
   PhoneOutlined,
   PlusOutlined,
-  TeamOutlined,
-  UpOutlined,
   UserOutlined
 } from "@ant-design/icons";
 import {
-  Button, Col, DatePicker, Divider, Form, FormInstance, Input, Popover, Row,
+  Button, Col, Divider, Form, FormInstance, Input, Popover, Row,
   Select
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
@@ -26,11 +21,12 @@ import {
   CustomerResponse,
   ShippingAddress
 } from "model/response/customer/customer.response";
-import moment from "moment";
+// import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { showError, showSuccess } from "utils/ToastUtils";
+import {StyledComponent} from "./styles";
 
 type UpdateCustomerProps = {
   areas: any;
@@ -51,9 +47,6 @@ type UpdateCustomerProps = {
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const {
     areas,
-    wards,
-    groups,
-    handleChangeArea,
     handleChangeCustomer,
     customer,
     shippingAddress,
@@ -67,14 +60,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const dispatch = useDispatch();
   const [shippingAddressForm] = Form.useForm();
-  const [customerForm] = Form.useForm();
+  // const [customerForm] = Form.useForm();
   const formRefAddress = createRef<FormInstance>();
-  const formRefCustomer = createRef<FormInstance>();
+  // const formRefCustomer = createRef<FormInstance>();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
     useState(false);
 
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+  const [isVisibleChangeAddress, setVisibleChangeAddress] = useState(false)
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
     []
@@ -93,7 +88,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   
   //properties
   const disableInput = levelOrder >= 4;
-console.log(customer);
+
   //element
   const txtShippingAddressName = document.getElementById("shippingAddress_update_name");
   const txtShippingAddressPhone = document.getElementById("shippingAddress_update_phone");
@@ -116,33 +111,33 @@ console.log(customer);
     setVisibleBtnUpdate(true)
   });
 
-  const initialFormValueCustomer =
-    customer !== null
-      ? {
-          full_name: customer.full_name,
-          district_id: customer.district_id,
-          phone: customer.phone,
-          ward_id: customer.ward_id,
-          card_number: customer.card_number,
-          full_address: customer.full_address,
-          gender: customer.gender,
-          birthday: customer.birthday
-            ? moment(customer.birthday)
-            : null,
-          customer_group_id: customer.customer_group_id,
-        }
-      : {
-          full_name: "",
-          district_id: null,
-          phone: "",
-          ward_id: null,
-          card_number: null,
-          full_address: null,
-          gender: null,
-          birthday: null,
-          customer_group_id: null,
-        };
-  //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
+  // const initialFormValueCustomer =
+  //   customer !== null
+  //     ? {
+  //         full_name: customer.full_name,
+  //         district_id: customer.district_id,
+  //         phone: customer.phone,
+  //         ward_id: customer.ward_id,
+  //         card_number: customer.card_number,
+  //         full_address: customer.full_address,
+  //         gender: customer.gender,
+  //         birthday: customer.birthday
+  //           ? moment(customer.birthday)
+  //           : null,
+  //         customer_group_id: customer.customer_group_id,
+  //       }
+  //     : {
+  //         full_name: "",
+  //         district_id: null,
+  //         phone: "",
+  //         ward_id: null,
+  //         card_number: null,
+  //         full_address: null,
+  //         gender: null,
+  //         birthday: null,
+  //         customer_group_id: null,
+  //       };
+      //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
 
   const initialFormValueshippingAddress =
     shippingAddress
@@ -158,14 +153,16 @@ console.log(customer);
         }
       : {
           card_number: customer.card_number,
-          name: "",
-          district_id: null,
-          country_id: null,
-          city_id: null,
-          phone: null,
-          ward_id: null,
-          full_address: null,
+          name: customer.full_name,
+          district_id: customer.district_id,
+          country_id: customer.country_id,
+          phone: customer.phone,
+          ward_id: customer.ward_id,
+          full_address: customer.full_address,
+          gender: customer.gender,
+          
         };
+
 
   useEffect(() => {
     if (shippingAddress && shippingAddress.district_id) {
@@ -175,11 +172,11 @@ console.log(customer);
     }
   }, [dispatch, shippingAddress]);
 
-  const DefaultWard = () => {
-    let value = customerForm.getFieldsValue();
-    value.ward_id = null;
-    customerForm.setFieldsValue(value);
-  };
+  // const DefaultWard = () => {
+  //   let value = customerForm.getFieldsValue();
+  //   value.ward_id = null;
+  //   customerForm.setFieldsValue(value);
+  // };
 
   const handleSubmit = useCallback(
     (value: any) => {
@@ -252,18 +249,50 @@ console.log(customer);
     shippingAddressForm.submit();
   }, [shippingAddressForm]);
 
+  const handleCancelValueFormAddress = useCallback(() => {
+    if (shippingAddress) {
+      shippingAddressForm.setFieldsValue({
+        card_number: customer.card_number,
+        name: shippingAddress?.name,
+        district_id: shippingAddress?.district_id,
+        country_id: shippingAddress?.country_id,
+        city_id: shippingAddress?.city_id,
+        phone: shippingAddress?.phone,
+        ward_id: shippingAddress?.ward_id,
+        full_address: shippingAddress?.full_address,
+      })
+    }else {
+      shippingAddressForm.setFieldsValue({
+        card_number: customer.card_number,
+          name: customer.full_name,
+          district_id: customer.district_id,
+          country_id: customer.country_id,
+          phone: customer.phone,
+          ward_id: customer.ward_id,
+          full_address: customer.full_address,
+          gender: customer.gender,
+     })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shippingAddressForm])
+
   useEffect(() => {
     if (shippingAddress) shippingAddressForm.resetFields();
   }, [shippingAddressForm, shippingAddress]);
 
+  const handleVisiblePopover = () => {
+    setVisibleChangeAddress(!isVisibleChangeAddress);
+  }
+
+
   return (
-    <>
+    <StyledComponent>
       <Row style={{ margin: "10px 0px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div className="page-filter-left font-weight-500">ĐỊA CHỈ GIAO HÀNG</div>
           {isVisibleBtnUpdate && shippingAddress && (
               <Button
                   type="primary"
-                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  style={{ height: 24, padding: "0 10px", fontWeight: 400, float: "right" }}
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={(e) => {
                       e.stopPropagation();
@@ -276,7 +305,7 @@ console.log(customer);
           {isVisibleBtnUpdate && !shippingAddress && (
               <Button
                   type="primary"
-                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  style={{ height: 24, padding: "0 10px", fontWeight: 400, float: "right" }}
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={(e) => {
                       e.stopPropagation();
@@ -310,12 +339,10 @@ console.log(customer);
                 },
               ]}
               name="name"
-              //label="Tên khách hàng"
             >
               <Input
                 placeholder="Nhập Tên khách hàng"
                 prefix={<UserOutlined style={{ color: "#71767B" }} />}
-                //suffix={<img src={arrowDownIcon} alt="down" />}
                 disabled={disableInput}
               />
             </Form.Item>
@@ -333,7 +360,6 @@ console.log(customer);
                 },
               ]}
               name="phone"
-              //label="Số điện thoại"
             >
               <Input
                 placeholder="Nhập số điện thoại"
@@ -459,9 +485,9 @@ console.log(customer);
         <div>
           <div>
             {!isVisibleCollapseCustomer && (
-              <Row style={{ margin: 0, color: "#5656A1", display: "flex", justifyContent: "space-between"}}>
+              <Row style={{ margin: 0, color: "#5656A1", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                 <div className="page-filter-left" style={{ width: "15%" }}>
-                  <Button
+                  {/* <Button
                     type="link"
                     icon={<DownOutlined />}
                     style={{ padding: "0px" }}
@@ -470,22 +496,13 @@ console.log(customer);
                     }}
                   >
                     Xem thêm
-                  </Button>
-                </div>
-                {/* <div
-                  className="page-filter-left"
-                  style={{
-                    width: "55%",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <div className="ant-divider ant-divider-horizontal"></div>
-                </div> */}
-                <div className="page-filter-right" style={{ width: "30%" }}>
+                  </Button> */}
+
                   <Popover
                     placement="left"
                     overlayStyle={{ zIndex: 17 }}
+                    visible={isVisibleChangeAddress}
+                    onVisibleChange={handleVisiblePopover}
                     title={
                       <Row
                         justify="space-between"
@@ -517,20 +534,39 @@ console.log(customer);
                         handleShippingDelete={showAddressModalDelete}
                         handleSingleShippingAddress={setSingleShippingAddress}
                         handleShippingAddress={ShippingAddressChange}
+                        setVisibleChangeAddress={setVisibleChangeAddress}
                       />
                     }
                     trigger="click"
                     className="change-shipping-address"
                   >
-                    <Button
-                      type="link"
-                      icon={<PlusOutlined />}
-                      className="btn-style"
-                      style={{ float: "right", padding: "0px" }}
-                    >
-                      Thay đổi địa chỉ giao hàng
-                    </Button>
+                      <Button
+                        type="link"
+                        className="btn-style"
+                        style={{ padding: "0px" }}
+                        onClick={() => setVisibleChangeAddress(true)}
+                      >
+                        Đổi địa chỉ giao hàng
+                      </Button>
+
                   </Popover>
+                </div>
+        
+                <div className="page-filter-right" style={{ width: "30%" }}>
+                  <Button
+                    className="page-cancel-address"
+                    onClick={handleCancelValueFormAddress}
+                  >
+                    Hủy
+                  </Button>
+                  
+                  <Button
+                    type="primary"
+                    className="page-ok-save-address"
+                    onClick={() => onOkPress()}
+                  >
+                    Lưu
+                  </Button>
                 </div>
               </Row>
             )}
@@ -590,7 +626,7 @@ console.log(customer);
               </Divider>
             )}
           </div>
-          {isVisibleCollapseCustomer && (
+          {/* {isVisibleCollapseCustomer && (
             
            <div>
               <Row style={{ margin: "10px 0px" }}>
@@ -836,9 +872,9 @@ console.log(customer);
               </Row>
             </Form>
            </div>
-          )}
+          )} */}
 
-          {isVisibleCollapseCustomer && (
+          {/* {isVisibleCollapseCustomer && (
             <Divider
               orientation="left"
               style={{ padding: 0, margin: 0, color: "#5656A1" }}
@@ -856,10 +892,10 @@ console.log(customer);
                 </Button>
               </div>
             </Divider>
-          )}
+          )} */}
         </div>
       )}
-    </>
+    </StyledComponent>
   );
 };
 export default UpdateCustomer;
