@@ -77,6 +77,17 @@ export const PoUpdateAction = (
     updateCallback,
   });
 };
+export const PoUpdateNoteAction = (
+  id: number,
+  request: Pick<PurchaseOrder, "note" | "supplier_note"> | null,
+  updateCallback: (result: PurchaseOrder | null) => void
+) => {
+  return BaseAction(POType.UPDATE_NOTE_PO_REQUEST, {
+    id,
+    request,
+    updateCallback,
+  });
+};
 export const PoDetailAction = (
   id: number,
   setData: (data: PurchaseOrder | null) => void
