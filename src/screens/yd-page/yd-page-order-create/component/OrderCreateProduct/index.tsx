@@ -524,21 +524,12 @@ function OrderCreateProduct(props: PropType) {
 		return (
 			<StyledRenderSearchVariant>
 				<div className="variant-container">
-					<div
-						className="variant-img"
-						// style={{
-						// 	alignItems: "center",
-						// 	justifyContent: "center",
-						// 	display: "flex",
-						// 	padding: "4px 6px",
-						// 	width: 75,
-						// }}
-					>
+					<div className="variant-img">
 						<img
 							src={avatar === "" ? imgDefault : avatar}
 							alt="anh"
 							placeholder={imgDefault}
-							// style={{ width: "50%", borderRadius: 5 }}
+							style={{ width: "100%" }}
 						/>
 					</div>
 
@@ -549,8 +540,8 @@ function OrderCreateProduct(props: PropType) {
 								style={{ color: "#37394D" }}
 								title={item.name}
 							>
-							{item.name}
-						</span>
+								{item.name}
+							</span>
 						</Tooltip>
 
 						<div style={{ color: "#95A1AC" }}>{item.sku}</div>
@@ -618,7 +609,6 @@ function OrderCreateProduct(props: PropType) {
 				<div style={{ textAlign: "left", marginLeft: 12}}>SẢN PHẨM</div>
 			</div>
 		),
-		width: "90px",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
 			return (
 				<div
@@ -645,9 +635,9 @@ function OrderCreateProduct(props: PropType) {
 								</Link>
 							</div>
 							<div className="yody-pos-varian">
-								<Tooltip title={l.variant} className="yody-pos-varian-name">
+								{/*<Tooltip title={l.variant} className="yody-pos-varian-name">*/}
 									<span>{l.variant}</span>
-								</Tooltip>
+								{/*</Tooltip>*/}
 							</div>
 						</div>
 					</div>
@@ -700,7 +690,7 @@ function OrderCreateProduct(props: PropType) {
 			</div>
 		),
 		// className: "yody-pos-quantity text-center",
-		width: "50px",
+		width: "30px",
 		align: "right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
 			return (
@@ -729,7 +719,7 @@ function OrderCreateProduct(props: PropType) {
 						}}
 						// max={l.maxQuantityToApplyDiscount}
 						min={1}
-						maxLength={4}
+						maxLength={2}
 						minLength={0}
 						disabled={levelOrder > 3}
 					/>
@@ -763,11 +753,11 @@ function OrderCreateProduct(props: PropType) {
 			</div>
 		),
 		// className: "yody-pos-price text-right",
-		width: "80px",
+		width: "75px",
 		align: "center",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
 			return (
-				<div className="yody-pos-varian-name">
+				<div>
 					{formatCurrency(l.price) + "đ"}
 				</div>
 			);
@@ -781,7 +771,7 @@ function OrderCreateProduct(props: PropType) {
 			</div>
 		),
 		align: "center",
-		width:  "110px",
+		width:  "100px",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
 				<Menu>
@@ -2155,7 +2145,7 @@ function OrderCreateProduct(props: PropType) {
 								<div style={{ width: 20, fontWeight: 700 }} >=</div>
 
                 <div style={{ flexGrow: 1 }}>
-                  <div  className= "unbold">TỔNG</div>
+                  <div  className= "unbold">TỔNG GIÁ</div>
                   <div style={{ fontWeight: 700 }}>{formatCurrency(getTotalAmount(items))} đ</div>
                 </div>
 
