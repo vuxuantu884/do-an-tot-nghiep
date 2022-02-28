@@ -98,7 +98,9 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           onFinish={onFinish}
           initialValues={{
             ...params,
-            department_ids: params.department_ids ? params.department_ids: []
+            department_ids: Array.isArray(params.department_ids) ?
+              params.department_ids : typeof params.department_ids === 'string'
+                ? [params.department_ids] : []
           }}
           layout="inline"
         >
