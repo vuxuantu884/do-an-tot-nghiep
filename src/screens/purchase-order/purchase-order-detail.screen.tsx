@@ -22,7 +22,7 @@ import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { PageResponse } from "model/base/base-metadata.response";
+import _ from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
@@ -164,9 +164,12 @@ const PODetailScreen: React.FC = () => {
     formMain.submit();
   }, [formMain]);
 
-  const onStoreResult = useCallback((result: PageResponse<StoreResponse> | false) => {
-    if (!!result) {
-      setListStore(result.items);
+  const onStoreResult = useCallback((result: Array<StoreResponse>) => {
+    if (result) {
+      const storeTotals = result.filter(e=>e.name?.toLocaleLowerCase().includes('kho tổng'));
+      
+      let res = _.uniqBy([...storeTotals, ...result], "name");
+      setListStore(res);
     }
   }, []);
   const onUpdateCall = useCallback(
@@ -458,9 +461,11 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
+  
+
   useEffect(() => {
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
-    dispatch(StoreGetListAction(setListStore));
+    dispatch(StoreGetListAction(onStoreResult));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));

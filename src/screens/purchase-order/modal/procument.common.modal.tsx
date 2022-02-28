@@ -32,7 +32,6 @@ import RenderTabBar from 'component/table/StickyTabBar';
 import PurchaseOrderHistory from "../tab/PurchaseOrderHistory";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseOrderDraft } from "screens/purchase-order/purchase-order-list.style";
-import { AppConfig } from "config/app.config";
 
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -478,12 +477,12 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                               label="Kho nhận hàng"
                             >
                               <Select
+                                allowClear
                                 showSearch
                                 showArrow
                                 optionFilterProp="children"
-                                placeholder="Chọn kho"
+                                placeholder="Chọn kho nhận"
                               >
-                                <Select.Option value="">Chọn kho nhận</Select.Option>
                                 {stores.map((item) => (
                                   <Select.Option key={item.id} value={item.id}>
                                     {item.name}
@@ -607,7 +606,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                   <Form
                     initialValues={{
                       procurement_items: [],
-                      store_id: defaultStore ?? AppConfig.PO_STORE_DEFAULT,
+                      store_id: defaultStore,
                       status: ProcumentStatus.DRAFT,
                       expect_receipt_date: ConvertDateToUtc(now),
                     }}
@@ -697,10 +696,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                               <Select
                                 showSearch
                                 showArrow
+                                allowClear
+                                placeholder="Chọn kho nhận"
                                 optionFilterProp="children"
-                                placeholder="YD KHO TỔNG"
                               >
-                                <Select.Option value="">Chọn kho nhận</Select.Option>
                                 {stores.map((item) => (
                                   <Select.Option key={item.id} value={item.id}>
                                     {item.name}
