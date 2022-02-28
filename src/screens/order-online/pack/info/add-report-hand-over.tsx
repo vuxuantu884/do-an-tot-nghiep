@@ -61,6 +61,7 @@ const AddReportHandOver: React.FC = () => {
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
   const setData = orderPackContextData.setData;
+  const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
 
   const handleOk = () => {
     goodsReceiptsForm.submit();
@@ -144,17 +145,22 @@ const AddReportHandOver: React.FC = () => {
   );
 
   const handOrderAddGoodsReceipts = useCallback(() => {
-    
-
     if(!goodsReceipts)
     {
       showWarning("Chưa chọn biên bản bàn giao");
       return;
     }
 
-    if(data.items.length<=0)
+    if(data.length<=0)
     {
       showWarning("Chưa có đơn hàng đóng gói");
+      return;
+    }
+
+    let fulfillments=data?.filter((p)=>isFulFillmentPack.some((single)=>single===p.code));
+
+    if(!fulfillments){
+      showWarning("chưa chọn đơn hàng cần thêm vào biên bản");
       return;
     }
 
@@ -164,7 +170,7 @@ const AddReportHandOver: React.FC = () => {
       codes.push(i.code);
       
     });
-    data.items.forEach(function (i: any) {
+    fulfillments?.forEach(function (i: any) {
       codes.push(i.code);
     });
 
@@ -189,20 +195,13 @@ const AddReportHandOver: React.FC = () => {
           if (value) {
             setGoodsReceipts(value);
             removePackInfo();
-            setData({
-              metadata: {
-                limit: 1,
-                page: 1,
-                total: 0,
-              },
-              items: [],
-            });
+            setData([]);
             showSuccess("Thêm đơn hàng vào biên bản bàn giao thành công");
           }
         }
       )
     );
-  }, [dispatch,setData, data, goodsReceipts]);
+  }, [goodsReceipts, data, dispatch, isFulFillmentPack, setData]);
 
   useEffect(() => {
     const toDate = new Date();

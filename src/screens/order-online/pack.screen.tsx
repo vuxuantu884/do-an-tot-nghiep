@@ -9,11 +9,11 @@ import {
   DeliveryServicesGetList,
   getChannels,
 } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import { useEffect, useState } from "react";
 import {
   ChannelsResponse,
   DeliveryServiceResponse,
+  OrderResponse,
 } from "model/response/order/order.response";
 import { useDispatch } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
@@ -30,6 +30,7 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
 import { StyledComponent } from "./pack/styles";
 import './pack/styles.scss';
+import { getPackInfo } from "utils/LocalStorageUtils";
 
 const { TabPane } = Tabs;
 
@@ -40,14 +41,9 @@ const PackSupportScreen: React.FC = () => {
   const history = useHistory();
   //useState
 
-  const [data, setData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 1,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
+  const [data, setData] = useState<OrderResponse[]>([]);
+
+  const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState("1");
 
@@ -76,6 +72,8 @@ const PackSupportScreen: React.FC = () => {
     setListChannels,
     data,
     setData,
+    isFulFillmentPack,
+    setIsFulFillmentPack,
   };
 
   useEffect(() => {
@@ -101,12 +99,23 @@ const PackSupportScreen: React.FC = () => {
     setActiveTab(newParam.tab);
   }, [newParam.tab]);
 
+  useLayoutEffect(() => {
+    let packInfo: string | null = getPackInfo();
+    if (packInfo) {
+      let order: any = JSON.parse(packInfo);
+      setData([...order]);
+    }
+  }, []);
+
   const handleClickTab = (value: string) => {
     setActiveTab(value);
 
     let queryParam = generateQuery({ ...newParam, tab: value });
     history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
   };
+
+  console.log("isFulFillmentPack",isFulFillmentPack);
+  
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
@@ -148,7 +157,7 @@ const PackSupportScreen: React.FC = () => {
             <div>
               <Row gutter={24}>
                 <Col xs={24}>
-                  <PackList data={data} />
+                  <PackList />
                 </Col>
               </Row>
 

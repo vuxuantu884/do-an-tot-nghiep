@@ -1,7 +1,6 @@
 import {
   Button,
   Row,
-  Space,
   Col,
   Select,
   Form,
@@ -14,11 +13,12 @@ import {
 import UrlConfig from "config/url.config";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { getFulfillments, getFulfillmentsPack } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
+  OrderResponse,
   OrderProductListModel,
+  OrderLineItemResponse
 } from "model/response/order/order.response";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,9 +30,14 @@ import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
 
 type PackInfoProps = {
-  setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
-  fulfillmentData: PageResponse<any>;
+  setFulfillmentsPackedItems: (items: OrderResponse[]) => void;
+  fulfillmentData: OrderResponse[];
 };
+
+interface OrderLineItemResponseExt extends OrderLineItemResponse{
+  pick:number;
+  color:string;
+}
 
 var barcode = "";
 
@@ -46,9 +51,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   //useState
 
-  const [orderResponse, setOrderResponse] = useState<Array<any>>([]);
-  const [orderList, setOrderList] = useState<Array<any>>([]);
-  // const [orderPackSuccess, setOrderPackSuccess] = useState<Array<any>>([]);
+  const [orderResponse, setOrderResponse] = useState<OrderResponse>();
+  const [itemProductList, setItemProductList] = useState<OrderLineItemResponseExt[]>([]);
 
   const [disableStoreId, setDisableStoreId] = useState(false);
   const [disabledDeliveryProvider, setDisabledDeliveryProvider] = useState(false);
@@ -78,9 +82,9 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
 
   const shipName =
-    listThirdPartyLogistics.length > 0 && orderResponse.length > 0
+    listThirdPartyLogistics.length > 0 && orderResponse
       ? listThirdPartyLogistics.find(
-        (x) => x.id === orderResponse[0].shipment.delivery_service_provider_id
+        (x) => x.id === orderResponse?.shipment?.delivery_service_provider_id
       )?.name
       : "";
 
@@ -137,9 +141,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         dispatch(
           getFulfillments(value.trim(), (data: any) => {
             if (data && data.length !== 0) {
-              console.log("setOrderResponse",data);
-              
-              setOrderResponse(data);
+             
+              setOrderResponse(data[0]);
               setDisableStoreId(true);
               setDisabledDeliveryProvider(true);
               setDisableOrder(true);
@@ -182,8 +185,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     setDisableOrder(false);
     setDisabledDeliveryProvider(false);
 
-    setOrderResponse([]);
-    setOrderList([]);
+    setOrderResponse(undefined);
+    setItemProductList([]);
 
     formRef.current?.setFieldsValue({ 
       product_request: "",
@@ -204,29 +207,28 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     let product_request = value.product_request;
 
     if (store_request && order_request && product_request) {
-      let indexPack = orderList.findIndex(
+      let indexPack = itemProductList.findIndex(
         (p) =>
           p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
       );
 
       if (indexPack !== -1) {
-        if(quality_request > (Number(orderList[indexPack].quantity)))
+        if(quality_request > (Number(itemProductList[indexPack].quantity)))
         {
           showError("Số lượng sản phẩm nhặt lớn hơn số lượng có trong đơn hàng");
           return;
         }
-        if ((Number(orderList[indexPack].quantity) <= Number(orderList[indexPack].pick))) {
+        if ((Number(itemProductList[indexPack].quantity) <= Number(itemProductList[indexPack].pick))) {
           showError("Sản phẩm đã nhập đủ số lượng");
           return
         } else {
-          orderList[indexPack].pick = Number(quality_request);
+          itemProductList[indexPack].pick = Number(quality_request);
 
-          if (orderList[indexPack].pick === orderList[indexPack].quantity)
-            orderList[indexPack].color = "#27AE60";
-          //else orderList[indexPack].color = "#E24343";
+          if (itemProductList[indexPack].pick === itemProductList[indexPack].quantity)
+            itemProductList[indexPack].color = "#27AE60";
 
-          setOrderList([...orderList]);
-          if (Number(orderList[indexPack].quantity) === Number(orderList[indexPack].pick))
+          setItemProductList([...itemProductList]);
+          if (Number(itemProductList[indexPack].quantity) === Number(itemProductList[indexPack].pick))
             formRef.current?.setFieldsValue({ product_request: "" });
         }
 
@@ -235,58 +237,49 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         showError("Sản phẩm này không có trong đơn hàng");
       }
     }
-  }, [formRef, orderList]);
+  }, [formRef, itemProductList]);
   ///function
 
   //useEffect
   useEffect(() => {
     if (orderResponse) {
+      console.log("orderResponse",orderResponse);
       let item: any[] = [];
-      orderResponse.forEach(function (value: any) {
-        value.items.forEach(function (i: any) {
-          item.push({ ...i, pick: 0, color: "#E24343" });
-        });
+      orderResponse.items.forEach(function (i: any) {
+        item.push({ ...i, pick: 0, color: "#E24343" });
       });
-      setOrderList(item);
+      setItemProductList(item);
     }
   }, [orderResponse]);
 
   useEffect(() => {
     if (
-      orderList &&
+      itemProductList &&
       orderResponse &&
-      orderResponse.length !== 0 &&
-      orderList.length !== 0
+      itemProductList.length !== 0
     ) {
-      let indexPack = orderList.filter(
+      let indexPack = itemProductList.filter(
         (p: OrderProductListModel) => Number(p.quantity) !== Number(p.pick)
       );
 
       if (indexPack === undefined || indexPack.length === 0) {
         let request = {
-          id: orderResponse[0].id,
-          code: orderResponse[0].code,
-          items: orderList,
+          id: orderResponse.id,
+          code: orderResponse.code,
+          items: itemProductList,
         };
 
+        let datas = [...fulfillmentData];
+        console.log(datas);
+        
         dispatch(
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
 
-              let datas = { ...fulfillmentData };
-
-              // datas.metadata.total =
-              //   Number(datas.metadata.total) + Number(orderList.length);
-              datas.items.push({
-                key: orderResponse[0].order_id,
-                order_id: orderResponse[0].order_id,
-                code: orderResponse[0].order_code,
-                shipment: shipName,
-                customer: orderResponse[0].customer,
-                items: orderList,
-              });
-
+              datas.push({...orderResponse});
+              console.log("datas.push",datas);
+              
               setFulfillmentsPackedItems(datas);
               setPackInfo(datas);
               showSuccess("Đóng gói đơn hàng thành công");
@@ -297,11 +290,10 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     }
   }, [
     dispatch,
-    orderList,
+    itemProductList,
     orderResponse,
     btnClearPackElement,
     fulfillmentData,
-    shipName,
     setFulfillmentsPackedItems,
   ]);
 
@@ -548,7 +540,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Form.Item>
         </div>
       </Form>
-      {orderList && orderList.length > 0 && (
+      {itemProductList && itemProductList.length > 0 && (
         <div className="yody-row-flex gutter-15 yody-margin-bottom-24">
           <div className="yody-row-item" style={{ paddingRight: "30px" }}>
             <span className="customer-detail-text">
@@ -560,7 +552,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   marginLeft: "5px",
                 }}
               >
-                {orderResponse[0]?.code}
+                {orderResponse?.code}
               </Typography.Text>
             </span>
           </div>
@@ -588,7 +580,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   marginLeft: "5px",
                 }}
               >
-                {orderResponse[0]?.customer}
+                {orderResponse?.customer}
               </Typography.Text>
             </span>
           </div>
@@ -612,13 +604,13 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             }}
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={orderList}
+            dataSource={itemProductList}
             className="ecommerce-order-list"
             tableLayout="fixed"
             pagination={false}
             bordered
             footer={() =>
-              orderList && orderList.length > 0 ? (
+              itemProductList && itemProductList.length > 0 ? (
                 <div className="row-footer-custom">
                   <div className="yody-foot-total-text">
                     TỔNG
@@ -632,7 +624,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                     }}
                   >
                     {formatCurrency(
-                      orderList.reduce(
+                      itemProductList.reduce(
                         (a: number, b: OrderProductListModel) => a + b.quantity,
                         0
                       )
@@ -647,7 +639,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                     }}
                   >
                     {formatCurrency(
-                      orderList.reduce(
+                      itemProductList.reduce(
                         (a: number, b: OrderProductListModel) => a + Number(b.pick),
                         0
                       )
@@ -662,7 +654,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         </Row>
       </div>
       <div className="yody-row gutter-15 yody-margin-bottom-24">
-        {orderList && orderList.length > 0 && (
+        {itemProductList && itemProductList.length > 0 && (
           <Row gutter={24}>
             <Col md={12}>
               <Button
