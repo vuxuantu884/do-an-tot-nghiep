@@ -44,7 +44,7 @@ import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
-import { generateQuery } from "utils/AppUtils";
+import { generateQuery, goToTopPage } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -192,6 +192,7 @@ function OrderList(props: PropTypes) {
       params.limit = size;
       let queryParam = generateQuery(params);
       history.push(`${location.pathname}?${queryParam}`);
+      goToTopPage()
     },
     [history, location.pathname, params]
   );

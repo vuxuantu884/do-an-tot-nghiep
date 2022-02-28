@@ -1470,3 +1470,7 @@ export const trimText = (text?: string) => {
   if(!text) return
   return text.replace(/(\s)+/g, '')
 }
+
+export const goToTopPage = () => {
+  window.scrollTo(0, 0);
+};
