@@ -13,7 +13,6 @@ import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction, ExternalShipperGetListAction } from "domain/actions/account/account.action";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
@@ -44,7 +43,7 @@ import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
-import { generateQuery } from "utils/AppUtils";
+import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -234,16 +233,9 @@ function OrderList(props: PropTypes) {
           dispatch(showLoading());
           changeOrderStatusToPickedService(ids)
             .then((response) => {
-              switch (response.code) {
-                case HttpStatus.SUCCESS:
-                  setData(response.data);
-                  break;
-                case HttpStatus.UNAUTHORIZED:
-                  dispatch(unauthorizedAction());
-                  break;
-                default:
-                  response.errors.forEach((e: any) => showError(e));
-                  break;
+              if (isFetchApiSuccessful(response)) {
+              } else {
+                handleFetchApiError(response, "In phiếu giao hàng", dispatch)
               }
             })
             .catch((error) => {

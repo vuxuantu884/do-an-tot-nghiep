@@ -1,9 +1,10 @@
 @media screen and (max-width: 700px) {
   .yd-discount-group {
     .discount-group-select {
-      width: 65px !important;
-      .ant-select-selection-item {
-        padding: 0
+      width: 30px !important;
+      .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        padding: 5px;
+        text-align: center;
       }
     }
     .ant-input {
@@ -13,6 +14,18 @@
     .discount-rate-convert {
       font-size: 12px;
       float: right;
+    }
+
+    .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+      padding: 5px;
+      text-align: center;
+    }
+    .ant-select-single.ant-select-show-arrow .ant-select-selection-item {
+      padding-right: 0;
+    }
+    .ant-select-selection-item {
+      display: flex;
+      align-items: center;
     }
   }
 }
