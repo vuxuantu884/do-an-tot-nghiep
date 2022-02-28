@@ -12,7 +12,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction, ExternalShipperGetListAction } from "domain/actions/account/account.action";
+import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -403,7 +403,7 @@ function OrderList(props: PropTypes) {
   };
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({limit: 30}, setDataAccounts));
     dispatch(ExternalShipperGetListAction((response) => {
 			if(response) {
 				setShippers(response)
