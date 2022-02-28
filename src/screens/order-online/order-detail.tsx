@@ -541,8 +541,11 @@ const OrderDetail = (props: PropType) => {
     } else {
       setLoyaltyPoint(null);
     }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customerDetail]);
+
+  useEffect(() => {
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch]);
 
   useEffect(() => {
     if (OrderDetail?.store_id != null) {
