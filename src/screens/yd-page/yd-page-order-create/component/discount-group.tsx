@@ -86,8 +86,8 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           suffixIcon={null}
           className="discount-group-select"
         >
-          <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
-          <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
+          <Select.Option value={MoneyType.PERCENT} style={{ padding: "5px", textAlign: "center" }}>%</Select.Option>
+          <Select.Option value={MoneyType.MONEY} style={{ padding: "5px", textAlign: "center" }}>₫</Select.Option>
         </Select>
 				<NumberInput
           style={{width:"100%"}}
