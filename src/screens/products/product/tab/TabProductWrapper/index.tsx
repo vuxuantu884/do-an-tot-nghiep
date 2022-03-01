@@ -275,7 +275,7 @@ const TabProductWrapper: React.FC = () => {
       values.info = info && info.trim();
       let newPrams = { ...params, ...{
           ...values,
-          info: values.info || params.info
+          info: values.info ? values.info : values.info === '' ? null : params.info
         }, page: 1 };
       setParams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -311,7 +311,7 @@ const TabProductWrapper: React.FC = () => {
       let request = {
         ...selected,
         status: "active",
-      }; 
+      };
       if (selected.collections) {
         request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
       }
@@ -327,7 +327,7 @@ const TabProductWrapper: React.FC = () => {
         ...selected,
         status: "inactive",
       };
-      
+
       if (selected.collections) {
         request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
       }
