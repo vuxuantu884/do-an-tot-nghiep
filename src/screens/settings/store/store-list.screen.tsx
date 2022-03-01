@@ -337,6 +337,7 @@ const StoreListScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
+      values.info = values.info ? values.info.trim() : null;
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
