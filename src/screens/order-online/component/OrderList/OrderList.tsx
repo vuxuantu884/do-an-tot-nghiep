@@ -11,8 +11,9 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import UrlConfig from "config/url.config";
-import { AccountSearchAction, ExternalShipperGetListAction } from "domain/actions/account/account.action";
+import UrlConfig from "config/url.config"
+import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
@@ -43,11 +44,7 @@ import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
-<<<<<<< HEAD
-import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-=======
-import { generateQuery, goToTopPage } from "utils/AppUtils";
->>>>>>> origin/feature/OR-2142-ds-don-hang-them-bien-ban-ban-giao
+import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -400,7 +397,7 @@ function OrderList(props: PropTypes) {
   };
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({limit: 30}, setDataAccounts));
     dispatch(ExternalShipperGetListAction((response) => {
 			if(response) {
 				setShippers(response)
