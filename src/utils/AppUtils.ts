@@ -1467,4 +1467,8 @@ export const trimText = (text?: string) => {
 export const sortFulfillments = (fulfillments: FulFillmentResponse[]) => {
   return fulfillments.sort((a, b) =>
   moment(b?.updated_date).diff(moment(a?.updated_date)))
+}
+
+export const goToTopPage = () => {
+  window.scrollTo(0, 0);
 };

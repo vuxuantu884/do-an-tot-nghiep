@@ -43,7 +43,11 @@ import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
+<<<<<<< HEAD
 import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+=======
+import { generateQuery, goToTopPage } from "utils/AppUtils";
+>>>>>>> origin/feature/OR-2142-ds-don-hang-them-bien-ban-ban-giao
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -191,6 +195,7 @@ function OrderList(props: PropTypes) {
       params.limit = size;
       let queryParam = generateQuery(params);
       history.push(`${location.pathname}?${queryParam}`);
+      goToTopPage()
     },
     [history, location.pathname, params]
   );

@@ -792,9 +792,22 @@ function OrdersTable(props: PropTypes) {
       },
       {
         title: "Biên bản bàn giao",
-        dataIndex: "Biên bản bàn giao",
-        key: "Biên bản bàn giao",
-        render: (value) => null,
+        dataIndex: "goods_receipt_id",
+        key: "goods_receipt_id",
+        align: "center",
+        render: (value, record: OrderModel) => {
+          if(value) {
+            return (
+              (
+                <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
+                  {value}
+                </Link>
+              )
+            )
+          } else {
+            return "-"
+          }
+        },
         visible: true,
         width: 160,
       },
