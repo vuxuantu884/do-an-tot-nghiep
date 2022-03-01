@@ -132,11 +132,10 @@ const TabProduct: React.FC = () => {
   );
   const onFilter = useCallback((values) => {
     let {info} = values;
-
     values.info = info && info.trim();
     let newPrams = { ...params, ...{
         ...values,
-        info: values.info || params.info
+        info: values.info ? values.info : values.info === '' ? null : params.info
       }, page: 1 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
