@@ -12,7 +12,7 @@ type POInfoFormProps = {
   isEdit: boolean;
   isEditDetail?: boolean;
 };
- 
+
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail } = props;
@@ -166,6 +166,24 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                 return (
                   <div className="row-view">
                     {note !== null && note !== "" ? note : ""}
+                  </div>
+                );
+              }}
+            </Form.Item>
+            <Form.Item noStyle hidden name={POField.supplier_note}>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Ghi chú của nhà cung cấp"
+              shouldUpdate={(prev, current) =>
+                prev[POField.supplier_note] !== current[POField.supplier_note]
+              }
+            >
+              {({ getFieldValue }) => {
+                let supplierNote = getFieldValue(POField.supplier_note);
+                return (
+                  <div className="row-view">
+                    {supplierNote !== null && supplierNote !== "" ? supplierNote : ""}
                   </div>
                 );
               }}
@@ -412,6 +430,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
       >
         <div>
           <Form.Item label="Ghi chú nội bộ" name="note">
+            <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
+          </Form.Item>
+          <Form.Item label="Ghi chú của nhà cung cấp" name="supplier_note">
             <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
           </Form.Item>
           <Form.Item
