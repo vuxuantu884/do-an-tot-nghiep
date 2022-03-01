@@ -165,9 +165,9 @@ function OrderSources(props: PropTypes) {
       align: "center",
       render: (value, record: OrderSourceModel, index) => {
         if (value) {
-          return <span className="status active">Đang áp dụng</span>;
+          return <div className="status active">Đang áp dụng</div>;
         }
-        return <span className="status inactive">Ngưng áp dụng</span>;
+        return <div className="status inactive">Ngưng áp dụng</div>;
       },
     },
     {
@@ -517,6 +517,9 @@ function OrderSources(props: PropTypes) {
             </CustomFilter>
             </div>
             <CustomTable
+              bordered
+              size="small"
+              className="small-padding"
               isLoading={tableLoading}
               isRowSelection
               onSelectedChange={(selectedRow) => {
