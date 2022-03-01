@@ -22,21 +22,21 @@ export interface AccountBaseModel {
   store_ids: Array<number>
 }
 
-export interface AccountResponse extends AccountBaseModel, BaseObject { 
+export interface AccountResponse extends AccountBaseModel, BaseObject {
   gender_name: string;
   country_name: string;
   city_name: string;
   district: string;
   status_name: string;
   account_jobs: Array<AccountJobResponse>;
-  account_stores: Array<AccountStoreResponse>; 
-  permissions : {  
+  account_stores: Array<AccountStoreResponse>;
+  permissions : {
     modules: Array<ModuleAuthorize>,
   }
   role_name: string;
 }
 
-export interface DeliverPartnerResponse { 
+export interface DeliverPartnerResponse {
   address: string;
 	code: string;
 	id: number;
@@ -57,7 +57,7 @@ export interface AccountSearchQuery extends BaseQuery {
   role_id?: Array<number>;
   store_ids?: Array<number>;
   status?:string;
-  codes?: Array<string>;
+  codes?: Array<string> | string;
   is_shipper?: number;
 }
 
@@ -105,7 +105,7 @@ export interface AccountJobReQuest {
   id?: number;
 }
 
-export interface AccountView extends AccountBaseModel {  
+export interface AccountView extends AccountBaseModel {
   account_jobs?: Array<AccountJobReQuest>;
   permissions? : {
     modules: Array<ModuleAuthorize>,
@@ -113,12 +113,12 @@ export interface AccountView extends AccountBaseModel {
 }
 
 // for create and update screen
-export interface AccountRequest extends AccountBaseModel { 
+export interface AccountRequest extends AccountBaseModel {
   account_jobs: Array<AccountJobResponse>;
 }
 
 
-export interface MeRequest { 
+export interface MeRequest {
   country_id?: 0,
   city_id?: 0,
   district_id: 0,
