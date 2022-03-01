@@ -1,3 +1,10 @@
+import { includes } from 'lodash';
+import { OrderResponse } from 'model/response/order/order.response';
+export interface PackModel{
+  store_id:number|null;
+  delivery_service_id:number|null;
+  order:OrderResponse[];
+}
 export interface PackSearchQuery {
   page: number;
   limit: number;
@@ -116,4 +123,10 @@ export interface FulfillmentsItemModel{
   net_weight:number|undefined|null;
   quantity:number|undefined|null;
   price:number|undefined|null;
+}
+
+export class PackModelDefaltValue implements PackModel{
+  store_id=null;
+  delivery_service_id=null;
+  order=[];
 }

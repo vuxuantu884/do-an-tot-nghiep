@@ -28,11 +28,12 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
+import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 
-type PackInfoProps = {
-  setFulfillmentsPackedItems: (items: OrderResponse[]) => void;
-  fulfillmentData: OrderResponse[];
-};
+// type PackInfoProps = {
+//   setFulfillmentsPackedItems: (items: OrderResponse[]) => void;
+//   fulfillmentData: OrderResponse[];
+// };
 
 interface OrderLineItemResponseExt extends OrderLineItemResponse{
   pick:number;
@@ -41,8 +42,7 @@ interface OrderLineItemResponseExt extends OrderLineItemResponse{
 
 var barcode = "";
 
-const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
-  const { setFulfillmentsPackedItems, fulfillmentData } = props;
+const PackInfo: React.FC = () => {
 
   const dispatch = useDispatch();
 
@@ -77,6 +77,9 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   //context
   const orderPackContextData = useContext(OrderPackContext);
+
+  const setPackModel=orderPackContextData?.setPackModel;
+  const packModel= orderPackContextData?.packModel;
 
   const listStores = orderPackContextData?.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
@@ -192,8 +195,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       product_request: "",
       quality_request: "",
       order_request: "",
-      store_request: undefined,
-      delivery_provider_id:undefined
+      // store_request: undefined,
+      // delivery_provider_id:undefined
     });
   };
 
@@ -203,7 +206,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
     let store_request = value.store_request;
     let order_request = value.order_request;
-    let quality_request = value.quality_request ? value.quality_request : 1;
+    let quality_request = value.quality_request ? +value.quality_request : 1;
     let product_request = value.product_request;
 
     if (store_request && order_request && product_request) {
@@ -213,16 +216,13 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       );
 
       if (indexPack !== -1) {
-        if(quality_request > (Number(itemProductList[indexPack].quantity)))
-        {
-          showError("Số lượng sản phẩm nhặt lớn hơn số lượng có trong đơn hàng");
-          return;
-        }
-        if ((Number(itemProductList[indexPack].quantity) <= Number(itemProductList[indexPack].pick))) {
+        if ((Number(itemProductList[indexPack].pick)+ quality_request) > (Number(itemProductList[indexPack].quantity))) {
           showError("Sản phẩm đã nhập đủ số lượng");
+          console.log("quality",Number(itemProductList[indexPack].pick)+ quality_request);
+          
           return
         } else {
-          itemProductList[indexPack].pick = Number(quality_request);
+          itemProductList[indexPack].pick += Number(quality_request);
 
           if (itemProductList[indexPack].pick === itemProductList[indexPack].quantity)
             itemProductList[indexPack].color = "#27AE60";
@@ -269,19 +269,17 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           items: itemProductList,
         };
 
-        let datas = [...fulfillmentData];
-        console.log(datas);
+        let packData:PackModel = {...new PackModelDefaltValue(),...packModel};
+        console.log("PackModel",packData);
         
         dispatch(
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
 
-              datas.push({...orderResponse});
-              console.log("datas.push",datas);
-              
-              setFulfillmentsPackedItems(datas);
-              setPackInfo(datas);
+              packData?.order?.push({...orderResponse});
+              setPackModel(packData);
+              setPackInfo(packData);
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
@@ -293,8 +291,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     itemProductList,
     orderResponse,
     btnClearPackElement,
-    fulfillmentData,
-    setFulfillmentsPackedItems,
+    packModel,
+    setPackModel,
   ]);
 
   useEffect(() => {

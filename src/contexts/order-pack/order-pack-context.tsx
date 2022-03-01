@@ -1,5 +1,6 @@
 import { StoreResponse } from "model/core/store.model";
-import { ChannelsResponse, DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
+import { PackModel } from "model/pack/pack.model";
+import { ChannelsResponse, DeliveryServiceResponse } from "model/response/order/order.response";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { createContext } from "react";
 
@@ -12,8 +13,8 @@ type OrderPackContextType = {
   setListGoodsReceiptsType:(value: Array<GoodsReceiptsTypeResponse>)=>void;
   listChannels:Array<ChannelsResponse>;
   setListChannels:(value: Array<ChannelsResponse>)=>void;
-  data:OrderResponse[];
-  setData:(value:OrderResponse[])=>void;
+  packModel:PackModel | null | undefined;
+  setPackModel:(value:PackModel)=>void;
   setIsFulFillmentPack:(fulFillmentCode:string[])=>void;
   isFulFillmentPack:string[];
 };
@@ -27,8 +28,8 @@ export const OrderPackContext = createContext<OrderPackContextType>({
     setListGoodsReceiptsType:(value: GoodsReceiptsTypeResponse[]) =>{},
     listChannels:[],
     setListChannels:(value: ChannelsResponse[]) =>{},
-    data:[],
-    setData:(value:OrderResponse[])=>{},
+    packModel:null,
+    setPackModel:(value:PackModel)=>{},
     setIsFulFillmentPack:(fulFillmentCode:string[])=>{},
     isFulFillmentPack:[]
 });

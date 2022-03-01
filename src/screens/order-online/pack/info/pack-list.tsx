@@ -1,32 +1,33 @@
 import { Card, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import emptyProduct from "assets/icon/empty_products.svg";
-//import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { OrderResponse } from "model/response/order/order.response";
+import { useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 interface OrderPackSuccessTable extends OrderResponse {
-  key: number;
+  key?: number;
   stt: number;
 }
 
 function PackList() {
-
+  //const loading = useSelector((state: RootReducerType) => state.loadingReducer);
   const orderPackContextData = useContext(OrderPackContext);
   // const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
   const data: OrderPackSuccessTable[] = useMemo(() => {
     let packSuccessTable: OrderPackSuccessTable[] = [];
-    orderPackContextData?.data?.forEach((i: OrderResponse, index) => {
-      packSuccessTable.push({ ...i, key: index, stt: index + 1 });
+    orderPackContextData?.packModel?.order?.forEach((i: OrderResponse, index) => {
+      packSuccessTable.push({ ...i, stt: index + 1 });
     })
     console.log("packSuccessTable", packSuccessTable);
 
     return packSuccessTable;
-  }, [orderPackContextData?.data]);
+  }, [orderPackContextData?.packModel]);
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {
@@ -41,7 +42,7 @@ function PackList() {
     },
     {
       title: "Đơn hàng",
-      dataIndex: "code",
+      dataIndex: "order_code",
       visible: true,
       render: (value: any, row: any, index: any) => {
         return (
@@ -49,7 +50,7 @@ function PackList() {
             target="_blank"
             to={`${UrlConfig.ORDER}/${row.order_id}`}
           >
-            {row.code}
+            {row.order_code}
           </Link>
         );
       },
@@ -58,7 +59,7 @@ function PackList() {
       title: "Hãng vận chuyển",
       visible: true,
       render: (value, row, index) => {
-        return <div>{row.shipment.delivery_service_provider_name}</div>;
+        return <div>{row.shipment.delivery_service_provider_name?row.shipment.delivery_service_provider_name:"Tự giao hàng"}</div>;
       },
     },
     {
@@ -79,11 +80,20 @@ function PackList() {
 
   const rowSelection = {
     onSelect: (item: any, selected: boolean, selectedRow: any[]) => {
-      let code = selectedRow.map((p: any) => p.code);
+      let code:string[] = [];
+      selectedRow.forEach((p)=>{
+        if(p)code.push(p.order_code);
+      })
+      console.log("code",code);
       setIsFulFillmentPack([...code]);
     },
     onSelectAll: (selected: any, selectedRow: any[], changeRow: any[]) => {
-      let code = selectedRow.map((p: any) => p.code);
+      
+      let code:string[] = [];
+      selectedRow.forEach((p)=>{
+        if(p)code.push(p.order_code);
+      })
+      console.log("code",code);
       setIsFulFillmentPack([...code]);
     }
   };
@@ -96,6 +106,7 @@ function PackList() {
     >
       <div>
         <Table
+          //loading={loading.isVisible}
           columns={columnsOrderPack}
           dataSource={data}
           locale={{
@@ -107,7 +118,7 @@ function PackList() {
             ),
           }}
           className="ecommerce-order-list"
-          //rowKey={(item: any) => item.code}
+          rowKey={(item: any) => item.code}
           //key={Math.random()}
           rowSelection={{
             type: "checkbox",

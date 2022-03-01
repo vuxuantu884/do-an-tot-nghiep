@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import {
   ChannelsResponse,
   DeliveryServiceResponse,
-  OrderResponse,
 } from "model/response/order/order.response";
 import { useDispatch } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
@@ -31,6 +30,7 @@ import useAuthorization from "hook/useAuthorization";
 import { StyledComponent } from "./pack/styles";
 import './pack/styles.scss';
 import { getPackInfo } from "utils/LocalStorageUtils";
+import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 
 const { TabPane } = Tabs;
 
@@ -41,7 +41,7 @@ const PackSupportScreen: React.FC = () => {
   const history = useHistory();
   //useState
 
-  const [data, setData] = useState<OrderResponse[]>([]);
+  const [packModel,setPackModel]=useState<PackModel|null>();
 
   const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
 
@@ -70,8 +70,8 @@ const PackSupportScreen: React.FC = () => {
     setListGoodsReceiptsType,
     listChannels,
     setListChannels,
-    data,
-    setData,
+    packModel,
+    setPackModel,
     isFulFillmentPack,
     setIsFulFillmentPack,
   };
@@ -94,7 +94,6 @@ const PackSupportScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
-
   useLayoutEffect(() => {
     setActiveTab(newParam.tab);
   }, [newParam.tab]);
@@ -102,8 +101,9 @@ const PackSupportScreen: React.FC = () => {
   useLayoutEffect(() => {
     let packInfo: string | null = getPackInfo();
     if (packInfo) {
-      let order: any = JSON.parse(packInfo);
-      setData([...order]);
+      let packInfoConvertJson: any = JSON.parse(packInfo);
+      let packData:PackModel = {...new PackModelDefaltValue(),...packInfoConvertJson};
+      setPackModel(packData);
     }
   }, []);
 
@@ -113,9 +113,6 @@ const PackSupportScreen: React.FC = () => {
     let queryParam = generateQuery({ ...newParam, tab: value });
     history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
   };
-
-  console.log("isFulFillmentPack",isFulFillmentPack);
-  
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
@@ -142,8 +139,8 @@ const PackSupportScreen: React.FC = () => {
                 <Tabs activeKey={activeTab} onChange={handleClickTab}>
                   <TabPane tab="Đóng gói" key="1">
                     <PackInfo
-                      setFulfillmentsPackedItems={setData}
-                      fulfillmentData={data}
+                      // setFulfillmentsPackedItems={setData}
+                      // fulfillmentData={data}
                     ></PackInfo>
                   </TabPane>
                   <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
