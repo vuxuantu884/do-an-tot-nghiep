@@ -64,12 +64,18 @@ export const StyledComponent = styled.div`
           align-items: center;
           display: flex;
           flex-direction: row;
+          &-left {
+            display: flex;
+            align-items: center;
+            justify-items: center;
+            flex: 1;
+          }
           &-container {
             width: 100%;
             margin-left: 10px;
             display: flex;
             flex-direction: row;
-            align-items: center;
+            justify-content: space-between;
             .avatar {
               position: relative;
               width: 40px;
@@ -96,12 +102,22 @@ export const StyledComponent = styled.div`
                 background-color: rgba(34, 34, 34, 0.7);
               }
             }
+            .info {
+              display: flex;
+              flex: 1;
+              flex-direction: column;
+              position: relative;
+              overflow: hidden;
+            }
           }
           .right__name {
             // width: 90%;
             // white-space: nowrap;
             // overflow: hidden;
             // text-overflow: ellipsis;
+          }
+          .variant-price {
+            margin-left: 10px;
           }
           .sku {
             font-weight: 500;

@@ -41,7 +41,7 @@ const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps
             </Row>
           </Col>
         </Row>
-        <Button type="link" icon={<EditOutlined size={24} />} onClick={onEdit} />
+        <Button style={{ display: "flex", alignItems: "center" }} type="link" icon={<EditOutlined size={24} />} onClick={onEdit} />
       </Row>
     </>
   );
