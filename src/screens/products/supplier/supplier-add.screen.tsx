@@ -220,11 +220,10 @@ const CreateSupplierScreen: React.FC = () => {
         callback(`Số điện thoại không đúng định dạng`);
       } else {
         listSupplier.forEach((supplier: SupplierResponse) => {
-          supplier?.contacts.forEach(contact => {
-            if (contact?.phone === value) {
-              callback(`Số điện thoại đã tồn tại`);
-            }
-          })
+          if (supplier?.phone === value) {
+            callback(`Số điện thoại đã tồn tại`);
+          }
+          return
         })
         callback();
       }
