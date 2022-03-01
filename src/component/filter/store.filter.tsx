@@ -91,7 +91,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
 
   return (
     <div className="custom-filter">
-      <CustomFilter onMenuClick={onActionClick} menu={actions}>
+      <CustomFilter onMenuClick={onActionClick}>
         <Form
           className="form-search"
           onFinish={onFinish}
