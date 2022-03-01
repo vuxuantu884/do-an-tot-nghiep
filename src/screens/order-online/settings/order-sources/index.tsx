@@ -25,7 +25,7 @@ import {
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import queryString from "query-string";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useState} from "react";
 import {useDispatch} from "react-redux";
 import {withRouter} from "react-router";
 import {useHistory} from "react-router-dom";
@@ -41,6 +41,10 @@ import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import "assets/css/custom-filter.scss";
 import { strForSearch } from "utils/RemoveDiacriticsString";
+import { callApiNative } from "utils/ApiUtils";  
+import {
+  getSourcesWithParamsService
+} from "service/order/order.service";
 
 type formValuesType = {
   name: string | undefined;
@@ -88,7 +92,7 @@ function OrderSources(props: PropTypes) {
   const [form] = Form.useForm();
 
   const [rowSelectedObject, setRowSelectedObject] = useState<Array<OrderSourceModel>>([]);
-  const [listDepartments, setListDepartments] = useState<any[]>([]);
+  const [listDepartments, setListDepartments] = useState<any[]>([]); 
 
   //permission
 
@@ -260,8 +264,8 @@ function OrderSources(props: PropTypes) {
     allowDeleteSource,
   ]);
 
-  const handleNavigateByQueryParams = (queryParams: any) => {
-    history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
+  const handleNavigateByQueryParams = (queryParams: any) => { 
+    history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`); 
     window.scrollTo(0, 0);
   };
 
@@ -272,7 +276,7 @@ function OrderSources(props: PropTypes) {
 			page: 1,
     };
 		if(JSON.stringify(resultParams) === JSON.stringify(queryParams)) {
-			fetchData();
+			fetchData(resultParams);
 		} else {
 			handleNavigateByQueryParams(resultParams);
 		}
@@ -281,18 +285,6 @@ function OrderSources(props: PropTypes) {
   const renderCardExtraHtml = () => {
     return (
       <div className="cardExtra">
-        {/* <Button
-          type="primary"
-          ghost
-          size="large"
-          onClick={() => {
-            setModalAction("create");
-            setIsShowModalChannel(true);
-          }}
-          icon={<PlusOutlined />}
-        >
-          Thêm kênh bán hàng
-        </Button> */}
         {allowCreateSource && (
           <Button
             type="primary"
@@ -315,13 +307,13 @@ function OrderSources(props: PropTypes) {
     return <React.Fragment>Bạn có chắc chắn muốn xóa danh sách đã chọn ?</React.Fragment>;
   };
 
-  const fetchData = useCallback(() => {
-    dispatch(
-      actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
-        setListOrderSources(data.items);
-        setTotal(data.metadata.total);
-      })
-    );
+  const fetchData = useCallback(async(params: any) => {
+    const res: OrderSourceResponseModel = await callApiNative({isShowLoading: false},dispatch,getSourcesWithParamsService,params ?? queryParams);
+    
+    if (res) {
+      setListOrderSources(res.items);
+      setTotal(res.metadata.total);
+    } 
     setTableLoading(false);
   }, [dispatch, queryParams]);
 
@@ -330,7 +322,7 @@ function OrderSources(props: PropTypes) {
       ...queryParams,
       page: 1,
     };
-    fetchData();
+    fetchData(resultParams);
     handleNavigateByQueryParams(resultParams);
   };
 
@@ -385,12 +377,10 @@ function OrderSources(props: PropTypes) {
     },
   };
 
-  useEffect(() => {
-    if (queryParams) {
+  useLayoutEffect(() => {
       setTableLoading(true);
-      fetchData();
-    }
-  }, [dispatch, fetchData, queryParams]);
+      gotoFirstPage();
+  }, []);
 
   useEffect(() => {
     const valuesFromParams: formValuesType = {
