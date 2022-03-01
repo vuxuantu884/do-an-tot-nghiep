@@ -31,6 +31,7 @@ const POField = {
   qc: "qc",
   reference: "reference",
   note: "note",
+  supplier_note: "supplier_note",
   tags: "tags",
   payments: "payments",
   procurements: "procurements",
