@@ -47,6 +47,7 @@ export const StyledComponent = styled.div`
     border-radius: 100px;
     white-space: nowrap;
     height: 24px;
+    margin-top: 6px;
     line-height: 24px;
     padding: 0 5px;
     min-width: 110px;
@@ -63,5 +64,7 @@ export const StyledComponent = styled.div`
       color: ${dangerColor};
     }
   }
-  
+  .custom-table .ant-table.ant-table-middle .ant-table-thead{
+    box-shadow: unset
+  }
 `;
