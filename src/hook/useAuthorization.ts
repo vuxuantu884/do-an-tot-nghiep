@@ -16,6 +16,7 @@ function useAuthorization(props: UseAuthorizationProps) {
   const { acceptPermissions, not, acceptStoreIds } = props;
 
   const [allowed, setAllowed] = useState<boolean>(false);
+  const [isLoadingUserPermission, setIsLoadingUserPermission] = useState<boolean>(false);
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions
   );
@@ -25,10 +26,16 @@ function useAuthorization(props: UseAuthorizationProps) {
   );
 
   useEffect(() => {
-    setAllowed(checkUserPermission(acceptPermissions, currentPermissions, acceptStoreIds, currentStores));
+    if (!currentPermissions) {
+      setIsLoadingUserPermission(true);
+      setAllowed(false);
+    } else {
+      setAllowed(checkUserPermission(acceptPermissions, currentPermissions, acceptStoreIds, currentStores));
+      setIsLoadingUserPermission(false);
+    }
   }, [acceptPermissions, currentPermissions, acceptStoreIds, currentStores]);
 
-  return [allowed && !not];
+  return [allowed && !not, isLoadingUserPermission];
 }
 
 export default useAuthorization;
