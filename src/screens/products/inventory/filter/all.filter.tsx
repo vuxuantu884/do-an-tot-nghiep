@@ -43,7 +43,7 @@ import TextShowMore from "component/container/show-more/text-show-more";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 export interface InventoryFilterProps {
-  params: InventoryQuery;
+  params: any;
   listStore: Array<StoreResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
@@ -130,10 +130,28 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         return false;
       }
       if (isWin) {
-        setWins(data);
+        setWins((wins) => {
+          return {
+            ...wins,
+            items: [
+              ...wins.items,
+              ...data.items
+            ],
+            metadata: data.metadata,
+          }
+        });
       }
       if (isDesigner) {
-        setDeisgner(data);
+        setDeisgner((designer) => {
+          return {
+            ...designer,
+            items: [
+              ...designer.items,
+              ...data.items
+            ],
+            metadata: data.metadata,
+          }
+        });
       }
     },
     []
@@ -144,13 +162,36 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     isWin = win;
     dispatch(
       AccountSearchAction(
-        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { codes: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
   }, [dispatch, setDataAccounts]);
 
-  const FilterList = ({ filters, resetField }: any) => {
+  useEffect(() => {
+    const {
+      designer_codes,
+      merchandiser_codes,
+    } = params;
+
+    const filter = {
+      ...params,
+      store_ids: params.store_ids ? params.store_ids.map((i: string) => Number(i)) : [],
+    };
+
+    if (designer_codes && designer_codes !== '') getAccounts(designer_codes, 1, true, false);
+    if (merchandiser_codes && merchandiser_codes !== '') getAccounts(merchandiser_codes, 1, false, true);
+
+    formAdvanceFilter.setFieldsValue(filter);
+    formBaseFilter.setFieldsValue(filter);
+    setAdvanceFilters(filter);
+
+    if (!designer_codes || designer_codes.length === 0) formAdvanceFilter.resetFields(['designer_codes']);
+    if (!merchandiser_codes || merchandiser_codes.length === 0) formAdvanceFilter.resetFields(['merchandiser_codes']);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
+
+  const FilterList = useCallback(({ filters, resetField, listCategory, lstCollection, listCountry, listStore, wins, designers }: any) => {
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null;
 
@@ -161,15 +202,17 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           let value = filters[filterKey];
 
           if (!value && value !==0) return null;
-          if (value && Array.isArray(value)  && value.length === 0) return null;
+          if (value && Array.isArray(value) && value.length === 0) return null;
           if (!AllInventoryMappingField[filterKey]) return null;
+
+          let newValues = Array.isArray(value) ? value : [value];
 
           switch (filterKey) {
             case AvdAllFilter.category:
             case AvdAllFilter.category_ids:
               let categoryTag = "";
-              value.forEach((item: number) => {
-                const category = listCategory?.find(e => e.id === item);
+              newValues.forEach((item: number) => {
+                const category = listCategory?.find((e: any) => e.id === Number(item));
 
                 categoryTag = category ? categoryTag + category.name + "; " : categoryTag;
               });
@@ -177,17 +220,17 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               break
               case AvdAllFilter.made_in_ids:
                 let madeinTag = "";
-                value.forEach((item: number) => {
-                  const madein = listCountry?.find(e => e.id === item);
+                newValues.forEach((item: number) => {
+                  const madein = listCountry?.find((e: any) => e.id === Number(item));
 
-                  madeinTag = madein ? madeinTag + madein.name + "; " : collectionTag;
+                  madeinTag = madein ? madeinTag + madein.name + "; " : madeinTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${madeinTag}`;
                 break
               case AvdAllFilter.collection_codes:
                 let collectionTag = "";
-                value.forEach((item: string) => {
-                  const colection = lstCollection?.find(e => e.code === item);
+                newValues.forEach((item: string) => {
+                  const colection = lstCollection?.find((e: any) => e.code === item);
 
                   collectionTag = colection ? collectionTag + colection.name + "; " : collectionTag;
                 });
@@ -195,8 +238,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 break
               case AvdAllFilter.designer_codes:
                 let designerTag = "";
-                value.forEach((item: string) => {
-                  const designer = designers.items?.find(e => e.code === item);
+                newValues.forEach((item: string) => {
+                  const designer = designers.items?.find((e: any) => e.code === item);
 
                   designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
                 });
@@ -204,27 +247,27 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 break
               case AvdAllFilter.merchandiser_codes:
                 let merchandiserTag = "";
-                value.forEach((item: string) => {
-                  const win = wins.items?.find(e => e.code === item);
+                newValues.forEach((item: string) => {
+                  const win = wins.items?.find((e: any) => e.code === item);
 
                   merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
                 });
-              renderTxt = `${AllInventoryMappingField[filterKey]} : ${merchandiserTag}`;
-              break
-            case AvdAllFilter.store_ids:
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${merchandiserTag}`;
+                break
+              case AvdAllFilter.store_ids:
                 let storeTag = "";
-                value.forEach((item: number) => {
-                  const store = listStore?.find(e => e.id === item);
+                newValues.forEach((item: number) => {
+                  const store = listStore?.find((e: any) => e.id === Number(item));
 
                   storeTag = store ? storeTag + store.name + "; " : storeTag
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
               break
             case AvdAllFilter.from_price:
-                renderTxt = `Giá bán từ: ${formatCurrency(advanceFilters.from_price)}`;
+                renderTxt = `Giá bán từ: ${formatCurrency(filters.from_price)}`;
               break
             case AvdAllFilter.to_price:
-                renderTxt = `Giá bán đến: ${formatCurrency(advanceFilters.to_price)}`;
+                renderTxt = `Giá bán đến: ${formatCurrency(filters.to_price)}`;
               break
             default:
               break;
@@ -242,16 +285,15 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         })}
       </div>
     );
-  };
+  },[]);
 
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
 
   const onCancelFilter = useCallback(() => {
-    formAdvanceFilter.resetFields();
     setVisible(false);
-  }, [formAdvanceFilter]);
+  }, []);
 
   const onShowSaveFilter = useCallback(() => {
     setModalAction("create");
@@ -291,11 +333,11 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       let json_content = JSON.stringify(
         formAdvanceFilter.getFieldsValue(),
         function(k, v) { return v === undefined ? null : v; }
-      );;
+      );
       request.type = FILTER_CONFIG_TYPE.FILTER_INVENTORY;
       request.json_content = json_content;
 
-      if (request.id && request.id !== null) {
+      if (request.id) {
         const config = lstConfigFilter?.find(e=>e.id.toString() === request.id.toString());
         if (lstConfigFilter && config) {
           request.name = config.name;
@@ -309,7 +351,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
 
   const onBaseFinish = useCallback(
-    (values: InventoryQuery) => {
+    () => {
       let data = formBaseFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
@@ -317,7 +359,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   );
 
   const onAdvanceFinish = useCallback(
-    (values: InventoryQuery) => {
+    () => {
       let data = formAdvanceFilter.getFieldsValue(true);
 
       onFilter && onFilter(data);
@@ -370,7 +412,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       if (filterConfig) {
         let json_content = JSON.parse(filterConfig.json_content);
 
-        Object.keys(json_content).forEach(function(key, index) {
+        Object.keys(json_content).forEach(function(key) {
           if (json_content[key] == null) json_content[key] = undefined;
         }, json_content);
         formAdvanceFilter.setFieldsValue(json_content);
@@ -398,7 +440,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const FilterConfigCom = (props: any)=>{
     return (
       <span style={{marginRight: 20, display: "inline-flex"}}>
-          <Tag onClick={(e)=>{
+          <Tag onClick={() => {
               onSelectFilterConfig(props.index, props.id);
               }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
                     color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />}
@@ -423,15 +465,11 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       }
     }
     formAdvanceFilter.setFieldsValue(fields);
+    formAdvanceFilter.resetFields(['merchandiser_codes, designer_codes']);
     formAdvanceFilter.submit();
     setVisible(false);
     onCloseFilterConfig();
   }, [formAdvanceFilter, onCloseFilterConfig]);
-
-  useEffect(() => {
-    formBaseFilter.setFieldsValue({...advanceFilters});
-    formAdvanceFilter.setFieldsValue({...advanceFilters});
-  }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
   useEffect(() => {
     setAdvanceFilters({ ...params });
@@ -486,7 +524,16 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
             </Item>
           </FilterWrapper>
         </Form>
-        <FilterList filters={advanceFilters} resetField={resetField} />
+        <FilterList
+          wins={wins}
+          designers={designers}
+          filters={advanceFilters}
+          resetField={resetField}
+          listCategory={listCategory}
+          lstCollection={lstCollection}
+          listCountry={listCountry}
+          listStore={listStore}
+        />
         <BaseFilter
           onClearFilter={onResetFilter}
           onFilter={onFilterClick}
@@ -501,7 +548,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
             name={`avdHistoryInventory`}
             onFinish={onAdvanceFinish}
             layout="vertical"
-            initialValues={{}}
             form={formAdvanceFilter}
           >
               {/* filters tag */}
@@ -566,7 +612,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         maxTagCount="responsive"
                       >
                         {listCountry?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id}>
+                          <CustomSelect.Option key={item.id} value={String(item.id)}>
                             {item.name}
                           </CustomSelect.Option>
                         ))}
@@ -628,7 +674,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                           maxTagCount="responsive"
                         >
                           {listCategory?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.id}>
+                            <CustomSelect.Option key={item.id} value={String(item.id)}>
                               {item.name}
                             </CustomSelect.Option>
                         ))}

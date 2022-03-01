@@ -205,6 +205,7 @@ export interface VariantSearchQuery extends BaseQuery {
   to_create_date?:Date,
   to_created_date?:Date,
   size?:string,
+  designer?:string,
   status?:string,
   main_color?:string,
   color?:string,
