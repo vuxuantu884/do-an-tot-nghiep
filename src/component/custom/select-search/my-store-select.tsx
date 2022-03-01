@@ -3,6 +3,7 @@ import { AccountStoreResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { ReactElement } from "react";
 import { useSelector } from "react-redux";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 interface Props extends SelectProps<number> {}
 const defaultSelectProps = {
@@ -17,7 +18,15 @@ function MyStoreSelect(props: Props): ReactElement {
     <Select
       {...defaultSelectProps}
       optionFilterProp="title"
-      {...props}>
+      filterOption={(input: String, option: any) => {
+        if (option.props.value) {
+          return strForSearch(option.props.children).includes(strForSearch(input));
+        }
+
+        return false;
+      }}
+      {...props}
+    >
       {myStores?.map((store: AccountStoreResponse) =>
         store?.store_id ? (
           <Select.Option value={store.store_id} key={"store_id" + store.store_id}>
