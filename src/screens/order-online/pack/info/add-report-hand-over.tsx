@@ -17,7 +17,7 @@ import {
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { useDispatch } from "react-redux";
-import { removePackInfo, setPackInfo } from "utils/LocalStorageUtils";
+import { setPackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment from "moment";
