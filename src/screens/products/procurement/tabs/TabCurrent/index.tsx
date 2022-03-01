@@ -103,7 +103,7 @@ const TabCurrent: React.FC = () => {
   );
 
   const onDetail = useCallback((result: PurchaseOrder | null) => {
-    if (result) { 
+    if (result) {
       setPurchaseOrderItem(result);
       setShowLoadingBeforeShowModal(-1);
     }
@@ -119,6 +119,7 @@ const TabCurrent: React.FC = () => {
       if (poId && procurementId) {
         dispatch(
           PoProcumentDeleteAction(poId, procurementId, () => {
+            search()
             setShowLoadingBeforeShowModal(-1);
             setIsLoadingReceive(false);
             setIsVisibleReceiveModal(false);
@@ -127,7 +128,7 @@ const TabCurrent: React.FC = () => {
         );
       }
     },
-    [dispatch]
+    [dispatch, search]
   );
 
   const confirmResult = useCallback((result: PurchaseProcument | null)=>{
@@ -247,7 +248,7 @@ const TabCurrent: React.FC = () => {
               )}{" "}
               Nhận hàng
             </Button>
-          </AuthWrapper> 
+          </AuthWrapper>
         ),
       },
     ]
@@ -304,7 +305,7 @@ const TabCurrent: React.FC = () => {
   useEffect(() => {
     search();
   }, [search]);
-  
+
   return (
     <div className="margin-top-20">
       <CustomTable

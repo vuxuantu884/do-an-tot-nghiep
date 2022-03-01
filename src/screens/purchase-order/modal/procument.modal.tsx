@@ -88,7 +88,12 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
           onOk={onOk}
           onDelete={onDelete}
           loading={loading}
-          title={isEdit ? "Sửa phiếu nháp" : "Tạo phiếu nháp"}
+          title={
+            <div>
+              {isEdit ? "Sửa phiếu nháp " : "Tạo phiếu nháp "}
+              <span style={{ color: "#2A2A86" }}>{item?.code}</span>
+            </div>
+          }
           okText={isEdit ? "Lưu phiếu nháp" : "Tạo phiếu nháp"}
           isEdit={isEdit}
         >
