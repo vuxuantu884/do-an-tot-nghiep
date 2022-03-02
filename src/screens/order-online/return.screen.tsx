@@ -449,7 +449,7 @@ const ListOrderScreen: React.FC = () => {
         </Row>
       }
     >
-      <Card>
+      <Card className="return-card">
         <ReturnFilter
           onMenuClick={onMenuClick}
           actions={actions}
