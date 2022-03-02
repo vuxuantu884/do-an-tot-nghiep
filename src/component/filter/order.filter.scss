@@ -84,6 +84,7 @@
 		margin-bottom: 20px;
 		background: rgba(42, 42, 134, 0.05);
 		border-radius: 50px;
+		white-space: unset !important;
 	}
 	.tagLabel {
 		margin-right: 5px;
@@ -348,4 +349,4 @@
 
 .dupticate-filter > .page-filter {
 	padding: 10px 0px 10px 0px !important;
-} 
+}

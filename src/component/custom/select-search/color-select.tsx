@@ -38,7 +38,7 @@ ColorSelect.defaultProps = {
 };
 
 function ColorSelect(props: SelectContentProps): ReactElement {
-  const { id: name, value, mode, fixedQuery, key, ...selectProps } = props;
+  const { id: name, value, mode, fixedQuery, key, isFilter, ...selectProps } = props;
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
   const [data, setData] = React.useState<PageResponse<ColorResponse>>({
@@ -87,7 +87,7 @@ function ColorSelect(props: SelectContentProps): ReactElement {
       if (mode === "multiple" && Array.isArray(value)) {
         initParams = value;
       } else if (typeof value === "string" || typeof value === "number") {
-        initParams = [Number(value)];
+        initParams = isFilter ? value : Number(value);
       } else {
         initParams = [];
       }
@@ -99,7 +99,7 @@ function ColorSelect(props: SelectContentProps): ReactElement {
           dispatch,
           colorSearchApi,
           {
-            ids: initParams,
+            ids: isFilter ? JSON.parse(initParams).code : initParams,
           }
         );
 
@@ -119,7 +119,7 @@ function ColorSelect(props: SelectContentProps): ReactElement {
     };
 
     getIntialValue();
-  }, [mode, dispatch, value, defaultOptons]);
+  }, [isFilter, mode, dispatch, value, defaultOptons]);
 
   return (
     <SelectPagingV2
@@ -135,7 +135,10 @@ function ColorSelect(props: SelectContentProps): ReactElement {
       }}
       {...selectProps}>
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code} value={item.id}>
+        <SelectPagingV2.Option key={item.code} value={isFilter ? JSON.stringify({
+          code: item.id,
+          name: item.name
+        }) : item.id}>
           {`${item.code}-${item.name}`}
         </SelectPagingV2.Option>
       ))}

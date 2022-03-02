@@ -818,12 +818,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
 	useEffect(() => {
 		getRequirementName();
+	}, [getRequirementName]);
+
+	useEffect(() => {
 		dispatch(
 			DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
 				setDeliveryServices(response);
 			})
 		);
-	}, [dispatch, getRequirementName]);
+	}, [dispatch]);
 
 	useEffect(() => {
 		if (updateShipment || cancelShipment) {

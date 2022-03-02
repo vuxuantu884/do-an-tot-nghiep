@@ -3,11 +3,11 @@ import { BaseObject } from 'model/base/base.response';
 
 
 export interface ColorSearchQuery extends BaseQuery {
-  info?: string, 
-  hex_code?: string, 
+  info?: string,
+  hex_code?: string,
   is_main_color?: number,
   parent_id?: number,
-  ids?:Array<number>
+  ids?:Array<number> | string
 }
 
 export interface  ColorCreateRequest {
