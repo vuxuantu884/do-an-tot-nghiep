@@ -27,7 +27,7 @@ const NopermissionStyle = styled.div`
       color: #666666;
     }
     .back-btn {
-      display: flex;
+      display: inline-flex;
       margin-top: 10px;
       align-items: center;
     }

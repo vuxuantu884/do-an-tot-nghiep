@@ -249,6 +249,7 @@ const Products: React.FC = () => {
     history.replace(`${history.location.pathname}#${active}`);
   }
 
+  
 
   return (
     <StyledComponent>

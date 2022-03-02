@@ -323,7 +323,7 @@ export const getListOrderAction = (
   });
 };
 
-export const getListOrderActionFpage = (
+export const getCustomerOrderYdpageAction = (
   query: any,
   setData: (data: PageResponse<OrderModel> | false) => void
 ) => {

@@ -136,6 +136,8 @@ type PropType = {
 		totalAmountReturn: number;
 		totalAmountExchangePlusShippingFee: number;
 	};
+	isCheckSplitLine: boolean
+	setCheckSplitLine: (item: any) => void
 };
 
 var barcode = "";
@@ -217,6 +219,8 @@ function OrderCreateProduct(props: PropType) {
 		// fetchData,
 		setCoupon,
 		setPromotion,
+		isCheckSplitLine,
+		setCheckSplitLine
 	} = props;
 
 	const dispatch = useDispatch();
@@ -810,7 +814,7 @@ function OrderCreateProduct(props: PropType) {
 							Thêm ghi chú
 						</Button>
 					</Menu.Item>
-          <Menu.Item key="3">
+                   <Menu.Item key="3">
 						<Button
 							type="text"
 							onClick={() => onDeleteItem(index)}
@@ -1838,6 +1842,11 @@ function OrderCreateProduct(props: PropType) {
 		setIsInputSearchProductFocus(false);
 	};
 
+	const handleChangeSplitLine = () => {
+		setSplitLine(!splitLine);
+		setCheckSplitLine(!isCheckSplitLine);
+	}
+
 	// const handleSplitOrder = () => {
   //   if (!orderDetail || !userReducer.account) {
   //     return;
@@ -2009,7 +2018,7 @@ function OrderCreateProduct(props: PropType) {
         
         <Row style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, marginTop: 10, alignItems: "center" }}>
           <Col>
-            <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
+            <Checkbox checked={isCheckSplitLine} onChange={handleChangeSplitLine}>Tách dòng</Checkbox>
           </Col>
 
           <Col hidden>
@@ -2126,7 +2135,7 @@ function OrderCreateProduct(props: PropType) {
               </div>
             ),
           }}
-			    rowKey={(item) => item.id.toString()}
+		  rowKey={(item) => item.id.toString()}
           columns={columns}
           dataSource={items}
           className="sale-product-box-table2 w-100"
@@ -2165,26 +2174,26 @@ function OrderCreateProduct(props: PropType) {
 				{/* nếu có sản phẩm trong đơn hàng mới hiển thị thông tin ở dưới  */}
 				{items && items.length > 0 && (
 					<CardProductBottom
-            amount={orderAmount}
-            totalAmountOrder={totalAmountOrder}
-            calculateChangeMoney={calculateChangeMoney}
-            changeMoney={changeMoney}
-            setCoupon={setCoupon}
-            promotion={promotion}
-            setPromotion={setPromotion}
-            showDiscountModal={() => setVisiblePickDiscount(true)}
-            showCouponModal={() => setIsVisiblePickCoupon(true)}
-            orderAmount={orderAmount}
-            items={items}
-            shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-            returnOrderInformation={returnOrderInformation}
-            totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-            isDisableOrderDiscount={isDisableOrderDiscount}
-            isCouponValid={isCouponValid}
-            couponInputText={couponInputText}
-            setCouponInputText={setCouponInputText}
-            handleRemoveAllDiscount={handleRemoveAllDiscount}
-          />
+						amount={orderAmount}
+						totalAmountOrder={totalAmountOrder}
+						calculateChangeMoney={calculateChangeMoney}
+						changeMoney={changeMoney}
+						setCoupon={setCoupon}
+						promotion={promotion}
+						setPromotion={setPromotion}
+						showDiscountModal={() => setVisiblePickDiscount(true)}
+						showCouponModal={() => setIsVisiblePickCoupon(true)}
+						orderAmount={orderAmount}
+						items={items}
+						shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+						returnOrderInformation={returnOrderInformation}
+						totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+						isDisableOrderDiscount={isDisableOrderDiscount}
+						isCouponValid={isCouponValid}
+						couponInputText={couponInputText}
+						setCouponInputText={setCouponInputText}
+						handleRemoveAllDiscount={handleRemoveAllDiscount}
+					/>
 				)}
 				{setPromotion && (
 					<React.Fragment>

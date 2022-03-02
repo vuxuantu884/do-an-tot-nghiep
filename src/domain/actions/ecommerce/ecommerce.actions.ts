@@ -232,3 +232,7 @@ export const createEcommerceLogistic = (
     callback
   });
 };
+
+export const concatenateByExcelAction = (file: File, callback: (data: any) => void) => {
+  return BaseAction(EcommerceType.CONCANATE_BY_EXCEL, {file, callback});
+}
