@@ -34,7 +34,6 @@ import {
   CustomerSearch,
   DeleteShippingAddress,
 } from "domain/actions/customer/customer.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
@@ -68,8 +67,7 @@ import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
 import { formatCurrency } from "../../../../../utils/AppUtils";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import _, { debounce } from "lodash";
-import { SourceSearchQuery } from "model/request/source.request";
+import { debounce } from "lodash";
 //#end region
 
 type CustomerCardProps = {
