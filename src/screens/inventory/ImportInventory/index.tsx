@@ -301,7 +301,10 @@ const UpdateTicket: FC = () => {
             </Row>
             <BottomBarContainer
               leftComponent = {
-                <div style={{ cursor: "pointer" }}>
+                <div
+                  style={{ cursor: "pointer" }}
+                  onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)}
+                >
                   <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
                   {"Quay lại danh sách"}
                 </div>
