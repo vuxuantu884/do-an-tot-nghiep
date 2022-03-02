@@ -31,7 +31,7 @@ const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps
           <Col span={14}>
             <Row align="middle">
               <IconLocationOutlined width={16} height={16} style={{ marginRight: 10 }} />
-              <span>
+              <span className="text-truncate-1" style={{ flex: 1 }}>
                 {address.full_address ? `${address.full_address}` : ""}
                 {address.full_address && address.ward ? `, ${address.ward}` : address.ward}
                 {address.district ? `, ${address.district}` : ""}
