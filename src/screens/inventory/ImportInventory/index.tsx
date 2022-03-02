@@ -41,6 +41,7 @@ import { ApiConfig } from "config/api.config";
 import BaseAxios from "base/base.axios";
 import { showError } from "utils/ToastUtils";
 import MyStoreSelect from "component/custom/select-search/my-store-select";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -233,6 +234,13 @@ const UpdateTicket: FC = () => {
                           showArrow
                           showSearch
                           optionFilterProp="children"
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(strForSearch(input));
+                            }
+
+                            return false;
+                          }}
                         >
                           {Array.isArray(stores) &&
                             stores.length > 0 &&
