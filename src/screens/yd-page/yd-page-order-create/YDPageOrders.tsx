@@ -143,7 +143,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   // const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
-  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POSTPAYMENT);
+  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.COD);
   // const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);

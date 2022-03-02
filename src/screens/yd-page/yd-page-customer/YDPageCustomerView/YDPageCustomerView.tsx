@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NumberFormat from "react-number-format";
 import moment from "moment";
 
-import {showSuccess, showError} from "utils/ToastUtils";
+import {showSuccess} from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import UrlConfig from "config/url.config";
@@ -15,10 +15,6 @@ import {getCustomerOrderYdpageAction} from "domain/actions/order/order.action";
 import {OrderModel} from "model/order/order.model";
 import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
 import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {
-  CreateNote,
-  DeleteNote,
-} from "domain/actions/customer/customer.action";
 
 import AddPhoneModal from "screens/yd-page/yd-page-customer/AddPhoneModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -53,8 +49,6 @@ const YDPageCustomerView = (props: any) => {
   const [visibleDeletePhoneModal, setVisibleDeletePhoneModal] = useState<boolean>(false);
   const [deletePhoneAction, setDeletePhoneAction] = React.useState<() => void>(() => {});
 
-  const [noteInputValue, setNoteInputValue] = React.useState<string>("");
-  const [customerNoteList, setCustomerNoteList] = React.useState<any>([]);
   const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
 
   useEffect(() => {
@@ -64,14 +58,6 @@ const YDPageCustomerView = (props: any) => {
       setLoyaltyPoint(null);
     }
   }, [customer.id, dispatch]);
-
-  useEffect(() => {
-    if (customer?.notes) {
-      setCustomerNoteList(customer.notes.reverse());
-    } else {
-      setCustomerNoteList([]);
-    }
-  }, [customer.notes]);
 
   useEffect(() => {
     if (customer?.full_name) {
@@ -237,10 +223,6 @@ const YDPageCustomerView = (props: any) => {
     },
   ];
 
-  const reloadPage = () => {
-    getCustomerWhenPhoneChange(customer?.phone);
-  };
-
   const handleEditCustomer = () => {
     setIsEditCustomer(true);
   };
@@ -354,57 +336,53 @@ const YDPageCustomerView = (props: any) => {
   ]
   // end customer purchase info
 
-  // handle customer note
-  const onChangeNoteInput = useCallback((value: any) => {
-    setNoteInputValue(value);
-  }, []);
+	useEffect(() => {
+		window.parent.postMessage({
+			service: 'notes',
+			action: 'list',
+			params: {}
+		}, '*');
+	}, []);
 
-  const onBlurNoteInput = (value: any) => {
-    setNoteInputValue(value.trim());
-  };
 
-  const handleNote = {
-    create: (noteContent: any) => {
-      if (noteContent && customer) {
-        dispatch(
-          CreateNote(customer.id, { content: noteContent }, (data: any) => {
-            if (data) {
-              showSuccess("Thêm mới ghi chú thành công");
-              reloadPage();
-            } else {
-              showError("Thêm mới ghi chú thất bại");
-            }
-          })
-        );
-      }
-    },
-    delete: (note: any, customerId: any) => {
-      if (note && customerId) {
-        dispatch(
-          DeleteNote(note.id, customerId, (data: any) => {
-            if (data) {
-              showSuccess("Xóa ghi chú thành công");
-              reloadPage();
-            } else {
-              showError("Xóa ghi chú thất bại");
-            }
-          })
-        );
-      }
-    },
-  };
+	// handle note
+	const [notes, setNotes] = React.useState<any>([]);
+	const [note, setNote] = React.useState<string>('');
+	window.addEventListener('message', async (e) => {
+		const { data } = e;
+		const { service, res } = data;
 
-  const addNote = (e: any) => {
-    e.preventDefault();
-    handleNote.create(e.target.value);
-    setNoteInputValue("");
-  };
+		if (service === 'notes') {
+			setNotes(res);
+		}
+	}, false);
 
-  const deleteNote = (note: any) => {
-    const customerId = customer && customer.id;
-    handleNote.delete(note, customerId);
-  };
-  // end handle customer note
+	const handleNote = {
+		create: (noteContent: any) => {
+			if (noteContent) {
+				window.parent.postMessage({
+					service: 'notes',
+					action: 'add',
+					params: {
+						content: noteContent
+					}
+				}, '*');
+				showSuccess("Thêm mới ghi chú thành công");
+			}
+		},
+		delete: (note: any) => {
+			if (note) {
+				window.parent.postMessage({
+					service: 'notes',
+					action: 'remove',
+					params: {
+						noteId: note.id
+					}
+				}, '*');
+				showSuccess("Xóa ghi chú thành công");
+			}
+		},
+	}
 
   return (
     <div>
@@ -505,34 +483,35 @@ const YDPageCustomerView = (props: any) => {
             <div><b>Ghi chú</b></div>
             <Input
               disabled={!allowUpdateCustomer}
-              maxLength={500}
-              placeholder="Viết ghi chú"
-              value={noteInputValue}
-              onChange={(value) => onChangeNoteInput(value.target.value)}
-              onBlur={(value) => onBlurNoteInput(value.target.value)}
-              onPressEnter={(e) => addNote(e)}
+              maxLength={1000}
+              placeholder="Nhập ghi chú"
+              value={note}
+							onChange={(e: any) => setNote(e.target.value)}
+							onPressEnter={(e: any) => {
+								handleNote.create(e.target.value)
+								setNote('')
+							}}
             />
 
-            {customerNoteList &&
-              customerNoteList.map((note: any, index: number) => (
-                <div className="customer-note-item" key={index}>
-                  <span key={note.id}>{note.content}</span>
-                  {allowUpdateCustomer && (
-                    <img
-                      alt="delete"
-                      onClick={() => deleteNote(note)}
-                      style={{
-                        width: 20,
-                        float: "right",
-                        cursor: "pointer",
-                        marginLeft: 4,
-                      }}
-                      src={XCloseBtn}
-                    />
-                  )}
-                </div>
-              ))}
-          </div>
+						{notes && notes.map((note: any, index: number) => (
+							<div className="customer-note-item" key={index}>
+								<span key={note.id}>{note.content}</span>
+								{allowUpdateCustomer && (
+									<img
+										alt="delete"
+										onClick={() => handleNote.delete(note)}
+										style={{
+											width: 20,
+											float: "right",
+											cursor: "pointer",
+											marginLeft: 4,
+										}}
+										src={XCloseBtn}
+									/>
+								)}
+							</div>
+						))}
+					</div>
 
           {/*Lịch sử mua hàng*/}
           <div className="purchase-history">
