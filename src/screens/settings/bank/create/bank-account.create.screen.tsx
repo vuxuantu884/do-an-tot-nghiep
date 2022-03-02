@@ -47,7 +47,7 @@ const BankAccountCreateScreen: React.FC = () => {
     let bankIndex = listBank.findIndex((p: any) => p.value === value.bank_code);
     let bankName = bankIndex !== -1 ? listBank[bankIndex].name : "";
 
-    let storeAccess = listStore?.filter((p) => value.store.some((single: any) => single.toString() === p.id.toString()));
+    let storeAccess = listStore?.filter((p) => value.stores.some((single: any) => single.toString() === p.id.toString()));
     console.log("storeAccess", storeAccess);
 
     let stores: any = [];
@@ -80,6 +80,20 @@ const BankAccountCreateScreen: React.FC = () => {
   const onOkPress = useCallback(() => {
     formRef.current?.submit();
   }, [formRef]);
+
+  const onTreeSelectAll = useCallback((isValue: boolean) => {
+    console.log("isValue", isValue);
+
+    if (isValue) {
+      let allIds: number[] | undefined = listStore?.map((value) => +value.id);
+      console.log("allIds", allIds);
+
+      formRef?.current?.setFieldsValue({ stores: allIds });
+    }
+    else
+      formRef?.current?.setFieldsValue({ stores: [] });
+
+  }, [formRef, listStore]);
 
   return (
     <ContentContainer
@@ -179,7 +193,7 @@ const BankAccountCreateScreen: React.FC = () => {
             <Col md={12}>
               <Form.Item
                 label="Cửa hàng áp dụng"
-                name="store"
+                name="stores"
                 rules={[
                   {
                     required: true,
@@ -187,7 +201,7 @@ const BankAccountCreateScreen: React.FC = () => {
                   },
                 ]}
               >
-                <TreeStore listStore={listStore} placeholder="Chọn cửa hàng áp dụng" />
+                <TreeStore onSelectAll={onTreeSelectAll} listStore={listStore} placeholder="Chọn cửa hàng áp dụng" />
               </Form.Item>
             </Col>
           </Row>
