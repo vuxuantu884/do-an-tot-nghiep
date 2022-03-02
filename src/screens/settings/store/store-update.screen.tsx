@@ -115,7 +115,7 @@ const StoreUpdateScreen: React.FC = () => {
   );
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
-    history.push(UrlConfig.STORE);
+    history.push(`${UrlConfig.STORE}/${idNumber}`);
     showSuccess("Lưu dữ liệu thành công");
   }, [history]);
   const onFinish = useCallback(
