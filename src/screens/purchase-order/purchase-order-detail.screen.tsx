@@ -506,6 +506,7 @@ const PODetailScreen: React.FC = () => {
     const pdf = new jsPDF("portrait", "px");
     html2canvas(value, {
       width: 700,
+      scale: 5,
     }).then((canvas) => {
       const imgData = canvas.toDataURL("image/png", 1.0);
       // console.log('imgData', imgData)
