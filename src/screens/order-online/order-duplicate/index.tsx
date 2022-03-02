@@ -20,6 +20,7 @@ import { DuplicateOrderSearchQuery } from "model/order/order.model";
 import { generateQuery } from "utils/AppUtils";
 import { getOrderDuplicateAction } from "domain/actions/order/order-duplicate.action";
 import { CustomerDuplicateModel } from "model/order/duplicate.model";
+import './order-duplicate.scss';
 
 const ACTION_ID = {
   printShipment: 4,
@@ -333,7 +334,7 @@ const CustomerDuplicate: React.FC = () => {
         </Row>
       }
     >
-      <Card style={{paddingTop:0}}>
+      <Card className="duplicate-card">
         <OrderDuplicateFilter
           actions={actions}
           onMenuClick={onMenuClick}

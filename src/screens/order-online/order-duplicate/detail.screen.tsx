@@ -1104,7 +1104,7 @@ const OrderDuplicate: React.FC = () => {
           </Row>
         }
       >
-        <Card>
+        <Card className="duplicate-card">
           <OrderFilter
             onMenuClick={onMenuClick}
             actions={actions}
