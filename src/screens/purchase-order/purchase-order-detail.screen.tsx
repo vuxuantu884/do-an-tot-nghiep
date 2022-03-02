@@ -489,14 +489,27 @@ const PODetailScreen: React.FC = () => {
 
   const handleExport = () => {
     let temp = document.createElement("div");
+    let tempChild = document.createElement("div");
+    temp.appendChild(tempChild);
+    tempChild.style.fontFamily = 'Roboto';
+    temp.style.width = "700px";
+    temp.style.height = "880px";
+    tempChild.style.margin = 'auto';
+    temp.style.display = 'block';
     temp.id = "temp";
-    temp.innerHTML = printContent;
+    tempChild.innerHTML = printContent;
     let value = document.body.appendChild(temp);
     if (value === null) return;
-    html2canvas(value).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("portrait", "px");
-      pdf.addImage(imgData, "png", 10, 10, value.offsetWidth / 4, value.offsetHeight / 2);
+    const pdf = new jsPDF("portrait", "px");
+    html2canvas(value, {
+      width: 700,
+    }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png", 1.0);
+      // console.log('imgData', imgData)
+      
+      // pdf.addImage(imgData, "JPEG",  15, 40, 210, 297);
+      pdf.addImage(imgData, "JPEG",  5, 15, 780/1.8, 880/1.8);
+      // pdf.addImage(imgData, "JPEG",  5, 15, 585, 812);
       temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
     });
