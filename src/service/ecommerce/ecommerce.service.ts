@@ -186,6 +186,23 @@ const createEcommerceLogisticApi = (requestBody : EcommerceCreateLogistic) => {
   let link = `${ApiConfig.ECOMMERCE}/logistic/shipping-order`;
   return BaseAxios.post(link, requestBody);
 }
+
+
+export const importConcatenateByExcelService = (file: File) => {
+  let formData = new FormData();
+  formData.append("file_upload", file);
+  return BaseAxios.post(`${ApiConfig.ECOMMERCE}/import-export/variants-import`, formData, {
+    headers: { "content-type": "multipart/form-data" },
+  });
+}
+
+export const getProgressImportConcatenateByExcelApi = (
+  process_id: any
+): Promise<BaseResponse<any>> => {
+const requestUrl = `${ApiConfig.ECOMMERCE}/jobs/${process_id}`;
+return BaseAxios.get(requestUrl);
+};
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,

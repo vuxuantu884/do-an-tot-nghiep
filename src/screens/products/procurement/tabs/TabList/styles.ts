@@ -20,4 +20,26 @@ export const StyledComponent = styled.div`
     .warning-confirm{
         word-break: break-word;
     }
+  .link-underline {
+    color: inherit;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .status {
+    border-radius: 100px;
+    padding: 5px 10px;
+    &-blue {
+      background: rgba(42, 42, 134, 0.1);
+      color: #2A2A86;
+    }
+    &-green {
+      background: rgba(39, 174, 96, 0.1);
+      color: #27AE60;
+    }
+    &-gray {
+      background: #F5F5F5;
+      color: #666666;
+    }
+  }
 `;
