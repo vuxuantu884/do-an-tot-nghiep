@@ -19,7 +19,7 @@ const BankAccountCreateScreen: React.FC = () => {
     account_holder: "",
     bank_code: null,
     bank_name: "",
-    store: [],
+    stores: [],
     status: 1,
     default: false
   }
@@ -43,12 +43,10 @@ const BankAccountCreateScreen: React.FC = () => {
   }, [dispatch]);
 
   const onSubmitForm = useCallback((value: any) => {
-    console.log("value", value);
     let bankIndex = listBank.findIndex((p: any) => p.value === value.bank_code);
     let bankName = bankIndex !== -1 ? listBank[bankIndex].name : "";
 
     let storeAccess = listStore?.filter((p) => value.stores.some((single: any) => single.toString() === p.id.toString()));
-    console.log("storeAccess", storeAccess);
 
     let stores: any = [];
 
