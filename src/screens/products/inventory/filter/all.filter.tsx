@@ -162,7 +162,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     isWin = win;
     dispatch(
       AccountSearchAction(
-        { codes: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { codes: code, page: page },
         setDataAccounts
       )
     );
