@@ -72,10 +72,10 @@ import NoPermission from "screens/no-permission.screen";
 import { LoyaltyPoint } from "../../../model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { OrderModel } from "../../../model/order/order.model";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { YDpageCustomerRequest } from "model/request/customer.request";
+import {getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage} from "../../../domain/actions/loyalty/loyalty.action";
 
 let typeButton = "";
 
@@ -87,7 +87,6 @@ type OrdersCreatePermissionProps = {
   setBillingAddress: (items: BillingAddress | null) => void;
   setDistrictId: (items: number | null) => void;
   setActiveTabKey: (items: string) => void;
-  setOrderHistory: (items: Array<OrderModel> | undefined) => void;
   getCustomerByPhone: (items: string) => void;
   setVisibleCustomer: (item: boolean) => void;
   setIsClearOrderTab: (item: boolean) => void;
@@ -98,9 +97,6 @@ type OrdersCreatePermissionProps = {
   defaultSourceId: number | null;
   defaultStoreId: number | null;
   userId: string | null;
-  loyaltyPoint: LoyaltyPoint | null;
-  loyaltyRate: LoyaltyRateResponse | undefined;
-  loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
   isVisibleCustomer: boolean;
@@ -120,13 +116,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setCustomer,
     setActiveTabKey,
     // setIsClearOrderTab,
-    loyaltyPoint,
-    loyaltyUsageRules,
     handleCustomerById,
     fbCustomerId,
     fbPageId,
     userId,
-    loyaltyRate,
     setShippingAddress,
     setBillingAddress,
     shippingAddress,
@@ -153,11 +146,13 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POSTPAYMENT);
   // const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
-  // const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  // const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-  //   Array<LoyaltyUsageResponse>
-  // >([]);
-  // const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
+
+  const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -278,6 +273,14 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
+
+  useEffect(() => {
+    if (customer?.id) {
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+  }, [customer?.id, dispatch]);
 
   useEffect(() => {
     if (
@@ -677,6 +680,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(getLoyaltyRate(setLoyaltyRate));
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
     // dispatch(
     //   DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
     //     setDeliveryServices(response);
@@ -872,7 +877,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         await setInitialForm({
           ...initialRequest,
         });
-        setCustomer(null);
+        // setCustomer(null);
         setItems([]);
         setItemGifts([]);
         setPayments([]);
@@ -1076,7 +1081,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   }, [totalAmountOrder, totalAmountPayment]);
 
   return (
-    <div className="yd-page-order" style={{ marginTop: 56 }}>
+    <div className="yd-page-order" style={{ marginTop: 30 }}>
       <AuthWrapper acceptPermissions={ordersCreatePermission} passThrough>
         {(allowed: boolean) =>
           allowed ? (

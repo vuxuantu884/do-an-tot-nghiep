@@ -105,6 +105,7 @@ function* getCustomerList(action: YodyAction) {
 
 function* getCustomerByPhone(action: YodyAction) {
   const { query, setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomers,
@@ -115,15 +116,18 @@ function* getCustomerByPhone(action: YodyAction) {
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setData(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setData(undefined);
+        setData(null);
         // response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
