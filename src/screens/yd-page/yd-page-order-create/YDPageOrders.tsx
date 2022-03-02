@@ -154,7 +154,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
-  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+  const [thirdPL, setThirdPL] = useState<any>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
     insurance_fee: null,
@@ -187,6 +187,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
+
+  const [isCheckSplitLine, setCheckSplitLine] = useState(false)
 
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const queryParams = useQuery();
@@ -447,6 +449,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
     return listDiscountRequest;
   };
 
+  const handleRefreshInfoOrderSuccess = () => {
+    form.resetFields();
+    setItems([]);
+    setPayments([]);
+    setPaymentMethod(0);
+    setOrderAmount(0);
+    setCheckSplitLine(false);
+    setThirdPL(thirdPL.delivery_transport_type = "")
+  }
+
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
       setIsSaveDraft(false);
@@ -456,13 +468,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
+        handleRefreshInfoOrderSuccess()
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
+        handleRefreshInfoOrderSuccess()
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [customer, handleCustomerById, setActiveTabKey]
   );
 
@@ -972,6 +987,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
+
       if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
         showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
@@ -1158,6 +1174,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       coupon={coupon}
                       setCoupon={setCoupon}
                       loyaltyPoint={null}
+                      isCheckSplitLine={isCheckSplitLine}
+                      setCheckSplitLine={setCheckSplitLine}
                     />
 
                     {/* Không cần thanh toán và vận chuyển */}
