@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Form, Button, Card, Tag, Input, Select, DatePicker} from "antd";
+import {Form, Button, Card, Tag, Input, Select, DatePicker, Divider} from "antd";
 
 import {
   CreateCustomer,
@@ -18,7 +18,6 @@ import AddPhoneModal from "../AddPhoneModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {GENDER_OPTIONS} from "utils/Constants";
 import { CustomerModel } from "model/request/customer.request";
-
 
 const YDPageCustomerCreateUpdate = (props: any) => {
   const {
@@ -101,6 +100,13 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     // eslint-disable-next-line
   }, [customer, customerFbName, customerPhone]);
 
+	useEffect(() => {
+		window.parent.postMessage({
+			service: 'notes',
+			action: 'list',
+			params: {}
+		}, '*');
+	}, []);
 
   const handleBlurName = (value: any) => {
     updateNewCustomerInfo("full_name", value.trim());
@@ -214,6 +220,45 @@ const YDPageCustomerCreateUpdate = (props: any) => {
   }
   // end handle submit
 
+	// handle note
+	const [notes, setNotes] = React.useState<any>([]);
+	const [note, setNote] = React.useState<string>('');
+	window.addEventListener('message', async (e) => {
+		const { data } = e;
+		const { service, res } = data;
+
+		if (service === 'notes') {
+			setNotes(res);
+		}
+	}, false);
+
+	const handleNote = {
+		create: (noteContent: any) => {
+			if (noteContent) {
+				window.parent.postMessage({
+					service: 'notes',
+					action: 'add',
+					params: {
+						content: noteContent
+					}
+				}, '*');
+				form.setFieldsValue({ note: "" });
+				showSuccess("Thêm mới ghi chú thành công");
+			}
+		},
+		delete: (note: any) => {
+			if (note) {
+				window.parent.postMessage({
+					service: 'notes',
+					action: 'remove',
+					params: {
+						noteId: note.id
+					}
+				}, '*');
+				showSuccess("Xóa ghi chú thành công");
+			}
+		},
+	}
 
   return (
     <div className="yd-page-customer-create-update">
@@ -377,16 +422,58 @@ const YDPageCustomerCreateUpdate = (props: any) => {
           </div>
 
           {/*submit button*/}
-          <Button
-            type="primary"
-            style={{ float: "right", height:"32px" }}
-            onClick={handleSubmitCreateUpdate}
-          >
-            Lưu
-          </Button>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              type="primary"
+              style={{ height:"32px" }}
+              onClick={handleSubmitCreateUpdate}
+            >
+              Lưu
+            </Button>
+          </div>
 
-        </Card>
-      </Form>
+          <Divider style={{margin: "8px 0"}} />
+
+          {/*Ghi chú*/}
+          <div><b>Ghi chú</b></div>
+					<Form.Item
+						name="note"
+						className="note-container"
+						rules={[
+							{
+								max: 1000,
+								message: 'Vui lòng không nhập quá 1000 kí tự'
+							},
+						]}
+					>
+						<Input
+							maxLength={1000}
+							placeholder="Nhập ghi chú"
+							onPressEnter={(e: any) => {
+								handleNote.create(e.target.value)
+								setNote('')
+							}}
+							onChange={(e: any) => setNote(e.target.value)}
+							value={note}
+						/>
+					</Form.Item>
+
+					<div className="customer-note-wrapper">
+						{notes &&
+							notes.map((note: any, index: number) => (
+								<div className="customer-note-item" key={index}>
+									<span key={note.id}>{note.content}</span>
+									<img
+										alt="delete"
+										className="customer-note-btn-delete"
+										onClick={() => handleNote.delete(note)}
+										src={XCloseBtn}
+									/>
+								</div>
+							))}
+					</div>
+				</Card>
+			</Form>
 
       <AddPhoneModal
         visible={visiblePhoneModal}
