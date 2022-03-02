@@ -494,6 +494,9 @@ const PODetailScreen: React.FC = () => {
     tempChild.style.fontFamily = 'Roboto';
     temp.style.width = "700px";
     temp.style.height = "880px";
+    temp.style.position = "absolute";
+    temp.style.zIndex = "-2";
+    temp.style.top = "0px";
     tempChild.style.margin = 'auto';
     temp.style.display = 'block';
     temp.id = "temp";
@@ -510,7 +513,7 @@ const PODetailScreen: React.FC = () => {
       // pdf.addImage(imgData, "JPEG",  15, 40, 210, 297);
       pdf.addImage(imgData, "JPEG",  5, 15, 780/1.8, 880/1.8);
       // pdf.addImage(imgData, "JPEG",  5, 15, 585, 812);
-      temp.remove();
+      // temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
     });
   };
