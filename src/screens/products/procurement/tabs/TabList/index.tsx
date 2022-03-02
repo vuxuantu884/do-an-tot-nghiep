@@ -52,6 +52,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { callApiNative } from "utils/ApiUtils";
 import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
+import BaseTagStatus from "../../../../../component/base/BaseTagStatus";
 
 const ACTIONS_INDEX = {
   CONFIRM_MULTI: 1,
@@ -197,9 +198,8 @@ const TabList: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.SUPPLIERS}/${row.purchase_order.supplier_id}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
-              style={{ fontSize: "16px" }}
             >
               {value?.supplier}
             </Link>
@@ -214,9 +214,8 @@ const TabList: React.FC = () => {
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.purchase_order.merchandiser_code}`}
-              className="primary"
+              className="link-underline"
               target="_blank"
-              style={{ fontSize: "16px" }}
             >
               {`${row.purchase_order.merchandiser_code} - ${row.purchase_order.merchandiser}`}
             </Link>
@@ -245,39 +244,20 @@ const TabList: React.FC = () => {
         render: (status: string) => {
           return (
             <div>
-              {status === ProcurementStatus.draft && (
-                <div
-                  style={{
-                    background: "#F5F5F5",
-                    borderRadius: "100px",
-                    color: "#666666",
-                    padding: "3px 10px",
-                  }}>
-                  {ProcurementStatusName[status]}
-                </div>
-              )}
-              {status === ProcurementStatus.not_received && (
-                <div
-                  style={{
-                    background: "rgba(42, 42, 134, 0.1)",
-                    borderRadius: "100px",
-                    color: "#2A2A86",
-                    padding: "5px 10px",
-                  }}>
-                  {ProcurementStatusName[status]}
-                </div>
-              )}
-              {status === ProcurementStatus.received && (
-                <div
-                  style={{
-                    background: "rgba(39, 174, 96, 0.1)",
-                    borderRadius: "100px",
-                    color: "#27AE60",
-                    padding: "5px 10px",
-                  }}>
-                  {ProcurementStatusName[status]}
-                </div>
-              )}
+              {
+                status !== ProcurementStatus.cancelled &&
+                <BaseTagStatus
+                  fullWidth
+                  color={
+                    status === ProcurementStatus.draft ? "gray"
+                      : status === ProcurementStatus.not_received ? "blue"
+                      : status === ProcurementStatus.received ? "green"
+                        :undefined
+                  }
+                >
+                  { ProcurementStatusName[status] }
+                </BaseTagStatus>
+              }
             </div>
           );
         },
@@ -566,6 +546,7 @@ const TabList: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {
+    console.log('vao day', record)
     const { status = "", expect_store_id = 144, code } = record;
     switch (status) {
       case ProcumentStatus.DRAFT:
