@@ -32,8 +32,8 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   delivery_service_ids: null,
   ecommerce_ids: null,
   good_receipt_type_ids: null,
-  ids:null,
-  order_codes:null,
+  ids: null,
+  order_codes: null,
   from_date: "",
   to_date: "",
 };
@@ -105,8 +105,7 @@ const AddReportHandOver: React.FC = () => {
 
       dispatch(
         createGoodsReceipts(param, (value: GoodsReceiptsResponse) => {
-          if(value)
-          {
+          if (value) {
             showSuccess("Thêm biên bản bàn giao thành công");
             setVisibleModal(false);
             goodsReceiptsForm.resetFields()
@@ -116,16 +115,16 @@ const AddReportHandOver: React.FC = () => {
             const toDate = new Date();
             // Trừ đi 1 ngày
             const fromDate = new Date().setDate(toDate.getDate() - 1);
-        
+
             initQueryGoodsReceipts.limit = 1000;
             initQueryGoodsReceipts.page = 1;
             initQueryGoodsReceipts.sort_type = "desc";
             initQueryGoodsReceipts.sort_column = "updated_date";
             initQueryGoodsReceipts.from_date = moment(fromDate).format("DD-MM-YYYY");
             initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
-        
+
             dispatch(
-              getGoodsReceiptsSerch(initQueryGoodsReceipts, (data:PageResponse<GoodsReceiptsResponse>)=>{
+              getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
                 setListGoodsReceipts(data.items);
               })
             );
@@ -144,25 +143,23 @@ const AddReportHandOver: React.FC = () => {
   );
 
   const handOrderAddGoodsReceipts = useCallback(() => {
-    
 
-    if(!goodsReceipts)
-    {
+
+    if (!goodsReceipts) {
       showWarning("Chưa chọn biên bản bàn giao");
       return;
     }
 
-    if(data.items.length<=0)
-    {
+    if (data.items.length <= 0) {
       showWarning("Chưa có đơn hàng đóng gói");
       return;
     }
 
     let codes: any[] = [];
 
-    goodsReceipts?.orders?.forEach(function(i){
+    goodsReceipts?.orders?.forEach(function (i) {
       codes.push(i.code);
-      
+
     });
     data.items.forEach(function (i: any) {
       codes.push(i.code);
@@ -202,7 +199,7 @@ const AddReportHandOver: React.FC = () => {
         }
       )
     );
-  }, [dispatch,setData, data, goodsReceipts]);
+  }, [dispatch, setData, data, goodsReceipts]);
 
   useEffect(() => {
     const toDate = new Date();
@@ -217,7 +214,7 @@ const AddReportHandOver: React.FC = () => {
     initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
 
     dispatch(
-      getGoodsReceiptsSerch(initQueryGoodsReceipts, (data:PageResponse<GoodsReceiptsResponse>)=>{
+      getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
         setListGoodsReceipts(data.items);
       })
     );
@@ -238,9 +235,9 @@ const AddReportHandOver: React.FC = () => {
       bordered={false}
       className="pack-give-card"
     >
-      <div>
-        <Row gutter={24}>
-          <Col md={9} sm={24}>
+      <div className="yody-pack-row">
+        <Row className="pack-give-card-row">
+          <div className="pack-give-card-row-item" style={{width: "40%"}}>
             <Select
               className="select-with-search"
               showSearch
@@ -270,30 +267,30 @@ const AddReportHandOver: React.FC = () => {
                 </Select.Option>
               ))}
             </Select>
-          </Col>
-          <div style={{marginRight:10}}>
-          <Button
-              icon={<PlusOutlined />}
-              ghost
-              type="primary"
-              size="small"
-              block
-              onClick={showModal}
-            >
-              Thêm mới
-            </Button>
           </div>
-          <div>
           <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              size="small"
-              block
-              onClick={handOrderAddGoodsReceipts}
-            >
-              Lưu
-            </Button>
-          </div>
+            icon={<PlusOutlined />}
+            ghost
+            type="primary"
+            size="small"
+            block
+            onClick={showModal}
+            className="pack-give-card-row-item"
+            style={{ width: "160px" }}
+          >
+            Thêm mới
+          </Button>
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            size="small"
+            block
+            onClick={handOrderAddGoodsReceipts}
+            className="pack-give-card-row-item"
+            style={{ width: "160px" }}
+          >
+            Lưu
+          </Button>
         </Row>
       </div>
       <ReportHandOverModal

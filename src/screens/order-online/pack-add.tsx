@@ -236,8 +236,9 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           <Form layout="vertical" 
             form={goodsReceiptsForm}
             onFinish={handSubmit}
+            className="yody-pack-row"
           >
-            <Row gutter={24} style={{marginLeft: "0px", marginRight: "0px"}}>
+            <Row>
               <Col md={6}>
                 <Form.Item
                   label="Cửa hàng"
