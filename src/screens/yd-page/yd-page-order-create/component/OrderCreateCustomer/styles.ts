@@ -24,4 +24,11 @@ export const StyledComponent = styled.div`
       padding: 0 15px;
     }
   }
+
+  @media screen and (max-width: 740px) {
+    .ant-form-item-explain-error {
+      display: none;
+    }
+  }
+
 `
