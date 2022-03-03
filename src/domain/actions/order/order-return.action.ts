@@ -1,6 +1,6 @@
 import { ORDER_RETURN_TYPES } from "domain/types/order-return";
 import { OrderType } from "domain/types/order.type";
-import { ExchangeRequest, OrderRequest } from "model/request/order.request";
+import { ExchangeRequest, OrderRequest, OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import { LoyalTyCalCulateRefund } from "model/response/loyalty/loyalty-points.response";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import { OrderReturnReasonModel } from "model/response/order/order.response";
@@ -101,17 +101,13 @@ export const actionGetOrderReturnLog = (
 };
 
 export const actionGetOrderReturnCalculateRefund = (
-  customerId: number,
-  orderId: number,
-  refund: number,
+  params: OrderReturnCalculateRefundRequestModel,
   handleData: (data: LoyalTyCalCulateRefund) => void
 ) => {
   return {
     type: ORDER_RETURN_TYPES.GET_ORDER_RETURN_CALCULATE_REFUND,
     payload: {
-      customerId,
-      orderId,
-      refund,
+      params,
       handleData,
     },
   };

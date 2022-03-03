@@ -25,8 +25,9 @@ interface NumberInputProps {
   prefix?: React.ReactNode;
   autoFocus?: boolean;
   onFocus?: (e: any) => void;
-  disabled?: boolean
-  step?:number
+  disabled?: boolean;
+  step?:number;
+  isChangeAfterBlur?: boolean; // khi blur thì gọi lại hàm onChange
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
@@ -49,7 +50,8 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     id,
     onFocus,
     disabled = false,
-    step
+    step,
+    isChangeAfterBlur = true,
   } = props;
   const [data, setData] = useState<string>('');
   const onChangeText = useCallback(
@@ -86,23 +88,23 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
         if (temp.charAt(temp.length - 1) === "." || temp === "-") {
           valueTemp = temp.slice(0, -1);
         }
-        if (props.min !== undefined && value < props.min) {
+        if (props.min !== undefined && value < props.min && value) {
           onChange && onChange(props.min);
-        } else if (props.max !== undefined && value > props.max) {
+        } else if (props.max !== undefined && value > props.max && value) {
           onChange && onChange(props.max);
         } else {
           onChange &&
-            valueTemp &&
+            valueTemp && isChangeAfterBlur &&
             onChange(parseFloat(valueTemp.replace(/0*(\d+)/, "$1")));
         }
       } else {
-        if (props.default !== undefined) {
+        if (props.default !== undefined ) {
           onChange && onChange(props.default);
         }
       }
       onBlur && onBlur();
     },
-    [onBlur, onChange, props, value]
+    [onBlur, onChange, props, value, isChangeAfterBlur]
   );
   useEffect(() => {
     setData(value !== null && value !== undefined && value !== '' ? value.toString() : '');

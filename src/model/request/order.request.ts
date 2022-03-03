@@ -1,4 +1,4 @@
-import { OrderLineItemResponse } from "model/response/order/order.response";
+import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
   action: string | null;
@@ -477,4 +477,15 @@ export interface SplitOrderRequest {
   quantity: number;
   updated_by: string;
   updated_name: string;
+}
+
+/**
+* Tính điểm đổi trả
+*/
+export interface OrderReturnCalculateRefundRequestModel {
+  customerId: number,
+  orderId: number,
+  items: OrderLineItemRequest[],
+  return_items: OrderResponse[],
+  refund_money: number
 }

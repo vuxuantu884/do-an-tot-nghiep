@@ -8,7 +8,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import {
 	createOrderExchangeService,
 	createOrderReturnService,
-	getOrderReturnCalculateRefund,
+	getOrderReturnCalculateRefundService,
 	getOrderReturnLog,
 	getOrderReturnReasonService,
 	getOrderReturnService,
@@ -168,14 +168,12 @@ function* getOrderReturnLogSaga(action: YodyAction) {
 }
 
 function* getOrderReturnCalculateRefundSaga(action: YodyAction) {
-  const { customerId, orderId, refund, handleData } = action.payload;
+  const {params, handleData } = action.payload;
   try {
     yield put(showLoading());
     let response: BaseResponse<any> = yield call(
-      getOrderReturnCalculateRefund,
-      customerId,
-      orderId,
-      refund
+      getOrderReturnCalculateRefundService,
+      params,
     );
 		if (isFetchApiSuccessful(response)) {
 			handleData(response.data);
