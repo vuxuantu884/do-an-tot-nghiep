@@ -1,4 +1,4 @@
-import {Button, Card, Col, Form, Input, Row, Space, TreeSelect} from "antd";
+import { Button, Card, Col, Form, Input, Row, Select, Space, TreeSelect } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -37,6 +37,8 @@ const DepartmentCreateScreen: React.FC = () => {
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
   });
+
+  const levels = ['1', '2', '3', '4', '5', '6', '7'];
 
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
@@ -190,6 +192,24 @@ const DepartmentCreateScreen: React.FC = () => {
                 label="Địa chỉ liên hệ"
               >
                 <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={8}>
+              <Form.Item
+                name="level"
+                label="Cấp độ"
+              >
+                <Select placeholder="Chọn cấp độ">
+                  {levels.map((item) => {
+                    return (
+                      <Select.Option value={item}>
+                        {item}
+                      </Select.Option>
+                    )
+                  })}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
