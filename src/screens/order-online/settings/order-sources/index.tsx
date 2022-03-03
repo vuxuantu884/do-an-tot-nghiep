@@ -270,16 +270,14 @@ function OrderSources(props: PropTypes) {
   };
 
   const onFilterFormFinish = (values: any) => {
+    let name = values.name ?? "";
     const resultParams = {
       ...queryParams,
       ...values,
 			page: 1,
     };
-		if(JSON.stringify(resultParams) === JSON.stringify(queryParams)) {
-			fetchData(resultParams);
-		} else {
-			handleNavigateByQueryParams(resultParams);
-		}
+    fetchData({...resultParams,name: name.trim()});
+    handleNavigateByQueryParams(resultParams);
   };
 
   const renderCardExtraHtml = () => {
