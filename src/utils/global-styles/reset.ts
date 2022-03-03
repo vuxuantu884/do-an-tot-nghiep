@@ -31,6 +31,7 @@ export const reset = css`
     font-size: ${bodyFontSize};
   }
   body {
+    font-family: "Roboto", "Arial", sans-serif;
     color: ${textBodyColor};
     word-break: break-word;
   }

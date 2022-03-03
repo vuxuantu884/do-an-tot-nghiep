@@ -24,7 +24,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
   const [listSelected, setListSelected] = useState<Array<number>>([]);
   const [checkedAll, setCheckedAll] = useState<boolean>(false);
 
-  const firstScrollRef = useRef(true) 
+  const firstScrollRef = useRef(true)
   const onMenuClick = useCallback(
     (action) => {
       switch (action) {
@@ -136,32 +136,26 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                   onClick={() => props.setActive(index)}
                   className="line-item-container"
                 >
-                  <div className="avatar">
-                    <img
-                      alt=""
-                      src={avatar ? avatar.url : variantdefault}
-                    />
-                    {!item.saleable && (
-                      <div className="not-salable">Ngừng bán</div>
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {item.id ? (
-                      <React.Fragment>
-                        <div className="sku">{item.sku}</div>
-                        <div className="variant-name">{variantName}</div>
-                      </React.Fragment>
-                    ) : (
-                      <div className="item-new">Phiên bản mới</div>
-                    )}
+                  <div className="line-item-left">
+                    <div className="avatar">
+                      <img
+                        alt=""
+                        src={avatar ? avatar.url : variantdefault}
+                      />
+                      {!item.saleable && (
+                        <div className="not-salable">Ngừng bán</div>
+                      )}
+                    </div>
+                    <div className="info">
+                      {item.id ? (
+                        <div>
+                          <div className="sku text-truncate-1">{item.sku}</div>
+                          <div className="variant-name">{variantName}</div>
+                        </div>
+                      ) : (
+                        <div className="item-new">Phiên bản mới</div>
+                      )}
+                    </div>
                   </div>
                   <div className="variant-price">
                     {`${

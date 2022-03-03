@@ -1,8 +1,5 @@
-import { UseAuthorizationProps } from "hook/useAuthorization";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { Fragment, ReactNode, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { checkUserPermission } from "utils/AuthUtil";
+import useAuthorization, { UseAuthorizationProps } from "hook/useAuthorization";
+import { Fragment, ReactNode } from "react";
 
 interface AuthWrapperProps extends UseAuthorizationProps {
   children: ReactNode;
@@ -17,22 +14,31 @@ AuthWrapper.defautProps = {
 function AuthWrapper(props: AuthWrapperProps) {
   const { acceptPermissions, not, children, passThrough, acceptStoreIds } = props;
 
-  const [allowed, setAllowed] = useState<boolean>(false);
-  const currentPermissions: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer.permissions
-  );
+  const [isPassed, isLoadingUserPermission] = useAuthorization({
+    acceptPermissions,
+    acceptStoreIds,
+    not,
+  });
 
-  const currentStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores
-  );
-
-  useEffect(() => {
-    setAllowed(checkUserPermission(acceptPermissions, currentPermissions, acceptStoreIds, currentStores));
-  }, [acceptPermissions, currentPermissions, acceptStoreIds, currentStores]);
-
-  const isPassed = allowed && !not;
-  const elements = typeof children === "function" ? children(isPassed) : children;
-  return <Fragment>{passThrough ? elements : isPassed ? children : <Fragment />}</Fragment>;
+  if (passThrough && typeof children === "function") {
+    /**@description : chuyển giá trị vào children function (kể cả có quyền hay không)
+     * 
+     * @param isPassed: boolean : true nếu có quyền truy cập
+     * @param isLoadingUserPermission: boolean : true nếu đang tải quyền truy cập
+     * @returns function 
+     */
+    return children(isPassed, isLoadingUserPermission);
+  } else if (isPassed) {
+    /**
+     * @description : return component con khi có quyền truy cập
+     */
+    return children;
+  } else {
+    /**
+     * @description : return component trống khi không có quyền truy cập
+     */
+    return <Fragment />;
+  }
 }
 
 export default AuthWrapper;

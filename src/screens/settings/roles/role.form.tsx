@@ -55,6 +55,10 @@ export default function RoleForm(props: Props): ReactElement {
                     message: "Vui lòng nhập tên nhóm quyền",
                   },
                   {
+                    whitespace: true,
+                    message: "Tên nhóm quyền phải khác khoảng trắng",
+                  },
+                  {
                     max: 100,
                     message: "Tên nhóm quyền không vượt quá 100 ký tự",
                   },
@@ -62,7 +66,7 @@ export default function RoleForm(props: Props): ReactElement {
                 label="Tên nhóm quyền"
                 name="name"
               >
-                <Input placeholder="Nhập tên vai trò" />
+                <Input placeholder="Nhập tên vai trò" onBlur={e=>form.setFieldsValue({name:e.target.value?.trim()})}/>
               </Form.Item>
             </Col>
             <Col span={24} lg={16} md={12} sm={24}>

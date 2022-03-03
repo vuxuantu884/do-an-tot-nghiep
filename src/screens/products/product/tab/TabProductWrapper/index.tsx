@@ -10,7 +10,6 @@ import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {getCategoryRequestAction} from "domain/actions/product/category.action";
 import {
   productWrapperDeleteAction,
-  productWrapperUpdateAction,
   searchProductWrapperRequestAction,
 } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
@@ -20,7 +19,6 @@ import {
   ProductResponse,
   ProductWrapperResponse,
   ProductWrapperSearchQuery,
-  ProductWrapperUpdateRequest,
   VariantResponse,
 } from "model/product/product.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
@@ -31,11 +29,16 @@ import ProductWrapperFilter from "screens/products/product/filter/ProductWrapper
 import {convertCategory, formatCurrency, generateQuery} from "utils/AppUtils";
 import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showInfo, showSuccess, showWarning} from "utils/ToastUtils";
+import {showInfo, showSuccess} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 import { StyledComponent } from "../style";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { CollectionCreateRequest } from "model/product/collection.model";
+import { callApiNative } from "utils/ApiUtils";
+import { productWrapperPutApi } from 'service/product/product.service';
+import{
+  searchProductWrapperApi,
+} from "service/product/product.service";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -275,7 +278,7 @@ const TabProductWrapper: React.FC = () => {
       values.info = info && info.trim();
       let newPrams = { ...params, ...{
           ...values,
-          info: values.info || params.info
+          info: values.info ? values.info : values.info === '' ? null : params.info
         }, page: 1 };
       setParams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -292,59 +295,52 @@ const TabProductWrapper: React.FC = () => {
 
   }, [dispatch, setSearchResultDelete, params]);
 
-  const onUpdateSuccess = useCallback(
-    (result: ProductWrapperUpdateRequest) => {
-      if (result) {
-        setSelected([]);
-        setRowKey([]);
-        dispatch(searchProductWrapperRequestAction(params, setSearchResult));
-        showSuccess("Cập nhật dữ liệu thành công");
-      } else {
-        showWarning("Cập nhật dữ liệu thất bại");
-      }
-    },
-    [dispatch, params, setSearchResult]
-  );
+  const onAcitveSuccess = useCallback(async ()=>{
+    setSelected([]);
+    setRowKey([]);
+    const res = await callApiNative({isShowLoading: false},dispatch, searchProductWrapperApi,params);
+    if (res) {
+      setSearchResult(res);
+    }
+  },[dispatch, params, setSearchResult]); 
 
   const onActive = useCallback(
-    (selected: any) => {
-      let request = {
-        ...selected,
-        status: "active",
-      }; 
-      if (selected.collections) {
-        request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
+    async (selected: any, type: string) => { 
+      for (let index = 0; index < selected.length; index++) {
+        let element = {
+          ...selected[index],
+          status: type,
+        }
+
+        if (element.collections) {
+          element.collections = element.collections.map((e: CollectionCreateRequest)=>e.code);
+        }
+
+        if (!element.id) {
+          return;
+        }
+        const res = await callApiNative({isShowLoading: true},dispatch, productWrapperPutApi,element.id, element);
+        let isError = false;
+        if (!res) {
+          isError= true; 
+        }
+        if (index === selected.length-1 ) {
+          !isError && showSuccess("Cập nhật dữ liệu thành công");
+          onAcitveSuccess();
+        }
       }
-
-      dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
     },
-    [dispatch, onUpdateSuccess]
-  );
-
-  const onInactive = useCallback(
-    (selected: any) => {
-      let request = {
-        ...selected,
-        status: "inactive",
-      };
-      
-      if (selected.collections) {
-        request.collections = selected.collections.map((e: CollectionCreateRequest)=>e.code);
-      }
-
-      dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
-    },
-    [dispatch, onUpdateSuccess]
+    [dispatch, onAcitveSuccess]
   );
 
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
         case ACTIONS_INDEX.ACTIVE:
-          onActive(selected[0]);
+          onActive(selected,"active");
           break;
         case ACTIONS_INDEX.INACTIVE:
-          onInactive(selected[0]);
+          onActive(selected,"inactive");
           break;
         case ACTIONS_INDEX.DELETE:
           setConfirmDelete(true);
@@ -356,7 +352,7 @@ const TabProductWrapper: React.FC = () => {
           break;
       }
     },
-    [onActive, onInactive, selected]
+    [onActive, selected]
   );
 
   const onSelect = useCallback((selectedRow: Array<ProductResponse>) => {

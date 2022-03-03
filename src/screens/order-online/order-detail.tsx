@@ -8,7 +8,6 @@ import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderD
 import SidebarOrderDetailUtm from "component/order/Sidebar/SidebarOrderDetailUtm";
 import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
@@ -23,8 +22,6 @@ import {
 	UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -47,6 +44,7 @@ import {
 	formatCurrency,
 	generateQuery,
 	getAmountPayment,
+	sortFulfillments,
 	SumCOD
 } from "utils/AppUtils";
 import {
@@ -256,19 +254,20 @@ const OrderDetail = (props: PropType) => {
           OrderDetail.fulfillments !== null &&
           OrderDetail.fulfillments.length > 0
         ) {
-          if (OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED) {
+					const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+          if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED || sortedFulfillments[0].status === FulFillmentStatus.CANCELLED) {
             return OrderStatus.FINALIZED;
           }
-          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
             return FulFillmentStatus.PICKED;
           }
-          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
             return FulFillmentStatus.PACKED;
           }
-          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
             return FulFillmentStatus.SHIPPING;
           }
-          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
             return FulFillmentStatus.SHIPPED;
           }
         }
@@ -279,12 +278,6 @@ const OrderDetail = (props: PropType) => {
     return "";
   }, [OrderDetail?.fulfillments, OrderDetail?.status]);
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    // setAccounts(data.items);
-  }, []);
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
     if (!data) {
@@ -525,9 +518,8 @@ const OrderDetail = (props: PropType) => {
   }, [dispatch]);
 
   useLayoutEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListReasonRequest(setReasons));
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (OrderDetail != null) {
@@ -541,8 +533,11 @@ const OrderDetail = (props: PropType) => {
     } else {
       setLoyaltyPoint(null);
     }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customerDetail]);
+
+  useEffect(() => {
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch]);
 
   useEffect(() => {
     if (OrderDetail?.store_id != null) {

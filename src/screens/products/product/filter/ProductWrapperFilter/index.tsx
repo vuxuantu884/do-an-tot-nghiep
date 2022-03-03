@@ -15,7 +15,7 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CategoryView } from "model/product/category.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
-  keysDateWrapperFilter,
+  keysDateWrapperFilter, SearchVariantMapping,
   SearchVariantWrapperField,
   SearchVariantWrapperMapping,
 } from "model/product/product-mapping";
@@ -28,6 +28,7 @@ import { DATE_FORMAT, formatDateFilter, getStartOfDayCommon } from "utils/DateUt
 import { StyledComponent } from "./styled";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import AccountSearchPaging from "../../../../../component/custom/select-search/account-select-paging";
 
 var isWin = false;
 var isDesigner = false;
@@ -93,13 +94,17 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   );
 
   useEffect(() => {
-    const { category_id, material_id } = params;
+    const { category_id, material_id, merchandiser_code, designer_code } = params;
     const filters = {
       ...params,
       [SearchVariantWrapperField.from_create_date]: formatDateFilter(params.from_create_date),
       [SearchVariantWrapperField.to_create_date]: formatDateFilter(params.to_create_date),
       [SearchVariantWrapperField.category_id]: category_id ? Number(category_id) : null,
       [SearchVariantWrapperField.material_id]: material_id ? Number(material_id) : null,
+      [SearchVariantWrapperField.merchandiser_code]: Array.isArray(merchandiser_code) ?
+        merchandiser_code.join() : merchandiser_code !== '' ? merchandiser_code : null,
+      [SearchVariantWrapperField.designer_code]: Array.isArray(designer_code) ?
+        designer_code.join() : designer_code !== '' ? designer_code : null,
     };
 
     setAdvanceFilters(filters);
@@ -245,43 +250,12 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                 switch (key) {
                   case SearchVariantWrapperField.designer_code:
                     component = (
-                      <SelectPaging
-                        metadata={designers.metadata}
-                        showSearch={false}
-                        showArrow
-                        allowClear
-                        searchPlaceholder="Tìm kiếm nhân viên"
-                        placeholder="Chọn thiết kế"
-                        onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                        onSearch={(key) => getAccounts(key, 1, true, false)}
-                      >
-
-                        {designers.items.map((item) => (
-                          <SelectPaging.Option key={item.code} value={item.code}>
-                            {`${item.code} - ${item.full_name}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                      <AccountSearchPaging isFilter placeholder="Chọn thiết kế" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantWrapperField.merchandiser_code:
                     component = (
-                      <SelectPaging
-                        metadata={wins.metadata}
-                        placeholder="Chọn merchandiser"
-                        showSearch={false}
-                        showArrow
-                        allowClear
-                        searchPlaceholder="Tìm kiếm nhân viên"
-                        onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                        onSearch={(key) => getAccounts(key, 1, false, true)}
-                      >
-                        {wins.items.map((item) => (
-                          <SelectPaging.Option key={item.code} value={item.code}>
-                            {`${item.code} - ${item.full_name}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                      <AccountSearchPaging isFilter placeholder="Chọn Merchantdiser" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantWrapperField.status:
@@ -419,14 +393,9 @@ const FilterList = ({
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listStatus[index6].name}`;
               break;
             case SearchVariantWrapperField.merchandiser_code:
-              const win = wins.items.find((e: AccountResponse)=>e.code === value);
-              if (!win) return null;
-              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${win.full_name}`;
-              break;
             case SearchVariantWrapperField.designer_code:
-              const designer = designers.items.find((e: AccountResponse)=>e.code === value);
-              if (!designer) return null;
-              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${designer.full_name}`;
+              if (!value) return null;
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${JSON.parse(value).name}`;
               break;
           }
           return (

@@ -510,7 +510,7 @@ const UpdateTicket: FC = () => {
         arrError.push(`${index + 1}`);
         countError++;
       } else {
-        if (thisInput) thisInput.style.borderColor = "unset";
+        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
 
@@ -624,7 +624,7 @@ const UpdateTicket: FC = () => {
       showError("Không đủ tồn kho gửi");
       if (thisInput) thisInput.style.borderColor = "red";
     } else {
-      if (thisInput) thisInput.style.borderColor = "unset";
+      if (thisInput) thisInput.style.borderColor = "#d9d9d9";
     }
 
     dataLineItems?.forEach((element: VariantResponse, index: number) => {
@@ -638,7 +638,7 @@ const UpdateTicket: FC = () => {
       ) {
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
-        if (thisInput) thisInput.style.borderColor = "unset";
+        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
   };
@@ -690,7 +690,7 @@ const UpdateTicket: FC = () => {
       ) {
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
-        if (thisInput) thisInput.style.borderColor = "unset";
+        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
 
@@ -831,6 +831,7 @@ const UpdateTicket: FC = () => {
             id={`item-quantity-${index}`}
             min={0}
             value={value}
+            className="border-input"
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}

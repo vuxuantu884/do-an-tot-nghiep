@@ -6,7 +6,7 @@ import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { EcommerceType } from "domain/types/ecommerce.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { call, put, takeLatest } from "redux-saga/effects";
+import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -31,6 +31,7 @@ import {
   getOrderMappingListApi,
   exitProgressDownloadEcommerceApi,
   ecommerceSyncStockItemApi, getEcommerceStoreAddressApi, createEcommerceLogisticApi,
+  importConcatenateByExcelService
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -657,6 +658,25 @@ function* createEcommerceLogisticOrder(action: YodyAction){
   }
 }
 
+function* concatenateByExcel(action: YodyAction) {
+  const { file, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(importConcatenateByExcelService, file);
+    if (response.code) {
+      callback(response);
+    } else {
+      callback(null);
+      yield put(unauthorizedAction());
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -701,7 +721,7 @@ export function* ecommerceSaga() {
     ecommerceGetVariantsSaga
   );
 
-  yield takeLatest(
+  yield takeEvery(
     EcommerceType.GET_ECOMMERCE_SHOP_REQUEST,
     ecommerceGetShopSaga
   );
@@ -769,5 +789,11 @@ export function* ecommerceSaga() {
   yield takeLatest(
       EcommerceType.CREATE_ECOMMERCE_LOGISTIC,
       createEcommerceLogisticOrder
+  );
+  
+  // concatenate By Excel
+  yield takeLatest(
+    EcommerceType.CONCANATE_BY_EXCEL,
+    concatenateByExcel
   );
 }

@@ -1,7 +1,7 @@
 import { Col, Form, Input, Modal, Radio, Row, Select } from "antd";
 import { AppConfig } from "config/app.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { SupplierCreateAction } from "domain/actions/core/supplier.action";
+import {SupplierCreateAction, SupplierSearchAction} from "domain/actions/core/supplier.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -30,6 +30,8 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   const [formSupplierAdd] = Form.useForm();
   const { visible, onCancel, onOk } = props;
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
   );
@@ -90,6 +92,24 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     onCancel();
   };
 
+  const validatePhone = (rule: any, value: any, callback: any): void => {
+    if (value) {
+      if (!RegUtil.PHONE.test(value)) {
+        callback(`Số điện thoại không đúng định dạng`);
+      } else {
+        listSupplier.forEach((supplier: SupplierResponse) => {
+          if (supplier?.phone === value) {
+            callback(`Số điện thoại đã tồn tại`);
+          }
+          return
+        })
+        callback();
+      }
+    } else {
+      callback();
+    }
+  };
+
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -97,6 +117,13 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
         setDataAccounts
       )
     );
+    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
+      if(response){
+        setListSupplier(response.items)
+      } else {
+        setListSupplier([]);
+      }
+    }))
   }, [dispatch, setDataAccounts]);
 
   return (
@@ -240,10 +267,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
             <Item
               rules={[
                 { required: true, message: "Vui lòng nhập số điện thoại" },
-                {
-                  pattern: RegUtil.PHONE,
-                  message: "Số điện thoại chưa đúng định dạng",
-                },
+                { validator: validatePhone },
               ]}
               name="phone"
               label="Số điện thoại"

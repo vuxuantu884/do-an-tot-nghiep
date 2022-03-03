@@ -1,6 +1,7 @@
 import React, { CSSProperties, ReactNode } from "react";
 import { SelectProps, Select as ANTSelect } from "antd";
 import classNames from "classnames";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 interface IProps extends SelectProps<any> {
   style?: CSSProperties;
@@ -34,6 +35,13 @@ const CustomSelect = (props: IProps) => {
       <ANTSelect
         className={containerClassName}
         style={containerStyle}
+        filterOption={(input: String, option: any) => {
+          if (option.props.value) {
+            return strForSearch(option.props.children).includes(strForSearch(input));
+          }
+
+          return false;
+        }}
         {...rest}
       />
       {suffix && <div className="custom-select-suffix">{suffix}</div>}

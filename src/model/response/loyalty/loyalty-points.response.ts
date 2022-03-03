@@ -3,6 +3,7 @@ import { BaseObject } from "model/base/base.response";
 export interface LoyaltyPoint {
   customer_id: number | null;
   loyalty_level_id: number | null;
+  loyalty_level: string | null;
   point: number | null;
   total_order_count: number | null;
   total_money_spend: number | null;

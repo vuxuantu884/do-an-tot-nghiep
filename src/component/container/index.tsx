@@ -8,7 +8,6 @@ import {RootReducerType} from "model/reducers/RootReducerType";
 import {getBootstrapAction} from "domain/actions/content/bootstrap.action";
 import classNames from "classnames";
 import {saveSettingAction} from "domain/actions/app.action";
-import {useMemo} from "react";
 import SplashScreen from "screens/splash.screen";
 import UrlConfig from "config/url.config";
 import HeaderContainer from "./header.container";
@@ -30,10 +29,9 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
-  const collapse = useSelector(
-    (state: RootReducerType) => state.appSettingReducer.collapse
+  const collapsed = useSelector(
+    (state: RootReducerType) => Boolean(state.appSettingReducer.collapse)
   );
-  const collapsed = useMemo(() => (collapse ? collapse : false), [collapse]);
   const {isLogin, isLoad: isLoadUser, account} = userReducer;
   const {isLoad} = bootstrapReducer;
   const onCollapsed = useCallback(() => {

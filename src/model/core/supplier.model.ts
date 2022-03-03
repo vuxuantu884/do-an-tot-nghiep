@@ -110,6 +110,7 @@ export interface SupplierDetail extends BaseObject {
 }
 
 export interface SupplierQuery extends BaseQuery {
+  ids?: string,
   country_id?: number,
   city_id?: number,
   district_id?: string,

@@ -211,8 +211,11 @@ const ScreenReturnDetail = (props: PropType) => {
     } else {
       setLoyaltyPoint(null);
     }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customerDetail]);
+
+  useEffect(() => {
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(

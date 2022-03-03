@@ -22,10 +22,12 @@ import {
   PoDetailAction
 } from "domain/actions/po/po.action";
 import { useDispatch } from "react-redux";
-import { ProcurementStatusName } from "../../../utils/Constants";
+import {ProcurementStatus, ProcurementStatusName} from "../../../utils/Constants";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import useAuthorization from "hook/useAuthorization";
+import { StyledComponent } from "../../products/procurement/tabs/TabList/styles";
+import BaseTagStatus from "../../../component/base/BaseTagStatus";
 
 type ProducmentInventoryModalProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
@@ -68,8 +70,8 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
   const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(item);
-  const dispatch = useDispatch(); 
-  
+  const dispatch = useDispatch();
+
   const [allowConfirm] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.procurements_confirm],
   });
@@ -92,7 +94,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
 
   const ActionImport= {
     Ok: useCallback((res)=>{
-      if (poData && poData.id) { 
+      if (poData && poData.id) {
         dispatch(PoDetailAction(poData.id, onDetail));
       }
 
@@ -100,7 +102,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     Cancel: useCallback(()=>{
       setShowImportModal(false);
     },[]),
-  }   
+  }
 
   if (visible) {
     return (
@@ -124,16 +126,22 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         loading={loading}
         isConfirmModal={true}
         title={
-          <div>
+          <StyledComponent>
             {isEdit ? "Sửa phiếu nhập kho " : isDetail ? "Phiếu nhập kho " : "Xác nhận nhập kho "}
-            <span style={{ color: "#2A2A86" }}>{item?.code} - {ProcurementStatusName[String(item?.status)]}</span>
-          </div>
+            <span>
+              {item?.code} - { item?.status === ProcurementStatus.cancelled ? ProcurementStatusName[`${item?.status}`] :
+              <BaseTagStatus color={
+                item?.status === ProcurementStatus.draft ? "gray"
+                : item?.status === ProcurementStatus.not_received ? "blue"
+                  : item?.status === ProcurementStatus.received ? "green"
+                    : undefined
+            }>{ProcurementStatusName[`${item?.status}`]}</BaseTagStatus>}
+            </span>
+          </StyledComponent>
         }
         okText={isEdit ? "Lưu phiếu nhập kho" : (allowConfirm ? "Xác nhận nhập": "")}
       >
         {(onQuantityChange, onRemove, line_items) => {
-          console.log('line_items',line_items);
-          
           return (
             <>
               {!isDetail && (

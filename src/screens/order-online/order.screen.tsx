@@ -42,6 +42,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+	OrderPaymentResponse,
 	OrderResponse,
 	StoreCustomResponse
 } from "model/response/order/order.response";
@@ -602,6 +603,26 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 	}, [visibleBillStep]);
 
+	const mergePaymentData = (payments: OrderPaymentResponse[]) => {
+		let result:OrderPaymentResponse[] = [];
+		payments.forEach(payment => {
+			let existing = result.filter(function(v, i) {
+				return v.payment_method_code === payment.payment_method_code;
+			});
+			if (existing.length) {
+				let existingIndex = result.indexOf(existing[0]);
+				if(result[existingIndex].payment_method_code === PaymentMethodCode.POINT) {
+					result[existingIndex].point = (result[existingIndex]?.point || 0) + (payment?.point || 0);
+				} 
+				result[existingIndex].paid_amount = result[existingIndex].paid_amount + payment.paid_amount;
+				result[existingIndex].amount = result[existingIndex].amount + payment.amount;
+				result[existingIndex].return_amount = result[existingIndex].return_amount + payment.return_amount;
+			} else {
+				result.push(payment);
+			}
+		})
+		return result;
+	};
 	useEffect(() => {
 		if (storeId != null) {
 			dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
@@ -757,7 +778,7 @@ ShippingServiceConfigDetailResponseModel[]
 							}
 							if (response.payments && response.payments?.length > 0) {
 								setPaymentMethod(PaymentMethodOption.PREPAYMENT);
-								new_payments = response.payments;
+								new_payments = mergePaymentData(response.payments);
 								setPayments(new_payments);
 							}
 

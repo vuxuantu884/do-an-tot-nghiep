@@ -2,8 +2,8 @@ import { YodyAction } from 'base/base.action';
 import { PermissionType } from 'domain/types/auth.type';
 
 const intitalState = {
-    role: null,
-    modules: null
+  permissions: null,
+  user_id: null
 };
 
 const permissionReducer = (state = intitalState, action: YodyAction) => {

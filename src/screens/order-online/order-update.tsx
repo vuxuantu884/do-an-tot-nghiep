@@ -88,6 +88,7 @@ import {
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
 	reCalculatePaymentReturn,
+	sortFulfillments,
 	SumCOD,
 	SumWeightResponse,
 	totalAmount,
@@ -209,50 +210,53 @@ ShippingServiceConfigDetailResponseModel[]
 
 	const [isDisableSelectSource, setIsDisableSelectSource] = useState(false)
 
-	const stepsStatus = () => {
-		if (OrderDetail?.status === OrderStatus.DRAFT) {
-			return OrderStatus.DRAFT;
-		}
+	const stepsStatusValue = useMemo(() => {
+    if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return OrderStatus.DRAFT;
+    }
 
-		if (OrderDetail?.status === OrderStatus.CANCELLED) {
-			return OrderStatus.CANCELLED;
-		}
-		if (OrderDetail?.status === OrderStatus.FINISHED) {
-			return FulFillmentStatus.SHIPPED;
-		}
-		if (OrderDetail?.status === OrderStatus.FINALIZED) {
-			if (!OrderDetail?.fulfillments || OrderDetail.fulfillments?.length === 0) {
-				return OrderStatus.FINALIZED;
-			} else {
-				if (
-					OrderDetail.fulfillments !== undefined &&
-					OrderDetail.fulfillments !== null &&
-					OrderDetail.fulfillments.length > 0
-				) {
-					if (OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED) {
-						return OrderStatus.FINALIZED;
-					}
-					if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
-						return FulFillmentStatus.PICKED;
-					}
-					if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
-						return FulFillmentStatus.PACKED;
-					}
-					if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING) {
-						return FulFillmentStatus.SHIPPING;
-					}
-					if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED) {
-						return FulFillmentStatus.SHIPPED;
-					}
-				}
-			}
-		} else if (OrderDetail?.status === OrderStatus.FINISHED) {
-			return FulFillmentStatus.SHIPPED;
-		}
-		return "";
-	};
-
-	let stepsStatusValue = stepsStatus();
+    if (OrderDetail?.status === OrderStatus.CANCELLED) {
+      return OrderStatus.CANCELLED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINALIZED) {
+      if (
+        OrderDetail.fulfillments === undefined ||
+        OrderDetail.fulfillments === null ||
+        OrderDetail.fulfillments.length === 0
+      ) {
+        return OrderStatus.FINALIZED;
+      } else {
+        if (
+          OrderDetail.fulfillments !== undefined &&
+          OrderDetail.fulfillments !== null &&
+          OrderDetail.fulfillments.length > 0
+        ) {
+					const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+          if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED || sortedFulfillments[0].status === FulFillmentStatus.CANCELLED) {
+            return OrderStatus.FINALIZED;
+          }
+          if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
+            return FulFillmentStatus.PICKED;
+          }
+          if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
+            return FulFillmentStatus.PACKED;
+          }
+          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
+            return FulFillmentStatus.SHIPPING;
+          }
+          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
+            return FulFillmentStatus.SHIPPED;
+          }
+        }
+      }
+    } else if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    return "";
+  }, [OrderDetail?.fulfillments, OrderDetail?.status]);
 
 	const setLevelOrder = useCallback(() => {
 		switch (OrderDetail?.status) {
