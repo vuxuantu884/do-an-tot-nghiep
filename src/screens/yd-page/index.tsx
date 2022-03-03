@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useCallback, useState } from "react";
 import YDPageOrders from "./yd-page-order-create/YDPageOrders";
 import YDPageCustomer from "screens/yd-page/yd-page-customer/YDPageCustomer";
@@ -232,6 +233,7 @@ function YDPageAdmin() {
             addFpPhone={addFpPhone}
             deleteFpPhone={deleteFpPhone}
             setFpDefaultPhone={setFpDefaultPhone}
+						setCustomerDefaultPhone={setCustomerDefaultPhone}
           />
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>}>

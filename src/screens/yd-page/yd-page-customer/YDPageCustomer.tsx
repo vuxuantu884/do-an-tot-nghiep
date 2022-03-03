@@ -29,6 +29,7 @@ const YDPageCustomer = (props: any) => {
     deleteFpPhone,
     setFpDefaultPhone,
     customerGroups,
+		setCustomerDefaultPhone
   } = props;
 
   const [allowCreateCustomer] = useAuthorization({
@@ -60,6 +61,7 @@ const YDPageCustomer = (props: any) => {
                 addFpPhone={addFpPhone}
                 deleteFpPhone={deleteFpPhone}
                 setFpDefaultPhone={setFpDefaultPhone}
+								setCustomerDefaultPhone={setCustomerDefaultPhone}
               />
             }
 
@@ -80,6 +82,7 @@ const YDPageCustomer = (props: any) => {
                 addFpPhone={addFpPhone}
                 deleteFpPhone={deleteFpPhone}
                 setFpDefaultPhone={setFpDefaultPhone}
+								setCustomerDefaultPhone={setCustomerDefaultPhone}
               />
             }
           </>
