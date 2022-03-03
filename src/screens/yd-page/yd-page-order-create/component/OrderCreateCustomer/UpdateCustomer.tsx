@@ -6,8 +6,15 @@ import {
   UserOutlined
 } from "@ant-design/icons";
 import {
-  Button, Col, Divider, Form, FormInstance, Input, Popover, Row,
-  Select
+  Button, 
+	Col, 
+	Divider, 
+	Form, 
+	FormInstance, 
+	Input, 
+	Row,
+  Select,
+	Modal
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
@@ -65,11 +72,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   // const formRefCustomer = createRef<FormInstance>();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
-    useState(false);
+  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
-  const [isVisibleChangeAddress, setVisibleChangeAddress] = useState(false)
+  const [visibleModalChangeAddress, setVisibleModalChangeAddress] = useState(false)
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
     []
@@ -280,14 +286,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     if (shippingAddress) shippingAddressForm.resetFields();
   }, [shippingAddressForm, shippingAddress]);
 
-  const handleVisiblePopover = () => {
-    setVisibleChangeAddress(!isVisibleChangeAddress);
-  }
-
-
   return (
     <StyledComponent>
-      <Row style={{ margin: "10px 0px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Row style={{ margin: "10px 0px", display: "none", justifyContent: "space-between", alignItems: "center" }}>
         <div className="page-filter-left font-weight-500">ĐỊA CHỈ GIAO HÀNG</div>
           {isVisibleBtnUpdate && shippingAddress && (
               <Button
@@ -487,69 +488,50 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             {!isVisibleCollapseCustomer && (
               <Row style={{ margin: 0, color: "#5656A1", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                 <div className="page-filter-left" style={{ width: "15%" }}>
-                  {/* <Button
-                    type="link"
-                    icon={<DownOutlined />}
-                    style={{ padding: "0px" }}
-                    onClick={() => {
-                      setVisibleCollapseCustomer(true);
-                    }}
-                  >
-                    Xem thêm
-                  </Button> */}
-
-                  <Popover
-                    placement="left"
-                    overlayStyle={{ zIndex: 17 }}
-                    visible={isVisibleChangeAddress}
-                    onVisibleChange={handleVisiblePopover}
-                    title={
-                      <Row
-                        justify="space-between"
-                        align="middle"
-                        className="change-shipping-address-title"
-                        style={{ width: "100%" }}
-                      >
-                        <div
-                          style={{
-                            color: "#4F687D",
-                          }}
-                        >
-                          Thay đổi địa chỉ
-                        </div>
-                        <Button
-                          type="link"
-                          icon={<PlusOutlined />}
-                          onClick={ShowAddressModalAdd}
-                        >
-                          Thêm địa chỉ mới
-                        </Button>
-                      </Row>
-                    }
-                    content={
-                      <CustomerShippingAddressOrder
-                        customer={customer}
-                        handleChangeCustomer={handleChangeCustomer}
-                        handleShippingEdit={ShowAddressModalEdit}
-                        handleShippingDelete={showAddressModalDelete}
-                        handleSingleShippingAddress={setSingleShippingAddress}
-                        handleShippingAddress={ShippingAddressChange}
-                        setVisibleChangeAddress={setVisibleChangeAddress}
-                      />
-                    }
-                    trigger="click"
-                    className="change-shipping-address"
-                  >
-                      <Button
-                        type="link"
-                        className="btn-style"
-                        style={{ padding: "0px" }}
-                        onClick={() => setVisibleChangeAddress(true)}
-                      >
-                        Đổi địa chỉ giao hàng
-                      </Button>
-
-                  </Popover>
+									<Button
+										type="link"
+										className="btn-style"
+										style={{ padding: "0px" }}
+										onClick={() => setVisibleModalChangeAddress(true)}
+									>
+										Đổi địa chỉ giao hàng
+									</Button>
+									<Modal
+										visible={visibleModalChangeAddress}
+										cancelText="Đóng"
+										onCancel={() => setVisibleModalChangeAddress(false)}
+									>
+										<Row
+											justify="space-between"
+											align="middle"
+											className="change-shipping-address-title"
+											style={{ width: "100%" }}
+										>
+											<div
+												style={{
+													color: "#4F687D",
+												}}
+											>
+												Thay đổi địa chỉ
+											</div>
+											<Button
+												type="link"
+												icon={<PlusOutlined />}
+												onClick={ShowAddressModalAdd}
+											>
+												Thêm địa chỉ mới
+											</Button>
+										</Row>
+										<CustomerShippingAddressOrder
+											customer={customer}
+											handleChangeCustomer={handleChangeCustomer}
+											handleShippingEdit={ShowAddressModalEdit}
+											handleShippingDelete={showAddressModalDelete}
+											handleSingleShippingAddress={setSingleShippingAddress}
+											handleShippingAddress={ShippingAddressChange}
+											setVisibleChangeAddress={setVisibleModalChangeAddress}
+										/>
+									</Modal>
                 </div>
         
                 <div className="page-filter-right" style={{ width: "30%" }}>
@@ -576,53 +558,49 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 orientation="right"
                 style={{ color: "#5656A1", marginTop: 0 }}
               >
-                <Popover
-                  placement="left"
-                  overlayStyle={{ zIndex: 17 }}
-                  title={
-                    <Row
-                      justify="space-between"
-                      align="middle"
-                      className="change-shipping-address-title"
-                      style={{ width: "100%" }}
-                    >
-                      <div
-                        style={{
-                          color: "#4F687D",
-                        }}
-                      >
-                        Thay đổi địa chỉ
-                      </div>
-                      <Button
-                        type="link"
-                        icon={<PlusOutlined />}
-                        onClick={ShowAddressModalAdd}
-                      >
-                        Thêm địa chỉ mới
-                      </Button>
-                    </Row>
-                  }
-                  content={
-                    <CustomerShippingAddressOrder
-                      customer={customer}
-                      handleChangeCustomer={handleChangeCustomer}
-                      handleShippingEdit={ShowAddressModalEdit}
-                      handleShippingDelete={showAddressModalDelete}
-                      handleSingleShippingAddress={setSingleShippingAddress}
-                    />
-                  }
-                  trigger="click"
-                  className="change-shipping-address"
-                >
-                  <Button
-                    type="link"
-                    icon={<PlusOutlined />}
-                    className="btn-style"
-                    style={{ paddingRight: 0 }}
-                  >
-                    Thay đổi địa chỉ giao hàng
-                  </Button>
-                </Popover>
+								<Button
+									type="link"
+									icon={<PlusOutlined />}
+									className="btn-style"
+									style={{ paddingRight: 0 }}
+									onClick={() => setVisibleModalChangeAddress(false)}
+								>
+									Thay đổi địa chỉ giao hàng
+								</Button>
+								<Modal
+									visible={visibleModalChangeAddress}
+									cancelText="Đóng"
+									onCancel={() => setVisibleModalChangeAddress(false)}
+								>
+									<Row
+										justify="space-between"
+										align="middle"
+										className="change-shipping-address-title"
+										style={{ width: "100%" }}
+									>
+										<div
+											style={{
+												color: "#4F687D",
+											}}
+										>
+											Thay đổi địa chỉ
+										</div>
+										<Button
+											type="link"
+											icon={<PlusOutlined />}
+											onClick={ShowAddressModalAdd}
+										>
+											Thêm địa chỉ mới
+										</Button>
+									</Row>
+									<CustomerShippingAddressOrder
+										customer={customer}
+										handleChangeCustomer={handleChangeCustomer}
+										handleShippingEdit={ShowAddressModalEdit}
+										handleShippingDelete={showAddressModalDelete}
+										handleSingleShippingAddress={setSingleShippingAddress}
+									/>
+								</Modal>
               </Divider>
             )}
           </div>
