@@ -73,9 +73,6 @@ function tagRender(props: any) {
   );
 }
 
-var isWin = false;
-var isDesigner = false;
-
 const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   props: InventoryFilterProps
 ) => {
@@ -124,49 +121,57 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   );
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
-  const setDataAccounts = useCallback(
+  const setDataDesigners = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return false;
-      }
-      if (isWin) {
-        setWins((wins) => {
-          return {
-            ...wins,
-            items: [
-              ...wins.items,
-              ...data.items
-            ],
-            metadata: data.metadata,
-          }
-        });
-      }
-      if (isDesigner) {
-        setDeisgner((designer) => {
-          return {
-            ...designer,
-            items: [
-              ...designer.items,
-              ...data.items
-            ],
-            metadata: data.metadata,
-          }
-        });
-      }
+      if (!data) return;
+      setDeisgner((designer) => {
+        return {
+          ...designer,
+          items: [
+            ...designer.items,
+            ...data.items
+          ],
+          metadata: data.metadata,
+        }
+      });
     },
     []
   );
 
-  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
-    isDesigner = designer;
-    isWin = win;
+  const setDataWins = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) return;
+      setWins((wins) => {
+        return {
+          ...wins,
+          items: [
+            ...wins.items,
+            ...data.items
+          ],
+          metadata: data.metadata,
+        }
+      });
+    },
+    []
+  );
+
+  const getDesigners = useCallback((code: string, page: number) => {
     dispatch(
       AccountSearchAction(
-        { codes: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
-        setDataAccounts
+        { codes: code, page: page },
+        setDataDesigners
       )
     );
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch, setDataDesigners]);
+
+  const getWins = useCallback((code: string, page: number) => {
+    dispatch(
+      AccountSearchAction(
+        { codes: code, page: page },
+        setDataWins
+      )
+    );
+  }, [dispatch, setDataWins]);
 
   useEffect(() => {
     const {
@@ -179,8 +184,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       store_ids: params.store_ids ? params.store_ids.map((i: string) => Number(i)) : [],
     };
 
-    if (designer_codes && designer_codes !== '') getAccounts(designer_codes, 1, true, false);
-    if (merchandiser_codes && merchandiser_codes !== '') getAccounts(merchandiser_codes, 1, false, true);
+    if (designer_codes && designer_codes !== '') getDesigners(designer_codes, 1);
+    if (merchandiser_codes && merchandiser_codes !== '') getWins(merchandiser_codes, 1);
 
     formAdvanceFilter.setFieldsValue(filter);
     formBaseFilter.setFieldsValue(filter);
@@ -480,8 +485,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [params, dispatch,getConfigInventory, setDataCategory, setDataCollection]);
 
   useEffect(()=>{
-    getAccounts('', 1, true, true);
-  },[getAccounts]);
+    getWins('', 1);
+    getDesigners('', 1);
+  },[getWins, getDesigners]);
 
   return (
       <div className="inventory-filter">
@@ -624,7 +630,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     <AccountSearchPaging
                       mode="multiple"
                       placeholder="Chọn nhà thiết kế"
-                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
                   </Item>
                 </Col>
@@ -633,7 +638,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     <AccountSearchPaging
                       mode="multiple"
                       placeholder="Chọn Merchandiser"
-                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
                   </Item>
                 </Col>
