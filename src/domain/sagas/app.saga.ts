@@ -64,7 +64,7 @@ function* fetchApiErrorSaga(action: YodyAction) {
       showError(`${textApiInformation}: ${response?.message}`);
       break;
     case HttpStatus.SERVER_ERROR:
-      showError(`${textApiInformation}: ${response?.message}`);
+      response?.errors?.forEach((e:any) => showError(e));
       break;
     case HttpStatus.BAD_REQUEST:
       response?.errors?.forEach((e:any) => showError(e));

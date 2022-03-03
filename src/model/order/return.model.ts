@@ -48,3 +48,8 @@ export interface ReturnSearchQuery {
   account_codes: [];
   reason_ids: [];
 }
+
+export interface ReturnCalculateRefundModel {
+  money_refund: number; 
+  point_refund: number; 
+}
