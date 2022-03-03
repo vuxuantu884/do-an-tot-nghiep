@@ -70,7 +70,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     useState(false);
 
   const [isVisibleShipping, setVisibleShipping] = useState(true);
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(true);
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
     []
@@ -289,6 +289,35 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   );
 
   const onOkPress = useCallback(() => {
+    const value = customerForm.getFieldsValue();
+    if (value.phone === "") {
+      showError("Vui lòng nhập Số điện thoại");
+    }
+
+    if (value.ward_id === null) {
+      showError("Vui lòng chọn phường xã");
+    }
+
+    if (value.district_id === null) {
+      showError("Vui lòng chọn khu vực");
+    }
+
+    if (value.full_address === null) {
+      showError("Vui lòng nhập địa chỉ giao hàng");
+    }
+
+    if (
+      value.phone === "" 
+      &&
+      value.ward_id === null
+      &&
+      value.district_id === null
+      &&
+      value.full_address === null
+    ) {
+      showError("Vui lòng điền đầy đủ thông tin");
+    }
+
     customerForm.submit();
   }, [customerForm]);
 
@@ -457,7 +486,15 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             </Form.Item>
           </Col>
           <Col span={24}>
-            <Form.Item name="full_address">
+            <Form.Item 
+              name="full_address"
+              rules= {[
+                {
+                  required: true,
+                  message: "Vui lòng nhập địa chỉ giao hàng"
+                }
+              ]}
+            >
               <Input
                 placeholder="Địa chỉ"
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
