@@ -198,6 +198,7 @@ function CardReturnProducts(props: PropType) {
                 maxLength={4}
                 minLength={0}
                 style={{width: 100}}
+                isChangeAfterBlur={false}
               />{" "}
               / {record.maxQuantityCanBeReturned}
             </div>

@@ -1,7 +1,7 @@
 import {
   Button, Form, FormInstance,
   Input,
-  InputNumber, Modal, Select
+  Modal, Select
 } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import React, { createRef, useEffect, useState } from "react";
