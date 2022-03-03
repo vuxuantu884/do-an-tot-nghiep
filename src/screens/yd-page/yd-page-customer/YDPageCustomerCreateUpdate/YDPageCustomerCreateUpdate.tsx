@@ -145,8 +145,13 @@ const YDPageCustomerCreateUpdate = (props: any) => {
   };
   // end update customer phone
 
-  // handle select gender
-  const onSelectGender = (value: string,) => {
+  // handle select customer
+  const onSelectCustomer = (value: string,) => {
+    updateNewCustomerInfo("customer_group_id", value);
+  };
+
+  //handle select gender
+  const onSelectGender = (value: string) => {
     updateNewCustomerInfo("gender", value);
   };
 
@@ -370,6 +375,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                 showSearch
                 allowClear
                 optionFilterProp="children"
+                onChange={onSelectCustomer}
                 placeholder={
                   <React.Fragment>
                     {/* <TeamOutlined style={{ color: "#71767B" }} /> */}

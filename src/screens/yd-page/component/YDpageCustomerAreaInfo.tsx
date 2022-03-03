@@ -55,7 +55,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
   };
   
 
-  const handleChangeArea = (districtId: string) => {
+  const handleChangeArea = (districtId: number) => {
     if (districtId) {
       setDistrictId(districtId);
       let area = areaList.find((item: any) => item.id === districtId);
@@ -68,8 +68,8 @@ const YDpageCustomerAreaInfo = (props: any) => {
       setCityId(area?.city_id);
       updateNewCustomerInfo("city_id", area?.city_id);
       updateNewCustomerInfo("district_id", districtId);
-      updateNewCustomerInfo("ward_id", null);
-      updateNewCustomerInfo("full_address", "");
+      // updateNewCustomerInfo("ward_id", null);
+      // updateNewCustomerInfo("full_address", "");
     }
   };
 
@@ -99,6 +99,11 @@ const YDpageCustomerAreaInfo = (props: any) => {
     updateNewCustomerInfo("ward_id", null);
     updateNewCustomerInfo("full_address", "");
   };
+
+  const handleBlurAddress = (value: any) => {
+    updateNewCustomerInfo("full_address", value.trim());
+    form.setFieldsValue({ "full_address": value.trim() })
+  }
 
   useEffect(() => {
     if (districtId) {
@@ -159,6 +164,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
           <Input
             maxLength={500}
             placeholder={"Địa chỉ"}
+            onBlur={(value) => handleBlurAddress(value.target.value)}
             disabled={isDisable}
           />
         </Form.Item>
