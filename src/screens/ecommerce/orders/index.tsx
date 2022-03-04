@@ -60,7 +60,7 @@ import { nameQuantityWidth, StyledComponent, } from "screens/ecommerce/orders/or
 import useAuthorization from "hook/useAuthorization";
 import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { getToken } from "utils/LocalStorageUtils";
 import axios from "axios";
@@ -69,13 +69,15 @@ import { HttpStatus } from "config/http-status.config";
 import { FulFillmentStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { exitProgressDownloadEcommerceAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
-import { generateQuery, isNullOrUndefined } from "utils/AppUtils";
+import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { changeOrderStatusToPickedService } from "service/order/order.service";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -157,6 +159,7 @@ const EcommerceOrders: React.FC = () => {
   //   []
   // );
 
+  const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -577,8 +580,9 @@ const EcommerceOrders: React.FC = () => {
     // },
   ]);
 
-  const onSelectTableRow = useCallback((selectedRow) => {
-    const newSelectedRow = selectedRow.filter((row: any) => {
+  const onSelectTableRow = useCallback((selectedRowTable) => {
+    setSelectedRow(selectedRowTable);
+    const newSelectedRow = selectedRowTable.filter((row: any) => {
       return row !== undefined;
     });
 
@@ -671,6 +675,32 @@ const EcommerceOrders: React.FC = () => {
     [selectedRowKeys]
   );
 
+  const handlePrintShipment = () => {
+    let ids: number[] = [];
+    selectedRow.forEach((row) =>
+      row.fulfillments?.forEach((single) => {
+        ids.push(single.id);
+      })
+    );
+
+    dispatch(showLoading());
+    changeOrderStatusToPickedService(ids)
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
+        } else {
+          handleFetchApiError(response, "In phiếu giao hàng", dispatch)
+        }
+      })
+      .catch((error) => {
+        console.log("error", error);
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
+
+    printAction("shipment");
+  }
+
   const actions = [
     {
       id: 1,
@@ -684,7 +714,7 @@ const EcommerceOrders: React.FC = () => {
       name: "In phiếu giao hàng",
       icon: <PrinterOutlined />,
       disabled: !selectedRowKeys?.length,
-      onClick: () => printAction("shipment")
+      onClick: () => handlePrintShipment()
     },
     {
       id: 3,

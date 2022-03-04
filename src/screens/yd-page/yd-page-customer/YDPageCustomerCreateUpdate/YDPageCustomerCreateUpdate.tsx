@@ -34,6 +34,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
+		setCustomerDefaultPhone
   } = props;
 
   const [form] = Form.useForm();
@@ -141,6 +142,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
       updateNewCustomerInfo("phone", phone);
       form.setFieldsValue({ phone: phone });
       getCustomerWhenPhoneChange(phone);
+			setCustomerDefaultPhone(phone)
     }
   };
   // end update customer phone
@@ -307,6 +309,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
               <Input
                 disabled={true}
                 placeholder="Nhập số điện thoại"
+								className="phone-disabled"
               />
             </Form.Item>
 
@@ -325,7 +328,11 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                 customerPhones.map((phone: any, index: any) => (
                   <Tag
                     key={index}
-                    style={{ cursor: "pointer" }}
+                    style={{ 
+											cursor: "pointer",
+											borderColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+											backgroundColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+										}}
                     onClick={() => onSelectPhone(phone)}>
                     {phone}
                     <img
@@ -349,6 +356,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
             isDisable={isDisableForm()}
             newCustomerInfo={newCustomerInfo}
             setNewCustomerInfo={setNewCustomerInfo}
+						updateNewCustomerInfo={(fieldName: string, value: any) => updateNewCustomerInfo(fieldName, value)}
           />
 
           {/*customer card, group*/}
@@ -378,7 +386,6 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                 onChange={onSelectCustomer}
                 placeholder={
                   <React.Fragment>
-                    {/* <TeamOutlined style={{ color: "#71767B" }} /> */}
                     <span> Nhóm khách hàng</span>
                   </React.Fragment>
                 }

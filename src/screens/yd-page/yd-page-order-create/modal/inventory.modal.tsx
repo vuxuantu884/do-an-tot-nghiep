@@ -61,7 +61,6 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
 
   const onSearchInventory = useCallback((value: string) => {
     let _item: StoreResponse[] | any = storeArrayResponse?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
-    console.log("_item", _item);
     setsStoreData(_item);
   }, [storeArrayResponse])
 
@@ -139,6 +138,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       width={900}
       onOk={handleOk}
       onCancel={handleCancel}
+			bodyStyle={{ padding: "25px 8px" }}
     >
       <Row gutter={24}>
         <Col md={12}>
@@ -160,25 +160,25 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
               <table className="rules">
                 <thead>
                   <tr>
-                    <th className="condition">Sản phẩm</th>
+                    <th className="condition" style={{ minWidth: '150px' }}>Sản phẩm</th>
                     {columnsItem?.map((data, index) => (
-                      <th className="condition" key={index}>{data.variant}</th>
+                      <th className="condition" key={index} style={{ minWidth: '90px' }}>{data.variant}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="condition">Khách đặt</td>
+                    <td className="condition" style={{ minWidth: '150px' }}>Khách đặt</td>
                     {columnsItem?.map((data, index) => (
-                      <td className="condition" key={index}>{data.quantity}</td>
+                      <td className="condition" key={index} style={{ minWidth: '90px' }}>{data.quantity}</td>
                     ))}
                   </tr>
                 </tbody>
                 <thead>
                   <tr>
-                    <th className="condition">Tổng có thế bán</th>
+                    <th className="condition" style={{ minWidth: '150px' }}>Tổng có thế bán</th>
                     {columnsItem?.map((data, index) => (
-                      <th className="condition" key={index}>{setAllAvailable(data.variant_id)}</th>
+                      <th className="condition" key={index} style={{ minWidth: '90px' }}>{setAllAvailable(data.variant_id)}</th>
                     ))}
                   </tr>
                 </thead>
@@ -186,21 +186,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                 <tbody>
                   {data?.map((item, index) => (
                     <tr key={index}>
-                      <th className="condition" key={index}>
-                        {/* <Checkbox
-                                  defaultChecked={false}
-                                  onChange={(e) => onChangePreventIndex(e.target.checked, index)}
-                                /> {data.name} */}
+                      <th className="condition" key={index} style={{ minWidth: '150px' }}>
                         <Radio value={item.id}>{item.name}</Radio>
                       </th>
-                      {/* {Object.keys(item.data).map((key: any) => (
-                        <td className="condition" key={key}>
-                          {item.data[key]}
-                        </td>
-                      ))} */}
-
                       {columnsItem?.map((_itemi, index) => (
-                        <td className="condition" key={_itemi.variant_id}>
+                        <td className="condition" key={_itemi.variant_id} style={{ minWidth: '90px' }}>
                           {item.data[_itemi.variant_id]}
                         </td>
                       ))}

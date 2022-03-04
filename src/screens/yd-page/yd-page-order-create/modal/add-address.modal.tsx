@@ -10,7 +10,7 @@ import {
   getCustomerDetailAction,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
-import {CustomerShippingAddress} from "model/request/customer.request";
+import {CustomerShippingAddress, YDpageCustomerRequest} from "model/request/customer.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
 import {ShippingAddress} from "model/response/order/order.response";
 import React, {useCallback} from "react";
@@ -30,6 +30,7 @@ type AddAddressModalProps = {
   modalAction: modalActionType;
   onCancel: () => void;
   onOk: () => void;
+	newCustomerInfo?: YDpageCustomerRequest;
 };
 
 type FormValueType = {
@@ -46,7 +47,7 @@ type FormValueType = {
 };
 
 const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalProps) => {
-  const {visible, onCancel, formItem, modalAction, customer, handleChangeCustomer} =
+  const {visible, onCancel, formItem, modalAction, customer, handleChangeCustomer, newCustomerInfo} =
     props;
 
   const [form] = Form.useForm();
@@ -85,8 +86,8 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
         }
       : {
           id: null,
-          name: "",
-          phone: "",
+          name: newCustomerInfo ? newCustomerInfo.full_name : "",
+          phone: newCustomerInfo ? newCustomerInfo.phone : "",
           country_id: 233,
           district_id: null,
           city_id: null,
