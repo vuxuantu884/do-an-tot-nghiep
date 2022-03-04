@@ -1,7 +1,7 @@
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
-import {  useCallback, useEffect, useMemo, useState, lazy } from "react";
+import { useCallback, useEffect, useMemo, useState, lazy } from "react";
 import { useDispatch } from "react-redux";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { getQueryParams, useQuery } from "utils/useQuery";
