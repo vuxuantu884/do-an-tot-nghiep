@@ -45,6 +45,7 @@ const initCustomerInfo: YDpageCustomerRequest = {
   ward_id: null,
   full_address: null,
   card_number: null,
+	customer_group_id: null
 };
 
 function YDPageAdmin() {
@@ -132,6 +133,7 @@ function YDPageAdmin() {
         dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [customerPhone, dispatch, searchByPhoneCallback]
   );
 
@@ -217,6 +219,7 @@ function YDPageAdmin() {
         activeKey={activeTabKey}
         onChange={(value: string) => handleOnchangeTabs(value)}
       >
+				{console.log(newCustomerInfo)}
         <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}>
           <YDPageCustomer
             customer={customer}

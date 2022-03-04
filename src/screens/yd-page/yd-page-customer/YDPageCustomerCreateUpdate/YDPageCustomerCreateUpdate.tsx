@@ -356,6 +356,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
             isDisable={isDisableForm()}
             newCustomerInfo={newCustomerInfo}
             setNewCustomerInfo={setNewCustomerInfo}
+						updateNewCustomerInfo={(fieldName: string, value: any) => updateNewCustomerInfo(fieldName, value)}
           />
 
           {/*customer card, group*/}
@@ -385,7 +386,6 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                 onChange={onSelectCustomer}
                 placeholder={
                   <React.Fragment>
-                    {/* <TeamOutlined style={{ color: "#71767B" }} /> */}
                     <span> Nhóm khách hàng</span>
                   </React.Fragment>
                 }
