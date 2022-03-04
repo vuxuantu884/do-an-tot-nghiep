@@ -540,7 +540,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   return (
     <>
-      <div style={{ padding: "0px 24px 0 24px" }}>
+      <div className="yody-pack-row">
         <PackFilter
           params={params}
           isLoading={false}
@@ -551,7 +551,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           onClearFilter={onClearFilter}
         />
       </div>
-      <div style={{ padding: "0px 24px 0 24px" }}>
+      <div className="yody-pack-row">
         {data.items && (
           <CustomTable
             isRowSelection
@@ -568,21 +568,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               onShowSizeChange: onPageChange,
             }}
             onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            // expandable={{
-            //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
-            // }}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             dataSource={data.items}
             columns={columnFinal}
             rowKey={(item: GoodsReceiptsSearhModel) => item.id_handover_record}
-            className="order-list"
-          //key={Math.random()}
-          // onRow={(record: GoodsReceiptsSearhModel) => {
-          //   return {
-          //     onClick: () => {
-          //     }, // click row
-          //   };
-          // }}
           />
         )}
       </div>

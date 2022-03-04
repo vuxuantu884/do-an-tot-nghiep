@@ -1,4 +1,3 @@
-
 @import "assets/css/variable";
 .order-list {
   .txt-muted {
@@ -33,19 +32,17 @@
     text-align: center;
     white-space: unset;
   }
-  
-  .ant-table-content{
+
+  .ant-table-content {
     .ant-table-tbody {
       .ant-table-row {
-        
-        .ant-table-cell{
-
+        .ant-table-cell {
           .items {
             .item {
               display: flex;
               border-bottom: 1px solid #5252;
               .item-sku {
-                width: 80%
+                width: 80%;
               }
               .item-quantity {
                 width: 20%;
@@ -57,11 +54,10 @@
           }
           .customer {
             .name {
-              color: #2A2A86;
+              color: #2a2a86;
             }
           }
         }
-        
       }
       .ant-table-row-selected {
         background-color: #c45dbb !important;
@@ -69,4 +65,8 @@
     }
   }
 }
-
+.return-card {
+  .ant-card-body {
+    padding-top: 0px;
+  }
+}
