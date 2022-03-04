@@ -36,10 +36,10 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
+import CustomerShippingAddressOrder from "./customer-shipping";
 
 type UpdateCustomerProps = {
   areas: any;

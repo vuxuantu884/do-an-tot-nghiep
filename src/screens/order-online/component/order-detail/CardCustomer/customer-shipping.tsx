@@ -66,7 +66,7 @@ function CustomerShippingAddressOrder(props: any) {
       dataIndex: "",
       align: "center",
       visible: true,
-      width: "5%",
+      width: "10%",
       render: (value, row, index) => {
         return <span>{index + 1}</span>;
       },
