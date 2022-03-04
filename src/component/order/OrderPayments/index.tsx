@@ -1,14 +1,17 @@
 import { ArrowLeftOutlined, BugOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Row } from "antd";
+import { Button, Checkbox, Col, Input, Row, Select } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import Cash from "component/icon/Cash";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 import YdCoin from "component/icon/YdCoin";
+import { changeSelectedStoreBankAccountAction, setIsExportBillAction } from "domain/actions/order/order.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { formatCurrency, getAmountPayment, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { yellowColor } from "utils/global-styles/variables";
@@ -46,6 +49,21 @@ function OrderPayments(props: PropType): JSX.Element {
     setPayments,
   } = props;
 
+  const dispatch = useDispatch();
+
+  const storeBankAccountNumbers = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderStore.storeBankAccountNumbers
+  );
+
+  const selectedStoreBankAccount = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderStore.selectedStoreBankAccount
+  );
+
+  const isExportBill = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
+  );
+   
+
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [listPaymentMethod]);
@@ -54,6 +72,29 @@ function OrderPayments(props: PropType): JSX.Element {
     let usageRate = loyaltyRate?.usage_rate ? loyaltyRate.usage_rate : 0;
     return usageRate;
   }, [loyaltyRate]);
+
+  console.log('payments', payments)
+
+  const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
+    let paymentsResult = [...payments]
+    let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
+    if(bankPaymentIndex > -1) {
+      if(selectedStoreBankAccount) {
+        let abc = storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount);
+        if(abc) {
+          paymentsResult[bankPaymentIndex].bank_account_id = abc.id;
+          paymentsResult[bankPaymentIndex].bank_account_number = abc.account_number;
+          paymentsResult[bankPaymentIndex].bank_account_holder = abc.account_holder;
+
+        }
+      } else {
+        paymentsResult[bankPaymentIndex].paid_amount = 0;
+        paymentsResult[bankPaymentIndex].amount = 0;
+        paymentsResult[bankPaymentIndex].return_amount = 0;
+      }
+    }
+    setPayments(paymentsResult);
+  }, [selectedStoreBankAccount, setPayments, storeBankAccountNumbers]);
 
   /**
    * tổng số tiền đã trả
@@ -72,7 +113,7 @@ function OrderPayments(props: PropType): JSX.Element {
     payments[index].amount = point * usageRate;
     payments[index].paid_amount = point * usageRate;
     payments[index].payment_method_code = PaymentMethodCode.POINT;
-    setPayments([...payments]);
+    handlePayment([...payments]);
   };
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
@@ -101,7 +142,7 @@ function OrderPayments(props: PropType): JSX.Element {
     } else {
       payments.splice(indexPayment, 1);
     }
-    setPayments([...payments]);
+    handlePayment([...payments]);
   };
   const handleInputMoney = (index: number, amount: number | null) => {
     if (!amount) {
@@ -115,13 +156,13 @@ function OrderPayments(props: PropType): JSX.Element {
       payments[index].amount = amount;
       payments[index].paid_amount = amount;
     }
-    setPayments([...payments]);
+    handlePayment([...payments]);
   };
 
   const handleTransferReference = (index: number, value: string) => {
     const _paymentData = [...payments];
     _paymentData[index].reference = value;
-    setPayments(_paymentData);
+    handlePayment(_paymentData);
   };
 
   const fillInputMoney = (code?: string) => {
@@ -161,16 +202,95 @@ function OrderPayments(props: PropType): JSX.Element {
 
     }
 
-    setPayments([...paymentCopy])
+    handlePayment([...paymentCopy])
   }
+  
+  const onChangeStoreBankAccountNumber = (value: string) => {
+    if(value) {
+      dispatch(changeSelectedStoreBankAccountAction(value))
+    }
+  };
+
+  const selectedStoreBankNumber = useMemo(() => {
+    return storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount)
+  }, [selectedStoreBankAccount, storeBankAccountNumbers]);
+
+  const renderBankTransferTitle = (index:number) => {
+    return (
+      <Col
+        className="point-spending"
+        style={{ marginLeft: 12 }}
+        lg={15}
+        xxl={15}
+      >
+        <div>
+          <Input
+            placeholder="Tham chiếu"
+            onChange={(e: any) =>
+              handleTransferReference(index, e.target.value)
+            }
+            disabled={levelOrder > 2 || storeBankAccountNumbers.length === 0}
+          />
+        </div>
+        <div style={{marginTop: 12}} title={`${selectedStoreBankNumber?.account_number} - ${selectedStoreBankNumber?.bank_name}`}>
+          <Select
+            showSearch
+            allowClear
+            onChange={onChangeStoreBankAccountNumber}
+            filterOption={(input, option: any) => {
+              if (option) {
+                return (
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                );
+              }
+              return false;
+            }}
+            style={{width: "100%"}}
+            placeholder="Chọn số tài khoản"
+            value={selectedStoreBankAccount?.toString()}
+            notFoundContent="Không tìm thấy số tài khoản của cửa hàng!"
+            disabled={!isExportBill}
+          >
+            {storeBankAccountNumbers.map((value, index) => (
+              <Select.Option key={value.account_number} value={value.account_number} title={`${value.account_number} - ${value.bank_name}`}>
+                {value.account_number} - {value.bank_name}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+      </Col>
+    )
+  };
+
+  const handleSwitchCheckHoaDon = (value: boolean) => {
+    dispatch(setIsExportBillAction(value))
+  };
+
+  const renderExportBill = () => {
+    return (
+      <div style={{marginTop: 12, padding: "6px 0"}} className="exportBill">
+        <Checkbox
+          checked={isExportBill}
+          onChange={(e) => {
+            handleSwitchCheckHoaDon(e.target.checked);
+          }}
+          style={{ marginRight: 8}}
+        >
+          Xuất hóa đơn
+        </Checkbox>
+      </div>
+    )
+  };
+  
 
   useEffect(() => {
     if (payments.some((payment) => payment.payment_method === PaymentMethodCode.COD)) {
       let _payments = payments.filter((single) => single.payment_method !== PaymentMethodCode.COD);
-      setPayments(_payments);
+      handlePayment(_payments);
     }
 
-  }, [payments, setPayments])
+  }, [payments, handlePayment])
 
   return (
     <StyledComponent>
@@ -234,7 +354,7 @@ function OrderPayments(props: PropType): JSX.Element {
         <Row gutter={24} className="row-price" style={{ height: 38, margin: "10px 0" }}>
           <Col
             lg={15}
-            xxl={9}
+            xxl={8}
             className="row-large-title"
             style={{ padding: "8px 0", marginLeft: 2 }}
           >
@@ -257,12 +377,12 @@ function OrderPayments(props: PropType): JSX.Element {
           return (
             <Row
               gutter={20}
-              className="row-price"
+              className={`row-price rowPayment ${method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? "paymentBank" : null} `}
               key={method.payment_method_code}
               style={{ margin: "10px 0" }}
             >
-              <Col lg={15} xxl={9} style={{ padding: "0" }}>
-                <Row align="middle">
+              <Col lg={15} xxl={8} style={{ padding: "0" }}>
+                <Row align="middle" style={{justifyContent: "space-between"}}>
                   <b style={{ padding: "8px 0" }}>{method.payment_method}:</b>
                   {method.payment_method_code === PaymentMethodCode.POINT ? (
                     <Col className="point-spending">
@@ -300,30 +420,17 @@ function OrderPayments(props: PropType): JSX.Element {
                   ) : null}
 
                   {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? (
-                    <Col
-                      className="point-spending"
-                      style={{ marginLeft: 12 }}
-                      lg={14}
-                      xxl={14}
-                    >
-                      <Input
-                        placeholder="Tham chiếu"
-                        onChange={(e: any) =>
-                          handleTransferReference(index, e.target.value)
-                        }
-                        disabled={levelOrder > 2}
-                      />
-                    </Col>
+                    renderBankTransferTitle(index)
                   ) : null}
                 </Row>
               </Col>
               {method.payment_method_code !== PaymentMethodCode.POINT ? (
-                <Col className="lbl-money" lg={6} xxl={6} style={{ marginLeft: 10 }}>
+                <Col className="lbl-money" lg={6} xxl={6} style={{ marginLeft: 20 }}>
                   <Input.Group compact>
                     <NumberInput
                       min={0}
                       value={method.paid_amount}
-                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
+                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2 || (method.payment_method_code === PaymentMethodCode.BANK_TRANSFER && storeBankAccountNumbers.length === 0)}
                       className="yody-payment-input hide-number-handle"
                       //placeholder="Nhập tiền mặt"
                       style={{
@@ -347,18 +454,20 @@ function OrderPayments(props: PropType): JSX.Element {
                       onClick={() => {
                         fillInputMoney(method.payment_method_code)
                       }}
+                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2 || (method.payment_method_code === PaymentMethodCode.BANK_TRANSFER && storeBankAccountNumbers.length === 0)}
                     ></Button>
                   </Input.Group>
+                  {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? renderExportBill() : null }
                 </Col>
               ) : (
                 <Col
-                  className="lbl-money"
+                  className="lbl-money "
                   lg={6}
                   xxl={6}
                   style={{
                     padding: 8,
                     textAlign: "right",
-                    marginLeft: 10,
+                    marginLeft: 20,
                   }}
                 >
                   <span style={{ padding: "14px", lineHeight: 1 }}>
@@ -366,11 +475,12 @@ function OrderPayments(props: PropType): JSX.Element {
                   </span>
                 </Col>
               )}
+              
             </Row>
           );
         })}
-        <Row gutter={20} className="row-price 32" style={{ height: 38, margin: "10px 0 0 0" }}>
-          <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
+        <Row gutter={20} className="row-price rowPayment 32" style={{ height: 38, margin: "10px 0 0 0" }}>
+          <Col lg={15} xxl={8} style={{ padding: "8px 0" }}>
             <b>{totalAmountCustomerNeedToPay >= 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
           </Col>
           <Col

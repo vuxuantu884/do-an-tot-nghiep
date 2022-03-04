@@ -2,7 +2,7 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import {ApiConfig} from "config/api.config";
 import {PageResponse} from "model/base/base-metadata.response";
-import {OrderModel, OrderSearchQuery} from "model/order/order.model";
+import {OrderModel, OrderSearchQuery, StoreBankAccountNumberModel, StoreBankAccountNumbersQueryModel} from "model/order/order.model";
 import {ReturnModel, ReturnSearchQuery} from "model/order/return.model";
 import {ShipmentModel, ShipmentSearchQuery} from "model/order/shipment.model";
 import {
@@ -436,4 +436,11 @@ export const updateOrderPartialService = (
   orderID: number
 ): Promise<BaseResponse<ChannelResponse[]>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/partial/${orderID}`, params);
+};
+
+export const getStoreBankAccountNumbersService = (query: StoreBankAccountNumbersQueryModel): Promise<
+ BaseResponse<PageResponse<StoreBankAccountNumberModel>>
+> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/bank-accounts?${queryString}`);
 };

@@ -94,7 +94,7 @@ export interface OrderResponse extends BaseObject {
     utm_term?: string | null;
     utm_content?: string | null;
   };
-  
+  export_bill: boolean; 
 }
 
 export interface OrderLineItemResponse {
@@ -235,6 +235,9 @@ export interface OrderPaymentResponse extends BaseObject {
   customer_id: number;
   type: string;
   note: string;
+  bank_account_holder: string;
+  bank_account_id: number;
+  bank_account_number: string;
 }
 
 export interface BillingAddress {

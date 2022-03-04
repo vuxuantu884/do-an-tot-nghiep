@@ -19,7 +19,9 @@ import {
 	getListReasonRequest,
 	OrderDetailAction,
 	PaymentMethodGetList,
-	UpdatePaymentAction
+	UpdatePaymentAction,
+  changeSelectedStoreBankAccountAction,
+  getStoreBankAccountNumbersAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
@@ -44,6 +46,8 @@ import {
 	formatCurrency,
 	generateQuery,
 	getAmountPayment,
+	handleFetchApiError,
+	isFetchApiSuccessful,
 	sortFulfillments,
 	SumCOD
 } from "utils/AppUtils";
@@ -69,7 +73,7 @@ import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmM
 import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
 import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
 import { yellowColor } from "utils/global-styles/variables";
-import { getOrderDetail } from "service/order/order.service";
+import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -542,6 +546,24 @@ const OrderDetail = (props: PropType) => {
   useEffect(() => {
     if (OrderDetail?.store_id != null) {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
+      getStoreBankAccountNumbersService({
+				store_ids: [OrderDetail?.store_id]
+			}).then((response) => {
+				if (isFetchApiSuccessful(response)) {
+					dispatch(getStoreBankAccountNumbersAction(response.data.items))
+          const selected = response.data.items.find(single => single.default && single.status);
+					if(selected) {
+            dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
+          } else {
+            dispatch(changeSelectedStoreBankAccountAction(undefined))
+          }
+				} else {
+					dispatch(getStoreBankAccountNumbersAction([]))
+					handleFetchApiError(response, "Danh sách số tài khoản ngân hàng của cửa hàng", dispatch)
+				}
+			}).catch((error) => {
+				console.log('error', error)
+			})
     }
   }, [dispatch, OrderDetail?.store_id]);
 

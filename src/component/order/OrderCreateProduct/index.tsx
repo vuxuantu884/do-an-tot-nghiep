@@ -34,7 +34,7 @@ import {
 	StoreGetListAction,
 	StoreSearchListAction
 } from "domain/actions/core/store.action";
-import { splitOrderAction } from "domain/actions/order/order.action";
+import { setIsShouldSetDefaultStoreBankAccountAction, splitOrderAction } from "domain/actions/order/order.action";
 import {
 	SearchBarCode,
 	searchVariantsOrderRequestAction
@@ -1288,11 +1288,8 @@ function OrderCreateProduct(props: PropType) {
 			tax_exempt: false,
 		};
 		applyDiscountService(params).then((response) => {
-      try {
-        if (
-					response?.code === HttpStatus.SUCCESS &&
-					response.data.line_items.length > 0
-				) {
+			if (isFetchApiSuccessful(response)) {
+				if (response.data.line_items.length > 0) {
 					if(isOrderHasDiscountLineItems(response.data) && isOrderHasDiscountOrder(response.data)) {
 						let itemsAfterRemove = items.map(single => {
 							removeDiscountItem(single)
@@ -1343,11 +1340,9 @@ function OrderCreateProduct(props: PropType) {
 					})
 					showError("Có lỗi khi áp dụng chiết khấu!");
 				}
-      } catch (error) {
-        console.log("error", error);
-        handleFetchApiError(response, "Chiết khấu", dispatch);
-      }
-
+			} else {
+				handleFetchApiError(response, "Áp dụng chiết khấu", dispatch)
+			}
     }).catch((error) => {
       console.log('error', error)
       showError("Cập nhật chiết khấu tự động thất bại!");
@@ -2143,7 +2138,7 @@ function OrderCreateProduct(props: PropType) {
 							rules={[
 								{
 									required: true,
-									message: "Vui lòng chọn cửa hàng",
+									message: "Vui lòng chọn cửa hàng!",
 								},
 							]}
 						>
@@ -2170,6 +2165,7 @@ function OrderCreateProduct(props: PropType) {
 									} else {
 										setIsShowProductSearch(false);
 									}
+									dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
 								}}
 								filterOption={(input, option) => {
 									if (option) {
