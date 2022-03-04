@@ -66,7 +66,7 @@ function CustomerShippingAddressOrder(props: any) {
       dataIndex: "",
       align: "center",
       visible: true,
-      width: "5%",
+      width: "10%",
       render: (value, row, index) => {
         return <span>{index + 1}</span>;
       },
@@ -108,9 +108,8 @@ function CustomerShippingAddressOrder(props: any) {
               title={row.code}
               style={{ color: "#222222", display: "block" }}
             >
-              {`${row.ward ? row.ward : ""}${
-                row.district ? " - " + row.district : ""
-              }${row.city ? " - " + row.city : ""}`}
+              {`${row.ward ? row.ward : ""}${row.district ? " - " + row.district : ""
+                }${row.city ? " - " + row.city : ""}`}
             </span>
           </div>
         );
@@ -138,6 +137,7 @@ function CustomerShippingAddressOrder(props: any) {
     <Row style={{ marginTop: 16 }}>
       <Col span={24}>
         <CustomTable
+          style={{ minWidth: 600 }}
           showColumnSetting={false}
           pagination={false}
           dataSource={customer ? customer.shipping_addresses : []}
