@@ -27,6 +27,7 @@ type PropType = {
   thirdPL: thirdPLModel | undefined;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
+	shippingFeeInformedToCustomer: number | null;
   renderButtonCreateActionHtml: () => JSX.Element | null;
 };
 
@@ -43,6 +44,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     thirdPL,
     setThirdPL,
     setShippingFeeInformedToCustomer,
+		shippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
   } = props;
 
@@ -204,6 +206,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             Huỷ đơn giao để thực hiện các thay đổi giao hàng
           </div>
         )}
+				{console.log("tuanh", shippingServiceConfig)}
         <Row gutter={20}>
           <Col span={12}
            style={{padding: "0 5px 0 10px"}}
@@ -244,6 +247,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                     setShippingFeeInformedToCustomer(0);
                   }
                 }}
+								value={shippingFeeInformedToCustomer ?? ''}
               />
             </Form.Item>
           </Col>

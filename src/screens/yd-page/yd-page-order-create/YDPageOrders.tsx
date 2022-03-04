@@ -1203,6 +1203,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                         isCancelValidateDelivery={false}
                         totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                         setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                         onSelectShipment={onSelectShipment}
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}
