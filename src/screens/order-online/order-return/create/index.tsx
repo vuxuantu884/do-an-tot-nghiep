@@ -167,7 +167,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
   >(0);
-  // const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+ const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
@@ -369,12 +369,12 @@ ShippingServiceConfigDetailResponseModel[]
 
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      // setIsDisablePostPayment(true);
+      setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     } else {
-      // setIsDisablePostPayment(false);
+      setIsDisablePostPayment(false);
     }
     setShipmentMethod(value);
   };
@@ -1204,6 +1204,10 @@ ShippingServiceConfigDetailResponseModel[]
                     returnOrderInformation={{
                       totalAmountReturn: totalAmountReturnProducts
                     }}
+                    shipmentMethod={shipmentMethod}
+                    paymentMethod={paymentMethod}
+                    setPaymentMethod={setPaymentMethod}
+                    isDisablePostPayment={isDisablePostPayment}
                   />
                 )}
                 {isExchange && isStepExchange && (
