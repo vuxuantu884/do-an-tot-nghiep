@@ -37,9 +37,11 @@ const CustomSelect = (props: IProps) => {
         style={containerStyle}
         filterOption={(input: String, option: any) => {
           if (option.props.value) {
-            return strForSearch(option.props.children).includes(strForSearch(input));
+            return strForSearch(option.props.children.length > 0
+              ? option.props.children.join('')
+              : option.props.children
+            ).includes(strForSearch(input));
           }
-
           return false;
         }}
         {...rest}

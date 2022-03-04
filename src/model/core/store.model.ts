@@ -103,3 +103,5 @@ export interface StoreQuery extends BaseQuery {
     name: string,
     value: string,
   }
+
+
