@@ -206,7 +206,7 @@ function* searchProcurementSaga(action: YodyAction) {
     }
   } catch (error: any) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau "+ error.message);
+    // showError("Có lỗi vui lòng thử lại sau "+ error.message);
   }
 }
 
@@ -231,7 +231,7 @@ function* importProcumentSaga(action: YodyAction) {
     }
   } catch (error: any) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau "+ error.message);
+    // showError("Có lỗi vui lòng thử lại sau "+ error.message);
   }
 }
 

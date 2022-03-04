@@ -83,7 +83,7 @@ function* deleteFpagePhoneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* setFpageDefaultPhoneSaga(action: YodyAction) {
@@ -107,7 +107,7 @@ function* setFpageDefaultPhoneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* getFpageCustomerSaga(action: YodyAction) {
@@ -131,7 +131,7 @@ function* getFpageCustomerSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 // connect to the eccommerce
@@ -156,7 +156,7 @@ function* ecommerceConnectSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -181,7 +181,7 @@ function* ecommerceGetConfigInfoSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -206,7 +206,7 @@ function* ecommerceCreateSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -231,7 +231,7 @@ function* ecommerceGetByIdSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -280,7 +280,7 @@ function* ecommerceUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -305,7 +305,7 @@ function* ecommerceDeleteSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -331,7 +331,7 @@ function* ecommerceGetVariantsSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

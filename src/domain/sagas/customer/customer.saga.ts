@@ -287,7 +287,7 @@ function* UpdateBillingAddress(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -313,7 +313,7 @@ function* CreateBillingAddress(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -340,7 +340,7 @@ function* UpdateShippingAddress(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -367,7 +367,7 @@ function* UpdateNote(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -393,7 +393,7 @@ function* CreateNote(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -419,7 +419,7 @@ function* CreateShippingAddress(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -446,7 +446,7 @@ function* UpdateContact(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -472,7 +472,7 @@ function* CreateContact(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -498,7 +498,7 @@ function* DeleteBillingAddress(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -524,7 +524,7 @@ function* DeleteContact(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -550,7 +550,7 @@ function* DeleteShippingAddress(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -572,7 +572,7 @@ function* DeleteNote(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -588,7 +588,7 @@ function* importCustomerSaga(action: YodyAction) {
       yield put(unauthorizedAction());
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
