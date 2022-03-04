@@ -388,6 +388,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       dispatch(WardGetByDistrictAction(districtId, setWards));
     }
   }, [dispatch, districtId]);
+	
+  useEffect(() => {
+    if (newCustomerInfo?.district_id) {
+			setDistrictId(newCustomerInfo?.district_id);
+    }
+  }, [newCustomerInfo]);
 
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));

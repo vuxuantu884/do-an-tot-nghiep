@@ -16,7 +16,6 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
-import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -140,20 +139,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_PARTNER);
-
-  // const [customer, setCustomer] = useState<CustomerResponse | null>(null);
-
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.COD);
-  // const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-
   const [thirdPL, setThirdPL] = useState<any>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
