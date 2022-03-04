@@ -1,16 +1,14 @@
 import {
   BarcodeOutlined,
   CalendarOutlined,
-  DownOutlined,
   EnvironmentOutlined,
   ManOutlined,
   PhoneOutlined,
   TeamOutlined,
-  UpOutlined,
   UserOutlined
 } from "@ant-design/icons";
 import {
-  Button, Checkbox, Col, DatePicker, Divider, Form, FormInstance, Input,
+  Button, Checkbox, Col, DatePicker, Form, FormInstance, Input,
   Row,
   Select
 } from "antd";
@@ -65,10 +63,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const [customerForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const shippingFormRef = createRef<FormInstance>();
-
-  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
-    useState(false);
-
   const [isVisibleShipping, setVisibleShipping] = useState(true);
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(true);
 
@@ -502,120 +496,75 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             </Form.Item>
           </Col>
         </Row>
-
-        {!isVisibleCollapseCustomer && (
-          <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
-            <div>
-              <Button
-                type="link"
-                icon={<DownOutlined />}
-                style={{ padding: "0px" }}
-                onClick={() => {
-                  setVisibleCollapseCustomer(true);
-                }}
-              >
-                Xem thêm
-              </Button>
-            </div>
-          </Divider>
-        )}
-        {isVisibleCollapseCustomer && (
-          <div>
-            <Row gutter={24}>
-            <Col span={12}>
-                <Form.Item
-                  name="gender"
-                  //label="Giới tính"
-                >
-                  <Select
-                    showSearch
-                    allowClear
-                    optionFilterProp="children"
-                    placeholder={
-                      <React.Fragment>
-                        <ManOutlined style={{ color: "#71767B" }} />
-                        <span> Giới tính</span>
-                      </React.Fragment>
-                    }
-                    className="select-with-search"
-                    onChange={() => {
-                      setVisibleBtnUpdate(true);
-                    }}
-                  >
-                    <Select.Option key={1} value={"male"}>
-                      Nam
-                    </Select.Option>
-                    <Select.Option key={2} value={"female"}>
-                      Nữ
-                    </Select.Option>
-                    <Select.Option key={3} value={"other"}>
-                      Không xác định
-                    </Select.Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-
-              <Col span={12}>
-                <Form.Item
-                  name="birthday"
-                  // label="Ngày sinh"
-                  rules={[
-                    {
-                      validator: async (_, birthday) => {
-                        if (birthday && birthday > new Date()) {
-                          return Promise.reject(
-                            new Error(
-                              "Ngày sinh không được lớn hơn ngày hiện tại"
-                            )
-                          );
-                        }
-                      },
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    style={{ width: "100%" }}
-                    placeholder="Chọn ngày sinh"
-                    format={"DD/MM/YYYY"}
-                    defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
-                    suffixIcon={
-                      <CalendarOutlined
-                        style={{ color: "#71767B", float: "left" }}
-                      />
-                    }
-                    onChange={() => {
-                      setVisibleBtnUpdate(true);
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-
-              
-            </Row>
-          </div>
-        )}
+				<Row gutter={24}>
+					<Col span={12}>
+						<Form.Item
+							name="gender"
+							//label="Giới tính"
+						>
+							<Select
+								showSearch
+								allowClear
+								optionFilterProp="children"
+								placeholder={
+									<React.Fragment>
+										<ManOutlined style={{ color: "#71767B" }} />
+										<span> Giới tính</span>
+									</React.Fragment>
+								}
+								className="select-with-search"
+								onChange={() => {
+									setVisibleBtnUpdate(true);
+								}}
+							>
+								<Select.Option key={1} value={"male"}>
+									Nam
+								</Select.Option>
+								<Select.Option key={2} value={"female"}>
+									Nữ
+								</Select.Option>
+								<Select.Option key={3} value={"other"}>
+									Không xác định
+								</Select.Option>
+							</Select>
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item
+							name="birthday"
+							// label="Ngày sinh"
+							rules={[
+								{
+									validator: async (_, birthday) => {
+										if (birthday && birthday > new Date()) {
+											return Promise.reject(
+												new Error(
+													"Ngày sinh không được lớn hơn ngày hiện tại"
+												)
+											);
+										}
+									},
+								},
+							]}
+						>
+							<DatePicker
+								style={{ width: "100%" }}
+								placeholder="Chọn ngày sinh"
+								format={"DD/MM/YYYY"}
+								defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
+								suffixIcon={
+									<CalendarOutlined
+										style={{ color: "#71767B", float: "left" }}
+									/>
+								}
+								onChange={() => {
+									setVisibleBtnUpdate(true);
+								}}
+							/>
+						</Form.Item>
+					</Col>
+				</Row>
       </Form>
-
-      {isVisibleCollapseCustomer === true && (
-        <Divider
-          orientation="left"
-          style={{ padding: 0, margin: 0, color: "#5656A1" }}
-        >
-          <div>
-            <Button
-              type="link"
-              icon={<UpOutlined />}
-              style={{ padding: "0px" }}
-              onClick={() => {
-                setVisibleCollapseCustomer(false);
-              }}
-            >
-              Thu gọn
-            </Button>
-          </div>
-        </Divider>
-      )}
-
       <div className="send-order-box">
         <Row gutter={12} style={{ marginTop: 15 }}>
           <Col md={12}>
@@ -636,7 +585,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               {isVisibleBtnUpdate && (
                 <Button
                   type="primary"
-                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  style={{ padding: "0 15px", fontWeight: 400, float: "right", height: "24px" }}
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={() => {
                     onOkPress();
@@ -647,7 +596,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               )}
 
               <Button
-                style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                style={{ padding: "0 15px", fontWeight: 400, float: "right", display: "none" }}
                 type="default"
                 onClick={() => {
                   CustomerDeleteInfo();
