@@ -1,6 +1,7 @@
 import React from "react";
 import { Tag, TreeSelect, TreeSelectProps } from "antd";
 import { DepartmentResponse } from "model/account/department.model";
+import extra from "../../routes/menu/extra";
 
 interface Props extends TreeSelectProps<string> {
     name?: string;
@@ -65,6 +66,7 @@ const TreeDepartment = (props: Props) => {
             treeNodeFilterProp='title'
             tagRender={tagRender}
             maxTagCount="responsive"
+            showCheckedStrategy={TreeSelect.SHOW_ALL}
             onChange={onChange}
             {...propConvert()}
             filterTreeNode={(search: any, item: any) => {
