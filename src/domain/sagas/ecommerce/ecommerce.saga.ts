@@ -59,7 +59,7 @@ function* addFpagePhoneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* deleteFpagePhoneSaga(action: YodyAction) {
@@ -790,7 +790,7 @@ export function* ecommerceSaga() {
       EcommerceType.CREATE_ECOMMERCE_LOGISTIC,
       createEcommerceLogisticOrder
   );
-  
+
   // concatenate By Excel
   yield takeLatest(
     EcommerceType.CONCANATE_BY_EXCEL,

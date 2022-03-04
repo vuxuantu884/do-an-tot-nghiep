@@ -43,7 +43,7 @@ function* supplierSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -67,7 +67,7 @@ function* supplierGetAllSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("supplierGetAllSaga:" + error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

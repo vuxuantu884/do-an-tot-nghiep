@@ -9,7 +9,7 @@ import {
   getVariantApi,
   updatePriceRuleById,
   getPriceRuleVariantApi
-} from 'service/promotion/discount/discount.service'; 
+} from 'service/promotion/discount/discount.service';
 import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
 import {call, put} from "@redux-saga/core/effects";
@@ -91,7 +91,7 @@ function* deletePriceRuleByIdAct(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -117,7 +117,7 @@ function* getPromoCodeDetail(action: YodyAction) {
     }
   } catch (error) {
     onResult(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -144,7 +144,7 @@ function* addPriceRule(action: YodyAction) {
     }
   } catch (error) {
     createCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -170,7 +170,7 @@ function* bulkEnablePriceRulesSaga(action: YodyAction) {
     }
   } catch (error) {
     enableCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -197,7 +197,7 @@ function* bulkDisablePriceRulesSaga(action: YodyAction) {
     }
   } catch (error) {
     disableCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -224,11 +224,11 @@ function* bulkDeletePriceRulesAct(action: YodyAction) {
     }
   } catch (error) {
     deleteCallback(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
-function* updatePriceRuleByIdSaga(action: YodyAction) { 
+function* updatePriceRuleByIdSaga(action: YodyAction) {
   const { body, onResult } = action.payload;
   try {
     const response: BaseResponse<PriceRule> = yield call(
@@ -256,7 +256,7 @@ function* updatePriceRuleByIdSaga(action: YodyAction) {
 }
 
 
-function* createPriceRuleSaga(action: YodyAction) { 
+function* createPriceRuleSaga(action: YodyAction) {
   const { body, onResult } = action.payload;
   try {
     const response: BaseResponse<PriceRule> = yield call(

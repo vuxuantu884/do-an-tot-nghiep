@@ -30,7 +30,7 @@ function* countryGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -53,7 +53,7 @@ function* districtGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -76,7 +76,7 @@ function* cityByCountryGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -99,7 +99,7 @@ function* districtByCityGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -122,7 +122,7 @@ function* wardGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -142,7 +142,7 @@ function* groupGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

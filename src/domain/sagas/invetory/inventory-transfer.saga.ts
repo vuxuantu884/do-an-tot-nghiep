@@ -41,7 +41,7 @@ import { FeesResponse } from "model/response/order/order.response";
 
 function* inventoryGetListSaga(action: YodyAction) {
   let { queryParams, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> =
       yield call(getListInventoryTransferApi, queryParams);
@@ -59,13 +59,13 @@ function* inventoryGetListSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* inventoryGetLogListSaga(action: YodyAction) {
   let { queryParams, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<Array<InventoryTransferLog>>> =
       yield call(getListLogInventoryTransferApi, queryParams);
@@ -83,7 +83,7 @@ function* inventoryGetLogListSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -106,7 +106,7 @@ function* inventoryGetSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -129,7 +129,7 @@ function* logisticGateAwayGetSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -156,7 +156,7 @@ function* inventoryGetDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -183,7 +183,7 @@ function* inventoryGetCopyDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -211,9 +211,9 @@ function* inventoryTransferDeleteSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
-} 
+}
 
 function* inventorySenderStoreSaga(action: YodyAction) {
   let { queryParams, onResult } = action.payload;
@@ -236,7 +236,7 @@ function* inventorySenderStoreSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -261,7 +261,7 @@ function* inventoryVariantBySenderStoreSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -286,7 +286,7 @@ function* inventoryUploadFilesSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -312,7 +312,7 @@ function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -320,7 +320,7 @@ function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
 
 function* createInventoryTransferSaga(action: YodyAction) {
   let { data, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       createInventoryTransfer,
@@ -340,13 +340,13 @@ function* createInventoryTransferSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* createInventoryTransferShipmentSaga(action: YodyAction) {
   let { pathVariantId, body, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       createInventoryTransferShipment,
@@ -354,7 +354,7 @@ function* createInventoryTransferShipmentSaga(action: YodyAction) {
       body
     );
     switch (response.code) {
-      case HttpStatus.SUCCESS:        
+      case HttpStatus.SUCCESS:
         onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -367,20 +367,20 @@ function* createInventoryTransferShipmentSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* adjustmentInventorySaga(action: YodyAction) {
   let { id, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       adjustmentInventory,
       id,
     );
     switch (response.code) {
-      case HttpStatus.SUCCESS:        
+      case HttpStatus.SUCCESS:
         onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -393,14 +393,14 @@ function* adjustmentInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 //UPDATE
 function* updateInventoryTransferSaga(action: YodyAction) {
   let { id, data, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       updateInventoryTransfer,
@@ -421,13 +421,13 @@ function* updateInventoryTransferSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* receivedInventoryTransferSaga(action: YodyAction) {
   let { id, data, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       receivedInventoryTransfer,
@@ -448,13 +448,13 @@ function* receivedInventoryTransferSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* cancelShipmentInventoryTransferSaga(action: YodyAction) {
   let { transferId, shipmentId, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       cancelShipmentInventoryTransfer,
@@ -475,13 +475,13 @@ function* cancelShipmentInventoryTransferSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* exportShipmentInventoryTransferSaga(action: YodyAction) {
   let { transferId, shipmentId, onResult } = action.payload;
-  
+
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       exportShipmentInventoryTransfer,
@@ -502,7 +502,7 @@ function* exportShipmentInventoryTransferSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -522,7 +522,7 @@ function* InfoFeesSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

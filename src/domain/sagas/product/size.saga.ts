@@ -35,14 +35,14 @@ function* getAllSizeSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* sizeSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    
+
     let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
       getSearchSize,query
     );
@@ -59,7 +59,7 @@ function* sizeSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -83,7 +83,7 @@ function* sizeCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -107,7 +107,7 @@ function* sizeDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -132,7 +132,7 @@ function* sizeUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -152,7 +152,7 @@ function* sizeDeleteSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -172,7 +172,7 @@ function* sizeDeleteManySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

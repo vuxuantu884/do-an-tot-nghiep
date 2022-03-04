@@ -42,7 +42,7 @@ function* poProcumentCreateSaga(action: YodyAction) {
     }
   } catch (error) {
     createCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -71,7 +71,7 @@ function* poProcumentUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     updateCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -100,7 +100,7 @@ function* approvalPoProcumentUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     updateCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -129,7 +129,7 @@ function* confirmPoProcumentConfirmSaga(action: YodyAction) {
     }
   } catch (error) {
     updateCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -155,7 +155,7 @@ function* poProcumentFinishSaga(action: YodyAction) {
     }
   } catch (error) {
     updateCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* poProcumentDeleteSaga(action: YodyAction) {
@@ -181,7 +181,7 @@ function* poProcumentDeleteSaga(action: YodyAction) {
     }
   } catch (error) {
     deleteCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -262,4 +262,4 @@ export function* poProcumentSaga() {
   );
   yield takeEvery(POProcumentType.APROVAL_PROCUMENT, approvalPoProcumentUpdateSaga);
   yield takeEvery(POProcumentType.CONFIRM_PROCUMENT, confirmPoProcumentConfirmSaga);
-} 
+}

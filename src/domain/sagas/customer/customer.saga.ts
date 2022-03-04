@@ -55,7 +55,7 @@ function* onKeySearchCustomerChange(action: YodyAction) {
       }
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -99,7 +99,7 @@ function* getCustomerList(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -125,7 +125,7 @@ function* getCustomerByPhone(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
@@ -150,7 +150,7 @@ function* CustomerDetail(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -188,7 +188,7 @@ function* CustomerLevels(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -210,7 +210,7 @@ function* CustomerTypes(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -233,7 +233,7 @@ function* CreateCustomer(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
@@ -258,7 +258,7 @@ function* UpdateCustomer(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
