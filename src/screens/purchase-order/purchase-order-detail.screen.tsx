@@ -516,19 +516,6 @@ const PODetailScreen: React.FC = () => {
     tempChild.innerHTML = printContent;
     let value = document.body.appendChild(temp);
     if (value === null) return;
-<<<<<<< HEAD
-    const pdf = new jsPDF("portrait", "px");
-    html2canvas(value, {
-      width: 700,
-      scale: 5,
-    }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png", 1.0);
-      // console.log('imgData', imgData)
-      
-      // pdf.addImage(imgData, "JPEG",  15, 40, 210, 297);
-      pdf.addImage(imgData, "JPEG",  5, 15, 780/1.8, 880/1.8);
-      // pdf.addImage(imgData, "JPEG",  5, 15, 585, 812);
-=======
     
     
     const imgWidth = pageWidth;
@@ -553,7 +540,6 @@ const PODetailScreen: React.FC = () => {
       scale: 5, // fix nhòe
     }).then((canvas) => {
       getCanvas(canvas, pdf);
->>>>>>> feature/CO-2423-chi-tiet-xuat-pdf-bi-mo
       temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
       dispatch(hideLoading())
