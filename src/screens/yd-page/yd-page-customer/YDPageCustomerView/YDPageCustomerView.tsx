@@ -40,6 +40,7 @@ const YDPageCustomerView = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
+		setCustomerDefaultPhone
   } = props;
 
   const dispatch = useDispatch();
@@ -255,6 +256,7 @@ const YDPageCustomerView = (props: any) => {
     if (phone !== customerPhone) {
       updateNewCustomerInfo("phone", phone);
       getCustomerWhenPhoneChange(phone);
+			setCustomerDefaultPhone(phone)
     }
   };
   // end update customer phone
@@ -421,7 +423,7 @@ const YDPageCustomerView = (props: any) => {
               disabled={true}
               value={customerPhone}
               placeholder="Nhập số điện thoại"
-              className="item-input"
+              className="item-input phone-disabled"
             />
 
             <div className="item-icon-button">
@@ -449,7 +451,11 @@ const YDPageCustomerView = (props: any) => {
                 customerPhones.map((phone: any, index: any) => (
                   <Tag
                     key={index}
-                    style={{ cursor: "pointer" }}
+                    style={{ 
+											cursor: "pointer",
+											borderColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+											backgroundColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+										}}
                     onClick={() => onSelectPhone(phone)}>
                     {phone}
                     {allowUpdateCustomer &&
