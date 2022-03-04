@@ -83,18 +83,14 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
   );
 
   const onSelectAllChange = (e: any) => {
+    const { checked } = e.target
     const copyColumns = [...columns];
-    if (e.target.checked) {
-      copyColumns.forEach((item, index) => {
-        copyColumns[index] = { ...copyColumns[index], visible: true };
-      })
-    } else {
-      copyColumns.forEach((item, index) => {
-        copyColumns[index] = { ...copyColumns[index], visible: false };
-      })
-    }
 
-    setIsSelectAll(e.target.checked);
+    copyColumns.forEach((item, index) => {
+      copyColumns[index] = { ...copyColumns[index], visible: item.fixed ? true : checked };
+    })
+
+    setIsSelectAll(checked);
     setColumn(copyColumns);
   }
 
@@ -163,6 +159,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
                     }}
                     key="icon-move-down"
                     icon={<ArrowDownOutlined />}
+                    disabled={Boolean(item.fixed)}
                   />,
                   <Button
                     onClick={() => {
@@ -170,12 +167,14 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
                     }}
                     key="icon-move-up"
                     icon={<ArrowUpOutlined />}
+                    disabled={Boolean(item.fixed)}
                   />,
                 ]}
               >
                 <Checkbox
                   onChange={(e) => onCheckedChange(index, e)}
                   checked={item.visible}
+                  disabled={Boolean(item.fixed)}
                 >
                   {item.titleCustom ?? item.title}
                   <span style={{ color: '#2a2a86', fontWeight: 500, marginLeft: '30px' }}>{item.fixed ? 'Cố định' : ''}</span>
