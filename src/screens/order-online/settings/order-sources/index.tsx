@@ -496,6 +496,22 @@ function OrderSources(props: PropTypes) {
                       })}
                   </Select>
                 </Form.Item>
+                <Form.Item name="active" style={{width: 200}}>
+                  <Select
+                    // showSearch
+                    allowClear
+                    placeholder="Trạng thái"
+                    optionFilterProp="title"
+                    // notFoundContent="Không tìm thấy phòng ban"
+                  >
+                    <Select.Option value="true" key="true">
+                      <span>Đang áp dụng</span>
+                    </Select.Option>
+                    <Select.Option value="false" key="false">
+                      <span>Ngưng áp dụng</span>
+                    </Select.Option>
+                  </Select>
+                </Form.Item>
                 <Form.Item style={{marginRight: 0}}>
                   <Button type="primary" htmlType="submit">
                     Lọc
