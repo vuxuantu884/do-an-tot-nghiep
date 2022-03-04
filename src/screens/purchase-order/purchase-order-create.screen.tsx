@@ -236,6 +236,7 @@ const POCreateScreen: React.FC = () => {
           <Col md={6}>
             <POInfoForm
               isEdit={false}
+              formMain={formMain}
             />
           </Col>
         </Row>
