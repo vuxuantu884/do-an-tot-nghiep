@@ -1,11 +1,11 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Form, Input } from "antd";
+import {Card, Form, FormInstance, Input} from "antd";
 import HashTag from "component/custom/hashtag";
 import RowDetail from "component/custom/RowDetail";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { AppConfig } from "config/app.config";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment } from "react";
+import {Fragment, useEffect} from "react";
 import { POStatus } from "utils/Constants";
 import {useSelector} from "react-redux";
 import {RootReducerType} from "../../../model/reducers/RootReducerType";
@@ -13,12 +13,18 @@ import {RootReducerType} from "../../../model/reducers/RootReducerType";
 type POInfoFormProps = {
   isEdit: boolean;
   isEditDetail?: boolean;
+  formMain?: FormInstance
 };
 
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail } = props;
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
+  useEffect(() => {
+    props.formMain?.setFieldsValue({ [POField.merchandiser_code]: userReducer.account?.code })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (isEdit && !isEditDetail) {
     return (
