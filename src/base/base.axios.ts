@@ -25,7 +25,6 @@ BaseAxios.interceptors.response.use(function (response: AxiosResponse) {
   !AppConfig.production && console.log(response.data);
   switch (response.data.code) {
     case HttpStatus.FORBIDDEN:
-    case HttpStatus.UNAUTHORIZED:
       showError("Bạn không đủ quyền truy cập, vui lòng liên hệ với IT để được cấp quyền.");
       return;
     case HttpStatus.BAD_GATEWAY:
