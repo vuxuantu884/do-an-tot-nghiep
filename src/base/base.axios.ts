@@ -29,7 +29,7 @@ BaseAxios.interceptors.response.use(function (response: AxiosResponse) {
       showError("Bạn không đủ quyền truy cập, vui lòng liên hệ với IT để được cấp quyền.");
       return;
     case HttpStatus.BAD_GATEWAY:
-      showError("Hệ thống đang bị sập, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời.");
+      showError("Hệ thống đang gián đoạn, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời.");
       return;
     default:
       break;
