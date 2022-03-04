@@ -23,7 +23,6 @@ import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
 import PackReportHandOver from "./pack/info/pack-report-hand-over";
 import { getQueryParams, useQuery } from "utils/useQuery";
-// import "assets/css/_pack.scss";
 import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
@@ -127,8 +126,8 @@ const PackSupportScreen: React.FC = () => {
         ]}
       >
         <StyledComponent>
-          <Row gutter={24}>
-            <Col xs={24}>
+          <Row>
+            <Col>
               <Card className="pack-card">
                 <Tabs activeKey={activeTab} onChange={handleClickTab}>
                   <TabPane tab="Đóng gói" key="1">

@@ -122,7 +122,7 @@ const InventoryTransferTab: React.FC = () => {
     [handlePrint]
   );
 
-  //phân quyền 
+  //phân quyền
   const [allowPrint] = useAuthorization({
     acceptPermissions: [InventoryTransferPermission.print],
   });
@@ -130,7 +130,7 @@ const InventoryTransferTab: React.FC = () => {
     acceptPermissions: [InventoryTransferPermission.clone],
   });
 
-  const actions: Array<MenuAction> = [
+  let actionsInit: Array<MenuAction> = [
     // {
     //   id: ACTIONS_INDEX.ADD_FORM_EXCEL,
     //   name: "Thêm mới từ Excel",
@@ -142,7 +142,7 @@ const InventoryTransferTab: React.FC = () => {
       name: "Xem nhiều phiếu",
       icon: <BarsOutlined />,
       disabled: true,
-    }, 
+    },
     {
       id: ACTIONS_INDEX.PRINT,
       name: "In vận đơn",
@@ -176,6 +176,7 @@ const InventoryTransferTab: React.FC = () => {
   };
   const [formNote] = Form.useForm();
   let [params, setParams] = useState<InventoryTransferSearchQuery>(dataQuery);
+  const [actions, setActions] = useState<MenuAction[]>([]);
   const [data, setData] = useState<PageResponse<Array<InventoryTransferDetailItem>>>({
     metadata: {
       limit: 30,
@@ -364,6 +365,25 @@ const InventoryTransferTab: React.FC = () => {
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
   ]);
+
+  useEffect(() => {
+    setActions(actionsInit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowClone, allowPrint]);
+
+  useEffect(() => {
+    if (selectedRowKeys.length === 0) return;
+
+    let newActions = [...actions];
+    newActions.forEach((element, index) => {
+      if (element.id === ACTIONS_INDEX.MAKE_COPY) {
+        newActions[index].disabled = selectedRowKeys.length > 1;
+      }
+    });
+
+    setActions(newActions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRowKeys])
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(

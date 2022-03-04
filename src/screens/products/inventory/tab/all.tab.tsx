@@ -110,11 +110,13 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const onSortASC = useCallback((sortColumn: string)=>{
       const newPrams = {...params, sort_type: "asc",sort_column: sortColumn};
+      onSelect([]);
       onFilter(newPrams);
   },[onFilter, params]);
 
   const onSortDESC = useCallback((sortColumn: string)=>{
     const newPrams = {...params, sort_type: "desc",sort_column: sortColumn};
+    onSelect([]);
     onFilter(newPrams);
   },[params, onFilter]);
 
@@ -438,15 +440,19 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       })
     );
 
-      if (selectedRow && selectedRow.length > 0) {
+      if (selectedRow && selectedRow.length > 0) { 
+
         selectedRow.forEach((e)=>{
-          objSum.Sum_On_hand += e.on_hand;
+          if (e === undefined)  
+              return;
+           
+          objSum.Sum_On_hand += e.on_hand ?? 0;
           objSum.Sum_Available += e.available ?? 0;
           objSum.Sum_Committed += e.committed ?? 0;
           objSum.Sum_On_hold += e.on_hold ?? 0;
           objSum.Sum_Defect += e.defect ?? 0;
           objSum.Sum_In_coming += e.in_coming ?? 0;
-          objSum.Sum_Transferring += e.transferring;
+          objSum.Sum_Transferring += e.transferring ?? 0;
           objSum.Sum_On_way += e.on_way ?? 0;
           objSum.Sum_Shipping += e.shipping ?? 0;
           objSum.Sum_Total += e.total_stock ?? 0;
