@@ -360,12 +360,12 @@ const TabProduct: React.FC = () => {
     },
     {
       title: "Ngày tạo",
-      dataIndex: "updated_date",
+      dataIndex: "created_date",
       visible: true,
       align: "left",
       width: 110,
       render: (value, record) => {
-        return ((record?.updated_date)!==null?ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY):"---")
+        return ((record?.created_date)!==null?ConvertUtcToLocalDate(record?.created_date,DATE_FORMAT.DDMMYYY):"---")
       },
     },
   ];
