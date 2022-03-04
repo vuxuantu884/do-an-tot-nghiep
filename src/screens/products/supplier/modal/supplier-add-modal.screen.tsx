@@ -3,7 +3,7 @@ import { AppConfig } from "config/app.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import {SupplierCreateAction, SupplierSearchAction} from "domain/actions/core/supplier.action";
 import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
+import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import {
   SupplierCreateRequest,
   SupplierResponse,
@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
+import SelectSearchPaging from "component/custom/select-search/select-search-paging";
 
 type SupplierAddModalProps = {
   visible: boolean;
@@ -30,6 +31,13 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   const [formSupplierAdd] = Form.useForm();
   const { visible, onCancel, onOk } = props;
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [metadata, setMetadata] = useState<BaseMetadata>({
+    limit: 10,
+    page: 1,
+    total: 0
+  });
+
+  const [isLoadingAccount, setIsLoadingAccount] = useState(false);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
 
   const supplier_type = useSelector(
@@ -41,13 +49,16 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   const currentUserCode = useSelector(
     (state: RootReducerType) => state.userReducer?.account?.code
   );
+
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse>|false) => {
+      setIsLoadingAccount(false)
       if(!data) {
         return false;
       }
       let listWinAccount = data.items;
       setAccounts(listWinAccount);
+      setMetadata(data.metadata)
       let checkUser = listWinAccount.findIndex(
         (val) => val.code === currentUserCode
       );
@@ -59,19 +70,15 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     },
     [currentUserCode, formSupplierAdd]
   );
-  const createSupplierCallback = useCallback(
-    (result: SupplierResponse) => {
-      if (result !== null && result !== undefined) {
-        showSuccess("Thêm mới dữ liệu thành công");
-        onOk(result);
-        formSupplierAdd.resetFields();
-      }
-    },
-    [formSupplierAdd, onOk]
-  );
+  const createSupplierCallback = (result: SupplierResponse) => {
+    if (result) {
+      showSuccess("Thêm mới dữ liệu thành công");
+      onOk(result);
+      formSupplierAdd.resetFields();
+    }
+  }
 
-  const onFinish = useCallback(
-    (values: SupplierCreateRequest) => {
+  const onFinish = (values: SupplierCreateRequest) => {
       values.contacts =[{email: "",
                         fax: "",
                         id: null,
@@ -80,13 +87,13 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
                         phone: values.phone ?? null,
                         supplier_id: null,
                         website: ""}];
-      dispatch(SupplierCreateAction(values, createSupplierCallback));
-    },
-    [createSupplierCallback, dispatch]
-  );
-  const onOkPress = useCallback(() => {
-    formSupplierAdd.submit();
-  }, [formSupplierAdd]);
+    dispatch(SupplierCreateAction(values, createSupplierCallback));
+  }
+
+  const onChangeGoods = (values: any) => {
+    formSupplierAdd.setFieldsValue({ goods: values })
+  }
+
   const handleCancel = () => {
     formSupplierAdd.resetFields();
     onCancel();
@@ -110,13 +117,34 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     }
   };
 
-  useEffect(() => {
+  const onSearchAccount = (values: any) => {
+    fetchAccount(values)
+  }
+
+  const renderAccountItem = (item: AccountResponse) => (
+    <Option key={item.code} value={item.code}>
+      {item.full_name}
+    </Option>
+  )
+
+  const fetchAccount = (values: any) => {
+    setIsLoadingAccount(true)
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active", limit: metadata.limit, page: metadata.page, ...values },
         setDataAccounts
       )
     );
+  }
+
+  useEffect(() => {
+    if(goods) {
+      formSupplierAdd.setFieldsValue({ goods: ['fashion'] })
+    }
+  }, [goods])
+
+  useEffect(() => {
+    fetchAccount({ condition: "", page: metadata.page })
     dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
       if(response){
         setListSupplier(response.items)
@@ -124,6 +152,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
         setListSupplier([]);
       }
     }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, setDataAccounts]);
 
   return (
@@ -134,7 +163,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
       okText="Thêm mới"
       cancelText="Hủy"
       className="update-customer-modal"
-      onOk={onOkPress}
+      onOk={formSupplierAdd.submit}
       width={700}
       onCancel={handleCancel}
     >
@@ -204,7 +233,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
                 className="selector"
                 placeholder="Chọn ngành hàng"
                 showArrow
-                // defaultValue="fashion"
+                onChange={onChangeGoods}
               >
                 {goods?.map((item) => (
                   <Option key={item.value} value={item.value}>
@@ -249,18 +278,16 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
               name="pic_code"
               label="Nhân viên phụ trách"
             >
-              <Select
+              <SelectSearchPaging
+                data={accounts}
+                renderItem={renderAccountItem}
+                metadata={metadata}
                 placeholder="Chọn nhân viên phụ trách"
                 className="selector"
-                allowClear
-                // defaultValue={personInCharge}
-              >
-                {accounts.map((item) => (
-                  <Option key={item.code} value={item.code}>
-                    {item.full_name}
-                  </Option>
-                ))}
-              </Select>
+                onSearch={onSearchAccount}
+                isLoading={isLoadingAccount}
+                onSelect={(value) => formSupplierAdd.setFieldsValue({ pic_code: value.value })}
+              />
             </Item>
           </Col>
           <Col xs={24} lg={12}>

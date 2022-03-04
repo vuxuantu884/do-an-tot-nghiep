@@ -59,7 +59,8 @@ export interface StoreQuery extends BaseQuery {
     to_square?: number|'',
     type: string|'',
     ids?: Array<number>| Array<string>,
-    department_id: string | null
+    department_id?: string | null
+    department_ids?: string | null
   }
 
   export interface BaseStoreRequest {

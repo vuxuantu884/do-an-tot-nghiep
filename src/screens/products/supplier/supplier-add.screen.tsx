@@ -111,7 +111,7 @@ const CreateSupplierScreen: React.FC = () => {
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [status, setStatus] = useState<string>(initRequest.status);
-  const [type, setType] = useState(initRequest.type);
+  const [supplierType, setSupplierType] = useState(initRequest.type);
   const [allowCreateSup] = useAuthorization({
     acceptPermissions: [SuppliersPermissions.CREATE],
     not: false,
@@ -326,7 +326,7 @@ const CreateSupplierScreen: React.FC = () => {
                   >
                     <Radio.Group
                       onChange={(e) => {
-                        setType(e.target.value);
+                        setSupplierType(e.target.value);
                       }}
                     >
                       {supplier_type?.map((item) => (
@@ -395,7 +395,7 @@ const CreateSupplierScreen: React.FC = () => {
                         message: "Mã số thuế chỉ được phép nhập số",
                       },
                       {
-                        required: type === "enterprise",
+                        required: supplierType === "enterprise",
                         message: "Nhà cung cấp là doanh nghiệp phải nhập mã số thuế",
                       },
                     ]}
