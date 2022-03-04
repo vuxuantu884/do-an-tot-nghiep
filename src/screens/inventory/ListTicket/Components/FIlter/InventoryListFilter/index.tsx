@@ -39,7 +39,7 @@ type OrderFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
-  onClearFilter?: () => void;
+  onClearFilter?: () => void
   stores?: Array<Store>;
 };
 
@@ -58,7 +58,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     onFilter,
     onShowColumnSetting,
     stores,
-    accounts,
+    accounts
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();

@@ -8,7 +8,6 @@ import {RootReducerType} from "model/reducers/RootReducerType";
 import {getBootstrapAction} from "domain/actions/content/bootstrap.action";
 import classNames from "classnames";
 import {saveSettingAction} from "domain/actions/app.action";
-import {useMemo} from "react";
 import SplashScreen from "screens/splash.screen";
 import UrlConfig from "config/url.config";
 import HeaderContainer from "./header.container";

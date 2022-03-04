@@ -2,8 +2,10 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import imgDefault from "assets/icon/img-default.svg";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
+import { OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import {
 	OrderLineItemResponse,
+	OrderResponse,
 	ReturnProductModel
 } from "model/response/order/order.response";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -354,14 +356,36 @@ function CardReturnProductContainer(props: PropType) {
     let isUsingPoint = OrderDetail?.payments?.some((single) => {
       return single.payment_method_id === pointPaymentMethodId;
     });
-    const refund = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
+    const refund_money = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
     if (isUsingPoint) {
-      if (OrderDetail?.customer_id && orderId && refund > 0) {
+      if (OrderDetail?.customer_id && orderId && refund_money > 0) {
+        const listReturnProductsResult = listReturnProducts.filter(item => {
+          return item.quantity > 0
+        });
+        const returnItems = listReturnProductsResult.map(item => {
+          const {maxQuantityCanBeReturned, ...rest} = item;
+          return rest;
+        });
+        const returnItemsNow: OrderResponse[] = [
+          {
+            ...OrderDetail,
+            items: returnItems
+          }
+        ]
+        let return_items = [...returnItemsNow]
+        if(OrderDetail.order_returns) {
+          return_items= [...returnItemsNow, ...OrderDetail.order_returns]
+        }
+        let params: OrderReturnCalculateRefundRequestModel = {
+          customerId: OrderDetail.customer_id,
+          items: OrderDetail.items,
+          orderId,
+          refund_money,
+          return_items
+        }
         dispatch(
           actionGetOrderReturnCalculateRefund(
-            OrderDetail.customer_id,
-            orderId,
-            refund,
+            params,
             (response) => {
               setPointRefund(response.point_refund);
               if (setMoneyRefund) {
@@ -377,15 +401,7 @@ function CardReturnProductContainer(props: PropType) {
         }
       }
     }
-  }, [
-    OrderDetail?.customer_id,
-    OrderDetail?.payments,
-    dispatch,
-    getTotalPrice,
-    listReturnProducts,
-    orderId,
-    setMoneyRefund,
-  ]);
+  }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setMoneyRefund]);
 
   useEffect(() => {
     if (!listReturnProducts) {
