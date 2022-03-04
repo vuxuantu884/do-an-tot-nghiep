@@ -7,6 +7,8 @@ import { AppConfig } from "config/app.config";
 import { POField } from "model/purchase-order/po-field";
 import { Fragment } from "react";
 import { POStatus } from "utils/Constants";
+import {useSelector} from "react-redux";
+import {RootReducerType} from "../../../model/reducers/RootReducerType";
 
 type POInfoFormProps = {
   isEdit: boolean;
@@ -16,6 +18,7 @@ type POInfoFormProps = {
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail } = props;
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   if (isEdit && !isEditDetail) {
     return (
@@ -386,6 +389,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                       },
                     ]}>
                     <AccountSearchPaging
+                      defaultValue={userReducer.account?.code}
                       placeholder="Chọn Merchandiser"
                       fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
