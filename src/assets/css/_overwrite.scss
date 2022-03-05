@@ -451,9 +451,9 @@
             &:hover,
             &:focus,
             &.active {
-                color: $white !important;
-                background-color: $primary-color !important;
-                border-color: $primary-color !important;
+                color: $white;
+                background-color: $primary-color;
+                border-color: $primary-color;
             }
             &.light {
                 background-color: $white;
@@ -968,6 +968,11 @@
                 border-color: $primary-color;
             }
         }
+        &-disabled {
+            &+span {
+                color: inherit;
+            }
+        }
         &-indeterminate {
             .ant-checkbox-inner::after {
                 height: 2px;
@@ -1221,9 +1226,8 @@
 
 .custom-table .small-padding .ant-table.ant-table-middle .ant-table-tbody > tr > td{
     padding: 4px 4px;
-  } 
-  
+  }
+
 .custom-table .small-padding .ant-table.ant-table-middle .ant-table-tbody .ant-table-wrapper:only-child .ant-table{
   margin: -4px -4px -4px 30px;
 }
-  

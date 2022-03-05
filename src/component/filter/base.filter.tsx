@@ -1,10 +1,9 @@
 import { DeleteOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Drawer, Row, Space } from "antd";
+import { Button, Drawer, DrawerProps, Row, Space } from "antd";
 import { Scrollbars } from "react-custom-scrollbars";
 
-type BaseFilterProps = {
+type BaseFilterProps = DrawerProps & {
   visible: boolean;
-  width?: number;
   className?: string;
   confirmButtonTitle?: any;
   deleteButtonTitle?: any;
@@ -18,7 +17,7 @@ type BaseFilterProps = {
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { visible, allowSave, width, className, children, onFilter, onClearFilter, onCancel, onSaveFilter, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
+  const { allowSave, width, className, children, onFilter, onClearFilter, onCancel, onSaveFilter, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
   return (
     <Drawer
       placement="right"
@@ -26,8 +25,8 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
       width={width}
       closable={false}
       onClose={onCancel}
-      visible={visible}
       className={className}
+      {...props}
       footer={
         <Row style={footerStyle} justify="end">
           <Space size="middle">

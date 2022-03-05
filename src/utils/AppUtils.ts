@@ -1434,7 +1434,7 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 }
 
 export const isOrderFromPOS = (OrderDetail: OrderResponse | null) => {
-	if(OrderDetail?.channel_id === POS.channel_id) {
+	if(OrderDetail?.channel_id === POS.channel_id || OrderDetail?.source_code === POS.source_code) {
 		return true;
 	}
 	return false;
@@ -1463,3 +1463,12 @@ export const trimText = (text?: string) => {
   if(!text) return
   return text.replace(/(\s)+/g, '')
 }
+
+export const sortFulfillments = (fulfillments: FulFillmentResponse[]) => {
+  return fulfillments.sort((a, b) =>
+  moment(b?.updated_date).diff(moment(a?.updated_date)))
+}
+
+export const goToTopPage = () => {
+  window.scrollTo(0, 0);
+};

@@ -58,7 +58,7 @@ function* poCreateSaga(action: YodyAction) {
     }
   } catch (error) {
     createCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -86,7 +86,7 @@ function* poUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     updateCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -115,7 +115,7 @@ function* poUpdateNoteSaga(action: YodyAction) {
     }
   } catch (error) {
     updateCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -142,7 +142,7 @@ function* poUpdateFinancialStatusSaga(action: YodyAction) {
     }
   } catch (error) {
     updateCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -168,7 +168,7 @@ function* poDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error ", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* poSearchSaga(action: YodyAction) {
@@ -191,7 +191,7 @@ function* poSearchSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* poDeleteSaga(action: YodyAction) {
@@ -216,7 +216,7 @@ function* poDeleteSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error ", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* poReturnSaga(action: YodyAction) {
@@ -243,7 +243,7 @@ function* poReturnSaga(action: YodyAction) {
   } catch (error) {
     returnCallback(false);
     console.log("error ", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -254,7 +254,7 @@ function* poPrintSaga(action: YodyAction) {
     updatePrintCallback(response);
   } catch (error) {
     console.log("error ", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -281,7 +281,7 @@ function* poCancelSaga(action: YodyAction) {
   } catch (error) {
     cancelCallback(false);
     console.log("error ", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -330,7 +330,7 @@ function* getConfigPoSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -356,7 +356,7 @@ function* createConfigPoSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult && onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -382,7 +382,7 @@ function* updateConfigPoSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult && onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -408,7 +408,7 @@ function* deleteConfigPoSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -432,7 +432,7 @@ function* getLogDetailPOHistory(action: YodyAction) {
     }
   } catch (error) {
     console.log(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -456,7 +456,7 @@ function* getLogPOHistory(action: YodyAction) {
     }
   } catch (error) {
     console.log(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

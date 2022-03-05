@@ -240,15 +240,12 @@ function TabListFilter(props: ProcurementFilterProps) {
 
   const onBaseFinish = (data: any) => {
     data.merchandisers = data?.merchandisers?.toString();
-
+    data.suppliers = data?.suppliers?.toString();
     const formAdvanceData = formAdvanced.getFieldsValue(true);
     const formAdvanceParams: ProcurementQuery = parseDataToString(formAdvanceData);
-
+    const query = JSON.parse(JSON.stringify({ ...formAdvanceParams, ...data, }));
     history.push(
-      `${UrlConfig.PROCUREMENT}?${querystring.stringify({
-        ...data,
-        ...formAdvanceParams,
-      })}`
+      `${UrlConfig.PROCUREMENT}?${querystring.stringify(query)}`
     );
   };
 

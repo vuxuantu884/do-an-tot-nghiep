@@ -29,7 +29,7 @@ import {
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
@@ -261,7 +261,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 									<img
 										src={service.logo ? service.logo : ""}
 										alt=""
-										style={{ width: "100%" }}
+										style={{ width: 135}}
 									/>
 								}
 								<p>
@@ -729,8 +729,8 @@ const ShipmentsScreen: React.FC = (props: any) => {
 	};
 
 	useEffect(() => {
-		dispatch(AccountSearchAction({}, setDataAccounts));
-		dispatch(AccountSearchAction({
+		dispatch(searchAccountPublicAction({limit: 30}, setDataAccounts));
+		dispatch(searchAccountPublicAction({
 			is_shipper: 1
 		}, (response) => {
 			if(response) {

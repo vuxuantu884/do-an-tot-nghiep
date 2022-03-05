@@ -13,6 +13,11 @@ export const checkUserPermission = (
   acceptStoreIds: Array<number> = [],
   currentStoreIds: Array<AccountStoreResponse> = []
 ): boolean => {
+  // kiểm tra quyền truy cập của use nếu chưa có hoặc không chưa quyền nào => không cho truy cập
+  if(!Array.isArray(currentPermissions) || currentPermissions?.length === 0) {
+    return false;
+  }
+
   // admin_all => full quyền => được phép truy cập
   if (Array.isArray(currentPermissions) && currentPermissions?.includes(AdminPermission.all)) {
     return true;

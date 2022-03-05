@@ -34,7 +34,6 @@ import {
   CustomerSearch,
   DeleteShippingAddress,
 } from "domain/actions/customer/customer.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
@@ -68,8 +67,7 @@ import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
 import { formatCurrency } from "../../../../../utils/AppUtils";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import _, { debounce } from "lodash";
-import { SourceSearchQuery } from "model/request/source.request";
+import { debounce } from "lodash";
 //#end region
 
 type CustomerCardProps = {
@@ -246,7 +244,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     },
     [dispatch, autoCompleteElement, customer]
   );
-  console.log(customer)
+
   useEffect(() => {
     window.addEventListener("keydown", event);
   }, [event]);
@@ -390,6 +388,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       dispatch(WardGetByDistrictAction(districtId, setWards));
     }
   }, [dispatch, districtId]);
+	
+  useEffect(() => {
+    if (newCustomerInfo?.district_id) {
+			setDistrictId(newCustomerInfo?.district_id);
+    }
+  }, [newCustomerInfo]);
 
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));
@@ -687,6 +691,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         )}
       <AddAddressModal
         customer={customer}
+				newCustomerInfo={newCustomerInfo}
         handleChangeCustomer={handleChangeCustomer}
         formItem={singleShippingAddress}
         visible={isVisibleAddress}

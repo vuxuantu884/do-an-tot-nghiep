@@ -16,7 +16,6 @@ import AddBankAccountBottombar from "../component/add-bank-account-bottombar";
 const BackAccountUpdateScreen: React.FC = () => {
     const { id } = useParams<any>();
     let BankAccountId = parseInt(id);
-    console.log("id param", id);
 
     const userReducerAccount = useSelector((state: RootReducerType) => state.userReducer.account);
 
@@ -50,7 +49,7 @@ const BackAccountUpdateScreen: React.FC = () => {
                         account_holder: data.account_holder,
                         bank_code: data.bank_code,
                         bank_name: data.bank_name,
-                        stores: data.stores.map(p => p.id),
+                        stores: data.stores.map(p => p.store_id),
                         status: data.status === true ? 1 : data.status === false ? 2 : null,
                         default: data.default
                     });
@@ -73,7 +72,6 @@ const BackAccountUpdateScreen: React.FC = () => {
 
     useEffect(() => {
         formRef.current?.resetFields()
-        console.log("initialValues", initialValues);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialValues])
 
@@ -82,13 +80,10 @@ const BackAccountUpdateScreen: React.FC = () => {
     }, [formRef]);
 
     const onSubmitForm = useCallback((value) => {
-        console.log("value", value);
-
         let bankIndex = listBank.findIndex((p: any) => p.value === value.bank_code);
         let bankName = bankIndex !== -1 ? listBank[bankIndex].name : "";
 
         let storeAccess = listStore?.filter((p) => value.stores.some((single: any) => single.toString() === p.id.toString()));
-        console.log("storeAccess", storeAccess);
 
         let stores: any = [];
 
@@ -97,8 +92,6 @@ const BackAccountUpdateScreen: React.FC = () => {
             store_code: value.code,
             store_name: value.name
         }));
-
-        console.log("stores", stores);
 
         let request: BankAccountRequest = {
             ...value,
@@ -122,6 +115,18 @@ const BackAccountUpdateScreen: React.FC = () => {
 
         setInitialValues({ ...value });
     }, [BankAccountId, dispatch, listBank, listStore, userReducerAccount, isDefault, bankAccount]);
+
+    const onTreeSelectAll = useCallback((isValue: boolean) => {
+    
+        if (isValue) {
+          let allIds: number[] | undefined = listStore?.map((value) => +value.id);
+    
+          formRef?.current?.setFieldsValue({ stores: allIds });
+        }
+        else
+          formRef?.current?.setFieldsValue({ stores: [] });
+    
+      }, [formRef, listStore]);
 
     return (
         <ContentContainer
@@ -230,7 +235,7 @@ const BackAccountUpdateScreen: React.FC = () => {
                                     },
                                 ]}
                             >
-                                <TreeStore listStore={listStore} placeholder="Chọn cửa hàng áp dụng" />
+                                <TreeStore onSelectAll={onTreeSelectAll} listStore={listStore} placeholder="Chọn cửa hàng áp dụng" />
                             </Form.Item>
                         </Col>
                     </Row>

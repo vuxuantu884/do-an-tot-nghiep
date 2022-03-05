@@ -22,7 +22,7 @@ import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { PageResponse } from "model/base/base-metadata.response";
+import _ from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
@@ -164,9 +164,12 @@ const PODetailScreen: React.FC = () => {
     formMain.submit();
   }, [formMain]);
 
-  const onStoreResult = useCallback((result: PageResponse<StoreResponse> | false) => {
-    if (!!result) {
-      setListStore(result.items);
+  const onStoreResult = useCallback((result: Array<StoreResponse>) => {
+    if (result) {
+      const storeTotals = result.filter(e=>e.name?.toLocaleLowerCase().includes('kho tổng'));
+      
+      let res = _.uniqBy([...storeTotals, ...result], "name");
+      setListStore(res);
     }
   }, []);
   const onUpdateCall = useCallback(
@@ -458,9 +461,11 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
+  
+
   useEffect(() => {
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
-    dispatch(StoreGetListAction(setListStore));
+    dispatch(StoreGetListAction(onStoreResult));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
@@ -483,17 +488,61 @@ const PODetailScreen: React.FC = () => {
   }, [dispatch, poData?.id, poData]);
 
   const handleExport = () => {
-    let temp = document.createElement("div");
+    dispatch(showLoading())
+    // khởi tạo, đơn vị px, khổ a4
+    const pdf = new jsPDF("portrait", "px", "a4");
+    const pageMargin = 10;
+    // chiều rộng form trong canvas
+    const canvasFormWidth = 800;
+    // lấy chiều rộng và dài của khổ a4
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // khởi tạo canvas
+    const temp = document.createElement("div");
+    const tempChild = document.createElement("div");
+    temp.appendChild(tempChild);
+    // tempChild.style.fontFamily = 'Roboto';
+    temp.style.width = `${canvasFormWidth}px`;
+    temp.style.padding = `${pageMargin}px`;
+    temp.style.position = "absolute";
+    temp.style.zIndex = "-2";
+    temp.style.top = "0px";
+    temp.style.margin = 'auto';
+    tempChild.style.width = `100%`;
+    tempChild.style.height = `100%`;
+    temp.style.display = 'block';
     temp.id = "temp";
-    temp.innerHTML = printContent;
+    tempChild.innerHTML = printContent;
     let value = document.body.appendChild(temp);
     if (value === null) return;
-    html2canvas(value).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("portrait", "px");
-      pdf.addImage(imgData, "png", 10, 10, value.offsetWidth / 4, value.offsetHeight / 2);
+    
+    
+    const imgWidth = pageWidth;
+    const rate = 1.8 // mò ra
+    const imgHeight  = (value.offsetHeight)* (value.offsetWidth/canvasFormWidth) / rate;
+    
+    var heightLeft = imgHeight;
+    var position = 0;
+    const getCanvas = (canvas: HTMLCanvasElement, pdf: jsPDF) => {
+      pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft = heightLeft - pageHeight;
+      // tách trang
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+    };
+
+    html2canvas(value, {
+      scale: 5, // fix nhòe
+    }).then((canvas) => {
+      getCanvas(canvas, pdf);
       temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
+      dispatch(hideLoading())
     });
   };
 

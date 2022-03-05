@@ -1,0 +1,20 @@
+.ant-tree-select-dropdown .ant-select-tree-list-holder-inner .tree-node-select-all{
+  padding: 4px 0px;
+}
+
+.ant-tree-select-dropdown>.ant-select-tree-list-holder-inner>.tree-node-select-all:hover{
+  background-color: #fff;
+}
+.ant-select-tree .tree-node-select-all .ant-select-tree-node-content-wrapper {
+    position: relative;
+    z-index: auto;
+    min-height: 24px;
+    margin: 0;
+    padding: 0px;
+    color: inherit;
+    line-height: 24px;
+    background: transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all .3s,border 0s,line-height 0s,box-shadow 0s;
+}

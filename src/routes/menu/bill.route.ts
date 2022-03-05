@@ -2,14 +2,14 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
-import CustomerDuplicate from "screens/order-online/duplicate.screen";
-import OrderDuplicate from "screens/order-online/order-duplicate";
 import OrderUpdate from "screens/order-online/order-update";
 import PackDetail from "screens/order-online/pack-detail";
 import PackSupportScreen from "screens/order-online/pack.screen";
 import AddReportHandOver from "screens/order-online/pack-add";
 import PackUpdate from "screens/order-online/pack-update";
 import SplitOrdersScreen from "screens/order-online/split-orders.screen";
+import CustomerDuplicate from "screens/order-online/order-duplicate/index";
+import OrderDuplicate from 'screens/order-online/order-duplicate/detail.screen'
 
 const ListOrder = React.lazy(() => import("screens/order-online/orders/index.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
@@ -22,7 +22,7 @@ const ScreenReturnDetail = React.lazy(
   () => import("screens/order-online/order-return/[id]")
 );
 
-const YDPageCRM = React.lazy(() => import("screens/yd-page"));
+const YDPageAdmin = React.lazy(() => import("screens/yd-page"));
 
 const bill: Array<RouteMenu> = [
   {
@@ -77,7 +77,7 @@ const bill: Array<RouteMenu> = [
         exact: true,
         title: "Đơn hàng từ YDPage",
         icon: "icon-dot",
-        component: YDPageCRM,
+        component: YDPageAdmin,
         key: "submenu5414",
         isShow: true,
         header: null,

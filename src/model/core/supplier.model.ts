@@ -110,6 +110,7 @@ export interface SupplierDetail extends BaseObject {
 }
 
 export interface SupplierQuery extends BaseQuery {
+  ids?: string,
   country_id?: number,
   city_id?: number,
   district_id?: string,
@@ -146,6 +147,7 @@ export interface SupplierCreateRequest {
   tax_code: string|null,
   type: string,
   phone?: string,
+  collection_id?: number | null,
   addresses: Array<SupplierAddress>,
   contacts: Array<SupplierContact>,
   payments: Array<SupplierPayment>,

@@ -29,7 +29,7 @@ export const ArrPoStatus = [
   {key: "draftpo", value: "Phiếu nháp"},
   {key: "stored", value: "Đã nhập kho"},
   {key: "completed", value: "Đã hoàn thành"},
-  {key: "finished", value: "Đã kết thúc"}, 
+  {key: "finished", value: "Đã kết thúc"},
   {key: "cancelled", value: "Đã hủy"}
 ]
 
@@ -234,6 +234,7 @@ export const ProcurementStatus = {
   draft: "draft",
   not_received: "not_received",
   received: "received",
+  cancelled: "cancelled",
 };
 
 export const ProcurementStatusName = {
@@ -262,7 +263,7 @@ export const POS = {
   channel_code: "POS",
   source: "POS",
 	source_id: 1,
-  source_code: "SC000070",
+  source_code: "POS",
 };
 
 export const SHOPEE = {

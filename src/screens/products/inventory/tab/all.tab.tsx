@@ -29,7 +29,7 @@ import { getInventoryConfigService } from "service/inventory";
 import {formatCurrency, generateQuery, Products} from "utils/AppUtils";
 import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
 import { showError } from "utils/ToastUtils";
-import {getQueryParams} from "utils/useQuery";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
 import {TabProps} from "./tab.props";
 import "./index.scss"
@@ -41,23 +41,23 @@ type ConfigColumnInventory = {
 export interface SummaryInventory {
   Sum_Total: number | 0;
   Sum_On_hand: number | 0;
-  Sum_Available: number | 0; 
-  Sum_Committed: number | 0; 
-  Sum_On_hold: number | 0; 
-  Sum_Defect: number | 0; 
-  Sum_In_coming: number | 0; 
-  Sum_Transferring: number | 0; 
-  Sum_On_way: number | 0; 
-  Sum_Shipping: number | 0; 
-} 
+  Sum_Available: number | 0;
+  Sum_Committed: number | 0;
+  Sum_On_hold: number | 0;
+  Sum_Defect: number | 0;
+  Sum_In_coming: number | 0;
+  Sum_Transferring: number | 0;
+  Sum_On_way: number | 0;
+  Sum_Shipping: number | 0;
+}
 
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const {stores} = props;
   const history = useHistory();
   const pageSizeOptions: Array<string> =["50","100"];
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
-  
-  const query = new URLSearchParams(history.location.hash.substring(2));
+
+  const query = useQuery();
 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
@@ -79,10 +79,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const [inventiryVariant, setInventiryVariant] = useState<
     Map<number, AllInventoryResponse[]>
   >(new Map());
-  
+
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
-  const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]); 
+  const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
 
   const onPageChange = useCallback(
@@ -98,6 +98,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const onFilter = useCallback(
     (values) => {
+      console.log(values, params)
       const newValues = {...values,info: values.info?.trim()}
       const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
@@ -105,13 +106,13 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     },
     [history, params]
-  );  
+  );
 
   const onSortASC = useCallback((sortColumn: string)=>{
       const newPrams = {...params, sort_type: "asc",sort_column: sortColumn};
       onFilter(newPrams);
-  },[onFilter, params]);  
-  
+  },[onFilter, params]);
+
   const onSortDESC = useCallback((sortColumn: string)=>{
     const newPrams = {...params, sort_type: "desc",sort_column: sortColumn};
     onFilter(newPrams);
@@ -136,13 +137,13 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
                  </div>
                  <div>
                    <TextEllipsis value={record.name} line={1} />
-                 </div> 
+                 </div>
              </div>
              )
          }
-       }, 
+       },
        {
-        title: "Giá bán", 
+        title: "Giá bán",
          titleCustom: "Giá bán",
          visible: true,
          dataIndex: "variant_prices",
@@ -168,9 +169,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },
        {
          title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn",
-                              InventoryColumnField.total_stock, 
+                              InventoryColumnField.total_stock,
                               (sortColumn:string)=>{onSortASC(sortColumn)},
-                              (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                              (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Tổng tồn",
          visible: true,
          dataIndex: `total_stock`,
@@ -182,9 +183,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },
        {
         title: HeaderSummary(objSummaryTable?.Sum_On_hand,"Tồn trong kho",
-                            InventoryColumnField.on_hand, 
+                            InventoryColumnField.on_hand,
                             (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Tổng trong kho",
          visible: true,
          dataIndex: `on_hand`,
@@ -196,9 +197,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },
        {
         title: HeaderSummary(objSummaryTable?.Sum_Available,"Có thể bán",
-                      InventoryColumnField.available, 
+                      InventoryColumnField.available,
                       (sortColumn:string)=>{onSortASC(sortColumn)},
-                      (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                      (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Có thể bán",
          visible: true,
          dataIndex: `available`,
@@ -210,9 +211,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },
        {
         title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao dịch",
-                            InventoryColumnField.committed, 
+                            InventoryColumnField.committed,
                             (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Đang giao dịch",
          visible: true,
          dataIndex: `committed`,
@@ -221,12 +222,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          render: (value) => {
           return <div> {value ? formatCurrency(value): ""}</div>;
          },
-       }, 
+       },
        {
         title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Tạm giữ",
-                          InventoryColumnField.on_hold, 
+                          InventoryColumnField.on_hold,
                           (sortColumn:string)=>{onSortASC(sortColumn)},
-                          (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                          (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Tạm giữ",
          visible: true,
          dataIndex: `on_hold`,
@@ -237,9 +238,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi",
-                          InventoryColumnField.defect, 
+                          InventoryColumnField.defect,
                           (sortColumn:string)=>{onSortASC(sortColumn)},
-                          (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                          (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Hàng lỗi",
          visible: true,
          dataIndex: `defect`,
@@ -250,9 +251,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập",
-                            InventoryColumnField.in_coming, 
+                            InventoryColumnField.in_coming,
                             (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Chờ nhập",
          visible: true,
          dataIndex: `in_coming`,
@@ -263,9 +264,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng chuyển đến",
-                            InventoryColumnField.transferring, 
+                            InventoryColumnField.transferring,
                             (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Hàng chuyển đến",
          visible: true,
          dataIndex: `transferring`,
@@ -276,9 +277,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng chuyển đi",
-                            InventoryColumnField.on_way, 
+                            InventoryColumnField.on_way,
                             (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Hàng chuyển đi",
          visible: true,
          dataIndex: `on_way`,
@@ -289,9 +290,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Đang giao",
-                            InventoryColumnField.shipping, 
+                            InventoryColumnField.shipping,
                             (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
          titleCustom: "Đang giao",
          visible: true,
          dataIndex: `shipping`,
@@ -303,7 +304,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        }
      ]
    },[objSummaryTable, onSortDESC, onSortASC]);
- 
+
    const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
      return [
        {
@@ -357,7 +358,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          width: 80, render: (value) => {
           return <div> {value ? formatCurrency(value): ""}</div>;
          },
-       }, 
+       },
        {
          title: "Tạm giữ",
          dataIndex: `on_hold`,
@@ -421,14 +422,14 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     let objSum: SummaryInventory = {
       Sum_Total:  0,
       Sum_On_hand: 0,
-      Sum_Available: 0, 
+      Sum_Available: 0,
       Sum_Committed: 0,
       Sum_On_hold: 0,
-      Sum_Defect: 0, 
+      Sum_Defect: 0,
       Sum_In_coming: 0,
       Sum_Transferring:0,
       Sum_On_way: 0,
-      Sum_Shipping: 0, 
+      Sum_Shipping: 0,
     };
 
     setSelected(
@@ -436,16 +437,20 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         return el !== undefined;
       })
     );
-    
-      if (selectedRow && selectedRow.length > 0) {
-        selectedRow.forEach((e)=>{ 
-          objSum.Sum_On_hand += e.on_hand;
+
+      if (selectedRow && selectedRow.length > 0) { 
+
+        selectedRow.forEach((e)=>{
+          if (e === undefined)  
+              return;
+           
+          objSum.Sum_On_hand += e.on_hand ?? 0;
           objSum.Sum_Available += e.available ?? 0;
           objSum.Sum_Committed += e.committed ?? 0;
           objSum.Sum_On_hold += e.on_hold ?? 0;
           objSum.Sum_Defect += e.defect ?? 0;
           objSum.Sum_In_coming += e.in_coming ?? 0;
-          objSum.Sum_Transferring += e.transferring;
+          objSum.Sum_Transferring += e.transferring ?? 0;
           objSum.Sum_On_way += e.on_way ?? 0;
           objSum.Sum_Shipping += e.shipping ?? 0;
           objSum.Sum_Total += e.total_stock ?? 0;
@@ -467,7 +472,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     }
   }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
-  
+
   const onSaveInventory = (
     result: Array<AllInventoryResponse>,
     variant_ids: Array<number>
@@ -496,7 +501,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const debouncedSearch = React.useMemo(() =>
     _.debounce((keyword: string) => {
-      setLoading(true); 
+      setLoading(true);
       const newValues = {...params,info: keyword?.trim()}
       const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
@@ -504,20 +509,20 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     }, 300),
     [params,history]
-  ) 
+  )
 
   const onChangeKeySearch = useCallback(
     (keyword: string) => {
       debouncedSearch(keyword)
     },
     [debouncedSearch]
-  )  
+  )
 
   useEffect(() => {
     setLoading(true);
     const temps = {...params, limit: params.limit ?? 50};
-    delete temps.status; 
-    
+    delete temps.status;
+
     dispatch(searchVariantsInventoriesRequestAction(temps, onResult));
   }, [dispatch, onResult, params]);
 
@@ -541,10 +546,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
                 if (res.data && res.data.length > 0) {
                   const userConfigColumn = res.data.filter(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY);
                   const userConfig=   userConfigColumn.reduce((p, c) => p.id > c.id ? p : c);
-                
+
                    if (userConfig){
                        let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
-                       
+
                        cf.Columns.forEach(e => {
                          const column = defaultColumns.find(p=>p.dataIndex === e.dataIndex);
                          if (column) {
@@ -580,10 +585,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         })
         .finally(() => {
           dispatch(hideLoading());
-        }); 
+        });
     }
   },[account, dispatch, defaultColumns, defaultColumnsDrill]);
-  
+
   const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<InventoryResponse>>, dataDrill: Array<ICustomTableColumType<InventoryResponse>>) => {
     let config = lstConfig.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY) as FilterConfigRequest;
     if (!config) config = {} as FilterConfigRequest;
@@ -592,7 +597,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       Columns: data,
       ColumnDrill: dataDrill
     } as ConfigColumnInventory;
-    
+
     const json_content = JSON.stringify(configRequest);
     config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
     config.json_content = json_content;
@@ -602,7 +607,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     }else{
       dispatch(createConfigInventoryAction(config));
     }
-  
+
 }, [dispatch,account?.code, lstConfig]);
 
   useEffect(()=>{
@@ -613,7 +618,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     setColumns(defaultColumns);
   }, [params,defaultColumns, selected, objSummaryTable]);
 
-  
+
   return (
     <div>
       <AllInventoryFilter
@@ -635,8 +640,8 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         scroll={{x: 1200}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
-        expandedRowKeys={expandRow} 
-        onSelectedChange={onSelect} 
+        expandedRowKeys={expandRow}
+        onSelectedChange={onSelect}
         pagination={false}
         expandable={{
           expandIcon: (props) => {
@@ -668,7 +673,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
           expandedRowRender: (record: VariantResponse, index, indent, expanded) => {
             return (
               <CustomTable
-                bordered 
+                bordered
                 dataSource={inventiryVariant.get(record.id) || []}
                 pagination={false}
                 columns={columnsDrill}
@@ -694,7 +699,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {
-          setShowSettingColumn(false); 
+          setShowSettingColumn(false);
           setColumns(data);
           let columnsInRow = data.filter(e=>e.visible === true && e.dataIndex !== "sku").map(
             (item: ICustomTableColumType<InventoryResponse>)=>{
@@ -703,7 +708,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
                 dataIndex: item.dataIndex,
                 align: item.align,
                 width: item.width,
-                fixed: item.fixed ?? false, 
+                fixed: item.fixed ?? false,
                 render: item.render
               }
             }
@@ -722,10 +727,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
             if (e.dataIndex === "variant_prices" || e.dataIndex === "category") {
               e.render = undefined;
               e.title = "";
-            } 
+            }
           });
           setColumnsDrill(columnsInRow);
-          
+
           onSaveConfigColumn(data, columnsInRow);
         }}
         data={columns}

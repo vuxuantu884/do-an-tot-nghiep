@@ -1,6 +1,7 @@
 import BaseAction from "base/base.action";
+import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { OrderModel, OrderSearchQuery, StoreBankAccountNumberModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
@@ -34,6 +35,7 @@ import {
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
+  StoreCustomResponse,
   TrackingLogFulfillmentResponse,
   VTPFeeResponse,
 } from "model/response/order/order.response";
@@ -323,7 +325,7 @@ export const getListOrderAction = (
   });
 };
 
-export const getListOrderActionFpage = (
+export const getCustomerOrderYdpageAction = (
   query: any,
   setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
@@ -525,4 +527,70 @@ export const updateOrderPartial = (
     orderID,
     onSuccess,
   });
+};
+
+export const changeOrderStoreAction = (
+  storeId: number
+) => {
+  return {
+    type: OrderType.ORDER_CHANGE_STORE,
+    payload: {
+      storeId,
+    },
+  }
+};
+
+export const changeStoreDetailAction = (
+  storeDetail: StoreCustomResponse
+) => {
+  return {
+    type: OrderType.CHANGE_STORE_DETAIL,
+    payload: {
+      storeDetail,
+    },
+  }
+};
+
+export const getStoreBankAccountNumbersAction = (
+  storeBankAccountNumbers: StoreBankAccountNumberModel[]
+) => {
+  return {
+    type: OrderType.GET_BANK_ACCOUNT_NUMBERS,
+    payload: {
+      storeBankAccountNumbers,
+    }
+  }
+};
+
+export const changeSelectedStoreBankAccountAction = (
+  selectedStoreBankAccount: string|undefined
+) => {
+  return {
+    type: OrderType.CHANGE_SELECTED_STORE_BANK_ACCOUNT,
+    payload: {
+      selectedStoreBankAccount,
+    }
+  }
+};
+
+export const setIsExportBillAction = (
+  isExportBill: boolean
+) => {
+  return {
+    type: OrderType.SET_IS_EXPORT_BILL,
+    payload: {
+      isExportBill,
+    }
+  }
+};
+
+export const setIsShouldSetDefaultStoreBankAccountAction = (
+  isShouldSetDefaultStoreBankAccount: boolean
+) => {
+  return {
+    type: OrderType.SET_IS_SHOULD_SET_DEFAULT_BANK_ACCOUNT,
+    payload: {
+      isShouldSetDefaultStoreBankAccount,
+    }
+  }
 };

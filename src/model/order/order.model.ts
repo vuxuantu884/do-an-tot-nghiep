@@ -118,6 +118,7 @@ export interface OrderModel extends BaseObject {
   channel_code: string;
   created_on?: string | null;
   total_quantity: number ;
+  export_bill: boolean;
 }
 
 export interface OrderSearchQuery {
@@ -245,4 +246,18 @@ export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
   district:string,
   city:string,
   country:string
+}
+
+export interface StoreBankAccountNumbersQueryModel  {
+  store_ids: number[];
+}
+
+export interface StoreBankAccountNumberModel {
+  account_holder: string;
+  account_number: string;
+  bank_code: string;
+  bank_name: string;
+  default: boolean;
+  status: boolean;
+  id: number;
 }

@@ -69,7 +69,7 @@ import { getStoreApi, inventoryTransferGetDetailVariantIdsApi } from "service/in
 import { RegUtil } from "utils/RegUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { RefSelectProps } from "antd/lib/select";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 
 const { Option } = Select;
 
@@ -419,7 +419,7 @@ const CreateTicket: FC = () => {
         arrError.push(`${index + 1}`);
         countError++;
       } else {
-        if (thisInput) thisInput.style.borderColor = "unset";
+        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
 
@@ -499,7 +499,7 @@ const CreateTicket: FC = () => {
       showError("Không đủ tồn kho gửi");
       if (thisInput) thisInput.style.borderColor = "red";
     } else {
-      if (thisInput) thisInput.style.borderColor = "unset";
+      if (thisInput) thisInput.style.borderColor = "#d9d9d9";
     }
 
     dataLineItems?.forEach((element: VariantResponse, index: number) => {
@@ -513,7 +513,7 @@ const CreateTicket: FC = () => {
       ) {
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
-        if (thisInput) thisInput.style.borderColor = "unset";
+        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
   };
@@ -547,7 +547,7 @@ const CreateTicket: FC = () => {
       ) {
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
-        if (thisInput) thisInput.style.borderColor = "unset";
+        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
   
@@ -685,19 +685,13 @@ const CreateTicket: FC = () => {
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
-      key: "quantity",
-
       render: (value, row, index) => (
-        <React.Fragment>
-          <Form.Item noStyle name={VARIANTS_FIELD} hidden>
-            <Input />
-          </Form.Item>
-
           <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
             value={value}
+            className="border-input"
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}
@@ -705,7 +699,6 @@ const CreateTicket: FC = () => {
               checkError(index);
             }}
           />
-        </React.Fragment>
       ),
     },
     {
@@ -878,7 +871,6 @@ const CreateTicket: FC = () => {
               <Card
                 title="THÔNG TIN SẢN PHẨM"
                 bordered={false}
-                className={"product-detail"}
               >
                 <div>
                   <Input.Group className="display-flex">

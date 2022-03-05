@@ -1,6 +1,7 @@
 import { BaseObject } from "model/base/base.response";
 
 export interface DistrictResponse extends BaseObject {
+  value?: number;
   name: string;
   city_id: number;
   city_name: string;

@@ -1,6 +1,7 @@
 import React, { CSSProperties, ReactNode } from "react";
 import { SelectProps, Select as ANTSelect } from "antd";
 import classNames from "classnames";
+import { fullTextSearch } from "utils/StringUtils";
 
 interface IProps extends SelectProps<any> {
   style?: CSSProperties;
@@ -34,6 +35,9 @@ const CustomSelect = (props: IProps) => {
       <ANTSelect
         className={containerClassName}
         style={containerStyle}
+        filterOption={(input, option) =>
+          fullTextSearch(input, option?.children)
+          }
         {...rest}
       />
       {suffix && <div className="custom-select-suffix">{suffix}</div>}

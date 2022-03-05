@@ -246,4 +246,5 @@ export interface YDpageCustomerRequest {
   ward_id: number | null,
   full_address: string | null,
   card_number: string | null,
+  customer_group_id: string | null,
 }

@@ -65,9 +65,12 @@ import { StyledProductFilter } from "screens/ecommerce/products/styles";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 import ConnectedItemActionColumn from "../connected-items/ConnectedItemActionColumn";
+import BaseResponse from "base/base.response";
+
 import { exportFileProduct, getFileProduct } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
-import BaseResponse from "base/base.response";
+
+import ConcatenateByExcel from "./ConcatenateByExcel";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -107,6 +110,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [isVisibleConfirmConnectItemsModal, setIsVisibleConfirmConnectItemsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
+  const [isVisibleConcatenateByExcelModal, setIsVisibleConcatenateByExcelModal] = useState(false);
 
   //export file excel
   const [isShowBtnExportProduct, setShowBtnExportProduct] = useState(true)
@@ -116,8 +120,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
   
-
-
 
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -1044,6 +1046,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsShowDeleteItemModal(true);
   };
 
+  const handleConcatenateByExcel = () => {
+    setIsVisibleConcatenateByExcelModal(true);
+  }
+
+  const onOkConcatenateByExcel = () => {
+    setIsVisibleConcatenateByExcelModal(false);
+  }
+  
+  const onCancelConcatenateByExcel = () => {
+    setIsVisibleConcatenateByExcelModal(false);
+  }
+
   const actionList = (
     <Menu>
       {allowProductsDelete &&
@@ -1051,14 +1065,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
         </Menu.Item>
       }
-      <Menu.Item key="2">
-        <span onClick={handleSuggestItem}>{suggestVariants ? "Bỏ gợi ý ghép nối" : "Gợi ý ghép nối"}</span>
-      </Menu.Item>
-
       <Menu.Item key="3">
-        <span onClick={handleExportExcelProduct}>
-          Xuất excel
-        </span>
+        <span onClick={handleExportExcelProduct}>Xuất excel sản phẩm</span>
+      </Menu.Item>
+      <Menu.Item key="4">
+        <span onClick={handleSuggestItem}>Gợi ý ghép nối</span>
+      </Menu.Item>
+      <Menu.Item key="5">
+        <span onClick={handleConcatenateByExcel}>Ghép nối bằng excel</span>
       </Menu.Item>
     </Menu>
   )
@@ -1278,6 +1292,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           cancelConfirmConnectModal={() => setIsVisibleConfirmConnectItemsModal(false)}
         />
       }
+
+      {/* Import customer file */}
+      {isVisibleConcatenateByExcelModal &&
+          <ConcatenateByExcel
+            onCancelConcatenateByExcel={onCancelConcatenateByExcel}
+            onOkConcatenateByExcel={onOkConcatenateByExcel}
+          />
+        }
 
       {/*<ResultConnectProductModal*/}
       {/*  visible={isShowResultConnectProductModal}*/}

@@ -2,7 +2,6 @@ import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
 import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
-import HashTag from "component/custom/hashtag";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomSelect from "component/custom/select.custom";
 import CustomModal from "component/modal/CustomModal";
@@ -62,35 +61,35 @@ const listPOStatus = {
   [POStatus.CANCELLED]: "Đã hủy",
 };
 const listProcumentStatus = {
-  [ProcumentStatus.NOT_RECEIVED]: "Chưa nhận hàng",
-  [ProcumentStatus.PARTIAL_RECEIVED]: "Nhận hàng 1 phần",
-  [ProcumentStatus.RECEIVED]: "Đã nhận hàng",
+  [ProcumentStatus.NOT_RECEIVED]: "Chưa nhận",
+  [ProcumentStatus.PARTIAL_RECEIVED]: "Nhận 1 phần",
+  [ProcumentStatus.RECEIVED]: "Đã nhận",
 };
 const listPaymentStatus = {
-  [PoPaymentStatus.UNPAID]: "Chưa thanh toán",
-  [PoPaymentStatus.PARTIAL_PAID]: "Thanh toán 1 phần",
-  [PoPaymentStatus.PAID]: "Đã thanh toán",
+  [PoPaymentStatus.UNPAID]: "Chưa TT",
+  [PoPaymentStatus.PARTIAL_PAID]: "TT 1 phần",
+  [PoPaymentStatus.PAID]: "Đã TT",
 };
 
 const filterFields = {
-  order_date: "order_date",
-  activated_date: "activated_date",
-  completed_date: "completed_date",
-  cancelled_date: "cancelled_date",
-  status: "status",
   receive_status: "receive_status",
   financial_status: "financial_status",
-  merchandiser: "merchandiser",
-  qc: "qc",
-  // cost_included: "cost_included",
   tax_included: "tax_included",
-  expect_import_date: "expect_import_date",
+  order_date: "order_date",
+  activated_date: "activated_date",
   expected_store: "expected_store",
+  cancelled_date: "cancelled_date",
+  expect_import_date: "expect_import_date",
+  is_have_returned: "is_have_returned",
+  // cost_included: "cost_included",
+  completed_date: "completed_date",
+  qc: "qc",
+  // tags: "tags",
+  reference: "reference",
   note: "note",
   supplier_note: "supplier_note",
-  tags: "tags",
-  reference: "reference",
-  is_have_returned: "is_have_returned"
+  status: "status",
+  merchandiser: "merchandiser",
 };
 
 const rangeFilter = {
@@ -113,24 +112,26 @@ const allStatus: any = {
 };
 
 const filterFieldsMapping: any = {
-  [filterFields.order_date]: "Ngày tạo đơn",
-  [filterFields.activated_date]: "Ngày duyệt đơn",
-  [filterFields.completed_date]: "Ngày hoàn tất đơn",
-  [filterFields.cancelled_date]: "Ngày hủy đơn",
-  [filterFields.status]: "Trạng thái đơn",
   [filterFields.receive_status]: "Nhập kho",
   [filterFields.financial_status]: "Thanh toán",
-  [filterFields.merchandiser]: "Merchandiser",
-  [filterFields.qc]: "QC",
-  // [filterFields.cost_included]: "Chi phí",
   [filterFields.tax_included]: "VAT",
-  [filterFields.expect_import_date]: "Ngày nhận hàng dự kiến",
+  [filterFields.order_date]: "Ngày tạo đơn",
+  [filterFields.activated_date]: "Ngày duyệt đơn",
   [filterFields.expected_store]: "Kho nhận hàng dự kiến",
+  [filterFields.completed_date]: "Ngày hoàn tất đơn",
+  [filterFields.cancelled_date]: "Ngày hủy đơn",
+  // [filterFields.status]: "Trạng thái đơn",
+  // [filterFields.cost_included]: "Chi phí",
+  // [filterFields.merchandiser]: "Merchandiser",
+  [filterFields.qc]: "QC",
+  [filterFields.expect_import_date]: "Ngày nhận hàng dự kiến",
   [filterFields.note]: "Ghi chú nội bộ",
   [filterFields.supplier_note]: "Ghi chú nhà cung cấp",
-  [filterFields.tags]: "Tag",
+  // [filterFields.tags]: "Tag",
   [filterFields.reference]: "Mã tham chiếu",
-  [filterFields.is_have_returned]: "Trả hàng"
+  [filterFields.is_have_returned]: "Trả hàng",
+  [filterFields.status]: "Trạng thái đơn",
+  [filterFields.merchandiser]: "Merchandiser",
 };
 
 const keysDateFilter = [
@@ -219,6 +220,7 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
             }}
             key={filterKey}
             className="fade"
+            style={{ marginBottom: 10 }}
             closable
           >{`${renderTxt}`}</Tag>
         );
@@ -280,28 +282,6 @@ const AdvanceFormItems = ({
               formRef={formRef}
             />
             break;
-          case filterFields.status:
-            collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{
-                  width: "100%",
-                }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listPOStatus)?.map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listPOStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            );
-            break;
           case filterFields.receive_status:
             collapseChildren = (
               <CustomSelectMany span={8} data={listProcumentStatus} />
@@ -312,14 +292,10 @@ const AdvanceFormItems = ({
               <CustomSelectMany data={listPaymentStatus} span={8} />
             );
             break;
-          case filterFields.merchandiser:
-            collapseChildren = (
-              <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                tagRender={tagRender}
-                mode="multiple"
-                placeholder="Chọn Merchandiser"/>
-            );
-            break;
+          // case filterFields.merchandiser:
+          //   collapseChildren = (
+          //   );
+          //   break;
           case filterFields.qc:
             collapseChildren = (
               <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
@@ -363,17 +339,17 @@ const AdvanceFormItems = ({
             break;
           case filterFields.note:
             collapseChildren = (
-              <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
+              <Input.TextArea placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
             );
             break;
           case filterFields.supplier_note:
             collapseChildren = (
-              <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
+              <Input.TextArea placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
             );
             break;
-          case filterFields.tags:
-            collapseChildren = <HashTag placeholder="Tìm kiếm theo tag" />;
-            break;
+          // case filterFields.tags:
+          //   collapseChildren = <HashTag placeholder="Tìm kiếm theo tag" />;
+          //   break;
           case filterFields.reference:
             collapseChildren = (
               <Input placeholder="Tìm kiếm theo mã tham chiếu" />
@@ -383,7 +359,7 @@ const AdvanceFormItems = ({
             collapseChildren = null;
         }
         return (
-          <Col span={12} key={field}>
+          <Col span={8} key={field} hidden={ field === filterFields.status || field === filterFields.merchandiser }>
             <div className="font-weight-500">{filterFieldsMapping[field]}</div>
             <Item  name={field}>{collapseChildren}</Item>
           </Col>
@@ -431,14 +407,18 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
 
-  let [advanceFilters, setAdvanceFilters] = useState({});
+  let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [tempAdvanceFilters, setTempAdvanceFilters] = useState({});
 
   const resetField = useCallback(
     (field: string) => {
       formAdvanceFilter.resetFields([field]);
-      formBaseFilter.submit();
+      setTimeout(() => {
+        formBaseFilter.resetFields([field]);
+      })
+      onAdvanceFinish()
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [formBaseFilter, formAdvanceFilter]
   );
 
@@ -450,7 +430,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     [formBaseFilter, onFilter]
   );
   const onAdvanceFinish = useCallback(
-    (values: PurchaseOrderQuery) => {
+    (values?: PurchaseOrderQuery) => {
       let data = formAdvanceFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
@@ -709,6 +689,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                 <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                 tagRender={tagRender}
                 mode="multiple"
+                defaultValue={params?.merchandiser}
                 placeholder="Chọn Merchandiser"/>
               </Item>
               <Item name={filterFields.status}>
@@ -751,7 +732,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
-          width={850}
+          width={968}
           allowSave
           onSaveFilter={onShowSaveFilter}
         >
@@ -761,6 +742,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             name="formAdvanceFilter"
             onFinish={onAdvanceFinish}
             layout="vertical"
+            style={{ paddingTop: 12 }}
             onFieldsChange={(changedFields: any, allFields: any) => {
               let fieldNames =
                 changedFields && changedFields.length > 0 && changedFields[0].name;
@@ -777,7 +759,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           >
             {
               (lstConfigFilter && lstConfigFilter.length > 0) &&
-              <div>
+              <div style={{ marginBottom: 20 }}>
                    {
                      lstConfigFilter?.map((e, index)=>{
                        return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
@@ -785,6 +767,48 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                    }
               </div>
             }
+            <Row gutter={12}>
+              <Col span={12}>
+                <Item name="info" className="search">
+                  <Input
+                    prefix={<img src={search} alt="" />}
+                    placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
+                  />
+                </Item>
+              </Col>
+              <Col span={6}>
+                <Item name={filterFields.merchandiser}>
+                  <AccountSearchPaging
+                    fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                    tagRender={tagRender}
+                    mode="multiple"
+                    placeholder="Chọn Merchandiser"
+                  />
+                </Item>
+              </Col>
+              <Col span={6}>
+                <Item name={filterFields.status}>
+                  <CustomSelect
+                    showArrow
+                    placeholder="Trạng thái đơn"
+                    mode="multiple"
+                    allowClear
+                    tagRender={tagRender}
+                    notFoundContent="Không tìm thấy kết quả"
+                    style={{
+                      width: "100%",
+                    }}
+                    maxTagCount="responsive"
+                  >
+                    {Object.keys(listPOStatus)?.map((key) => (
+                      <CustomSelect.Option key={key} value={key}>
+                        {listPOStatus[key]}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+              </Col>
+            </Row>
             <AdvanceFormItems
               formRef={formRef}
               wins={wins}

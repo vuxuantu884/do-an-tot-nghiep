@@ -13,7 +13,7 @@ type AddPhoneModalProps = {
   deleteFpPhone: (p: string) => void;
   setFpDefaultPhone: (p: string) => void;
   customerPhones?: Array<string>;
-  customerPhone: string;
+  customerDefaultPhone: string;
 };
 
 const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) => {
@@ -21,7 +21,7 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
     visible,
     onOk,
     onCancel,
-    customerPhone,
+    customerDefaultPhone,
     customerPhones,
     addFpPhone,
     deleteFpPhone,
@@ -55,13 +55,13 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
       onOk={onOk}
       onCancel={onCancel}
       footer={null}
+      forceRender
     >
       <StyledComponent>
         <Form form={form}>
           <Space direction="vertical">
             <div className="text-muted">
-              Lưu ý: số điện thoại mới được cập nhật sẽ tự động đặt làm mặc định và sẽ ở
-              trên cùng
+              Lưu ý: số điện thoại mới được cập nhật sẽ tự động đặt làm mặc định
             </div>
             <div className="phone-add-container">
               <Form.Item
@@ -99,7 +99,7 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
                   <PhoneRow
                     key={index}
                     phone={phone}
-                    isDefaultPhone={customerPhone === phone}
+                    isDefaultPhone={phone === customerDefaultPhone}
                     onDelete={() => {
                       deleteFpPhone(phone);
                     }}

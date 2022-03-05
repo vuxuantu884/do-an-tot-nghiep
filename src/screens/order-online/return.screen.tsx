@@ -22,7 +22,7 @@ import {
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
@@ -408,7 +408,7 @@ const ListOrderScreen: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({limit: 30}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(getListReasonRequest(setReasons));
@@ -449,7 +449,7 @@ const ListOrderScreen: React.FC = () => {
         </Row>
       }
     >
-      <Card>
+      <Card className="return-card">
         <ReturnFilter
           onMenuClick={onMenuClick}
           actions={actions}

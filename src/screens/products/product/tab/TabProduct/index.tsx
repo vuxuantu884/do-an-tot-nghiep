@@ -132,11 +132,10 @@ const TabProduct: React.FC = () => {
   );
   const onFilter = useCallback((values) => {
     let {info} = values;
-
     values.info = info && info.trim();
     let newPrams = { ...params, ...{
         ...values,
-        info: values.info || params.info
+        info: values.info ? values.info : values.info === '' ? null : params.info
       }, page: 1 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
@@ -361,12 +360,12 @@ const TabProduct: React.FC = () => {
     },
     {
       title: "Ngày tạo",
-      dataIndex: "updated_date",
+      dataIndex: "created_date",
       visible: true,
       align: "left",
       width: 110,
       render: (value, record) => {
-        return ((record?.updated_date)!==null?ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY):"---")
+        return ((record?.created_date)!==null?ConvertUtcToLocalDate(record?.created_date,DATE_FORMAT.DDMMYYY):"---")
       },
     },
   ];
@@ -420,7 +419,16 @@ const TabProduct: React.FC = () => {
   }, [dispatch]);
   useEffect(() => {
     setTableLoading(true);
-    dispatch(searchVariantsRequestAction(params, setSearchResult));
+    let newParams = {
+      ...params,
+      merchandiser: params.merchandiser ? JSON.parse(params.merchandiser).code : null,
+      designer: params.designer ? JSON.parse(params.designer).code : null,
+      size: params.size ? JSON.parse(params.size).code : null,
+      color: params.color ? JSON.parse(params.color).code : null,
+      main_color: params.main_color ? JSON.parse(params.main_color).code : null,
+      supplier: params.supplier ? JSON.parse(params.supplier).code : null
+    }
+    dispatch(searchVariantsRequestAction(newParams, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
   return (

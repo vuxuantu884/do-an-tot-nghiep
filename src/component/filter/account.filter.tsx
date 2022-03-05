@@ -16,6 +16,7 @@ import { CgArrowRight } from "react-icons/cg";
 import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { FilterAccountAdvancedStyles } from "screens/settings/account/account.search.style";
+import { fullTextSearch } from "utils/StringUtils";
 import BaseFilter from "./base.filter";
 
 type AccountFilterProps = {
@@ -170,7 +171,12 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
               <Row>
                 <Col span={24}>
                   <Form.Item name="position_ids" label="Vị trí">
-                    <Select showArrow placeholder="Vị trí" allowClear>
+                    <Select showArrow placeholder="Vị trí" allowClear
+                      showSearch
+                      filterOption={(input, option) =>
+                        fullTextSearch(input, option?.children)
+                      }
+                    >
                       {listPosition?.map((item) => (
                         <Select.Option key={item.id} value={item.id.toString()}>
                           {item.name}

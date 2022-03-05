@@ -116,26 +116,34 @@
       background-color: rgba(42, 42, 134, 0.1);
     }
   }
-  .custom-yd-page-tabs {
-    .ant-tabs-nav-more {
-      display: none;
+
+  // tabs header
+  .yd-page-admin {
+    .yd-page-admin-tabs {
+      .ant-tabs-nav-more {
+        display: none;
+      }
+      .ant-tabs-nav {
+        position: fixed;
+        z-index: 1051;
+        width: 100%;
+        padding: 0;
+        height: 42px;
+      }
+      .ant-tabs-nav-list {
+        width: 100%;
+      }
+      .ant-tabs-tab {
+        width: 100%;
+        justify-content: center;
+        border-bottom: 1px solid #e5e5e5;
+        margin: 0;
+        padding: 12px 0;
+      }
     }
-    .ant-tabs-nav {
-      position: fixed;
-      z-index: 1051;
-      width: 100%;
-    }
-    .ant-tabs-nav-list {
-      width: 100%;
-    }
-    .ant-tabs-tab {
-      width: 100%;
-      justify-content: center;
-      border-bottom: 1px solid #e5e5e5;
-      margin: 0;
-      padding: 12px 0;
-    }
+
   }
+
   .padding-lef-right {
     padding: 0 24px 10px 24px;
   }
@@ -453,6 +461,17 @@
   .ant-radio:hover .ant-radio-inner {
     border-color: #2a2a86;
   }
+
+	.update-shipping {
+		.ant-form-item {
+			.ant-form-item-label {
+				display: none;
+			}
+			.ant-form-item-control {
+				flex: 1 !important;
+			}
+		}
+	}
 }
 
 .yd-page-customer-relationship {

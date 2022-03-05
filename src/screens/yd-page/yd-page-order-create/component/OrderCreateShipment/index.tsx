@@ -57,6 +57,7 @@ type PropType = {
   form: FormInstance<any>;
   thirdPL?: thirdPLModel;
   isShowButtonCreateShipment?: boolean;
+	shippingFeeInformedToCustomer: number | null;
   onSelectShipment: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   setThirdPL: (thirdPl: thirdPLModel) => void;
@@ -110,6 +111,7 @@ function OrderCreateShipment(props: PropType) {
     isCancelValidateDelivery,
     thirdPL,
     isShowButtonCreateShipment = false,
+		shippingFeeInformedToCustomer,
     setThirdPL,
     onSelectShipment,
     setShippingFeeInformedToCustomer,
@@ -393,6 +395,7 @@ function OrderCreateShipment(props: PropType) {
               setThirdPL={setThirdPL}
               shippingServiceConfig={shippingServiceConfig}
               setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+							shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
               infoFees={infoFees}
               addressError={addressError}
               levelOrder={levelOrder}

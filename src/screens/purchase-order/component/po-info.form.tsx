@@ -1,21 +1,30 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Form, Input } from "antd";
+import {Card, Form, FormInstance, Input} from "antd";
 import HashTag from "component/custom/hashtag";
 import RowDetail from "component/custom/RowDetail";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { AppConfig } from "config/app.config";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment } from "react";
+import {Fragment, useEffect} from "react";
 import { POStatus } from "utils/Constants";
+import {useSelector} from "react-redux";
+import {RootReducerType} from "../../../model/reducers/RootReducerType";
 
 type POInfoFormProps = {
   isEdit: boolean;
   isEditDetail?: boolean;
+  formMain?: FormInstance
 };
- 
+
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail } = props;
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
+  useEffect(() => {
+    props.formMain?.setFieldsValue({ [POField.merchandiser_code]: userReducer.account?.code })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (isEdit && !isEditDetail) {
     return (
@@ -166,6 +175,24 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                 return (
                   <div className="row-view">
                     {note !== null && note !== "" ? note : ""}
+                  </div>
+                );
+              }}
+            </Form.Item>
+            <Form.Item noStyle hidden name={POField.supplier_note}>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Ghi chú của nhà cung cấp"
+              shouldUpdate={(prev, current) =>
+                prev[POField.supplier_note] !== current[POField.supplier_note]
+              }
+            >
+              {({ getFieldValue }) => {
+                let supplierNote = getFieldValue(POField.supplier_note);
+                return (
+                  <div className="row-view">
+                    {supplierNote !== null && supplierNote !== "" ? supplierNote : ""}
                   </div>
                 );
               }}
@@ -368,6 +395,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                       },
                     ]}>
                     <AccountSearchPaging
+                      defaultValue={!isEdit && userReducer.account?.code}
                       placeholder="Chọn Merchandiser"
                       fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
@@ -412,6 +440,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
       >
         <div>
           <Form.Item label="Ghi chú nội bộ" name="note">
+            <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
+          </Form.Item>
+          <Form.Item label="Ghi chú của nhà cung cấp" name="supplier_note">
             <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
           </Form.Item>
           <Form.Item

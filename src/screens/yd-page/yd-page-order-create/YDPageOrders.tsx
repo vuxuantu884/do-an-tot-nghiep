@@ -16,7 +16,6 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
-import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -72,10 +71,10 @@ import NoPermission from "screens/no-permission.screen";
 import { LoyaltyPoint } from "../../../model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { OrderModel } from "../../../model/order/order.model";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { YDpageCustomerRequest } from "model/request/customer.request";
+import {getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage} from "../../../domain/actions/loyalty/loyalty.action";
 
 let typeButton = "";
 
@@ -87,7 +86,6 @@ type OrdersCreatePermissionProps = {
   setBillingAddress: (items: BillingAddress | null) => void;
   setDistrictId: (items: number | null) => void;
   setActiveTabKey: (items: string) => void;
-  setOrderHistory: (items: Array<OrderModel> | undefined) => void;
   getCustomerByPhone: (items: string) => void;
   setVisibleCustomer: (item: boolean) => void;
   setIsClearOrderTab: (item: boolean) => void;
@@ -98,9 +96,6 @@ type OrdersCreatePermissionProps = {
   defaultSourceId: number | null;
   defaultStoreId: number | null;
   userId: string | null;
-  loyaltyPoint: LoyaltyPoint | null;
-  loyaltyRate: LoyaltyRateResponse | undefined;
-  loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
   isVisibleCustomer: boolean;
@@ -120,13 +115,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setCustomer,
     setActiveTabKey,
     // setIsClearOrderTab,
-    loyaltyPoint,
-    loyaltyUsageRules,
     handleCustomerById,
     fbCustomerId,
     fbPageId,
     userId,
-    loyaltyRate,
     setShippingAddress,
     setBillingAddress,
     shippingAddress,
@@ -147,19 +139,13 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_PARTNER);
-
-  // const [customer, setCustomer] = useState<CustomerResponse | null>(null);
-
-  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POSTPAYMENT);
-  // const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-
-  // const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  // const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-  //   Array<LoyaltyUsageResponse>
-  // >([]);
-  // const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-
-  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.COD);
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
+  const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+  const [thirdPL, setThirdPL] = useState<any>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
     insurance_fee: null,
@@ -192,6 +178,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
+
+  const [isCheckSplitLine, setCheckSplitLine] = useState(false)
 
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const queryParams = useQuery();
@@ -278,6 +266,14 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
+
+  useEffect(() => {
+    if (customer?.id) {
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+  }, [customer?.id, dispatch]);
 
   useEffect(() => {
     if (
@@ -444,6 +440,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
     return listDiscountRequest;
   };
 
+  const handleRefreshInfoOrderSuccess = () => {
+    form.resetFields();
+    setItems([]);
+    setPayments([]);
+    setPaymentMethod(0);
+    setOrderAmount(0);
+    setCheckSplitLine(false);
+    setThirdPL(thirdPL.delivery_transport_type = "")
+  }
+
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
       setIsSaveDraft(false);
@@ -453,13 +459,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
+        handleRefreshInfoOrderSuccess()
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
+        handleRefreshInfoOrderSuccess()
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [customer, handleCustomerById, setActiveTabKey]
   );
 
@@ -575,16 +584,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
 
     if (!values.customer_id) {
-      showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
-      const element: any = document.getElementById("search_customer");
-      element?.focus();
+      showError("Vui lòng thêm mới khách hàng");
+      const element: any = document.getElementById("customer_add_full_address");
+      scrollAndFocusToDomElement(element);
     } else {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
-        if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+        if (shipmentMethod !== ShipmentMethodOption.DELIVER_PARTNER) {
           showError("Vui lòng nhập địa chỉ giao hàng!");
           const element: any = document.getElementById(
             "customer_update_shipping_addresses_full_address"
@@ -677,6 +686,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(getLoyaltyRate(setLoyaltyRate));
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
     // dispatch(
     //   DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
     //     setDeliveryServices(response);
@@ -872,7 +883,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         await setInitialForm({
           ...initialRequest,
         });
-        setCustomer(null);
+        // setCustomer(null);
         setItems([]);
         setItemGifts([]);
         setPayments([]);
@@ -967,6 +978,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
+
       if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
         showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
@@ -1076,7 +1088,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   }, [totalAmountOrder, totalAmountPayment]);
 
   return (
-    <div className="yd-page-order" style={{ marginTop: 56 }}>
+    <div className="yd-page-order" style={{ marginTop: 30 }}>
       <AuthWrapper acceptPermissions={ordersCreatePermission} passThrough>
         {(allowed: boolean) =>
           allowed ? (
@@ -1153,6 +1165,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       coupon={coupon}
                       setCoupon={setCoupon}
                       loyaltyPoint={null}
+                      isCheckSplitLine={isCheckSplitLine}
+                      setCheckSplitLine={setCheckSplitLine}
                     />
 
                     {/* Không cần thanh toán và vận chuyển */}
@@ -1180,6 +1194,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                         isCancelValidateDelivery={false}
                         totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                         setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                         onSelectShipment={onSelectShipment}
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}

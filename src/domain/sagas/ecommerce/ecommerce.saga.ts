@@ -6,7 +6,7 @@ import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { EcommerceType } from "domain/types/ecommerce.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { call, put, takeLatest } from "redux-saga/effects";
+import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -31,6 +31,7 @@ import {
   getOrderMappingListApi,
   exitProgressDownloadEcommerceApi,
   ecommerceSyncStockItemApi, getEcommerceStoreAddressApi, createEcommerceLogisticApi,
+  importConcatenateByExcelService
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -58,7 +59,7 @@ function* addFpagePhoneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* deleteFpagePhoneSaga(action: YodyAction) {
@@ -82,7 +83,7 @@ function* deleteFpagePhoneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* setFpageDefaultPhoneSaga(action: YodyAction) {
@@ -106,7 +107,7 @@ function* setFpageDefaultPhoneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* getFpageCustomerSaga(action: YodyAction) {
@@ -130,7 +131,7 @@ function* getFpageCustomerSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 // connect to the eccommerce
@@ -155,7 +156,7 @@ function* ecommerceConnectSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -180,7 +181,7 @@ function* ecommerceGetConfigInfoSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -205,7 +206,7 @@ function* ecommerceCreateSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -230,7 +231,7 @@ function* ecommerceGetByIdSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -279,7 +280,7 @@ function* ecommerceUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -304,7 +305,7 @@ function* ecommerceDeleteSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -330,7 +331,7 @@ function* ecommerceGetVariantsSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -657,6 +658,25 @@ function* createEcommerceLogisticOrder(action: YodyAction){
   }
 }
 
+function* concatenateByExcel(action: YodyAction) {
+  const { file, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(importConcatenateByExcelService, file);
+    if (response.code) {
+      callback(response);
+    } else {
+      callback(null);
+      yield put(unauthorizedAction());
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -701,7 +721,7 @@ export function* ecommerceSaga() {
     ecommerceGetVariantsSaga
   );
 
-  yield takeLatest(
+  yield takeEvery(
     EcommerceType.GET_ECOMMERCE_SHOP_REQUEST,
     ecommerceGetShopSaga
   );
@@ -769,5 +789,11 @@ export function* ecommerceSaga() {
   yield takeLatest(
       EcommerceType.CREATE_ECOMMERCE_LOGISTIC,
       createEcommerceLogisticOrder
+  );
+
+  // concatenate By Excel
+  yield takeLatest(
+    EcommerceType.CONCANATE_BY_EXCEL,
+    concatenateByExcel
   );
 }

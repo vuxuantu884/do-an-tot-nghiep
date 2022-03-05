@@ -1,4 +1,4 @@
- 
+
 .custom-filter {
   .page-filter {
     padding-top: 0px;
@@ -15,7 +15,7 @@
         .ant-space.ant-space-horizontal {
           width: 100%;
           .ant-space-item {
-            width: 100%; 
+            width: 100%;
             .ant-form.ant-form-inline {
               display: flex;
               justify-content: space-between;
@@ -39,5 +39,10 @@
         width: 100%;
       }
     }
-  } 
-} 
+  }
+}
+
+.label-date {
+  padding-bottom: 8px;
+  font-weight: 500;
+}
