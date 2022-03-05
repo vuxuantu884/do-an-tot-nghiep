@@ -1,6 +1,6 @@
 import { Button, Col, Row } from "antd";
 import { useCallback } from "react";
-import classNames from 'classnames/'
+import classNames from 'classnames'
 
 type CustomSelectManyProps = {
   value?: Array<string> | string | null;
@@ -13,7 +13,7 @@ const CustomSelectMany: React.FC<CustomSelectManyProps> = (
   props: CustomSelectManyProps
 ) => {
   const isActive = useCallback((key: string) => {
-    if (!props.value || props.value === null) {
+    if (!props.value) {
       return false;
     }
     if (props.value instanceof Array) {
@@ -29,7 +29,7 @@ const CustomSelectMany: React.FC<CustomSelectManyProps> = (
             className={classNames("button-select", isActive(key) ? "active" : "")}
             onClick={() => {
               let newData: Array<string> = [];
-              if (props.value && props.value !== null) {
+              if (props.value) {
                 newData = [...props.value];
               }
               let index = newData.findIndex((item) => item === key);
