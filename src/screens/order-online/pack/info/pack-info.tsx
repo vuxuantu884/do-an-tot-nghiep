@@ -204,8 +204,8 @@ const PackInfo: React.FC = () => {
       product_request: "",
       quality_request: "",
       order_request: "",
-      store_request: packModel?.store_id,
-      delivery_service_id:packModel?.delivery_service_id
+      // store_request: undefined,
+      // delivery_service_id:undefined
     });
   };
 
@@ -323,9 +323,9 @@ const PackInfo: React.FC = () => {
 
   useEffect(()=>{
     formRef.current?.setFieldsValue({
-      // product_request: "",
-      // quality_request: "",
-      // order_request: "",
+      product_request: "",
+      quality_request: "",
+      order_request: "",
       store_request: packModel?.store_id,
       delivery_service_id:packModel?.delivery_service_id
     });
@@ -402,13 +402,13 @@ const PackInfo: React.FC = () => {
         <span style={{ color: "#222222", textAlign: "right" }}>Số lượng nhặt</span>
       </div>
     ),
-    className: "text-right",
+    className: "yody-columns-of-picks text-right",
     width: "15%",
     align: "center",
     render: (l: any, item: any, index: number) => {
       return (
         <div
-          className="yody-qualtity-pick"
+          className="yody-pos-price"
           style={{ background: `${l.color}`, padding: "15px" }}
         >
           {formatCurrency(l.pick)}
@@ -624,7 +624,7 @@ const PackInfo: React.FC = () => {
             rowKey={(record) => record.id}
             columns={columns}
             dataSource={itemProductList}
-            className="yody-table-order-pick"
+            className="ecommerce-order-list"
             tableLayout="fixed"
             pagination={false}
             bordered
@@ -636,7 +636,7 @@ const PackInfo: React.FC = () => {
                   </div>
                   <div
                     style={{
-                      width: "26.66%",
+                      width: "27.66%",
                       float: "left",
                       textAlign: "right",
                       fontWeight: 400,
@@ -651,7 +651,7 @@ const PackInfo: React.FC = () => {
                   </div>
                   <div
                     style={{
-                      width: "23.8%",
+                      width: "23.18%",
                       float: "left",
                       textAlign: "right",
                       fontWeight: 400,

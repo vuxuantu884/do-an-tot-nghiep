@@ -19,24 +19,8 @@
         font-weight: 700;
         padding-left: 15px;
     }
-   
-}
-
-.yody-table-order-pick{
-    .yody-qualtity-pick{
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .ant-table-tbody>tr>td, .ant-table-thead>tr>th, .ant-table tfoot>tr>td, .ant-table tfoot>tr>th{
-        position: relative;
-        padding: 6px;
-        overflow-wrap: break-word;
+    .yody-columns-of-picks{
+        padding: 0;
     }
 }
 
@@ -61,6 +45,9 @@
 
 .pack-give-card{
     margin: 0px 7px;
+    // .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector{
+
+    // }
 }
 
 .pack-info-update-card{
