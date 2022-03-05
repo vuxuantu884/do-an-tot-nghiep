@@ -71,6 +71,7 @@ function PackList() {
     {
       title: "Sản phẩm",
       visible: true,
+      align:"center",
       render: (value, row, index) => {
         return <div>{row.items?.length}</div>;
       },
