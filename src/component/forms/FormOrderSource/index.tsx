@@ -4,7 +4,7 @@ import { CustomModalFormModel } from "model/modal/modal.model";
 import { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 
 type FormValuesType = {
   company_id: number;

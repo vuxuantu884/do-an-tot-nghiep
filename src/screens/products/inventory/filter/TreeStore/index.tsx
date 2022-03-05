@@ -2,7 +2,7 @@ import { FormInstance, TreeSelect, TreeSelectProps } from "antd";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import React, { useEffect, useState } from "react";
-import { fullTextSearch } from "utils/RemoveDiacriticsString";
+import { fullTextSearch } from "utils/StringUtils";
 interface Props extends TreeSelectProps<string> {
   form?: FormInstance;
   name: string;

@@ -69,7 +69,7 @@ import { getStoreApi, inventoryTransferGetDetailVariantIdsApi } from "service/in
 import { RegUtil } from "utils/RegUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { RefSelectProps } from "antd/lib/select";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 
 const { Option } = Select;
 
