@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row, Tabs } from "antd";
+import { Button, Card, Col, Row, Space, Tabs } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
@@ -184,7 +184,15 @@ const ViewSupplierScreen: React.FC = () => {
     >
       {supplier && (
         <React.Fragment>
-          <Card title="Thông tin cơ bản">
+          <Card title="Thông tin cơ bản" extra={
+                  <Space size={15}>
+                    <label className="text-default">Trạng thái:</label>
+                    <label
+                      className={supplier.status === "active" ? "text-success" : "text-error"}
+                    >
+                      {supplier.status_name}
+                    </label>
+                  </Space>}>
             <Row gutter={50}>
               <Col span={8}>
                 <RowDetail title="Mã nhà cung cấp" value={supplier.code} />
