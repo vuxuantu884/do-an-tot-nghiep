@@ -32,7 +32,7 @@ function* inventoryGetSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -57,7 +57,7 @@ function* inventoryGetDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -82,7 +82,7 @@ function* inventoryGetHistorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -137,7 +137,7 @@ function* inventoryGetDetailVariantIdsExtSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -153,7 +153,7 @@ function* inventoryByVariantsSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
         console.log(response.data);
-        
+
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -163,7 +163,7 @@ function* inventoryByVariantsSaga(action: YodyAction) {
     }
   } catch (error: any) {
     console.log(error);
-    
+
     // error.split(',').forEach((e:string) => showError(e));
   }
 }
@@ -188,7 +188,7 @@ function* getConfigInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -214,7 +214,7 @@ function* createConfigInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult && onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -240,7 +240,7 @@ function* updateConfigInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -266,7 +266,7 @@ function* deleteConfigInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -277,7 +277,7 @@ export function* inventorySaga() {
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT, inventoryGetDetailVariantIdsSaga);
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT_EXT, inventoryGetDetailVariantIdsExtSaga);
   yield takeLatest(InventoryType.GET_BY_VARIANTS, inventoryByVariantsSaga);
- 
+
   yield takeLatest(InventoryConfigType.GET_INVENTORY_CONFIG, getConfigInventorySaga);
   yield takeLatest(InventoryConfigType.CREATE_INVENTORY_CONFIG, createConfigInventorySaga);
   yield takeLatest(InventoryConfigType.UPDATE_INVENTORY_CONFIG, updateConfigInventorySaga);

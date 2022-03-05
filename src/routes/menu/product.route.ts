@@ -44,7 +44,7 @@ const UpdateCategory = React.lazy(
   () => import("screens/products/category/category-update.screen")
 );
 const SupplierCreateScreen = React.lazy(
-  () => import("screens/products/supplier/supplier-add.screen")
+  () => import("screens/products/supplier/add")
 );
 const SupplierUpdateScreen = React.lazy(
   () => import("screens/products/supplier/supplier-update.screen")
@@ -68,7 +68,7 @@ const ProductBarcodeScreen = React.lazy(
   () => import("screens/products/product/BarcodeProductScreen")
 );
 
-//product Collection 
+//product Collection
 const Collection = React.lazy(
   () => import("screens/products/collection")
 );
@@ -274,7 +274,7 @@ const product: Array<RouteMenu> = [
             pathIgnore: ["create"],
           },
         ],
-      }, 
+      },
       {
         path: UrlConfig.MATERIALS,
         exact: true,
@@ -483,7 +483,7 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         permissions: [SuppliersPermissions.READ],
       },
-      
+
     ],
   },
 ];

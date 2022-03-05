@@ -37,19 +37,19 @@ function* materialGetSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* materialSearchAllSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-   
+
     let response: BaseResponse<PageResponse<MaterialResponse>> = yield call(
       getMaterialApi,
       query
     );
-  
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -62,17 +62,17 @@ function* materialSearchAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-   
-    showError("Có lỗi vui lòng thử lại sau");
+
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* materialDeleteOneSaga(action: YodyAction) {
   let { id, onDeleteSuccess } = action.payload;
   try {
-   
+
     let response: BaseResponse<string> = yield call(deleteOneMaterialApi, id);
-   
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onDeleteSuccess();
@@ -85,17 +85,17 @@ function* materialDeleteOneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-  
-    showError("Có lỗi vui lòng thử lại sau");
+
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* materialDeleteManySaga(action: YodyAction) {
   let { ids, onDeleteSuccess } = action.payload;
   try {
-    
+
     let response: BaseResponse<string> = yield call(deleteManyMaterialApi, ids);
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onDeleteSuccess();
@@ -108,20 +108,20 @@ function* materialDeleteManySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
-    showError("Có lỗi vui lòng thử lại sau");
+
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* materialCreateSaga(action: YodyAction) {
   let { request, onCreateSuccess } = action.payload;
   try {
-    
+
     let response: BaseResponse<MaterialResponse> = yield call(
       createMaterialApi,
       request
     );
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess();
@@ -134,20 +134,20 @@ function* materialCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
-    showError("Có lỗi vui lòng thử lại sau");
+
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* materialDetailSaga(action: YodyAction) {
   let { id, setMaterial } = action.payload;
   try {
-    
+
     let response: BaseResponse<MaterialResponse> = yield call(
       detailMaterialApi,
       id
     );
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setMaterial(response.data);
@@ -163,14 +163,14 @@ function* materialDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     setMaterial(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* materialUpdateSaga(action: YodyAction) {
   let { id, request, onUpdate } = action.payload;
   try {
-    
+
     let response: BaseResponse<MaterialResponse> = yield call(
       updateMaterialApi,
       id,
@@ -191,7 +191,7 @@ function* materialUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     onUpdate(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

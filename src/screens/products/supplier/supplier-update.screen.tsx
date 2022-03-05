@@ -19,7 +19,7 @@ import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import {
-  SupplierDetailAction,
+  SupplierDetailAction, SupplierSearchAction,
   SupplierUpdateAction
 } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
@@ -57,6 +57,8 @@ const UpdateSupplierScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const isFirstLoad = useRef(true);
+  const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
   );
@@ -72,13 +74,14 @@ const UpdateSupplierScreen: React.FC = () => {
   const supplier_status = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
   );
+
   //State
   const [status, setStatus] = useState<string>();
   const [supplier, setSupplier] = useState<SupplierResponse | null>(null);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
-  const [, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
+  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
 
   const [type, setType] = useState("personal");
 
@@ -163,6 +166,24 @@ const UpdateSupplierScreen: React.FC = () => {
     }
   };
 
+  const validatePhone = (rule: any, value: any, callback: any): void => {
+    if (value) {
+      if (!RegUtil.PHONE.test(value)) {
+        callback(`Số điện thoại không đúng định dạng`);
+      } else {
+        listSupplier.forEach((supplier: SupplierResponse) => {
+          if (supplier?.phone === value) {
+            callback(`Số điện thoại đã tồn tại`);
+          }
+          return
+        })
+        callback();
+      }
+    } else {
+      callback();
+    }
+  };
+
   //end memo
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -173,6 +194,13 @@ const UpdateSupplierScreen: React.FC = () => {
       }
     }
     isFirstLoad.current = false;
+    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
+      if (response) {
+        setListSupplier(response.items)
+      } else {
+        setListSupplier([]);
+      }
+    }))
   }, [dispatch, idNumber, setSupplierDetail, params]);
 
   return (
@@ -353,6 +381,9 @@ const UpdateSupplierScreen: React.FC = () => {
                           required: true,
                           message: "Vui lòng nhập số điện thoại",
                         },
+                        {
+                          validator: validatePhone
+                        }
                       ]}
                       name="phone"
                     >
@@ -360,20 +391,20 @@ const UpdateSupplierScreen: React.FC = () => {
                     </Form.Item>
                   </Col>
                   {/*TODO: Waiting response api*/}
-                  {/*<Col span={12}>*/}
-                  {/*  <Item*/}
-                  {/*    name="group_product"*/}
-                  {/*    label="Nhóm hàng"*/}
-                  {/*  >*/}
-                  {/*    <Select allowClear placeholder="Chọn nhóm hàng">*/}
-                  {/*      {groupProducts && groupProducts?.items.map((item) => (*/}
-                  {/*        <Option key={item.id} value={item.id}>*/}
-                  {/*          {item.name}*/}
-                  {/*        </Option>*/}
-                  {/*      ))}*/}
-                  {/*    </Select>*/}
-                  {/*  </Item>*/}
-                  {/*</Col>*/}
+                  <Col span={12}>
+                    <Item
+                      name="collection_id"
+                      label="Nhóm hàng"
+                    >
+                      <Select allowClear placeholder="Chọn nhóm hàng">
+                        {groupProducts && groupProducts?.items.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                  </Col>
                 </Row>
               </Card>
               <Card title="Chi tiết nhà cung cấp">

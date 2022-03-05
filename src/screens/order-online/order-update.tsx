@@ -43,7 +43,11 @@ import {
 	getTrackingLogFulfillmentAction,
 	OrderDetailAction,
 	orderUpdateAction,
-	PaymentMethodGetList
+	PaymentMethodGetList,
+	getStoreBankAccountNumbersAction,
+	changeSelectedStoreBankAccountAction,
+	setIsExportBillAction,
+	setIsShouldSetDefaultStoreBankAccountAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
@@ -81,12 +85,15 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
+import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 	checkPaymentStatus,
 	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
+	handleFetchApiError,
+	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
 	sortFulfillments,
 	SumCOD,
@@ -123,6 +130,9 @@ export default function Order(props: PropType) {
 	const dispatch = useDispatch();
 	const history = useHistory();
 	let { id } = useParams<OrderParam>();
+	const isShouldSetDefaultStoreBankAccount = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
+  )	
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
@@ -845,11 +855,42 @@ ShippingServiceConfigDetailResponseModel[]
 		setShippingFeeInformedToCustomer(value);
 	};
 
+
 	useEffect(() => {
-		if (storeId != null) {
-			dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
-		}
-	}, [dispatch, storeId]);
+    if (storeId != null) {
+      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+      getStoreBankAccountNumbersService({
+				store_ids: [storeId]
+			}).then((response) => {
+				if (isFetchApiSuccessful(response)) {
+					dispatch(getStoreBankAccountNumbersAction(response.data.items))
+          const selected = response.data.items.find(single => single.default && single.status);
+					if(isShouldSetDefaultStoreBankAccount) {
+						if(selected) {
+							dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
+						} else {
+							let paymentsResult = [...payments]
+							let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
+							if(bankPaymentIndex > -1) {
+								paymentsResult[bankPaymentIndex].paid_amount = 0;
+								paymentsResult[bankPaymentIndex].amount = 0;
+								paymentsResult[bankPaymentIndex].return_amount = 0;
+							}
+							setPayments(paymentsResult);
+							dispatch(changeSelectedStoreBankAccountAction(undefined))
+						}
+
+					}
+				} else {
+					dispatch(getStoreBankAccountNumbersAction([]))
+					handleFetchApiError(response, "Danh sách số tài khoản ngân hàng của cửa hàng", dispatch)
+				}
+			}).catch((error) => {
+				console.log('error', error)
+			})
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
 
 	//windows offset
 	useEffect(() => {
@@ -1011,6 +1052,17 @@ ShippingServiceConfigDetailResponseModel[]
 						setPromotion(response?.discounts[0])
 					}
 					setIsLoadForm(true);
+					if(response.export_bill) {
+						dispatch(setIsExportBillAction(true))
+					} else {
+						dispatch(setIsExportBillAction(false))
+					}
+					const bankPayment = response.payments?.find(single => single.payment_method_code === PaymentMethodCode.BANK_TRANSFER && single.bank_account_number)
+					if(bankPayment) {
+						dispatch(changeSelectedStoreBankAccountAction(bankPayment.bank_account_number))
+					} else {
+						dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
+					}
 				}
 			})
 		);

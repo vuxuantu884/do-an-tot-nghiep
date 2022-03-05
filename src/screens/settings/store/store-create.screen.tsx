@@ -54,7 +54,7 @@ import {useHistory} from "react-router";
 import {RegUtil} from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Item} = Form;
@@ -106,6 +106,7 @@ const StoreCreateScreen: React.FC = () => {
     visible: false,
   });
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //EndState
 
@@ -132,6 +133,7 @@ const StoreCreateScreen: React.FC = () => {
   );
   const onCreateSuccess = useCallback(
     (data: StoreResponse | false) => {
+      setIsLoading(false);
       if (!data) {
         return;
       }
@@ -164,6 +166,7 @@ const StoreCreateScreen: React.FC = () => {
   };
   const onFinish = useCallback(
     (values: StoreCreateRequest) => {
+      setIsLoading(true);
       dispatch(StoreCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
@@ -588,7 +591,7 @@ const StoreCreateScreen: React.FC = () => {
           backAction={backAction}
           rightComponent={
             <Space>
-              <Button htmlType="submit" type="primary">
+              <Button loading={isLoading} htmlType="submit" type="primary">
                 Tạo cửa hàng
               </Button>
             </Space>

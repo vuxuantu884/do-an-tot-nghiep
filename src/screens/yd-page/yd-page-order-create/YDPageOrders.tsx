@@ -16,7 +16,6 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
-import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -140,20 +139,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_PARTNER);
-
-  // const [customer, setCustomer] = useState<CustomerResponse | null>(null);
-
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.COD);
-  // const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-
   const [thirdPL, setThirdPL] = useState<any>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
@@ -593,16 +584,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
 
     if (!values.customer_id) {
-      showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
-      const element: any = document.getElementById("search_customer");
-      element?.focus();
+      showError("Vui lòng thêm mới khách hàng");
+      const element: any = document.getElementById("customer_add_full_address");
+      scrollAndFocusToDomElement(element);
     } else {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
-        if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+        if (shipmentMethod !== ShipmentMethodOption.DELIVER_PARTNER) {
           showError("Vui lòng nhập địa chỉ giao hàng!");
           const element: any = document.getElementById(
             "customer_update_shipping_addresses_full_address"
@@ -1203,6 +1194,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                         isCancelValidateDelivery={false}
                         totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                         setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                         onSelectShipment={onSelectShipment}
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}

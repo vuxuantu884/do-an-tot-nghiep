@@ -11,7 +11,7 @@ import {
 import {StoreQuery, StoreTypeRequest} from "model/core/store.model";
 import {StoreResponse} from "model/core/store.model";
 import {PageResponse} from "model/base/base-metadata.response";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {generateQuery} from "utils/AppUtils";

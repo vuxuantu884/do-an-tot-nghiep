@@ -1,6 +1,5 @@
 import { Button, Form, FormInstance, Input, Select } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-// import CustomFilter from "component/table/custom.filter";
 import React, { createRef, useCallback, useMemo } from "react";
 import {
   SearchOutlined,
@@ -12,7 +11,6 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import moment from "moment";
 import { StoreResponse } from "model/core/store.model";
 import { DuplicateOrderSearchQuery } from "model/order/order.model";
-// import TreeStore from "component/tree-node/tree-store";
 import { FilterWrapper } from "component/container/filter.container";
 
 const { Item } = Form;
@@ -35,9 +33,9 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
 
   //useState
 
-  const initialValuesCopy=useMemo(() => {
-    return {...initialValues, store_id:(initialValues?.store_id)?(Number)(initialValues?.store_id):undefined}
-  },[initialValues])
+  const initialValuesCopy = useMemo(() => {
+    return { ...initialValues, store_id: (initialValues?.store_id) ? (Number)(initialValues?.store_id) : undefined }
+  }, [initialValues])
 
   const onChangeDate = useCallback(
     () => {
@@ -72,8 +70,8 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
     <React.Fragment>
       <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValuesCopy}>
         <FilterWrapper>
-          <div style={{ display: "flex", paddingRight: "16px" }}>
-            <Item name="issued_on_min" style={{ width: "150px", margin: 0 }}>
+          <div style={{ display: "flex", paddingRight: "16px", alignItems: "center", width: "55%" }}>
+            <Item name="issued_on_min" style={{margin:0}}>
               <CustomDatePicker
                 format="DD-MM-YYYY"
                 placeholder="Từ ngày"
@@ -81,10 +79,10 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
                 onChange={() => onChangeDate()}
               />
             </Item>
-            <div style={{ width: "5%", padding: "10px 0px 10px 3px" }}>
+            <div style={{ padding: "0px 5px" }}>
               <SwapRightOutlined />
             </div>
-            <Item name="issued_on_max" style={{ width: "150px", margin: 0 }}>
+            <Item name="issued_on_max">
               <CustomDatePicker
                 format="DD-MM-YYYY"
                 placeholder="Đến ngày"
@@ -93,18 +91,17 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
               />
             </Item>
           </div>
-          <Item name="store_id">
-            {/* <TreeStore  style={{ width: "280px"}} listStore={listStore} placeholder="Cửa hàng" /> */}
+          <Item name="store_id" style={{width:"35%"}}>
             <Select
               showSearch
               showArrow
               allowClear
               optionFilterProp="children"
               placeholder="Chọn kho"
-              style={{ width: "280px"}} 
+              style={{ width: "100%" }}
               notFoundContent="Không tìm thấy kết quả"
             >
-              {listStore.length>0&&listStore.map((item) => (
+              {listStore.length > 0 && listStore.map((item) => (
                 <Select.Option
                   key={item.id}
                   value={item.id}
@@ -119,12 +116,12 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
             <Input placeholder="Tên, Số điện thoại khách hàng" prefix={<SearchOutlined />} />
           </Item>
 
-          <Item >
+          <Item>
             <Button type="primary" htmlType="submit" style={{ width: "50px" }}>
               Lọc
             </Button>
           </Item>
-          <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} style={{ width: "65px" }}></Button>
+          <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} style={{ width: "70px" }}></Button>
         </FilterWrapper>
       </Form>
     </React.Fragment>

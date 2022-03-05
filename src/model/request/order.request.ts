@@ -1,4 +1,4 @@
-import { OrderLineItemResponse } from "model/response/order/order.response";
+import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
   action: string | null;
@@ -46,6 +46,7 @@ export interface OrderRequest {
   finalized?: boolean;
   sub_status_code?: string; 
 	automatic_discount?: boolean;
+  export_bill?: boolean;
 }
 
 export interface ReturnRequest extends OrderRequest {
@@ -227,6 +228,10 @@ export interface OrderPaymentRequest {
   customer_id: number | null;
   type: string;
   note: string;
+  bank_account_id?: number;
+  bank_account_number?:	string;
+  bank_account_holder?:	string;
+
 }
 
 export interface UpdateOrderPaymentRequest {
@@ -477,4 +482,15 @@ export interface SplitOrderRequest {
   quantity: number;
   updated_by: string;
   updated_name: string;
+}
+
+/**
+* Tính điểm đổi trả
+*/
+export interface OrderReturnCalculateRefundRequestModel {
+  customerId: number,
+  orderId: number,
+  items: OrderLineItemRequest[],
+  return_items: OrderResponse[],
+  refund_money: number
 }

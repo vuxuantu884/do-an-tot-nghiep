@@ -61,8 +61,7 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
         <Form form={form}>
           <Space direction="vertical">
             <div className="text-muted">
-              Lưu ý: số điện thoại mới được cập nhật sẽ tự động đặt làm mặc định và sẽ ở
-              trên cùng
+              Lưu ý: số điện thoại mới được cập nhật sẽ tự động đặt làm mặc định
             </div>
             <div className="phone-add-container">
               <Form.Item

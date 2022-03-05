@@ -74,7 +74,7 @@ function* getPromoCodeByIdAct(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -102,7 +102,7 @@ function* deletePromoCodeByIdAct(action: YodyAction) {
     }
   } catch (error) {
     deleteCallBack(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -130,7 +130,7 @@ function* updatePromoCodeByIdAct(action: YodyAction) {
     }
   } catch (error) {
     updateCallBack(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -157,7 +157,7 @@ function* addPromoCodeManualAct(action: YodyAction) {
     }
   } catch (error: any) {
     if (typeof error?.response.data.message === "string") {
-      showError(error?.response.data.message || "Có lỗi vui lòng thử lại sau");
+      // showError(error?.response.data.message || "Có lỗi vui lòng thử lại sau");
     }
     addCallBack(false);
   }
@@ -187,7 +187,7 @@ function* deleteBulkPromoCodeAct(action: YodyAction) {
     }
   } catch (error) {
     deleteCallBack(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -215,7 +215,7 @@ function* publishedBulkPromoCodeAct(action: YodyAction) {
     }
   } catch (error) {
     publishedCallBack(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -243,7 +243,7 @@ function* enableBulkPromoCodeAct(action: YodyAction) {
     }
   } catch (error) {
     enableCallBack(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -271,7 +271,7 @@ function* disableBulkPromoCodeAct(action: YodyAction) {
     }
   } catch (error) {
     disableCallBack(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

@@ -22,7 +22,6 @@ import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
 import PackReportHandOver from "./info/pack-report-hand-over";
 import { getQueryParams, useQuery } from "utils/useQuery";
-// import "assets/css/_pack.scss";
 import { useHistory } from "react-router-dom";
 import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";

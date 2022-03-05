@@ -1,13 +1,11 @@
-import { Card, Col, Collapse, Divider, Radio, Row, Space } from "antd";
-import OrderPayments from "component/order/OrderPayments";
+import { Card, Radio, Space } from "antd";
+import OrderCreatePayments from "component/order/OrderCreatePayments";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { formatCurrency, getAmountPayment } from "utils/AppUtils";
-import { yellowColor } from "utils/global-styles/variables";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 
@@ -18,12 +16,16 @@ type PropType = {
   totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
   isStepExchange: boolean;
+  isDisablePostPayment: boolean;
   returnMoneyType?: string;
 	returnOrderInformation: {
 		totalAmountReturn: number;
 	};
+  shipmentMethod: number;
+  paymentMethod: number;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   setReturnMoneyType?: (value: string) => void;
+  setPaymentMethod: (value: number) => void;
 };
 
 /**
@@ -38,20 +40,21 @@ function CardReturnMoneyPageCreate(props: PropType) {
     isStepExchange,
     returnMoneyType,
 		totalAmountOrder,
-		returnOrderInformation,
+		isDisablePostPayment,
+    shipmentMethod,
+    paymentMethod,
+    returnOrderInformation,
     setPayments,
     setReturnMoneyType,
+    setPaymentMethod,
   } = props;
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+  
   const dispatch = useDispatch()
 
   const isReturnMoneyToCustomer =
     totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
-
-  const leftMoneyAfterInsertPayment = useMemo(() => {
-   return totalAmountCustomerNeedToPay - getAmountPayment(payments)
-  }, [payments, totalAmountCustomerNeedToPay])
 
   const renderWhenReturnMoneyToCustomer = () => {
     return (
@@ -86,80 +89,19 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const renderWhenReturnCustomerNeedToPay = () => {
     return (
-      <Row gutter={24}>
-        <div style={{padding: "0 24px", maxWidth: "100%"}}>
-          <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
-            <Collapse.Panel
-              className="orders-timeline-custom orders-dot-status"
-              header={
-                <span
-                  style={{
-                    textTransform: "uppercase",
-                    fontWeight: 500,
-                    color: "#222222",
-                    padding: "6px",
-                  }}
-                >
-                  Lựa chọn 1 hoặc nhiều phương thức thanh toán
-                </span>
-              }
-              key="1"
-              showArrow={false}
-              // disabled={levelOrder > 2}
-            >
-              <div
-                className="create-order-payment"
-                style={{width: "1200px", maxWidth: "100%"}}
-              >
-                <Row gutter={24}>
-                  <Col lg={10} xxl={7} className="margin-top-bottom-10">
-                    <div>
-                      <span style={{paddingRight: "20px"}}>
-                        Tổng tiền cần thanh toán:{" "}
-                      </span>
-                      <strong>
-                        {returnOrderInformation &&
-                          formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))}
-                      </strong>
-                    </div>
-                  </Col>
-                  <Col lg={10} xxl={7} className="margin-top-bottom-10">
-                    <div>
-                      <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
-                      <strong style={{color: "red"}}>
-                        {formatCurrency(
-                          Math.round(leftMoneyAfterInsertPayment > 0
-													? leftMoneyAfterInsertPayment
-													: 0)
-                        )}
-                      </strong>
-                    </div>
-                  </Col>
-                  {leftMoneyAfterInsertPayment < 0 ? (
-                    <Col lg={10} xxl={7} className="margin-top-bottom-10">
-                      <div>
-                        <span style={{paddingRight: "20px"}}>Tiền thừa: </span>
-                        <strong style={{color: yellowColor}}>
-                          {formatCurrency(Math.abs(leftMoneyAfterInsertPayment))}
-                        </strong>
-                      </div>
-                    </Col>
-
-                  ): null}
-                  <Divider style={{margin: "10px 0"}} />
-                  <OrderPayments
-                    payments={payments}
-                    setPayments={setPayments}
-                    totalAmountOrder={totalAmountOrder - returnOrderInformation.totalAmountReturn}
-                    loyaltyRate={loyaltyRate}
-                    listPaymentMethod={listPaymentMethods}
-                  />
-                </Row>
-              </div>
-            </Collapse.Panel>
-          </Collapse>
-        </div>
-      </Row>
+      <>
+        <OrderCreatePayments
+          setPaymentMethod={setPaymentMethod}
+          payments={payments}
+          setPayments={setPayments}
+          paymentMethod={paymentMethod}
+          shipmentMethod={shipmentMethod}
+          totalAmountOrder={Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn)}
+          loyaltyRate={loyaltyRate}
+          isDisablePostPayment={isDisablePostPayment}
+          listPaymentMethod={listPaymentMethods}
+        />
+      </>
     );
   };
 

@@ -38,7 +38,7 @@ function* getCollectionSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    // showError('Có lỗi vui lòng thử lại sau');
   }
 }
 
@@ -61,7 +61,7 @@ function* createCollectionSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    // showError('Có lỗi vui lòng thử lại sau');
   }
 }
 
@@ -88,7 +88,7 @@ function* collectionDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError('Có lỗi vui lòng thử lại sau');
+    // showError('Có lỗi vui lòng thử lại sau');
   }
 }
 
@@ -113,7 +113,7 @@ function* collectionUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    // showError('Có lỗi vui lòng thử lại sau');
   }
 }
 

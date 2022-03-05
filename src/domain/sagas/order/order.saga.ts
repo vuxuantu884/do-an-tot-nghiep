@@ -1,6 +1,7 @@
 import BaseResponse from "base/base.response";
 import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { changeStoreDetailAction } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { ReturnModel } from "model/order/return.model";
@@ -13,11 +14,13 @@ import {
 	FeesResponse,
 	OrderConfig,
 	OrderResponse,
+	StoreCustomResponse,
 	// OrderSubStatusResponse,
 	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { call, put, takeLatest } from "redux-saga/effects";
+import { storesDetailCustomApi } from "service/core/store.services";
 import {
 	cancelOrderApi,
 	confirmDraftOrderService,
@@ -833,6 +836,25 @@ function* updateOrderPartial(action: YodyAction) {
 	}
 }
 
+function* orderChangeStoreSaga(action: YodyAction) {
+  const { storeId, setData } = action.payload;
+  try {
+    let response: BaseResponse<StoreCustomResponse> = yield call(
+      storesDetailCustomApi,
+      storeId
+    );
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+			put(changeStoreDetailAction(response.data))
+		} else {
+			yield put(fetchApiErrorAction(response, "Chi tiết cửa hàng"));
+		}
+  } catch (error) {
+    console.log('error', error);
+		showError(`Có lỗi khi lấy chi tiết cửa hàng! Vui lòng thử lại sau!`);
+  }
+}
+
 export function* OrderOnlineSaga() {
 	yield takeLatest(OrderType.GET_DETAIL_ORDER_REQUEST, getDetailOrderSaga);
 	yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
@@ -880,4 +902,5 @@ export function* OrderOnlineSaga() {
 	yield takeLatest(OrderType.SOURCES_ECOMMERCE, getSourcesEcommerceSaga);
 	yield takeLatest(OrderType.GET_CHANNELS, getChannelsSaga);
 	yield takeLatest(OrderType.UPDATE_ORDER_PARTIAL_REQUEST, updateOrderPartial);
+	yield takeLatest(OrderType.ORDER_CHANGE_STORE, orderChangeStoreSaga);
 }

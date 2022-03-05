@@ -1434,7 +1434,7 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 }
 
 export const isOrderFromPOS = (OrderDetail: OrderResponse | null) => {
-	if(OrderDetail?.channel_id === POS.channel_id) {
+	if(OrderDetail?.channel_id === POS.channel_id || OrderDetail?.source_code === POS.source_code) {
 		return true;
 	}
 	return false;

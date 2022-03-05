@@ -6,8 +6,6 @@ import UrlConfig from "config/url.config";
 import { useContext, useMemo } from "react";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { OrderResponse } from "model/response/order/order.response";
-import { useSelector } from "react-redux";
-import { RootReducerType } from "model/reducers/RootReducerType";
 
 interface OrderPackSuccessTable extends OrderResponse {
   key?: number;

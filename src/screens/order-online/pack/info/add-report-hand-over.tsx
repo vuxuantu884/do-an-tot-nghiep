@@ -253,9 +253,9 @@ const AddReportHandOver: React.FC = () => {
       bordered={false}
       className="pack-give-card"
     >
-      <div>
-        <Row gutter={24}>
-          <Col md={9} sm={24}>
+      <div className="yody-pack-row">
+        <Row className="pack-give-card-row">
+          <div className="pack-give-card-row-item" style={{width: "40%"}}>
             <Select
               className="select-with-search"
               showSearch
@@ -286,30 +286,30 @@ const AddReportHandOver: React.FC = () => {
                 </Select.Option>
               ))}
             </Select>
-          </Col>
-          <div style={{ marginRight: 10 }}>
-            <Button
-              icon={<PlusOutlined />}
-              ghost
-              type="primary"
-              size="small"
-              block
-              onClick={showModal}
-            >
-              Thêm mới
-            </Button>
           </div>
-          <div>
-            <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              size="small"
-              block
-              onClick={handOrderAddGoodsReceipts}
-            >
-              Lưu
-            </Button>
-          </div>
+          <Button
+            icon={<PlusOutlined />}
+            ghost
+            type="primary"
+            size="small"
+            block
+            onClick={showModal}
+            className="pack-give-card-row-item"
+            style={{ width: "160px" }}
+          >
+            Thêm mới
+          </Button>
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            size="small"
+            block
+            onClick={handOrderAddGoodsReceipts}
+            className="pack-give-card-row-item"
+            style={{ width: "160px" }}
+          >
+            Lưu
+          </Button>
         </Row>
       </div>
       <ReportHandOverModal

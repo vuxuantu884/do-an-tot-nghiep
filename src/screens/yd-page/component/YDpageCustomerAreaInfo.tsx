@@ -23,15 +23,10 @@ const YDpageCustomerAreaInfo = (props: any) => {
     isDisable,
     newCustomerInfo,
     setNewCustomerInfo,
+		updateNewCustomerInfo,
   } = props;
 
   const dispatch = useDispatch();
-
-  const updateNewCustomerInfo = (fieldName: string, value: any) => {
-    const tempNewCustomerInfo = {...newCustomerInfo};
-    tempNewCustomerInfo[fieldName] = value;
-    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
-  };
 
   const [areaList, setAreaList] = React.useState<Array<any>>([]);
   const [wardList, setWardList] = React.useState<Array<WardResponse>>([]);
@@ -53,23 +48,24 @@ const YDpageCustomerAreaInfo = (props: any) => {
   const onSelectWard = (wardId: number) => {
     updateNewCustomerInfo("ward_id", wardId);
   };
-  
 
-  const handleChangeArea = (districtId: string) => {
-    if (districtId) {
-      setDistrictId(districtId);
-      let area = areaList.find((item: any) => item.id === districtId);
+  const handleChangeArea = (districtIdValue: string) => {
+    if (districtIdValue) {
+      setDistrictId(districtIdValue);
+      let area = areaList.find((item: any) => item.id === districtIdValue);
       let value = form.getFieldsValue();
-      value.district_id = districtId;
+      value.district_id = districtIdValue;
       value.ward_id = null;
       value.full_address = "";
       form.setFieldsValue(value);
 
       setCityId(area?.city_id);
-      updateNewCustomerInfo("city_id", area?.city_id);
-      updateNewCustomerInfo("district_id", districtId);
-      updateNewCustomerInfo("ward_id", null);
-      updateNewCustomerInfo("full_address", "");
+			const tempNewCustomerInfo = {...newCustomerInfo};
+			tempNewCustomerInfo["city_id"] = area?.city_id;
+			tempNewCustomerInfo["district_id"] = districtIdValue;
+			tempNewCustomerInfo["ward_id"] = null;
+			tempNewCustomerInfo["full_address"] = "";
+			setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
     }
   };
 
@@ -82,23 +78,31 @@ const YDpageCustomerAreaInfo = (props: any) => {
     form.setFieldsValue(value);
 
     setCityId(null);
-    updateNewCustomerInfo("city_id", null);
-    updateNewCustomerInfo("district_id", null);
-    updateNewCustomerInfo("ward_id", null);
-    updateNewCustomerInfo("full_address", "");
+		const tempNewCustomerInfo = {...newCustomerInfo};
+		tempNewCustomerInfo["city_id"] = null;
+		tempNewCustomerInfo["district_id"] = null;
+		tempNewCustomerInfo["ward_id"] = null;
+		tempNewCustomerInfo["full_address"] = "";
+		setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
 
   const handleClearWard = () => {
     let value = form.getFieldsValue();
-
     value.ward_id = null;
     value.ward = "";
     value.full_address = "";
     form.setFieldsValue(value);
 
-    updateNewCustomerInfo("ward_id", null);
-    updateNewCustomerInfo("full_address", "");
+		const tempNewCustomerInfo = {...newCustomerInfo};
+		tempNewCustomerInfo["ward_id"] = null;
+		tempNewCustomerInfo["full_address"] = "";
+		setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
+
+  const handleBlurAddress = (value: any) => {
+    updateNewCustomerInfo("full_address", value.trim());
+    form.setFieldsValue({ "full_address": value.trim() })
+  }
 
   useEffect(() => {
     if (districtId) {
@@ -107,7 +111,6 @@ const YDpageCustomerAreaInfo = (props: any) => {
       setWardList([]);
     }
   }, [dispatch, districtId]);
-
 
   return(
     <StyledCustomerAreaInfo>
@@ -159,6 +162,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
           <Input
             maxLength={500}
             placeholder={"Địa chỉ"}
+            onBlur={(value) => handleBlurAddress(value.target.value)}
             disabled={isDisable}
           />
         </Form.Item>

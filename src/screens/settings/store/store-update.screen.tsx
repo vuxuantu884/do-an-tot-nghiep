@@ -115,7 +115,7 @@ const StoreUpdateScreen: React.FC = () => {
   );
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
-    history.push(UrlConfig.STORE);
+    history.push(`${UrlConfig.STORE}/${idNumber}`);
     showSuccess("Lưu dữ liệu thành công");
   }, [history]);
   const onFinish = useCallback(
@@ -519,7 +519,7 @@ const StoreUpdateScreen: React.FC = () => {
                       name="rank"
                     >
                       <Select>
-                        {storeRanks.map((i, index) => (
+                        {storeRanks.map((i) => (
                           <Option key={i.id} value={i.id}>
                             {i.code}
                           </Option>
