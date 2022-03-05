@@ -110,13 +110,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const onSortASC = useCallback((sortColumn: string)=>{
       const newPrams = {...params, sort_type: "asc",sort_column: sortColumn};
-      onSelect([]);
       onFilter(newPrams);
   },[onFilter, params]);
 
   const onSortDESC = useCallback((sortColumn: string)=>{
     const newPrams = {...params, sort_type: "desc",sort_column: sortColumn};
-    onSelect([]);
     onFilter(newPrams);
   },[params, onFilter]);
 
