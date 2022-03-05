@@ -15,7 +15,7 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CategoryView } from "model/product/category.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
-  keysDateWrapperFilter, SearchVariantMapping,
+  keysDateWrapperFilter,
   SearchVariantWrapperField,
   SearchVariantWrapperMapping,
 } from "model/product/product-mapping";
@@ -28,10 +28,10 @@ import { DATE_FORMAT, formatDateFilter, getStartOfDayCommon } from "utils/DateUt
 import { StyledComponent } from "./styled";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
-import AccountSearchPaging from "../../../../../component/custom/select-search/account-select-paging";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
-var isWin = false;
-var isDesigner = false;
+let isWin = false;
+let isDesigner = false;
 
 type ProductFilterProps = {
   params: ProductWrapperSearchQuery;
@@ -151,9 +151,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   }, [form]);
   const resetField = useCallback(
     (field: string) => {
-      form.setFieldsValue({
-        [field]: null,
-      });
+      form.resetFields([field]);
       form.submit();
     },
     [form]
@@ -338,9 +336,7 @@ const FilterList = ({
   resetField,
   materials,
   listCategory,
-  designers,
   goods,
-  wins,
   form,
 }: any) => {
   let renderTxt = "";
