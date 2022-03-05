@@ -395,7 +395,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                       },
                     ]}>
                     <AccountSearchPaging
-                      defaultValue={userReducer.account?.code}
+                      defaultValue={!isEdit && userReducer.account?.code}
                       placeholder="Chọn Merchandiser"
                       fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />

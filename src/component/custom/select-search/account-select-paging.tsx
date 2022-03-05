@@ -4,10 +4,12 @@ import _ from "lodash";
 import { AccountPublicSearchQuery, AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
+
 export interface SelectContentProps extends SelectProps<any> {
   fixedQuery?: any;
   isFilter?: boolean | false;
@@ -44,6 +46,8 @@ function SelectSearch(contentProps: SelectContentProps) {
 
   const [defaultOptons, setDefaultOptons] = useState<AccountResponse[]>([]);
 
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
   const handleSearch = (queryParams: AccountPublicSearchQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
@@ -68,11 +72,20 @@ function SelectSearch(contentProps: SelectContentProps) {
         searchAccountPublicApi,
         { ...fixedQuery, page: 1, limit: 30 }
       );
-      setDefaultOptons(response?.items);
-      setData(response);
+      const currentUser = { id: userReducer.account?.id, code: userReducer.account?.code, full_name: userReducer.account?.full_name }
+      const findUser = response?.items.find((item: any) => item.code === userReducer.account?.code)
+
+      let items = []
+      if(findUser) {
+        items = response?.items
+      } else {
+        items = [...response?.items, currentUser]
+      }
+      setDefaultOptons(items);
+      setData({ ...response, items });
     };
     getDefaultOptions();
-  }, [dispatch, fixedQuery]);
+  }, [dispatch, fixedQuery, userReducer]);
 
   /**
    * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
@@ -123,7 +136,6 @@ function SelectSearch(contentProps: SelectContentProps) {
       {...defaultSelectProps}
       id={name}
       mode={mode}
-      defaultValue={value}
       metadata={data?.metadata}
       loading={isSearching}
       onSearch={(value) => handleSearch({ condition: value })}
@@ -132,7 +144,8 @@ function SelectSearch(contentProps: SelectContentProps) {
         handleSearch({ condition: key, page: page });
       }}
       {...selectProps}
-      >
+      defaultValue={contentProps.defaultValue ? contentProps.defaultValue : value}
+    >
       {data?.items?.map((item) => (
         <SelectPagingV2.Option key={item.code + name} value={isFilter ? JSON.stringify({
           code: item.code,
