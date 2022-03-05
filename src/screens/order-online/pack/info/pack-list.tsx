@@ -24,7 +24,6 @@ function PackList() {
     orderPackContextData?.packModel?.order?.forEach((i: OrderResponse, index) => {
       packSuccessTable.push({ ...i, stt: index + 1 });
     })
-    console.log("packSuccessTable", packSuccessTable);
 
     return packSuccessTable;
   }, [orderPackContextData?.packModel]);
@@ -35,7 +34,7 @@ function PackList() {
       dataIndex: "",
       align: "center",
       visible: true,
-      width: "10%",
+      width: window.screen.width <= 1600 ? "7%" : "5%",
       render: (value: any, row: any, index: number) => {
         return <span>{index + 1}</span>;
       },
@@ -59,7 +58,7 @@ function PackList() {
       title: "Hãng vận chuyển",
       visible: true,
       render: (value, row, index) => {
-        return <div>{row.shipment.delivery_service_provider_name?row.shipment.delivery_service_provider_name:"Tự giao hàng"}</div>;
+        return <div>{row.shipment.delivery_service_provider_name ? row.shipment.delivery_service_provider_name : "Tự giao hàng"}</div>;
       },
     },
     {
@@ -80,20 +79,20 @@ function PackList() {
 
   const rowSelection = {
     onSelect: (item: any, selected: boolean, selectedRow: any[]) => {
-      let code:string[] = [];
-      selectedRow.forEach((p)=>{
-        if(p)code.push(p.order_code);
+      let code: string[] = [];
+      selectedRow.forEach((p) => {
+        if (p) code.push(p.order_code);
       })
-      console.log("code",code);
+      console.log("code", code);
       setIsFulFillmentPack([...code]);
     },
     onSelectAll: (selected: any, selectedRow: any[], changeRow: any[]) => {
-      
-      let code:string[] = [];
-      selectedRow.forEach((p)=>{
-        if(p)code.push(p.order_code);
+
+      let code: string[] = [];
+      selectedRow.forEach((p) => {
+        if (p) code.push(p.order_code);
       })
-      console.log("code",code);
+      console.log("code", code);
       setIsFulFillmentPack([...code]);
     }
   };
@@ -119,7 +118,6 @@ function PackList() {
           }}
           className="ecommerce-order-list"
           rowKey={(item: any) => item.code}
-          //key={Math.random()}
           rowSelection={{
             type: "checkbox",
             ...rowSelection,

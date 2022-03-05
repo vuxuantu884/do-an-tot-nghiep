@@ -26,11 +26,11 @@ import {useParams} from "react-router-dom";
 import search from "assets/img/search.svg";
 import moment from "moment";
 import "assets/css/_pack.scss";
-import "./scss/index.screen.scss";
+import "../scss/index.screen.scss";
 import {GoodsReceiptsInfoOrderModel, VariantModel} from "model/pack/pack.model";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import {Link} from "react-router-dom";
-import {StyledComponent} from "./index.screen.styles";
+import {StyledComponent} from "./styles";
 import {OrderResponse} from "model/response/order/order.response";
 import {showSuccess, showWarning} from "utils/ToastUtils";
 

@@ -5,10 +5,10 @@ import React from "react";
 import CustomerDuplicate from "screens/order-online/duplicate.screen";
 import OrderDuplicate from "screens/order-online/order-duplicate";
 import OrderUpdate from "screens/order-online/order-update";
-import PackDetail from "screens/order-online/pack-detail";
-import PackSupportScreen from "screens/order-online/pack.screen";
-import AddReportHandOver from "screens/order-online/pack-add";
-import PackUpdate from "screens/order-online/pack-update";
+import PackDetail from "screens/order-online/pack/pack-detail";
+import PackSupportScreen from "screens/order-online/pack/pack.screen";
+import AddReportHandOver from "screens/order-online/pack/pack-add";
+import PackUpdate from "screens/order-online/pack/pack-update";
 import SplitOrdersScreen from "screens/order-online/split-orders.screen";
 
 const ListOrder = React.lazy(() => import("screens/order-online/orders/index.screen"));
