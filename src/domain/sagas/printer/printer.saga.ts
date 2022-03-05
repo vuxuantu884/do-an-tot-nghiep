@@ -80,7 +80,7 @@ function* createPrinterSaga(action: YodyAction) {
 		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
@@ -134,10 +134,10 @@ function* fetchPrintInventoryTransferIdsSaga(action: YodyAction) {
       handleData(response);
     }
     else {
-      showError("Có lỗi vui lòng thử lại sau");
+      // showError("Có lỗi vui lòng thử lại sau");
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }

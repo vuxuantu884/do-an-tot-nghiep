@@ -65,7 +65,7 @@ function* uploadLoyaltyCardSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -92,7 +92,7 @@ function* loyaltyCardAssignmentSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -118,7 +118,7 @@ function* loyaltyCardLockSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -141,7 +141,7 @@ function* getLoyaltyRankingList(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -164,7 +164,7 @@ function* getLoyaltyRankingDetail(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -187,7 +187,7 @@ function* createLoyaltyRanking(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -211,7 +211,7 @@ function* updateLoyaltyRanking(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -614,7 +614,7 @@ function* createCustomerPointAdjustmentSaga(action: YodyAction) {
       createCustomerPointAdjustmentService,
       params
     );
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         successCallback(response.data);

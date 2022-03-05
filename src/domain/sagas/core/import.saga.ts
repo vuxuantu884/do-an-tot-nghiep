@@ -4,7 +4,7 @@ import { showError } from "utils/ToastUtils";
 import { StoreResponse } from "model/core/store.model";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { HttpStatus } from "config/http-status.config";
-import { ImportType } from "domain/types/core.type"; 
+import { ImportType } from "domain/types/core.type";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { uploadFileApi } from "service/core/import.service";
 
@@ -15,7 +15,7 @@ function* uploadSaga(action: YodyAction) {
       files,
       folder);
     switch (response.code) {
-      case HttpStatus.SUCCESS: 
+      case HttpStatus.SUCCESS:
         onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -26,10 +26,10 @@ function* uploadSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
-} 
+}
 
-export function* importSaga() { 
+export function* importSaga() {
   yield takeLatest(ImportType.UPLOAD_CORE_FILE, uploadSaga);
 }

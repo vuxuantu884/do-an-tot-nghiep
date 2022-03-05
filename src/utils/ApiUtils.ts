@@ -24,7 +24,7 @@ export const catcherError = (error: any, jobName?: string) => {
   } else if (Array.isArray(error)) {
     error.forEach((e: string) => showError(e));
   } else {
-    showError("Hệ thống gặp lỗi lạ");
+    // showError("Hệ thống gặp lỗi lạ");
   }
 };
 
@@ -51,7 +51,7 @@ export const callApiSaga = function* <
     notifyAction = "USE_CONFIG",
     jobName,
   } = notifyConfig;
-  
+
   if (notifyAction === "SHOW_ALL" || isShowLoading) yield put(showLoading());
 
   try {

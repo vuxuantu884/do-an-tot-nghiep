@@ -25,7 +25,7 @@ import {
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
-import { unauthorizedAction } from "domain/actions/auth/auth.action"; 
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -92,7 +92,7 @@ function* AccountCreateSaga(action: YodyAction) {
   } catch (error) {
     onCreateSuccess(null);
     console.log("AccountCreateSaga:" + error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -293,7 +293,7 @@ function* getAccountMeSaga(action: YodyAction) {
   let {  onResult } = action.payload;
   //TODO: Handle token here
     try {
-      let response: BaseResponse<AccountResponse> = yield call(getAccountDetail); 
+      let response: BaseResponse<AccountResponse> = yield call(getAccountDetail);
       switch(response.code) {
         case HttpStatus.SUCCESS:
           onResult(response.data);
@@ -307,7 +307,7 @@ function* getAccountMeSaga(action: YodyAction) {
       }
     } catch (error) {
       onResult(false);
-    } 
+    }
 }
 
 function* updateMeSaga(action: YodyAction) {
