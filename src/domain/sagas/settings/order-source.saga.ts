@@ -22,7 +22,7 @@ function* listAllOrderSourceSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(getSourcesWithParamsService, queryParams);
-			
+
 		if (isFetchApiSuccessful(response)) {
 			handleData(response.data);
 		} else {
@@ -112,7 +112,7 @@ function* deleteOrderSourceSaga(action: YodyAction) {
 		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }

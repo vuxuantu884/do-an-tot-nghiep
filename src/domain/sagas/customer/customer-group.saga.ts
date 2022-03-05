@@ -41,7 +41,7 @@ function* listDataCustomerGroupSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
@@ -69,7 +69,7 @@ function* addCustomerGroupSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
@@ -97,7 +97,7 @@ function* editCustomerGroupSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }
@@ -125,7 +125,7 @@ function* deleteCustomerGroupSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }

@@ -27,20 +27,20 @@ function* loginSaga(action: YodyAction) {
         setToken(response.data.access_token);
         yield put(loginSuccessAction());
         break;
-      default: 
+      default:
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (e) {
     setLoading(false);
-    showError('Có lỗi vui lòng thử lại sau')
+    // showError('Có lỗi vui lòng thử lại sau')
   }
 }
 
 function* logoutSaga() {
   yield put(showLoading());
   try {
-    yield call(logoutApi); 
+    // yield call(logoutApi);
   } catch (error) {}
   yield clearLocalStorage();
   yield delay(1000);

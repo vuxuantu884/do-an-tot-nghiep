@@ -43,7 +43,7 @@ function* supplierSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -67,7 +67,7 @@ function* supplierGetAllSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("supplierGetAllSaga:" + error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -96,7 +96,7 @@ function* supplierDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -119,7 +119,7 @@ function* supplierCreateSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -141,7 +141,7 @@ function* supplierDeleteSaga(action: YodyAction) {
     }
   } catch (error) {
     deleteCallback(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -167,7 +167,7 @@ function* createAddressSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -194,7 +194,7 @@ function* updateAddressSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -220,7 +220,7 @@ function* deleteAddressSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -246,7 +246,7 @@ function* createPaymentSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -273,7 +273,7 @@ function* updatePaymentSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -299,7 +299,7 @@ function* deletePaymentSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -325,7 +325,7 @@ function* createContactSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -352,7 +352,7 @@ function* updateContactSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -378,7 +378,7 @@ function* deleteContactSaga(action: YodyAction) {
     }
   } catch (error) {
     callback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

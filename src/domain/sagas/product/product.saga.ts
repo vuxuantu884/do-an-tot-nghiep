@@ -47,7 +47,7 @@ function* searchVariantSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -73,7 +73,7 @@ function* searchVariantsInventoriesSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -97,7 +97,7 @@ function* searchProductWrapperSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -120,7 +120,7 @@ function* productWrapperDeleteSaga(action: YodyAction) {
       onDeleteSuccess(true);
     } catch (error) {
       onDeleteSuccess(false);
-      showError("Có lỗi vui lòng thử lại sau");
+      // showError("Có lỗi vui lòng thử lại sau");
     }
 }
 
@@ -148,7 +148,7 @@ function* productWrapperUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     onUpdateSuccess(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -197,7 +197,7 @@ function* createProductSaga(action: YodyAction) {
     }
   } catch (error) {
     createCallback(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -220,7 +220,7 @@ function* variantDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error ", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -247,7 +247,7 @@ function* uploadProductSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -275,7 +275,7 @@ function* variantUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     onUpdateSuccess(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -300,7 +300,7 @@ function* getHistorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -326,7 +326,7 @@ function* getProductDetail(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -353,7 +353,7 @@ function* putProductUpdate(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -376,7 +376,7 @@ function* createProductBarcode(action: YodyAction){
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -399,7 +399,7 @@ export function* importProductSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -428,7 +428,7 @@ function* variantUpdateSaleableSaga(action: YodyAction) {
     onResult(arrSuccess, arrFail, false);
   } catch (error) {
     onResult([], [], true);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -440,7 +440,7 @@ function* variantDeleteSaga(action: YodyAction) {
         variants[i].product_id,
         variants[i].variant_id);
       switch (response.code) {
-        case HttpStatus.SUCCESS: 
+        case HttpStatus.SUCCESS:
           break;
         case HttpStatus.UNAUTHORIZED:
           yield put(unauthorizedAction());
@@ -453,7 +453,7 @@ function* variantDeleteSaga(action: YodyAction) {
     onResult(false);
   } catch (error) {
     onResult(true);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -461,7 +461,7 @@ function* searchBarCodeSaga(action: YodyAction) {
   let {barcode,setData} = action.payload;
   try {
     let response: BaseResponse<VariantResponse> = yield call(getVariantByBarcode, barcode);
-    
+
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -480,7 +480,7 @@ export function* checkDuplicateSkuSaga(action: YodyAction) {
   const {code, onResult } = action.payload;
   try {
     let response: BaseResponse<null> = yield call(productCheckDuplicateCodeApi, code);
- 
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult('');
@@ -499,7 +499,7 @@ export function* checkDuplicateSkuSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult('');
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -531,6 +531,6 @@ export function* productSaga() {
   yield takeLatest(ProductType.VARIANT_UPDATE_SALEABLE, variantUpdateSaleableSaga)
   yield takeLatest(ProductType.VARIANT_DELETE, variantDeleteSaga);
   yield takeLatest(SearchType.SEARCH_BAR_CODE, searchBarCodeSaga);
-  yield takeLatest(ProductType.DUPLICATE_PRODUCT_CODE, checkDuplicateSkuSaga); 
-  yield takeLatest(ProductType.SEARCH_VARIANTS_INVENTORIES_REQUEST, searchVariantsInventoriesSaga); 
+  yield takeLatest(ProductType.DUPLICATE_PRODUCT_CODE, checkDuplicateSkuSaga);
+  yield takeLatest(ProductType.SEARCH_VARIANTS_INVENTORIES_REQUEST, searchVariantsInventoriesSaga);
 }

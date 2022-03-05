@@ -43,7 +43,7 @@ function* getListInventoryAdjustmentSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -69,7 +69,7 @@ function* getDetailInventorAdjustmentGetSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -95,7 +95,7 @@ function* createInventoryAdjustmentSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -122,7 +122,7 @@ function* updateItemOnlineInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 function* updateOnlineInventorySaga(action: YodyAction) {
@@ -144,7 +144,7 @@ function* updateOnlineInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -167,7 +167,7 @@ function* adjustInventorySaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -182,7 +182,7 @@ function* printAdjustInventorySaga(action: YodyAction) {
     onResult(response);
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -209,7 +209,7 @@ function* getLinesItemAdjustmentSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -236,14 +236,14 @@ function* updateInventoryAdjustmentSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 
 function* getVariantHasOnHandByStoreSaga(action: YodyAction) {
   let {query, onResult} = action.payload;
-  yield callApiSaga({notifyAction:"SHOW_ALL"},onResult, getVariantHasOnHandByStoreApi,query); 
+  yield callApiSaga({notifyAction:"SHOW_ALL"},onResult, getVariantHasOnHandByStoreApi,query);
 }
 
 export function* inventoryAdjustmentSaga() {

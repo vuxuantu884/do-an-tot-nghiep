@@ -11,7 +11,7 @@ import { PoPaymentConditions } from "model/purchase-order/payment-conditions.mod
 function* paymentConditionsGetAll(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    
+
     let response: BaseResponse<Array<PoPaymentConditions>> = yield call(
       getPaymentConditionsrApi
     );
@@ -28,7 +28,7 @@ function* paymentConditionsGetAll(action: YodyAction) {
     }
   } catch (error) {
     console.log(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

@@ -74,7 +74,7 @@ function* createRoleSaga(action: YodyAction) {
     }
   } catch (e) {
     setData(null);
-    showError("Hệ thống gặp lỗi lạ");
+    // showError("Hệ thống gặp lỗi lạ");
   }
 }
 
@@ -97,7 +97,7 @@ function* getRoleByIdSaga(action: YodyAction) {
     }
   } catch (e) {
     setData(null);
-    showError("Hệ thống gặp lỗi lạ");
+    // showError("Hệ thống gặp lỗi lạ");
   }
 }
 
@@ -120,7 +120,7 @@ function* updateRoleSaga(action: YodyAction) {
     }
   } catch (e) {
     setData(null);
-    showError("Hệ thống gặp lỗi lạ");
+    // showError("Hệ thống gặp lỗi lạ");
   }
 }
 export function* roleSaga() {
