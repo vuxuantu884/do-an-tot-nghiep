@@ -120,10 +120,6 @@ const PackSupportScreen: React.FC = () => {
         title="Hỗ trợ đóng gói"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
             name: "Đơn hàng",
             path: UrlConfig.ORDER,
           },
@@ -133,8 +129,8 @@ const PackSupportScreen: React.FC = () => {
         ]}
       >
         <StyledComponent>
-          <Row gutter={24}>
-            <Col xs={24}>
+          <Row>
+            <Col>
               <Card className="pack-card">
                 <Tabs activeKey={activeTab} onChange={handleClickTab}>
                   <TabPane tab="Đóng gói" key="1">
