@@ -26,8 +26,6 @@ import CustomFilterDatePicker from "../custom/filter-date-picker.custom";
 import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import moment from "moment";
-import { CountryResponse } from "../../model/content/country.model";
-import { SearchVariantField, SearchVariantMapping } from "../../model/product/product-mapping";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
