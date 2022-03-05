@@ -263,7 +263,7 @@ export const POS = {
   channel_code: "POS",
   source: "POS",
 	source_id: 1,
-  source_code: "SC000070",
+  source_code: "POS",
 };
 
 export const SHOPEE = {
