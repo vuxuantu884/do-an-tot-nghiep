@@ -505,6 +505,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 style={{width: "100%"}}
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
                 onChange={(e)=>{onChangeKeySearch(e.target.value)}}
+                allowClear
               />
             </Item>
             <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 250 }}>
@@ -575,6 +576,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 <Col span={16}>
                   <Item name={AvdInventoryFilter.info} className="search">
                     <Input
+                      allowClear
                       prefix={<img src={search} alt="" />}
                       style={{width: "100%"}}
                       placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
@@ -615,7 +617,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         allowClear
                         tagRender={tagRender}
                         notFoundContent="Không tìm thấy kết quả"
-                        maxTagCount="responsive"
+                        maxTagCount="responsive" 
                       >
                         {listCountry?.map((item) => (
                           <CustomSelect.Option key={item.id} value={String(item.id)}>
