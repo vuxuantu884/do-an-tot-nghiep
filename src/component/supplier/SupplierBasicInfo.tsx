@@ -89,8 +89,6 @@ const SupplierBasicInfo = ({
     );
   };
 
-  console.log('checked', isActiveStatus, form.getFieldValue('status'))
-
   const onChangeSupplierType = (e: RadioChangeEvent) => {
     setSupplierType(e.target.value);
   };
