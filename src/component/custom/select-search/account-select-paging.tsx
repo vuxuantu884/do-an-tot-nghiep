@@ -7,9 +7,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { callApiNative } from "utils/ApiUtils";
+import { fullTextSearch } from "utils/RemoveDiacriticsString";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
-
 export interface SelectContentProps extends SelectProps<any> {
   fixedQuery?: any;
   isFilter?: boolean | false;
@@ -45,9 +45,7 @@ function SelectSearch(contentProps: SelectContentProps) {
   });
 
   const [defaultOptons, setDefaultOptons] = useState<AccountResponse[]>([]);
-
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-
   const handleSearch = (queryParams: AccountPublicSearchQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
@@ -143,9 +141,12 @@ function SelectSearch(contentProps: SelectContentProps) {
       onPageChange={(key: string, page: number) => {
         handleSearch({ condition: key, page: page });
       }}
-      {...selectProps}
+      filterOption={(input, option) =>
+        fullTextSearch(input, option?.children)
+      }
       defaultValue={contentProps.defaultValue ? contentProps.defaultValue : value}
-    >
+      {...selectProps}
+      >
       {data?.items?.map((item) => (
         <SelectPagingV2.Option key={item.code + name} value={isFilter ? JSON.stringify({
           code: item.code,
