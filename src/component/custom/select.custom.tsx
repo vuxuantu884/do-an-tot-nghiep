@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactNode } from "react";
 import { SelectProps, Select as ANTSelect } from "antd";
 import classNames from "classnames";
-import { fullTextSearch } from "utils/RemoveDiacriticsString";
+import { fullTextSearch } from "utils/StringUtils";
 
 interface IProps extends SelectProps<any> {
   style?: CSSProperties;

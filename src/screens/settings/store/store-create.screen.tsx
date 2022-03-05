@@ -54,7 +54,7 @@ import {useHistory} from "react-router";
 import {RegUtil} from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Item} = Form;
