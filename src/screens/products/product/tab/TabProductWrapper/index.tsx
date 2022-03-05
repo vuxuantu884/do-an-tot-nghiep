@@ -302,10 +302,10 @@ const TabProductWrapper: React.FC = () => {
     if (res) {
       setSearchResult(res);
     }
-  },[dispatch, params, setSearchResult]); 
+  },[dispatch, params, setSearchResult]);
 
   const onActive = useCallback(
-    async (selected: any, type: string) => { 
+    async (selected: any, type: string) => {
       for (let index = 0; index < selected.length; index++) {
         let element = {
           ...selected[index],
@@ -322,7 +322,7 @@ const TabProductWrapper: React.FC = () => {
         const res = await callApiNative({isShowLoading: true},dispatch, productWrapperPutApi,element.id, element);
         let isError = false;
         if (!res) {
-          isError= true; 
+          isError= true;
         }
         if (index === selected.length-1 ) {
           !isError && showSuccess("Cập nhật dữ liệu thành công");
@@ -369,7 +369,12 @@ const TabProductWrapper: React.FC = () => {
   }, [dispatch, setDataCategory]);
 
   useEffect(() => {
-    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
+    let newParams = {
+      ...params,
+      merchandiser_code: params.merchandiser_code ? JSON.parse(params.merchandiser_code).code : null,
+      designer_code: params.designer_code ? JSON.parse(params.designer_code).code : null,
+    }
+    dispatch(searchProductWrapperRequestAction(newParams, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
   return (
