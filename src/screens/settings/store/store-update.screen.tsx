@@ -519,7 +519,7 @@ const StoreUpdateScreen: React.FC = () => {
                       name="rank"
                     >
                       <Select>
-                        {storeRanks.map((i, index) => (
+                        {storeRanks.map((i) => (
                           <Option key={i.id} value={i.id}>
                             {i.code}
                           </Option>

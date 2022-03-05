@@ -1,7 +1,7 @@
 import {Button, Card, Checkbox, Col, Collapse, Form, Row} from "antd";
 import {StoreDetailAction} from "domain/actions/core/store.action";
 import {StoreResponse} from "model/core/store.model";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {useParams} from "react-router-dom";
@@ -12,7 +12,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import useAuthorization from "hook/useAuthorization";
-import { StorePermissions } from "config/permissions/setting.permisssion";  
+import { StorePermissions } from "config/permissions/setting.permisssion";
 const {Panel} = Collapse;
 
 type StoreParam = {
@@ -91,7 +91,7 @@ const StoreDetailScreen: React.FC = () => {
           <Row gutter={20}>
              <Col span={18}>
                 <Card
-                  title="Thông tin cửa hàng"> 
+                  title="Thông tin cửa hàng">
                 <Row style={{marginTop: 20}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail title="Tên cửa hàng" value={data.name} />
@@ -153,7 +153,7 @@ const StoreDetailScreen: React.FC = () => {
                       >
                         Cho phép bán
                       </Checkbox>
-                    </Col> 
+                    </Col>
                   </Row>
                   <Row style={{marginTop: 20}}>
                     <Col>
@@ -164,11 +164,11 @@ const StoreDetailScreen: React.FC = () => {
                         Đang kiểm kho
                       </Checkbox>
                     </Col>
-                  </Row> 
+                  </Row>
                 </Card>
              </Col>
-          </Row> 
-          
+          </Row>
+
           <Collapse
             style={{marginBottom: 50}}
             defaultActiveKey="1"
@@ -202,7 +202,7 @@ const StoreDetailScreen: React.FC = () => {
           <BottomBarContainer
             back={"Quay lại danh sách"}
             rightComponent={
-              allowUpdateStore && 
+              allowUpdateStore &&
                 <Button
                   onClick={() => {
                     history.push(`${UrlConfig.STORE}/${idNumber}/update`);
