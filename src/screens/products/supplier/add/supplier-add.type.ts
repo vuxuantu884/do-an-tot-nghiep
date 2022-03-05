@@ -48,7 +48,7 @@ export enum FormFields {
   pic_code = "pic_code",
   tax_code = "tax_code",
   phone = "phone",
-  group_product = "group_product",
+  collection_id = "collection_id",
   country_id = "country_id",
   district_id = "district_id",
   city_id = "city_id",
