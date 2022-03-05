@@ -141,7 +141,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     if(goods) {
       formSupplierAdd.setFieldsValue({ goods: ['fashion'] })
     }
-  }, [goods])
+  }, [goods, formSupplierAdd])
 
   useEffect(() => {
     fetchAccount({ condition: "", page: metadata.page })
