@@ -78,7 +78,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
-  const [, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
+  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
 
   const [type, setType] = useState("personal");
 
@@ -360,20 +360,20 @@ const UpdateSupplierScreen: React.FC = () => {
                     </Form.Item>
                   </Col>
                   {/*TODO: Waiting response api*/}
-                  {/*<Col span={12}>*/}
-                  {/*  <Item*/}
-                  {/*    name="group_product"*/}
-                  {/*    label="Nhóm hàng"*/}
-                  {/*  >*/}
-                  {/*    <Select allowClear placeholder="Chọn nhóm hàng">*/}
-                  {/*      {groupProducts && groupProducts?.items.map((item) => (*/}
-                  {/*        <Option key={item.id} value={item.id}>*/}
-                  {/*          {item.name}*/}
-                  {/*        </Option>*/}
-                  {/*      ))}*/}
-                  {/*    </Select>*/}
-                  {/*  </Item>*/}
-                  {/*</Col>*/}
+                  <Col span={12}>
+                    <Item
+                      name="collection_id"
+                      label="Nhóm hàng"
+                    >
+                      <Select allowClear placeholder="Chọn nhóm hàng">
+                        {groupProducts && groupProducts?.items.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                  </Col>
                 </Row>
               </Card>
               <Card title="Chi tiết nhà cung cấp">

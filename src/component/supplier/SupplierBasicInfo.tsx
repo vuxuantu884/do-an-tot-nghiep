@@ -36,7 +36,7 @@ const SupplierBasicInfo = ({
   const [supplierType, setSupplierType] = useState(initialSupplierForm.type);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
-  const [status, setStatus] = useState<string>(initialSupplierForm.status);
+  const [isActiveStatus, setIsActiveStatus] = useState(initialSupplierForm.status === 'active');
 
   const [data, setData] = useState<PageResponse<CollectionResponse>>({
     metadata: {
@@ -71,9 +71,9 @@ const SupplierBasicInfo = ({
 
   const statusValue = useMemo(() => {
     if (!supplier_status) return;
-    let findStatus = supplier_status.find((item) => item.value === status);
+    let findStatus = supplier_status.find((item) => item.value === (isActiveStatus ? "active" : "inactive"));
     return findStatus?.name;
-  }, [status, supplier_status]);
+  }, [isActiveStatus, supplier_status]);
 
   const onGetSuccess = (results: PageResponse<CollectionResponse>) => {
     if (results && results.items) {
@@ -89,12 +89,14 @@ const SupplierBasicInfo = ({
     );
   };
 
+  console.log('checked', isActiveStatus, form.getFieldValue('status'))
+
   const onChangeSupplierType = (e: RadioChangeEvent) => {
     setSupplierType(e.target.value);
   };
 
   const onChangeStatus = (checked: boolean) => {
-    setStatus(checked ? "active" : "inactive");
+    setIsActiveStatus(checked);
     form.setFieldsValue({
       status: checked ? "active" : "inactive",
     });
@@ -180,10 +182,12 @@ const SupplierBasicInfo = ({
         <>
           {name === FormFields.pic_code ? (
             <Item {...{ name, label, rules }}>
+              {/*Chọn merchandiser*/}
               <AccountSearchPaging placeholder="Chọn Merchandiser" />
             </Item>
           ) : (
             <Item {...{ name, label, rules }}>
+              {/*Chọn nhóm hàng*/}
               <SelectSearchPaging
                 data={data.items}
                 renderItem={renderGroupProductItem}
@@ -191,6 +195,7 @@ const SupplierBasicInfo = ({
                 isLoading={isSearchingGroupProducts}
                 metadata={data.metadata}
                 placeholder={placeholder}
+                onSelect={(item) => form.setFieldsValue({ [name]: item.value })}
               />
             </Item>
           )}
@@ -204,27 +209,28 @@ const SupplierBasicInfo = ({
     );
   };
 
-  const renderExtra = () => {
-    if (!formFields.extra) return;
-    return (
-      <Space size={15}>
-        <label className="text-default">Trạng thái</label>
-        <Switch
-          onChange={onChangeStatus}
-          className="ant-switch-success"
-          checked={status === "active"}
-        />
-        <label className={status === "active" ? "text-success" : "text-error"}>{statusValue}</label>
-        <Item noStyle name="status" hidden>
-          <Input />
-        </Item>
-      </Space>
-    );
-  };
-
   return (
     <>
-      <Card title={formFields.title} extra={renderExtra}>
+      <Card
+        title={formFields.title}
+        extra={
+          formFields.extra && (
+            <Space size={15}>
+              <label className="text-default">Trạng thái</label>
+              <Switch
+                onChange={onChangeStatus}
+                className="ant-switch-success"
+                checked={isActiveStatus}
+              />
+              <label className={isActiveStatus ? "text-success" : "text-error"}>
+                {statusValue}
+              </label>
+              <Item noStyle name="status" hidden>
+                <Input />
+              </Item>
+            </Space>
+          )
+        }>
         {formFields.formGroups.map((group, index) => (
           <Row gutter={50} key={index}>
             {group.map(controlInfoRenderer)}
