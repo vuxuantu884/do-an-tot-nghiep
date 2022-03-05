@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor} from "utils/global-styles/variables";
+import {borderColor, primaryColor} from "utils/global-styles/variables";
 export const nameQuantityWidth = 295;
 const quantityWidth = 50;
 const priceWidth = 85;
@@ -100,9 +100,6 @@ export const StyledComponent = styled.div`
 export const StyledOrderFilter = styled.div`
   .order-filter {
     overflow-x: auto;
-    div:not(:last-child) {
-      margin-right: 15px;
-    }
     .ant-form {
       display: flex;
       .ant-form-item {
@@ -117,22 +114,35 @@ export const StyledOrderFilter = styled.div`
   }
 
   .ecommerce-dropdown {
-    width: 150px;
+    width: 160px;
     min-width: 150px;
+    margin-right: 10px;
   }
 
   .select-store-dropdown {
-    min-width: 180px;
+    min-width: 350px;
+    margin-right: 10px;
+    .ant-select-selection-overflow-item-suffix {
+      width: 30px;
+    }
   }
 
   .search-id-order-ecommerce {
     min-width: 180px;
     flex-grow: 1;
+    margin-right: 10px;
   }
 
   .search-term-input {
     min-width: 180px;
     flex-grow: 1;
+    margin-right: 10px;
+  }
+  
+  .setting-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .render-shop-list {
@@ -163,11 +173,9 @@ export const StyledOrderFilter = styled.div`
       border-radius: 5px;
       display: flex;
       align-items: center;
-      color: $primary-color;
+      color: ${primaryColor};
       &:hover {
-        color: $primary-color;
-        border: 1px solid $primary-color;
-        color: $primary-color;
+        border: 1px solid ${primaryColor};
       }
     }
   }

@@ -100,6 +100,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_max: null,
   ship_on_predefined: null,
   ecommerce_shop_ids: [],
+  channel_codes: [],
   channel_id: undefined,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
@@ -129,6 +130,8 @@ const initQuery: EcommerceOrderSearchQuery = {
   reference_code: null,
 };
 
+
+const ALL_CHANNEL = ["Shopee","lazada","sendo","tiki"];
 
 const ordersViewPermission = [EcommerceOrderPermission.orders_read];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
@@ -778,8 +781,8 @@ const EcommerceOrders: React.FC = () => {
 
   const getEcommerceOrderList = useCallback(() => {
     const requestParams = { ...params };
-    if (!requestParams.ecommerce_shop_ids.length) {
-      requestParams.ecommerce_shop_ids = allShopIds;
+    if (!requestParams.channel_codes?.length) {
+      requestParams.channel_codes = ALL_CHANNEL;
     }
 
     setTableLoading(true);
