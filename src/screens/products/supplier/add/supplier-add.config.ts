@@ -102,7 +102,7 @@ export const FormConfigs: FormFieldType = {
           ],
         },
         {
-          name: FormFields.group_product,
+          name: FormFields.collection_id,
           label: "Nhóm hàng",
           placeholder: "Nhập nhóm hàng",
           type: "text",
@@ -325,6 +325,7 @@ export const initialSupplierForm: SupplierCreateRequest = {
   debt_time_unit: null,
   goods: [AppConfig.FASHION_INDUSTRY],
   person_in_charge: null,
+  collection_id: null,
   moq: null,
   note: "",
   name: "",
