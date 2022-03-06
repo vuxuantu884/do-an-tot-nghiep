@@ -1,48 +1,62 @@
 import { Card, Select } from "antd";
+import BaseResponse from "base/base.response";
 import {
-  getListSubStatusAction,
-  setSubStatusAction,
+	getListSubStatusAction,
+	setSubStatusAction
 } from "domain/actions/order/order.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import {
-  FulFillmentResponse,
-  OrderResponse,
-  OrderSubStatusResponse,
+	FulFillmentResponse,
+	OrderResponse,
+	OrderSubStatusResponse
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { sortFulfillments } from "utils/AppUtils";
-import { OrderStatus, ShipmentMethod } from "utils/Constants";
+import { getOrderProcessingStatusDetailService, getOrderProcessingStatusService } from "service/order/order-processing-status.service";
+import { handleFetchApiError, isFetchApiSuccessful, sortFulfillments } from "utils/AppUtils";
+import { FulFillmentStatus, OrderStatus, ShipmentMethod } from "utils/Constants";
 
 type PropType = {
-  subStatusCode?: string | undefined;
-  status?: string | null;
-  orderId?: number;
-  fulfillments?: FulFillmentResponse[] | null;
-  handleUpdateSubStatus: () => void;
+	subStatusCode?: string | undefined;
+	status?: string | null;
+	orderId?: number;
+	fulfillments?: FulFillmentResponse[] | null;
+	handleUpdateSubStatus: () => void;
 	setReload: (value: boolean) => void;
-  OrderDetailAllFulfillment?: OrderResponse | null;
+	OrderDetailAllFulfillment?: OrderResponse | null;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments, subStatusCode, handleUpdateSubStatus, setReload, OrderDetailAllFulfillment } = props;
-  const dispatch = useDispatch();
-  const [initOrderSubStatus, setInitOrderSubStatus] = useState<OrderSubStatusResponse[]>(
+	const ORDER_RETURN_SUB_STATUS = {
+		returning: {
+			code: "returning",
+		},
+		returned: {
+			code: "returned",
+		}
+	}
+	const { status, orderId, fulfillments, subStatusCode, handleUpdateSubStatus, setReload, OrderDetailAllFulfillment } = props;
+	const dispatch = useDispatch();
+	const [initOrderSubStatus, setInitOrderSubStatus] = useState<OrderSubStatusResponse[]>(
 		[]
 	);
-  const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
-    []
-  );
-  const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
+	const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
+		[]
+	);
+	const [orderReturnSubStatus, setOrderReturnSubStatus] = useState<OrderProcessingStatusModel|null>(null);
+	const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
 	const sortedFulfillments = useMemo(() => {
 		if(!OrderDetailAllFulfillment?.fulfillments) {
-			return  []
-		}
-		return sortFulfillments(OrderDetailAllFulfillment?.fulfillments)
-	}, [OrderDetailAllFulfillment])
+			return []
+		} else {
+			return sortFulfillments(OrderDetailAllFulfillment?.fulfillments)
 
-  const handleOrderSubStatus = useCallback((sub_status_code: string) => {
-		// giao hàng hvc, tự giao hàng
+		}
+	}, [OrderDetailAllFulfillment?.fulfillments])
+
+	const handleOrderSubStatus = useCallback((sub_status_code: string) => {
 		const STATUS_ORDER_PARTNER = [
 			// tạo nháp
 			{
@@ -157,7 +171,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 				now: "third_call_attempt",
 				list: ["third_call_attempt"]
 			},
-      {
+			{
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
 				list: ["awaiting_coordinator_confirmation", "coordinator_confirmed", "merchandise_picking", "require_warehouse_change"]
@@ -167,7 +181,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 				now: "merchandise_picking",
 				list: ["merchandise_picking", "require_warehouse_change"]
 			},
-      {
+			{
 				orderStatus: OrderStatus.FINALIZED,
 				now: "merchandise_packed",
 				list: ["merchandise_packed"]
@@ -204,26 +218,26 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 				now: "third_call_attempt",
 				list: ["third_call_attempt"]
 			},
-      {
+			{
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "require_warehouse_change", "4h_delivery"]
+				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation", "coordinator_confirmed", "require_warehouse_change", "4h_delivery"]
 			},
 		]
 		const filterStatus = (arr: any[]) => {
 			let result: OrderSubStatusResponse[] = [...initOrderSubStatus];
 			const foundStatus = arr.find((single) => {
 				return single.now === sub_status_code && single.orderStatus === status
-					
+
 			})
 			if (foundStatus) {
-        let arr: OrderSubStatusResponse[] = [];
-        foundStatus.list.forEach((single:any) => {
-          let mapStatuses = initOrderSubStatus.find(aa => aa.code === single)
-          if(mapStatuses) {
-            arr.push(mapStatuses)
-          }
-        })
+				let arr: OrderSubStatusResponse[] = [];
+				foundStatus.list.forEach((single: any) => {
+					let mapStatuses = initOrderSubStatus.find(aa => aa.code === single)
+					if (mapStatuses) {
+						arr.push(mapStatuses)
+					}
+				})
 				result = arr;
 			}
 			return result;
@@ -242,7 +256,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 			// nhận tại cửa hàng
 			case ShipmentMethod.PICK_AT_STORE:
 				result = filterStatus(STATUS_ORDER_AT_STORE);
-				break 
+				break
 			default:
 				result = filterStatus(STATUS_ORDER_OTHER);
 				break;
@@ -250,18 +264,18 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 		setListOrderSubStatus(result)
 	}, [OrderDetailAllFulfillment?.fulfillments, initOrderSubStatus, sortedFulfillments, status]);
 
-  const handleChange = (sub_status_code: string) => {
-    
-    if (orderId) {
-      dispatch(setSubStatusAction(orderId, sub_status_code, ()=>{
-        setValueSubStatusCode(sub_status_code);
-        handleUpdateSubStatus();
+	const handleChange = (sub_status_code: string) => {
+
+		if (orderId) {
+			dispatch(setSubStatusAction(orderId, sub_status_code, () => {
+				setValueSubStatusCode(sub_status_code);
+				handleUpdateSubStatus();
 				setReload(true)
 			}));
-    }
-  };
+		}
+	};
 
-  useEffect(() => {
+	useEffect(() => {
 		const listFulfillmentMapSubStatus = {
 			packed: {
 				fulfillmentStatus: "packed",
@@ -294,7 +308,45 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 		}
 	}, [dispatch, fulfillments, status]);
 
-  useEffect(() => {
+	useEffect(() => {
+		const addReturnToList = async () => {
+			let found = undefined;
+			const isOrderReturn = (sortedFulfillments: FulFillmentResponse[] | null) => {
+				if (!sortedFulfillments || sortedFulfillments?.length === 0) {
+					return false
+				}
+				if (sortedFulfillments[0].status === FulFillmentStatus.CANCELLED || sortedFulfillments[0].status === FulFillmentStatus.RETURNED || sortedFulfillments[0].status === FulFillmentStatus.RETURNING) {
+					return true
+				}
+				return false
+			};
+			if (isOrderReturn(sortedFulfillments)) {
+				if(OrderDetailAllFulfillment?.sub_status_id) {
+					await getOrderProcessingStatusDetailService(OrderDetailAllFulfillment.sub_status_id).then((response: BaseResponse<OrderProcessingStatusModel>) => {
+						if(isFetchApiSuccessful(response)) {
+							found = response.data;
+						} else {
+							handleFetchApiError(response, "Chi tiết trạng thái xử lý đơn hàng", dispatch)
+						}
+					})
+
+				}
+				if (found) {
+					setOrderReturnSubStatus(found);
+				}
+			};
+		}
+		addReturnToList();
+	}, [OrderDetailAllFulfillment?.sub_status_id, dispatch, sortedFulfillments])
+
+	useEffect(() => {
+	 if(orderReturnSubStatus) {
+		let result = [...initOrderSubStatus, ...[orderReturnSubStatus]]
+		setListOrderSubStatus(result)
+	 }
+	}, [initOrderSubStatus, orderReturnSubStatus])
+
+	useEffect(() => {
 		if (valueSubStatusCode) {
 			handleOrderSubStatus(valueSubStatusCode)
 		} else {
@@ -302,38 +354,38 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 		}
 	}, [handleOrderSubStatus, valueSubStatusCode, OrderDetailAllFulfillment?.fulfillments, fulfillments, initOrderSubStatus])
 
-  useEffect(() => {
-    if (subStatusCode) {
-      setValueSubStatusCode(subStatusCode);
-    }
-  }, [subStatusCode]);
+	useEffect(() => {
+		if (subStatusCode) {
+			setValueSubStatusCode(subStatusCode);
+		}
+	}, [subStatusCode]);
 
-  return (
-    <Card title="Xử lý đơn hàng">
-      <Select
-        showSearch
-        style={{ width: "100%" }}
-        placeholder="Chọn trạng thái phụ"
-        optionFilterProp="children"
-        filterOption={(input, option) =>
-          option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-        }
-        onChange={handleChange}
-        notFoundContent="Không tìm thấy trạng thái phụ"
-        value={valueSubStatusCode}
-        key={Math.random()}
-      >
-        {listOrderSubStatus &&
-          listOrderSubStatus.map((single) => {
-            return (
-              <Select.Option value={single.code} key={single.code}>
-                {single.sub_status}
-              </Select.Option>
-            );
-          })}
-      </Select>
-    </Card>
-  );
+	return (
+		<Card title="Xử lý đơn hàng">
+			<Select
+				showSearch
+				style={{ width: "100%" }}
+				placeholder="Chọn trạng thái phụ"
+				optionFilterProp="children"
+				filterOption={(input, option) =>
+					option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+				}
+				onChange={handleChange}
+				notFoundContent="Không tìm thấy trạng thái phụ"
+				value={valueSubStatusCode}
+				key={Math.random()}
+			>
+				{listOrderSubStatus &&
+					listOrderSubStatus.map((single) => {
+						return (
+							<Select.Option value={single.code} key={single.code}>
+								{single.sub_status}
+							</Select.Option>
+						);
+					})}
+			</Select>
+		</Card>
+	);
 }
 
 export default SubStatusOrder;
