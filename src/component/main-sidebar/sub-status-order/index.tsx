@@ -8,8 +8,9 @@ import {
   OrderResponse,
   OrderSubStatusResponse,
 } from "model/response/order/order.response";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { sortFulfillments } from "utils/AppUtils";
 import { OrderStatus, ShipmentMethod } from "utils/Constants";
 
 type PropType = {
@@ -33,53 +34,111 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   );
   const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
+	const sortedFulfillments = useMemo(() => {
+		if(!OrderDetailAllFulfillment?.fulfillments) {
+			return  []
+		}
+		return sortFulfillments(OrderDetailAllFulfillment?.fulfillments)
+	}, [OrderDetailAllFulfillment])
 
   const handleOrderSubStatus = useCallback((sub_status_code: string) => {
+		// giao hàng hvc, tự giao hàng
 		const STATUS_ORDER_PARTNER = [
+			// tạo nháp
 			{
 				orderStatus: OrderStatus.DRAFT,
 				now: "first_call_attempt",
 				list: ["first_call_attempt", "second_call_attempt", "third_call_attempt"]
 			},
+			// gọi điện lần 2
 			{
 				orderStatus: OrderStatus.DRAFT,
 				now: "second_call_attempt",
 				list: ["second_call_attempt", "third_call_attempt"]
 			},
+			// gọi điện lần 3 
 			{
 				orderStatus: OrderStatus.DRAFT,
 				now: "third_call_attempt",
 				list: ["third_call_attempt"]
 			},
+			// duyệt đơn hàng	
       {
 				orderStatus: OrderStatus.FINALIZED,
 				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "require_warehouse_change", "4h_delivery"]
+				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "4h_delivery"]
 			},
+			// chờ sale xác nhận lại	
+			{
+				orderStatus: OrderStatus.FINALIZED,
+				now: "awaiting_saler_confirmation",
+				list: ["awaiting_saler_confirmation", "awaiting_coordinator_confirmation"]
+			},
+			// đã xác nhận
+			{
+				orderStatus: OrderStatus.FINALIZED,
+				now: "coordinator_confirmed",
+				list: ["coordinator_confirmed", "merchandise_picking","require_warehouse_change"]
+			},
+			// giao 4h
+			{
+				orderStatus: OrderStatus.FINALIZED,
+				now: "4h_delivery",
+				list: ["4h_delivery", "merchandise_picking","require_warehouse_change"]
+			},
+			//đổi kho hàng
+			{
+				orderStatus: OrderStatus.FINALIZED,
+				now: "require_warehouse_change",
+				list: ["require_warehouse_change", "coordinator_confirmed","awaiting_saler_confirmation"]
+			},
+			// đang nhặt hàng
 			{
 				orderStatus: OrderStatus.FINALIZED,
 				now: "merchandise_picking",
 				list: ["merchandise_picking", "require_warehouse_change"]
 			},
+			// đã đóng gói
       {
 				orderStatus: OrderStatus.FINALIZED,
 				now: "merchandise_packed",
 				list: ["merchandise_packed", "awaiting_shipper"]
 			},
+			// chờ thu gom
+			{
+				orderStatus: OrderStatus.FINALIZED,
+				now: "awaiting_shipper",
+				list: ["awaiting_shipper"]
+			},
+			// đang chuyển
 			{
 				orderStatus: OrderStatus.FINALIZED,
 				now: "shipping",
 				list: ["shipping"]
 			},
+			// hvc cập nhật thành công
 			{
 				orderStatus: OrderStatus.FINISHED,
 				now: "shipped",
 				list: ["shipped"]
 			},
+			// hủy đơn
 			{
 				orderStatus: OrderStatus.CANCELLED,
 				now: "cancelled",
 				list: ["cancelled"]
+			},
+			// đang hoàn
+			{
+				orderStatus: OrderStatus.FINISHED,
+				now: "returning",
+				list: ["returning", "returned"]
+			},
+			// đã hoàn
+			{
+				orderStatus: OrderStatus.FINISHED,
+				now: "returned",
+				list: ["returned"]
 			},
 		]
 		const STATUS_ORDER_AT_STORE = [
@@ -173,7 +232,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 			return;
 		}
 		let result = [...initOrderSubStatus];
-		switch (OrderDetailAllFulfillment?.fulfillments[0]?.shipment?.delivery_service_provider_type) {
+
+		switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
 			// giao hàng hvc, tự giao hàng
 			case ShipmentMethod.EXTERNAL_SERVICE:
 			case ShipmentMethod.EMPLOYEE:
@@ -188,7 +248,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 				break;
 		}
 		setListOrderSubStatus(result)
-	}, [OrderDetailAllFulfillment?.fulfillments, initOrderSubStatus, status]);
+	}, [OrderDetailAllFulfillment?.fulfillments, initOrderSubStatus, sortedFulfillments, status]);
 
   const handleChange = (sub_status_code: string) => {
     
