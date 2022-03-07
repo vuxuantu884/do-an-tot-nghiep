@@ -1,5 +1,4 @@
 import BaseAction from "base/base.action";
-import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel, OrderSearchQuery, StoreBankAccountNumberModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
@@ -15,15 +14,15 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
-  VTPFeeRequest,
+  VTPFeeRequest
 } from "model/request/order.request";
 import {
   createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
+  deleteDeliveryMappedStoreReQuestModel
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   ActionLogDetailResponse,
-  OrderActionLogResponse,
+  OrderActionLogResponse
 } from "model/response/order/action-log.response";
 import {
   ChannelsResponse,
@@ -37,7 +36,7 @@ import {
   ShippingGHTKResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
+  VTPFeeResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse } from "model/response/order/source.response";

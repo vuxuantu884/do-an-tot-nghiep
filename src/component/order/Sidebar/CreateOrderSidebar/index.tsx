@@ -113,7 +113,13 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   };
 
   useEffect(() => {
-    const pushCurrentValueToDataAccount = (fieldName: string) => {
+  }, [dispatch, form, storeAccountData]);
+
+	useEffect(() => {
+		if(!storeId) {
+			return;
+		}
+    const pushCurrentValueToDataAccount = (fieldName: string, storeAccountData: AccountResponse[]) => {
 			let fieldNameValue = form.getFieldValue(fieldName);
       if (fieldNameValue) {
         switch (fieldName) {
@@ -167,21 +173,15 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 				}
       }
     };
-    pushCurrentValueToDataAccount("assignee_code");
-    pushCurrentValueToDataAccount("marketer_code");
-    pushCurrentValueToDataAccount("coordinator_code");
-  }, [dispatch, form, storeAccountData]);
-
-	useEffect(() => {
-		if(!storeId) {
-			return;
-		}
 		searchAccountPublicApi({
-			store_ids: [storeId],
+      store_ids: [storeId],
 		})
-      .then((response) => {
-        if (isFetchApiSuccessful(response)) {
+    .then((response) => {
+      if (isFetchApiSuccessful(response)) {
           setStoreAccountData(response.data.items);
+          pushCurrentValueToDataAccount("assignee_code", response.data.items);
+          pushCurrentValueToDataAccount("marketer_code", response.data.items);
+          pushCurrentValueToDataAccount("coordinator_code", response.data.items);
           setInitAssigneeAccountData(response.data.items);
           setInitMarketingAccountData(response.data.items);
         } else {
@@ -191,7 +191,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 			.catch((error) => {
 				console.log("error", error);
 			})
-	}, [dispatch, storeId])
+	}, [dispatch, form, storeId])
 
   return (
     <StyledComponent>

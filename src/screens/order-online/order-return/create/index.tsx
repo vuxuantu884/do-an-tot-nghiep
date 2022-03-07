@@ -822,6 +822,7 @@ ShippingServiceConfigDetailResponseModel[]
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
     values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
+    values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -1135,6 +1136,11 @@ ShippingServiceConfigDetailResponseModel[]
 										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
+                    form={form}
+                    initialForm={initialForm}
+                    updateOrder
+                    initDefaultOrderSourceId={OrderDetail?.source_id}
+                    isAutoDefaultOrderSource= {false}
                   />
                 )}
 
