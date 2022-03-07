@@ -171,13 +171,7 @@ const UpdateSupplierScreen: React.FC = () => {
       if (!RegUtil.PHONE.test(value)) {
         callback(`Số điện thoại không đúng định dạng`);
       } else {
-        listSupplier.forEach((supplier: SupplierResponse) => {
-          if (supplier?.phone === value) {
-            callback(`Số điện thoại đã tồn tại`);
-          }
-          return
-        })
-        callback();
+        callback()
       }
     } else {
       callback();

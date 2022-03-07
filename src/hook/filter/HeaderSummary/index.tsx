@@ -13,11 +13,11 @@ export const HeaderSummary = (
                         <CaretUpOutlined style={{color: sortActionColor, fontSize: 12}} title="Sắp xếp tăng dần" size={5} onClick={()=>{onSortASC && onSortASC(field)}} />
                         <CaretDownOutlined style={{color: sortActionColor, fontSize: 12}} title="Sắp xếp giảm dần" size={10} onClick={()=>{onSortDESC && onSortDESC(field)}} />
                       </div>
-    let Component = () => <div style={{display: "inline-flex"}}>{header} <SortComponent/></div>;
+    let Component = () => <div style={{display: "inline-flex",wordBreak: "initial"}}>{header} <SortComponent/></div>;
     if (total) { 
       Component = () => (
         <>
-          <div style={{display: "inline-flex"}}>{header} <SortComponent/></div>
+          <div style={{display: "inline-flex",wordBreak: "initial"}}>{header} <SortComponent/></div>
           <div>{`(${formatCurrency(total,".")})`}</div>
         </>
       );
