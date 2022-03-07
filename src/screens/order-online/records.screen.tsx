@@ -1,10 +1,7 @@
 import React from "react";
-import { Card, Row, Col } from "antd";
+import { Card, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import PackInfo from "./pack/info/pack-info";
-import PackList from "./pack/info/pack-list";
-import AddReportHandOver from "./pack/info/add-report-hand-over";
 import {
   DeliveryServicesGetList,
   getChannels,
@@ -21,11 +18,18 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
+import PackReportHandOver from "./pack/info/pack-report-hand-over";
+import { useQuery } from "utils/useQuery";
 import { StyledComponent } from "./pack/styles";
-import './pack/styles.scss';
+import useAuthorization from "hook/useAuthorization";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import ButtonCreate from "component/header/ButtonCreate";
+// import './pack/styles.scss';
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const query = useQuery();
+  //useState
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -34,6 +38,11 @@ const PackSupportScreen: React.FC = () => {
       total: 0,
     },
     items: [],
+  });
+
+  const [allowCreateGoodsReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+    not: false,
   });
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
@@ -90,33 +99,25 @@ const PackSupportScreen: React.FC = () => {
             path: UrlConfig.ORDER,
           },
           {
-            name: "Hỗ trợ đóng gói",
+            name: "Biên bản bàn giao",
           },
         ]}
+        extra={
+          <Row>
+            <Space size={12} style={{marginLeft: "10px"}}>
+              <ButtonCreate
+                size="small" 
+                path={`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-create`}
+                disabled={!allowCreateGoodsReceipt}
+              />
+            </Space>
+          </Row>
+        }
       >
         <StyledComponent>
-          <Row>
-            <Col>
-              <Card className="pack-card">
-                <PackInfo
-                  setFulfillmentsPackedItems={setData}
-                  fulfillmentData={data}
-                />
-              </Card>
-            </Col>
-          </Row>
-          
-          <Row gutter={24}>
-            <Col xs={24}>
-              <PackList data={data} />
-            </Col>
-          </Row>
-
-          <Row gutter={24}>
-            <Col xs={24}>
-              <AddReportHandOver />
-            </Col>
-          </Row>
+          <Card className="pack-card">
+            <PackReportHandOver query={query} />
+          </Card>
         </StyledComponent>
 
       </ContentContainer>

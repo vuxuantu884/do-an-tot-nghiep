@@ -142,7 +142,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const handleAddPack = (item: any) => {
     history.push(
-      `${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${item.id_handover_record}`
+      `${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${item.id_handover_record}`
     );
   };
 
@@ -250,7 +250,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       render: (value: number) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
+            <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${value}`}>
               {value}
             </Link>
           </React.Fragment>
@@ -378,7 +378,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
+      history.replace(`${UrlConfig.DELIVERY_RECORDS}?${queryParam}`);
     },
     [history, params]
   );
@@ -389,7 +389,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       //setIsFilter(true)
-      history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
+      history.push(`${UrlConfig.DELIVERY_RECORDS}?${queryParam}`);
     },
     [history, params]
   );
@@ -397,7 +397,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   const onClearFilter = useCallback(() => {
     setPrams(initQueryGoodsReceipts);
     let queryParam = generateQuery(initQueryGoodsReceipts);
-    history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
+    history.push(`${UrlConfig.DELIVERY_RECORDS}?${queryParam}`);
   }, [history]);
 
   const onSelectedChange = useCallback((selectedRow) => {
@@ -478,7 +478,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       <React.Fragment>
         {selectedOrder.map((value: GoodsReceiptsResponse, index: number) => (
           <p style={{ lineHeight: "18px" }}>
-            <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value.id}`} key={index}>
+            <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${value.id}`} key={index}>
             {value.id}- {value.delivery_service_name}-{" "}
                   {value.receipt_type_name}- {value.ecommerce_name}
             </Link>{" "}
@@ -495,6 +495,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     dispatch(
       deleteAllGoodsReceipts(request, (data:GoodsReceiptsResponse) => {
         if (data) {
+          setTableLoading(true);
           dispatch(
             getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
               let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
@@ -519,6 +520,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   },[dispatch, params, selectedRowKeys]);
 
   useEffect(() => {
+    setTableLoading(true);
     dispatch(
       getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
         let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
