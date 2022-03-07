@@ -82,7 +82,7 @@ export const getReturnApi = (
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns?${queryString}`);
 };
 
-export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
+export const getSources = (): Promise<BaseResponse<SourceResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/sources`);
 };
 

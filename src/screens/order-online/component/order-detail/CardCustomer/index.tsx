@@ -7,37 +7,42 @@ import {
   Card,
   Divider,
   Form,
+  FormInstance,
   Input,
   Row,
   Space,
   Tag,
-  Typography,
+  Typography
 } from "antd";
 import imageDefault from "assets/icon/img-default.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import CustomSelect from "component/custom/select.custom";
+import UrlConfig from "config/url.config";
 import {
   DistrictGetByCountryAction,
-  WardGetByDistrictAction,
+  WardGetByDistrictAction
 } from "domain/actions/content/content.action";
 import {
-  getCustomerDetailAction,
-  CustomerGroups,
-  DeleteShippingAddress,
-  CustomerSearchSo,
+  CustomerGroups, CustomerSearchSo, DeleteShippingAddress, getCustomerDetailAction
 } from "domain/actions/customer/customer.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerShippingAddress } from "model/request/customer.request";
+import { OrderRequest } from "model/request/order.request";
+import { SourceSearchQuery } from "model/request/source.request";
 import {
   BillingAddress,
   CustomerResponse,
-  ShippingAddress,
+  ShippingAddress
 } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { OrderResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -46,20 +51,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
-import { showError, showSuccess } from "utils/ToastUtils";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import UrlConfig from "config/url.config";
-import * as CONSTANTS from "utils/Constants";
-import UpdateCustomer from "./UpdateCustomer";
-import CreateCustomer from "./CreateCustomer";
-import { handleDelayActionWhenInsertTextInSearchInput, sortSources } from "utils/AppUtils";
-import { departmentDetailAction } from "domain/actions/account/department.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { departmentDetailApi } from "service/accounts/department.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { OrderResponse } from "model/response/order/order.response";
-import { SourceSearchQuery } from "model/request/source.request";
+import { handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful, sortSources } from "utils/AppUtils";
+import * as CONSTANTS from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import CreateCustomer from "./CreateCustomer";
+import UpdateCustomer from "./UpdateCustomer";
 //#end region
 
 type CustomerCardProps = {
@@ -81,6 +79,10 @@ type CustomerCardProps = {
   OrderDetail?: OrderResponse | null;
   shippingAddressesSecondPhone?:string;
   setShippingAddressesSecondPhone?:(value:string)=>void;
+  initialForm?: OrderRequest;
+  form?: FormInstance<any>;
+  initDefaultOrderSourceId?: number | null;
+  isAutoDefaultOrderSource?: boolean;
 };
 
 //Add query for search Customer
@@ -118,6 +120,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     OrderDetail,
     shippingAddressesSecondPhone,
     setShippingAddressesSecondPhone,
+    initialForm,
+    form,
+    initDefaultOrderSourceId,
+    isAutoDefaultOrderSource = true,
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -142,8 +148,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
-  const [allSources, setAllSources] = useState<Array<SourceResponse>>([]);
-  const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
 
 	const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -407,57 +411,142 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
-
-	const getOrderSources = useCallback(async() => {
-		let result:SourceResponse[]  = []
-		result= await sortSources(allSources, departmentIds)
-		return result
-	}, [allSources, departmentIds]);
-
-	
-  useEffect(() => {
-		dispatch(getListSourceRequest((response) => {
-			setAllSources(response)
-		}));
-  }, [dispatch]);
-
 	useEffect(() => {
+    const getDepartmentIds = async () => {
+      let departmentId = userReducer.account?.account_jobs[0]?.department_id;
+      let departmentIds:number[] = [];
+      if(departmentId) {
+        departmentIds.push(departmentId)
+        departmentDetailApi(departmentId).then((response) => {
+          if(isFetchApiSuccessful(response)) {
+            departmentIds.push(response.data.parent_id);
+          } else {
+            handleFetchApiError(response, "Chi tiết phòng ban", dispatch)
+          }
+        })
+      }
+      return departmentIds;
+    };
+    const getOrderSources = async(departmentIds:number[]) => {
+      let result:SourceResponse[]  = [];
+      await getSourcesWithParamsService({
+        limit: 30
+      }).then(async response => {
+        if(isFetchApiSuccessful(response)) {
+          result= await sortSources(response.data.items, departmentIds)
+          return result
+        } else {
+          handleFetchApiError(response, "Nguồn đơn hàng", dispatch)
+        }
+      })
+      return result
+    }
     const checkIfInitOrderSourceIncludesOrderDetailSource = (sources: SourceResponse[]) => {
-      let result = false;
-      if(sources.some(single => single.id === OrderDetail?.source_id)) {
-        result = true;
+      if(OrderDetail?.source_id === CONSTANTS.POS.source_id) {
+        return false;
+      }
+      const init = initialForm?.source_id || OrderDetail?.source_id
+      if(sources.some(single => single.id === init)) {
+        return true;
+      }
+      return false;
+    };
+    const getOrderSourceByDepartmentId = async (departmentIds: number[]) => {
+      let result: SourceResponse[] = [];
+      if(departmentIds.length > 0) {
+        await getOrderSources(departmentIds).then(async (response) => {
+          let sortedSources =  response;
+          result = response;
+          let id = OrderDetail?.source_id || initialForm?.source_id;
+          if(id && props.updateOrder ) {
+            sortedSources = response.filter(x =>x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase());
+            if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
+              const query:SourceSearchQuery = {
+                ids: [id],
+                active: true,
+              }
+              await getSourcesWithParamsService(query).then((responseSource) => {
+                if(isFetchApiSuccessful(responseSource)) {
+                  let items = responseSource.data.items;
+                  sortedSources = [...response, ...items]
+                  return sortedSources
+                } else {
+                  handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch)
+                }
+              })
+    
+            }
+            result = [...sortedSources];
+            return result;
+          } else {
+            result = sortedSources.filter((x) => {
+              return (
+                x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase() && x.active
+              )
+            });
+            return result;
+          }
+        });
       }
       return result;
     };
-		getOrderSources().then((response) => {
-			let sortedSources =  response;
-      let result = response;
-      if(OrderDetail?.source_id && props.updateOrder ) {
-        sortedSources = response.filter(x =>x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase());
-        if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
-          const query:SourceSearchQuery = {
-            ids: [OrderDetail?.source_id],
-            active: true,
-          }
-          getSourcesWithParamsService(query).then((responseSource) => {
-            let items = responseSource.data.items;
-            sortedSources = [...response, ...items]
-          })
+    const setDefaultOrderSource = async (sources: SourceResponse[]) => {
+      let checkIfHasDefault = sources.find(source => source.default);
+      if(checkIfHasDefault) {
+        if(form && initialForm && !initialForm.source_id) {
+          if(!initDefaultOrderSourceId) {
+            form.setFieldsValue({
+              source_id: checkIfHasDefault.id
+            })
 
+          }
         }
-        result = [...sortedSources]
+        return sources;
       } else {
-        result = sortedSources.filter((x) => {
-          return (
-            x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
-          )
+        let result = sources;
+        const params:SourceSearchQuery = {
+          page: 1,
+          limit: 100,
+          active: true
+        }
+        await getSourcesWithParamsService(params).then((response) => {
+          if(isFetchApiSuccessful(response)) {
+            const defaultOrderSource = response.data.items.find(single => single.default && single.name.toLowerCase() !== CONSTANTS.POS.source_code)
+            if(defaultOrderSource) {
+              result.push(defaultOrderSource);
+              if(isAutoDefaultOrderSource) {
+                if(initialForm && !initialForm.source_id) {
+                  if(!initDefaultOrderSourceId) {
+                    form?.setFieldsValue({
+                      source_id: defaultOrderSource.id
+                    })
+    
+                  } else {
+                    form?.setFieldsValue({
+                      source_id: initDefaultOrderSourceId
+                    })
+                  }
+                }
+              }
+            }
+          } else {
+            handleFetchApiError(response, "Nguồn đơn hàng", dispatch)
+          }
         });
+        return result;    
 
       }
-			setInitListSource(result);
-			setListSource(result);
-		});
-  }, [OrderDetail?.source_id, getOrderSources, props.updateOrder]);
+    };
+    const fetchData = async() => {
+      let result: SourceResponse[] = [];
+      let departmentIds= await getDepartmentIds();
+      result = await getOrderSourceByDepartmentId(departmentIds);
+      result = await setDefaultOrderSource(result);
+      setInitListSource(result);
+      setListSource(result);
+    };
+    fetchData()
+  }, [OrderDetail?.source_id, dispatch, form, initDefaultOrderSourceId, initialForm, isAutoDefaultOrderSource, props.updateOrder, userReducer.account?.account_jobs]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -474,18 +563,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [dispatch]);
 
 	useEffect(() => {
-		let departmentId = userReducer.account?.account_jobs[0]?.department_id;
-		if(departmentId) {
-			let department:number[] = [];
-			department.push(departmentId)
-			dispatch(departmentDetailAction(departmentId, (response) => {
-				if(response && response.parent_id) {
-					department.push(response.parent_id)
-				 	setDepartmentIds(department)
-				}
-			}))
-
-		}
+		
 	}, [dispatch, userReducer.account?.account_jobs])
 
   useEffect(() => {
@@ -584,8 +662,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     </div>
 		)
 	};
-
-  
 
   const renderInfoOrderSource=()=>{
     return(

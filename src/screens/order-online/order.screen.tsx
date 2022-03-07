@@ -677,7 +677,7 @@ ShippingServiceConfigDetailResponseModel[]
 			})
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, storeId, isShouldSetDefaultStoreBankAccount]);
+	}, [dispatch, storeId ]);
 
 	//windows offset
 	useEffect(() => {
@@ -1191,6 +1191,9 @@ ShippingServiceConfigDetailResponseModel[]
 											setOrderSourceId={setOrderSourceId}
 											shippingAddressesSecondPhone={shippingAddressesSecondPhone}
 											setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+											form={form}
+											initialForm={initialForm}
+											updateOrder
 										/>
 										<OrderCreateProduct
 											orderAmount={orderAmount}

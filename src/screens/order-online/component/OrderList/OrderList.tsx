@@ -13,7 +13,6 @@ import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config"
 import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {

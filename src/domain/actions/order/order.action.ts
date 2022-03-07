@@ -1,5 +1,4 @@
 import BaseAction from "base/base.action";
-import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel, OrderSearchQuery, StoreBankAccountNumberModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";

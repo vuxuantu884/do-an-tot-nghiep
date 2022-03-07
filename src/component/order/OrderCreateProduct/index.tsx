@@ -26,7 +26,6 @@ import arrowDownIcon from "assets/img/drow-down.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
-import { HttpStatus } from "config/http-status.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
