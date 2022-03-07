@@ -136,7 +136,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",
-    sort_column: "id",
+    sort_column: "updated_date",
   });
   const onPageChange = useCallback(
     (page, size) => {
