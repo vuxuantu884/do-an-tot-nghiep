@@ -262,3 +262,11 @@ export interface StoreBankAccountNumberModel {
   status: boolean;
   id: number;
 }
+
+export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
+  full_address:string,
+  ward:string,
+  district:string,
+  city:string,
+  country:string
+}
