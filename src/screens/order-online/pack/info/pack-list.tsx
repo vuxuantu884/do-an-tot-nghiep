@@ -33,7 +33,7 @@ function PackList() {
       dataIndex: "",
       align: "center",
       visible: true,
-      width: "10%",
+      width: window.screen.width <= 1600 ? "7%" : "5%",
       render: (value: any, row: any, index: number) => {
         return <span>{index + 1}</span>;
       },
@@ -117,7 +117,6 @@ function PackList() {
           }}
           className="ecommerce-order-list"
           rowKey={(item: any) => item.code}
-          //key={Math.random()}
           rowSelection={{
             type: "checkbox",
             ...rowSelection,

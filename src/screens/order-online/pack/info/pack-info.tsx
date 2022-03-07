@@ -137,10 +137,10 @@ const PackInfo: React.FC = () => {
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
-      formRef.current?.validateFields(["store_request", "delivery_provider_id"]);
-      const { store_request, delivery_provider_id } = formRef.current?.getFieldsValue();
+      formRef.current?.validateFields(["store_request", "delivery_service_id"]);
+      const { store_request, delivery_service_id } = formRef.current?.getFieldsValue();
 
-      if (value.trim() && store_request && delivery_provider_id) {
+      if (value.trim() && store_request && delivery_service_id) {
         dispatch(
           getFulfillments(value.trim(), (data: any) => {
             if (data && data.length !== 0) {
@@ -196,7 +196,7 @@ const PackInfo: React.FC = () => {
       quality_request: "",
       order_request: "",
       // store_request: undefined,
-      // delivery_provider_id:undefined
+      // delivery_service_id:undefined
     });
   };
 
@@ -238,9 +238,29 @@ const PackInfo: React.FC = () => {
       }
     }
   }, [formRef, itemProductList]);
+
+  const onChangeStoreId = useCallback((value?: number) => {
+    setPackModel({ ...new PackModelDefaltValue(), ...packModel, store_id: value });
+    setPackInfo({ ...packModel, store_id: value });
+  }, [packModel, setPackModel]);
+  const onChangeDeliveryServiceId = useCallback((value?: number) => {
+    setPackModel({ ...new PackModelDefaltValue(), ...packModel, delivery_service_id: value });
+    setPackInfo({ ...packModel, delivery_service_id: value });
+  }, [packModel, setPackModel]);
   ///function
 
   //useEffect
+
+  useEffect(()=>{
+    formRef.current?.setFieldsValue({
+      product_request: "",
+      quality_request: "",
+      order_request: "",
+      store_request: packModel?.store_id,
+      delivery_service_id:packModel?.delivery_service_id
+    });
+  },[formRef, packModel]);
+
   useEffect(() => {
     if (orderResponse) {
       console.log("orderResponse",orderResponse);
@@ -316,12 +336,11 @@ const PackInfo: React.FC = () => {
   //columns
   const SttColumn = {
     title: () => (
-      <div className="text-center">
-        <div style={{ textAlign: "left" }}>STT</div>
-      </div>
+      <span style={{ textAlign: "right" }}>STT</span>
     ),
-    className: "yody-pos-quantity text-center",
-    width: "5%",
+    className: "",
+    width: window.screen.width <= 1600 ? "5%" : "3%",
+    align: "center",
     render: (l: any, item: any, index: number) => {
       return <div className="yody-pos-qtt">{index + 1}</div>;
     },
@@ -423,6 +442,7 @@ const PackInfo: React.FC = () => {
               placeholder="Chọn cửa hàng"
               notFoundContent="Không tìm thấy kết quả"
               onChange={(value?: number) => {
+                onChangeStoreId(value);
               }}
               filterOption={(input, option) => {
                 if (option) {
@@ -449,7 +469,7 @@ const PackInfo: React.FC = () => {
             <Input.Group compact>
               <Form.Item
                 label="Hãng vận chuyển:"
-                name="delivery_provider_id"
+                name="delivery_service_id"
                 rules={[
                   {
                     required: true,
@@ -465,6 +485,7 @@ const PackInfo: React.FC = () => {
                   placeholder="Chọn hãng vận chuyển"
                   notFoundContent="Không tìm thấy kết quả"
                   disabled={disabledDeliveryProvider}
+                  onChange={(value?: number) => onChangeDeliveryServiceId(value)}
                 >
                   {
                     listThirdPartyLogistics.map((item, index) => (

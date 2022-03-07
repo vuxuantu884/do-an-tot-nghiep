@@ -23,13 +23,15 @@ import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receip
 import PackReportHandOver from "./pack/info/pack-report-hand-over";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
+import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
 import { StyledComponent } from "./pack/styles";
 import './pack/styles.scss';
-import { getPackInfo } from "utils/LocalStorageUtils";
+import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getListOrderApi } from "service/order/order.service";
 
 const { TabPane } = Tabs;
 
@@ -100,11 +102,24 @@ const PackSupportScreen: React.FC = () => {
   useLayoutEffect(() => {
     let packInfo: string | null = getPackInfo();
     if (packInfo) {
+      dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
-      let packData:PackModel = {...new PackModelDefaltValue(),...packInfoConvertJson};
-      setPackModel(packData);
+      let packData: PackModel = { ...new PackModelDefaltValue(), ...packInfoConvertJson };
+
+      let queryCode = packData.order.map(p => p.order_code);
+      let queryParam: any = { code: queryCode }
+      getListOrderApi(queryParam).then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          let orderEnd= packData.order.filter((p)=>response.data.items.some(p1=>p1.code===p.order_code && !p1.goods_receipt_id)); 
+          setPackModel({...packData,order:orderEnd});
+          setPackInfo({...packData,order:orderEnd});
+        } 
+        else handleFetchApiError(response, "Danh sách Fullfiment", dispatch)
+      }).catch((err) => {
+        console.log(err);
+      }).finally(()=>{dispatch(hideLoading());});
     }
-  }, []);
+  }, [dispatch]);
 
   const handleClickTab = (value: string) => {
     setActiveTab(value);
