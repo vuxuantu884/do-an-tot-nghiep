@@ -194,10 +194,10 @@ const YDPageCustomerView = (props: any) => {
       dataIndex: "status",
       align: "center",
       render: (value: any, row: any) => {
-        // const statusTag = status_order.find((status) => status.value === row.status);
+        const statusTag = status_order.find((status) => status.value === row.status);
         return (
           <div>
-            {/* <Tag
+            <Tag
               className="fpage-recent-tag"
               style={{
                 color: `${statusTag?.color}`,
@@ -205,8 +205,7 @@ const YDPageCustomerView = (props: any) => {
               }}
             >
               {statusTag?.name}
-            </Tag> */}
-            Kết thúc
+            </Tag>
           </div>
         );
       },
