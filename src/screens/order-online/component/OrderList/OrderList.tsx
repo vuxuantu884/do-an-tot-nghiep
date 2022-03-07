@@ -11,14 +11,14 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import UrlConfig from "config/url.config"
+import UrlConfig from "config/url.config";
 import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   DeliveryServicesGetList,
   getListOrderAction,
-  PaymentMethodGetList,
+  PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
@@ -28,11 +28,11 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
-  OrderProcessingStatusResponseModel,
+  OrderProcessingStatusResponseModel
 } from "model/response/order-processing-status.response";
 import {
   DeliveryServiceResponse,
-  OrderResponse,
+  OrderResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
