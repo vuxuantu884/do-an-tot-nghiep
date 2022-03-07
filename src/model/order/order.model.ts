@@ -1,15 +1,5 @@
 import { BaseObject } from "model/base/base.response";
-import {
-  BillingAddress,
-  FulFillmentResponse,
-  OrderDiscountResponse,
-  OrderLineItemResponse,
-  OrderPaymentResponse,
-  OrderResponse,
-  OrderReturnModel,
-  ShipmentResponse,
-  ShippingAddress,
-} from "model/response/order/order.response";
+import { BillingAddress, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress } from "model/response/order/order.response";
 
 export interface OrderItemModel {
   product_id: number;
@@ -123,7 +113,7 @@ export interface OrderModel extends BaseObject {
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;
-  automatic_discount?: boolean;
+	automatic_discount?: boolean;
   total_weight: number | null;
   channel_code: string;
   created_on?: string | null;
@@ -183,7 +173,7 @@ export interface OrderSearchQuery {
   tags: [];
   reference_code: string | null;
   search_term?: string | null;
-  services?: [];
+	services?: [];
 }
 
 export interface OrderSearchQueryModel {
@@ -243,12 +233,12 @@ export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
 }
 
 export interface DuplicateOrderSearchQuery {
-  page: number | null;
-  limit: number | null;
-  issued_on_min: string | null;
-  issued_on_max: string | null;
-  search_term: string | null;
-  store_id?: number | null;
+  page: number|null;
+  limit: number|null;
+  issued_on_min:string|null;
+  issued_on_max:string|null;
+  search_term:string|null;
+  store_id?:number|null
 }
 
 export interface DuplicateOrderDetailQuery extends OrderSearchQuery{

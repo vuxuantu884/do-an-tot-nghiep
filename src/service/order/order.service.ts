@@ -56,7 +56,7 @@ export const getDetailOrderApi = (orderId: any): Promise<BaseResponse<OrderRespo
 
 export const getListOrderApi = (
   query: OrderSearchQuery
-): Promise<BaseResponse<PageResponse<OrderModel>>> => {
+): Promise<BaseResponse<OrderModel>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
 };

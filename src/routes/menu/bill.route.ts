@@ -3,10 +3,10 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 import OrderUpdate from "screens/order-online/order-update";
-import PackDetail from "screens/order-online/pack/pack-detail";
-import PackSupportScreen from "screens/order-online/pack/pack.screen";
-import AddReportHandOver from "screens/order-online/pack/pack-add";
-import PackUpdate from "screens/order-online/pack/pack-update";
+import PackDetail from "screens/order-online/pack-detail";
+import PackSupportScreen from "screens/order-online/pack.screen";
+import AddReportHandOver from "screens/order-online/pack-add";
+import PackUpdate from "screens/order-online/pack-update";
 import SplitOrdersScreen from "screens/order-online/split-orders.screen";
 import CustomerDuplicate from "screens/order-online/order-duplicate/index";
 import OrderDuplicate from 'screens/order-online/order-duplicate/detail.screen'

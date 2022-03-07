@@ -35,9 +35,9 @@ import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 //   fulfillmentData: OrderResponse[];
 // };
 
-interface OrderLineItemResponseExt extends OrderLineItemResponse {
-  pick: number;
-  color: string;
+interface OrderLineItemResponseExt extends OrderLineItemResponse{
+  pick:number;
+  color:string;
 }
 
 var barcode = "";
@@ -78,8 +78,8 @@ const PackInfo: React.FC = () => {
   //context
   const orderPackContextData = useContext(OrderPackContext);
 
-  const setPackModel = orderPackContextData?.setPackModel;
-  const packModel = orderPackContextData?.packModel;
+  const setPackModel=orderPackContextData?.setPackModel;
+  const packModel= orderPackContextData?.packModel;
 
   const listStores = orderPackContextData?.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
@@ -103,15 +103,6 @@ const PackInfo: React.FC = () => {
     }
     return newData;
   }, [listStores, userReducer.account]);
-
-  const onChangeStoreId = useCallback((value?: number) => {
-    setPackModel({ ...new PackModelDefaltValue(), ...packModel, store_id: value });
-    setPackInfo({ ...packModel, store_id: value });
-  }, [packModel, setPackModel]);
-  const onChangeDeliveryServiceId = useCallback((value?: number) => {
-    setPackModel({ ...new PackModelDefaltValue(), ...packModel, delivery_service_id: value });
-    setPackInfo({ ...packModel, delivery_service_id: value });
-  }, [packModel, setPackModel]);
 
   ///context
 
@@ -146,14 +137,14 @@ const PackInfo: React.FC = () => {
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
-      formRef.current?.validateFields(["store_request", "delivery_service_id"]);
-      const { store_request, delivery_service_id } = formRef.current?.getFieldsValue();
+      formRef.current?.validateFields(["store_request", "delivery_provider_id"]);
+      const { store_request, delivery_provider_id } = formRef.current?.getFieldsValue();
 
-      if (value.trim() && store_request && delivery_service_id) {
+      if (value.trim() && store_request && delivery_provider_id) {
         dispatch(
           getFulfillments(value.trim(), (data: any) => {
             if (data && data.length !== 0) {
-
+             
               setOrderResponse(data[0]);
               setDisableStoreId(true);
               setDisabledDeliveryProvider(true);
@@ -168,7 +159,7 @@ const PackInfo: React.FC = () => {
         );
 
         OrderRequestElement?.select();
-      }
+      } 
     },
     [dispatch, OrderRequestElement, formRef]
   );
@@ -200,12 +191,12 @@ const PackInfo: React.FC = () => {
     setOrderResponse(undefined);
     setItemProductList([]);
 
-    formRef.current?.setFieldsValue({
+    formRef.current?.setFieldsValue({ 
       product_request: "",
       quality_request: "",
       order_request: "",
       // store_request: undefined,
-      // delivery_service_id:undefined
+      // delivery_provider_id:undefined
     });
   };
 
@@ -225,10 +216,10 @@ const PackInfo: React.FC = () => {
       );
 
       if (indexPack !== -1) {
-        if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
+        if ((Number(itemProductList[indexPack].pick)+ quality_request) > (Number(itemProductList[indexPack].quantity))) {
           showError("Sản phẩm đã nhập đủ số lượng");
-          console.log("quality", Number(itemProductList[indexPack].pick) + quality_request);
-
+          console.log("quality",Number(itemProductList[indexPack].pick)+ quality_request);
+          
           return
         } else {
           itemProductList[indexPack].pick += Number(quality_request);
@@ -252,7 +243,7 @@ const PackInfo: React.FC = () => {
   //useEffect
   useEffect(() => {
     if (orderResponse) {
-      console.log("orderResponse", orderResponse);
+      console.log("orderResponse",orderResponse);
       let item: any[] = [];
       orderResponse.items.forEach(function (i: any) {
         item.push({ ...i, pick: 0, color: "#E24343" });
@@ -278,15 +269,15 @@ const PackInfo: React.FC = () => {
           items: itemProductList,
         };
 
-        let packData: PackModel = { ...new PackModelDefaltValue(), ...packModel };
-        console.log("PackModel", packData);
-
+        let packData:PackModel = {...new PackModelDefaltValue(),...packModel};
+        console.log("PackModel",packData);
+        
         dispatch(
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
 
-              packData?.order?.push({ ...orderResponse });
+              packData?.order?.push({...orderResponse});
               setPackModel(packData);
               setPackInfo(packData);
               showSuccess("Đóng gói đơn hàng thành công");
@@ -320,27 +311,17 @@ const PackInfo: React.FC = () => {
       window.removeEventListener("keypress", event);
     };
   }, [event]);
-
-  useEffect(()=>{
-    formRef.current?.setFieldsValue({
-      product_request: "",
-      quality_request: "",
-      order_request: "",
-      store_request: packModel?.store_id,
-      delivery_service_id:packModel?.delivery_service_id
-    });
-  },[formRef, packModel]);
-
   ///useEffect
 
   //columns
   const SttColumn = {
     title: () => (
-      <span style={{ textAlign: "right" }}>STT</span>
+      <div className="text-center">
+        <div style={{ textAlign: "left" }}>STT</div>
+      </div>
     ),
-    width: window.screen.width <= 1600 ? "5%" : "3%",
-    className: "",
-    align: "center",
+    className: "yody-pos-quantity text-center",
+    width: "5%",
     render: (l: any, item: any, index: number) => {
       return <div className="yody-pos-qtt">{index + 1}</div>;
     },
@@ -442,7 +423,6 @@ const PackInfo: React.FC = () => {
               placeholder="Chọn cửa hàng"
               notFoundContent="Không tìm thấy kết quả"
               onChange={(value?: number) => {
-                onChangeStoreId(value);
               }}
               filterOption={(input, option) => {
                 if (option) {
@@ -469,7 +449,7 @@ const PackInfo: React.FC = () => {
             <Input.Group compact>
               <Form.Item
                 label="Hãng vận chuyển:"
-                name="delivery_service_id"
+                name="delivery_provider_id"
                 rules={[
                   {
                     required: true,
@@ -485,7 +465,6 @@ const PackInfo: React.FC = () => {
                   placeholder="Chọn hãng vận chuyển"
                   notFoundContent="Không tìm thấy kết quả"
                   disabled={disabledDeliveryProvider}
-                  onChange={(value?: number) => onChangeDeliveryServiceId(value)}
                 >
                   {
                     listThirdPartyLogistics.map((item, index) => (

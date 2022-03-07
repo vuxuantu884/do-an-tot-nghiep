@@ -2,9 +2,9 @@ import React, { useLayoutEffect } from "react";
 import { Card, Row, Tabs, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import PackInfo from "./info/pack-info";
-import PackList from "./info/pack-list";
-import AddReportHandOver from "./info/add-report-hand-over";
+import PackInfo from "./pack/info/pack-info";
+import PackList from "./pack/info/pack-list";
+import AddReportHandOver from "./pack/info/add-report-hand-over";
 import {
   DeliveryServicesGetList,
   getChannels,
@@ -20,19 +20,16 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
-import PackReportHandOver from "./info/pack-report-hand-over";
+import PackReportHandOver from "./pack/info/pack-report-hand-over";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useHistory } from "react-router-dom";
-import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
-import { StyledComponent } from "./styles";
-import './styles.scss';
-import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
+import { StyledComponent } from "./pack/styles";
+import './pack/styles.scss';
+import { getPackInfo } from "utils/LocalStorageUtils";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
-import { getListOrderApi } from "service/order/order.service";
-import { OrderModel } from "model/order/order.model";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 const { TabPane } = Tabs;
 
@@ -43,9 +40,9 @@ const PackSupportScreen: React.FC = () => {
   const history = useHistory();
   //useState
 
-  const [packModel, setPackModel] = useState<PackModel | null>();
+  const [packModel,setPackModel]=useState<PackModel|null>();
 
-  const [isFulFillmentPack, setIsFulFillmentPack] = useState<string[]>([]);
+  const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState("1");
 
@@ -103,26 +100,11 @@ const PackSupportScreen: React.FC = () => {
   useLayoutEffect(() => {
     let packInfo: string | null = getPackInfo();
     if (packInfo) {
-      dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
-      let packData: PackModel = { ...new PackModelDefaltValue(), ...packInfoConvertJson };
-
-      let queryCode = packData.order.map(p => p.order_code);
-      let queryParam: any = { code: queryCode }
-      getListOrderApi(queryParam).then((response) => {
-        if (isFetchApiSuccessful(response)) {
-          console.log("getListOrderApi",response.data.items);
-          let orderEnd= packData.order.filter((p)=>response.data.items.some(p1=>p1.code===p.order_code && !p1.goods_receipt_id)); 
-          setPackModel({...packData,order:orderEnd});
-          setPackInfo({...packData,order:orderEnd});
-        } 
-        else handleFetchApiError(response, "Danh sách Đơn hàng", dispatch)
-      }).catch((err) => {
-        console.log(err);
-      }).finally(()=>{dispatch(hideLoading());});
-     
+      let packData:PackModel = {...new PackModelDefaltValue(),...packInfoConvertJson};
+      setPackModel(packData);
     }
-  }, [dispatch]);
+  }, []);
 
   const handleClickTab = (value: string) => {
     setActiveTab(value);
@@ -152,8 +134,8 @@ const PackSupportScreen: React.FC = () => {
                 <Tabs activeKey={activeTab} onChange={handleClickTab}>
                   <TabPane tab="Đóng gói" key="1">
                     <PackInfo
-                    // setFulfillmentsPackedItems={setData}
-                    // fulfillmentData={data}
+                      // setFulfillmentsPackedItems={setData}
+                      // fulfillmentData={data}
                     ></PackInfo>
                   </TabPane>
                   <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
