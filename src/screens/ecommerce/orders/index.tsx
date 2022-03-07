@@ -315,6 +315,7 @@ const EcommerceOrders: React.FC = () => {
                       target="_blank"
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
                     >
+                      <div>({item.sku})</div>
                       {item.variant}
                     </Link>
                   </div>

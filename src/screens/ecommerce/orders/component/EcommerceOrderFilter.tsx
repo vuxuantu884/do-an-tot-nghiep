@@ -1308,20 +1308,20 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
                 <p>Đơn vị vận chuyển</p>
                 <Item name="delivery_provider_ids">
-                <CustomSelect
-                  mode="multiple" showSearch allowClear
-                  showArrow placeholder="Chọn đơn vị vận chuyển"
-                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children"
-                  getPopupContainer={trigger => trigger.parentNode}
-                  maxTagCount='responsive'
-                >
-                  {deliveryService?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                      {item.name}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
+                  <CustomSelect
+                    mode="multiple" showSearch allowClear
+                    showArrow placeholder="Chọn đơn vị vận chuyển"
+                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
+                  >
+                    {deliveryService?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
                 </Item>
               </Col>
 
@@ -1341,20 +1341,20 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 
               </Col> */}
 
-              {/* <Col span={8} xxl={6}>
+              <Col span={8} xxl={6}>
                 <p>Tags</p>
                 <Item name="tags">
-                <CustomSelect
-                  mode="tags" optionFilterProp="children"
-                  showSearch showArrow allowClear
-                  placeholder="Chọn 1 hoặc nhiều tag"
-                  style={{width: '100%'}}
-                >
-                  
-                </CustomSelect>
+                  <CustomSelect
+                    mode="tags" optionFilterProp="children"
+                    showSearch showArrow allowClear
+                    placeholder="Điền 1 hoặc nhiều tag"
+                    style={{width: '100%'}}
+                  >
+
+                  </CustomSelect>
                 </Item>
-                
-              </Col> */}
+              </Col>
+
               <Col span={8} xxl={6}>
                 <p>Ghi chú nội bộ</p>
                 <Item name="note">
