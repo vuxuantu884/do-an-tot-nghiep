@@ -173,7 +173,7 @@ export interface OrderSearchQuery {
   reference_code: string | null;
   search_term?: string | null;
 	services?: [];
-  channel_codes?: []; 
+  channel_codes?: Array<any> | [];
 }
 
 export interface OrderSearchQueryModel {
