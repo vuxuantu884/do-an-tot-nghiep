@@ -1,11 +1,8 @@
 import { Card, Select } from "antd";
-import BaseResponse from "base/base.response";
 import {
 	getListSubStatusAction,
 	setSubStatusAction
 } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import {
 	FulFillmentResponse,
 	OrderResponse,
@@ -13,9 +10,8 @@ import {
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getOrderProcessingStatusDetailService, getOrderProcessingStatusService } from "service/order/order-processing-status.service";
-import { handleFetchApiError, isFetchApiSuccessful, sortFulfillments } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, ShipmentMethod } from "utils/Constants";
+import { sortFulfillments } from "utils/AppUtils";
+import { OrderStatus, ShipmentMethod } from "utils/Constants";
 
 type PropType = {
 	subStatusCode?: string | undefined;
