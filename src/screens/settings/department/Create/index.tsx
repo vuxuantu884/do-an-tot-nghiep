@@ -38,7 +38,7 @@ const DepartmentCreateScreen: React.FC = () => {
     acceptPermissions: [DepartmentsPermissions.CREATE],
   });
 
-  const levels = ['1', '2', '3', '4', '5', '6', '7'];
+  const levels = [1, 2, 3, 4, 5, 6, 7];
 
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,

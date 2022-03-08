@@ -54,7 +54,7 @@ const DepartmentUpdateScreen: React.FC = () => {
     not: false,
   });
 
-  const levels = ['1', '2', '3', '4', '5', '6', '7'];
+  const levels = [1, 2, 3, 4, 5, 6, 7];
 
   const searchAccount = useCallback(
     (query: AccountSearchQuery, paging: boolean) => {
