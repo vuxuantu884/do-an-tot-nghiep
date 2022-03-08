@@ -5,9 +5,12 @@ import { Link } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { AccountResponse } from "model/account/account.model";
 import { RiNotification2Line, RiArrowDropDownLine } from "react-icons/ri";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logoutAction } from "domain/actions/auth/auth.action";
 import { StyledComponent } from "./header.container.styles";
+import { useContext } from "react";
+import { AccountDetailContext } from "screens/settings/account/provider/account.detail.provider";
+import { RootReducerType } from "../../model/reducers/RootReducerType";
 
 type HeaderContainerProps = {
   onCollapse: () => void;
@@ -17,6 +20,9 @@ type HeaderContainerProps = {
 const HeaderContainer: React.FC<HeaderContainerProps> = (
   props: HeaderContainerProps
 ) => {
+  const user_id = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.user_id
+  );
   const dispatch = useDispatch();
   const userMenu = (
     <Menu>
@@ -31,7 +37,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
         </Link>
       </Menu.Item>
       <Menu.Item key="logout">
-        <Link onClick={() => dispatch(logoutAction())} to="#" type="text">
+        <Link onClick={() => dispatch(logoutAction(user_id))} to="#" type="text">
           <span>Đăng xuất</span>
         </Link>
       </Menu.Item>

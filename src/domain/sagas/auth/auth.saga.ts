@@ -37,11 +37,13 @@ function* loginSaga(action: YodyAction) {
   }
 }
 
-function* logoutSaga() {
+function* logoutSaga(action: YodyAction) {
+  const request = action.payload;
   yield put(showLoading());
   try {
-    // yield call(logoutApi);
+    yield call(logoutApi, request);
   } catch (error) {}
+
   yield clearLocalStorage();
   yield delay(1000);
   yield put(hideLoading());
