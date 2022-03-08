@@ -24,6 +24,7 @@ import { StyledComponent } from "./pack/styles";
 import useAuthorization from "hook/useAuthorization";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import ButtonCreate from "component/header/ButtonCreate";
+import { PackModel } from "model/pack/pack.model";
 // import './pack/styles.scss';
 
 const PackSupportScreen: React.FC = () => {
@@ -54,6 +55,9 @@ const PackSupportScreen: React.FC = () => {
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
 
+  const [packModel, setPackModel] =useState<PackModel>();
+  const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
+
   const packSupportContextData = {
     listThirdPartyLogistics,
     setListThirdPartyLogistics,
@@ -63,8 +67,10 @@ const PackSupportScreen: React.FC = () => {
     setListGoodsReceiptsType,
     listChannels,
     setListChannels,
-    data,
-    setData,
+    setIsFulFillmentPack,
+    isFulFillmentPack,
+    setPackModel,
+    packModel
   };
 
   useEffect(() => {

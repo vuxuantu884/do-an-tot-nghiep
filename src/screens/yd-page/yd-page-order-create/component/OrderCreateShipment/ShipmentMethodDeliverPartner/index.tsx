@@ -206,7 +206,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             Huỷ đơn giao để thực hiện các thay đổi giao hàng
           </div>
         )}
-				{console.log("tuanh", shippingServiceConfig)}
         <Row gutter={20}>
           <Col span={12}
            style={{padding: "0 5px 0 10px"}}

@@ -30,6 +30,7 @@ export interface SupplierResponse extends BaseObject {
   debt_time: number|null,
   debt_time_unit: string|null,
   debt_time_unit_name: string|null,
+  collection_id: number | null,
   payments: Array<SupplierPaymentResposne>,
   addresses: Array<SupplierAddressResposne>,
   contacts: Array<SupplierContactResposne>,

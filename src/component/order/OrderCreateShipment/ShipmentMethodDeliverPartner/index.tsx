@@ -5,10 +5,11 @@ import {CustomerResponse} from "model/response/customer/customer.response";
 import {DeliveryServiceResponse, FeesResponse} from "model/response/order/order.response";
 import {ShippingServiceConfigDetailResponseModel} from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {useCallback, useMemo} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import NumberFormat from "react-number-format";
 import {formatCurrency, replaceFormatString} from "utils/AppUtils";
 import {ORDER_SETTINGS_STATUS} from "utils/OrderSettings.constants";
+import { showSuccess } from "utils/ToastUtils";
 import {StyledComponent} from "./styles";
 
 type PropType = {
@@ -175,6 +176,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         form?.setFieldsValue({shipping_fee_informed_to_customer: 0});
         setShippingFeeInformedToCustomer(0);
       }
+      showSuccess("Cập nhật phí ship báo khách thành công!")
     },
     [
       customer?.shipping_addresses,
@@ -184,6 +186,14 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       shippingServiceConfig,
     ]
   );
+
+  useEffect(() => {
+    if(!thirdPL?.service) {
+      return;
+    }
+    shippingFeeApplyOrderSetting(thirdPL?.service)
+  }, [shippingFeeApplyOrderSetting, thirdPL?.service])
+  
 
   return (
     <StyledComponent>
@@ -289,9 +299,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             fee.transport_type
                                           }
                                           onChange={(e) => {
-                                            shippingFeeApplyOrderSetting(
-                                              fee.transport_type
-                                            );
                                             setThirdPL({
                                               delivery_service_provider_id: serciveFee.id,
                                               delivery_service_provider_code: serciveFee.code,
@@ -303,11 +310,14 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             });
                                           }}
                                           disabled={
-                                            // fee.total_fee === 0 || levelOrder > 3
-                                            levelOrder > 3
+                                            fee.total_fee === 0 || levelOrder > 3
+                                            // levelOrder > 3
                                           }
                                         />
-                                        <span className="checkmark"></span>
+                                        <span
+                                          className="checkmark"
+                                          style={fee.total_fee === 0 ? { backgroundColor: "#f0f0f0", border: 'none' } : {}}>
+                                        </span>
                                         {fee.transport_type_name}
                                       </label>
                                     </div>

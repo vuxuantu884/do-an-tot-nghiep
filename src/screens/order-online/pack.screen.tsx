@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { Card, Row, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -9,7 +9,6 @@ import {
   DeliveryServicesGetList,
   getChannels,
 } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import { useEffect, useState } from "react";
 import {
   ChannelsResponse,
@@ -23,18 +22,18 @@ import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
 import { StyledComponent } from "./pack/styles";
 import './pack/styles.scss';
+import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
+import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getListOrderApi } from "service/order/order.service";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
 
-  const [data, setData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 1,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
+  const [packModel,setPackModel]=useState<PackModel|null>();
+
+  const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
     DeliveryServiceResponse[]
@@ -54,8 +53,10 @@ const PackSupportScreen: React.FC = () => {
     setListGoodsReceiptsType,
     listChannels,
     setListChannels,
-    data,
-    setData,
+    packModel,
+    setPackModel,
+    isFulFillmentPack,
+    setIsFulFillmentPack,
   };
 
   useEffect(() => {
@@ -76,15 +77,44 @@ const PackSupportScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
+  // useLayoutEffect(() => {
+  //   setActiveTab(newParam.tab);
+  // }, [newParam.tab]);
+
+  useLayoutEffect(() => {
+    let packInfo: string | null = getPackInfo();
+    if (packInfo) {
+      dispatch(showLoading());
+      let packInfoConvertJson: any = JSON.parse(packInfo);
+      let packData: PackModel = { ...new PackModelDefaltValue(), ...packInfoConvertJson };
+
+      let queryCode = packData.order.map(p => p.order_code);
+      let queryParam: any = { code: queryCode }
+      getListOrderApi(queryParam).then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          let orderEnd= packData.order.filter((p)=>response.data.items.some(p1=>p1.code===p.order_code && !p1.goods_receipt_id)); 
+          setPackModel({...packData,order:orderEnd});
+          setPackInfo({...packData,order:orderEnd});
+        } 
+        else handleFetchApiError(response, "Danh sách Fullfiment", dispatch)
+      }).catch((err) => {
+        console.log(err);
+      }).finally(()=>{dispatch(hideLoading());});
+    }
+  }, [dispatch]);
+
+  // const handleClickTab = (value: string) => {
+  //   setActiveTab(value);
+
+  //   let queryParam = generateQuery({ ...newParam, tab: value });
+  //   history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
+  // };
+
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
       <ContentContainer
         title="Hỗ trợ đóng gói"
         breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
           {
             name: "Đơn hàng",
             path: UrlConfig.ORDER,
@@ -96,19 +126,16 @@ const PackSupportScreen: React.FC = () => {
       >
         <StyledComponent>
           <Row>
-            <Col>
+            <Col xs={24}>
               <Card className="pack-card">
-                <PackInfo
-                  setFulfillmentsPackedItems={setData}
-                  fulfillmentData={data}
-                />
+                <PackInfo/>
               </Card>
             </Col>
           </Row>
           
           <Row gutter={24}>
             <Col xs={24}>
-              <PackList data={data} />
+              <PackList />
             </Col>
           </Row>
 

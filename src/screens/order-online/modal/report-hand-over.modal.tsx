@@ -12,15 +12,15 @@ const { TextArea } = Input;
 type ReportHandOverModalProps = {
   handleOk: () => void;
   handleCancel: () => void;
-  handSubmit:(value:any)=>void;
+  handSubmit: (value: any) => void;
   visible: boolean;
   formRef: React.RefObject<FormInstance<any>>;
-  goodsReceiptsForm:any;
+  goodsReceiptsForm: any;
 };
 const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   props: ReportHandOverModalProps
 ) => {
-  const { handleCancel, visible, formRef,goodsReceiptsForm,handleOk,handSubmit } = props;
+  const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit } = props;
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -31,8 +31,8 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
 
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
-  const listGoodsReceiptsType= orderPackContextData.listGoodsReceiptsType;
-  const listChannels=orderPackContextData.listChannels;
+  const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
+  const listChannels = orderPackContextData.listChannels;
   //const data=orderPackContextData.data;
 
   const dataCanAccess = useMemo(() => {
@@ -92,6 +92,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
+                 
                   {dataCanAccess.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
@@ -133,6 +134,9 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
+                   <Select.Option key={-1} value={-1}>
+                    Tự giao hàng
+                  </Select.Option>
                   {listThirdPartyLogistics.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
@@ -218,7 +222,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   }}
                 >
                   <Select.Option key={-1} value={-1}>
-                      Mặc định
+                    Mặc định
                   </Select.Option>
                   {listChannels.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
@@ -234,12 +238,12 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
               <Form.Item
                 label="Mô tả:"
                 name="description"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng nhập mô tả",
-                //   },
-                // ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Vui lòng nhập mô tả",
+              //   },
+              // ]}
               >
                 <TextArea
                   rows={4}

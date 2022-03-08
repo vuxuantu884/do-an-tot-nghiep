@@ -298,7 +298,7 @@ function CardGeneralSettings(props: PropType) {
           </Col>
         </Row>
 
-        <Row style={{ marginTop: "10px", padding: "0px 30px" }}>
+        <Row style={{ marginTop: "15px", padding: "0px 30px" }}>
           <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">Cài đặt khác</h4>
@@ -320,7 +320,7 @@ function CardGeneralSettings(props: PropType) {
                       onChange={onChangeAllowToSellWhenNotAvailableStock}
                       className="ant-switch-primary"
                     />
-                    Cho phép bán khi tồn kho
+                    {`Cho phép bán khi tồn kho <= 0`}
                   </div>
                 </Space>
               </div>
