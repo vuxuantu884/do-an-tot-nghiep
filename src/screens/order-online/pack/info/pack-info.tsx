@@ -29,6 +29,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { RegUtil } from "utils/RegUtils";
 
 // type PackInfoProps = {
 //   setFulfillmentsPackedItems: (items: OrderResponse[]) => void;
@@ -56,7 +57,7 @@ const PackInfo: React.FC = () => {
   const [itemProductList, setItemProductList] = useState<OrderLineItemResponseExt[]>([]);
 
   const [disableStoreId, setDisableStoreId] = useState(false);
-  const [disabledDeliveryProvider, setDisabledDeliveryProvider] = useState(false);
+  const [disableDeliveryPproviderId, setDisableDeliveryProviderId] = useState(false);
   const [disableOrder, setDisableOrder] = useState(false);
   const [disableProduct, setDisableProduct] = useState(true);
   const [disableQuality, setDisableQuality] = useState(true);
@@ -138,22 +139,21 @@ const PackInfo: React.FC = () => {
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
-      formRef.current?.validateFields(["store_request", "delivery_service_id"]);
-      const { store_request, delivery_service_id } = formRef.current?.getFieldsValue();
-
-      if (value.trim() && store_request && delivery_service_id) {
+      formRef.current?.validateFields(["store_request", "delivery_service_provider_id"]);
+      let { store_request, delivery_service_provider_id } = formRef.current?.getFieldsValue();
+      if (value.trim() && store_request && delivery_service_provider_id) {
         dispatch(
-          getFulfillments(value.trim(), (data: any) => {
+          getFulfillments(value.trim(), store_request, delivery_service_provider_id, (data: any) => {
             if (data && data.length !== 0) {
 
               setOrderResponse(data[0]);
               setDisableStoreId(true);
-              setDisabledDeliveryProvider(true);
+              setDisableDeliveryProviderId(true);
               setDisableOrder(true);
             } else {
               setDisableStoreId(false);
+              setDisableDeliveryProviderId(false)
               setDisableOrder(false);
-              setDisabledDeliveryProvider(false);
               showError("Đơn hàng chưa nhặt hàng");
             }
           })
@@ -186,8 +186,8 @@ const PackInfo: React.FC = () => {
 
   const onClickClearPack = () => {
     setDisableStoreId(false);
+    setDisableDeliveryProviderId(false)
     setDisableOrder(false);
-    setDisabledDeliveryProvider(false);
 
     setOrderResponse(undefined);
     setItemProductList([]);
@@ -197,13 +197,16 @@ const PackInfo: React.FC = () => {
       quality_request: "",
       order_request: "",
       // store_request: undefined,
-      // delivery_service_id:undefined
+      // delivery_service_provider_id:undefined
     });
   };
 
   const FinishPack = useCallback(() => {
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
+    if(value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())){
+      return
+    }
 
     let store_request = value.store_request;
     let order_request = value.order_request;
@@ -217,10 +220,9 @@ const PackInfo: React.FC = () => {
       );
 
       if (indexPack !== -1) {
+        
         if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
-          showError("Sản phẩm đã nhập đủ số lượng");
-          console.log("quality", Number(itemProductList[indexPack].pick) + quality_request);
-
+          showError("Số lượng nhặt không đúng");
           return
         } else {
           itemProductList[indexPack].pick += Number(quality_request);
@@ -245,8 +247,8 @@ const PackInfo: React.FC = () => {
     setPackInfo({ ...packModel, store_id: value });
   }, [packModel, setPackModel]);
   const onChangeDeliveryServiceId = useCallback((value?: number) => {
-    setPackModel({ ...new PackModelDefaltValue(), ...packModel, delivery_service_id: value });
-    setPackInfo({ ...packModel, delivery_service_id: value });
+    setPackModel({ ...new PackModelDefaltValue(), ...packModel, delivery_service_provider_id: value });
+    setPackInfo({ ...packModel, delivery_service_provider_id: value });
   }, [packModel, setPackModel]);
   ///function
 
@@ -254,11 +256,11 @@ const PackInfo: React.FC = () => {
 
   useEffect(() => {
     formRef.current?.setFieldsValue({
-      product_request: "",
-      quality_request: "",
-      order_request: "",
+      // product_request: "",
+      // quality_request: "",
+      //order_request: "",
       store_request: packModel?.store_id,
-      delivery_service_id: packModel?.delivery_service_id
+      delivery_service_provider_id: packModel?.delivery_service_provider_id
     });
   }, [formRef, packModel]);
 
@@ -466,7 +468,7 @@ const PackInfo: React.FC = () => {
             <Input.Group compact>
               <Form.Item
                 label="Hãng vận chuyển:"
-                name="delivery_service_id"
+                name="delivery_service_provider_id"
                 rules={[
                   {
                     required: true,
@@ -481,7 +483,7 @@ const PackInfo: React.FC = () => {
                   allowClear
                   placeholder="Chọn hãng vận chuyển"
                   notFoundContent="Không tìm thấy kết quả"
-                  disabled={disabledDeliveryProvider}
+                  disabled={disableDeliveryPproviderId}
                   onChange={(value?: number) => onChangeDeliveryServiceId(value)}
                 >
                   <Select.Option key={-1} value={-1}>Tự vận chuyển</Select.Option>
@@ -540,12 +542,24 @@ const PackInfo: React.FC = () => {
                   disabled={disableProduct}
                 />
               </Form.Item>
-              <Form.Item noStyle name="quality_request">
+              <Form.Item noStyle name="quality_request"
+                rules={
+                  [
+                    () => ({
+                      validator(_, value) {
+                        if (value && !RegUtil.ONLY_NUMBER.test(value.trim())) {
+                          return Promise.reject(new Error("số lượng nhập không đúng định dạng"));
+                        }
+                        return Promise.resolve();
+                      },
+                    }),
+                  ]
+                }
+              >
                 <Input
                   style={{ width: "50%" }}
                   placeholder="số lượng"
                   addonAfter={<img src={barcodeIcon} alt="" />}
-                  //addonAfter={<ScanOutlined />}
                   onPressEnter={(e: any) => {
                     onPressEnterQuality(e.target.value);
                   }}
