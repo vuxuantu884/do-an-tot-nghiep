@@ -745,6 +745,7 @@ function OrderCreateProduct(props: PropType) {
 						maxLength={4}
 						minLength={0}
 						disabled={levelOrder > 3}
+						isChangeAfterBlur = {false}
 					/>
 				</div>
 			);

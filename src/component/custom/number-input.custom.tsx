@@ -88,9 +88,9 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
         if (temp.charAt(temp.length - 1) === "." || temp === "-") {
           valueTemp = temp.slice(0, -1);
         }
-        if (props.min !== undefined && value < props.min && value) {
+        if (props.min !== undefined && value < props.min && value!== undefined) {
           onChange && onChange(props.min);
-        } else if (props.max !== undefined && value > props.max && value) {
+        } else if (props.max !== undefined && value > props.max && value!== undefined) {
           onChange && onChange(props.max);
         } else {
           onChange &&
