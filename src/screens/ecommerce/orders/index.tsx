@@ -618,7 +618,7 @@ const EcommerceOrders: React.FC = () => {
 
   // handle action button
   const token = getToken();
-  const handlePrintDeliveryNote = useCallback(() => {
+  const handlePrintShopeeDeliveryNote = useCallback(() => {
     if (selectedRowKeys?.length > 0) {
       setTableLoading(true);
       let order_list: any = [];
@@ -707,26 +707,60 @@ const EcommerceOrders: React.FC = () => {
 
   const actions = [
     {
-      id: 1,
-      name: "In phiếu giao hàng Shopee",
+      id: "export_excel",
+      name: "Xuất Excel",
       icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length,
-      onClick: handlePrintDeliveryNote
+      disabled: !data.items.length || true,
+      onClick: () => {}
     },
     {
       id: 2,
       name: "In phiếu giao hàng",
       icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length,
+      disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: () => handlePrintShipment()
     },
     {
       id: 3,
       name: "In phiếu xuất kho",
       icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length,
+      disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: () => printAction("stock_export")
     },
+  ];
+
+  const shopeeActions = [
+    {
+      id: "shopee_print_shipment",
+      name: "In phiếu giao hàng Shopee",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length || !data.items.length,
+      onClick: handlePrintShopeeDeliveryNote
+    }
+  ];
+
+  const lazadaActions = [
+    {
+      id: "lazada_print_shipment",
+      name: "In phiếu giao hàng Lazada",
+      icon: <PrinterOutlined />,
+      disabled: !data.items.length || true,
+      onClick: () => {}
+    },
+    {
+      id: "lazada_create_package",
+      name: "Tạo gói hàng Lazada",
+      icon: <PrinterOutlined />,
+      disabled: !data.items.length || true,
+      onClick: () => {}
+    },
+    {
+      id: "lazada_notify_ready_to_deliver",
+      name: "Báo Lazada sẵn sàng giao",
+      icon: <PrinterOutlined />,
+      disabled: !data.items.length || true,
+      onClick: () => {}
+    }
   ];
   // end handle action button
 
@@ -979,6 +1013,8 @@ const EcommerceOrders: React.FC = () => {
             <Card>
               <EcommerceOrderFilter
                 actions={actions}
+                shopeeActions={shopeeActions}
+                lazadaActions={lazadaActions}
                 onFilter={onFilter}
                 isLoading={tableLoading}
                 params={params}
