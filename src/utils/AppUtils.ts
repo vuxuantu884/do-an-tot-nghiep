@@ -1,3 +1,4 @@
+import { FormInstance } from "antd/es/form/Form";
 import { UploadFile } from "antd/lib/upload/interface";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -41,12 +42,14 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
+import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { ErrorGHTK, PaymentMethodCode, POS, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
+import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
 import { RegUtil } from "./RegUtils";
-import { showError } from "./ToastUtils";
+import { showError, showSuccess } from "./ToastUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -1471,4 +1474,122 @@ export const sortFulfillments = (fulfillments: FulFillmentResponse[]) => {
 
 export const goToTopPage = () => {
   window.scrollTo(0, 0);
+};
+
+/**
+   * check cấu hình đơn hàng để tính phí ship báo khách
+   */
+export const handleCalculateShippingFeeApplyOrderSetting = (customer: CustomerResponse | null, orderPrice: number | undefined, shippingServiceConfig: ShippingServiceConfigDetailResponseModel[], transportType: string, form: FormInstance<any>, setShippingFeeInformedToCustomer?: (value: number) => void) => {
+  const customerShippingAddress = customer?.shipping_addresses.find(
+    (single) => single.default
+  );
+  if (!customerShippingAddress || orderPrice === undefined) {
+    return;
+  }
+  const customerShippingAddressCityId = customerShippingAddress.city_id;
+
+  if (!shippingServiceConfig || !customerShippingAddress) {
+    return;
+  }
+  //check thời gian
+  const checkIfIsInTimePeriod = (startDate: any, endDate: any) => {
+    const now = moment();
+    const checkIfTodayAfterStartDate = moment(startDate).isBefore(now);
+    const checkIfTodayBeforeEndDate = moment(now).isBefore(endDate);
+    return checkIfTodayAfterStartDate && checkIfTodayBeforeEndDate;
+  };
+
+  // check dịch vụ
+  const checkIfListServicesContainSingle = (
+    listServices: any[],
+    singleService: string
+  ) => {
+    let result = false;
+    let checkCondition = listServices.some((single) => {
+      return single.code.toLowerCase() === singleService.toLowerCase();
+    });
+    if (checkCondition) {
+      result = true;
+    }
+    return result;
+  };
+
+  // check tỉnh giao hàng ( config -1 là tất cả tỉnh thành)
+  const checkIfSameCity = (
+    configShippingAddressCityId: number,
+    customerShippingAddressCityId: number
+  ) => {
+    if (configShippingAddressCityId === -1) {
+      return true;
+    }
+    return customerShippingAddressCityId === configShippingAddressCityId;
+  };
+
+  // check giá
+  const checkIfPrice = (orderPrice: number, fromPrice: number, toPrice: number) => {
+    return fromPrice <= orderPrice && orderPrice <= toPrice;
+  };
+
+  // filter thời gian, active
+  const filteredShippingServiceConfig = shippingServiceConfig.filter((single) => {
+    return (
+      checkIfIsInTimePeriod(single.start_date, single.end_date) &&
+      single.status === ORDER_SETTINGS_STATUS.active &&
+      single.transport_types &&
+      checkIfListServicesContainSingle(
+        single.transport_types,
+        transportType
+      )
+    );
+  });
+
+  // filter city
+  let listCheckedShippingFeeConfig = [];
+
+  if (filteredShippingServiceConfig) {
+    for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
+      const checkedShippingFeeConfig =
+        singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
+          return (
+            checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
+            checkIfPrice(orderPrice, single.from_price, single.to_price)
+          );
+        });
+      listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
+    }
+  }
+
+
+  //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+  const flattenArray = (arr: any) => {
+    return arr.reduce(function (flat: any, toFlatten: any) {
+      return flat.concat(
+        Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten
+      );
+    }, []);
+  };
+
+  const listCheckedShippingFeeConfigFlatten = flattenArray(
+    listCheckedShippingFeeConfig
+  );
+
+
+  // lấy số nhỏ nhất
+  if (
+    listCheckedShippingFeeConfigFlatten &&
+    listCheckedShippingFeeConfigFlatten.length > 0
+  ) {
+    let result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
+    listCheckedShippingFeeConfigFlatten.forEach((single: any) => {
+      if (single.transport_fee < result) {
+        result = single.transport_fee;
+      }
+    });
+    form?.setFieldsValue({shipping_fee_informed_to_customer: result});
+    setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(result);
+  } else {
+    form?.setFieldsValue({shipping_fee_informed_to_customer: 0});
+    setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
+  }
+  showSuccess("Cập nhật phí ship báo khách thành công!")
 };

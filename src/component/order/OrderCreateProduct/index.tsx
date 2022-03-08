@@ -26,7 +26,6 @@ import arrowDownIcon from "assets/img/drow-down.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
-import { HttpStatus } from "config/http-status.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
@@ -39,6 +38,7 @@ import {
 	SearchBarCode,
 	searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
+import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -105,7 +105,6 @@ import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
-import _ from "lodash";
 
 type PropType = {
 	storeId: number | null;
