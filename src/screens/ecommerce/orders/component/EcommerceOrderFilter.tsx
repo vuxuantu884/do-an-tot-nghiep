@@ -1,4 +1,4 @@
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Button,
@@ -8,12 +8,11 @@ import {
   Input,
   Row,
   Tag,
-  // InputNumber,
   Select,
-  Checkbox,
   Tooltip,
   Dropdown,
   Menu,
+  TreeSelect,
 } from "antd";
 import { SettingOutlined, FilterOutlined, DownOutlined } from "@ant-design/icons";
 
@@ -21,9 +20,10 @@ import BaseFilter from "component/filter/base.filter";
 import DebounceSelect from "component/filter/component/debounce-select";
 import CustomSelect from "component/custom/select.custom";
 import CustomRangeDatePicker from "component/custom/new-date-range-picker";
+import {fullTextSearch} from "utils/StringUtils";
 
 import { AccountResponse } from "model/account/account.model";
-import { OrderSearchQuery } from "model/order/order.model";
+import {EcommerceOrderSearchQuery, OrderSearchQuery} from "model/order/order.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
@@ -37,9 +37,10 @@ import 'component/filter/order.filter.scss'
 import search from "assets/img/search.svg";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 import TreeStore from "component/tree-node/tree-store";
+import "screens/ecommerce/orders/ecommerce-order.scss"
 
 type EcommerceOrderFilterProps = {
-  params: OrderSearchQuery;
+  params: EcommerceOrderSearchQuery;
   actions: Array<any>;
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
@@ -140,12 +141,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
   const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string }[]>([]);
-  
-  
+
   const dispatch = useDispatch();
-  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [ecommerceKeySelected, setEcommerceKeySelected] = useState(null);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState<boolean>(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
 
   const onFilterClick = useCallback(() => {
@@ -158,94 +158,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
-  
-  const onCloseTag = useCallback(
-    (e, tag) => {
-      e.preventDefault();
-      setRerender(false);
-      switch(tag.key) {
-        case 'store':
-          onFilter && onFilter({...params, store_ids: []});
-          break;
-        case 'source':
-          onFilter && onFilter({...params, source_ids: []});
-          break;
-        case 'issued':
-          setIssuedClick('')
-          onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
-          break;
-        case 'finalized':
-          setFinalizedClick('')
-          onFilter && onFilter({...params, finalized_on_min: null, finalized_on_max: null});
-          break;
-        case 'completed':
-          setCompletedClick('')
-          onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
-          break;
-        case 'cancelled':
-          setCancelledClick('')
-          onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
-          break;
-        // case 'expected':
-        //   setExpectedClick('')
-        //   onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
-        //   break;  
-        case 'order_status':
-          onFilter && onFilter({...params, order_status: []});
-          break;
-        case 'sub_status_code':
-          onFilter && onFilter({...params, sub_status_code: []});
-          break;
-        case 'fulfillment_status':
-          onFilter && onFilter({...params, fulfillment_status: []});
-          break;
-        case 'payment_status':
-          onFilter && onFilter({...params, payment_status: []});
-          break;
-        case 'assignee_codes':
-          onFilter && onFilter({...params, assignee_codes: []});
-          break;
-        case 'account_codes':
-          onFilter && onFilter({...params, account_codes: []});
-          break;
-        case 'price':
-          onFilter && onFilter({...params, price_min: null, price_max: null});
-          break;
-        case 'variant_ids':
-          onFilter && onFilter({...params, variant_ids: []});
-          break;  
-        case 'payment_method':
-          onFilter && onFilter({...params, payment_method_ids: []});
-          break;
-        case 'expected_receive_predefined':
-          onFilter && onFilter({...params, expected_receive_predefined: ""});
-          break;
-        case 'delivery_types':
-          onFilter && onFilter({...params, delivery_types: []});
-          break;  
-        case 'delivery_provider_ids':
-          onFilter && onFilter({...params, delivery_provider_ids: []});
-          break;
-        case 'shipper_ids':
-          onFilter && onFilter({...params, shipper_ids: []});
-          break;
-        case 'note':
-          onFilter && onFilter({...params, note: ""});
-          break;
-        case 'customer_note':
-          onFilter && onFilter({...params, customer_note: ""});
-          break;
-        case 'tags':
-          onFilter && onFilter({...params, tags: []});
-          break;
-        case 'reference_code':
-          onFilter && onFilter({...params, reference_code: ""});
-          break;  
-        default: break
-      }
-    },
-    [onFilter, params]
-  );
 
   const [issuedClick, setIssuedClick] = useState('');
   const [finalizedClick, setFinalizedClick] = useState('');
@@ -261,6 +173,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
+      channel_codes: Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes],
+      ecommerce_shop_ids: Array.isArray(params.ecommerce_shop_ids) ? params.ecommerce_shop_ids : [params.ecommerce_shop_ids],
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
@@ -291,6 +205,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           error = true
         }
       })
+
       if (!error) {
         setVisible(false);
         if (values?.price_min > values?.price_max) {
@@ -300,26 +215,163 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             price_max: values?.price_min,
           }
         }
-
-        // ecommerce
-        const formValues = {
-          ...values,
-          ecommerce_shop_ids: shopIdSelected,
-        }
-
-        onFilter && onFilter(formValues);
+        onFilter && onFilter(values);
         setRerender(false)
       }
     },
-    [formRef, onFilter, shopIdSelected]
+    [formRef, onFilter]
   );
 
+  const widthScreen = () => {
+    if (window.innerWidth >= 1600) {
+      return 1400
+    } else if (window.innerWidth < 1600 && window.innerWidth >=1200){
+      return 1000
+    } else {
+      return 800
+    }
+  }
+  const clearFilter = () => {
+    onClearFilter && onClearFilter();
+    setIssuedClick('')
+    setCompletedClick('')
+    setCancelledClick('')
+    // setExpectedClick('')
+    setFinalizedClick('')
+  
+    setVisible(false);
+    setRerender(false);
+  };
+  useLayoutEffect(() => {
+    window.addEventListener('resize', () => setVisible(false))
+  }, []);
+
+  useEffect(() => {
+    if (params.variant_ids.length) {
+      (async () => {
+        let variants: any = [];
+        await Promise.all(
+          params.variant_ids.map(async (variant_id) => {
+            try {
+              const result = await getVariantApi(variant_id)
+
+              variants.push({
+                label: result.data.name,
+                value: result.data.id.toString()
+              })
+            } catch {}
+          })
+        );
+        setOptionsVariant(variants)
+      })()
+    }
+  }, [params.variant_ids]);
+
+  // handle Select Ecommerce
+  const updateEcommerceShopList = useCallback((result) => {
+    setIsEcommerceSelected(true);
+    const shopList: any[] = [];
+    if (result && result.length > 0) {
+      result.forEach((item: any) => {
+        shopList.push({
+          id: item.id,
+          name: item.name,
+          isSelected: false,
+          ecommerce: item.ecommerce,
+        });
+      });
+    }
+
+    setEcommerceShopList(shopList);
+  }, []);
+
+  const getEcommerceShopList = (ecommerceId: any) => {
+    setIsEcommerceSelected(false);
+    dispatch(
+      getShopEcommerceList(
+        { ecommerce_id: ecommerceId },
+        updateEcommerceShopList
+      )
+    );
+  };
+
+  const handleSelectEcommerce = (key: any) => {
+    if (key !== ecommerceKeySelected) {
+      formSearchRef?.current?.setFieldsValue({
+        ecommerce_shop_ids: []
+      });
+
+      const ecommerceSelected = ECOMMERCE_LIST?.find(
+        (ecommerce: any) => ecommerce.key.toString() === key.toString()
+      );
+
+      setEcommerceKeySelected(key)
+      getEcommerceShopList(ecommerceSelected?.ecommerce_id);
+
+      // filter order by channel
+      onFilter && onFilter({...params, ecommerce_shop_ids: [], channel_codes: ecommerceSelected?.key});
+    }
+  };
+
+  const handleRemoveEcommerce = useCallback(() => {
+    setEcommerceKeySelected(null);
+    setIsEcommerceSelected(false);
+    formSearchRef?.current?.setFieldsValue({
+      channel_codes: [],
+      ecommerce_shop_ids: []
+    });
+    onFilter && onFilter({...params, ecommerce_shop_ids: [], channel_codes: []});
+  }, [formSearchRef, onFilter, params]);
+  // end handle Select Ecommerce
+
+  const actionDropdown = () => {
+    return (
+      <Menu>
+        {actions?.map((item: any) => (
+          <Menu.Item
+            disabled={item.disabled}
+            key={item.id}
+            onClick={item.onClick}
+            icon={item.icon}
+          >
+            {item.name}
+          </Menu.Item>
+          ))}
+      </Menu>
+    )
+  }
+
+  // handle tag filter
   let filters = useMemo(() => {
-    let list = []
+    let list = [];
+    if (initialValues.channel_codes.length) {
+      let ecommerceFilterText = "";
+      initialValues.channel_codes.forEach((ecommerceCode: any) => {
+        const ecommerceSelected = ECOMMERCE_LIST?.find(ecommerce => ecommerce.key.toString() === ecommerceCode.toString());
+        ecommerceFilterText = ecommerceSelected ? ecommerceFilterText + ecommerceSelected.title + "; " : ecommerceFilterText;
+      })
+      list.push({
+        key: 'channel_codes',
+        name: 'Kênh mua hàng',
+        value: ecommerceFilterText
+      })
+    }
+    if (initialValues.ecommerce_shop_ids.length) {
+      let textShop = "";
+      initialValues.ecommerce_shop_ids.forEach((shop_id: any) => {
+        const selectedShop = ecommerceShopList?.find(shop => shop.id.toString() === shop_id.toString());
+        textShop = selectedShop ? textShop + selectedShop.name + "; " : textShop;
+      })
+      list.push({
+        key: 'ecommerce_shop_ids',
+        name: 'Gian hàng',
+        value: textShop
+      })
+    }
     if (initialValues.store_ids.length) {
       let textStores = ""
-      initialValues.store_ids.forEach(store_id => {
-        const store = listStore?.find(store => store.id.toString() === store_id)
+      initialValues.store_ids.forEach((store_id: any) => {
+        const store = listStore?.find(store => store.id.toString() === store_id.toString())
         textStores = store ? textStores + store.name + "; " : textStores
       })
       list.push({
@@ -330,8 +382,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
     if (initialValues.source_ids.length) {
       let textSource = ""
-      initialValues.source_ids.forEach(source_id => {
-        const source = listSources?.find(source => source.id.toString() === source_id);
+      initialValues.source_ids.forEach((source_id: any) => {
+        const source = listSources?.find(source => source.id.toString() === source_id.toString());
         textSource = source ? textSource + source.name + "; " : textSource;
       })
 
@@ -342,7 +394,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       })
     }
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
-      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
+      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??')
+        + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
       list.push({
         key: 'issued',
         name: 'Ngày tạo đơn',
@@ -396,9 +449,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
     if (initialValues.sub_status_code.length) {
       let textStatus = ""
-      
-      initialValues.sub_status_code.forEach((i: any) => {
-        const findStatus = subStatus?.find(item => item.code.toString() === i.toString())
+
+      initialValues.sub_status_code.forEach((statusCode: any) => {
+        const findStatus = subStatus?.find(item => item.code.toString() === statusCode.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + "; " : textStatus
       })
       list.push({
@@ -482,8 +535,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
     if (initialValues.payment_method_ids.length) {
       let textStatus = ""
-      initialValues.payment_method_ids.forEach(i => {
-        const findStatus = listPaymentMethod?.find(item => item.id.toString() === i)
+      initialValues.payment_method_ids.forEach((paymentId: any) => {
+        const findStatus = listPaymentMethod?.find(item => item.id.toString() === paymentId.toString())
         textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
       })
       list.push({
@@ -506,8 +559,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
     if (initialValues.delivery_provider_ids.length) {
       let textType = ""
-      initialValues.delivery_provider_ids.forEach((i: any) => {
-        const findType = deliveryService?.find(item => item.id.toString() === i.toString())
+      initialValues.delivery_provider_ids.forEach((deliveryId: any) => {
+        const findType = deliveryService?.find(item => item.id.toString() === deliveryId.toString())
         textType = findType ? textType + findType.name + "; " : textType
       })
       list.push({
@@ -528,7 +581,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         value: textAccount
       })
     }
-    
+
     if (initialValues.note) {
       list.push({
         key: 'note',
@@ -560,12 +613,21 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     if (initialValues.reference_code) {
       list.push({
         key: 'reference_code',
-        name: 'Mã tham chiếu',
+        name: 'ID đơn hàng sàn',
         value: initialValues.reference_code
+      })
+    }
+    if (initialValues.search_term) {
+      list.push({
+        key: 'search_term',
+        name: 'ID đơn hàng, SĐT KH',
+        value: initialValues.search_term
       })
     }
     return list
   }, [
+    initialValues.channel_codes,
+    initialValues.ecommerce_shop_ids,
     initialValues.store_ids,
     initialValues.source_ids,
     initialValues.issued_on_min,
@@ -595,6 +657,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     initialValues.customer_note,
     initialValues.tags,
     initialValues.reference_code,
+    initialValues.search_term,
+    ecommerceShopList,
     listStore,
     listSources,
     status,
@@ -608,187 +672,112 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     deliveryService
   ]);
 
-  const widthScreen = () => {
-    if (window.innerWidth >= 1600) {
-      return 1400
-    } else if (window.innerWidth < 1600 && window.innerWidth >=1200){
-      return 1000
-    } else {
-      return 800
-    }
-  }
-  const clearFilter = () => {
-    onClearFilter && onClearFilter();
-    setIssuedClick('')
-    setCompletedClick('')
-    setCancelledClick('')
-    // setExpectedClick('')
-    setFinalizedClick('')
-  
-    setVisible(false);
-    setRerender(false);
-  };
-  useLayoutEffect(() => {
-    window.addEventListener('resize', () => setVisible(false))
-  }, []);
-
-  useEffect(() => {
-    if (params.variant_ids.length) {
-      (async () => {
-        let variants: any = [];
-        await Promise.all(
-          params.variant_ids.map(async (variant_id) => {
-            try {
-              const result = await getVariantApi(variant_id)
-
-              variants.push({
-                label: result.data.name,
-                value: result.data.id.toString()
-              })
-            } catch {}
-          })
-        );
-        setOptionsVariant(variants)
-      })()
-    }
-  }, [params.variant_ids]);
-
-
-  // ecommerce
-  const getPlaceholderSelectShop = () => {
-    if (shopIdSelected && shopIdSelected.length > 0) {
-      return `Đã chọn: ${shopIdSelected.length} gian hàng`;
-    } else {
-      return "Chọn gian hàng";
-    }
-  };
-
-   // handle Select Shop
-  const onSelectShopChange = (shop: any, e: any) => {
-    if (e.target.checked) {
-      shop.isSelected = true;
-      const shopSelected = [...shopIdSelected];
-      shopSelected.push(shop.id);
-      setShopIdSelected(shopSelected);
-    } else {
-      shop.isSelected = false;
-      const shopSelected = shopIdSelected?.filter((item: any) => {
-        return item !== shop.id;
-      });
-      setShopIdSelected(shopSelected);
-    }
-  };
-
-
-  const renderShopList = () => {
-    return (
-      <StyledOrderFilter>
-        <div className="render-shop-list">
-          {ecommerceShopList.map((item: any) => (
-            <div key={item.id} className="shop-name">
-              <Checkbox
-                onChange={(e) => onSelectShopChange(item, e)}
-                checked={item.isSelected}
-              >
-                <span className="check-box-name">
-                  {getEcommerceIcon(item.ecommerce) &&
-                    <img
-                      src={getEcommerceIcon(item.ecommerce)}
-                      alt={item.id}
-                      style={{ marginRight: "5px", height: "16px" }}
-                    />
-                  }
-
-                  {item.name && item.name.length > 31 &&
-                    <Tooltip title={item.name} color="#1890ff" placement="right">
-                      <span className="name">{item.name}</span>
-                    </Tooltip>
-                  }
-
-                  {item.name && item.name.length <= 31 &&
-                    <span className="name">{item.name}</span>
-                  }
-                  
-                </span>
-              </Checkbox>
-            </div>
-          ))}
-
-          {ecommerceShopList.length === 0 && (
-            <div style={{ color: "#737373", padding: 10 }}>
-              Không có dữ liệu
-            </div>
-          )}
-        </div>
-      </StyledOrderFilter>
-    );
-  };
-
-  const handleRemoveSelectedShop = useCallback(() => {
-    const copyEcommerceShopList = [...ecommerceShopList];
-    copyEcommerceShopList.forEach((item: any) => {
-      item.isSelected = false;
-    });
-
-    setEcommerceShopList(copyEcommerceShopList);
-    setShopIdSelected([]);
-  }, [ecommerceShopList]);
-  // end handle Select Shop
-
-  // handle Select Ecommerce
-  const updateEcommerceShopList = useCallback((result) => {
-    const shopList: any[] = [];
-    if (result && result.length > 0) {
-      result.forEach((item: any) => {
-        shopList.push({
-          id: item.id,
-          name: item.name,
-          isSelected: false,
-          ecommerce: item.ecommerce,
-        });
-      });
-    }
-
-    setEcommerceShopList(shopList);
-  }, []);
-
-  const getEcommerceShopList = (ecommerceId: any) => {
-    dispatch(
-      getShopEcommerceList(
-        { ecommerce_id: ecommerceId },
-        updateEcommerceShopList
-      )
-    );
-  };
-
-  const handleSelectEcommerce = (ecommerce_id: any) => {
-    setIsEcommerceSelected(true);
-    setShopIdSelected([]);
-    getEcommerceShopList(ecommerce_id);
-  };
-
-  const handleRemoveEcommerce = useCallback(() => {
-    setIsEcommerceSelected(false);
-    setShopIdSelected([]);
-  },[]);
-   // end handle Select Ecommerce
-
-  const actionDropdown = () => {
-    return (
-      <Menu>
-        {actions?.map((item: any) => (
-          <Menu.Item
-            disabled={item.disabled}
-            key={item.id}
-            onClick={item.onClick}
-            icon={item.icon}
-          >
-            {item.name}
-          </Menu.Item>
-          ))}
-      </Menu>
-    )
-  }
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      setRerender(false);
+      switch(tag.key) {
+        case 'channel_codes':
+          handleRemoveEcommerce();
+          break;
+        case 'ecommerce_shop_ids':
+          formSearchRef?.current?.setFieldsValue({
+            ecommerce_shop_ids: []
+          });
+          onFilter && onFilter({...params, ecommerce_shop_ids: []});
+          break;
+        case 'store':
+          onFilter && onFilter({...params, store_ids: []});
+          break;
+        case 'source':
+          onFilter && onFilter({...params, source_ids: []});
+          break;
+        case 'issued':
+          setIssuedClick('')
+          onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
+          break;
+        case 'finalized':
+          setFinalizedClick('')
+          onFilter && onFilter({...params, finalized_on_min: null, finalized_on_max: null});
+          break;
+        case 'completed':
+          setCompletedClick('')
+          onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
+          break;
+        case 'cancelled':
+          setCancelledClick('')
+          onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
+          break;
+        // case 'expected':
+        //   setExpectedClick('')
+        //   onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
+        //   break;
+        case 'order_status':
+          onFilter && onFilter({...params, order_status: []});
+          break;
+        case 'sub_status_code':
+          onFilter && onFilter({...params, sub_status_code: []});
+          break;
+        case 'fulfillment_status':
+          onFilter && onFilter({...params, fulfillment_status: []});
+          break;
+        case 'payment_status':
+          onFilter && onFilter({...params, payment_status: []});
+          break;
+        case 'assignee_codes':
+          onFilter && onFilter({...params, assignee_codes: []});
+          break;
+        case 'account_codes':
+          onFilter && onFilter({...params, account_codes: []});
+          break;
+        case 'price':
+          onFilter && onFilter({...params, price_min: null, price_max: null});
+          break;
+        case 'variant_ids':
+          onFilter && onFilter({...params, variant_ids: []});
+          break;
+        case 'payment_method':
+          onFilter && onFilter({...params, payment_method_ids: []});
+          break;
+        case 'expected_receive_predefined':
+          onFilter && onFilter({...params, expected_receive_predefined: ""});
+          break;
+        case 'delivery_types':
+          onFilter && onFilter({...params, delivery_types: []});
+          break;
+        case 'delivery_provider_ids':
+          onFilter && onFilter({...params, delivery_provider_ids: []});
+          break;
+        case 'shipper_ids':
+          onFilter && onFilter({...params, shipper_ids: []});
+          break;
+        case 'note':
+          onFilter && onFilter({...params, note: ""});
+          break;
+        case 'customer_note':
+          onFilter && onFilter({...params, customer_note: ""});
+          break;
+        case 'tags':
+          onFilter && onFilter({...params, tags: []});
+          break;
+        case 'reference_code':
+          formSearchRef?.current?.setFieldsValue({
+            reference_code: "",
+          });
+          onFilter && onFilter({...params, reference_code: ""});
+          break;
+        case 'search_term':
+          formSearchRef?.current?.setFieldsValue({
+            search_term: "",
+          });
+          onFilter && onFilter({...params, search_term: ""});
+          break;
+        default: break
+      }
+    },
+    [formSearchRef, handleRemoveEcommerce, onFilter, params]
+  );
+  // end handle tag filter
 
 
   return (
@@ -812,9 +801,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             </Dropdown>
           </Form.Item>
           
-          <Item className="ecommerce-dropdown">
+          <Item
+            className="ecommerce-dropdown"
+            name="channel_codes"
+          >
             <Select
-              showSearch
               disabled={isLoading}
               placeholder="Chọn sàn"
               allowClear
@@ -822,7 +813,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               onClear={handleRemoveEcommerce}
             >
               {ECOMMERCE_LIST?.map((item: any) => (
-                <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                <Option key={item.ecommerce_id} value={item.key}>
                   <div>
                     <img
                       src={item.icon}
@@ -836,30 +827,55 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             </Select>
           </Item>
 
-          <Form.Item className="select-store-dropdown">
-            {isEcommerceSelected && (
-              <Select
+          <Form.Item
+            className="select-store-dropdown"
+            name="ecommerce_shop_ids"
+          >
+            {isEcommerceSelected ?
+              <TreeSelect
+                placeholder="Chọn gian hàng"
+                treeDefaultExpandAll
+                className="selector"
+                allowClear
+                showArrow
                 showSearch
-                disabled={isLoading || !isEcommerceSelected}
-                placeholder={getPlaceholderSelectShop()}
-                allowClear={shopIdSelected && shopIdSelected.length > 0}
-                dropdownRender={() => renderShopList()}
-                onClear={handleRemoveSelectedShop}
-              />
-            )}
-
-            {!isEcommerceSelected && (
-              <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                multiple
+                treeCheckable
+                treeNodeFilterProp="title"
+                maxTagCount="responsive"
+                filterTreeNode={(textSearch: any, item: any) => {
+                  const treeNodeTitle = item?.title?.props?.children[1];
+                  return fullTextSearch(textSearch, treeNodeTitle);
+                }}
+              >
+                {ecommerceShopList?.map((shopItem: any) => (
+                  <TreeSelect.TreeNode
+                    key={shopItem.id}
+                    value={shopItem.id}
+                    title={
+                      <span>
+                        {getEcommerceIcon(shopItem.ecommerce) &&
+                          <img
+                            src={getEcommerceIcon(shopItem.ecommerce)}
+                            alt={shopItem.id}
+                            style={{ marginRight: "5px", height: "16px" }}
+                          />
+                        }
+                        {shopItem.name}
+                      </span>
+                    }
+                  />
+                ))}
+              </TreeSelect>
+              :
+              <Tooltip title="Yêu cầu chọn sàn" color={"gold"}>
                 <Select
                   showSearch
                   disabled={true}
-                  placeholder={getPlaceholderSelectShop()}
-                  allowClear={shopIdSelected && shopIdSelected.length > 0}
-                  dropdownRender={() => renderShopList()}
-                  onClear={handleRemoveSelectedShop}
+                  placeholder="Chọn gian hàng"
                 />
               </Tooltip>
-            )}
+            }
           </Form.Item>
 
           <Item name="reference_code" className="search-id-order-ecommerce">
@@ -893,7 +909,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             />
           </Item>
 
-          <Item>
+          <div style={{ marginRight: "10px"}}>
             <Button
               type="primary"
               htmlType="submit" 
@@ -901,9 +917,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             >
               Lọc
             </Button>
-          </Item>
+          </div>
 
-          <Item>
+          <div style={{ marginRight: "10px"}}>
             <Button
               icon={<FilterOutlined />}
               onClick={openFilter}
@@ -911,7 +927,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             >
               Thêm bộ lọc
             </Button>
-          </Item>
+          </div>
 
           <Button
             className="setting-button"
@@ -1292,20 +1308,20 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
                 <p>Đơn vị vận chuyển</p>
                 <Item name="delivery_provider_ids">
-                <CustomSelect
-                  mode="multiple" showSearch allowClear
-                  showArrow placeholder="Chọn đơn vị vận chuyển"
-                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children"
-                  getPopupContainer={trigger => trigger.parentNode}
-                  maxTagCount='responsive'
-                >
-                  {deliveryService?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                      {item.name}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
+                  <CustomSelect
+                    mode="multiple" showSearch allowClear
+                    showArrow placeholder="Chọn đơn vị vận chuyển"
+                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
+                  >
+                    {deliveryService?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
                 </Item>
               </Col>
 
@@ -1325,20 +1341,20 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 
               </Col> */}
 
-              {/* <Col span={8} xxl={6}>
+              <Col span={8} xxl={6}>
                 <p>Tags</p>
                 <Item name="tags">
-                <CustomSelect
-                  mode="tags" optionFilterProp="children"
-                  showSearch showArrow allowClear
-                  placeholder="Chọn 1 hoặc nhiều tag"
-                  style={{width: '100%'}}
-                >
-                  
-                </CustomSelect>
+                  <CustomSelect
+                    mode="tags" optionFilterProp="children"
+                    showSearch showArrow allowClear
+                    placeholder="Điền 1 hoặc nhiều tag"
+                    style={{width: '100%'}}
+                  >
+
+                  </CustomSelect>
                 </Item>
-                
-              </Col> */}
+              </Col>
+
               <Col span={8} xxl={6}>
                 <p>Ghi chú nội bộ</p>
                 <Item name="note">

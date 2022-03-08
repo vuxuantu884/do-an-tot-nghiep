@@ -74,25 +74,25 @@ const LoyaltyPage = () => {
     });
 
     const isShowAction = allowUpdateProgram;
-    
+
     const menu = (
       <Menu>
         {allowUpdateProgram &&
           <Menu.Item key="1">
-          <Link to={`${UrlConfig.LOYALTY}/accumulation/${value.id}/update`}>
-            <Button
-              icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
-              type="text"
-              className=""
-              style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
-              }}
-            >
-              Chỉnh sửa
+            <Link to={`${UrlConfig.LOYALTY}/accumulation/${value.id}/update`}>
+              <Button
+                icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                }}
+              >
+                Chỉnh sửa
             </Button>
-          </Link>
+            </Link>
           </Menu.Item>
         }
       </Menu>
@@ -129,10 +129,10 @@ const LoyaltyPage = () => {
       title: "Chương trình",
       visible: true,
       fixed: "left",
-      render: (value: any, item: any, index: number) => 
+      render: (value: any, item: any, index: number) =>
         <Link
           to={`${UrlConfig.LOYALTY}/accumulation/${value.id}`}
-          style={{color: '#2A2A86', fontWeight: 500}}
+          style={{ color: '#2A2A86', fontWeight: 500 }}
         >
           {value.name}
         </Link>,
@@ -142,7 +142,7 @@ const LoyaltyPage = () => {
       visible: true,
       fixed: "left",
       width: '120px',
-      render: (value: any, item: any, index: number) => 
+      render: (value: any, item: any, index: number) =>
         <div className={`priority priority__${value.priority === 1 ? 'VERY_HIGH' : 'LOW'}`}>
           Số {value.priority}
         </div>,
@@ -151,14 +151,14 @@ const LoyaltyPage = () => {
       title: "Từ ngày",
       visible: true,
       fixed: "left",
-      render: (value: any, item: any, index: number) => 
+      render: (value: any, item: any, index: number) =>
         <div>{value.start_time && moment(value.start_time).format(DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Đến ngày",
       visible: true,
       fixed: "left",
-      render: (value: any, item: any, index: number) => 
+      render: (value: any, item: any, index: number) =>
         <div>{value.end_time && moment(value.end_time).format(DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
@@ -166,7 +166,7 @@ const LoyaltyPage = () => {
       visible: true,
       fixed: "left",
       align: 'center',
-      render: (value: any, item: any, index: number) => 
+      render: (value: any, item: any, index: number) =>
         <div className={`status-col__${value.status}`}>{value.status === 'INACTIVE' ? 'Tạm dừng' : 'Đang chạy'}</div>
     },
     {
@@ -249,7 +249,7 @@ const LoyaltyPage = () => {
       case 'đ':
         _rules[index].type = 'DIRECT'
         break;
-    
+
       default:
         break;
     }
@@ -259,6 +259,12 @@ const LoyaltyPage = () => {
   const handleChangePointUse = (v: number | null, index: number) => {
     let _rules = [...rules]
     _rules[index].limit_order_percent = v === null ? null : Number(v)
+    setRules(_rules)
+  }
+
+  const handleChangeLineItemLimitPoint = (v: number | null, index: number) => {
+    let _rules = [...rules]
+    _rules[index].limit_line_percent = v === null ? null : Number(v)
     setRules(_rules)
   }
 
@@ -313,29 +319,29 @@ const LoyaltyPage = () => {
                       currency={['đ']}
                       value={accumulationRate}
                       onChange={handleChangeAccumulationRate}
-                      style={{textAlign: 'left'}}
+                      style={{ textAlign: 'left' }}
                     />
-                    <span className="conversion-note" style={{marginLeft: '12px'}}>= 1 điểm thưởng</span>
+                    <span className="conversion-note" style={{ marginLeft: '12px' }}>= 1 điểm thưởng</span>
                   </div>
                 </Col>
                 <Col span={14}>
                   <div className="row-label">Tỷ lệ tiêu điểm</div>
                   <div className="d-flex">
-                    <span className="conversion-note" style={{marginRight: '12px'}}>1 điểm thưởng = </span>
+                    <span className="conversion-note" style={{ marginRight: '12px' }}>1 điểm thưởng = </span>
                     <CurrencyInput
                       position="after"
                       placeholder="Tỷ lệ tiêu điểm"
                       currency={['đ']}
                       value={redemptionRate}
                       onChange={handleChangeRedemptionRate}
-                      style={{textAlign: 'left'}}
+                      style={{ textAlign: 'left' }}
                     />
                   </div>
                 </Col>
               </Row>
               <Row>
                 <div className="redemption-rules">
-                  <div className="row-label">Cấu hình tiêu điểm</div>
+                  <div className="row-label">Cấu hình</div>
                   <div className="redemption-rules__table">
                     <table className="rules">
                       <thead>
@@ -349,8 +355,22 @@ const LoyaltyPage = () => {
                         </tr>
                       </thead>
                       <tbody>
+
                         <tr>
-                          <td className="condition">Số điểm có thẻ tiêu không quá ... giá trị hóa đơn</td>
+                          <td className="condition">Không được tiêu điểm cho đơn hàng có chiết khấu </td>
+                          {
+                            rules.map((rule, index) => (
+                              <td className="condition checkbox" key={index}>
+                                <Checkbox
+                                  defaultChecked={rule.block_order_have_discount}
+                                  onChange={(e) => onChangePreventDiscountOrder(e.target.checked, index)}
+                                />
+                              </td>
+                            ))
+                          }
+                        </tr>
+                        <tr>
+                          <td className="condition">Số điểm có thể tiêu không quá ... giá trị hóa đơn</td>
                           {
                             rules.map((rule, index) => (
                               <td className="condition" key={index}>
@@ -366,13 +386,15 @@ const LoyaltyPage = () => {
                           }
                         </tr>
                         <tr>
-                          <td className="condition">Không được tiêu điểm cho đơn hàng có chiết khấu </td>
+                          <td className="condition">Tích điểm với các sản phẩm có chiết khấu dưới ... %</td>
                           {
                             rules.map((rule, index) => (
-                              <td className="condition checkbox" key={index}>
-                                <Checkbox
-                                  defaultChecked={rule.block_order_have_discount}
-                                  onChange={(e) => onChangePreventDiscountOrder(e.target.checked, index)}
+                              <td className="condition" key={index}>
+                                <CurrencyInput
+                                  position="before"
+                                  currency={['%']}
+                                  value={rule.limit_line_percent}
+                                  onChange={(value) => handleChangeLineItemLimitPoint(value, index)}
                                 />
                               </td>
                             ))
@@ -395,7 +417,7 @@ const LoyaltyPage = () => {
             </div>
           </Card>
         }
-        
+
         {allowViewProgramList &&
           <Card
             title={

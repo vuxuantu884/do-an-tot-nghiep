@@ -1,12 +1,12 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
+import { PageResponse } from "model/base/base-metadata.response";
 import { BaseQuery } from "model/base/base.query";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-import { SourceResponse } from "model/response/order/source.response";
 import { generateQuery } from "utils/AppUtils";
 
 /**
@@ -15,7 +15,7 @@ import { generateQuery } from "utils/AppUtils";
 
 export const getOrderProcessingStatusService = (
   queryParams: BaseQuery
-): Promise<BaseResponse<SourceResponse>> => {
+): Promise<BaseResponse<PageResponse<OrderProcessingStatusModel>>> => {
   const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.ORDER}/subStatus?${queryString}`);
 };
@@ -43,4 +43,10 @@ export const deleteOrderProcessingStatusService = (
   id: number
 ): Promise<BaseResponse<OrderProcessingStatusResponseModel>> => {
   return BaseAxios.delete(`${ApiConfig.ORDER}/subStatus/${id}`);
+};
+
+export const getOrderProcessingStatusDetailService = (
+  id: number
+): Promise<BaseResponse<OrderProcessingStatusModel>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/subStatus/${id}`);
 };

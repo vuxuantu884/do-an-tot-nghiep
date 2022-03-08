@@ -1,14 +1,12 @@
 .pack-card {
-  margin: 0px 10px;
-  margin-bottom: 20px;
   .ant-card-body {
-    padding: 20px 9px 0px 9px;
+    padding: 0 9px 11px;
   }
-  // .col-item-right{
-  //     padding: 0px 0px 0px 24px;
-  // }
   .page-filter {
     padding: "0px 6px 20px 11px";
+  }
+  .ant-form .ant-form-item {
+    margin: 0;
   }
 }
 .ant-table {
@@ -24,10 +22,9 @@
 }
 
 .pack-success-card {
-  margin: 0px 10px;
   .ant-card-head {
     font-size: 1.143rem;
-    padding: 20px 24px 15px 24px;
+    padding: 11px 22px;
     min-height: 40px;
     border-bottom: 1px solid #e5e5e5;
 
@@ -38,12 +35,36 @@
     line-height: 16px;
   }
   .ant-card-body {
-    padding: 24px ​24px;
+    padding: 0 9px 11px;
   }
 }
 
 .pack-give-card {
-  margin: 0px 7px;
+  .ant-card-body {
+    padding: 0px 9px 11px 9px;
+  }
+
+  .ant-card-head {
+    font-size: 1.143rem;
+    padding: 11px 22px;
+    min-height: 40px;
+    border-bottom: 1px solid #e5e5e5;
+
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 16px;
+  }
+
+  .pack-give-card-row {
+    display: flex;
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
   .pack-give-card-row-item {
     margin-right: 10px;
     width: 100%;
@@ -109,7 +130,6 @@
 .yody-row-flex {
   display: flex;
   width: 100%;
-  // padding-bottom: 24px;
 }
 .yody-row-item {
   width: 100%;
@@ -122,4 +142,8 @@
 
 .yody-margin-bottom-24 {
   margin-bottom: 24px;
+}
+.yody-pack-row {
+  margin-top: 11px;
+  padding: 0 14px;
 }

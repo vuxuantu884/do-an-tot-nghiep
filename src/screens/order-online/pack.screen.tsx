@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { Card, Row, Tabs, Col } from "antd";
+import { Card, Row, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack/info/pack-info";
@@ -20,33 +20,20 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
-import PackReportHandOver from "./pack/info/pack-report-hand-over";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useHistory } from "react-router-dom";
-import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import useAuthorization from "hook/useAuthorization";
 import { StyledComponent } from "./pack/styles";
 import './pack/styles.scss';
 import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getListOrderApi } from "service/order/order.service";
-
-const { TabPane } = Tabs;
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const query = useQuery();
-  const newParam: any = getQueryParams(query);
-  const history = useHistory();
-  //useState
 
   const [packModel,setPackModel]=useState<PackModel|null>();
 
   const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
-
-  const [activeTab, setActiveTab] = useState("1");
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
     DeliveryServiceResponse[]
@@ -56,11 +43,6 @@ const PackSupportScreen: React.FC = () => {
     Array<GoodsReceiptsTypeResponse>
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
-
-  const [allowReadGoodReceipt] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
-    not: false,
-  });
 
   const packSupportContextData = {
     listThirdPartyLogistics,
@@ -95,9 +77,9 @@ const PackSupportScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
-  useLayoutEffect(() => {
-    setActiveTab(newParam.tab);
-  }, [newParam.tab]);
+  // useLayoutEffect(() => {
+  //   setActiveTab(newParam.tab);
+  // }, [newParam.tab]);
 
   useLayoutEffect(() => {
     let packInfo: string | null = getPackInfo();
@@ -121,12 +103,12 @@ const PackSupportScreen: React.FC = () => {
     }
   }, [dispatch]);
 
-  const handleClickTab = (value: string) => {
-    setActiveTab(value);
+  // const handleClickTab = (value: string) => {
+  //   setActiveTab(value);
 
-    let queryParam = generateQuery({ ...newParam, tab: value });
-    history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
-  };
+  //   let queryParam = generateQuery({ ...newParam, tab: value });
+  //   history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
+  // };
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
@@ -144,37 +126,24 @@ const PackSupportScreen: React.FC = () => {
       >
         <StyledComponent>
           <Row>
-            <Col>
+            <Col xs={24}>
               <Card className="pack-card">
-                <Tabs activeKey={activeTab} onChange={handleClickTab}>
-                  <TabPane tab="Đóng gói" key="1">
-                    <PackInfo
-                      // setFulfillmentsPackedItems={setData}
-                      // fulfillmentData={data}
-                    ></PackInfo>
-                  </TabPane>
-                  <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
-                    <PackReportHandOver query={query} />
-                  </TabPane>
-                </Tabs>
+                <PackInfo/>
               </Card>
             </Col>
           </Row>
-          {activeTab !== "2" && (
-            <div>
-              <Row gutter={24}>
-                <Col xs={24}>
-                  <PackList />
-                </Col>
-              </Row>
+          
+          <Row gutter={24}>
+            <Col xs={24}>
+              <PackList />
+            </Col>
+          </Row>
 
-              <Row gutter={24}>
-                <Col xs={24}>
-                  <AddReportHandOver />
-                </Col>
-              </Row>
-            </div>
-          )}
+          <Row gutter={24}>
+            <Col xs={24}>
+              <AddReportHandOver />
+            </Col>
+          </Row>
         </StyledComponent>
 
       </ContentContainer>

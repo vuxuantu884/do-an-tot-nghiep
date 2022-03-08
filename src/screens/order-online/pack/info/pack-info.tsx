@@ -35,9 +35,9 @@ import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 //   fulfillmentData: OrderResponse[];
 // };
 
-interface OrderLineItemResponseExt extends OrderLineItemResponse{
-  pick:number;
-  color:string;
+interface OrderLineItemResponseExt extends OrderLineItemResponse {
+  pick: number;
+  color: string;
 }
 
 var barcode = "";
@@ -52,6 +52,7 @@ const PackInfo: React.FC = () => {
   //useState
 
   const [orderResponse, setOrderResponse] = useState<OrderResponse>();
+  // const [orderResponse, setOrderResponse] = useState<Array<any>>([]);
   const [itemProductList, setItemProductList] = useState<OrderLineItemResponseExt[]>([]);
 
   const [disableStoreId, setDisableStoreId] = useState(false);
@@ -78,8 +79,8 @@ const PackInfo: React.FC = () => {
   //context
   const orderPackContextData = useContext(OrderPackContext);
 
-  const setPackModel=orderPackContextData?.setPackModel;
-  const packModel= orderPackContextData?.packModel;
+  const setPackModel = orderPackContextData?.setPackModel;
+  const packModel = orderPackContextData?.packModel;
 
   const listStores = orderPackContextData?.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
@@ -144,7 +145,7 @@ const PackInfo: React.FC = () => {
         dispatch(
           getFulfillments(value.trim(), (data: any) => {
             if (data && data.length !== 0) {
-             
+
               setOrderResponse(data[0]);
               setDisableStoreId(true);
               setDisabledDeliveryProvider(true);
@@ -159,7 +160,7 @@ const PackInfo: React.FC = () => {
         );
 
         OrderRequestElement?.select();
-      } 
+      }
     },
     [dispatch, OrderRequestElement, formRef]
   );
@@ -191,7 +192,7 @@ const PackInfo: React.FC = () => {
     setOrderResponse(undefined);
     setItemProductList([]);
 
-    formRef.current?.setFieldsValue({ 
+    formRef.current?.setFieldsValue({
       product_request: "",
       quality_request: "",
       order_request: "",
@@ -216,10 +217,10 @@ const PackInfo: React.FC = () => {
       );
 
       if (indexPack !== -1) {
-        if ((Number(itemProductList[indexPack].pick)+ quality_request) > (Number(itemProductList[indexPack].quantity))) {
+        if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
           showError("Sản phẩm đã nhập đủ số lượng");
-          console.log("quality",Number(itemProductList[indexPack].pick)+ quality_request);
-          
+          console.log("quality", Number(itemProductList[indexPack].pick) + quality_request);
+
           return
         } else {
           itemProductList[indexPack].pick += Number(quality_request);
@@ -251,19 +252,19 @@ const PackInfo: React.FC = () => {
 
   //useEffect
 
-  useEffect(()=>{
+  useEffect(() => {
     formRef.current?.setFieldsValue({
       product_request: "",
       quality_request: "",
       order_request: "",
       store_request: packModel?.store_id,
-      delivery_service_id:packModel?.delivery_service_id
+      delivery_service_id: packModel?.delivery_service_id
     });
-  },[formRef, packModel]);
+  }, [formRef, packModel]);
 
   useEffect(() => {
     if (orderResponse) {
-      console.log("orderResponse",orderResponse);
+      console.log("orderResponse", orderResponse);
       let item: any[] = [];
       orderResponse.items.forEach(function (i: any) {
         item.push({ ...i, pick: 0, color: "#E24343" });
@@ -289,15 +290,15 @@ const PackInfo: React.FC = () => {
           items: itemProductList,
         };
 
-        let packData:PackModel = {...new PackModelDefaltValue(),...packModel};
-        console.log("PackModel",packData);
-        
+        let packData: PackModel = { ...new PackModelDefaltValue(), ...packModel };
+        console.log("PackModel", packData);
+
         dispatch(
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
 
-              packData?.order?.push({...orderResponse});
+              packData?.order?.push({ ...orderResponse });
               setPackModel(packData);
               setPackInfo(packData);
               showSuccess("Đóng gói đơn hàng thành công");
@@ -422,8 +423,8 @@ const PackInfo: React.FC = () => {
 
   return (
     <React.Fragment>
-      <Form layout="vertical" ref={formRef}>
-        <div className="yody-row-flex gutter-15" style={{ marginTop: 24 }}>
+      <Form layout="vertical" ref={formRef} className="yody-pack-row">
+        <div className="yody-row-flex">
           <Form.Item
             label="Cửa hàng"
             name="store_request"
@@ -461,10 +462,6 @@ const PackInfo: React.FC = () => {
               ))}
             </Select>
           </Form.Item>
-          <div className="ant-row ant-form-item">
-
-          </div>
-
           <Form.Item style={{ width: "100%" }}>
             <Input.Group compact>
               <Form.Item
@@ -522,7 +519,6 @@ const PackInfo: React.FC = () => {
               </Form.Item>
             </Input.Group>
           </Form.Item>
-
           <Form.Item label="Sản phẩm:" style={{ width: "100%", paddingLeft: "30px" }}>
             <Input.Group compact className="select-with-search" style={{ width: "100%" }}>
               <Form.Item
@@ -561,7 +557,7 @@ const PackInfo: React.FC = () => {
         </div>
       </Form>
       {itemProductList && itemProductList.length > 0 && (
-        <div className="yody-row-flex gutter-15 yody-margin-bottom-24">
+        <div className="yody-row-flex yody-pack-row">
           <div className="yody-row-item" style={{ paddingRight: "30px" }}>
             <span className="customer-detail-text">
               <strong>Đơn hàng:</strong>
@@ -606,75 +602,69 @@ const PackInfo: React.FC = () => {
           </div>
         </div>
       )}
+      <Row justify="space-between" className="yody-pack-row">
+        <Table
+          locale={{
+            emptyText: (
+              <div className="sale_order_empty_product">
+                <img src={emptyProduct} alt="empty product" />
+                <p>Không có dữ liệu!</p>
+              </div>
+            ),
+          }}
+          rowKey={(record) => record.id}
+          columns={columns}
+          dataSource={itemProductList}
+          className="ecommerce-order-list"
+          tableLayout="fixed"
+          pagination={false}
+          bordered
+          footer={() =>
+            itemProductList && itemProductList.length > 0 ? (
+              <div className="row-footer-custom">
+                <div className="yody-foot-total-text">
+                  TỔNG
+                </div>
+                <div
+                  style={{
+                    width: "27.66%",
+                    float: "left",
+                    textAlign: "right",
+                    fontWeight: 400,
+                  }}
+                >
+                  {formatCurrency(
+                    itemProductList.reduce(
+                      (a: number, b: OrderProductListModel) => a + b.quantity,
+                      0
+                    )
+                  )}
+                </div>
+                <div
+                  style={{
+                    width: "23.18%",
+                    float: "left",
+                    textAlign: "right",
+                    fontWeight: 400,
+                  }}
+                >
+                  {formatCurrency(
+                    itemProductList.reduce(
+                      (a: number, b: OrderProductListModel) => a + Number(b.pick),
+                      0
+                    )
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div />
+            )
+          }
+        />
+      </Row>
 
-      <div className="yody-margin-bottom-24">
-        <Row
-          className="sale-product-box"
-          justify="space-between"
-          style={{ marginLeft: "14px", marginRight: "14px", marginTop: 12 }}
-        >
-          <Table
-            locale={{
-              emptyText: (
-                <div className="sale_order_empty_product">
-                  <img src={emptyProduct} alt="empty product" />
-                  <p>Không có dữ liệu!</p>
-                </div>
-              ),
-            }}
-            rowKey={(record) => record.id}
-            columns={columns}
-            dataSource={itemProductList}
-            className="ecommerce-order-list"
-            tableLayout="fixed"
-            pagination={false}
-            bordered
-            footer={() =>
-              itemProductList && itemProductList.length > 0 ? (
-                <div className="row-footer-custom">
-                  <div className="yody-foot-total-text">
-                    TỔNG
-                  </div>
-                  <div
-                    style={{
-                      width: "27.66%",
-                      float: "left",
-                      textAlign: "right",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {formatCurrency(
-                      itemProductList.reduce(
-                        (a: number, b: OrderProductListModel) => a + b.quantity,
-                        0
-                      )
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      width: "23.18%",
-                      float: "left",
-                      textAlign: "right",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {formatCurrency(
-                      itemProductList.reduce(
-                        (a: number, b: OrderProductListModel) => a + Number(b.pick),
-                        0
-                      )
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div />
-              )
-            }
-          />
-        </Row>
-      </div>
-      <div className="yody-row gutter-15 yody-margin-bottom-24">
-        {itemProductList && itemProductList.length > 0 && (
+      {itemProductList && itemProductList.length > 0 && (
+        <div className="yody-pack-row">
           <Row gutter={24}>
             <Col md={12}>
               <Button
@@ -698,8 +688,9 @@ const PackInfo: React.FC = () => {
               </Button>
             </Col>
           </Row>
-        )}
-      </div>
+        </div>
+      )}
+
 
     </React.Fragment>
   )

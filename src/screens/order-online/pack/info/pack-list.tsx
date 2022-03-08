@@ -57,7 +57,7 @@ function PackList() {
       title: "Hãng vận chuyển",
       visible: true,
       render: (value, row, index) => {
-        return <div>{row.shipment.delivery_service_provider_name?row.shipment.delivery_service_provider_name:"Tự giao hàng"}</div>;
+        return <div>{row.shipment.delivery_service_provider_name ? row.shipment.delivery_service_provider_name : "Tự giao hàng"}</div>;
       },
     },
     {
@@ -78,20 +78,20 @@ function PackList() {
 
   const rowSelection = {
     onSelect: (item: any, selected: boolean, selectedRow: any[]) => {
-      let code:string[] = [];
-      selectedRow.forEach((p)=>{
-        if(p)code.push(p.order_code);
+      let code: string[] = [];
+      selectedRow.forEach((p) => {
+        if (p) code.push(p.order_code);
       })
-      console.log("code",code);
+      console.log("code", code);
       setIsFulFillmentPack([...code]);
     },
     onSelectAll: (selected: any, selectedRow: any[], changeRow: any[]) => {
-      
-      let code:string[] = [];
-      selectedRow.forEach((p)=>{
-        if(p)code.push(p.order_code);
+
+      let code: string[] = [];
+      selectedRow.forEach((p) => {
+        if (p) code.push(p.order_code);
       })
-      console.log("code",code);
+      console.log("code", code);
       setIsFulFillmentPack([...code]);
     }
   };
@@ -102,7 +102,7 @@ function PackList() {
       bordered={false}
       className="pack-success-card"
     >
-      <div>
+      <div className="yody-pack-row">
         <Table
           //loading={loading.isVisible}
           columns={columnsOrderPack}

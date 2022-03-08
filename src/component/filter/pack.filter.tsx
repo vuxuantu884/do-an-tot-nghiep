@@ -25,14 +25,11 @@ import search from "assets/img/search.svg";
 import {SettingOutlined, FilterOutlined, DownOutlined} from "@ant-design/icons";
 import "./order.filter.scss";
 import CustomSelect from "component/custom/select.custom";
-import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import {OrderPackContext} from "contexts/order-pack/order-pack-context";
 import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
-import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import useAuthorization from "hook/useAuthorization";
 import { Link } from "react-router-dom";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -65,11 +62,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
-
-  const [allowCreateGoodsReceipt] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
-    not: false,
-  });
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -231,7 +223,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 
       list.push({
         key: "ecommerce_ids",
-        name: "Biên bản sàn",
+        name: "Kiểu biên bản",
         value: textStores,
       });
     }
@@ -295,7 +287,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       <div className="order-filter">
         <div className="page-filter">
           <div className="page-filter-heading">
-            <div className="page-filter-left" style={{width: "35%"}}>
+            <div className="page-filter-left" style={{width: "10%"}}>
               <Space size={12}>
                 <Dropdown
                   overlayStyle={{minWidth: "10rem"}}
@@ -323,15 +315,9 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                   </Button>
                 </Dropdown>
               </Space>
-              <Space size={12} style={{marginLeft: "10px"}}>
-                <ButtonCreate
-                  size="small" 
-                  path={`${UrlConfig.PACK_SUPPORT}/report-hand-over-create`}
-                  disabled={!allowCreateGoodsReceipt}
-                />
-              </Space>
+              
             </div>
-            <div className="page-filter-right" style={{width: "65%"}}>
+            <div className="page-filter-right" style={{width: "90%"}}>
               <Space size={12}>
                 <Form
                   onFinish={onFinish}
@@ -339,7 +325,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                   initialValues={initialValues}
                   layout="inline"
                 >
-                  <Item name="ids" style={{width: "30%"}}>
+                  <Item name="ids" style={{width: "32%"}}>
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="ID Biên bản bàn giao"
@@ -351,7 +337,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     />
                   </Item>
 
-                  <Item name="order_codes" style={{width: "30%"}}>
+                  <Item name="order_codes" style={{width: "32%"}}>
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="Mã đơn hàng"
@@ -422,6 +408,17 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       ))}
                     </CustomSelect>
                   </Item>
+                  <p>Thời gian</p>
+                  <Item>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="from_date"
+                      fieldNameTo="to_date"
+                      activeButton={createdClick}
+                      setActiveButton={setCreatedClick}
+                      format="DD-MM-YYYY"
+                      formRef={formRef}
+                    />
+                  </Item>
                   <p>Hãng vận chuyển</p>
                   <Item name="delivery_service_ids">
                     <CustomSelect
@@ -470,12 +467,12 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       ))}
                     </CustomSelect>
                   </Item>
-                  <p>Biên bản sàn</p>
+                  <p>Kiểu biên bản</p>
                   <Item name="ecommerce_ids">
                     <CustomSelect
                       mode="multiple"
                       showSearch
-                      placeholder="Chọn biên bản sàn"
+                      placeholder="Chọn kiểu biên bản"
                       notFoundContent="Không tìm thấy kết quả"
                       style={{width: "100%"}}
                       optionFilterProp="children"
@@ -494,17 +491,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       ))}
                     </CustomSelect>
                   </Item>
-                </Col>
-                <Col span={24}>
-                  <p>Ngày tạo đơn</p>
-                  <CustomRangeDatePicker
-                    fieldNameFrom="from_date"
-                    fieldNameTo="to_date"
-                    activeButton={createdClick}
-                    setActiveButton={setCreatedClick}
-                    format="DD-MM-YYYY"
-                    formRef={formRef}
-                  />
                 </Col>
               </Row>
             </Form>
