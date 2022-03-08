@@ -46,6 +46,7 @@ export interface OrderRequest {
   finalized?: boolean;
   sub_status_code?: string; 
 	automatic_discount?: boolean;
+  export_bill?: boolean;
 }
 
 export interface ReturnRequest extends OrderRequest {
@@ -227,6 +228,10 @@ export interface OrderPaymentRequest {
   customer_id: number | null;
   type: string;
   note: string;
+  bank_account_id?: number;
+  bank_account_number?:	string;
+  bank_account_holder?:	string;
+
 }
 
 export interface UpdateOrderPaymentRequest {

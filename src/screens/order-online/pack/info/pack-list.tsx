@@ -73,7 +73,7 @@ function PackList(props: any) {
       bordered={false}
       className="pack-success-card"
     >
-      <div>
+      <div className="yody-pack-row">
       <Table 
         columns={columnsOrderPack}
         dataSource={data.items} 

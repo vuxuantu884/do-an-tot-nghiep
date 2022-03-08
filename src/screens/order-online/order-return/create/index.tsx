@@ -17,7 +17,7 @@ import {
 	actionCreateOrderReturn,
 	actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import { orderConfigSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { changeSelectedStoreBankAccountAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -51,6 +51,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
+import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 
 	getAmountPayment,
@@ -58,6 +59,8 @@ import {
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
 	getTotalOrderDiscount,
+	handleFetchApiError,
+	isFetchApiSuccessful,
 	isOrderFromPOS,
 	scrollAndFocusToDomElement,
 	totalAmount
@@ -92,6 +95,9 @@ let typeButton = "";
 let order_return_id: number = 0;
 
 const ScreenReturnCreate = (props: PropType) => {
+  const isShouldSetDefaultStoreBankAccount = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
+  )	
   const [form] = Form.useForm();
   const [isError, setError] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
@@ -161,7 +167,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
   >(0);
-  // const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+ const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
@@ -363,12 +369,12 @@ ShippingServiceConfigDetailResponseModel[]
 
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      // setIsDisablePostPayment(true);
+      setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     } else {
-      // setIsDisablePostPayment(false);
+      setIsDisablePostPayment(false);
     }
     setShipmentMethod(value);
   };
@@ -1198,6 +1204,10 @@ ShippingServiceConfigDetailResponseModel[]
                     returnOrderInformation={{
                       totalAmountReturn: totalAmountReturnProducts
                     }}
+                    shipmentMethod={shipmentMethod}
+                    paymentMethod={paymentMethod}
+                    setPaymentMethod={setPaymentMethod}
+                    isDisablePostPayment={isDisablePostPayment}
                   />
                 )}
                 {isExchange && isStepExchange && (
@@ -1278,8 +1288,42 @@ ShippingServiceConfigDetailResponseModel[]
   useEffect(() => {
     if (storeId != null) {
       dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+      getStoreBankAccountNumbersService({
+				store_ids: [storeId]
+			}).then((response) => {
+				if (isFetchApiSuccessful(response)) {
+					dispatch(getStoreBankAccountNumbersAction(response.data.items))
+          const selected = response.data.items.find(single => single.default && single.status);
+					if(isShouldSetDefaultStoreBankAccount) {
+						if(selected) {
+							dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
+						} else {
+							let paymentsResult = [...payments]
+							let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
+							if(bankPaymentIndex > -1) {
+								paymentsResult[bankPaymentIndex].paid_amount = 0;
+								paymentsResult[bankPaymentIndex].amount = 0;
+								paymentsResult[bankPaymentIndex].return_amount = 0;
+							}
+							setPayments(paymentsResult);
+							dispatch(changeSelectedStoreBankAccountAction(undefined))
+						}
+
+					}
+				} else {
+					dispatch(getStoreBankAccountNumbersAction([]))
+					handleFetchApiError(response, "Danh sách số tài khoản ngân hàng của cửa hàng", dispatch)
+				}
+			}).catch((error) => {
+				console.log('error', error)
+			})
     }
-  }, [dispatch, storeId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, storeId, isShouldSetDefaultStoreBankAccount]);
+
+  useEffect(() => {
+    dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
+  }, [dispatch])
 
   useEffect(() => {
     setShippingFeeInformedToCustomer(0);

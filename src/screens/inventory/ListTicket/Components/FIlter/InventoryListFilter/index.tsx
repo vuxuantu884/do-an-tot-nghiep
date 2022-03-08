@@ -27,7 +27,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { FormatTextMonney } from "utils/FormatMonney";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 
@@ -39,7 +39,7 @@ type OrderFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
-  onClearFilter?: () => void;
+  onClearFilter?: () => void
   stores?: Array<Store>;
 };
 
@@ -58,7 +58,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     onFilter,
     onShowColumnSetting,
     stores,
-    accounts,
+    accounts
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();

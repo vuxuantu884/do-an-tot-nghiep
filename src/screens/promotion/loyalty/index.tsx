@@ -262,6 +262,12 @@ const LoyaltyPage = () => {
     setRules(_rules)
   }
 
+  const handleChangeLineItemLimitPoint = (v: number | null, index: number) => {
+    let _rules = [...rules]
+    _rules[index].limit_line_percent = v === null ? null : Number(v)
+    setRules(_rules)
+  }
+
   const onChangePreventDiscountOrder = (value: boolean, index: number) => {
     let _rules = [...rules]
     _rules[index].block_order_have_discount = value
@@ -335,7 +341,7 @@ const LoyaltyPage = () => {
               </Row>
               <Row>
                 <div className="redemption-rules">
-                  <div className="row-label">Cấu hình tiêu điểm</div>
+                  <div className="row-label">Cấu hình</div>
                   <div className="redemption-rules__table">
                     <table className="rules">
                       <thead>
@@ -375,6 +381,21 @@ const LoyaltyPage = () => {
                                   onChange={(e) => onChangePreventDiscountOrder(e.target.checked, index)}
                                 />
                               </td>
+                            ))
+                          }
+                        </tr>
+                        <tr>
+                          <td className="condition">Tích điểm với các sản phẩm có chiết khấu dưới ... %</td>
+                          {
+                            rules.map((rule, index) => (
+                                <td className="condition" key={index}>
+                                  <CurrencyInput
+                                      position="before"
+                                      currency={['%']}
+                                      value={rule.limit_line_percent}
+                                      onChange={(value) => handleChangeLineItemLimitPoint(value, index)}
+                                  />
+                                </td>
                             ))
                           }
                         </tr>

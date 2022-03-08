@@ -255,7 +255,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                             <EmailWrap>
                               <MailFilled />
                               <span className="label">
-                                Email gửi hóa đơn:  {billing_address.email}
+                                Email gửi hóa đơn: {billing_address.email}
                               </span>
                             </EmailWrap>
                           ) : (
@@ -319,19 +319,24 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
         </div>
       </Card>
 
-      <EditAddressModal
-        visible={isVisibleAddressModal}
-        listCountry={listCountries}
-        listDistrict={listDistrict}
-        onCancel={cancelAddressModal}
-        onOk={onSubmitAddressModal}
-        addressInfo={addressChange}
-      />
-      <SupplierAddModal
-        visible={isVisibleSupplierAddModal}
-        onCancel={cancelSupplierAddModal}
-        onOk={onSubmitSupplierAddModal}
-      />
+      {isVisibleAddressModal && (
+        <EditAddressModal
+          visible={isVisibleAddressModal}
+          listCountry={listCountries}
+          listDistrict={listDistrict}
+          onCancel={cancelAddressModal}
+          onOk={onSubmitAddressModal}
+          addressInfo={addressChange}
+        />
+      )}
+
+      {isVisibleSupplierAddModal && (
+        <SupplierAddModal
+          visible={isVisibleSupplierAddModal}
+          onCancel={cancelSupplierAddModal}
+          onOk={onSubmitSupplierAddModal}
+        />
+      )}
     </div>
   );
 };

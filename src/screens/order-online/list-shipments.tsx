@@ -261,7 +261,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 									<img
 										src={service.logo ? service.logo : ""}
 										alt=""
-										style={{ width: "100%" }}
+										style={{ width: 135}}
 									/>
 								}
 								<p>

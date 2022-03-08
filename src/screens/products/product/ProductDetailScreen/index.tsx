@@ -137,8 +137,12 @@ const ProductDetailScreen: React.FC = () => {
 
   const update = useCallback(
     (product: ProductResponse) => {
+      let productRequest: any = {...product};
       setLoadingVariant(true);
-      dispatch(productUpdateAction(idNumber, product, onResultUpdate));
+      if (productRequest.collections) {
+        productRequest.collections = productRequest.collections.map((e: CollectionCreateRequest)=>e.code);
+      }  
+      dispatch(productUpdateAction(idNumber, productRequest, onResultUpdate));
     },
     [dispatch, idNumber, onResultUpdate]
   );
@@ -243,7 +247,7 @@ const ProductDetailScreen: React.FC = () => {
         data?.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
             item.saleable = false;
-          }
+          } 
         });
         data.variants = getFirstProductAvatarByVariantResponse(data.variants);
         update(data);

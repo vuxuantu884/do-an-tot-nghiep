@@ -1,10 +1,24 @@
 import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, InputNumber, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
+import BaseResponse from "base/base.response";
 import { FilterWrapper } from "component/container/filter.container";
+import TextShowMore from "component/container/show-more/text-show-more";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomSelect from "component/custom/select.custom";
+import BaseFilter from "component/filter/base.filter";
+import CustomModal from "component/modal/CustomModal";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { CountryGetAllAction } from "domain/actions/content/content.action";
+import { createConfigInventoryAction, deleteConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
+import { getCategoryRequestAction } from "domain/actions/product/category.action";
+import { getCollectionRequestAction } from "domain/actions/product/collection.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CountryResponse } from "model/content/country.model";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryQuery } from "model/inventory";
 import {
@@ -13,34 +27,19 @@ import {
   AvdInventoryFilter,
   InventoryQueryField
 } from "model/inventory/field";
-import BaseFilter from "component/filter/base.filter";
-import React, { useCallback, useEffect, useState } from "react";
-import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { convertCategory, formatCurrency } from "utils/AppUtils";
-import { useDispatch, useSelector } from "react-redux";
-import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import TreeStore from "./TreeStore";
-import { CollectionResponse } from "model/product/collection.model";
-import { getCollectionRequestAction } from "domain/actions/product/collection.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { CountryResponse } from "model/content/country.model";
-import { AccountResponse } from "model/account/account.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { AppConfig } from "config/app.config";
-import CustomModal from "component/modal/CustomModal";
 import { modalActionType } from "model/modal/modal.model";
-import FormSaveFilter from "./components/FormSaveFilter";
 import { FilterConfig, FilterConfigRequest } from "model/other";
-import { createConfigInventoryAction, deleteConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
-import BaseResponse from "base/base.response";
-import { FILTER_CONFIG_TYPE } from "utils/Constants";
-import { showSuccess } from "utils/ToastUtils";
+import { CategoryResponse, CategoryView } from "model/product/category.model";
+import { CollectionResponse } from "model/product/collection.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { convertCategory, formatCurrency } from "utils/AppUtils";
+import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { primaryColor } from "utils/global-styles/variables";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import TextShowMore from "component/container/show-more/text-show-more";
-import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { showSuccess } from "utils/ToastUtils";
+import FormSaveFilter from "./components/FormSaveFilter";
+import TreeStore from "./TreeStore";
 
 export interface InventoryFilterProps {
   params: any;
@@ -157,7 +156,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
   const getDesigners = useCallback((code: string, page: number) => {
     dispatch(
-      AccountSearchAction(
+      searchAccountPublicAction(
         { codes: code, page: page },
         setDataDesigners
       )
@@ -166,7 +165,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
   const getWins = useCallback((code: string, page: number) => {
     dispatch(
-      AccountSearchAction(
+      searchAccountPublicAction(
         { codes: code, page: page },
         setDataWins
       )
@@ -505,6 +504,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 style={{width: "100%"}}
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
                 onChange={(e)=>{onChangeKeySearch(e.target.value)}}
+                allowClear
               />
             </Item>
             <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 250 }}>
@@ -575,6 +575,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 <Col span={16}>
                   <Item name={AvdInventoryFilter.info} className="search">
                     <Input
+                      allowClear
                       prefix={<img src={search} alt="" />}
                       style={{width: "100%"}}
                       placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
@@ -615,7 +616,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         allowClear
                         tagRender={tagRender}
                         notFoundContent="Không tìm thấy kết quả"
-                        maxTagCount="responsive"
+                        maxTagCount="responsive" 
                       >
                         {listCountry?.map((item) => (
                           <CustomSelect.Option key={item.id} value={String(item.id)}>

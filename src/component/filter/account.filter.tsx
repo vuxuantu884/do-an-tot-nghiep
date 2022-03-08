@@ -16,7 +16,7 @@ import { CgArrowRight } from "react-icons/cg";
 import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { FilterAccountAdvancedStyles } from "screens/settings/account/account.search.style";
-import { fullTextSearch } from "utils/RemoveDiacriticsString";
+import { fullTextSearch } from "utils/StringUtils";
 import BaseFilter from "./base.filter";
 
 type AccountFilterProps = {

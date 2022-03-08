@@ -17,10 +17,15 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
+	changeSelectedStoreBankAccountAction,
+	changeStoreDetailAction,
+	getStoreBankAccountNumbersAction,
 	orderConfigSaga,
 	orderCreateAction,
 	OrderDetailAction,
-	PaymentMethodGetList
+	PaymentMethodGetList,
+	setIsExportBillAction,
+	setIsShouldSetDefaultStoreBankAccountAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { InventoryResponse } from "model/inventory";
@@ -52,11 +57,14 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 	getAmountPayment,
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
+	handleFetchApiError,
+	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
 	scrollAndFocusToDomElement,
 	totalAmount
@@ -82,6 +90,12 @@ let typeButton = "";
 export default function Order() {
 	const dispatch = useDispatch();
 	const history = useHistory();
+	const isExportBill = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
+  );
+	const isShouldSetDefaultStoreBankAccount = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
+  )	
 	const [isSaveDraft, setIsSaveDraft] = useState(false);
 	const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -208,6 +222,7 @@ ShippingServiceConfigDetailResponseModel[]
 
 	const [isLoadForm, setIsLoadForm] = useState(false);
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	let initialRequest: OrderRequest = {
 		action: "", //finalized
 		store_id: null,
@@ -246,6 +261,7 @@ ShippingServiceConfigDetailResponseModel[]
 		payments: [],
 		channel_id: null,
 		automatic_discount: true,
+		export_bill: false,
 	};
 	const [initialForm, setInitialForm] = useState<OrderRequest>({
 		...initialRequest,
@@ -471,6 +487,7 @@ ShippingServiceConfigDetailResponseModel[]
 		values.customer_district = customer?.district;
 		values.customer_city = customer?.city;
 		values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+		values.export_bill = isExportBill;
 
 		//Nếu là lưu nháp Fulfillment = [], payment = []
 		if (typeButton === OrderStatus.DRAFT) {
@@ -595,7 +612,7 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 	};
 	const scroll = useCallback(() => {
-		if (window.pageYOffset > 100 || visibleBillStep.isAlreadyShow) {
+		if ((window.pageYOffset > 100 || visibleBillStep.isAlreadyShow) && !visibleBillStep.isShow) {
 			setVisibleBillStep({
 				isShow: true,
 				isAlreadyShow: true
@@ -625,9 +642,42 @@ ShippingServiceConfigDetailResponseModel[]
 	};
 	useEffect(() => {
 		if (storeId != null) {
-			dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+			dispatch(StoreDetailCustomAction(storeId, (data) => {
+				setStoreDetail(data);
+				dispatch(changeStoreDetailAction(data))
+			}));
+			getStoreBankAccountNumbersService({
+				store_ids: [storeId]
+			}).then((response) => {
+				if (isFetchApiSuccessful(response)) {
+					dispatch(getStoreBankAccountNumbersAction(response.data.items))
+					const selected = response.data.items.find(single => single.default && single.status);
+					if(isShouldSetDefaultStoreBankAccount) {
+						if(selected) {
+							dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
+						} else {
+							let paymentsResult = [...payments]
+							let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
+							if(bankPaymentIndex > -1) {
+								paymentsResult[bankPaymentIndex].paid_amount = 0;
+								paymentsResult[bankPaymentIndex].amount = 0;
+								paymentsResult[bankPaymentIndex].return_amount = 0;
+							}
+							setPayments(paymentsResult);
+							dispatch(changeSelectedStoreBankAccountAction(undefined))
+						}
+
+					}
+				} else {
+					dispatch(getStoreBankAccountNumbersAction([]))
+					handleFetchApiError(response, "Danh sách số tài khoản ngân hàng của cửa hàng", dispatch)
+				}
+			}).catch((error) => {
+				console.log('error', error)
+			})
 		}
-	}, [dispatch, storeId]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, storeId, isShouldSetDefaultStoreBankAccount]);
 
 	//windows offset
 	useEffect(() => {
@@ -845,6 +895,17 @@ ShippingServiceConfigDetailResponseModel[]
 								}
 								setShipmentMethod(newShipmentMethod);
 							}
+							if(response.export_bill) {
+								dispatch(setIsExportBillAction(true))
+							} else {
+								dispatch(setIsExportBillAction(false))
+							}
+							const bankPayment = response.payments?.find(single => single.payment_method_code === PaymentMethodCode.BANK_TRANSFER && single.bank_account_number)
+							if(bankPayment) {
+								dispatch(changeSelectedStoreBankAccountAction(bankPayment.bank_account_number))
+							} else {
+								dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
+							}
 						}
 					})
 				);
@@ -866,8 +927,15 @@ ShippingServiceConfigDetailResponseModel[]
 			}
 		};
 		fetchData();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [cloneIdParam, dispatch, isCloneOrder]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [cloneIdParam, dispatch, isCloneOrder ]);
+
+	useEffect(() => {
+		if(!isCloneOrder) {
+			dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
+		}
+	}, [dispatch, isCloneOrder])
+	
 
 	useEffect(() => {
 		if (customer) {

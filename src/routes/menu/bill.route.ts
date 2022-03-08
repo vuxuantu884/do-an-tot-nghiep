@@ -2,14 +2,15 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
-import CustomerDuplicate from "screens/order-online/duplicate.screen";
-import OrderDuplicate from "screens/order-online/order-duplicate";
 import OrderUpdate from "screens/order-online/order-update";
 import PackDetail from "screens/order-online/pack-detail";
 import PackSupportScreen from "screens/order-online/pack.screen";
+import DeliveryRecordsScreen from "screens/order-online/records.screen";
 import AddReportHandOver from "screens/order-online/pack-add";
 import PackUpdate from "screens/order-online/pack-update";
 import SplitOrdersScreen from "screens/order-online/split-orders.screen";
+import CustomerDuplicate from "screens/order-online/order-duplicate/index";
+import OrderDuplicate from 'screens/order-online/order-duplicate/detail.screen'
 
 const ListOrder = React.lazy(() => import("screens/order-online/orders/index.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
@@ -163,12 +164,24 @@ const bill: Array<RouteMenu> = [
     title: "Hỗ trợ đóng gói",
     icon: "icon-dot",
     component: PackSupportScreen,
-    key: "submenu56",
+    key: "submenu561",
+    isShow: true,
+    header: null,
+    subMenu: [],
+    permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
+  },
+  {
+    path: UrlConfig.DELIVERY_RECORDS,
+    exact: true,
+    title: "Biên bản bàn giao",
+    icon: "icon-dot",
+    component: DeliveryRecordsScreen,
+    key: "submenu562",
     isShow: true,
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.PACK_SUPPORT}/report-hand-over-create`,
+        path: `${UrlConfig.DELIVERY_RECORDS}/report-hand-over-create`,
         exact: true,
         title: "Thêm mới biên bản bàn giao",
         icon: "icon-dot",
@@ -179,7 +192,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PACK_SUPPORT}/:id`,
+        path: `${UrlConfig.DELIVERY_RECORDS}/:id`,
         exact: true,
         title: "Chi tiết biên bản bàn giao",
         icon: "icon-dot",
@@ -190,7 +203,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PACK_SUPPORT}/report-hand-over-update/:id`,
+        path: `${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/:id`,
         exact: true,
         title: "Cập nhật biên bản bàn giao",
         icon: "icon-dot",

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useCallback, useState } from "react";
 import YDPageOrders from "./yd-page-order-create/YDPageOrders";
 import YDPageCustomer from "screens/yd-page/yd-page-customer/YDPageCustomer";
@@ -44,6 +45,7 @@ const initCustomerInfo: YDpageCustomerRequest = {
   ward_id: null,
   full_address: null,
   card_number: null,
+	customer_group_id: null
 };
 
 function YDPageAdmin() {
@@ -131,6 +133,7 @@ function YDPageAdmin() {
         dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [customerPhone, dispatch, searchByPhoneCallback]
   );
 
@@ -216,6 +219,7 @@ function YDPageAdmin() {
         activeKey={activeTabKey}
         onChange={(value: string) => handleOnchangeTabs(value)}
       >
+				{console.log(newCustomerInfo)}
         <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}>
           <YDPageCustomer
             customer={customer}
@@ -232,6 +236,7 @@ function YDPageAdmin() {
             addFpPhone={addFpPhone}
             deleteFpPhone={deleteFpPhone}
             setFpDefaultPhone={setFpDefaultPhone}
+						setCustomerDefaultPhone={setCustomerDefaultPhone}
           />
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>}>

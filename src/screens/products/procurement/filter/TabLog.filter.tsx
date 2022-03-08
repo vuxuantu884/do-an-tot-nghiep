@@ -1,22 +1,22 @@
 import { Button, Form, Input } from "antd";
 import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
-import "assets/css/custom-filter.scss";  
+import "assets/css/custom-filter.scss";
 import { ProcurementQuery } from "model/purchase-order/purchase-procument";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomDatePicker from "component/custom/date-picker.custom";
 
-const { Item } = Form; 
+const { Item } = Form;
 
-type ProcumentLogFilterProps = { 
-  onFilter?: (values: ProcurementQuery) => void; 
+type ProcumentLogFilterProps = {
+  onFilter?: (values: ProcurementQuery) => void;
   onClickOpen?: () => void;
 };
-function TabLogFilter({ onFilter, onClickOpen }: ProcumentLogFilterProps) { 
-  const [formBase] = useForm();  
+function TabLogFilter({ onFilter, onClickOpen }: ProcumentLogFilterProps) {
+  const [formBase] = useForm();
 
   return (
-    <div className="custom-filter"> 
+    <div className="custom-filter">
       <div className="page-filter">
         <div className="page-filter-heading">
           <div className="page-filter-full">
@@ -25,9 +25,9 @@ function TabLogFilter({ onFilter, onClickOpen }: ProcumentLogFilterProps) {
                   <Input
                     className="input-search"
                     prefix={<img src={search} alt="" />}
-                    placeholder="Tìm kiếm mã phiếu nhập kho, mã đơn hàng, tên, mã vạch"
+                    placeholder="Tìm kiếm theo Mã phiếu nhập kho, Mã đơn hàng, Tên sản phẩm, Mã vạch sản phẩm"
                   />
-                </Item> 
+                </Item>
                 <Item name="created_date_from" className="date">
                   <CustomDatePicker placeholder="Thời gian từ" style={{width: '100%'}} />
                 </Item>
@@ -38,15 +38,15 @@ function TabLogFilter({ onFilter, onClickOpen }: ProcumentLogFilterProps) {
                   <Button type="primary" htmlType="submit">
                     Lọc
                   </Button>
-                </Item>  
+                </Item>
                 <Item>
                   <ButtonSetting onClick={onClickOpen} />
                 </Item>
-              </Form> 
-          </div> 
+              </Form>
+          </div>
         </div>
       </div>
     </div>
   );
-} 
+}
 export default TabLogFilter;

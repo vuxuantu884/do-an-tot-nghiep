@@ -11,7 +11,7 @@ import useAuthorization from "hook/useAuthorization";
 import React, {useEffect, useState} from "react";
 import {Link, useHistory, useRouteMatch} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import { showInfo } from "utils/ToastUtils";
+import ExportProduct from "../component/ExportProduct";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
 import TabProduct from "../tab/TabProduct";
@@ -32,6 +32,7 @@ const ListProductScreen: React.FC = () => {
   const history = useHistory();
   let match = useRouteMatch();
   const {path} = match;
+  const [vExportProduct,setVExportProduct] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
@@ -129,7 +130,7 @@ const ListProductScreen: React.FC = () => {
               className="light"
               size="large"
               icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-              onClick={() => {showInfo("Tính năng đang phát triển")}}
+              onClick={() => {setVExportProduct(true)}}
             >
               Xuất file
             </Button>
@@ -163,6 +164,11 @@ const ListProductScreen: React.FC = () => {
           })}
         </Tabs>
       </Card>
+      <ExportProduct
+        onCancel={()=>{setVExportProduct(false)}}
+        onOk={()=>{setVExportProduct(false)}}
+        visible={vExportProduct}
+       />
     </ContentContainer>
   );
 };

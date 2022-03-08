@@ -1,7 +1,6 @@
 import {
   Button,
   Row,
-  Space,
   Col,
   Select,
   Form,
@@ -28,7 +27,6 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
-import { FilterWrapper } from "component/container/filter.container";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
@@ -399,11 +397,11 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   const columns = [SttColumn, ProductColumn, QualtityOrderColumn, QualtityPickColumn];
 
-  console.log("window.screen",window.screen)
+  console.log("window.screen", window.screen)
   return (
     <React.Fragment>
-      <Form layout="vertical" ref={formRef}>
-        <div className="yody-row-flex gutter-15" style={{ marginTop: 24 }}>
+      <Form layout="vertical" ref={formRef} className="yody-pack-row">
+        <div className="yody-row-flex">
           <Form.Item
             label="Cửa hàng"
             name="store_request"
@@ -434,17 +432,13 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               ))}
             </Select>
           </Form.Item>
-          <div className="ant-row ant-form-item">
-
-          </div>
-
           <Form.Item style={{ width: "100%" }}>
             <Input.Group compact>
               <Form.Item
                 label="Hãng vận chuyển:"
                 name="delivery_provider_id"
-                
-                style={+window.screen.availWidth>=1920?{ width: "220px", margin: 0 }:{ width: "150px", margin: 0 }}
+
+                style={+window.screen.availWidth >= 1920 ? { width: "220px", margin: 0 } : { width: "150px", margin: 0 }}
               >
                 <Select
                   style={{ width: "100%" }}
@@ -472,7 +466,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                     message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
                   },
                 ]}
-                style={+window.screen.availWidth>=1920?{ width: "calc(100% - 220px)" }:{ width: "calc(100% - 150px)" }}
+                style={+window.screen.availWidth >= 1920 ? { width: "calc(100% - 220px)" } : { width: "calc(100% - 150px)" }}
               >
                 <Input
                   placeholder="ID đơn hàng/Mã vận đơn"
@@ -526,7 +520,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         </div>
       </Form>
       {orderList && orderList.length > 0 && (
-        <div className="yody-row-flex gutter-15 yody-margin-bottom-24">
+        <div className="yody-row-flex yody-pack-row">
           <div className="yody-row-item" style={{ paddingRight: "30px" }}>
             <span className="customer-detail-text">
               <strong>Đơn hàng:</strong>
@@ -572,74 +566,71 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         </div>
       )}
 
-      <div className="yody-margin-bottom-24">
-        <Row
-          className="sale-product-box"
-          justify="space-between"
-          style={{ marginLeft: "14px", marginRight: "14px", marginTop: 12 }}
-        >
-          <Table
-            locale={{
-              emptyText: (
-                <div className="sale_order_empty_product">
-                  <img src={emptyProduct} alt="empty product" />
-                  <p>Không có dữ liệu!</p>
+      <Row
+        className="yody-pack-row"
+        justify="space-between"
+      >
+        <Table
+          locale={{
+            emptyText: (
+              <div className="sale_order_empty_product">
+                <img src={emptyProduct} alt="empty product" />
+                <p>Không có dữ liệu!</p>
+              </div>
+            ),
+          }}
+          rowKey={(record) => record.id}
+          columns={columns}
+          dataSource={orderList}
+          tableLayout="fixed"
+          pagination={false}
+          bordered
+          footer={() =>
+            orderList && orderList.length > 0 ? (
+              <div className="row-footer-custom">
+                <div className="yody-foot-total-text">
+                  TỔNG
                 </div>
-              ),
-            }}
-            rowKey={(record) => record.id}
-            columns={columns}
-            dataSource={orderList}
-            className="ecommerce-order-list"
-            tableLayout="fixed"
-            pagination={false}
-            bordered
-            footer={() =>
-              orderList && orderList.length > 0 ? (
-                <div className="row-footer-custom">
-                  <div className="yody-foot-total-text">
-                    TỔNG
-                  </div>
-                  <div
-                    style={{
-                      width: "27.66%",
-                      float: "left",
-                      textAlign: "right",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {formatCurrency(
-                      orderList.reduce(
-                        (a: number, b: OrderProductListModel) => a + b.quantity,
-                        0
-                      )
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      width: "23.18%",
-                      float: "left",
-                      textAlign: "right",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {formatCurrency(
-                      orderList.reduce(
-                        (a: number, b: OrderProductListModel) => a + Number(b.pick),
-                        0
-                      )
-                    )}
-                  </div>
+                <div
+                  style={{
+                    width: "27.66%",
+                    float: "left",
+                    textAlign: "right",
+                    fontWeight: 400,
+                  }}
+                >
+                  {formatCurrency(
+                    orderList.reduce(
+                      (a: number, b: OrderProductListModel) => a + b.quantity,
+                      0
+                    )
+                  )}
                 </div>
-              ) : (
-                <div />
-              )
-            }
-          />
-        </Row>
-      </div>
-      <div className="yody-row gutter-15 yody-margin-bottom-24">
-        {orderList && orderList.length > 0 && (
+                <div
+                  style={{
+                    width: "23.18%",
+                    float: "left",
+                    textAlign: "right",
+                    fontWeight: 400,
+                  }}
+                >
+                  {formatCurrency(
+                    orderList.reduce(
+                      (a: number, b: OrderProductListModel) => a + Number(b.pick),
+                      0
+                    )
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div />
+            )
+          }
+        />
+      </Row>
+
+      {orderList && orderList.length > 0 && (
+        <div className="yody-pack-row">
           <Row gutter={24}>
             <Col md={12}>
               <Button
@@ -663,8 +654,9 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               </Button>
             </Col>
           </Row>
-        )}
-      </div>
+        </div>
+      )}
+
 
     </React.Fragment>
   )

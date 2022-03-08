@@ -3,7 +3,7 @@ import { AccountStoreResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { ReactElement } from "react";
 import { useSelector } from "react-redux";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 
 interface Props extends SelectProps<number> {}
 const defaultSelectProps = {

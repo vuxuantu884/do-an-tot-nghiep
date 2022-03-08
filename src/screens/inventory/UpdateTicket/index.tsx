@@ -77,7 +77,7 @@ import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 
 const { Option } = Select;
 
@@ -696,11 +696,11 @@ const UpdateTicket: FC = () => {
 
   }, [dataTable]);
 
-  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => { 
-    if (keyCode === "Enter" && code){ 
-      barCode ="";  
-      setKeySearch("");  
-      
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
+    if (keyCode === "Enter" && code){
+      barCode ="";
+      setKeySearch("");
+
       if (RegUtil.BARCODE_NUMBER.test(code)) {
         const storeId = form.getFieldValue("from_store_id");
         if (!storeId) {
@@ -708,29 +708,29 @@ const UpdateTicket: FC = () => {
           return;
         }
         const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-        if (item && item.id) { 
+        if (item && item.id) {
          const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
-         if (variant && variant.items && variant.items.length > 0) {  
+         if (variant && variant.items && variant.items.length > 0) {
            item.available = variant.items[variant.items.length-1].available;
            item.on_hand = variant.items[variant.items.length-1].on_hand;
          }
-         onSelectProduct(item.id.toString(),item); 
+         onSelectProduct(item.id.toString(),item);
         }
       }
-    } 
+    }
     else{
       const txtSearchProductElement: any =
         document.getElementById("product_search_variant");
 
-      onSearchProduct(txtSearchProductElement?.value); 
-    } 
+      onSearchProduct(txtSearchProductElement?.value);
+    }
   },
    // eslint-disable-next-line react-hooks/exhaustive-deps
    [onSelectProduct,form, dispatch, onSearchProduct]
   );
 
   const eventKeydown = useCallback(
-    (event: KeyboardEvent) => { 
+    (event: KeyboardEvent) => {
 
      if (event.target instanceof HTMLInputElement) {
        if (event.target.id === "product_search_variant") {
@@ -1203,7 +1203,7 @@ const UpdateTicket: FC = () => {
             onCancel={() => {
               setIsVisibleModalWarning(false);
             }}
-            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${idNumber}`)}
+            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)}
             okText="Đồng ý"
             cancelText="Tiếp tục"
             title={`Bạn có muốn rời khỏi trang?`}

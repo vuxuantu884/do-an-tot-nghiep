@@ -40,7 +40,7 @@ import { SourcePermissions } from "config/permissions/setting.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import "assets/css/custom-filter.scss";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 import { callApiNative } from "utils/ApiUtils";  
 import {
   getSourcesWithParamsService
@@ -378,6 +378,7 @@ function OrderSources(props: PropTypes) {
   useLayoutEffect(() => {
       setTableLoading(true);
       gotoFirstPage();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -494,6 +495,22 @@ function OrderSources(props: PropTypes) {
                           </Select.Option>
                         );
                       })}
+                  </Select>
+                </Form.Item>
+                <Form.Item name="active" style={{width: 200}}>
+                  <Select
+                    // showSearch
+                    allowClear
+                    placeholder="Trạng thái"
+                    optionFilterProp="title"
+                    // notFoundContent="Không tìm thấy phòng ban"
+                  >
+                    <Select.Option value="true" key="true">
+                      <span>Đang áp dụng</span>
+                    </Select.Option>
+                    <Select.Option value="false" key="false">
+                      <span>Ngưng áp dụng</span>
+                    </Select.Option>
                   </Select>
                 </Form.Item>
                 <Form.Item style={{marginRight: 0}}>

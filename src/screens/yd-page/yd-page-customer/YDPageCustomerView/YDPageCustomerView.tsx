@@ -23,7 +23,8 @@ import "screens/yd-page/yd-page-customer/customer.scss";
 import XCloseBtn from "assets/icon/X_close.svg";
 import phonePlus from "assets/icon/phone-plus.svg";
 import editIcon from "assets/icon/edit.svg";
-import urlCrimson from "assets/icon/url-crimson.svg";
+
+import { StyledComponent } from "./styles";
 
 
 const YDPageCustomerView = (props: any) => {
@@ -40,6 +41,7 @@ const YDPageCustomerView = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
+		setCustomerDefaultPhone
   } = props;
 
   const dispatch = useDispatch();
@@ -177,7 +179,14 @@ const YDPageCustomerView = (props: any) => {
       title: "Tổng thu",
       align: "right",
       render: (value: any, row: any) => {
-        return <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>;
+        return <div style={{textAlign: "right"}}>
+          <Link
+            target="_blank"
+            to={`${UrlConfig.ORDER}/${row.id}`}
+           >
+            {formatCurrency(row.total_line_amount_after_line_discount)}
+          </Link> 
+        </div>;
       },
     },
     {
@@ -185,10 +194,10 @@ const YDPageCustomerView = (props: any) => {
       dataIndex: "status",
       align: "center",
       render: (value: any, row: any) => {
-        const statusTag = status_order.find((status) => status.value === row.status);
+        // const statusTag = status_order.find((status) => status.value === row.status);
         return (
           <div>
-            <Tag
+            {/* <Tag
               className="fpage-recent-tag"
               style={{
                 color: `${statusTag?.color}`,
@@ -196,7 +205,8 @@ const YDPageCustomerView = (props: any) => {
               }}
             >
               {statusTag?.name}
-            </Tag>
+            </Tag> */}
+            Kết thúc
           </div>
         );
       },
@@ -204,23 +214,24 @@ const YDPageCustomerView = (props: any) => {
     {
       title: "Nguồn",
       dataIndex: "source",
+      className: "order_source_desc",
     },
-    {
-      title: "",
-      align: "center",
-      render: (value: any, row: any) => {
-        return (
-          <Tooltip placement="topLeft" title="Xem chi tiết">
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ORDER}/${row.id}`}
-            >
-              <img src={urlCrimson} alt="link" />
-            </Link>
-          </Tooltip>
-        );
-      },
-    },
+    // {
+    //   title: "",
+    //   align: "center",
+    //   render: (value: any, row: any) => {
+    //     return (
+    //       <Tooltip placement="topLeft" title="Xem chi tiết">
+    //         <Link
+    //           target="_blank"
+    //           to={`${UrlConfig.ORDER}/${row.id}`}
+    //         >
+    //           <img src={urlCrimson} alt="link" />
+    //         </Link>
+    //       </Tooltip>
+    //     );
+    //   },
+    // },
   ];
 
   const handleEditCustomer = () => {
@@ -255,6 +266,7 @@ const YDPageCustomerView = (props: any) => {
     if (phone !== customerPhone) {
       updateNewCustomerInfo("phone", phone);
       getCustomerWhenPhoneChange(phone);
+			setCustomerDefaultPhone(phone)
     }
   };
   // end update customer phone
@@ -385,7 +397,7 @@ const YDPageCustomerView = (props: any) => {
 	}
 
   return (
-    <div>
+    <StyledComponent>
       <div className="yd-page-customer-view">
         <Card>
           {/*Customer name*/}
@@ -421,7 +433,7 @@ const YDPageCustomerView = (props: any) => {
               disabled={true}
               value={customerPhone}
               placeholder="Nhập số điện thoại"
-              className="item-input"
+              className="item-input phone-disabled"
             />
 
             <div className="item-icon-button">
@@ -449,7 +461,11 @@ const YDPageCustomerView = (props: any) => {
                 customerPhones.map((phone: any, index: any) => (
                   <Tag
                     key={index}
-                    style={{ cursor: "pointer" }}
+                    style={{ 
+											cursor: "pointer",
+											borderColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+											backgroundColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+										}}
                     onClick={() => onSelectPhone(phone)}>
                     {phone}
                     {allowUpdateCustomer &&
@@ -554,7 +570,7 @@ const YDPageCustomerView = (props: any) => {
         subTitle="Bạn có chắc chắn muốn xóa số điện thoại này"
       />
 
-    </div>
+    </StyledComponent>
   );
 };
 

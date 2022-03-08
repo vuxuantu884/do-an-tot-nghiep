@@ -41,7 +41,7 @@ import { ApiConfig } from "config/api.config";
 import BaseAxios from "base/base.axios";
 import { showError } from "utils/ToastUtils";
 import MyStoreSelect from "component/custom/select-search/my-store-select";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 
 const { Option } = Select;
 const { Text } = Typography;

@@ -40,6 +40,7 @@ const UrlConfig = {
   PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
   PACK_SUPPORT:`/orders-pack`,
+  DELIVERY_RECORDS:`/delivery-records`,
   BANK:`/bank`,
   BANK_ACCOUNT:`/bank-account`,
 };

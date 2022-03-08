@@ -1,16 +1,22 @@
 
 .pack-card{
-    margin: 0px 10px;
-    margin-bottom: 20px;
     .ant-card-body {
-        padding: 20px 9px 0px 9px;
+        padding: 0px 9px 11px 9px;
+        .ant-tabs-nav{
+            padding: 0px 10px;
+        }
     }
-    // .col-item-right{
-    //     padding: 0px 0px 0px 24px;
-    // }
     .page-filter{
         padding: "0px 6px 20px 11px";
     }
+    .ant-form .ant-form-item{
+        margin: 0;
+    }
+    .ant-table-pagination.ant-pagination{
+        margin: 0px;
+        margin-top: 16px;
+    }
+    
 }
 .ant-table{
     .yody-foot-total-text{
@@ -25,10 +31,12 @@
 }
 
 .pack-success-card{
-    margin: 0px 10px;
+    .ant-card-body {
+        padding: 0px 9px 11px 9px;
+    }
     .ant-card-head{
         font-size: 1.143rem;
-        padding: 20px 24px 15px 24px;
+        padding: 11px 22px;
         min-height: 40px;
         border-bottom: 1px solid #E5E5E5;
 
@@ -38,28 +46,42 @@
         font-size: 14px;
         line-height: 16px;
     }
-    .ant-card-body{
-        padding: 24px ​24px;
+
+    .ant-table-pagination.ant-pagination{
+        margin: 0px;
+        margin-top: 16px;
     }
 }
 
 .pack-give-card{
-    margin: 0px 7px;
-    // .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector{
+    .ant-card-body {
+        padding: 0px 9px 11px 9px;
+    }
 
-    // }
-}
+    .ant-card-head{
+        font-size: 1.143rem;
+        padding: 11px 22px;
+        min-height: 40px;
+        border-bottom: 1px solid #E5E5E5;
 
-.pack-info-update-card{
-    margin: 0px 10px;
-    // .t1{
-    //     color: #222222;
-    //     font-weight: 500;
-    //     margin-left: 5px;
-    // }
-    // .t1-color{
-    //     color:#666666;
-    // }
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 16px;
+    }
+
+    .pack-give-card-row{
+        display: flex;
+        width: 100%;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    .pack-give-card-row-item{
+        margin-right:10px ;
+        width: 100%;
+    }
 }
 
 .t1{
@@ -103,23 +125,29 @@
 .t1-btn span{
     padding-right: 15px;
 }
-.yody-row{
-    width: 100%;
+
+// .yody-row{
+//     width: 100%;
+//     padding: 0px 11px 11px;
+    
+// }
+
+.yody-pack-row{
+    margin-top: 11px;
+    padding: 0px 14px;
+    .page-filter{
+        padding: 15px 0px;
+        .ant-form-item{
+            margin-right: 10px;
+        }
+    }
 }
+
 .yody-row-flex{
     display: flex;
     width: 100%;
-    // padding-bottom: 24px;
 }
 .yody-row-item{
     width: 100%;
     row-gap: 0px;
-}
-.gutter-15{
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-.yody-margin-bottom-24{
-    margin-bottom: 24px;
 }

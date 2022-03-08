@@ -59,16 +59,6 @@ function CustomerShippingAddressOrder(props: any) {
 
   const shippingColumns: Array<ICustomTableColumType<ShippingAddress>> = [
     {
-      title: "STT",
-      dataIndex: "",
-      align: "center",
-      visible: true,
-      width: "5%",
-      render: (value, row, index) => {
-        return <span>{index + 1}</span>;
-      },
-    },
-    {
       title: "Họ tên",
       dataIndex: "name",
       visible: true,

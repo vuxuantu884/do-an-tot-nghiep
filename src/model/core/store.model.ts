@@ -46,7 +46,7 @@ export interface StoreQuery extends BaseQuery {
     ward_id?: string,
     vm_code?: string,
     finder_code?: string,
-    from_begin_date?: Date|'',
+    from_begin_date?: any,
     from_square?: number|'',
     group_id?: string,
     hotline?: number|'',
@@ -55,11 +55,12 @@ export interface StoreQuery extends BaseQuery {
     manager_code?: string,
     rank?: string,
     status?: string|null,
-    to_begin_date?: Date|'',
+    to_begin_date?: any,
     to_square?: number|'',
     type: string|'',
     ids?: Array<number>| Array<string>,
-    department_id: string | null
+    department_id?: string | null
+    department_ids?: string | null
   }
 
   export interface BaseStoreRequest {
@@ -102,3 +103,5 @@ export interface StoreQuery extends BaseQuery {
     name: string,
     value: string,
   }
+
+

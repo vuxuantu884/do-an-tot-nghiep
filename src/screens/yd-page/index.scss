@@ -461,6 +461,17 @@
   .ant-radio:hover .ant-radio-inner {
     border-color: #2a2a86;
   }
+
+	.update-shipping {
+		.ant-form-item {
+			.ant-form-item-label {
+				display: none;
+			}
+			.ant-form-item-control {
+				flex: 1 !important;
+			}
+		}
+	}
 }
 
 .yd-page-customer-relationship {

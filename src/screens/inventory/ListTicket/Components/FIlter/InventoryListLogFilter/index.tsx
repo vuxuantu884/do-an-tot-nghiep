@@ -25,7 +25,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { AppConfig } from "config/app.config";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 
