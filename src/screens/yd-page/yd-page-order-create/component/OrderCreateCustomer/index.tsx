@@ -352,12 +352,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "POS");
-  }, [listSource]);
+  // const listSources = useMemo(() => {
+  //   return listSource.filter((item) => item.code !== "POS");
+  // }, [listSource]);
 
   useEffect(() => {
-    let defaultSourceIndex = listSources.findIndex(data => {
+    let defaultSourceIndex = listSource.findIndex(data => {
       return data.id === defaultSourceId;
     });
     if (defaultSourceIndex > -1) {
@@ -365,7 +365,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     } else {
       form.setFieldsValue({ source_id: null })
     }
-  }, [listSources]);
+  }, [listSource]);
 
   useEffect(() => {
     let query = {
@@ -501,7 +501,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 setOrderSourceId && setOrderSourceId(value)
               }}
             >
-              {listSources.map((item, index) => (
+              {listSource.map((item, index) => (
                 <CustomSelect.Option
                   style={{ width: "100%" }}
                   key={index.toString()}
