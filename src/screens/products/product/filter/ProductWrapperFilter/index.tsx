@@ -15,7 +15,7 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CategoryView } from "model/product/category.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
-  keysDateWrapperFilter,
+  keysDateWrapperFilter, SearchVariantMapping,
   SearchVariantWrapperField,
   SearchVariantWrapperMapping,
 } from "model/product/product-mapping";
@@ -29,9 +29,6 @@ import { StyledComponent } from "./styled";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-
-let isWin = false;
-let isDesigner = false;
 
 type ProductFilterProps = {
   params: ProductWrapperSearchQuery;
@@ -72,6 +69,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   const [dateClick, setDateClick] = useState('');
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [form] = Form.useForm();
+  const [formNormal] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const [materials, setMaterials] = useState<PageResponse<MaterialResponse>>(
     {
@@ -93,23 +91,82 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     }
   );
 
+  const setDataDesigners = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) return;
+      setDeisgners((designer) => {
+        return {
+          ...designer,
+          items: [
+            ...designer.items,
+            ...data.items
+          ],
+          metadata: data.metadata,
+        }
+      });
+    },
+    []
+  );
+
+  const setDataWins = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) return;
+      setWins((wins) => {
+        return {
+          ...wins,
+          items: [
+            ...wins.items,
+            ...data.items
+          ],
+          metadata: data.metadata,
+        }
+      });
+    },
+    []
+  );
+
+  const getDesigners = useCallback((code: string, page: number) => {
+    dispatch(
+      searchAccountPublicAction(
+        { codes: code, page: page },
+        setDataDesigners
+      )
+    );
+  }, [dispatch, setDataDesigners]);
+
+  const getWins = useCallback((code: string, page: number) => {
+    dispatch(
+      searchAccountPublicAction(
+        { codes: code, page: page },
+        setDataWins
+      )
+    );
+  }, [dispatch, setDataWins]);
+
   useEffect(() => {
-    const { category_id, material_id, merchandiser_code, designer_code } = params;
+    const {
+      category_ids, material_ids, merchandiser_code, designer_code, goods
+    } = params;
+
     const filters = {
       ...params,
       [SearchVariantWrapperField.from_create_date]: formatDateFilter(params.from_create_date),
       [SearchVariantWrapperField.to_create_date]: formatDateFilter(params.to_create_date),
-      [SearchVariantWrapperField.category_id]: category_id ? Number(category_id) : null,
-      [SearchVariantWrapperField.material_id]: material_id ? Number(material_id) : null,
-      [SearchVariantWrapperField.merchandiser_code]: Array.isArray(merchandiser_code) ?
-        merchandiser_code.join() : merchandiser_code !== '' ? merchandiser_code : null,
-      [SearchVariantWrapperField.designer_code]: Array.isArray(designer_code) ?
-        designer_code.join() : designer_code !== '' ? designer_code : null,
+      category_ids: category_ids ? Array.isArray(category_ids) ? category_ids.map((i: string) => Number(i)) : [Number(category_ids)] : [],
+      material_ids: material_ids ? Array.isArray(material_ids) ? material_ids.map((i: string) => Number(i)) : [Number(material_ids)] : [],
+      goods: goods ? Array.isArray(goods) ? goods.map((i: string) => Number(i)) : [Number(goods)] : [],
     };
+
+    if (designer_code && designer_code !== '') getDesigners(designer_code, 1);
+    if (merchandiser_code && merchandiser_code !== '') getWins(merchandiser_code, 1);
 
     setAdvanceFilters(filters);
     form.setFieldsValue(filters);
-  }, [params, form]);
+
+    if (!designer_code || designer_code.length === 0) form.resetFields(['designer_code']);
+    if (!merchandiser_code || merchandiser_code.length === 0) form.resetFields(['merchandiser_code']);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, params]);
 
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
@@ -121,12 +178,13 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   const onFinishAvd = useCallback(
     (values: any) => {
       setAdvanceFilters(values);
+      formNormal.setFieldsValue(values);
       values.from_create_date = getStartOfDayCommon(values.from_create_date)?.format();
       values.to_create_date = getStartOfDayCommon(values.to_create_date)?.format();
 
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [formNormal, onFilter]
   );
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -157,32 +215,6 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     [form]
   );
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse>) => {
-      if (!data) {
-        return false;
-      }
-      if (isWin) {
-        setWins(data);
-      }
-      if (isDesigner) {
-        setDeisgners(data);
-      }
-    },
-    []
-  );
-
-  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
-    isDesigner = designer;
-    isWin = win;
-    dispatch(
-      searchAccountPublicAction(
-        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
-        setDataAccounts
-      )
-    );
-  }, [dispatch, setDataAccounts]);
-
   const getMaterials = useCallback((code: string, page: number) => {
     dispatch(
       getMaterialAction(
@@ -196,15 +228,16 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
 
 
   useEffect(()=>{
-    getAccounts("",1,true,true);
     getMaterials("",1);
-  },[getAccounts, getMaterials]);
+    getWins('', 1);
+    getDesigners('', 1);
+  },[getDesigners, getMaterials, getWins]);
 
   return (
     <StyledComponent>
       <div className="product-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} initialValues={params} layout="inline">
+          <Form form={formNormal} onFinish={onFinish} initialValues={params} layout="inline">
             <Item name="info" className="search">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -242,18 +275,28 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
           width={700}
         >
           <Form ref={formRef} onFinish={onFinishAvd} form={form} layout="vertical">
+            <Row>
+              <Col span={24}>
+                <Item name="info" className="search">
+                  <Input
+                    prefix={<img src={search} alt="" />}
+                    placeholder="Tìm kiếm theo Tên/Mã sản phẩm"
+                  />
+                </Item>
+              </Col>
+            </Row>
             <Row gutter={20}>
               {Object.keys(SearchVariantWrapperMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
                   case SearchVariantWrapperField.designer_code:
                     component = (
-                      <AccountSearchPaging isFilter placeholder="Chọn thiết kế" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
+                      <AccountSearchPaging mode="multiple" placeholder="Chọn thiết kế" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantWrapperField.merchandiser_code:
                     component = (
-                      <AccountSearchPaging isFilter placeholder="Chọn Merchantdiser" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
+                      <AccountSearchPaging mode="multiple"  placeholder="Chọn Merchantdiser" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantWrapperField.status:
@@ -266,7 +309,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.category_id:
                     component = (
-                      <Select showSearch optionFilterProp="children" placeholder="Chọn danh mục" allowClear>
+                      <Select mode="multiple" showSearch optionFilterProp="children" placeholder="Chọn danh mục" allowClear>
                         {listCategory?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {`${item.name}`}
@@ -277,7 +320,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.goods:
                     component = (
-                      <Select placeholder="Chọn ngành hàng" allowClear>
+                      <Select mode="multiple" placeholder="Chọn ngành hàng" allowClear>
                         {goods?.map((item) => (
                           <Option key={item.value} value={item.value}>
                             {item.name}
@@ -289,6 +332,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                   case SearchVariantWrapperField.material_id:
                     component = (
                       <SelectPaging
+                        mode="multiple"
                         metadata={materials.metadata}
                         placeholder="Chọn chất liệu"
                         showSearch={false}
@@ -338,6 +382,8 @@ const FilterList = ({
   listCategory,
   goods,
   form,
+  wins,
+  designers
 }: any) => {
   let renderTxt = "";
   const newFilters = {...filters};
@@ -361,7 +407,11 @@ const FilterList = ({
         {[...newKeys, ...filtersKeys].map((filterKey) => {
           let value = filters[filterKey];
           if (!value && !filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return null;
+          if (value && Array.isArray(value) && value.length === 0) return null;
           if (!SearchVariantWrapperMapping[filterKey]) return null;
+
+          let newValues = Array.isArray(value) ? value : [value];
+
           switch (filterKey) {
             case SearchVariantWrapperField.create_date:
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} 
@@ -389,9 +439,22 @@ const FilterList = ({
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listStatus[index6].name}`;
               break;
             case SearchVariantWrapperField.merchandiser_code:
+              let merchandiserTag = "";
+              newValues.forEach((item: string) => {
+                const win = wins.items?.find((e: any) => e.code === item);
+
+                merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
+              });
+              renderTxt = `${SearchVariantMapping[filterKey]} : ${merchandiserTag}`;
+              break;
             case SearchVariantWrapperField.designer_code:
-              if (!value) return null;
-              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${JSON.parse(value).name}`;
+              let designerTag = "";
+              newValues.forEach((item: string) => {
+                const designer = designers.items?.find((e: any) => e.code === item);
+
+                designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
+              });
+              renderTxt = `${SearchVariantMapping[filterKey]} : ${designerTag}`;
               break;
           }
           return (

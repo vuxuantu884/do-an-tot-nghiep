@@ -1,16 +1,16 @@
 const SearchVariantField = {
-  made_in: 'made_in',
-  designer: 'designer',
-  merchandiser: 'merchandiser',
+  made_ins: 'made_ins',
+  designers: 'designers',
+  merchandisers: 'merchandisers',
   created_date: 'created_date',
   from_created_date: 'from_created_date',
   to_created_date: 'to_created_date',
-  size: 'size',
-  color: 'color',
-  main_color: 'main_color',
-  supplier: 'supplier',
+  sizes: 'sizes',
+  colors: 'colors',
+  main_colors: 'main_colors',
+  suppliers: 'suppliers',
   saleable: 'saleable',
-  brand: 'brand'
+  brands: 'brands'
 };
 
 const keysDateFilter = ['created_date'];
@@ -19,14 +19,14 @@ const keysDateWrapperFilter = ['create_date'];
 const SearchVariantMapping = {
   [SearchVariantField.created_date]: "Ngày tạo",
   [SearchVariantField.saleable]: "Cho phép bán",
-  [SearchVariantField.made_in]: "Xuất xứ",
-  [SearchVariantField.designer]: "Nhà thiết kế",
-  [SearchVariantField.merchandiser]: "Merchandiser",
-  [SearchVariantField.size]: "Kích thước",
-  [SearchVariantField.color]: "Màu sắc",
-  [SearchVariantField.main_color]: "Màu chủ đạo",
-  [SearchVariantField.supplier]: "Nhà cung cấp",
-  [SearchVariantField.brand]: "Thương hiệu",
+  [SearchVariantField.made_ins]: "Xuất xứ",
+  [SearchVariantField.designers]: "Nhà thiết kế",
+  [SearchVariantField.merchandisers]: "Merchandiser",
+  [SearchVariantField.sizes]: "Kích thước",
+  [SearchVariantField.colors]: "Màu sắc",
+  [SearchVariantField.main_colors]: "Màu chủ đạo",
+  [SearchVariantField.suppliers]: "Nhà cung cấp",
+  [SearchVariantField.brands]: "Thương hiệu",
 };
 
 const SearchVariantWrapperField = {

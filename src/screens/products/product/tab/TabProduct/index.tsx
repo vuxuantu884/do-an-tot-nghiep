@@ -54,11 +54,11 @@ const initQuery: VariantSearchQuery = {
   info: "",
   barcode: "",
   status: "",
-  brand: "",
-  made_in: "",
-  size: "",
-  main_color: "",
-  color: ""
+  brands: "",
+  made_ins: "",
+  sizes: "",
+  main_colors: "",
+  colors: ""
 };
 
 let variantResponse: VariantResponse | null = null;
@@ -96,7 +96,7 @@ const TabProduct: React.FC = () => {
   const [rowKey, setRowKey] = useState<Array<any>>([]);
 
   const actionsDefault: Array<MenuAction> = useMemo(()=>{
-    const disabled = selected && selected.length > 0 ? false: true;
+    const disabled = !(selected && selected.length > 0);
 
     return [
       {
