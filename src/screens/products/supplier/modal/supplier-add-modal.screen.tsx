@@ -15,6 +15,7 @@ import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import SelectSearchPaging from "component/custom/select-search/select-search-paging";
+import {validatePhoneSupplier} from "../../../../utils/supplier";
 
 type SupplierAddModalProps = {
   visible: boolean;
@@ -100,32 +101,16 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   };
 
   const validatePhone = (rule: any, value: any, callback: any): void => {
-    if (value) {
-      if (!RegUtil.PHONE.test(value)) {
-        callback(`Số điện thoại không đúng định dạng`);
-      } else {
-        listSupplier.forEach((supplier: SupplierResponse) => {
-          if (supplier?.phone === value) {
-            callback(`Số điện thoại đã tồn tại`);
-          }
-          return
-        })
-        callback();
-      }
-    } else {
-      callback();
-    }
+    validatePhoneSupplier({
+      value,
+      callback,
+      phoneList: listSupplier
+    })
   };
 
   const onSearchAccount = (values: any) => {
     fetchAccount(values)
   }
-
-  const renderAccountItem = (item: AccountResponse) => (
-    <Option key={item.code} value={item.code}>
-      {item.full_name}
-    </Option>
-  )
 
   const fetchAccount = (values: any) => {
     setIsLoadingAccount(true)
@@ -280,10 +265,11 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
             >
               <SelectSearchPaging
                 data={accounts}
-                renderItem={renderAccountItem}
                 metadata={metadata}
                 placeholder="Chọn nhân viên phụ trách"
                 className="selector"
+                optionKeyValue="code"
+                optionKeyName="full_name"
                 onSearch={onSearchAccount}
                 isLoading={isLoadingAccount}
                 onSelect={(value) => formSupplierAdd.setFieldsValue({ pic_code: value.value })}

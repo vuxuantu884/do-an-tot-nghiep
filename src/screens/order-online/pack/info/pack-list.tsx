@@ -1,12 +1,31 @@
 import { Card, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import emptyProduct from "assets/icon/empty_products.svg";
-//import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
+import { useContext, useMemo } from "react";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { OrderResponse } from "model/response/order/order.response";
 
-function PackList(props: any) {
-  const { data } = props;
+interface OrderPackSuccessTable extends OrderResponse {
+  key?: number;
+  stt: number;
+}
+
+function PackList() {
+  //const loading = useSelector((state: RootReducerType) => state.loadingReducer);
+  const orderPackContextData = useContext(OrderPackContext);
+  // const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
+  const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
+  const data: OrderPackSuccessTable[] = useMemo(() => {
+    let packSuccessTable: OrderPackSuccessTable[] = [];
+    orderPackContextData?.packModel?.order?.forEach((i: OrderResponse, index) => {
+      packSuccessTable.push({ ...i, stt: index + 1 });
+    })
+    console.log("packSuccessTable", packSuccessTable);
+
+    return packSuccessTable;
+  }, [orderPackContextData?.packModel]);
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {
@@ -14,14 +33,14 @@ function PackList(props: any) {
       dataIndex: "",
       align: "center",
       visible: true,
-      width: "10%",
+      width: window.screen.width <= 1600 ? "7%" : "5%",
       render: (value: any, row: any, index: number) => {
         return <span>{index + 1}</span>;
       },
     },
     {
       title: "Đơn hàng",
-      dataIndex: "code",
+      dataIndex: "order_code",
       visible: true,
       render: (value: any, row: any, index: any) => {
         return (
@@ -29,7 +48,7 @@ function PackList(props: any) {
             target="_blank"
             to={`${UrlConfig.ORDER}/${row.order_id}`}
           >
-            {row.code}
+            {row.order_code}
           </Link>
         );
       },
@@ -38,7 +57,7 @@ function PackList(props: any) {
       title: "Hãng vận chuyển",
       visible: true,
       render: (value, row, index) => {
-        return <div>{row.shipment}</div>;
+        return <div>{row.shipment.delivery_service_provider_name ? row.shipment.delivery_service_provider_name : "Tự giao hàng"}</div>;
       },
     },
     {
@@ -58,13 +77,23 @@ function PackList(props: any) {
   ];
 
   const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+    onSelect: (item: any, selected: boolean, selectedRow: any[]) => {
+      let code: string[] = [];
+      selectedRow.forEach((p) => {
+        if (p) code.push(p.order_code);
+      })
+      console.log("code", code);
+      setIsFulFillmentPack([...code]);
     },
-    getCheckboxProps: (record: any) => ({
-      disabled: record.name === 'Disabled User', // Column configuration not to be checked
-      name: record.name,
-    }),
+    onSelectAll: (selected: any, selectedRow: any[], changeRow: any[]) => {
+
+      let code: string[] = [];
+      selectedRow.forEach((p) => {
+        if (p) code.push(p.order_code);
+      })
+      console.log("code", code);
+      setIsFulFillmentPack([...code]);
+    }
   };
 
   return (
@@ -74,25 +103,25 @@ function PackList(props: any) {
       className="pack-success-card"
     >
       <div className="yody-pack-row">
-      <Table 
-        columns={columnsOrderPack}
-        dataSource={data.items} 
-        locale={{
-          emptyText: (
-            <div className="sale_order_empty_product">
-              <img src={emptyProduct} alt="empty product"></img>
-              <p>Không có dữ liệu!</p>
-            </div>
-          ),
-        }}
-        className="ecommerce-order-list"
-        //rowKey={(item: any) => item.code}
-        key={Math.random()}
-        rowSelection={{
-          type: "checkbox",
-          ...rowSelection,
-        }}
-      />
+        <Table
+          //loading={loading.isVisible}
+          columns={columnsOrderPack}
+          dataSource={data}
+          locale={{
+            emptyText: (
+              <div className="sale_order_empty_product">
+                <img src={emptyProduct} alt="empty product"></img>
+                <p>Không có dữ liệu!</p>
+              </div>
+            ),
+          }}
+          className="ecommerce-order-list"
+          rowKey={(item: any) => item.code}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+          }}
+        />
       </div>
     </Card>
   );

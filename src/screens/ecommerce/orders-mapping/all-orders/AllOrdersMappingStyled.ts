@@ -12,16 +12,13 @@ export const AllOrdersMappingFilterStyled = styled.div`
     .search-input {
       min-width: 250px;
       flex-grow: 1;
-    }
-
-    div:not(:last-child) {
       margin-right: 15px;
     }
   }
 
   .action-dropdown {
     width: 110px;
-    margin-right: 10px;
+    margin-right: 15px;
     .action-button {
       padding: 6px 15px;
       border-radius: 5px;
@@ -45,7 +42,8 @@ export const AllOrdersMappingFilterStyled = styled.div`
   }
 
   .select-shop-dropdown {
-    min-width: 250px;
+    min-width: 350px;
+    margin-right: 15px;
   }
 `;
 
@@ -76,28 +74,4 @@ export const StyledBaseFilter = styled.div`
     }
 
   }
-`;
-
-export const StyledRenderShopList = styled.div`
-  .shop-list {
-    max-height: 160px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    padding: 0 10px;
-    .shop-name {
-      padding: 5px 10px;
-      white-space: nowrap;
-      &:hover {
-        background-color: #f4f4f7;
-      }
-      .check-box-name {
-        display: flex;
-        .name {
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
-    }
-  }
-
 `;

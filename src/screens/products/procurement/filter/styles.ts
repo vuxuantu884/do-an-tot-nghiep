@@ -29,7 +29,6 @@ export const FilterProcurementStyle = styled.div`
 
 export const ProcurementStatusStyle = styled.div`
   display: flex;
-  justify-content: center;
   column-gap: 20px;
   .active,
   .ant-btn:hover {

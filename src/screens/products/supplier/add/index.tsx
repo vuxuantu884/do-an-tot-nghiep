@@ -55,7 +55,7 @@ const CreateSupplierScreen: React.FC = () => {
       title="Quản lý nhà cung cấp"
       breadcrumb={[
         {
-          name: "Sản phẩmm",
+          name: "Sản phẩm",
         },
         {
           name: "Nhà cung cấp",

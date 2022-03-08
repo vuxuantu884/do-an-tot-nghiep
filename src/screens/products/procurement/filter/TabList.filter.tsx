@@ -65,8 +65,8 @@ const ProcurementFilterItem = {
   stockDate: "active",
   confirmDate: "stock_in",
   expectDate: "expect_receipt",
-  status: "status",
   stores: "stores",
+  status: "status",
 };
 
 const ProcurementFilterName = {
@@ -171,7 +171,7 @@ function TabListFilter(props: ProcurementFilterProps) {
     };
   }
 
-  const handleClickStatus = useCallback((value: string) => {
+  const handleClickStatus = useCallback((value: string, mountOnce?: boolean) => {
     let statusList = formAdvanced.getFieldValue('status') || [];
 
     if (!isArray(statusList)) {
@@ -180,7 +180,7 @@ function TabListFilter(props: ProcurementFilterProps) {
 
     if (statusList && !statusList.includes(value)) {
       statusList.push(value);
-    } else if (statusList && statusList.includes(value)) {
+    } else if (statusList && statusList.includes(value) && !mountOnce) {
       const index = statusList.indexOf(value);
       if (index > -1) {
         statusList.splice(index, 1);
@@ -202,7 +202,7 @@ function TabListFilter(props: ProcurementFilterProps) {
 
     setAdvanceFilters(filters);
     formAdvanced.setFieldsValue(filters);
-    handleClickStatus(paramsUrl.status);
+    handleClickStatus(paramsUrl.status, true);
   }, [formAdvanced, handleClickStatus, paramsUrl]);
 
   const parseDataToString = (data: ProcurementFilter) => {
@@ -366,7 +366,7 @@ function TabListFilter(props: ProcurementFilterProps) {
                   break;
               }
               return (
-                <Col span={12} key={field}>
+                <Col span={field === ProcurementFilterItem.status ? 24 : 12} key={field}>
                   <div className="font-weight-500">{ProcurementFilterName[field]}</div>
                   <Item name={field}>{component}</Item>
                 </Col>

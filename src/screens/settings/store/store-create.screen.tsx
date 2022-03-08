@@ -255,11 +255,11 @@ const StoreCreateScreen: React.FC = () => {
                         pattern: RegUtil.STRINGUTF8,
                         message: "Tên cửa hàng không gồm kí tự đặc biệt",
                       },
-                      {
-                        validator: (rule, value, callback) => {
-                          checkDuplicateStoreName(rule, value, callback);
-                        },
-                      },
+                      // {
+                      //   validator: (rule, value, callback) => {
+                      //     checkDuplicateStoreName(rule, value, callback);
+                      //   },
+                      // },
                     ]}
                     label="Tên cửa hàng"
                     name="name"

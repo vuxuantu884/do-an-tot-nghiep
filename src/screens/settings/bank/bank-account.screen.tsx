@@ -1,4 +1,4 @@
-import { Button, Card, Tag } from "antd";
+import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import BankAccountFilter from "component/filter/bank-account.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";

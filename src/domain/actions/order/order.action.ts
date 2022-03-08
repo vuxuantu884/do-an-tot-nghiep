@@ -14,15 +14,15 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
-  VTPFeeRequest
+  VTPFeeRequest,
 } from "model/request/order.request";
 import {
   createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel
+  deleteDeliveryMappedStoreReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   ActionLogDetailResponse,
-  OrderActionLogResponse
+  OrderActionLogResponse,
 } from "model/response/order/action-log.response";
 import {
   ChannelsResponse,
@@ -36,7 +36,7 @@ import {
   ShippingGHTKResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse
+  VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse } from "model/response/order/source.response";
@@ -89,10 +89,7 @@ export const InfoGHTKAction = (
   return BaseAction(OrderType.GET_INFO_DELIVERY_GHTK, { request, setData });
 };
 
-export const InfoGHNAction = (
-  request: GHNFeeRequest,
-  setData: (data: GHNFeeResponse) => void
-) => {
+export const InfoGHNAction = (request: GHNFeeRequest, setData: (data: GHNFeeResponse) => void) => {
   return BaseAction(OrderType.GET_INFO_GHN_FEE, { request, setData });
 };
 
@@ -103,30 +100,19 @@ export const InfoVTPAction = (
   return BaseAction(OrderType.GET_INFO_VTP_FEE, { request, setData });
 };
 
-export const getFeesAction = (
-  request: GetFeesRequest,
-  setData: (data: Array<any>) => void
-) => {
+export const getFeesAction = (request: GetFeesRequest, setData: (data: Array<any>) => void) => {
   return BaseAction(OrderType.GET_INFO_FEES, { request, setData });
 };
 
-export const PaymentMethodGetList = (
-  setData: (data: Array<PaymentMethodResponse>) => void
-) => {
+export const PaymentMethodGetList = (setData: (data: Array<PaymentMethodResponse>) => void) => {
   return BaseAction(OrderType.GET_LIST_PAYMENT_METHOD, { setData });
 };
 
-export const OrderDetailAction = (
-  id: string,
-  setData: (data: OrderResponse) => void
-) => {
+export const OrderDetailAction = (id: string, setData: (data: OrderResponse) => void) => {
   return BaseAction(OrderType.GET_ORDER_DETAIL_REQUEST, { id, setData });
 };
 
-export const getFulfillmentDetail = (
-  fulfillment_code: string,
-  setData: (data: any) => void
-) => {
+export const getFulfillmentDetail = (fulfillment_code: string, setData: (data: any) => void) => {
   return BaseAction(OrderType.GET_FULFILLMENT_DETAIL, {
     fulfillment_code,
     setData,
@@ -266,10 +252,7 @@ export const getDeliveryTransportTypesAction = (
   };
 };
 
-export const updateDeliveryConfigurationAction = (
-  params: any,
-  handleData: (data: any) => void
-) => {
+export const updateDeliveryConfigurationAction = (params: any, handleData: (data: any) => void) => {
   return {
     type: OrderType.UPDATE_3RD_PL_CONNECT,
     payload: {
@@ -291,7 +274,7 @@ export const setSubStatusAction = (
   statusCode: string,
   handleData: () => void,
   handleError?: () => void,
-  action: string = "Chuyển trạng thái phụ",
+  action: string = "Chuyển trạng thái phụ"
 ) => {
   return {
     type: OrderType.SET_SUB_STATUS,
@@ -300,15 +283,12 @@ export const setSubStatusAction = (
       statusCode,
       action,
       handleData,
-      handleError
+      handleError,
     },
   };
 };
 
-export const getDetailOrder = (
-  orderId: any,
-  setData: (data: OrderResponse) => void
-) => {
+export const getDetailOrder = (orderId: any, setData: (data: OrderResponse) => void) => {
   return BaseAction(OrderType.GET_DETAIL_ORDER_REQUEST, { orderId, setData });
 };
 
@@ -391,16 +371,12 @@ export const actionGetActionLogDetail = (
     },
   };
 };
-export const getListChannelRequest = (
-  setData: (data: Array<ChannelResponse>) => void
-) => {
+export const getListChannelRequest = (setData: (data: Array<ChannelResponse>) => void) => {
   return BaseAction(OrderType.GET_LIST_CHANNEL_REQUEST, { setData });
 };
 
 export const getListReasonRequest = (
-  setData: (
-    data: Array<{ id: number; name: string; sub_reasons: any[] }>
-  ) => void
+  setData: (data: Array<{ id: number; name: string; sub_reasons: any[] }>) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
 };
@@ -423,23 +399,25 @@ export const cancelOrderRequest = (
   });
 };
 
-export const orderConfigSaga = (
-  setData: (data: OrderConfigResponseModel) => void
-) => {
+export const orderConfigSaga = (setData: (data: OrderConfigResponseModel) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
 
 export const getFulfillments = (
   code: string,
+  store_id: number,
+  delivery_service_provider_id: number,
   setData: (data: Array<any>) => void
 ) => {
-  return BaseAction(OrderType.GET_FULFILLMENTS, { code, setData });
+  return BaseAction(OrderType.GET_FULFILLMENTS, {
+    code,
+    store_id,
+    delivery_service_provider_id,
+    setData,
+  });
 };
 
-export const getFulfillmentsPack = (
-  request: any,
-  setData: (data: any) => void
-) => {
+export const getFulfillmentsPack = (request: any, setData: (data: any) => void) => {
   return BaseAction(OrderType.GET_FULFILLMENTS_PACK, { request, setData });
 };
 
@@ -481,19 +459,14 @@ export const createShippingOrderAction = (
   };
 };
 
-export const loadOrderPackAction = (
-  setData: (data: PageResponse<any>) => void
-) => {
+export const loadOrderPackAction = (setData: (data: PageResponse<any>) => void) => {
   return BaseAction(OrderType.GET_LOCALSTOGARE_PACK, { setData });
 };
 
 /**
  * tách đơn
  */
-export const splitOrderAction = (
-  params: SplitOrderRequest,
-  handleData: (data: any) => void
-) => {
+export const splitOrderAction = (params: SplitOrderRequest, handleData: (data: any) => void) => {
   return {
     type: OrderType.SPLIT_ORDER,
     payload: {
@@ -503,24 +476,15 @@ export const splitOrderAction = (
   };
 };
 
-export const getSourcesEcommerce = (
-  setData: (data: Array<SourceEcommerceResponse>) => void
-) => {
+export const getSourcesEcommerce = (setData: (data: Array<SourceEcommerceResponse>) => void) => {
   return BaseAction(OrderType.SOURCES_ECOMMERCE, { setData });
 };
 
-export const getChannels = (
-  typeId: number,
-  setData: (data: ChannelsResponse[]) => void
-) => {
+export const getChannels = (typeId: number, setData: (data: ChannelsResponse[]) => void) => {
   return BaseAction(OrderType.GET_CHANNELS, { typeId, setData });
 };
 
-export const updateOrderPartial = (
-  params: any,
-  orderID: number,
-  onSuccess: () => void
-) => {
+export const updateOrderPartial = (params: any, orderID: number, onSuccess: () => void) => {
   return BaseAction(OrderType.UPDATE_ORDER_PARTIAL_REQUEST, {
     params,
     orderID,
@@ -528,26 +492,22 @@ export const updateOrderPartial = (
   });
 };
 
-export const changeOrderStoreAction = (
-  storeId: number
-) => {
+export const changeOrderStoreAction = (storeId: number) => {
   return {
     type: OrderType.ORDER_CHANGE_STORE,
     payload: {
       storeId,
     },
-  }
+  };
 };
 
-export const changeStoreDetailAction = (
-  storeDetail: StoreCustomResponse
-) => {
+export const changeStoreDetailAction = (storeDetail: StoreCustomResponse) => {
   return {
     type: OrderType.CHANGE_STORE_DETAIL,
     payload: {
       storeDetail,
     },
-  }
+  };
 };
 
 export const getStoreBankAccountNumbersAction = (
@@ -557,30 +517,28 @@ export const getStoreBankAccountNumbersAction = (
     type: OrderType.GET_BANK_ACCOUNT_NUMBERS,
     payload: {
       storeBankAccountNumbers,
-    }
-  }
+    },
+  };
 };
 
 export const changeSelectedStoreBankAccountAction = (
-  selectedStoreBankAccount: string|undefined
+  selectedStoreBankAccount: string | undefined
 ) => {
   return {
     type: OrderType.CHANGE_SELECTED_STORE_BANK_ACCOUNT,
     payload: {
       selectedStoreBankAccount,
-    }
-  }
+    },
+  };
 };
 
-export const setIsExportBillAction = (
-  isExportBill: boolean
-) => {
+export const setIsExportBillAction = (isExportBill: boolean) => {
   return {
     type: OrderType.SET_IS_EXPORT_BILL,
     payload: {
       isExportBill,
-    }
-  }
+    },
+  };
 };
 
 export const setIsShouldSetDefaultStoreBankAccountAction = (
@@ -590,6 +548,6 @@ export const setIsShouldSetDefaultStoreBankAccountAction = (
     type: OrderType.SET_IS_SHOULD_SET_DEFAULT_BANK_ACCOUNT,
     payload: {
       isShouldSetDefaultStoreBankAccount,
-    }
-  }
+    },
+  };
 };
