@@ -444,7 +444,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     form.resetFields();
     setItems([]);
     setPayments([]);
-    setPaymentMethod(0);
+    setPaymentMethod(PaymentMethodOption.COD);
     setOrderAmount(0);
     setCheckSplitLine(false);
     setThirdPL(thirdPL.delivery_transport_type = "")
