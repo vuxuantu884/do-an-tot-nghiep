@@ -593,14 +593,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
-        if (shipmentMethod !== ShipmentMethodOption.DELIVER_PARTNER) {
-          showError("Vui lòng nhập địa chỉ giao hàng!");
-          const element: any = document.getElementById(
-            "customer_update_shipping_addresses_full_address"
-          );
-          scrollAndFocusToDomElement(element);
-          return;
-        }
         let valuesCalculateReturnAmount = {
           ...values,
           payments: reCalculatePaymentReturn(payments).filter(
