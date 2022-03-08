@@ -42,6 +42,8 @@ import "screens/ecommerce/orders/ecommerce-order.scss"
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
   actions: Array<any>;
+  shopeeActions: Array<any>;
+  lazadaActions: Array<any>;
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
@@ -78,6 +80,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const {
     params,
     actions,
+    shopeeActions,
+    lazadaActions,
     listSource,
     listStore,
     accounts,
@@ -89,7 +93,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     onFilter,
     onShowColumnSetting
   } = props;
-  
+
+  const [actionList, setActionList] = useState<Array<any>>(actions);
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
 
@@ -143,7 +148,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string }[]>([]);
 
   const dispatch = useDispatch();
-  const [ecommerceKeySelected, setEcommerceKeySelected] = useState(null);
+  const [ecommerceKeySelected, setEcommerceKeySelected] = useState<string>("");
   const [isEcommerceSelected, setIsEcommerceSelected] = useState<boolean>(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
 
@@ -314,7 +319,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   };
 
   const handleRemoveEcommerce = useCallback(() => {
-    setEcommerceKeySelected(null);
+    setEcommerceKeySelected("");
     setIsEcommerceSelected(false);
     formSearchRef?.current?.setFieldsValue({
       channel_codes: [],
@@ -324,10 +329,36 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   }, [formSearchRef, onFilter, params]);
   // end handle Select Ecommerce
 
+  // handle action dropdown
+  useEffect(() => {
+    // update action list
+    switch (ecommerceKeySelected.toString()) {
+      case "shopee":
+        const newShopeeActionList = [...actions].concat(shopeeActions);
+        setActionList(newShopeeActionList);
+        break;
+      case "lazada":
+        const newLazadaActionList = [...actions].concat(lazadaActions);
+        setActionList(newLazadaActionList);
+        break;
+      case "sendo":
+        const newSendoActionList = [...actions];
+        setActionList(newSendoActionList);
+        break;
+      case "tiki":
+        const newTikiActionList = [...actions];
+        setActionList(newTikiActionList);
+        break;
+      default:
+        setActionList([...actions]);
+        break;
+    }
+  }, [actions, ecommerceKeySelected, lazadaActions, shopeeActions]);
+
   const actionDropdown = () => {
     return (
       <Menu>
-        {actions?.map((item: any) => (
+        {actionList?.map((item: any) => (
           <Menu.Item
             disabled={item.disabled}
             key={item.id}
