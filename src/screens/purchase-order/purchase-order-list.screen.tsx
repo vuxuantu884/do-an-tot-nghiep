@@ -609,6 +609,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           <Row>
             <Space>
               <Button
+                hidden
                 className="light"
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
