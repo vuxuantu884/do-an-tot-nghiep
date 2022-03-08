@@ -427,10 +427,11 @@ const CreateSupplierScreen: React.FC = () => {
                   >
                     <SelectSearchPaging
                       data={data.items}
-                      renderItem={renderGroupProductItem}
                       onSearch={onSearchGroupProducts}
                       isLoading={isSearchingGroupProducts}
                       metadata={data.metadata}
+                      optionKeyValue="id"
+                      optionKeyName="name"
                       placeholder="Chọn nhóm hàng"
                     />
                   </Item>

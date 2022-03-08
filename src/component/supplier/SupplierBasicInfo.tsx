@@ -10,7 +10,6 @@ import {
 import AccountSearchPaging from "../custom/select-search/account-select-paging";
 import SelectSearchPaging from "../custom/select-search/select-search-paging";
 import { RadioChangeEvent } from "antd/lib/radio/interface";
-import { RegUtil } from "../../utils/RegUtils";
 import { SupplierResponse } from "../../model/core/supplier.model";
 import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "../../model/reducers/RootReducerType";
@@ -19,6 +18,7 @@ import { PageResponse } from "../../model/base/base-metadata.response";
 import { getCollectionRequestAction } from "../../domain/actions/product/collection.action";
 import { useParams } from "react-router-dom";
 import { SupplierSearchAction } from "../../domain/actions/core/supplier.action";
+import { validatePhoneSupplier } from "../../utils/supplier";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -36,7 +36,7 @@ const SupplierBasicInfo = ({
   const [supplierType, setSupplierType] = useState(initialSupplierForm.type);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
-  const [isActiveStatus, setIsActiveStatus] = useState(initialSupplierForm.status === 'active');
+  const [isActiveStatus, setIsActiveStatus] = useState(initialSupplierForm.status === "active");
 
   const [data, setData] = useState<PageResponse<CollectionResponse>>({
     metadata: {
@@ -71,7 +71,9 @@ const SupplierBasicInfo = ({
 
   const statusValue = useMemo(() => {
     if (!supplier_status) return;
-    let findStatus = supplier_status.find((item) => item.value === (isActiveStatus ? "active" : "inactive"));
+    let findStatus = supplier_status.find(
+      (item) => item.value === (isActiveStatus ? "active" : "inactive")
+    );
     return findStatus?.name;
   }, [isActiveStatus, supplier_status]);
 
@@ -100,21 +102,12 @@ const SupplierBasicInfo = ({
     });
   };
 
-  const validatePhone = (rule: any, value: any, callback: any): void => {
-    if (value) {
-      if (!RegUtil.PHONE.test(value)) {
-        callback(`Số điện thoại không đúng định dạng`);
-      } else {
-        listSupplier.forEach((supplier: SupplierResponse) => {
-          if (supplier?.phone === value) {
-            callback(`Số điện thoại đã tồn tại`);
-          }
-        });
-        callback();
-      }
-    } else {
-      callback();
-    }
+  const validatePhone = (_: any, value: any, callback: any): void => {
+    validatePhoneSupplier({
+      value,
+      callback,
+      phoneList: listSupplier,
+    });
   };
 
   const renderSelectOptions = ({ placeholder, ...rest }: Partial<IFormControl>) => {
@@ -126,14 +119,6 @@ const SupplierBasicInfo = ({
           </Option>
         ))}
       </Select>
-    );
-  };
-
-  const renderGroupProductItem = (item: CollectionResponse) => {
-    return (
-      <Option key={item.id} value={item.id}>
-        {item.name}
-      </Option>
     );
   };
 
@@ -188,11 +173,12 @@ const SupplierBasicInfo = ({
               {/*Chọn nhóm hàng*/}
               <SelectSearchPaging
                 data={data.items}
-                renderItem={renderGroupProductItem}
                 onSearch={onSearchGroupProducts}
                 isLoading={isSearchingGroupProducts}
                 metadata={data.metadata}
                 placeholder={placeholder}
+                optionKeyValue="id"
+                optionKeyName="name"
                 onSelect={(item) => form.setFieldsValue({ [name]: item.value })}
               />
             </Item>
