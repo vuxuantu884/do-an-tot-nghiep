@@ -1476,26 +1476,26 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const dataCanAccess = useMemo(() => {
-		let newData: Array<StoreResponse> = [];
-		if (listStores && listStores.length) {
-			newData = listStores.filter((store) =>
-				haveAccess(
-					store.id,
-					userReducer.account ? userReducer.account.account_stores : []
-				)
-			);
-			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
-			if (storeId && userReducer.account) {
-				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
-					let initStore = listStores.find((single) => single.id === storeId)
-					if (initStore) {
-						newData.push(initStore);
-					}
-				}
-			}
-		}
-		return newData;
-	}, [listStores, storeId, userReducer.account]);
+		// let newData: Array<StoreResponse> = [];
+		// if (listStores && listStores.length) {
+		// 	newData = listStores.filter((store) =>
+		// 		haveAccess(
+		// 			store.id,
+		// 			userReducer.account ? userReducer.account.account_stores : []
+		// 		)
+		// 	);
+		// 	// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+		// 	if (storeId && userReducer.account) {
+		// 		if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
+		// 			let initStore = listStores.find((single) => single.id === storeId)
+		// 			if (initStore) {
+		// 				newData.push(initStore);
+		// 			}
+		// 		}
+		// 	}
+		// }
+		return listStores;
+	}, [listStores]);
   
 	const [firstLoad, setFirstLoad] = useState<boolean>(false);
 	useEffect(() => {

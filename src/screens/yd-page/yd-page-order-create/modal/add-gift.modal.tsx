@@ -295,7 +295,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       visible={visible}
       cancelText="Hủy"
       okText="Lưu"
-      className="saleorder-product-modal"
+      className="saleorder-products-modal"
     >
       <AutoComplete
         notFoundContent={
