@@ -7,7 +7,8 @@ import {
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { sortFulfillments } from "utils/AppUtils";
+import { getGoodsReceiptsSerchService } from "service/order/order-pack.service";
+import { isFetchApiSuccessful, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 
@@ -31,6 +32,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     coordinator_confirmed: "coordinator_confirmed",
     merchandise_picking: "merchandise_picking",
     require_warehouse_change: "require_warehouse_change",
+    merchandise_packed: "merchandise_packed",
     awaiting_shipper: "awaiting_shipper",
     shipping: "shipping",
     shipped: "shipped",
@@ -170,8 +172,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         // đã đóng gói
         {
           orderStatus: OrderStatus.FINALIZED,
-          now: "merchandise_packed",
-          list: ["merchandise_packed", ORDER_SUB_STATUS.awaiting_shipper],
+          now: ORDER_SUB_STATUS.merchandise_packed,
+          list: [ORDER_SUB_STATUS.merchandise_packed, ORDER_SUB_STATUS.awaiting_shipper],
         },
         // chờ thu gom
         {
@@ -276,8 +278,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         },
         {
           orderStatus: OrderStatus.FINALIZED,
-          now: "merchandise_packed",
-          list: ["merchandise_packed"],
+          now: ORDER_SUB_STATUS.merchandise_packed,
+          list: [ORDER_SUB_STATUS.merchandise_packed],
         },
         {
           orderStatus: OrderStatus.FINALIZED,
@@ -315,8 +317,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           now: ORDER_SUB_STATUS.third_call_attempt,
           list: [ORDER_SUB_STATUS.third_call_attempt],
         },
-				 // chờ sale xác nhận lại
-				 {
+        // chờ sale xác nhận lại
+        {
           orderStatus: OrderStatus.FINALIZED,
           now: ORDER_SUB_STATUS.awaiting_saler_confirmation,
           list: [
@@ -324,8 +326,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
             ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
           ],
         },
-				 //đổi kho hàng
-				 {
+        //đổi kho hàng
+        {
           orderStatus: OrderStatus.FINALIZED,
           now: ORDER_SUB_STATUS.require_warehouse_change,
           list: [
@@ -353,7 +355,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         }
         return result;
       };
-      // console.log('OrderDetailAllFulfillment', OrderDetailAllFulfillment)
       if (!OrderDetailAllFulfillment?.fulfillments) {
         return;
       }
@@ -385,6 +386,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       ORDER_SUB_STATUS.coordinator_confirmed,
       ORDER_SUB_STATUS.first_call_attempt,
       ORDER_SUB_STATUS.fourHour_delivery,
+      ORDER_SUB_STATUS.merchandise_packed,
       ORDER_SUB_STATUS.merchandise_picking,
       ORDER_SUB_STATUS.require_warehouse_change,
       ORDER_SUB_STATUS.second_call_attempt,
@@ -411,7 +413,33 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   };
 
   const handleIfOrderStatusWithPartner = (sub_status_code: string) => {
-    // changeSubStatusCode(sub_status_code);
+    let isChange = true;
+    switch (sub_status_code) {
+      case ORDER_SUB_STATUS.merchandise_packed: {
+        if (!OrderDetailAllFulfillment?.code) {
+          return;
+        }
+        const query = {
+          order_codes: OrderDetailAllFulfillment?.code,
+        };
+        getGoodsReceiptsSerchService(query).then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            if (response.data?.items?.length > 0) {
+              isChange = true;
+            } else {
+              isChange = false;
+              showError("Đơn hàng chưa có trong biên bản bàn giao!");
+            }
+          }
+        });
+        break;
+      }
+      default:
+        break;
+    }
+    if (isChange) {
+      changeSubStatusCode(sub_status_code);
+    }
   };
 
   const handleIfOrderStatusPickAtStore = (sub_status_code: string) => {

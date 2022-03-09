@@ -348,3 +348,7 @@ export const LABEL_JOB_TYPE = [
 export const getJobType = (type: String) => {
   return LABEL_JOB_TYPE.find(item => item.label === type)
 }
+
+export const DELIVERY_SERVICE_PROVIDER_CODE = {
+  ghtk: "ghtk",
+}

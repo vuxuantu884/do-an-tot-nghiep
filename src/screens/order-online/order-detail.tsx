@@ -52,6 +52,7 @@ import {
 	SumCOD
 } from "utils/AppUtils";
 import {
+  DELIVERY_SERVICE_PROVIDER_CODE,
 	FulFillmentStatus,
 	OrderStatus,
 	PaymentMethodCode,
@@ -493,8 +494,12 @@ const OrderDetail = (props: PropType) => {
     if(!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
-    const trackingCode =  OrderDetail?.fulfillments[0].shipment?.tracking_code;
-    const pushingStatus =  OrderDetail?.fulfillments[0].shipment?.pushing_status;
+    const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+    if(sortedFulfillments[0].shipment?.delivery_service_provider_code !== DELIVERY_SERVICE_PROVIDER_CODE.ghtk) {
+      return;
+    }
+    const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
+    const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
     let getTrackingCode = setInterval(()=> {
       if (!trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed") {
         getOrderDetail(id).then(response => {
