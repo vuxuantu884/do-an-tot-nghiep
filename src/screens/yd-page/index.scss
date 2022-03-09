@@ -629,4 +629,9 @@
       }
     }
   }
+
+	body.ant-scrolling-effect {
+		width: 100% !important;
+    overflow: unset !important;
+	}
 }
