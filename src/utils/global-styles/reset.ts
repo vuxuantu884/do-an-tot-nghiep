@@ -4,6 +4,9 @@ const scrollBarThumb = "#c1c1c1";
 const scrollBarColor = "#f1f1f1";
 
 export const reset = css`
+  iframe {
+    display: none;
+  }
   * {
     margin: 0;
     padding: 0;

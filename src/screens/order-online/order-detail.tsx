@@ -21,7 +21,10 @@ import {
 	PaymentMethodGetList,
 	UpdatePaymentAction,
   changeSelectedStoreBankAccountAction,
-  getStoreBankAccountNumbersAction
+  getStoreBankAccountNumbersAction,
+  changeShippingServiceConfigAction,
+  changeOrderCustomerAction,
+  changeStoreDetailAction,
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
@@ -517,6 +520,7 @@ const OrderDetail = (props: PropType) => {
     dispatch(
       actionListConfigurationShippingServiceAndShippingFee((response) => {
         setShippingServiceConfig(response);
+        dispatch(changeShippingServiceConfigAction(response))
       })
     );
   }, [dispatch]);
@@ -527,7 +531,10 @@ const OrderDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomerDetail));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
+        setCustomerDetail(data);
+        dispatch(changeOrderCustomerAction(data));
+      }));
     }
   }, [dispatch, OrderDetail]);
 
@@ -545,7 +552,10 @@ const OrderDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail?.store_id != null) {
-      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
+      dispatch(StoreDetailAction(OrderDetail?.store_id, (data) => {
+        setStoreDetail(data);
+        dispatch(changeStoreDetailAction(data));
+      }));
       getStoreBankAccountNumbersService({
 				store_ids: [OrderDetail?.store_id]
 			}).then((response) => {
