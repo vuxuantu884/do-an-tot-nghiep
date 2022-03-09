@@ -27,6 +27,7 @@ import {DeleteOutlined} from "@ant-design/icons";
 import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
+import useEffectOnce from "react-use/lib/useEffectOnce";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -156,6 +157,14 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
+      title: "Nhóm hàng",
+      dataIndex: "collection",
+      visible: true,
+      render: (_, item) => (
+        <span>{item?.collection?.name}</span>
+      )
+    },
+    {
       title: "Phân cấp",
       dataIndex: "scorecard",
       align: "center",
@@ -262,13 +271,15 @@ const ListSupplierScreen: React.FC = () => {
     }
   }, [selected]);
 
-
+  useEffectOnce(() => {
+    dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
+  })
 
   useEffect(() => {
     setTableLoading(true);
-    dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
   }, [dispatch, params, searchSupplierCallback]);
+
   return (
     <>
       {allowReadSup ? (
@@ -305,6 +316,7 @@ const ListSupplierScreen: React.FC = () => {
               supplierStatus={supplierStatus}
               scorecard={scorecard}
               params={params}
+              setParams={setPrams}
               initValue={initQuery}
               listSupplierType={listSupplierType}
             />
