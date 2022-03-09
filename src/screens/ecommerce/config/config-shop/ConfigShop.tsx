@@ -288,7 +288,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         id: configDetail.id,
         name: configDetail.name,
         store_id: configDetail.store_id,
-        assign_account_code: configDetail.assign_account_code + "-" + configDetail.assign_account,
+        assign_account_code: configDetail.assign_account_code,
         order_sync: configDetail.order_sync,
         product_sync: configDetail.product_sync,
         inventory_sync: configDetail.inventory_sync,
