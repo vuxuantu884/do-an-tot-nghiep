@@ -10,8 +10,12 @@ const initialState = {
     isShouldSetDefaultStoreBankAccount: false,
   },
   orderDetail: {
+    orderCustomer: null,
+    orderLineItems: [],
+    thirdPL: null,
     isExportBill: false,
-  }
+  },
+  shippingServiceConfig: [],
 };
 
 const orderReducer = (state = initialState, action: YodyAction) => {
@@ -57,7 +61,39 @@ const orderReducer = (state = initialState, action: YodyAction) => {
           isExportBill: payload.isExportBill,
         }
       };
-    
+    case OrderType.CHANGE_ORDER_CUSTOMER:
+      return {
+        ...state,
+        orderDetail: {
+          ...state.orderDetail,
+          orderCustomer: payload.orderCustomer
+        }
+      };
+
+    case OrderType.CHANGE_SHIPPING_SERVICE_CONFIG:
+      return {
+        ...state,
+        shippingServiceConfig: payload.shippingServiceConfig
+      };
+
+    case OrderType.CHANGE_ORDER_LINE_ITEMS:
+      return {
+        ...state,
+        orderDetail: {
+          ...state.orderDetail,
+          orderLineItems: payload.orderLineItems
+        }
+      };
+
+    case OrderType.CHANGE_ORDER_THIRD_PL:
+      return {
+        ...state,
+        orderDetail: {
+          ...state.orderDetail,
+          thirdPL: payload.thirdPL
+        }
+      };
+
     default:
       return state;
   }

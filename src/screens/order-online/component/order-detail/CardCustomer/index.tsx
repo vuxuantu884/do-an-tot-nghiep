@@ -28,6 +28,7 @@ import {
 import {
   CustomerGroups, CustomerSearchSo, DeleteShippingAddress, getCustomerDetailAction
 } from "domain/actions/customer/customer.action";
+import { changeOrderCustomerAction } from "domain/actions/order/order.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
@@ -53,7 +54,7 @@ import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { departmentDetailApi } from "service/accounts/department.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful, sortSources } from "utils/AppUtils";
+import { handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful, sortSources, totalAmount } from "utils/AppUtils";
 import * as CONSTANTS from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CreateCustomer from "./CreateCustomer";
@@ -80,9 +81,10 @@ type CustomerCardProps = {
   shippingAddressesSecondPhone?:string;
   setShippingAddressesSecondPhone?:(value:string)=>void;
   initialForm?: OrderRequest;
-  form?: FormInstance<any>;
   initDefaultOrderSourceId?: number | null;
   isAutoDefaultOrderSource?: boolean;
+  form: FormInstance<any>;
+  setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 };
 
 //Add query for search Customer
@@ -121,13 +123,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     shippingAddressesSecondPhone,
     setShippingAddressesSecondPhone,
     initialForm,
-    form,
     initDefaultOrderSourceId,
     isAutoDefaultOrderSource = true,
+    setShippingFeeInformedToCustomer,
+    form,
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
   // const shippingWarRef: any = useRef(null);
+
+  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -351,11 +360,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, resultSearch]);
 
+  const orderAmount = totalAmount(orderLineItems);
+
   //Delete customer
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
+    dispatch(changeOrderCustomerAction(null));
     props.ShippingAddressChange(null);
     if(setVisibleCustomer)setVisibleCustomer(false);
+    handleCalculateShippingFeeApplyOrderSetting(null, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
     setKeySearchCustomer("");
     if(setShippingAddressesSecondPhone)
       setShippingAddressesSecondPhone("");
@@ -397,6 +410,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               if (data) {
                 OkConfirmCustomerEdit();
                 handleCustomer(data);
+                dispatch(changeOrderCustomerAction(data));
+                handleCalculateShippingFeeApplyOrderSetting(data?.city_id, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
               }
             }
           )
@@ -406,6 +421,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
         if( setShippingAddressesSecondPhone)setShippingAddressesSecondPhone("");
+       
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -582,6 +598,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     if (customers) {
       OkConfirmCustomerEdit();
       handleCustomer(customers);
+      dispatch(changeOrderCustomerAction(customers));
     }
   };
 
@@ -845,6 +862,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 ShowAddressModalAdd={ShowAddressModalAdd}
                 shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                 setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                form={form}
               />
             )}
 
@@ -880,6 +899,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         modalAction={modalActionShipping}
         onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
+        setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
       />
 
       <SaveAndConfirmOrder

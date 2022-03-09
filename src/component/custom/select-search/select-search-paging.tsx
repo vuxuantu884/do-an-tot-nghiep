@@ -44,7 +44,7 @@ function SelectSearchPaging<T>({
       id={name}
       mode={mode}
       loading={isLoading}
-      defaultValue={defaultValue && { key: defaultValue }}
+      defaultValue={defaultValue && { key: +defaultValue }}
       metadata={metadata}
       labelInValue
       filterOption={false}

@@ -17,7 +17,7 @@ import {
 	actionCreateOrderReturn,
 	actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import { changeSelectedStoreBankAccountAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
+import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -1134,9 +1134,9 @@ ShippingServiceConfigDetailResponseModel[]
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
 										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+                    form={form}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
-                    form={form}
                     initialForm={initialForm}
                     updateOrder
                     initDefaultOrderSourceId={OrderDetail?.source_id}
@@ -1293,7 +1293,10 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
     if (storeId != null) {
-      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+      dispatch(StoreDetailCustomAction(storeId, (data: StoreCustomResponse) => {
+        setStoreDetail(data);
+        dispatch(changeStoreDetailAction(data))
+      }));
       getStoreBankAccountNumbersService({
 				store_ids: [storeId]
 			}).then((response) => {
@@ -1342,7 +1345,10 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomer));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
+        setCustomer(data);
+        dispatch(changeOrderCustomerAction(data));
+      }));
       setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone||'');
     }
   }, [dispatch, OrderDetail]);
@@ -1412,6 +1418,7 @@ ShippingServiceConfigDetailResponseModel[]
 		dispatch(
 			actionListConfigurationShippingServiceAndShippingFee((response) => {
 				setShippingServiceConfig(response);
+        dispatch(changeShippingServiceConfigAction(response))
 			})
 		);
 	}, [dispatch]);

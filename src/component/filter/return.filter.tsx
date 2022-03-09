@@ -55,7 +55,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
-  
+
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false
   }, [isLoading])
@@ -89,7 +89,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         case 'store':
           onFilter && onFilter({...params, store_ids: []});
           break;
-        
+
         case 'created':
           setCreatedClick('')
           onFilter && onFilter({...params, created_on_min: null, created_on_max: null});
@@ -107,7 +107,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         case 'payment_status':
           onFilter && onFilter({...params, payment_status: []});
           break;
-         
+
         default: break
       }
       // const tags = filters.filter((tag: any) => tag.key !== key);
@@ -126,7 +126,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
   }}, [params])
-  
+
   const [isReceived, setIsReceived] = useState<any[]>(initialValues.is_received);
   const [paymentStatus, setPaymentStatus] = useState<any[]>(initialValues.payment_status);
 
@@ -149,15 +149,15 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           newIsReceived.push('false')
         }
         break;
-      
-      default: break;  
+
+      default: break;
     }
     setIsReceived(newIsReceived)
   }, [isReceived]);
 
   const changePaymentStatus = useCallback((status) => {
     let newPaymentStatus = [...paymentStatus]
-    
+
     switch (status) {
       case 'unpaid':
         const index1 = newPaymentStatus.indexOf('unpaid');
@@ -183,7 +183,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           newPaymentStatus.push('paid')
         }
         break
-      default: break;  
+      default: break;
     }
     setPaymentStatus(newPaymentStatus)
 
@@ -209,7 +209,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         onFilter && onFilter(valuesForm);
         setRerender(false)
       }
-      
+
     },
     [formRef, isReceived, paymentStatus, onFilter]
   );
@@ -285,7 +285,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         value: textOrderReceivedDate
       })
     }
-    
+
     return list
   }, [initialValues.created_on_max, initialValues.created_on_min, initialValues.is_received, initialValues.payment_status, initialValues.reason_ids, initialValues.received_on_max, initialValues.received_on_min, initialValues.store_ids, listStore, reasons]);
   const widthScreen = () => {
@@ -301,7 +301,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     onClearFilter && onClearFilter();
     setCreatedClick('')
     setReceivedClick('')
-  
+
     setVisible(false);
     setRerender(false);
   };
@@ -330,7 +330,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                 }}
               />
             </Item>
-            
+
             <Item>
               <Button type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
@@ -411,7 +411,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   >
                     Đã nhận hàng
                   </Button>
-                  
+
                   <Button
                     onClick={() => changeIsReceived('false')}
                     className={isReceived.includes('false') ? 'active' : 'deactive'}
