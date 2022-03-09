@@ -1594,11 +1594,8 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     });
     form?.setFieldsValue({shipping_fee_informed_to_customer: result});
     setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(result);
-  } else {
-    form?.setFieldsValue({shipping_fee_informed_to_customer: 0});
-    setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
+    showSuccess("Cập nhật phí ship báo khách thành công!")
   }
-  showSuccess("Cập nhật phí ship báo khách thành công!")
 };
 
 export const getCustomerShippingAddress = (customer: CustomerResponse) => {
