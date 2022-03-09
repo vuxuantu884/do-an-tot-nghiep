@@ -1061,18 +1061,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const actionList = (
     <Menu>
       {allowProductsDelete &&
-        <Menu.Item key="1" disabled={isDisableAction()}>
-          <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
+        <Menu.Item key="1" onClick={handleDeleteItemsSelected} disabled={isDisableAction()}>
+          <span>Xóa sản phẩm lấy về</span>
         </Menu.Item>
       }
-      <Menu.Item key="3">
-        <span onClick={handleExportExcelProduct}>Xuất excel sản phẩm</span>
+      <Menu.Item key="3" onClick={handleExportExcelProduct}>
+        <span>Xuất excel sản phẩm</span>
       </Menu.Item>
-      <Menu.Item key="4">
-        <span onClick={handleSuggestItem}>Gợi ý ghép nối</span>
+      <Menu.Item key="4" onClick={handleSuggestItem}>
+        <span>Gợi ý ghép nối</span>
       </Menu.Item>
-      <Menu.Item key="5">
-        <span onClick={handleConcatenateByExcel}>Ghép nối bằng excel</span>
+      <Menu.Item key="5" onClick={handleConcatenateByExcel}>
+        <span>Ghép nối bằng excel</span>
       </Menu.Item>
     </Menu>
   )

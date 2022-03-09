@@ -99,8 +99,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1" disabled={isDisableAction()}>
-        <span onClick={() => handleDownloadSelectedOrders(1)}>Đồng bộ đơn hàng</span>
+      <Menu.Item key="1" onClick={() => handleDownloadSelectedOrders(1)} disabled={isDisableAction()}>
+        <span>Đồng bộ đơn hàng</span>
       </Menu.Item>
     </Menu>
   );
