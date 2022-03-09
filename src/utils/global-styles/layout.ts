@@ -12,4 +12,7 @@ export const globalCssLayout = css`
       }
     }
   }
+  .zsiq_floatmain {
+    bottom: 80px !important;
+  }
 `;
