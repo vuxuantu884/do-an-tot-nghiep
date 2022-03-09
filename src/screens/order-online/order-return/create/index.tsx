@@ -17,7 +17,7 @@ import {
 	actionCreateOrderReturn,
 	actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import { changeSelectedStoreBankAccountAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
+import { changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -1133,6 +1133,7 @@ ShippingServiceConfigDetailResponseModel[]
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
 										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+                    form={form}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
                   />
@@ -1406,6 +1407,7 @@ ShippingServiceConfigDetailResponseModel[]
 		dispatch(
 			actionListConfigurationShippingServiceAndShippingFee((response) => {
 				setShippingServiceConfig(response);
+        dispatch(changeShippingServiceConfigAction(response))
 			})
 		);
 	}, [dispatch]);

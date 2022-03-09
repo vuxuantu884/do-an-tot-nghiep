@@ -3,12 +3,13 @@ import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel, OrderSearchQuery, StoreBankAccountNumberModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
-import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
+import { ShipmentModel, ShipmentSearchQuery, thirdPLModel } from "model/order/shipment.model";
 import {
   ConfirmDraftOrderRequest,
   CreateShippingOrderRequest,
   GetFeesRequest,
   GHNFeeRequest,
+  OrderLineItemRequest,
   OrderRequest,
   ShippingGHTKRequest,
   SplitOrderRequest,
@@ -21,6 +22,7 @@ import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   ActionLogDetailResponse,
   OrderActionLogResponse,
@@ -42,7 +44,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
-import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import { OrderType } from "../../types/order.type";
 
 export const orderCreateAction = (
@@ -591,6 +593,50 @@ export const setIsShouldSetDefaultStoreBankAccountAction = (
     type: OrderType.SET_IS_SHOULD_SET_DEFAULT_BANK_ACCOUNT,
     payload: {
       isShouldSetDefaultStoreBankAccount,
+    }
+  }
+};
+
+export const changeOrderCustomerAction = (
+  orderCustomer: CustomerResponse | null
+) => {
+  return {
+    type: OrderType.CHANGE_ORDER_CUSTOMER,
+    payload: {
+      orderCustomer,
+    }
+  }
+};
+
+export const changeShippingServiceConfigAction = (
+  shippingServiceConfig: ShippingServiceConfigDetailResponseModel[]
+) => {
+  return {
+    type: OrderType.CHANGE_SHIPPING_SERVICE_CONFIG,
+    payload: {
+      shippingServiceConfig,
+    }
+  }
+};
+
+export const changeOrderLineItemsAction = (
+  orderLineItems: OrderLineItemRequest[]
+) => {
+  return {
+    type: OrderType.CHANGE_ORDER_LINE_ITEMS,
+    payload: {
+      orderLineItems,
+    }
+  }
+};
+
+export const changeOrderThirdPLAction = (
+  thirdPL: thirdPLModel | null
+) => {
+  return {
+    type: OrderType.CHANGE_ORDER_THIRD_PL,
+    payload: {
+      thirdPL,
     }
   }
 };

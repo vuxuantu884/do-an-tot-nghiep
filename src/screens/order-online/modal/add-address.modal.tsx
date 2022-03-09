@@ -5,11 +5,13 @@ import { CreateShippingAddress, getCustomerDetailAction, UpdateShippingAddress }
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerShippingAddress } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { ShippingAddress } from "model/response/order/order.response";
 import React, { useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
 import * as CONSTANTS from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -23,6 +25,7 @@ type AddAddressModalProps = {
   modalAction: modalActionType;
   onCancel: () => void;
   onOk: () => void;
+  setShippingFeeInformedToCustomer: ((value: number | null) => void) | undefined
 };
 
 type FormValueType = {
@@ -49,7 +52,14 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
     modalAction,
     customer,
     handleChangeCustomer,
+    setShippingFeeInformedToCustomer,
   } = props;
+
+  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -145,6 +155,10 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                   dispatch(
                     getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                       handleChangeCustomer(datas);
+                      const orderAmount = totalAmount(orderLineItems);
+                      if(value.default) {
+                        handleCalculateShippingFeeApplyOrderSetting(data?.city_id, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
+                      }
                     })
                   );
                   onCancel();

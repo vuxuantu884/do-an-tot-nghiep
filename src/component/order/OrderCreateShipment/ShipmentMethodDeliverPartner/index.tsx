@@ -1,11 +1,13 @@
 import { Col, Form, FormInstance, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
+import { changeOrderThirdPLAction } from "domain/actions/order/order.action";
 import { thirdPLModel } from "model/order/shipment.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { DeliveryServiceResponse, FeesResponse } from "model/response/order/order.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useMemo } from "react";
 import NumberFormat from "react-number-format";
+import { useDispatch } from "react-redux";
 import { formatCurrency, handleCalculateShippingFeeApplyOrderSetting, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -41,6 +43,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
   } = props;
+
+  const dispatch = useDispatch();
 
   const serviceFees = useMemo(() => {
     let services: any = []
@@ -174,7 +178,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
                                               fee.transport_type, form, setShippingFeeInformedToCustomer
                                             );
-                                            setThirdPL({
+                                            const thirdPLResult = {
                                               delivery_service_provider_id: serviceFee.id,
                                               delivery_service_provider_code: serviceFee.code,
                                               insurance_fee: fee.insurance_fee,
@@ -182,7 +186,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                               shipping_fee_paid_to_three_pls: fee.total_fee,
                                               delivery_service_provider_name: serviceFee.name,
                                               delivery_transport_type: fee.transport_type_name,
-                                            });
+                                            }
+                                            setThirdPL(thirdPLResult);
+                                            dispatch(changeOrderThirdPLAction(thirdPLResult))
                                           }}
                                           disabled={
                                             // fee.total_fee === 0 || levelOrder > 3

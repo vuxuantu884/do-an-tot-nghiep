@@ -1479,9 +1479,23 @@ export const goToTopPage = () => {
 /**
    * check cấu hình đơn hàng để tính phí ship báo khách
    */
-export const handleCalculateShippingFeeApplyOrderSetting = (customerShippingAddressCityId: number | null | undefined, orderPrice: number | undefined, shippingServiceConfig: ShippingServiceConfigDetailResponseModel[], transportService: string, form: FormInstance<any>, setShippingFeeInformedToCustomer?: (value: number) => void) => {
+export const handleCalculateShippingFeeApplyOrderSetting = (
+  customerShippingAddressCityId: number | null | undefined, 
+  orderPrice: number | undefined, 
+  shippingServiceConfig: ShippingServiceConfigDetailResponseModel[], 
+  transportService: string | null | undefined, 
+  form: FormInstance<any>, 
+  setShippingFeeInformedToCustomer?: (value: number) => void
+) => {
  
+  if(!transportService) {
+    return; 
+  }
+
   if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice=== undefined) {
+    form?.setFieldsValue({shipping_fee_informed_to_customer: 0});
+    setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
+    showSuccess("Cập nhật phí ship báo khách thành công!")
     return;
   }
   //check thời gian
@@ -1586,4 +1600,8 @@ export const handleCalculateShippingFeeApplyOrderSetting = (customerShippingAddr
     setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
   }
   showSuccess("Cập nhật phí ship báo khách thành công!")
+};
+
+export const getCustomerShippingAddress = (customer: CustomerResponse) => {
+  return customer.shipping_addresses.find((item) => item.default);
 };

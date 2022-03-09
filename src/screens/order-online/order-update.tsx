@@ -47,7 +47,9 @@ import {
 	getStoreBankAccountNumbersAction,
 	changeSelectedStoreBankAccountAction,
 	setIsExportBillAction,
-	setIsShouldSetDefaultStoreBankAccountAction
+	setIsShouldSetDefaultStoreBankAccountAction,
+	changeOrderCustomerAction,
+	changeShippingServiceConfigAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
@@ -933,6 +935,7 @@ ShippingServiceConfigDetailResponseModel[]
 					dispatch(
 						getCustomerDetailAction(customer_id, (responseCustomer) => {
 							setCustomer(responseCustomer);
+							dispatch(changeOrderCustomerAction(responseCustomer));
 						})
 					);
 				}
@@ -1228,6 +1231,7 @@ ShippingServiceConfigDetailResponseModel[]
 		dispatch(
 			actionListConfigurationShippingServiceAndShippingFee((response) => {
 				setShippingServiceConfig(response);
+				dispatch(changeShippingServiceConfigAction(response))
 			})
 		);
 	}, [dispatch]);
@@ -1308,6 +1312,8 @@ ShippingServiceConfigDetailResponseModel[]
 										OrderDetail={OrderDetail}
 										shippingAddressesSecondPhone={shippingAddressesSecondPhone}
 										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+										form={form}
+										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 									/>
 									{/* <CardProduct
                     orderId={id}
@@ -1362,6 +1368,7 @@ ShippingServiceConfigDetailResponseModel[]
 										orderDetail={OrderDetail}
 										orderConfig={orderConfig}
 										loyaltyPoint={loyaltyPoint}
+										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 									/>
 
 									{OrderDetail !== null &&

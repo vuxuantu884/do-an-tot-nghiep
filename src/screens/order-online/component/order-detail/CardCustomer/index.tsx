@@ -7,37 +7,44 @@ import {
   Card,
   Divider,
   Form,
+  FormInstance,
   Input,
   Row,
   Space,
   Tag,
-  Typography,
+  Typography
 } from "antd";
 import imageDefault from "assets/icon/img-default.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import CustomSelect from "component/custom/select.custom";
+import UrlConfig from "config/url.config";
+import { departmentDetailAction } from "domain/actions/account/department.action";
 import {
   DistrictGetByCountryAction,
-  WardGetByDistrictAction,
+  WardGetByDistrictAction
 } from "domain/actions/content/content.action";
 import {
-  getCustomerDetailAction,
-  CustomerGroups,
-  DeleteShippingAddress,
-  CustomerSearchSo,
+  CustomerGroups, CustomerSearchSo, DeleteShippingAddress, getCustomerDetailAction
 } from "domain/actions/customer/customer.action";
+import { changeOrderCustomerAction } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerShippingAddress } from "model/request/customer.request";
+import { SourceSearchQuery } from "model/request/source.request";
 import {
   BillingAddress,
   CustomerResponse,
-  ShippingAddress,
+  ShippingAddress
 } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { OrderResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -46,20 +53,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
-import { showError, showSuccess } from "utils/ToastUtils";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import UrlConfig from "config/url.config";
-import * as CONSTANTS from "utils/Constants";
-import UpdateCustomer from "./UpdateCustomer";
-import CreateCustomer from "./CreateCustomer";
-import { handleDelayActionWhenInsertTextInSearchInput, sortSources } from "utils/AppUtils";
-import { departmentDetailAction } from "domain/actions/account/department.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { OrderResponse } from "model/response/order/order.response";
-import { SourceSearchQuery } from "model/request/source.request";
+import { handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, sortSources, totalAmount } from "utils/AppUtils";
+import * as CONSTANTS from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import CreateCustomer from "./CreateCustomer";
+import UpdateCustomer from "./UpdateCustomer";
 //#end region
 
 type CustomerCardProps = {
@@ -81,6 +80,8 @@ type CustomerCardProps = {
   OrderDetail?: OrderResponse | null;
   shippingAddressesSecondPhone?:string;
   setShippingAddressesSecondPhone?:(value:string)=>void;
+  form: FormInstance<any>;
+  setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 };
 
 //Add query for search Customer
@@ -118,10 +119,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     OrderDetail,
     shippingAddressesSecondPhone,
     setShippingAddressesSecondPhone,
+    setShippingFeeInformedToCustomer,
+    form,
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
   // const shippingWarRef: any = useRef(null);
+
+  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -347,11 +356,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, resultSearch]);
 
+  const orderAmount = totalAmount(orderLineItems);
+
   //Delete customer
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
+    dispatch(changeOrderCustomerAction(null));
     props.ShippingAddressChange(null);
     if(setVisibleCustomer)setVisibleCustomer(false);
+    handleCalculateShippingFeeApplyOrderSetting(null, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
     setKeySearchCustomer("");
     if(setShippingAddressesSecondPhone)
       setShippingAddressesSecondPhone("");
@@ -393,6 +406,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               if (data) {
                 OkConfirmCustomerEdit();
                 handleCustomer(data);
+                dispatch(changeOrderCustomerAction(data));
+                handleCalculateShippingFeeApplyOrderSetting(data?.city_id, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
               }
             }
           )
@@ -402,6 +417,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
         if( setShippingAddressesSecondPhone)setShippingAddressesSecondPhone("");
+       
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -504,6 +520,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     if (customers) {
       OkConfirmCustomerEdit();
       handleCustomer(customers);
+      dispatch(changeOrderCustomerAction(customers));
     }
   };
 
@@ -769,6 +786,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 ShowAddressModalAdd={ShowAddressModalAdd}
                 shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                 setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                form={form}
               />
             )}
 
@@ -804,6 +823,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         modalAction={modalActionShipping}
         onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
+        setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
       />
 
       <SaveAndConfirmOrder

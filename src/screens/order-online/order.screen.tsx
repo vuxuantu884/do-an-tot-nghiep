@@ -17,7 +17,11 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
+	changeOrderCustomerAction,
+	changeOrderLineItemsAction,
+	changeOrderThirdPLAction,
 	changeSelectedStoreBankAccountAction,
+	changeShippingServiceConfigAction,
 	changeStoreDetailAction,
 	getStoreBankAccountNumbersAction,
 	orderConfigSaga,
@@ -68,6 +72,7 @@ import {
 	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
 	scrollAndFocusToDomElement,
+	sortFulfillments,
 	totalAmount
 } from "utils/AppUtils";
 import {
@@ -202,11 +207,6 @@ ShippingServiceConfigDetailResponseModel[]
 		setOrderAmount(amount);
 		if (_promotion !== undefined) {
 			setPromotion(_promotion);
-		}
-		if(shippingAddress?.city_id && thirdPL?.service) {
-			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, amount, shippingServiceConfig,
-				thirdPL?.service, form, setShippingFeeInformedToCustomer
-			);
 		}
 	};
 	console.log('shippingAddress?.city_id', shippingAddress?.city_id)
@@ -716,7 +716,7 @@ ShippingServiceConfigDetailResponseModel[]
 							dispatch(
 								getCustomerDetailAction(customer_id, (responseCustomer) => {
 									setCustomer(responseCustomer);
-
+									dispatch(changeOrderCustomerAction(responseCustomer));
 									responseCustomer.shipping_addresses.forEach((item) => {
 										if (item.default === true) {
 											setShippingAddress(item);
@@ -770,6 +770,7 @@ ShippingServiceConfigDetailResponseModel[]
 									};
 								});
 							setItems(responseItems);
+							dispatch(changeOrderLineItemsAction(responseItems));
 
 							setShippingFeeInformedToCustomer(
 								response.shipping_fee_informed_to_customer
@@ -844,21 +845,18 @@ ShippingServiceConfigDetailResponseModel[]
 							setOrderAmount(response.total_line_amount_after_line_discount);
 
 							let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
-							if (
-								response.fulfillments &&
-								response.fulfillments[0] &&
-								response?.fulfillments[0]?.shipment?.delivery_service_provider_type
-							) {
+							if (response.fulfillments) {
+								const sortedFulfillments = sortFulfillments(response.fulfillments);
 								switch (
-								response.fulfillments[0].shipment?.delivery_service_provider_type
+									sortedFulfillments[0].shipment?.delivery_service_provider_type
 								) {
 									case ShipmentMethod.EMPLOYEE:
 										{
 											newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
-											const shipmentEmployee = response?.fulfillments[0]?.shipment;
-											setThirdPL({
+											const shipmentEmployee = sortedFulfillments[0]?.shipment;
+											const thirdPLResponse = {
 												delivery_service_provider_code:
-													shipmentEmployee.delivery_service_provider_code,
+												shipmentEmployee.delivery_service_provider_code,
 												delivery_service_provider_id:
 													shipmentEmployee.delivery_service_provider_id,
 												insurance_fee: shipmentEmployee.insurance_fee,
@@ -869,7 +867,9 @@ ShippingServiceConfigDetailResponseModel[]
 												service: shipmentEmployee.service,
 												shipping_fee_paid_to_three_pls:
 													shipmentEmployee.shipping_fee_paid_to_three_pls,
-											});
+											}
+											dispatch(changeOrderThirdPLAction(thirdPLResponse))
+											setThirdPL(thirdPLResponse);
 											break;
 										}
 									case ShipmentMethod.EXTERNAL_SHIPPER:
@@ -878,8 +878,8 @@ ShippingServiceConfigDetailResponseModel[]
 									case ShipmentMethod.EXTERNAL_SERVICE:
 										{
 											newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
-											const shipmentDeliverPartner = response?.fulfillments[0]?.shipment;
-											setThirdPL({
+											const shipmentDeliverPartner = sortedFulfillments[0]?.shipment;
+											const thirdPLResponse = {
 												delivery_service_provider_code:
 													shipmentDeliverPartner.delivery_service_provider_code,
 												delivery_service_provider_id:
@@ -892,7 +892,9 @@ ShippingServiceConfigDetailResponseModel[]
 												service: shipmentDeliverPartner.service,
 												shipping_fee_paid_to_three_pls:
 													shipmentDeliverPartner.shipping_fee_paid_to_three_pls,
-											});
+											}
+											dispatch(changeOrderThirdPLAction(thirdPLResponse))
+											setThirdPL(thirdPLResponse);
 											break;
 										}
 									case ShipmentMethod.PICK_AT_STORE:
@@ -987,6 +989,7 @@ ShippingServiceConfigDetailResponseModel[]
 		dispatch(
 			actionListConfigurationShippingServiceAndShippingFee((response) => {
 				setShippingServiceConfig(response);
+				dispatch(changeShippingServiceConfigAction(response))
 			})
 		);
 	}, [dispatch]);
@@ -1200,6 +1203,8 @@ ShippingServiceConfigDetailResponseModel[]
 											setOrderSourceId={setOrderSourceId}
 											shippingAddressesSecondPhone={shippingAddressesSecondPhone}
 											setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+											form={form}
+											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										/>
 										<OrderCreateProduct
 											orderAmount={orderAmount}
@@ -1226,6 +1231,7 @@ ShippingServiceConfigDetailResponseModel[]
 											orderConfig={orderConfig}
 											orderSourceId={orderSourceId}
 											loyaltyPoint={loyaltyPoint}
+											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										/>
 										<Card title="THANH TOÁN">
 											<OrderCreatePayments
