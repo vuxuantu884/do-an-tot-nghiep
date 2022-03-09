@@ -209,9 +209,6 @@ ShippingServiceConfigDetailResponseModel[]
 			setPromotion(_promotion);
 		}
 	};
-	console.log('shippingAddress?.city_id', shippingAddress?.city_id)
-	console.log('shippingServiceConfig', shippingServiceConfig)
-	console.log('thirdPL', thirdPL)
 
 	const handlePaymentMethod = (value: number) => {
 		setPaymentMethod(value);

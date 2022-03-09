@@ -1557,7 +1557,6 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
       const checkedShippingFeeConfig =
         singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
-          console.log('checkIfSameCity(single.city_id, customerShippingAddressCityId)', checkIfSameCity(single.city_id, customerShippingAddressCityId))
           return (
             checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
             checkIfPrice(orderPrice, single.from_price, single.to_price)
