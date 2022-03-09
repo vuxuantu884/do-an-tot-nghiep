@@ -3,21 +3,21 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { AccountSearchQuery, LoginResponse, AccountResponse, AccountRequest, MeRequest, AccountPublicSearchQuery } from "model/account/account.model";
-import { AuthenRequest } from "model/auth/roles.model";
+import { AuthenLogoutRequest, AuthenRequest } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from 'model/account/department.model';
 import { PositionResponse } from 'model/account/position.model';
 
 export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/me`);
-} 
+}
 
 export const loginApi = (request: AuthenRequest): Promise<BaseResponse<LoginResponse>> => {
   return BaseAxios.post(`${ApiConfig.ACCOUNTS}/login`, request);
 }
 
-export const logoutApi = (): Promise<BaseResponse<string>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/logout`);
+export const logoutApi = (request: AuthenLogoutRequest): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/logout`, request);
 }
 
 export const searchAccountApi = (query: AccountSearchQuery): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
