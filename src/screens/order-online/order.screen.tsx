@@ -170,11 +170,6 @@ export default function Order() {
 	const typeParam = queryParams.get("type") || null;
 	const handleCustomer = (_objCustomer: CustomerResponse | null) => {
 		setCustomer(_objCustomer);
-		if(thirdPL?.service) {
-			handleCalculateShippingFeeApplyOrderSetting(customer, orderAmount, shippingServiceConfig,
-				thirdPL?.service, form, setShippingFeeInformedToCustomer
-			);
-		}
 	};
 	const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
 		setShippingAddress(_objShippingAddress);
@@ -208,12 +203,15 @@ ShippingServiceConfigDetailResponseModel[]
 		if (_promotion !== undefined) {
 			setPromotion(_promotion);
 		}
-		if(customer?.shipping_addresses && thirdPL?.delivery_transport_type) {
-			handleCalculateShippingFeeApplyOrderSetting(customer, orderAmount, shippingServiceConfig,
-				thirdPL?.delivery_transport_type, form, setShippingFeeInformedToCustomer
+		if(shippingAddress?.city_id && thirdPL?.service) {
+			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, amount, shippingServiceConfig,
+				thirdPL?.service, form, setShippingFeeInformedToCustomer
 			);
 		}
 	};
+	console.log('shippingAddress?.city_id', shippingAddress?.city_id)
+	console.log('shippingServiceConfig', shippingServiceConfig)
+	console.log('thirdPL', thirdPL)
 
 	const handlePaymentMethod = (value: number) => {
 		setPaymentMethod(value);

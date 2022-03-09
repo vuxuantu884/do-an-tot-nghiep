@@ -171,7 +171,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             fee.transport_type
                                           }
                                           onChange={(e) => {
-                                            handleCalculateShippingFeeApplyOrderSetting(shippingAddress, orderPrice, shippingServiceConfig,
+                                            handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
                                               fee.transport_type, form, setShippingFeeInformedToCustomer
                                             );
                                             setThirdPL({

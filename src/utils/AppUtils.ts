@@ -1479,16 +1479,9 @@ export const goToTopPage = () => {
 /**
    * check cấu hình đơn hàng để tính phí ship báo khách
    */
-export const handleCalculateShippingFeeApplyOrderSetting = (customer: CustomerResponse | null, orderPrice: number | undefined, shippingServiceConfig: ShippingServiceConfigDetailResponseModel[], transportType: string, form: FormInstance<any>, setShippingFeeInformedToCustomer?: (value: number) => void) => {
-  const customerShippingAddress = customer?.shipping_addresses.find(
-    (single) => single.default
-  );
-  if (!customerShippingAddress || orderPrice === undefined) {
-    return;
-  }
-  const customerShippingAddressCityId = customerShippingAddress.city_id;
-
-  if (!shippingServiceConfig || !customerShippingAddress) {
+export const handleCalculateShippingFeeApplyOrderSetting = (customerShippingAddressCityId: number | null | undefined, orderPrice: number | undefined, shippingServiceConfig: ShippingServiceConfigDetailResponseModel[], transportService: string, form: FormInstance<any>, setShippingFeeInformedToCustomer?: (value: number) => void) => {
+ 
+  if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice=== undefined) {
     return;
   }
   //check thời gian
@@ -1538,7 +1531,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (customer: CustomerRe
       single.transport_types &&
       checkIfListServicesContainSingle(
         single.transport_types,
-        transportType
+        transportService
       )
     );
   });
@@ -1550,6 +1543,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (customer: CustomerRe
     for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
       const checkedShippingFeeConfig =
         singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
+          console.log('checkIfSameCity(single.city_id, customerShippingAddressCityId)', checkIfSameCity(single.city_id, customerShippingAddressCityId))
           return (
             checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
             checkIfPrice(orderPrice, single.from_price, single.to_price)
