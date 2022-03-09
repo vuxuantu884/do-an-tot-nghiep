@@ -33,7 +33,7 @@ function OrderReturnReason(props: PropType): React.ReactElement {
       const reasonDetails = listOrderReturnReason.find(
         (reason: any) => reason.id === value
       );
-      if (reasonDetails && reasonDetails.sub_reasons.length) {
+      if (reasonDetails && reasonDetails?.sub_reasons?.length) {
         setReasonSubID(reasonDetails.sub_reasons[0].id);
         setReasonSubs(reasonDetails.sub_reasons);
       } else {

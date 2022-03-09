@@ -464,9 +464,18 @@ export interface OrderReturnModel extends OrderResponse {
 }
 
 export interface OrderReturnReasonModel {
+  code: string;
   id: number;
   name: string;
-  sub_reasons: {
+  sub_reasons: OrderReturnReasonDetailModel[]
+}
+
+export interface OrderReturnReasonDetailModel {
+  code: string;
+  id: number;
+  name: string;
+  sub_reason_details: {
+    code: string;
     id: number;
     name: string;
   }[]

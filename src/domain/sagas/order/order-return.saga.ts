@@ -10,7 +10,7 @@ import {
 	createOrderReturnService,
 	getOrderReturnCalculateRefundService,
 	getOrderReturnLog,
-	getOrderReturnReasonService,
+	getOrderReasonService,
 	getOrderReturnService,
 	orderRefundService,
 	setIsReceivedProductOrderReturnService
@@ -84,13 +84,15 @@ function* setIsReceivedProductReturnSaga(action: YodyAction) {
 
 function* getOrderReturnReasonsSaga(action: YodyAction) {
   const { handleData } = action.payload;
+  const code = ["order_return"];
   try {
     yield put(showLoading());
     let response: BaseResponse<OrderReturnReasonModel[]> = yield call(
-      getOrderReturnReasonService
+      getOrderReasonService,
+      code
     );
 		if (isFetchApiSuccessful(response)) {
-			handleData(response.data);
+			handleData(response.data[0].sub_reasons);
 		} else {
 			yield put(fetchApiErrorAction(response, "Danh sách lý do trả hàng"));
 		}
