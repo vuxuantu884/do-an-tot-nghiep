@@ -479,12 +479,13 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
-	const handleDelayApplyDiscountWhenChangeInput = (
+	const handleDelayCalculateWhenChangeOrderInput = (
 		inputRef: React.MutableRefObject<any>,
 		_items: OrderLineItemRequest[],
 		isShouldAutomaticDiscount = true
 	) => {
 		// delay khi thay đổi số lượng
+		//nếu có chiết khấu tự động
 		if (isAutomaticDiscount) {
 			handleDelayActionWhenInsertTextInSearchInput(
 				inputRef,
@@ -495,10 +496,17 @@ function OrderCreateProduct(props: PropType) {
 				},
 				QUANTITY_DELAY_TIME
 			);
-		} else {
+		//nếu có coupon
+		} else if(couponInputText) {
 			handleDelayActionWhenInsertTextInSearchInput(
 				inputRef,
 				() => handleApplyCouponWhenInsertCoupon(couponInputText, _items),
+				QUANTITY_DELAY_TIME
+			);
+		} else {
+			handleDelayActionWhenInsertTextInSearchInput(
+				inputRef,
+				() => calculateChangeMoney(_items),
 				QUANTITY_DELAY_TIME
 			);
 		}
@@ -518,8 +526,7 @@ function OrderCreateProduct(props: PropType) {
 			_item.discount_value = getLineItemDiscountValue(_item);
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
-			handleDelayApplyDiscountWhenChangeInput(lineItemQuantityInputTimeoutRef, _items);
-			calculateChangeMoney(_items);
+			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
 	};
 
@@ -531,15 +538,13 @@ function OrderCreateProduct(props: PropType) {
 				if(_items[index]?.discount_items && _items[index].discount_items[0]) {
 					_items[index].discount_items[0].value = _items[index]?.discount_items[0].rate * value / 100;
 				}
-				handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
-				calculateChangeMoney(_items);
+				handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);
 			}
 		}
 	};
 
 	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
-		handleDelayApplyDiscountWhenChangeInput(lineItemDiscountInputTimeoutRef, _items, false);
-		calculateChangeMoney(_items);
+		handleDelayCalculateWhenChangeOrderInput(lineItemDiscountInputTimeoutRef, _items, false);
 	};
 
 	// render
