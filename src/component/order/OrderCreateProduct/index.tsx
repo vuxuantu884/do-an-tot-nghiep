@@ -1352,6 +1352,7 @@ function OrderCreateProduct(props: PropType) {
 						form.setFieldsValue({
 							note: ``
 						})
+						calculateChangeMoney(items)
 					}
 					showSuccess("Cập nhật chiết khấu tự động thành công!");
 				} else {
@@ -1359,8 +1360,10 @@ function OrderCreateProduct(props: PropType) {
 						note: ""
 					})
 					showError("Có lỗi khi áp dụng chiết khấu!");
+					calculateChangeMoney(items)
 				}
 			} else {
+				calculateChangeMoney(items)
 				handleFetchApiError(response, "Áp dụng chiết khấu", dispatch)
 			}
     }).catch((error) => {
@@ -1442,33 +1445,32 @@ function OrderCreateProduct(props: PropType) {
 										listDiscountItem.push(single);
 									}
 								});
+								let promotionResult = {...promotion};
 								switch (couponType) {
 									case DISCOUNT_VALUE_TYPE.percentage:
 										if (applyDiscountResponse.value) {
 											let discountRate = Math.min(100, applyDiscountResponse.value);
 											let discountValue = (applyDiscountResponse.value / 100) * totalAmount;
-											setPromotion &&
-												setPromotion({
+												promotionResult ={
 													amount: discountValue,
 													discount_code: applyDiscountResponse.code,
 													promotion_id: null,
 													rate: discountRate,
 													value: discountValue,
-												});
+												};
 										}
 										break;
 									case DISCOUNT_VALUE_TYPE.fixedAmount:
 										if (applyDiscountResponse.value) {
 											let discountValue = Math.min(applyDiscountResponse.value, totalAmount);
 											let discountRate = (discountValue / totalAmount) * 100;
-											setPromotion &&
-												setPromotion({
+											promotionResult ={
 													amount: discountValue,
 													discount_code: applyDiscountResponse.code,
 													promotion_id: null,
 													rate: discountRate,
 													value: discountValue,
-												});
+												};
 										}
 										break;
 									case DISCOUNT_VALUE_TYPE.fixedPrice:
@@ -1476,14 +1478,13 @@ function OrderCreateProduct(props: PropType) {
 											let value = orderAmount - applyDiscountResponse.value;
 											let discountValue = Math.min(value, totalAmount);
 											let discountRate = (discountValue / totalAmount) * 100;
-											setPromotion &&
-												setPromotion({
+											promotionResult ={
 													amount: discountValue,
 													discount_code: applyDiscountResponse.code,
 													promotion_id: null,
 													rate: discountRate,
 													value: discountValue,
-												});
+												};
 										}
 										break;
 									// default là chiết khấu theo line
@@ -1555,14 +1556,17 @@ function OrderCreateProduct(props: PropType) {
 								form.setFieldsValue({
 									note: `Chương trình khuyến mại coupon: ${applyDiscountResponse.title}`
 								})
+								calculateChangeMoney(_items, promotionResult)
 								showSuccess("Thêm coupon thành công!");
 							}
 					} else {
+						calculateChangeMoney(_items)
 						handleFetchApiError(response, "Áp dụng chiết khấu", dispatch)
 					}
 				})
 				.catch((error) => {
 					console.log("error", error);
+					calculateChangeMoney(_items)
 					showError("Có lỗi khi áp dụng chiết khấu!");
 				})
 				.finally(() => {
@@ -1838,6 +1842,7 @@ function OrderCreateProduct(props: PropType) {
 			}
 		}
 		fillCustomNote(_items);
+		console.log('_items', _items)
 		props.changeInfo(_items, _promotion);
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
