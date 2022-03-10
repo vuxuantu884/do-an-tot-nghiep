@@ -150,19 +150,16 @@ const TabHistoryPrice: React.FC = () => {
       visible: true,
       width: 200,
       render: (value, record) => {
-        if(value){
-          return (
+          return(
             <div>
-              <div>{value}</div>
-              <div>
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.action_by}`}> 
-                  {record.action_by} 
-                </Link>  
-              </div>
+               {
+                value !==null?
+                  <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.action_by}`}> 
+                    {value} 
+                  </Link>  :"---"
+              }
             </div>
-          );
-        }
-        return"---"
+          )
       },
     },
     {

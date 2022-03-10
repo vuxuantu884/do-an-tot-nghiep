@@ -1,21 +1,23 @@
 import { Modal, Form, Radio, Space } from "antd";
 import { useCallback, Fragment } from "react";
+import { TYPE_EXPORT } from "screens/products/constants"; 
 
 type ExportModalProps = {
   visible: boolean;
   onCancel: () => void;
-  onOk: () => void;
+  onOk: (record: string) => void;
 };
    
  
 const ExportProduct: React.FC<ExportModalProps> = (props: ExportModalProps) => {
+  const [form] = Form.useForm();
   const { visible, onCancel, onOk } = props;
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
   const onOkClick = useCallback(() => {
-    onOk();
-  }, [onOk]);
+    onOk(form.getFieldValue("record"));
+  }, [onOk,form]);
   return (
     <Modal
       onCancel={onCancelClick}
@@ -27,9 +29,10 @@ const ExportProduct: React.FC<ExportModalProps> = (props: ExportModalProps) => {
       okText="Xuất file"
     >
       <Form
+        form={form}
         initialValues={{
-          record: "b",
-        }}
+          record: TYPE_EXPORT.page,
+        }} 
         layout="vertical"
       >
         <Space direction="vertical" style={{ width: "100%" }}>
@@ -38,12 +41,9 @@ const ExportProduct: React.FC<ExportModalProps> = (props: ExportModalProps) => {
               <Form.Item name="record">
                 <Radio.Group>
                   <Space direction="vertical">
-                    <Radio value="a">Tất cả sản phẩm</Radio>
-                    <Radio value="b">Sản phẩm trên trang này</Radio>
-                    <Radio value="c">Các sản phẩm được chọn</Radio>
-                    <Radio value="d">
-                        30 sản phẩm phù hợp với điều kiện tìm kiếm hiện tại
-                    </Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả sản phẩm</Radio>
+                    <Radio value={TYPE_EXPORT.page}>Sản phẩm trên trang này</Radio>
+                    <Radio value={TYPE_EXPORT.selected}>Các sản phẩm được chọn</Radio>
                   </Space>
                 </Radio.Group>
               </Form.Item>
