@@ -67,6 +67,7 @@ import { formatCurrency } from "utils/AppUtils";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import SyncProductModal from "./SyncProductModal";
+import { EcommerceProductTabUrl } from "config/url.config";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [
@@ -330,7 +331,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         disconnectEcommerceItem({ ids: idsItemSelected }, (result) => {
           if (result) {
             showSuccess("Ngắt kết nối sản phẩm thành công");
-            history.replace(`${history.location.pathname}#not-connected-item`);
+            history.replace(EcommerceProductTabUrl.NOT_CONNECTED);
           }
         })
       );

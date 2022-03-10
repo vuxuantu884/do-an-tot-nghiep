@@ -44,4 +44,5 @@ export const AppConfig = {
   PROCUMENT_IMPORT_TEMPLATE_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_33c49192-d24e-4ccf-8587-12840bf3406d_original.xlsx",
   PO_EXPORT_TEMPLATE_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_3914d806-813b-4978-bff0-7251b350b40f_original.xlsx",
   PO_EXPORT_URL: process.env.REACT_APP_PO_EXPORT_URL,
+  PRODUCT_EXPORT_TEMPLATE: "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/template_export_product.xlsx"
 };
