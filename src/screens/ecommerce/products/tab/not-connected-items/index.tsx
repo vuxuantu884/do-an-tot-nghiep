@@ -71,6 +71,7 @@ import { exportFileProduct, getFileProduct } from "service/other/export.service"
 import { HttpStatus } from "config/http-status.config";
 
 import ConcatenateByExcel from "./ConcatenateByExcel";
+import { EcommerceProductTabUrl } from "config/url.config";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -277,7 +278,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     const closeResultConnectionModal = () => {
       setIsShowResultConnectionModal(false);
       reloadPage();
-      history.replace(`${history.location.pathname}#connected-item`);
+      history.replace(EcommerceProductTabUrl.CONNECTED);
     };
 
     const updateNotConnectedProductList = useCallback((data) => {
@@ -919,10 +920,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setSelectedRow(newSelectedRow);
   }, []);
 
-  // const closeResultConnectProductModal = () => {
-  //   setIsShowResultConnectProductModal(false);
-  //   history.replace(`${history.location.pathname}#connected-item`);
-  // };
+  
 
 
   //handle export file

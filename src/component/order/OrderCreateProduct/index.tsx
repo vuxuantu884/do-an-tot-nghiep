@@ -491,7 +491,7 @@ function OrderCreateProduct(props: PropType) {
 				inputRef,
 				() => {
 					if (isShouldAutomaticDiscount) {
-						handleApplyDiscount(items)
+						handleApplyDiscount(_items)
 					}
 				},
 				QUANTITY_DELAY_TIME
@@ -514,7 +514,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const onChangeQuantity = (value: number | null, index: number) => {
 		if (items) {
-			let _items = [...items];
+			let _items = _.cloneDeep(items)
 			if (value === _items[index].quantity) {
 				return;
 			}
@@ -532,7 +532,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const onChangePrice = (value: number | null, index: number) => {
 		if (items) {
-			let _items = [...items];
+			let _items = _.cloneDeep(items)
 			if (value !== null && value !== _items[index].price) {
 				_items[index].price = value;
 				if(_items[index]?.discount_items && _items[index].discount_items[0]) {

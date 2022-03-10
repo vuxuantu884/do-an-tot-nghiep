@@ -6,6 +6,7 @@ import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 import { useHistory } from "react-router";
+import { EcommerceProductTabUrl } from "config/url.config";
 
 type ProgressConcatenateByExcelModalType = {
   isVisibleProgressModal: any,
@@ -35,7 +36,7 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
 
   const okProgressProgressConcatenateByExcelModal = () => {
     onOKProgressConcatenateByExcel();
-    history.replace(`${history.location.pathname}#connected-item`);
+    history.replace(EcommerceProductTabUrl.CONNECTED);
   };
 
   const cancelProgressConcatenateByExcelModal = () => {
