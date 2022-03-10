@@ -569,8 +569,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               align="middle"
               justify="space-between"
               className="row-customer-detail"
-              style={{ margin: "10px 0" }}
-            >
+              style={{ margin: "5px 0" }}>
               <Col style={{ display: "flex", alignItems: "center" }}>
                 {levelOrder < 3 && (
                   <CloseOutlined
@@ -578,13 +577,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                     onClick={CustomerDeleteInfo}
                   />
                 )}
-                <div className="fpage-order-avatar-customer">
-                  <img
-                    style={{ width: 34, height: 34 }}
-                    src={logoMobile}
-                    alt="logo"
-                  />
-                </div>
+                {/* <div className="fpage-order-avatar-customer">
+                  <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo" />
+                </div> */}
                 <Link
                   target="_blank"
                   to={`${UrlConfig.CUSTOMER}/${customer?.id}`}
