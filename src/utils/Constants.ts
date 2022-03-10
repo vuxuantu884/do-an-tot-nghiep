@@ -356,3 +356,7 @@ export const PRODUCT_TYPE = {
   gift: "gift",
   service: "service",
 }
+
+export const DELIVERY_SERVICE_PROVIDER_CODE = {
+  ghtk: "ghtk",
+}
