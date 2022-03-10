@@ -102,7 +102,7 @@ import {
 	isFetchApiSuccessful,
 	replaceFormatString
 } from "utils/AppUtils";
-import { ACCOUNT_ROLE_ID, MoneyType } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
@@ -491,7 +491,7 @@ function OrderCreateProduct(props: PropType) {
 				inputRef,
 				() => {
 					if (isShouldAutomaticDiscount) {
-						handleApplyDiscount(items)
+						handleApplyDiscount(_items)
 					}
 				},
 				QUANTITY_DELAY_TIME
@@ -514,7 +514,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const onChangeQuantity = (value: number | null, index: number) => {
 		if (items) {
-			let _items = [...items];
+			let _items = _.cloneDeep(items)
 			if (value === _items[index].quantity) {
 				return;
 			}
@@ -532,7 +532,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const onChangePrice = (value: number | null, index: number) => {
 		if (items) {
-			let _items = [...items];
+			let _items = _.cloneDeep(items)
 			if (value !== null && value !== _items[index].price) {
 				_items[index].price = value;
 				if(_items[index]?.discount_items && _items[index].discount_items[0]) {
@@ -1263,18 +1263,10 @@ function OrderCreateProduct(props: PropType) {
 		return discountAmountOrder
 	};
 
-	const handleApplyDiscount = async (
-		items: OrderLineItemRequest[] | undefined,
-		_isAutomaticDiscount: boolean = isAutomaticDiscount
-	) => {
-		isShouldUpdateDiscountRef.current = true;
-		if (!items || items.length === 0 || !_isAutomaticDiscount) {
-			return;
-		}
-		setIsCalculateDiscount(true);
-		removeCoupon()
-		// handleRemoveAllAutomaticDiscount();
-		const lineItems: LineItemRequestModel[] = items.map((single) => {
+	const lineItemsConvert = (items: OrderLineItemRequest[]) => {
+		return items.filter(item => {
+			return [PRODUCT_TYPE.normal, PRODUCT_TYPE.combo].includes(item.product_type)
+		}).map((single) => {
 			return {
 				original_unit_price: single.price,
 				product_id: single.product_id,
@@ -1283,6 +1275,20 @@ function OrderCreateProduct(props: PropType) {
 				variant_id: single.variant_id,
 			};
 		});
+	};
+
+	const handleApplyDiscount = async (
+		items: OrderLineItemRequest[] | undefined,
+		_isAutomaticDiscount: boolean = isAutomaticDiscount
+	) => {
+		isShouldUpdateDiscountRef.current = true;
+		if (!items || items.length === 0 || !_isAutomaticDiscount) {
+			return;
+		}
+		console.log('items', items)
+		setIsCalculateDiscount(true);
+		removeCoupon()
+		// handleRemoveAllAutomaticDiscount();
 		let params: DiscountRequestModel = {
 			order_id: orderDetail?.id || null,
 			customer_id: customer?.id || null,
@@ -1293,10 +1299,10 @@ function OrderCreateProduct(props: PropType) {
 			birthday_date: customer?.birthday || null,
 			wedding_date: customer?.wedding_date || null,
 			store_id: form.getFieldValue("store_id"),
-			sales_channel_name: "ADMIN",
+			sales_channel_name: ADMIN_ORDER.channel_name,
 			order_source_id: form.getFieldValue("source_id"),
 			assignee_code: customer?.responsible_staff_code || null,
-			line_items: lineItems,
+			line_items: lineItemsConvert(items),
 			applied_discount: null,
 			taxes_included: true,
 			tax_exempt: false,
@@ -1376,15 +1382,6 @@ function OrderCreateProduct(props: PropType) {
 		}
 		handleRemoveAllDiscount();
 		coupon = coupon.trim();
-		const lineItems: LineItemRequestModel[] = _items.map((single) => {
-			return {
-				original_unit_price: single.price,
-				product_id: single.product_id,
-				quantity: single.quantity,
-				sku: single.sku,
-				variant_id: single.variant_id,
-			};
-		});
 		if (!isAutomaticDiscount) {
 			let params: DiscountRequestModel = {
 				order_id: orderDetail?.id || null,
@@ -1396,10 +1393,10 @@ function OrderCreateProduct(props: PropType) {
 				birthday_date: customer?.birthday || null,
 				wedding_date: customer?.wedding_date || null,
 				store_id: form.getFieldValue("store_id"),
-				sales_channel_name: "ADMIN",
+				sales_channel_name: ADMIN_ORDER.channel_name,
 				order_source_id: form.getFieldValue("source_id"),
 				assignee_code: customer?.responsible_staff_code || null,
-				line_items: lineItems,
+				line_items: lineItemsConvert(_items),
 				applied_discount: {
 					code: coupon,
 				},
