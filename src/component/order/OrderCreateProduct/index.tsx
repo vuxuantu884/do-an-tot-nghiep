@@ -33,11 +33,12 @@ import {
 	StoreGetListAction,
 	StoreSearchListAction
 } from "domain/actions/core/store.action";
-import { setIsShouldSetDefaultStoreBankAccountAction, splitOrderAction } from "domain/actions/order/order.action";
+import { changeOrderLineItemsAction, setIsShouldSetDefaultStoreBankAccountAction, splitOrderAction } from "domain/actions/order/order.action";
 import {
 	SearchBarCode,
 	searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
+import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -85,6 +86,7 @@ import {
 	findPriceInVariant,
 	findTaxInVariant,
 	formatCurrency,
+	getCustomerShippingAddress,
 	getLineAmountAfterLineDiscount,
 	getLineItemDiscountAmount,
 	getLineItemDiscountRate,
@@ -93,18 +95,18 @@ import {
 	getTotalAmountAfterDiscount,
 	getTotalDiscount,
 	getTotalQuantity,
+	handleCalculateShippingFeeApplyOrderSetting,
 	handleDelayActionWhenInsertTextInSearchInput,
 	handleFetchApiError,
 	haveAccess,
 	isFetchApiSuccessful,
 	replaceFormatString
 } from "utils/AppUtils";
-import { ACCOUNT_ROLE_ID, MoneyType } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
-import _ from "lodash";
 
 type PropType = {
 	storeId: number | null;
@@ -140,6 +142,7 @@ type PropType = {
 		totalAmountReturn: number;
 		totalAmountExchangePlusShippingFee: number;
 	};
+	setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 };
 
 var barcode = "";
@@ -221,7 +224,13 @@ function OrderCreateProduct(props: PropType) {
 		fetchData,
 		setCoupon,
 		setPromotion,
+		setShippingFeeInformedToCustomer,
 	} = props;
+	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
+
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 	const dispatch = useDispatch();
 	const [loadingAutomaticDiscount] = useState(false);
 	const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -470,12 +479,13 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
-	const handleDelayApplyDiscountWhenChangeInput = (
+	const handleDelayCalculateWhenChangeOrderInput = (
 		inputRef: React.MutableRefObject<any>,
 		_items: OrderLineItemRequest[],
 		isShouldAutomaticDiscount = true
 	) => {
 		// delay khi thay đổi số lượng
+		//nếu có chiết khấu tự động
 		if (isAutomaticDiscount) {
 			handleDelayActionWhenInsertTextInSearchInput(
 				inputRef,
@@ -486,10 +496,17 @@ function OrderCreateProduct(props: PropType) {
 				},
 				QUANTITY_DELAY_TIME
 			);
-		} else {
+		//nếu có coupon
+		} else if(couponInputText) {
 			handleDelayActionWhenInsertTextInSearchInput(
 				inputRef,
 				() => handleApplyCouponWhenInsertCoupon(couponInputText, _items),
+				QUANTITY_DELAY_TIME
+			);
+		} else {
+			handleDelayActionWhenInsertTextInSearchInput(
+				inputRef,
+				() => calculateChangeMoney(_items),
 				QUANTITY_DELAY_TIME
 			);
 		}
@@ -509,8 +526,7 @@ function OrderCreateProduct(props: PropType) {
 			_item.discount_value = getLineItemDiscountValue(_item);
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
-			handleDelayApplyDiscountWhenChangeInput(lineItemQuantityInputTimeoutRef, _items);
-			calculateChangeMoney(_items);
+			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
 	};
 
@@ -522,15 +538,13 @@ function OrderCreateProduct(props: PropType) {
 				if(_items[index]?.discount_items && _items[index].discount_items[0]) {
 					_items[index].discount_items[0].value = _items[index]?.discount_items[0].rate * value / 100;
 				}
-				handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
-				calculateChangeMoney(_items);
+				handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);
 			}
 		}
 	};
 
 	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
-		handleDelayApplyDiscountWhenChangeInput(lineItemDiscountInputTimeoutRef, _items, false);
-		calculateChangeMoney(_items);
+		handleDelayCalculateWhenChangeOrderInput(lineItemDiscountInputTimeoutRef, _items, false);
 	};
 
 	// render
@@ -1249,18 +1263,10 @@ function OrderCreateProduct(props: PropType) {
 		return discountAmountOrder
 	};
 
-	const handleApplyDiscount = async (
-		items: OrderLineItemRequest[] | undefined,
-		_isAutomaticDiscount: boolean = isAutomaticDiscount
-	) => {
-		isShouldUpdateDiscountRef.current = true;
-		if (!items || items.length === 0 || !_isAutomaticDiscount) {
-			return;
-		}
-		setIsCalculateDiscount(true);
-		removeCoupon()
-		// handleRemoveAllAutomaticDiscount();
-		const lineItems: LineItemRequestModel[] = items.map((single) => {
+	const lineItemsConvert = (items: OrderLineItemRequest[]) => {
+		return items.filter(item => {
+			return [PRODUCT_TYPE.normal, PRODUCT_TYPE.combo].includes(item.product_type)
+		}).map((single) => {
 			return {
 				original_unit_price: single.price,
 				product_id: single.product_id,
@@ -1269,6 +1275,20 @@ function OrderCreateProduct(props: PropType) {
 				variant_id: single.variant_id,
 			};
 		});
+	};
+
+	const handleApplyDiscount = async (
+		items: OrderLineItemRequest[] | undefined,
+		_isAutomaticDiscount: boolean = isAutomaticDiscount
+	) => {
+		isShouldUpdateDiscountRef.current = true;
+		if (!items || items.length === 0 || !_isAutomaticDiscount) {
+			return;
+		}
+		console.log('items', items)
+		setIsCalculateDiscount(true);
+		removeCoupon()
+		// handleRemoveAllAutomaticDiscount();
 		let params: DiscountRequestModel = {
 			order_id: orderDetail?.id || null,
 			customer_id: customer?.id || null,
@@ -1279,10 +1299,10 @@ function OrderCreateProduct(props: PropType) {
 			birthday_date: customer?.birthday || null,
 			wedding_date: customer?.wedding_date || null,
 			store_id: form.getFieldValue("store_id"),
-			sales_channel_name: "ADMIN",
+			sales_channel_name: ADMIN_ORDER.channel_name,
 			order_source_id: form.getFieldValue("source_id"),
 			assignee_code: customer?.responsible_staff_code || null,
-			line_items: lineItems,
+			line_items: lineItemsConvert(items),
 			applied_discount: null,
 			taxes_included: true,
 			tax_exempt: false,
@@ -1359,15 +1379,6 @@ function OrderCreateProduct(props: PropType) {
 		}
 		handleRemoveAllDiscount();
 		coupon = coupon.trim();
-		const lineItems: LineItemRequestModel[] = _items.map((single) => {
-			return {
-				original_unit_price: single.price,
-				product_id: single.product_id,
-				quantity: single.quantity,
-				sku: single.sku,
-				variant_id: single.variant_id,
-			};
-		});
 		if (!isAutomaticDiscount) {
 			let params: DiscountRequestModel = {
 				order_id: orderDetail?.id || null,
@@ -1379,10 +1390,10 @@ function OrderCreateProduct(props: PropType) {
 				birthday_date: customer?.birthday || null,
 				wedding_date: customer?.wedding_date || null,
 				store_id: form.getFieldValue("store_id"),
-				sales_channel_name: "ADMIN",
+				sales_channel_name: ADMIN_ORDER.channel_name,
 				order_source_id: form.getFieldValue("source_id"),
 				assignee_code: customer?.responsible_staff_code || null,
-				line_items: lineItems,
+				line_items: lineItemsConvert(_items),
 				applied_discount: {
 					code: coupon,
 				},
@@ -1828,6 +1839,14 @@ function OrderCreateProduct(props: PropType) {
 		}
 		fillCustomNote(_items);
 		props.changeInfo(_items, _promotion);
+		dispatch(changeOrderLineItemsAction(_items));
+		const orderAmount = totalAmount(_items);
+		if(orderCustomer) {
+			const shippingAddress = getCustomerShippingAddress(orderCustomer);
+			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
+				transportService, form, setShippingFeeInformedToCustomer
+				);
+		}
 	};
 
 	const dataCanAccess = useMemo(() => {

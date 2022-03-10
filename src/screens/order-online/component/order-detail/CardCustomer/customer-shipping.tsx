@@ -10,11 +10,13 @@ import actionColumn from "../../../common/action.column";
 import { CustomerShippingAddress } from "model/request/customer.request";
 import React from "react";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCustomerDetailAction,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
 
 function CustomerShippingAddressOrder(props: any) {
   const {
@@ -24,8 +26,16 @@ function CustomerShippingAddressOrder(props: any) {
     handleShippingDelete,
     handleSingleShippingAddress,
     handleShippingAddress,
+    form,
+    setShippingFeeInformedToCustomer,
   } = props;
   const dispatch = useDispatch();
+
+  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 
   const handleShippingDefault = (value: any, item: any) => {
     let _item = { ...item };
@@ -45,8 +55,12 @@ function CustomerShippingAddressOrder(props: any) {
                   handleChangeCustomer(datas);
                 })
               );
-              handleShippingAddress(data);
+              const orderAmount = totalAmount(orderLineItems);
+              handleCalculateShippingFeeApplyOrderSetting(data.city_id, orderAmount, shippingServiceConfig,
+                transportService, form, setShippingFeeInformedToCustomer
+                );
               showSuccess("Đặt mặc định thành công");
+              handleShippingAddress(data);
             } else {
               showError("Đặt mặc định thất bại");
             }
