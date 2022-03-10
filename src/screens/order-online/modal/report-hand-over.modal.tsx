@@ -7,6 +7,7 @@ import { haveAccess } from "utils/AppUtils";
 
 import { Input } from "antd";
 import { useContext, useMemo } from "react";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 const { TextArea } = Input;
 
 type ReportHandOverModalProps = {
@@ -48,7 +49,14 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
     return newData;
   }, [listStores, userReducer.account]);
 
-
+  const deliveryServiceProvider = useMemo(() => {
+    let dataAccess: DeliveryServiceResponse[] = [];
+    listThirdPartyLogistics.forEach((item, index) => {
+      if (dataAccess.findIndex((p) => p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim())!== -1)===-1)
+        dataAccess.push({ ...item })
+    });
+    return dataAccess;
+  }, [listThirdPartyLogistics]);
 
 
   return (
@@ -137,7 +145,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                    <Select.Option key={-1} value={-1}>
                     Tự giao hàng
                   </Select.Option>
-                  {listThirdPartyLogistics.map((item, index) => (
+                  {deliveryServiceProvider.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>

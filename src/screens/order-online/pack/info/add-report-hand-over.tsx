@@ -25,6 +25,7 @@ import { showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { OrderResponse } from "model/response/order/order.response";
+import { ShipmentMethod } from "utils/Constants";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 5,
@@ -109,6 +110,7 @@ const AddReportHandOver: React.FC = () => {
         ecommerce_name: ecommerce_name,
         delivery_service_name: delivery_service_name,
         receipt_type_name: receipt_type_name,
+        delivery_service_type:value.delivery_service_id===-1?ShipmentMethod.EMPLOYEE : ShipmentMethod.EXTERNAL_SHIPPER,
       };
 
       dispatch(

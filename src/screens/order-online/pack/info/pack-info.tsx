@@ -18,7 +18,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderResponse,
   OrderProductListModel,
-  OrderLineItemResponse
+  OrderLineItemResponse,
+  DeliveryServiceResponse
 } from "model/response/order/order.response";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -92,6 +93,15 @@ const PackInfo: React.FC = () => {
         (x) => x.id === orderResponse?.shipment?.delivery_service_provider_id
       )?.name
       : "";
+
+  const deliveryServiceProvider = useMemo(() => {
+    let dataAccess: DeliveryServiceResponse[] = [];
+    listThirdPartyLogistics.forEach((item, index) => {
+      if (dataAccess.findIndex((p) => p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim())!== -1)===-1)
+        dataAccess.push({ ...item })
+    });
+    return dataAccess;
+  }, [listThirdPartyLogistics]);
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -204,7 +214,7 @@ const PackInfo: React.FC = () => {
   const FinishPack = useCallback(() => {
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
-    if(value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())){
+    if (value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())) {
       return
     }
 
@@ -220,7 +230,7 @@ const PackInfo: React.FC = () => {
       );
 
       if (indexPack !== -1) {
-        
+
         if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
           showError("Số lượng nhặt không đúng");
           return
@@ -488,7 +498,7 @@ const PackInfo: React.FC = () => {
                 >
                   <Select.Option key={-1} value={-1}>Tự vận chuyển</Select.Option>
                   {
-                    listThirdPartyLogistics.map((item, index) => (
+                    deliveryServiceProvider.map((item, index) => (
                       <Select.Option key={index.toString()} value={item.id}>
                         {item.name}
                       </Select.Option>
