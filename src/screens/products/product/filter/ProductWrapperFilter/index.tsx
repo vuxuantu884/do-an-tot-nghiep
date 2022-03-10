@@ -29,6 +29,25 @@ import { StyledComponent } from "./styled";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import CustomSelect from "component/custom/select.custom";
+
+function tagRender(props: any) {
+  const { label, closable, onClose } = props;
+  const onPreventMouseDown = (event: any) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  return (
+    <Tag
+      className="primary-bg"
+      onMouseDown={onPreventMouseDown}
+      closable={closable}
+      onClose={onClose}
+    >
+      {label}
+    </Tag>
+  );
+}
 
 type ProductFilterProps = {
   params: ProductWrapperSearchQuery;
@@ -312,24 +331,44 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.category_ids:
                     component = (
-                      <Select mode="multiple" showSearch optionFilterProp="children" placeholder="Chọn danh mục" allowClear>
+                      <CustomSelect
+                        showSearch
+                        optionFilterProp="children"
+                        showArrow
+                        placeholder="Chọn danh mục"
+                        mode="multiple"
+                        allowClear
+                        tagRender={tagRender}
+                        notFoundContent="Không tìm thấy kết quả"
+                        maxTagCount="responsive"
+                      >
                         {listCategory?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {`${item.name}`}
-                          </Option>
+                          <CustomSelect.Option key={item.id} value={item.id}>
+                            {item.name}
+                          </CustomSelect.Option>
                         ))}
-                      </Select>
+                      </CustomSelect>
                     );
                     break;
                   case SearchVariantWrapperField.goods:
                     component = (
-                      <Select mode="multiple" placeholder="Chọn ngành hàng" allowClear>
+                      <CustomSelect
+                        showSearch
+                        optionFilterProp="children"
+                        showArrow
+                        placeholder="Chọn ngành hàng"
+                        mode="multiple"
+                        allowClear
+                        tagRender={tagRender}
+                        notFoundContent="Không tìm thấy kết quả"
+                        maxTagCount="responsive"
+                      >
                         {goods?.map((item) => (
-                          <Option key={item.value} value={item.value}>
+                          <CustomSelect.Option key={item.value} value={item.value}>
                             {item.name}
-                          </Option>
+                          </CustomSelect.Option>
                         ))}
-                      </Select>
+                      </CustomSelect>
                     );
                     break;
                   case SearchVariantWrapperField.material_ids:
