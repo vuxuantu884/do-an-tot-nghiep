@@ -199,7 +199,7 @@ function OrderCreateProduct(props: PropType) {
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
-	const QUANTITY_DELAY_TIME = 1000;
+	const QUANTITY_DELAY_TIME = 300;
 	const {
 		form,
 		items,
@@ -484,6 +484,7 @@ function OrderCreateProduct(props: PropType) {
 		_items: OrderLineItemRequest[],
 		isShouldAutomaticDiscount = true
 	) => {
+		console.log('_items', _items)
 		// delay khi thay đổi số lượng
 		//nếu có chiết khấu tự động
 		if (isAutomaticDiscount) {
@@ -492,6 +493,8 @@ function OrderCreateProduct(props: PropType) {
 				() => {
 					if (isShouldAutomaticDiscount) {
 						handleApplyDiscount(_items)
+					} else {
+						calculateChangeMoney(_items)
 					}
 				},
 				QUANTITY_DELAY_TIME
@@ -535,15 +538,13 @@ function OrderCreateProduct(props: PropType) {
 			let _items = _.cloneDeep(items)
 			if (value !== null && value !== _items[index].price) {
 				_items[index].price = value;
-				if(_items[index]?.discount_items && _items[index].discount_items[0]) {
-					_items[index].discount_items[0].value = _items[index]?.discount_items[0].rate * value / 100;
-				}
 				handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);
 			}
 		}
 	};
 
 	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
+		console.log('_items', _items)
 		handleDelayCalculateWhenChangeOrderInput(lineItemDiscountInputTimeoutRef, _items, false);
 	};
 
@@ -836,6 +837,7 @@ function OrderCreateProduct(props: PropType) {
 		width: "20%",
 		className: "yody-table-discount text-right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
+			console.log('l', l)
 			return (
 				<div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup">
 					<DiscountGroup
