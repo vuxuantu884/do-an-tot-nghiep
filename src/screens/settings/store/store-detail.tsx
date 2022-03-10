@@ -13,6 +13,9 @@ import RowDetail from "screens/products/product/component/RowDetail";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import useAuthorization from "hook/useAuthorization";
 import { StorePermissions } from "config/permissions/setting.permisssion";
+import { DepartmentResponse } from "../../../model/account/department.model";
+import { departmentDetailAction } from "../../../domain/actions/account/department.action";
+import { AppConfig } from "../../../config/app.config";
 const {Panel} = Collapse;
 
 type StoreParam = {
@@ -28,6 +31,7 @@ const StoreDetailScreen: React.FC = () => {
   //end hook
   //State
   const [formMain] = Form.useForm();
+  const [, setDepartment] = useState<any>();
   const [data, setData] = useState<StoreResponse | null>(null);
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
@@ -40,6 +44,44 @@ const StoreDetailScreen: React.FC = () => {
   const [allowUpdateStore] = useAuthorization({
     acceptPermissions: [StorePermissions.UPDATE],
   });
+
+  const findParent = useCallback((list: any, departmentId: number, parent = null) => {
+    if (!list) return;
+    for (let item of list) {
+      let res: any = item.id === departmentId ? parent ? parent : item
+        : item.children && findParent(item.children, departmentId, item);
+      if (res) return res;
+    }
+  }, []);
+
+  const onResDepartment = useCallback((departmentData: DepartmentResponse | Array<DepartmentResponse> | false) => {
+    if (departmentData) {
+      setDepartment(departmentData);
+
+      setData((data: any) => {
+        if (!data) return;
+
+        const newData = { ...data };
+        if (!newData) return;
+
+        if (newData.parent_id === -1) newData.departmentParentName = newData.name;
+
+        else newData.departmentParentName = findParent(departmentData, newData.department_id)
+          ? findParent(departmentData, newData.department_id).name
+          : null;
+
+        setData(newData);
+
+        return data;
+      });
+    }
+  }, [findParent]);
+
+  useEffect(() => {
+    dispatch(
+      departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
+    );
+  }, [dispatch, onResDepartment])
 
   const setResult = useCallback((data: StoreResponse | false) => {
     setLoadingData(false);
@@ -129,7 +171,7 @@ const StoreDetailScreen: React.FC = () => {
                 </Row>
                 <Row style={{marginTop: 10}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
-                  <RowDetail title="Trực thuộc" value={data.department} />
+                  <RowDetail title="Trực thuộc" value={data.departmentParentName} />
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail title="Phân loại" value={data.type_name} />
@@ -201,6 +243,7 @@ const StoreDetailScreen: React.FC = () => {
           </Collapse>
           <BottomBarContainer
             back={"Quay lại danh sách"}
+            backAction={() => history.push(UrlConfig.STORE)}
             rightComponent={
               allowUpdateStore &&
                 <Button

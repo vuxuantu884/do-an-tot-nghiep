@@ -167,7 +167,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
             />
           </Form.Item>
           <Form.Item name="department_ids" style={{ maxWidth: 310, minWidth:250 }}>
-            <TreeDepartment listDepartment={listDepartment} style={{ width: 250}}/>
+            <TreeDepartment placeholder="Chọn trực thuộc" listDepartment={listDepartment} style={{ width: 250}}/>
           </Form.Item>
           <Form.Item name="status">
             <CustomSelect

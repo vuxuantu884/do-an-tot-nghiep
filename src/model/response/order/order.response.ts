@@ -94,7 +94,7 @@ export interface OrderResponse extends BaseObject {
     utm_term?: string | null;
     utm_content?: string | null;
   };
-  export_bill: boolean; 
+  export_bill: boolean;
 }
 
 export interface OrderLineItemResponse {
@@ -399,6 +399,7 @@ export interface StoreCustomResponse extends BaseObject {
   city_id: number;
   city_name: string;
   department: string;
+  departmentParentName: string;
   department_id: number,
   status: string;
   status_name: string;
