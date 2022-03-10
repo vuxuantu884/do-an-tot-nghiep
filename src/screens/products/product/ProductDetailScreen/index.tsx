@@ -23,6 +23,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
+import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import { Products } from "utils/AppUtils";
 import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
@@ -547,8 +548,16 @@ const tab= document.getElementById("tab");
                   </div>
                 </Card>
                 <Card title="Phòng win" className="card">
-                    <RowDetail title="Merchandiser " value={data.merchandiser} />
-                    <RowDetail title="Thiết kế" value={data.designer} />
+                    <RowDetail title="Merchandiser " value={<>
+                      <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${data.merchandiser_code}`}> 
+                        {data.merchandiser} 
+                      </Link>  
+                    </>} />
+                    <RowDetail title="Thiết kế" value={<>
+                      <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${data.designer_code}`}> 
+                        {data.designer} 
+                      </Link>  
+                    </>} />
                 </Card>
               </Col>
             </Row>

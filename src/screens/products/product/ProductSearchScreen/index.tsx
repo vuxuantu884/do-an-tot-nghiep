@@ -11,7 +11,6 @@ import useAuthorization from "hook/useAuthorization";
 import React, {useEffect, useState} from "react";
 import {Link, useHistory, useRouteMatch} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import ExportProduct from "../component/ExportProduct";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
 import TabProduct from "../tab/TabProduct";
@@ -77,7 +76,7 @@ const ListProductScreen: React.FC = () => {
     {
       name: "Danh sách sản phẩm",
       key: ProductTabUrl.VARIANTS,
-      component: <TabProduct />,
+      component: <TabProduct vExportProduct={vExportProduct} setVExportProduct={setVExportProduct}/>,
       isShow: canReadVariants,
     },
     {
@@ -99,7 +98,7 @@ const ListProductScreen: React.FC = () => {
       isShow: canReadHistories,
     },
   ];
-  const tabs = defaultTabs.filter((tab) => tab.isShow);
+  const tabs = defaultTabs.filter((tab) => tab.isShow); 
 
   return (
     <ContentContainer
@@ -118,6 +117,7 @@ const ListProductScreen: React.FC = () => {
             <AuthWrapper acceptPermissions={[ProductPermission.import_excel]}>
               <Link to={`${UrlConfig.PRODUCT}/import`}>
                 <Button
+                  hidden
                   className="light"
                   size="large"
                   icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
@@ -126,14 +126,16 @@ const ListProductScreen: React.FC = () => {
                 </Button>
               </Link>
             </AuthWrapper>
-            <Button
-              className="light"
-              size="large"
-              icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-              onClick={() => {setVExportProduct(true)}}
-            >
-              Xuất file
-            </Button>
+            <AuthWrapper acceptPermissions={[ProductPermission.import_excel]}>
+              <Button
+                className="light"
+                size="large"
+                icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                onClick={() => {setVExportProduct(true)}}
+              >
+                Xuất file
+              </Button>
+            </AuthWrapper>
             <AuthWrapper acceptPermissions={[ProductPermission.create]}>
               {" "}
               <ButtonCreate child="Thêm sản phẩm" path={`${UrlConfig.PRODUCT}/create`} />{" "}
@@ -163,12 +165,7 @@ const ListProductScreen: React.FC = () => {
             }
           })}
         </Tabs>
-      </Card>
-      <ExportProduct
-        onCancel={()=>{setVExportProduct(false)}}
-        onOk={()=>{setVExportProduct(false)}}
-        visible={vExportProduct}
-       />
+      </Card> 
     </ContentContainer>
   );
 };
