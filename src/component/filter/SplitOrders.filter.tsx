@@ -155,7 +155,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     },
     [onMenuClick]
   );
-  
+
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
@@ -186,7 +186,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
         case 'expected':
           setExpectedClick('')
           onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
-          break;  
+          break;
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
@@ -210,7 +210,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
           break;
         case 'variant_ids':
           onFilter && onFilter({...params, variant_ids: []});
-          break;  
+          break;
         case 'payment_method':
           onFilter && onFilter({...params, payment_method_ids: []});
           break;
@@ -219,7 +219,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
           break;
         case 'delivery_types':
           onFilter && onFilter({...params, delivery_types: []});
-          break;  
+          break;
         case 'delivery_provider_ids':
           onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
@@ -237,7 +237,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
           break;
         case 'reference_code':
           onFilter && onFilter({...params, reference_code: ""});
-          break;  
+          break;
         default: break
       }
       // const tags = filters.filter((tag: any) => tag.key !== key);
@@ -251,12 +251,12 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
   const [cancelledClick, setCancelledClick] = useState('');
   const [expectedClick, setExpectedClick] = useState('');
 
-  
+
 
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);
-  
+
   const initialValues = useMemo(() => {
     return {
       ...params,
@@ -401,7 +401,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     }
     if (initialValues.sub_status_code.length) {
       let textStatus = ""
-      
+
       initialValues.sub_status_code.forEach((i: any) => {
         const findStatus = subStatus?.find(item => item.code.toString() === i.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + "; " : textStatus
@@ -452,7 +452,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     // }
     if (initialValues.variant_ids.length) {
       let textVariant = ""
-      
+
       optionsVariant.forEach(i => {
         textVariant = textVariant + i.label + "; "
       })
@@ -546,7 +546,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
         value: textAccount
       })
     }
-    
+
     if (initialValues.note) {
       list.push({
         key: 'note',
@@ -601,7 +601,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     setCancelledClick('')
     setExpectedClick('')
     setFinalizedClick('')
-  
+
     setVisible(false);
     setRerender(false);
   };
@@ -663,7 +663,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                 }}
               />
             </Item>
-            
+
             <Item>
               <Button type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
@@ -695,7 +695,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            
+
             <Row gutter={20}>
               <Col span={8} xxl={6}>
                 <p>Kho cửa hàng</p>
@@ -746,7 +746,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                     style={{ width: '100%'}}
                     showArrow allowClear
                     showSearch
-                    placeholder="Nguồn đơn hàng"
+                    placeholder="Nguồn đơn hàng 1"
                     notFoundContent="Không tìm thấy kết quả"
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
@@ -796,7 +796,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                   formRef={formRef}
                 />
               </Col>
-            
+
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày duyệt đơn</p>
                 <CustomRangeDatePicker
@@ -830,7 +830,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                   formRef={formRef}
                 />
               </Col>
-            
+
               <Col span={8} xxl={6}>
                 <p>Trạng thái xử lý đơn</p>
                 <Item name="sub_status_code">
@@ -937,7 +937,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                       max="100000000"
                     />
                   </Item>
-                  
+
                   <div className="swap-right-icon"><SwapRightOutlined /></div>
                   <Item name="price_max" style={{width: '45%', marginBottom: 0}}>
                     <InputNumber
@@ -992,7 +992,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
               </Col>
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày dự kiến nhận hàng</p>
-                
+
                 <CustomRangeDatePicker
                   fieldNameFrom="expected_receive_on_min"
                   fieldNameTo="expected_receive_on_max"
@@ -1052,7 +1052,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                     }}
                   />
                 </Item>
-                
+
               </Col>
               <Col span={8} xxl={6}>
                 <p>Tags</p>
@@ -1063,10 +1063,10 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                   placeholder="Điền 1 hoặc nhiều tag"
                   style={{width: '100%'}}
                 >
-                  
+
                 </CustomSelect>
                 </Item>
-                
+
               </Col>
               <Col span={8} xxl={6}>
                 <p>Ghi chú nội bộ</p>

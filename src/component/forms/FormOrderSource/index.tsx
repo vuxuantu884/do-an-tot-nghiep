@@ -1,9 +1,10 @@
-import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
+import { Checkbox, Col, Form, Input, InputNumber, Row, TreeSelect } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
+import TreeDepartment from "screens/settings/department/component/TreeDepartment";
 import { strForSearch } from "utils/StringUtils";
 
 type FormValuesType = {
@@ -28,6 +29,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
 
   const { listDepartments } = moreFormArguments;
   const [isVisibleFieldDefault, setIsVisibleFieldDefault] = useState(false);
+  const [departmentsForSource, setDepartmentsForSource] = useState<Array<object>>([]);
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
@@ -76,6 +78,34 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
     }
   }, [form, visible]);
 
+  const filterDepartmentLevelThree = (newList: Array<Object>, list: Array<Object>) => {
+    list.forEach((i: any) => {
+      if (i.level === 3) newList.push(i);
+      if (i.children.length > 0) filterDepartmentLevelThree(newList, i.children);
+    });
+  };
+
+  useEffect(() => {
+    if (listDepartments.length === 0) return;
+
+    let newDepartments: Array<object> = [];
+
+    filterDepartmentLevelThree(newDepartments, listDepartments);
+
+    setDepartmentsForSource(newDepartments);
+    // eslint-disable-next-line
+  }, [listDepartments]);
+
+  const getDepartmentName = (list: any, value: any): any => {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].id === value) {
+        return list[i].name;
+      }
+
+      if (list[i].children.length > 0) return getDepartmentName(list[i].children, value);
+    }
+  };
+
   return (
     <StyledComponent>
       <Form
@@ -118,47 +148,30 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
               label="Phòng ban"
               rules={[{ required: true, message: "Vui lòng chọn phòng ban!" }]}
             >
-              <Select
-                showSearch
-                allowClear
-                style={{ width: "100%" }}
+              <TreeSelect
                 placeholder="Chọn phòng ban"
-                optionFilterProp="title"
+                treeDefaultExpandAll
+                className="selector"
+                allowClear
+                showSearch
                 notFoundContent="Không tìm thấy phòng ban"
-                onChange={(value, option: any) => {
-                  let selectedDepartment = listDepartments.find((single: any) => {
-                    return single.id === value;
-                  });
-                  if (selectedDepartment) {
-                    form.setFieldsValue({ department: selectedDepartment.name });
-                  }
+                treeNodeFilterProp='title'
+                onChange={(value: any) => {
+                  let name: string = getDepartmentName(departmentsForSource, value);
+                  form.setFieldsValue({ department: name });
                 }}
-                filterOption={(input: String, option: any) => {
-                  if (option.props.value) {
-                    return strForSearch(option.props.children[2].props.children).includes(strForSearch(input));
+                filterTreeNode={(input: String, option: any) => {
+                  if (option.value) {
+                    return strForSearch(option.title).includes(strForSearch(input));
                   }
 
                   return false;
                 }}
               >
-                {listDepartments &&
-                  listDepartments.map((single: any) => {
-                    return (
-                      <Select.Option value={single.id} key={single.id} title={single.name}>
-                        <span
-                          className="hideInSelect"
-                          style={{ paddingLeft: +18 * single.level }}
-                        ></span>
-                        {single?.parent?.name && (
-                          <span className="hideInDropdown">
-                            {single?.parent?.name} -{" "}
-                          </span>
-                        )}
-                        <span className={`${single.level === 0 && "itemParent"}`}>{single.name}</span>
-                      </Select.Option>
-                    );
-                  })}
-              </Select>
+                {departmentsForSource?.map((item: any, index: number) => (
+                  <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+                ))}
+              </TreeSelect>
             </Form.Item>
           </Col>
         </Row>

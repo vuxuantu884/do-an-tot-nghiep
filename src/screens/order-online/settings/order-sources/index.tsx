@@ -1,5 +1,5 @@
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
-import {Button, Card, Form, Input, Select} from "antd";
+import { Button, Card, Form, Input, Select } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
@@ -43,8 +43,8 @@ import { callApiNative } from "utils/ApiUtils";
 import {
   getSourcesWithParamsService
 } from "service/order/order.service";
-import TreeDepartment from "component/tree-node/tree-department";
 import { DepartmentGetListAction } from "domain/actions/account/account.action";
+import TreeDepartment from "component/tree-node/tree-department";
 
 type formValuesType = {
   name: string | undefined;
@@ -386,7 +386,7 @@ function OrderSources(props: PropTypes) {
     const valuesFromParams: formValuesType = {
       name: queryParamsParsed.name || undefined,
       department_ids: queryParamsParsed.department_ids
-        ? queryParamsParsed.department_ids.split(',')
+        ? queryParamsParsed.department_ids.split(',').map((i: any) => Number(i))
         : undefined,
     };
     form.setFieldsValue(valuesFromParams);
@@ -410,12 +410,23 @@ function OrderSources(props: PropTypes) {
     queryParamsParsed.page,
   ]);
 
+  const filterDepartmentLevelThree = (newList: Array<Object>, list: Array<Object>) => {
+    list.forEach((i: any) => {
+      if (i.level === 3) newList.push(i);
+      if (i.children.length > 0) filterDepartmentLevelThree(newList, i.children);
+    });
+  };
+
   useEffect(() => {
     dispatch(DepartmentGetListAction((response: DepartmentResponse[]) => {
       if (response) {
-        setListDepartments(response);
+        let newDepartments: Array<object> = [];
+
+        filterDepartmentLevelThree(newDepartments, response);
+        setListDepartments(newDepartments);
       }
     }));
+    // eslint-disable-next-line
   }, [dispatch]);
 
   return (
@@ -453,8 +464,11 @@ function OrderSources(props: PropTypes) {
                     placeholder="Nguồn đơn hàng"
                   />
                 </Form.Item>
-                <Form.Item name="department_ids" style={{width: 305}}>
-                  <TreeDepartment listDepartment={listDepartments} style={{ width: '100%' }}/>
+                <Form.Item
+                  style={{ width: 305 }}
+                  name="department_ids"
+                >
+                  <TreeDepartment listDepartment={listDepartments} style={{ width: '100%' }} />
                 </Form.Item>
                 <Form.Item name="active" style={{width: 200}}>
                   <Select
