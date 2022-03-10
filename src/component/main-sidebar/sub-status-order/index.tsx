@@ -62,11 +62,18 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>([]);
   const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
+  const [isShowReason, setIsShowReason] = useState(false);
+
+  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<string|undefined>(undefined);
+
   const sortedFulfillments = useMemo(() => {
     if (!OrderDetailAllFulfillment?.fulfillments) {
       return [];
     } else {
-      return sortFulfillments(OrderDetailAllFulfillment?.fulfillments);
+      const returnStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.CANCELLED, FulFillmentStatus.RETURNING]
+      let sort = sortFulfillments(OrderDetailAllFulfillment?.fulfillments);
+      // bỏ trạng thái fulfillment đã hủy
+      return sort.filter(single => single.status && !returnStatus.includes(single.status));
     }
   }, [OrderDetailAllFulfillment?.fulfillments]);
 
@@ -317,6 +324,17 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           now: ORDER_SUB_STATUS.third_call_attempt,
           list: [ORDER_SUB_STATUS.third_call_attempt],
         },
+        // duyệt đơn hàng
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+          list: [
+            ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.fourHour_delivery,
+          ],
+        },
         // chờ sale xác nhận lại
         {
           orderStatus: OrderStatus.FINALIZED,
@@ -415,34 +433,46 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const handleIfOrderStatusWithPartner = (sub_status_code: string) => {
     let isChange = true;
     switch (sub_status_code) {
-      case ORDER_SUB_STATUS.merchandise_packed: {
-        if (!OrderDetailAllFulfillment?.code) {
-          return;
+      // backend đã xử lý khi chưa có biên bản bàn giao
+      // case ORDER_SUB_STATUS.awaiting_shipper: {
+      //   if (!OrderDetailAllFulfillment?.code) {
+      //     return isChange;
+      //   }
+      //   const query = {
+      //     order_codes: OrderDetailAllFulfillment?.code,
+      //   };
+      //   getGoodsReceiptsSerchService(query).then((response) => {
+      //     if (isFetchApiSuccessful(response)) {
+      //       if (response.data?.items?.length > 0) {
+      //         isChange = true;
+      //       } else {
+      //         isChange = false;
+      //         showError("Đơn hàng chưa có trong biên bản bàn giao!");
+      //       }
+      //     }
+      //   });
+      //   break;
+      // }
+      
+      case ORDER_SUB_STATUS.require_warehouse_change: {
+        if (subReasonRequireWarehouseChange) {
+          isChange = true;
+        } else {
+          isChange = false;
+          setIsShowReason(true);
+          showError("Chọn lý do đổi kho hàng chi tiết!");
         }
-        const query = {
-          order_codes: OrderDetailAllFulfillment?.code,
-        };
-        getGoodsReceiptsSerchService(query).then((response) => {
-          if (isFetchApiSuccessful(response)) {
-            if (response.data?.items?.length > 0) {
-              isChange = true;
-            } else {
-              isChange = false;
-              showError("Đơn hàng chưa có trong biên bản bàn giao!");
-            }
-          }
-        });
         break;
       }
       default:
         break;
     }
-    if (isChange) {
-      changeSubStatusCode(sub_status_code);
-    }
+    return isChange;
   };
 
   const handleIfOrderStatusPickAtStore = (sub_status_code: string) => {
+    let isChange = true;
+    return isChange;
     // changeSubStatusCode(sub_status_code);
   };
 
@@ -451,7 +481,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     switch (sub_status_code) {
       case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
         const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
-        if (sortedFulfillments[0].status && cancelStatus.includes(sortedFulfillments[0].status)) {
+        if (!sortedFulfillments[0]?.shipment || (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status))) {
           isChange = true;
         } else {
           isChange = false;
@@ -462,8 +492,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       case ORDER_SUB_STATUS.coordinator_confirmed: {
         const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
         if (
-          (sortedFulfillments[0].status && cancelStatus.includes(sortedFulfillments[0].status)) ||
-          !sortedFulfillments[0].shipment
+          (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status)) ||
+          !sortedFulfillments[0]?.shipment
         ) {
           isChange = false;
           showError("Chưa có hình thức vận chuyển!");
@@ -473,7 +503,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         break;
       }
       case ORDER_SUB_STATUS.fourHour_delivery: {
-        if (sortedFulfillments[0].shipment?.service !== SHIPPING_TYPE.DELIVERY_4H) {
+        if (sortedFulfillments[0]?.shipment?.service !== SHIPPING_TYPE.DELIVERY_4H) {
           isChange = false;
           showError("Chưa chọn giao hàng 4h!");
         } else {
@@ -484,28 +514,30 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       default:
         break;
     }
-    if (isChange) {
-      changeSubStatusCode(sub_status_code);
-    }
+    return isChange;
   };
 
   const handleChange = (sub_status_code: string) => {
     if (!orderId) {
       return;
     }
-    handleIfOrderStatusOther(sub_status_code);
+    let isChange = true;
     switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
       // giao hàng hvc, tự giao hàng
       case ShipmentMethod.EXTERNAL_SERVICE:
       case ShipmentMethod.EMPLOYEE:
-        handleIfOrderStatusWithPartner(sub_status_code);
+        isChange = handleIfOrderStatusWithPartner(sub_status_code);
         break;
       // nhận tại cửa hàng
       case ShipmentMethod.PICK_AT_STORE:
-        handleIfOrderStatusPickAtStore(sub_status_code);
+        isChange = handleIfOrderStatusPickAtStore(sub_status_code);
         break;
       default:
         break;
+      }
+    isChange = handleIfOrderStatusOther(sub_status_code);
+    if(isChange) {
+      changeSubStatusCode(sub_status_code)
     }
   };
 
@@ -575,7 +607,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
-        key={Math.random()}>
+        key={Math.random()}
+      >
         {listOrderSubStatus &&
           listOrderSubStatus.map((single) => {
             return (
@@ -585,6 +618,28 @@ function SubStatusOrder(props: PropType): React.ReactElement {
             );
           })}
       </Select>
+      {isShowReason ? (
+        <Select
+          showSearch
+          style={{ width: "100%" }}
+          placeholder="Chọn lý do đổi kho hàng"
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          }
+          onChange={(value: string) =>setSubReasonRequireWarehouseChange(value)}
+          notFoundContent="Không tìm thấy lý do đổi kho hàng"
+        >
+          {listOrderSubStatus &&
+            listOrderSubStatus.map((single) => {
+              return (
+                <Select.Option value={single.code} key={single.code}>
+                  {single.sub_status}
+                </Select.Option>
+              );
+            })}
+        </Select>
+      ) : null}
     </Card>
   );
 }

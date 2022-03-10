@@ -463,7 +463,7 @@ export interface OrderReturnModel extends OrderResponse {
   total_amount: number;
 }
 
-export interface OrderReturnReasonModel {
+export interface OrderReasonModel {
   code: string;
   id: number;
   name: string;

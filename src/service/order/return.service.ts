@@ -6,7 +6,7 @@ import { ExchangeRequest, OrderRequest, OrderReturnCalculateRefundRequestModel }
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import {
   OrderPaymentResponse,
-  OrderReturnReasonModel
+  OrderReasonModel
 } from "model/response/order/order.response";
 import { generateQuery } from "utils/AppUtils";
 
@@ -29,7 +29,7 @@ export const setIsReceivedProductOrderReturnService = (
 };
 
 export const getOrderReasonService = (orderCodes: string[]): Promise<
-  BaseResponse<OrderReturnReasonModel[]>
+  BaseResponse<OrderReasonModel>
 > => {
   const query = {
     order_codes: orderCodes
