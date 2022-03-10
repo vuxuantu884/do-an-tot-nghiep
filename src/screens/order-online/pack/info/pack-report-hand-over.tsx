@@ -138,7 +138,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     [handlePrintPack,selectedRowKeys]
   );
 
-  let delivery_services: Array<DeliveryServiceResponse> = []
+  let delivery_services: Array<DeliveryServiceResponse> = [];
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 	useEffect(() => {
@@ -607,41 +607,38 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   return (
     <>
-      <div className="yody-pack-row">
-        <PackFilter
-          params={params}
-          isLoading={false}
-          actions={actions}
-          onMenuClick={onMenuClick}
+      <PackFilter
+        params={params}
+        isLoading={false}
+        actions={actions}
+        onMenuClick={onMenuClick}
+        onShowColumnSetting={() => setShowSettingColumn(true)}
+        onFilter={onFilter}
+        onClearFilter={onClearFilter}
+        deliveryServices={deliveryServices}
+      />
+      {data.items && (
+        <CustomTable
+          isRowSelection
+          isLoading={tableLoading}
+          showColumnSetting={true}
+          scroll={{ x: 1450, y: 520 }}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
           onShowColumnSetting={() => setShowSettingColumn(true)}
-          onFilter={onFilter}
-          onClearFilter={onClearFilter}
+          dataSource={data.items}
+          columns={columnFinal}
+          rowKey={(item: GoodsReceiptsSearhModel) => item.id_handover_record}
         />
-      </div>
-      <div className="yody-pack-row">
-        {data.items && (
-          <CustomTable
-            isRowSelection
-            isLoading={tableLoading}
-            showColumnSetting={true}
-            scroll={{ x: 1450, y: 520 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: GoodsReceiptsSearhModel) => item.id_handover_record}
-          />
-        )}
-      </div>
+      )}
 
       {showSettingColumn && (
         <ModalSettingColumn
