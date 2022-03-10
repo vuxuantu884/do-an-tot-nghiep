@@ -240,6 +240,9 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
           <Form form={formNormal} onFinish={onFinish} initialValues={params} layout="inline">
             <Item name="info" className="search">
               <Input
+                onChange={(e) => form.setFieldsValue({
+                  info: e.target.value
+                })}
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo Tên/Mã sản phẩm"
               />

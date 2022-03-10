@@ -92,8 +92,6 @@ function ColorSelect(props: SelectContentProps): ReactElement {
         initParams = [];
       }
 
-      console.log(initParams)
-
       if (initParams.length > 0) {
         // call api lấy data của item(s) đang được chọn trước đó
         const initSelectedResponse = await callApiNative(
