@@ -14,9 +14,14 @@ import TabLogFilter from "../../filter/TabLog.filter";
 import { ProcumentLogQuery, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { callApiNative } from "utils/ApiUtils";
 import { getProcumentLogsService } from "service/purchase-order/purchase-order.service";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import moment from "moment";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
 
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
 const ActionPurchaseORderHistoryModal = lazy(() => import("screens/purchase-order/Sidebar/ActionHistory/Modal"))
+const ProcumentInventoryModal = lazy(() => import("screens/purchase-order/modal/procument-inventory.modal"))
 
 const LogsStatus = [
   {key: "draft", value: "Nháp"},
@@ -44,10 +49,27 @@ const TabLogs: React.FC = () => {
   let dataQuery: ProcumentLogQuery = {...getQueryParams(query), sort_column:"updatedDate",sort_type:"desc"};
   const [params, setPrams] = useState<ProcumentLogQuery>(dataQuery);
   const [actionId, setActionId] = useState<number>();
+  const [visibleProcurement, setVisibleProcurement] = useState(false);
+  const [procumentCode, setProcumentCode] = useState("");  
+  const [procumentInventory, setProcumentInventory] =
+  useState<PurchaseProcument | null>(null);
+  const [isDetail, setIsDetail] = useState(false);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
 
   const onPageChange = (page: number, size?: number) => {
     let newPrams = {...params,page:page,limit: size};
     setPrams(newPrams);
+  };
+
+  const handleClickProcurement = (record: PurchaseProcument | any) => {
+    const { procurement_code } = record;
+    const procurements = JSON.parse(record.data).procurements;
+    const procurement = procurements.find((e: PurchaseProcument) =>e.code === procurement_code);
+
+    setProcumentInventory(procurement);
+    setVisibleProcurement(true);
+    setIsDetail(true);
+    setProcumentCode(procurement_code);
   };
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<PurchaseOrderActionLogResponse>>>([
@@ -63,17 +85,17 @@ const TabLogs: React.FC = () => {
     },
     {
       title: "Phiếu nhập kho",
-      dataIndex: "code",
+      dataIndex: "procurement_code",
       fixed: "left",
       width: 140,
       visible: true,
       render: (value: string, record: PurchaseOrderActionLogResponse) => {
-        let data ={} as PurchaseOrder;
-        if (record.data) {
-          data = JSON.parse(record.data);
-        }
         return (
-          <Link to={`${UrlConfig.PURCHASE_ORDERS}/${data?.id}`}>{record.procurement_code}</Link>
+          <div
+            className="procurement-code"
+            onClick={() => handleClickProcurement(record)}>
+            {value}
+          </div>
         )
       },
     },
@@ -190,6 +212,10 @@ const TabLogs: React.FC = () => {
     getProcumentLogs(params);
   },[getProcumentLogs,params]);
 
+  useEffect(() => {
+    dispatch(StoreGetListAction(setListStore));
+  }, [dispatch]);
+
   return (
     <StyledComponent>
       <TabLogFilter
@@ -234,6 +260,28 @@ const TabLogs: React.FC = () => {
             actionId={actionId}
           />
       }
+      {
+          visibleProcurement && (
+            <ProcumentInventoryModal
+              isDetail={isDetail}
+              loadDetail={()=>{}}
+              isEdit={false}
+              items={[]}
+              stores={listStore}
+              now={moment()}
+              visible={visibleProcurement}
+              item={procumentInventory}
+              onOk={()=>{}}
+              onDelete={()=>{}}
+              loading={false}
+              defaultStore={-1}
+              procumentCode={procumentCode}
+              onCancel={() => {
+                setVisibleProcurement(false);
+              }}
+            />
+          )
+        }
     </StyledComponent>
   );
 };
