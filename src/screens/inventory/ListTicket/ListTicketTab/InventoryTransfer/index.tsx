@@ -5,7 +5,7 @@ import {
   inventoryGetSenderStoreAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch} from "react-redux";
 
 import InventoryFilters from "../../Components/FIlter/InventoryListFilter";
@@ -42,7 +42,7 @@ import UrlConfig from "config/url.config";
 import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
 import {AccountResponse} from "model/account/account.model";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 
 import NumberFormat from "react-number-format";
 import {showSuccess, showWarning} from "utils/ToastUtils";
@@ -322,7 +322,7 @@ const InventoryTransferTab: React.FC = () => {
       visible: true,
       align: "left",
       width: "250px",
-      render: (item: string, row: InventoryTransferDetailItem, index: number) => {
+      render: (item: string, row: InventoryTransferDetailItem) => {
         return (
           <div className="note">
             {item}
@@ -343,7 +343,7 @@ const InventoryTransferTab: React.FC = () => {
       visible: true,
       align: "left",
       width: 150,
-      render: (value: string, item: InventoryTransferDetailItem, index: number) => {
+      render: (value: string, item: InventoryTransferDetailItem) => {
         return (
           <>
           <div>
@@ -502,7 +502,7 @@ const InventoryTransferTab: React.FC = () => {
 
   //get store
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({ page: 1 }, setDataAccounts));
     dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
   }, [dispatch, setDataAccounts]);
 
@@ -519,7 +519,7 @@ const InventoryTransferTab: React.FC = () => {
             dangerouslySetInnerHTML={{
               __html: purify.sanitize(printContent),
             }}
-          ></div>
+          />
         </div>
       </div>
       <InventoryFilters

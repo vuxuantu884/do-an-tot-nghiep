@@ -13,6 +13,7 @@ export interface StoreResponse extends BaseObject {
   city_name: string,
   department_id: number,
   department: string,
+  departmentParentName: string,
   status: string,
   status_name: string,
   zip_code: string,

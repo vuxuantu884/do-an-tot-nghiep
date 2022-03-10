@@ -17,7 +17,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {Tag, Space, Card} from "antd";
 import {InventoryAdjustmentWrapper} from "./styles";
 import {
-  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, 
+  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
   STATUS_INVENTORY_ADJUSTMENT,
 } from "../constants";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
@@ -27,7 +27,7 @@ import UrlConfig from "config/url.config";
 import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
 import {AccountResponse} from "model/account/account.model";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import { AccountSearchAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import {getListInventoryAdjustmentAction} from "domain/actions/inventory/inventory-adjustment.action";
 import {StoreResponse} from "model/core/store.model";
 import {useReactToPrint} from "react-to-print";
@@ -50,14 +50,14 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   page: 1,
   limit: 30,
   condition: null,
-  adjusted_store_id: null, 
+  adjusted_store_id: null,
   from_total_variant: null,
   to_total_variant: null,
   from_total_quantity: null,
   to_total_quantity: null,
   from_total_amount: null,
   to_total_amount: null,
-  created_name: [], 
+  created_name: [],
   from_created_date: null,
   to_created_date: null,
   from_audited_date: null,
@@ -77,7 +77,7 @@ const InventoryAdjustment: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [selected, setSelected] = useState<Array<InventoryAdjustmentDetailItem>>([]);
-  
+
   const [showExportModal, setShowExportModal] = useState(false);
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
@@ -199,7 +199,7 @@ const InventoryAdjustment: React.FC = () => {
       width: 140,
       align: "center",
       visible: true,
-      render: (item: InventoryAdjustmentDetailItem) => { 
+      render: (item: InventoryAdjustmentDetailItem) => {
         return (<div className="ellipses-text">
           {!item.total_excess || item.total_excess === 0 ? null : (
             <div style={{color: "#27AE60"}}>+{formatCurrency(item.total_excess,".")}</div>
@@ -273,9 +273,9 @@ const InventoryAdjustment: React.FC = () => {
         return (
           <div>
           {item.created_name ? <div>
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}> 
-                  {item.created_name} 
-                </Link>  
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}>
+                  {item.created_name}
+                </Link>
             </div> : ""}
             <div>
             {item.created_by ?? ""}
@@ -456,7 +456,7 @@ const InventoryAdjustment: React.FC = () => {
     },
     [onExport, printTicketAction, selectedRowKeys]
   );
- 
+
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
@@ -479,7 +479,7 @@ const InventoryAdjustment: React.FC = () => {
 
   //get store
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({ page: 1 }, setDataAccounts));
     dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
   }, [dispatch, setDataAccounts]);
 
