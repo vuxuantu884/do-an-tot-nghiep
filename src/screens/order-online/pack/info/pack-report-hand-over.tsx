@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
-import IconPack from "assets/icon/Pack.svg";
+// import IconPack from "assets/icon/Pack.svg";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { useDispatch } from "react-redux";
@@ -28,6 +28,8 @@ import { showSuccess } from "utils/ToastUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -106,10 +108,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const [modalDeleteComfirm, setModalDeleteComfirm] = useState(false);
 
-  const handlePrintPack = useCallback((type: string) => {
+  const handlePrintPack = useCallback((id = undefined, type: string) => {
     let params = {
       action: "print",
-      ids: selectedRowKeys,
+      ids: id ? [id] : selectedRowKeys,
       "print-type": "print-pack",
       "pack-type": type
     };
@@ -122,13 +124,13 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     (index: number) => {
       switch (index) {
         case 1:
-          handlePrintPack(typePrint.detail);
+          handlePrintPack(undefined, typePrint.detail);
           break;
         case 2:
-          handlePrintPack(typePrint.simple);
+          handlePrintPack(undefined, typePrint.simple);
           break;
         case 3:
-          if(!selectedRowKeys || selectedRowKeys.length===0)break;
+          if(!selectedRowKeys || selectedRowKeys.length ===0) break;
           setModalDeleteComfirm(true);
           break;
       }
@@ -136,241 +138,24 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     [handlePrintPack,selectedRowKeys]
   );
 
-  const handlePrint = () => { };
+  let delivery_services: Array<DeliveryServiceResponse> = []
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
+	useEffect(() => {
+		dispatch(
+			DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+				// eslint-disable-next-line react-hooks/exhaustive-deps
+				delivery_services = response
+				setDeliveryServices(response)
+			})
+		);
+	}, [dispatch]);
 
-  const handleExportHVC = () => { };
-
-  const handleAddPack = (item: any) => {
+  const handleAddPack = useCallback((item: any) => {
     history.push(
       `${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${item.id_handover_record}`
     );
-  };
-
-  const actionColumn = (handlePrint: any, handleExportHVC: any, handleAddPack: any) => {
-    const _actionColumn = {
-      title: "",
-      key: "14",
-      visible: true,
-      width: "80px",
-      className: "saleorder-product-card-action text-center",
-      render: (l: any, item: any, index: number) => {
-        const menu = (
-          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-            <Menu.Item key="1">
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={IconPrint} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={handlePrint}
-              >
-                In biên bản
-              </Button>
-            </Menu.Item>
-
-            <Menu.Item key="2">
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={IconVector} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={handleExportHVC}
-              >
-                Gửi biên bản sang hãng vận chuyển
-              </Button>
-            </Menu.Item>
-
-            <Menu.Item key="3">
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={IconPack} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={() => {
-                  handleAddPack(item);
-                }}
-              >
-                Thêm đơn hàng vào biên bản
-              </Button>
-            </Menu.Item>
-          </Menu>
-        );
-        return (
-          <div
-            style={{
-              //display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
-          >
-            <div
-              className="site-input-group-wrapper saleorder-input-group-wrapper"
-              style={{
-                borderRadius: 5,
-              }}
-            >
-              <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-              </Dropdown>
-            </div>
-          </div>
-        );
-      },
-    };
-    return _actionColumn;
-  };
-
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
-  >([
-    {
-      title: "ID biên bản bàn giao ",
-      dataIndex: "id_handover_record",
-      key: "id_handover_record",
-      visible: true,
-      align: "center",
-      fixed: "left",
-      width:"100px",
-      render: (value: number) => {
-        return (
-          <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${value}`}>
-              {value}
-            </Link>
-          </React.Fragment>
-        );
-      },
-    },
-    {
-      title: "Tên cửa hàng",
-      dataIndex: "store_name",
-      key: "store_name",
-      visible: true,
-      align: "center",
-      //width:"200px",
-    },
-
-    {
-      title: "Loại biên bản",
-      dataIndex: "handover_record_type",
-      key: "handover_record_type",
-      visible: true,
-      align: "center",
-      width:"200px",
-    },
-
-    {
-      title: "SL SP",
-      dataIndex: "product_quantity",
-      key: "product_quantity",
-      visible: true,
-      align: "center",
-      width:"80px",
-    },
-
-    {
-      title: "Số đơn ",
-      dataIndex: "order_quantity",
-      key: "order_quantity",
-      visible: true,
-      align: "center",
-      width:"80px",
-    },
-
-    {
-      title: "Đơn gửi HVC",
-      dataIndex: "order_send_quantity",
-      key: "order_send_quantity",
-      visible: true,
-      align: "center",
-      width:"100px",
-    },
-
-    {
-      title: "Đơn đang chuyển",
-      dataIndex: "order_transport",
-      key: "order_transport",
-      visible: true,
-      align: "center",
-      width:"110px",
-    },
-
-    {
-      title: "Đơn chưa lấy",
-      dataIndex: "order_have_not_taken",
-      key: "order_have_not_taken",
-      visible: true,
-      align: "center",
-      width:"110px",
-    },
-
-    {
-      title: "Đơn hủy",
-      dataIndex: "order_cancel",
-      key: "order_cancel",
-      visible: true,
-      align: "center",
-      width:"80px",
-    },
-
-    {
-      title: "Đang chuyển hoàn",
-      dataIndex: "order_moving_complete",
-      key: "order_moving_complete",
-      visible: true,
-      align: "center",
-      width:"110px",
-    },
-
-    {
-      title: "Đơn thành công",
-      dataIndex: "order_success",
-      key: "order_success",
-      visible: true,
-      align: "center",
-      width:"110px",
-    },
-
-    {
-      title: "Đơn hoàn",
-      dataIndex: "order_complete",
-      key: "order_complete",
-      visible: true,
-      align: "center",
-      width:"80px",
-    },
-
-    {
-      title: "Người tạo",
-      dataIndex: "account_create",
-      key: "account_create",
-      visible: true,
-      align: "center",
-      width:"100px",
-    },
-    actionColumn(handlePrint, handleExportHVC, handleAddPack),
-  ]);
-
-  const columnFinal = useMemo(
-    () => columns.filter((item: any) => item.visible === true),
-    [columns]
-  );
+  }, [history]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -404,7 +189,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     if (selectedRow[0]) {
       const selectedRowKeys = selectedRow.map((row: any) => row.id_handover_record);
       setSelectedRowKeys(selectedRowKeys);
-    }else setSelectedRowKeys([]);
+    } else setSelectedRowKeys([]);
   }, []);
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -449,7 +234,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         });
       });
 
-      let _result: GoodsReceiptsSearhModel = {
+      let _result = {
+        ...item,
         key: index,
         id_handover_record: item.id,
         store_name: item.store_name,
@@ -464,6 +250,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         order_success: order_success, //đơn thành công
         order_complete: order_complete, //đơn hoàn
         account_create: item.updated_by ? item.updated_by : "", //người tạo
+        ecommerce_id: item.ecommerce_id,
       };
 
       dataResult.push(_result);
@@ -488,10 +275,16 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     )
   },[goodsReceipt, selectedRowKeys])
 
-  const hanldRemoveGoodsReceiptOk=useCallback(()=>{
-    let request:any={
-      ids:selectedRowKeys
+  const hanldRemoveGoodsReceiptOk = useCallback((id = undefined) => {
+    let request: any = {
+      ids: selectedRowKeys
     }
+    // if (id) {
+    //   request = {
+    //     ids: [id]
+    //   }
+    // }
+    
     dispatch(
       deleteAllGoodsReceipts(request, (data:GoodsReceiptsResponse) => {
         if (data) {
@@ -518,6 +311,278 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       })
     );
   },[dispatch, params, selectedRowKeys]);
+
+  const menu = (item: any) => {
+    return (
+      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+        <Menu.Item key="1">
+          <Button
+            icon={<img style={{ marginRight: 12 }} alt="" src={IconPrint} />}
+            type="text"
+            className=""
+            style={{
+              paddingLeft: 24,
+              background: "transparent",
+              border: "none",
+            }}
+            onClick={() => handlePrintPack(item.id_handover_record, typePrint.detail)}
+          >
+            In biên bản đầy đủ
+          </Button>
+        </Menu.Item>
+        <Menu.Item key="2">
+          <Button
+            icon={<img style={{ marginRight: 12 }} alt="" src={IconPrint} />}
+            type="text"
+            className=""
+            style={{
+              paddingLeft: 24,
+              background: "transparent",
+              border: "none",
+            }}
+            onClick={() => handlePrintPack(item.id_handover_record, typePrint.simple)}
+          >
+            In biên bản rút gọn
+          </Button>
+        </Menu.Item>
+
+        <Menu.Item key="3">
+          <Button
+            icon={<img style={{ marginRight: 12 }} alt="" src={IconVector} />}
+            type="text"
+            className=""
+            style={{
+              paddingLeft: 24,
+              background: "transparent",
+              border: "none",
+            }}
+            onClick={() => {
+              handleAddPack(item);
+            }}
+          >
+            Thêm đơn vào biên bản
+          </Button>
+        </Menu.Item>
+
+        {/* <Menu.Item key="4">
+          <Button
+            icon={<DeleteOutlined />}
+            type="text"
+            className=""
+            style={{
+              color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
+            }}
+            disabled={!allowDeleteGoodsReceipt}
+            onClick={() => {
+              hanldRemoveGoodsReceiptOk(item.id_handover_record);
+            }}
+          >
+            Xoá
+          </Button>
+        </Menu.Item> */}
+      </Menu>
+    );
+  };
+
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
+  >([
+    {
+      title: "ID",
+      // key: "id_handover_record",
+      visible: true,
+      align: "center",
+      fixed: "left",
+      width:"120px",
+      render: (l: any, item: any, index: number) => {
+        console.log('item', item);
+        
+        const service_id = item.delivery_service_id;
+        if (service_id === -1) {
+          return (
+            <React.Fragment>
+              <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
+                {item.id_handover_record}
+              </Link>
+              <div className="shipment-details">
+                Tự vận chuyển
+              </div>
+            </React.Fragment>
+          );
+        } else {
+          const service = delivery_services.find((service) => service.id === service_id);
+          console.log('service', service);
+          return (
+            <React.Fragment>
+              <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
+                {item.id_handover_record}
+              </Link>
+              <div className="shipment-details">
+                {service && 
+                  <img
+                    src={service.logo ? service.logo : ""}
+                    alt=""
+                    style={{ width: 135}}
+                  />
+                }
+              </div>
+            </React.Fragment>
+          );
+        }
+      },
+    },
+    {
+      title: "Tên cửa hàng",
+      dataIndex: "store_name",
+      key: "store_name",
+      visible: true,
+      align: "center",
+      //width:"200px",
+    },
+
+    {
+      title: "Loại biên bản",
+      key: "handover_record_type",
+      visible: true,
+      align: "center",
+      width:"160px",
+      render: (l: any, item: any, index: number) => {
+        
+        return (
+          <div>
+            <p style={{ marginBottom: 0}} >{item.handover_record_type}</p>
+            {item.ecommerce_id !== -1 && <p style={{ color: "#2A2A86", marginBottom: 0}}>({item.ecommerce_name})</p>}
+          </div>
+        );
+      },
+    },
+
+    {
+      title: "SL SP",
+      dataIndex: "product_quantity",
+      key: "product_quantity",
+      visible: true,
+      align: "center",
+      width:"80px",
+    },
+
+    {
+      title: "Số đơn ",
+      dataIndex: "order_quantity",
+      key: "order_quantity",
+      visible: true,
+      align: "center",
+      width:"80px",
+    },
+
+    {
+      title: "Đơn gửi HVC",
+      dataIndex: "order_send_quantity",
+      key: "order_send_quantity",
+      visible: true,
+      align: "center",
+      width:"100px",
+    },
+
+    {
+      title: "Đơn đang chuyển",
+      dataIndex: "order_transport",
+      key: "order_transport",
+      visible: true,
+      align: "center",
+      width:"110px",
+    },
+
+    {
+      title: "Đơn chưa lấy",
+      dataIndex: "order_have_not_taken",
+      key: "order_have_not_taken",
+      visible: true,
+      align: "center",
+      width:"80px",
+    },
+
+    {
+      title: "Đang chuyển hoàn",
+      dataIndex: "order_moving_complete",
+      key: "order_moving_complete",
+      visible: true,
+      align: "center",
+      width:"110px",
+    },
+
+    {
+      title: "Đơn thành công",
+      dataIndex: "order_success",
+      key: "order_success",
+      visible: true,
+      align: "center",
+      width:"110px",
+    },
+
+    {
+      title: "Đơn hoàn",
+      dataIndex: "order_complete",
+      key: "order_complete",
+      visible: true,
+      align: "center",
+      width:"80px",
+    },
+
+    {
+      title: "Người tạo",
+      dataIndex: "account_create",
+      key: "account_create",
+      visible: true,
+      align: "center",
+      width:"100px",
+    },
+    {
+      title: "",
+      key: "14",
+      visible: true,
+      width: "80px",
+      fixed: "right",
+      className: "saleorder-product-card-action text-center",
+      render: (l: any, item: any, index: number) => {
+        
+        return (
+          <div
+            style={{
+              //display: "flex",
+              justifyContent: "space-between",
+              padding: "0 4px",
+            }}
+          >
+            <div
+              className="site-input-group-wrapper saleorder-input-group-wrapper"
+              style={{
+                borderRadius: 5,
+              }}
+            >
+              <Dropdown overlay={() => menu(item)} trigger={["click"]} placement="bottomRight">
+                <Button
+                  type="text"
+                  className="p-0 ant-btn-custom"
+                  icon={<img src={threeDot} alt=""></img>}
+                ></Button>
+              </Dropdown>
+            </div>
+          </div>
+        );
+      },
+    }
+  ]);
+
+  let newColumns = columns
+  const columnFinal = useMemo(
+    () => {
+      // console.log('allowDeleteGR', allowDeleteGoodsReceipt);
+      return newColumns.filter((item: any) => item.visible === true)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [newColumns, allowDeleteGoodsReceipt]
+  );
 
   useEffect(() => {
     setTableLoading(true);
@@ -559,7 +624,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 1650, y: 520 }}
+            scroll={{ x: 1450, y: 520 }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
