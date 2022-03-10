@@ -30,6 +30,8 @@ import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
 import { StyledComponent } from "component/filter/shipment.filter.styles";
+import TreeStore from "component/tree-node/tree-store";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 
 type OrderFilterProps = {
   params: ShipmentSearchQuery;
@@ -41,6 +43,7 @@ type OrderFilterProps = {
   deliveryService: Array<any>;
   reasons: Array<{id: number; name: string}>;
   isLoading?: boolean;
+  isPushingStatusFailed?:boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ShipmentSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
@@ -64,7 +67,6 @@ async function searchVariants(input: any) {
   }
 }
 
-
 const OrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
 ) => {
@@ -78,6 +80,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     deliveryService,
     reasons,
     isLoading,
+    isPushingStatusFailed,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -275,6 +278,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
   }}, [params])
+
+  
+  // console.log("initialValues",initialValues)
   
   const [print, setPrint] = useState<any[]>(initialValues.print_status);
   const [pushing, setPushing] = useState<any[]>(initialValues.pushing_status);
@@ -545,7 +551,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 				value: text,
 			})
     }
-    if (initialValues.pushing_status.length) {
+    if (initialValues.pushing_status.length && !isPushingStatusFailed) {
 			let mappedPaymentMethods = pushingStatus?.filter((single) => initialValues.pushing_status?.some((item) => item === single.value))
 			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
 			list.push({
@@ -641,7 +647,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.shipped_on_min, initialValues.shipped_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.shipped_on_min, initialValues.shipped_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons,isPushingStatusFailed]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -762,7 +768,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={12} xxl={8}>
                 <p>Kho cửa hàng</p>
                 <Item name="store_ids">
-                  <CustomSelect
+                  {/* <CustomSelect
                     mode="multiple"
                     showArrow allowClear
                     showSearch
@@ -779,7 +785,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         {item.name}
                       </CustomSelect.Option>
                     ))}
-                  </CustomSelect>
+                  </CustomSelect> */}
+                  <TreeStore listStore={listStore} placeholder="Cửa hàng"/>
                 </Item>
                 <p>Trạng thái đối soát</p>
                 <div className="button-option-2">
@@ -891,14 +898,31 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
                 <p>Ngày huỷ đơn</p>
-                <CustomRangeDatePicker
-                  fieldNameFrom="cancelled_on_min"
-                  fieldNameTo="cancelled_on_max"
-                  activeButton={cancelledClick}
-                  setActiveButton={setCancelledClick}
-                  format="DD-MM-YYYY"
-                  formRef={formRef}
-                />
+                <div style={{margin:"0 0 20px"}}>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="cancelled_on_min"
+                    fieldNameTo="cancelled_on_max"
+                    activeButton={cancelledClick}
+                    setActiveButton={setCancelledClick}
+                    format={"DD-MM-YYYY"}
+                    formRef={formRef}
+                  />
+                  </div>
+                <p>Hình thức vận chuyển</p>
+                <Item name="delivery_types">
+                  <Select
+                    mode="multiple" showArrow maxTagCount='responsive'
+                    optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
+                    placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
+                  >
+                    {serviceType?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
               </Col>
               <Col span={12} xxl={8}>
                 <p>Đối tác giao hàng</p>
@@ -950,21 +974,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Item>
               </Col>
               <Col  span={12} xxl={8}>
-                <p>Hình thức vận chuyển</p>
-                <Item name="delivery_types">
-                  <Select
-                    mode="multiple" showArrow maxTagCount='responsive'
-                    optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
-                    placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode} allowClear
-                  >
-                    {serviceType?.map((item) => (
-                      <Option key={item.value} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
+                
                 <p>Đơn vị vận chuyển</p>
                 <Item name="delivery_provider_ids">
                 <Select
@@ -1018,23 +1028,26 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
                 </Item>
               </Col>
-              <Col span={12} xxl={8}>
-                <p>Trạng thái đẩy đơn</p>
-                <div className="button-option-1">
-                  <Button
-                    onClick={() => changeStatusPushing('completed')}
-                    className={pushing.includes('completed') ? 'active' : 'deactive'}
-                  >
-                    Thành công
-                  </Button>
-                  <Button
-                    onClick={() => changeStatusPushing('failed')}
-                    className={pushing.includes('failed') ? 'active' : 'deactive'}
-                  >
-                    Không thành công
-                  </Button>
-                </div>
-              </Col>
+              {(!isPushingStatusFailed)&&(
+                <Col span={12} xxl={8}>
+                  <p>Trạng thái đẩy đơn</p>
+                  <div className="button-option-1">
+                    <Button
+                      onClick={() => changeStatusPushing('completed')}
+                      className={pushing.includes('completed') ? 'active' : 'deactive'}
+                    >
+                      Thành công
+                    </Button>
+                    <Button
+                      onClick={() => changeStatusPushing('failed')}
+                      className={pushing.includes('failed') ? 'active' : 'deactive'}
+                    >
+                      Không thành công
+                    </Button>
+                  </div>
+                </Col>
+              )}
+              
             </Row>
             
           </Form>}
