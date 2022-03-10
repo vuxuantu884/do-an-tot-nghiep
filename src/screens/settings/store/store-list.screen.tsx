@@ -121,6 +121,16 @@ const StoreListScreen: React.FC = () => {
       return true;
     });
   }, [selected, actions]);
+
+  const findParent = useCallback((list: any, departmentId: number, parent = null) => {
+    if (!list) return;
+    for (let item of list) {
+      let res: any = item.id === departmentId ? parent ? parent : item
+        : item.children && findParent(item.children, departmentId, item);
+      if (res) return res;
+    }
+  }, []);
+
   const isFirstLoad = useRef(true);
   const [loading, setLoading] = useState(false);
   const [columns, setColumn] = useState<Array<ICustomTableColumType<StoreResponse>>>([
@@ -148,7 +158,7 @@ const StoreListScreen: React.FC = () => {
     },
     {
       title: "Trực thuộc",
-      dataIndex: "department",
+      dataIndex: "departmentParentName",
       visible: true,
       width: 180,
     },
@@ -345,6 +355,29 @@ const StoreListScreen: React.FC = () => {
     },
     [history, params]
   );
+
+  const onResDepartment = useCallback((departmentData: DepartmentResponse | Array<DepartmentResponse> | false) => {
+    if (departmentData) {
+      setDepartment(departmentData);
+
+      setData((data: any) => {
+        if (!data) return;
+
+        const newData = { ...data };
+        if (newData.items.length === 0) return;
+
+        newData.items.forEach((i: any) => {
+          if (i.parent_id === -1) i.departmentParentName = i.name;
+          else i.departmentParentName = findParent(departmentData, i.department_id) ? findParent(departmentData, i.department_id).name : null;
+        });
+
+        setData(newData);
+
+        return data;
+      });
+    }
+  }, [findParent]);
+
   const onGetDataSuccess = useCallback((data: PageResponse<StoreResponse>) => {
     setLoading(false);
     setData(data);
@@ -372,26 +405,20 @@ const StoreListScreen: React.FC = () => {
     );
   }, []);
 
-  const onResDepartment = useCallback((data: DepartmentResponse | Array<DepartmentResponse> | false) => {
-    if (data) {
-      setDepartment(data);
-    }
-  }, []);
-
   useEffect(() => {
     if (isFirstLoad.current) {
       // dispatch(DepartmentGetListAction(setDepartment));
-      dispatch(
-        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
-      );
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
       dispatch(StoreGetTypeAction(setType));
     }
+    dispatch(
+      departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
+    );
     isFirstLoad.current = false;
     setLoading(true);
     dispatch(StoreSearchAction(params, onGetDataSuccess));
-  }, [dispatch, onGetDataSuccess, params, onResDepartment]);
+  }, [dispatch, onGetDataSuccess, onResDepartment, params]);
   return (
     <>
       {allowReadStore ? (

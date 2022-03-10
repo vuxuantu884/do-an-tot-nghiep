@@ -984,12 +984,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             window.open(response.data.url);
             setExportProcessId(null)
           } else {
-            if (response.data.total_success >= response.data.total) {
-              setExportProgress(99);
-            } else {
-              const percent = Math.floor(
-                (response.data.total_success / response.data.total) * 100
-              );
+            if (response.data.total !== 0) {
+              const percent = Math.floor(response.data.total_success / response.data.total * 100);
               setExportProgress(percent);
             }
           }

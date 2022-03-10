@@ -117,6 +117,7 @@ const StoreUpdateScreen: React.FC = () => {
     setLoading(false);
     history.push(`${UrlConfig.STORE}/${idNumber}`);
     showSuccess("Lưu dữ liệu thành công");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
   const onFinish = useCallback(
     (values: StoreUpdateRequest) => {
@@ -196,7 +197,7 @@ const StoreUpdateScreen: React.FC = () => {
   }, [data, dispatch]);
   return (
     <ContentContainer
-      title="Sửa cửa hàng"
+      title={`Sửa cửa hàng ${data?.name}`}
       isError={isError}
       isLoading={loadingData}
       breadcrumb={[
@@ -392,12 +393,12 @@ const StoreUpdateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Trực thuộc"
+                  label="Phòng ban tương ứng"
                   name="department_id"
-                  rules={[{required: true, message: "Vui lòng chọn trực thuộc"}]}
+                  rules={[{required: true, message: "Vui lòng chọn phòng ban tương ứng"}]}
                 >
                   <TreeSelect
-                    placeholder="Chọn trực thuộc"
+                    placeholder="Chọn phòng ban tương ứng"
                     treeDefaultExpandAll
                     className="selector"
                     allowClear
