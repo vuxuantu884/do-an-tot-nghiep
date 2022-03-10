@@ -95,6 +95,12 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  
+  .ecommerce-order-list {
+    .ant-table-sticky-scroll-bar {
+      display: none;
+    }
+  }
 `;
 
 export const StyledOrderFilter = styled.div`
