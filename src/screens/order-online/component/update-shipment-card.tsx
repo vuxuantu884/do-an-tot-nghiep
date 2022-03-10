@@ -21,6 +21,7 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
 	DeliveryServicesGetList,
 	getTrackingLogFulfillmentAction,
@@ -43,6 +44,7 @@ import {
 	DeliveryServiceResponse,
 	FulFillmentResponse,
 	OrderResponse,
+	OrderReturnReasonDetailModel,
 	ShipmentResponse,
 	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
@@ -65,7 +67,7 @@ import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } 
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor } from "utils/global-styles/variables";
 import { showError, showSuccess } from "utils/ToastUtils";
-import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
+import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
@@ -96,7 +98,11 @@ type UpdateShipmentCardProps = {
 	OrderDetailAllFullfilment: OrderResponse | null;
 	orderSettings?: OrderSettingsModel;
 	disabledBottomActions?: boolean;
-	reasons?: any[];
+	reasons?: {
+		title: string;
+    value: string;
+	}[];
+	subReasons?: OrderReturnReasonDetailModel[] | null;
 	isEcommerceOrder?: boolean;
 };
 
@@ -223,6 +229,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	};
 
 	const [reload, setReload] = useState(false);
+
+	//cần hỏi lại
 	useEffect(() => {
 		if (TrackingCode(props.OrderDetail) !== "Đang xử lý" || reload) {
 			if (
@@ -753,12 +761,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	}, [props.OrderDetail]);
 
 	const onOKCancelFullfilment = (reasonID: string, reasonSubID: string, reason: string) => {
+		console.log('reasonID', reasonID)
+		console.log('reasonSubID', reasonSubID)
+		console.log('reason', reason)
 		fulfillmentTypeOrderRequest(5, { reasonID, reasonSubID, reason });
 		setIsvibleCancelFullfilment(false);
 		setReload(true)
 	};
 	// cancel fulfillment 3 button modal
 	const onOkCancelAndGetGoodsBack = (reasonID: string, reasonSubID: string, reason: string) => {
+		console.log('reasonID', reasonID)
+		console.log('reasonSubID', reasonSubID)
+		console.log('reason', reason)
 		fulfillmentTypeOrderRequest(7, { reasonID, reasonSubID, reason });
 		setIsvibleCancelFullfilment(false);
 	};
@@ -1811,7 +1825,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 					} để giao hàng thành công?`}
 			/>
 			{/* Huy fulfillment pick, pack, unship */}
-			<CancelFullfilmentModal
+			<CancelFulfillmentModal
 				shipping={isShipping}
 				onCancel={() => setIsvibleCancelFullfilment(false)}
 				onOk={onOKCancelFullfilment}
@@ -1823,7 +1837,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 				cancelText="Thoát"
 				title="Bạn có chắc chắn hủy đơn giao hàng này không?"
 				text="Tiền thu hộ nếu có cũng sẽ bị hủy"
-				reasons={props.reasons ? props.reasons : []}
+				reasons={props.reasons}
 			/>
 
 			{/* Nhận hàng trả lại */}

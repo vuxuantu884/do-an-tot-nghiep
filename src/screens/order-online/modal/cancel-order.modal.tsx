@@ -1,6 +1,7 @@
 /* eslint-disable eqeqeq */
 import { Modal, Input, Form } from "antd";
 import CustomSelect from "component/custom/select.custom";
+import { OrderReturnReasonDetailModel } from "model/response/order/order.response";
 import { useCallback, useState } from "react";
 
 type CancelOrderModalProps = {
@@ -8,7 +9,7 @@ type CancelOrderModalProps = {
   orderCode?: string | undefined;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (reason_id: string, sub_reason_id: string, reason: string) => void;
-  reasons: any;
+  reasons: OrderReturnReasonDetailModel[] | undefined;
 };
 
 const CancelOrderModal: React.FC<CancelOrderModalProps> = (
@@ -23,12 +24,15 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
   const [reasonSubs, setReasonSubs] = useState<any[]>([]);
 
   const onChangeReasonID = useCallback((value) => {
+    if(!reasons) {
+      return;
+    }
     setReasonID(value)
     setReason('')
     const reasonDetails = reasons.find((reason: any) => reason.id == value)
-    if (reasonDetails && reasonDetails.sub_reasons.length) {
-      setReasonSubID(reasonDetails.sub_reasons[0].id.toString())
-      setReasonSubs(reasonDetails.sub_reasons)
+    if (reasonDetails && reasonDetails.sub_reason_details.length) {
+      setReasonSubID(reasonDetails.sub_reason_details[0].id.toString())
+      setReasonSubs(reasonDetails.sub_reason_details)
     } else {
       setReasonSubID('')
       setReasonSubs([])
@@ -55,7 +59,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
             onSelect={(value) => onChangeReasonID(value)}
             value={reasonID}
           >
-            {reasons.map((reason: any) => (
+            {reasons?.map((reason: any) => (
               <CustomSelect.Option key={reason.id} value={reason.id.toString()}>
                 {reason.name}
               </CustomSelect.Option>

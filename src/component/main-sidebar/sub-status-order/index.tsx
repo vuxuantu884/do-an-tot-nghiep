@@ -1,4 +1,4 @@
-import { Card, Select } from "antd";
+import { Card, Form, Select } from "antd";
 import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order/order.action";
 import {
   FulFillmentResponse,
@@ -13,14 +13,14 @@ import { isFetchApiSuccessful, handleFetchApiError, sortFulfillments } from "uti
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 import {
-	createOrderExchangeService,
-	createOrderReturnService,
-	getOrderReturnCalculateRefundService,
-	getOrderReturnLog,
-	getOrderReasonService,
-	getOrderReturnService,
-	orderRefundService,
-	setIsReceivedProductOrderReturnService
+  createOrderExchangeService,
+  createOrderReturnService,
+  getOrderReturnCalculateRefundService,
+  getOrderReturnLog,
+  getOrderReasonService,
+  getOrderReturnService,
+  orderRefundService,
+  setIsReceivedProductOrderReturnService,
 } from "service/order/return.service";
 
 type PropType = {
@@ -75,18 +75,26 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 
   const [isShowReason, setIsShowReason] = useState(false);
 
-  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<string|undefined>(undefined);
+  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<
+    string | undefined
+  >(undefined);
 
-  const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<OrderReturnReasonDetailModel[]>([]);
+  const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
+    OrderReturnReasonDetailModel[]
+  >([]);
 
   const sortedFulfillments = useMemo(() => {
     if (!OrderDetailAllFulfillment?.fulfillments) {
       return [];
     } else {
-      const returnStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.CANCELLED, FulFillmentStatus.RETURNING]
+      const returnStatus = [
+        FulFillmentStatus.RETURNED,
+        FulFillmentStatus.CANCELLED,
+        FulFillmentStatus.RETURNING,
+      ];
       let sort = sortFulfillments(OrderDetailAllFulfillment?.fulfillments);
       // bỏ trạng thái fulfillment đã hủy
-      return sort.filter(single => single.status && !returnStatus.includes(single.status));
+      return sort.filter((single) => single.status && !returnStatus.includes(single.status));
     }
   }, [OrderDetailAllFulfillment?.fulfillments]);
 
@@ -439,7 +447,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           handleUpdateSubStatus();
           setReload(true);
           setIsShowReason(false);
-          setSubReasonRequireWarehouseChange(undefined)
+          setSubReasonRequireWarehouseChange(undefined);
         })
       );
     }
@@ -468,7 +476,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       //   });
       //   break;
       // }
-      
+
       case ORDER_SUB_STATUS.require_warehouse_change: {
         if (subReasonRequireWarehouseChange) {
           isChange = true;
@@ -496,7 +504,10 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     switch (sub_status_code) {
       case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
         const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
-        if (!sortedFulfillments[0]?.shipment || (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status))) {
+        if (
+          !sortedFulfillments[0]?.shipment ||
+          (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status))
+        ) {
           isChange = true;
         } else {
           isChange = false;
@@ -549,12 +560,12 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         break;
       default:
         break;
-      }
-    if(isChange) {
+    }
+    if (isChange) {
       isChange = handleIfOrderStatusOther(sub_status_code);
     }
-    if(isChange) {
-      changeSubStatusCode(sub_status_code)
+    if (isChange) {
+      changeSubStatusCode(sub_status_code);
     }
   };
 
@@ -614,13 +625,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   useEffect(() => {
     const code = ["change_depot"];
     getOrderReasonService(code).then((response) => {
-      if(isFetchApiSuccessful(response)) {
-        setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons)
+      if (isFetchApiSuccessful(response)) {
+        setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons);
       } else {
-        handleFetchApiError(response, "Danh sách lý do hủy đơn hàng", dispatch)
-      } 
-    })
-  }, [dispatch])
+        handleFetchApiError(response, "Danh sách lý do hủy đơn hàng", dispatch);
+      }
+    });
+  }, [dispatch]);
 
   return (
     <Card title="Xử lý đơn hàng">
@@ -635,8 +646,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
-        key={Math.random()}
-      >
+        key={Math.random()}>
         {listOrderSubStatus &&
           listOrderSubStatus.map((single) => {
             return (
@@ -647,31 +657,36 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           })}
       </Select>
       {isShowReason ? (
-        <div style={{marginTop: 15}}>
-          <div style={{marginBottom: 8}}>
-            Chọn lý do đổi kho hàng chi tiết <span className="text-error">*</span>
-          </div>
-          <Select
-            showSearch
-            allowClear
-            style={{ width: "100%" }}
-            placeholder="Chọn lý do đổi kho hàng"
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            onChange={(value: string) =>setSubReasonRequireWarehouseChange(value)}
-            notFoundContent="Không tìm thấy lý do đổi kho hàng"
-          >
-            {subReasonsRequireWarehouseChange &&
-              subReasonsRequireWarehouseChange.map((single) => {
-                return (
-                  <Select.Option value={single.id} key={single.id}>
-                    {single.name}
-                  </Select.Option>
-                );
-              })}
-          </Select>
+        <div style={{ marginTop: 15 }}>
+          <Form.Item
+            style={{marginBottom: 0}}
+            label={
+              <div>
+                <span>Chọn lý do đổi kho hàng chi tiết </span>
+                <span className="text-error">*</span>
+              </div>
+            }>
+            <Select
+              showSearch
+              allowClear
+              style={{ width: "100%" }}
+              placeholder="Chọn lý do đổi kho hàng"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              onChange={(value: string) => setSubReasonRequireWarehouseChange(value)}
+              notFoundContent="Không tìm thấy lý do đổi kho hàng">
+              {subReasonsRequireWarehouseChange &&
+                subReasonsRequireWarehouseChange.map((single) => {
+                  return (
+                    <Select.Option value={single.id} key={single.id}>
+                      {single.name}
+                    </Select.Option>
+                  );
+                })}
+            </Select>
+          </Form.Item>
         </div>
       ) : null}
     </Card>

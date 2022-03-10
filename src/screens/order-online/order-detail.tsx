@@ -11,12 +11,11 @@ import UrlConfig from "config/url.config";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
+import { actionGetOrderReturnReasons, actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
 	cancelOrderRequest,
 	orderConfigSaga,
 	confirmDraftOrderAction,
-	getListReasonRequest,
 	OrderDetailAction,
 	PaymentMethodGetList,
 	UpdatePaymentAction,
@@ -36,7 +35,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import { OrderReasonModel, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -78,6 +77,7 @@ import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce
 import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
 import { yellowColor } from "utils/global-styles/variables";
 import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
+import { getOrderReasonService } from "service/order/return.service";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -130,9 +130,28 @@ const OrderDetail = (props: PropType) => {
   >([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
-  const [reasons, setReasons] = useState<
-    Array<{id: number; name: string; sub_reasons: any[]}>
-  >([]);
+  const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] = useState<
+  OrderReasonModel|null
+  >(null);
+  
+  const orderCancelFulfillmentReasonArr = [
+    {
+      title: "Khách hàng hủy",
+      value: "customer_cancel",
+    },
+    {
+      title: "Hệ thống hủy",
+      value: "order_error",
+    },
+    {
+      title: "Hãng vận chuyển hủy",
+      value: "dsp_cancel",
+    },
+    {
+      title: "Lý do khác ",
+      value: "other",
+    },
+  ]
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
@@ -532,10 +551,6 @@ const OrderDetail = (props: PropType) => {
         dispatch(changeShippingServiceConfigAction(response))
       })
     );
-  }, [dispatch]);
-
-  useLayoutEffect(() => {
-    dispatch(getListReasonRequest(setReasons));
   }, [dispatch]);
 
   useEffect(() => {
@@ -1113,7 +1128,8 @@ const OrderDetail = (props: PropType) => {
                 onReload={() => setReload(true)}
                 disabledActions={disabledActions}
                 disabledBottomActions={disabledBottomActions}
-                reasons={reasons}
+                reasons={orderCancelFulfillmentReasonArr}
+                subReasons={orderCancelFulfillmentReasonResponse?.sub_reasons}
                 isEcommerceOrder={isEcommerceOrder.current}
 								shippingServiceConfig={shippingServiceConfig}
 								orderConfig={orderConfig}
@@ -1189,7 +1205,7 @@ const OrderDetail = (props: PropType) => {
         onOk={(reason_id: string, sub_reason_id: string, reason: string) =>
           handleCancelOrder(reason_id, sub_reason_id, reason)
         }
-        reasons={reasons}
+        reasons={orderCancelFulfillmentReasonResponse?.sub_reasons}
       />
       <LogisticConfirmModal
           visible={visibleLogisticConfirmModal}

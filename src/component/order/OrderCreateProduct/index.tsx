@@ -51,8 +51,7 @@ import {
 	SplitOrderRequest
 } from "model/request/order.request";
 import {
-	DiscountRequestModel,
-	LineItemRequestModel
+	DiscountRequestModel
 } from "model/request/promotion.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -199,7 +198,7 @@ function OrderCreateProduct(props: PropType) {
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
-	const QUANTITY_DELAY_TIME = 1000;
+	const QUANTITY_DELAY_TIME = 800;
 	const {
 		form,
 		items,
