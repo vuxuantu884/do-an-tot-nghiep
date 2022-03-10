@@ -33,22 +33,22 @@ const SearchVariantWrapperField = {
   create_date: "create_date",
   from_create_date: 'from_create_date',
   to_create_date: 'to_create_date',
-  designer_code: "designer_code",
-  merchandiser_code: "merchandiser_code",
+  designers: "designers",
+  merchandisers: "merchandisers",
   status: "status",
-  category_id: "category_id",
+  category_ids: "category_ids",
   goods: "goods",
-  material_id: "material_id",
+  material_ids: "material_ids",
 };
 
 const SearchVariantWrapperMapping = {
   [SearchVariantWrapperField.create_date]: "Ngày khởi tạo",
-  [SearchVariantWrapperField.designer_code]: "Nhà thiết kế",
-  [SearchVariantWrapperField.merchandiser_code]: "Merchandiser",
+  [SearchVariantWrapperField.designers]: "Nhà thiết kế",
+  [SearchVariantWrapperField.merchandisers]: "Merchandiser",
   [SearchVariantWrapperField.status]: "Trạng thái",
-  [SearchVariantWrapperField.category_id]: "Danh mục",
+  [SearchVariantWrapperField.category_ids]: "Danh mục",
   [SearchVariantWrapperField.goods]: "Ngành hàng",
-  [SearchVariantWrapperField.material_id]: "Chất liệu",
+  [SearchVariantWrapperField.material_ids]: "Chất liệu",
 };
 
 export {
