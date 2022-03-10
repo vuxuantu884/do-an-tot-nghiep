@@ -3,6 +3,7 @@ import { BaseObject } from "model/base/base.response";
 export interface ExportRequest {
   conditions?: string;
   type: string;
+  url?: string
 }
 
 export interface ExportResponse extends BaseObject {
@@ -55,4 +56,18 @@ export interface ImportResponse extends BaseObject {
   error: number;
   url: string;
   message: string[];
+}
+
+export interface JobResponse extends BaseObject {
+  name: string;
+  status: string;
+  num_of_record: number;
+  total: number;
+  url: string;
+  total_process: number;
+  processed: number;
+  success: number;
+  percent: number;
+  error: string;
+  message: string;
 }

@@ -74,6 +74,14 @@ function PickDiscountModal (props: PropType) {
       }
     }
   }, [_rate, _type, _value, amount])
+
+  useEffect(() => {
+    if(visible) {
+      let element = document.getElementById("inputDiscountModal");
+      element?.focus();
+    }
+  }, [visible])
+
   return (
     <Modal
       title="Chiết khấu đơn hàng"
@@ -107,6 +115,7 @@ function PickDiscountModal (props: PropType) {
               
               <NumberInput
                 value={_type === "money" ? _value : _rate}
+                id="inputDiscountModal"
                 style={{ width: "83%" }}
                 format={(a: string) =>
                   formatCurrency(a)

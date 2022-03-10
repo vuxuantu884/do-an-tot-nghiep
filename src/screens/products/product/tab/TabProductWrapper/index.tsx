@@ -191,13 +191,35 @@ const TabProductWrapper: React.FC = () => {
     },
     {
       title: "Nhà thiết kế",
-      dataIndex: "designer",
       visible: false,
+      render: (record: ProductWrapperResponse) => {
+        return(
+          <div>
+             {
+              (record?.designer) !==null?
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.designer_code}`}> 
+                  {record?.designer} 
+                </Link>  :"---"
+            }
+          </div>
+        )
+      },
     },
     {
       title: "Merchandiser",
-      dataIndex: "merchandiser",
       visible: false,
+      render: (record: ProductWrapperResponse) => {
+        return(
+          <div>
+             {
+              (record?.merchandiser) !==null?
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.merchandiser_code}`}> 
+                  {record?.merchandiser} 
+                </Link>  :"---"
+            }
+          </div>
+        )
+      },
     },
     {
       title: "Danh mục",

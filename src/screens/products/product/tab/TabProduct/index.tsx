@@ -1,3 +1,4 @@
+import { Button, Modal, Progress } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
@@ -5,6 +6,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
+import { HttpStatus } from "config/http-status.config";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
@@ -18,6 +20,7 @@ import {
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
+import { ExportRequest } from "model/other/files/export-model";
 import {
   VariantImage,
   VariantPricesResponse,
@@ -33,15 +36,19 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { TYPE_EXPORT } from "screens/products/constants";
+import { exportFile, getJobByCode } from "service/product/product.service";
+import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import ExportProduct from "../../component/ExportProduct";
 import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
-import { StyledComponent } from "../style";
+import { StyledComponent } from "../style"; 
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -64,10 +71,10 @@ const initQuery: VariantSearchQuery = {
 
 var variantResponse: VariantResponse | null = null;
 
-const TabProduct: React.FC = () => {
+const TabProduct: React.FC<any> = (props) => {
+  const { vExportProduct, setVExportProduct } = props;
   const query = useQuery();
   const history = useHistory();
-  const dispatch = useDispatch();
   const listBrands = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.brand;
   });
@@ -95,6 +102,11 @@ const TabProduct: React.FC = () => {
     items: [],
   });
   const [rowKey, setRowKey] = useState<Array<any>>([]);
+  const dispatch = useDispatch();
+  // process export modal
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
 
   const actionsDefault: Array<MenuAction> = useMemo(()=>{
     const disabled = selected && selected.length > 0 ? false: true;
@@ -349,14 +361,36 @@ const TabProduct: React.FC = () => {
       visible: true,
       align: "left",
       width: 150,
-      render: (value: VariantResponse) => <div> {(value?.product?.designer)!==null?(value?.product?.designer):"---"}</div>,
+      render: (record: VariantResponse) => {
+        return(
+          <div>
+             {
+              (record?.product?.designer) !==null?
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.designer_code}`}> 
+                  {record?.product?.designer} 
+                </Link>  :"---"
+            }
+          </div>
+        )
+      },
     },
     {
       title: "Merchandiser",
       align: "left",
       width: 150,
       visible: true,
-      render: (value: VariantResponse) => <div> {(value?.product?.merchandiser)!==null?(value?.product?.merchandiser):"---"}</div>,
+      render: (record: VariantResponse) => {
+        return(
+          <div>
+             {
+              (record?.product?.merchandiser) !==null?
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.merchandiser_code}`}> 
+                  {record?.product?.merchandiser} 
+                </Link>  :"---"
+            }
+          </div>
+        )
+      },
     },
     {
       title: "Ngày tạo",
@@ -400,7 +434,12 @@ const TabProduct: React.FC = () => {
       }
       return false;
     });
-  }, [canPrintBarcode, canDeleteVariants, canUpdateProduct, actionsDefault]);
+  }, [canPrintBarcode, canDeleteVariants, canUpdateProduct, actionsDefault]); 
+  
+    const onCancelProgressModal = () => {
+      setExportCodeList([]);
+      setIsVisibleProgressModal(false);
+    };
 
   const onSelect = useCallback(
     (selectedRow: Array<VariantResponse>) => {
@@ -413,10 +452,107 @@ const TabProduct: React.FC = () => {
     [setSelected]
   );
 
+  const actionExport = {
+    Ok: useCallback(async(typeExport: string)=>{
+      let variant_ids: Array<number> = []; let conditions = {};
+      if (typeExport === TYPE_EXPORT.selected &&  selected && selected.length === 0) {
+        showWarning("Bạn chưa chọn sản phẩm để xuất file");
+        return;
+      }
+
+      if ((typeExport === TYPE_EXPORT.page || typeExport === TYPE_EXPORT.all) && data.items && data.items.length === 0) {
+        showWarning("Không có sản phẩm nào đủ điều kiện");
+        return;
+      }
+
+      if (typeExport === TYPE_EXPORT.all) {
+        conditions ={...params}
+      } 
+
+      if (typeExport === TYPE_EXPORT.page) {
+        conditions ={
+          ...conditions,
+          variant_ids: data.items.map(e=>e.id)}
+      } 
+
+      if (selected && selected.length > 0) {
+        variant_ids = selected.map(e=>e.id);
+      }
+      conditions = {
+        ...conditions,
+        typeExport: typeExport,
+        variant_ids: variant_ids
+      };
+      const request: ExportRequest = {
+        type: "EXPORT_PRODUCT",
+        conditions: JSON.stringify(conditions),
+        url: AppConfig.PRODUCT_EXPORT_TEMPLATE
+      };
+
+      const res = await callApiNative({isShowLoading: false},dispatch,exportFile,request);
+      if (res) {
+        if (res.code === HttpStatus.SUCCESS) {
+          setIsVisibleProgressModal(true);
+          setVExportProduct(false);
+          setExportCodeList([...exportCodeList, res.data.code]);
+        }
+      }
+    },[dispatch,selected,data.items, params, exportCodeList, setVExportProduct]),
+    Cancel:()=>{
+      setVExportProduct(false);
+    },
+  }
+
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = exportCodeList.map((code) => {
+      return getJobByCode(code);
+    });
+
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          response.data.total > 0
+        ) {
+          if (!!response.data.url) {
+            const newExportCode = exportCodeList.filter((item) => {
+              return item !== response.data.code;
+            });
+            setExportCodeList(newExportCode);
+            setExportProgress(100);
+            setIsVisibleProgressModal(false);
+            showSuccess("Xuất file dữ liệu khách hàng thành công!");
+            window.open(response.data.url);
+          } else {
+            if (response.data.num_of_record >= response.data.total) {
+              setExportProgress(response.data.processed);
+            } else {
+              const percent = Math.floor(
+                (response.data.num_of_record / response.data.total) * 100
+              );
+              setExportProgress(percent);
+            }
+          }
+        }
+      });
+    });
+  }, [exportCodeList]);
+
+  useEffect(() => {
+    if (exportProgress === 100 || exportCodeList.length === 0) return;
+
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [checkExportFile, exportProgress, exportCodeList]);
+
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountry));
     setTableLoading(true);
   }, [dispatch]);
+
   useEffect(() => {
     setTableLoading(true);
     let newParams = {
@@ -494,6 +630,39 @@ const TabProduct: React.FC = () => {
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
         visible={isConfirmDelete}
       />
+
+      <ExportProduct
+        onCancel={actionExport.Cancel}
+        onOk={actionExport.Ok}
+        visible={vExportProduct}
+       />
+
+       {/* Progress export customer data */}
+       <Modal
+          onCancel={onCancelProgressModal}
+          visible={isVisibleProgressModal}
+          title="Xuất file"
+          centered
+          width={600}
+          footer={[
+            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
+              Thoát
+            </Button>,
+          ]}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ marginBottom: 15 }}>
+              Đang tạo file, vui lòng đợi trong giây lát
+            </div>
+            <Progress
+              type="circle"
+              strokeColor={{
+                "0%": "#108ee9",
+                "100%": "#87d068",
+              }}
+              percent={exportProgress}
+            />
+          </div>
+        </Modal>
     </StyledComponent>
   );
 };
