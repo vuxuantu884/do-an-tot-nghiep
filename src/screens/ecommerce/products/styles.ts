@@ -71,13 +71,13 @@ export const StyledProductFilter = styled.div`
 
   .select-channel-dropdown {
     margin-right: 10px;
-    width: 150px;
     min-width: 150px;
   }
 
   .select-store-dropdown {
     margin-right: 10px;
     min-width: 200px;
+    width: 300px;
   }
 
   .shoppe-search {
@@ -90,6 +90,25 @@ export const StyledProductFilter = styled.div`
     margin-right: 10px;
     min-width: 200px;
     flex-grow: 1;
+  }
+
+  // style for not connected items tab
+  .not-connected-items-filter {
+    .action-dropdown {
+      margin-right: 15px;
+    }
+    .select-channel-dropdown {
+      margin-right: 15px;
+      min-width: 150px;
+      width: 200px;
+    }
+    .select-store-dropdown {
+      margin-right: 15px;
+      width: 450px;
+    }
+    .shoppe-search {
+      margin-right: 15px;
+    }
   }
 
   .render-shop-list {
