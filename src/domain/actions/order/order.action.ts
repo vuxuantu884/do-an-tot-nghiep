@@ -405,8 +405,8 @@ export const orderConfigSaga = (setData: (data: OrderConfigResponseModel) => voi
 
 export const getFulfillments = (
   code: string,
-  store_id: number,
-  delivery_service_provider_id: number,
+  store_id: any,
+  delivery_service_provider_id: any,
   setData: (data: Array<any>) => void
 ) => {
   return BaseAction(OrderType.GET_FULFILLMENTS, {

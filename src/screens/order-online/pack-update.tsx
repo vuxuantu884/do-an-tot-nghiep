@@ -176,7 +176,7 @@ const PackUpdate: React.FC = () => {
     (value: any) => {
 
       let order_id = value.order_id;
-      if (order_id) {
+      if (order_id.trim()) {
         let codes: any[] = [];
         codes.push(order_id);
 
@@ -188,7 +188,54 @@ const PackUpdate: React.FC = () => {
 
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
-            if (data) showSuccess("Thêm đơn hàng vào biên bản thành công");
+            if (data) {
+              let result: GoodsReceiptsInfoOrderModel[] = [];
+              data.orders?.forEach(function (itemOrder, index) {
+                let product: VariantModel[] = [];
+                let ship_price = 0;
+                let total_price = 0;
+
+                itemOrder.fulfillments?.forEach(function (itemFulfillment) {
+                  ship_price =
+                    ship_price +
+                    (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
+                      ? itemFulfillment.shipment.shipping_fee_informed_to_customer
+                      : 0);
+                  total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
+
+                  itemFulfillment.items.forEach(function (itemProduct) {
+                    product.push({
+                      sku: itemProduct.sku,
+                      product_id: itemProduct.product_id,
+                      product: itemProduct.product,
+                      variant_id: itemProduct.variant_id,
+                      variant: itemProduct.variant,
+                      variant_barcode: itemProduct.variant_barcode,
+                    });
+                  });
+                });
+
+                let resultItem: GoodsReceiptsInfoOrderModel = {
+                  key: index,
+                  order_id: itemOrder.id ? itemOrder.id : 0,
+                  order_code: itemOrder.code ? itemOrder.code : "",
+                  customer_id: 1,
+                  customer_name: itemOrder.customer ? itemOrder.customer : "",
+                  customer_phone: itemOrder.customer_phone_number
+                    ? itemOrder.customer_phone_number
+                    : "api chua tra ra du lieu",
+                  customer_address: "api chua tra ra du lieu",
+                  product: product,
+                  ship_price: ship_price,
+                  total_price: total_price,
+                };
+
+                result.push(resultItem);
+              });
+              setGoodsReceiptsInfoOrderModel(result);
+              setSelectedRowKeys([]);
+              showSuccess("Thêm đơn hàng vào biên bản thành công");
+            }
           })
         );
         searchOrderForm.resetFields();
@@ -406,28 +453,10 @@ const PackUpdate: React.FC = () => {
                       form={searchOrderForm}
                       onFinish={handleSubmit}
                     >
-                      <Item name="order_id" style={{width: "230px"}}>
-                        <Select
-                          showSearch
-                          allowClear
-                          placeholder="Mã đơn hàng"
-                          filterOption={(input, option: any) =>
-                            option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                            0
-                          }
-                        >
-                          {orderList?.map((item, index) => (
-                            <Select.Option key={index} value={item.code}>
-                              {item.code}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Item>
-
-                      <Item name="card_order_id" style={{width: "calc(96% - 381px)"}}>
+                      <Item name="order_id" style={{width: "calc(96% - 381px)"}}>
                         <Input
                           prefix={<img src={search} alt="" />}
-                          placeholder="Mã FF"
+                          placeholder="ID đơn hàng"
                         />
                       </Item>
                       <Item>

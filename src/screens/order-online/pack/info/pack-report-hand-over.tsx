@@ -422,7 +422,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                   <img
                     src={service.logo ? service.logo : ""}
                     alt=""
-                    style={{ width: 135}}
+                    style={{ width: 100}}
                   />
                 }
               </div>

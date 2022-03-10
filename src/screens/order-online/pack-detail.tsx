@@ -1,4 +1,5 @@
 import {
+  DeleteOutlined,
   FileExcelOutlined,
   PrinterOutlined,
   ReconciliationOutlined,
@@ -47,6 +48,12 @@ const actions: Array<MenuAction> = [
     name: "Thêm đơn hàng vào biên bản",
     icon: <ReconciliationOutlined />,
   },
+  {
+    id: 5,
+    name: "Xóa",
+      icon: <DeleteOutlined />,
+      color: "#E24343"
+  },
 ];
 
 const typePrint={
@@ -76,16 +83,16 @@ const PackDetail: React.FC = () => {
   const [isError, setError] = useState<boolean>(false);
   const [packDetail, setPackDetail] = useState<GoodsReceiptsResponse>();
   const [packFile] = useState<GoodsReceiptsFileModel[]>([
-    {
-      file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
-      create_name: "le van long",
-      create_time: "17-11-2021",
-    },
-    {
-      file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
-      create_name: "le van long",
-      create_time: "17-11-2021",
-    },
+    // {
+    //   file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
+    //   create_name: "le van long",
+    //   create_time: "17-11-2021",
+    // },
+    // {
+    //   file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
+    //   create_name: "le van long",
+    //   create_time: "17-11-2021",
+    // },
   ]);
 
   const [packProductQuantity, setPackProductQuantity] = useState<GoodsReceiptsTotalProductModel[]>([]);
@@ -93,7 +100,7 @@ const PackDetail: React.FC = () => {
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
   const [htmlContent, setHtmlContent] = useState("");
-  const [selectedOrderList,setSelectedOrderList]=useState<GoodsReceiptsOrderListModel[]>([]);
+  const [selectedOrderList, setSelectedOrderList]=useState<GoodsReceiptsOrderListModel[]>([]);
   console.log(selectedOrderList)
   useEffect(() => {
     if (PackId) {
@@ -207,6 +214,14 @@ const PackDetail: React.FC = () => {
 
   const handleAddOrderInPack = () => { };
 
+  const handleDeleteOrderInPack = () => {
+    let request: any = {
+      ids: selectedOrderList
+    }
+    
+    
+  };
+
   const handleSearchOrder = (value: any) => { };
 
   const onMenuListOrderClick = useCallback(
@@ -222,8 +237,11 @@ const PackDetail: React.FC = () => {
           handleExportExcelOrderPack();
           break;
         case 4:
-          history.push(`${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${PackId}`);
+          history.push(`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${PackId}`);
           break;
+        case 5:
+          handleDeleteOrderInPack();
+          break;  
         default:
           break;
       }
