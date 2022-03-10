@@ -502,14 +502,18 @@ const OrderDetail = (props: PropType) => {
       return;
     }
     const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
-    const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
     let getTrackingCode = setInterval(()=> {
+      const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
       if (!trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed") {
         getOrderDetail(id).then(response => {
-          if(response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
-            onGetDetailSuccess(response.data);
-            clearInterval(getTrackingCode);
-            showSuccess("Lấy mã vận đơn thành công!")
+          if(response.data?.fulfillments) {
+            let sorted = sortFulfillments(response.data?.fulfillments);
+            if(sorted[0].shipment?.tracking_code || sorted[0].shipment?.pushing_status !== "failed") {
+              onGetDetailSuccess(response.data);
+              clearInterval(getTrackingCode);
+              showSuccess("Lấy mã vận đơn thành công!")
+            }
+
           }
         })
       } else {

@@ -3,14 +3,25 @@ import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order
 import {
   FulFillmentResponse,
   OrderResponse,
+  OrderReturnReasonDetailModel,
   OrderSubStatusResponse,
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getGoodsReceiptsSerchService } from "service/order/order-pack.service";
-import { isFetchApiSuccessful, sortFulfillments } from "utils/AppUtils";
+import { isFetchApiSuccessful, handleFetchApiError, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
+import {
+	createOrderExchangeService,
+	createOrderReturnService,
+	getOrderReturnCalculateRefundService,
+	getOrderReturnLog,
+	getOrderReasonService,
+	getOrderReturnService,
+	orderRefundService,
+	setIsReceivedProductOrderReturnService
+} from "service/order/return.service";
 
 type PropType = {
   subStatusCode?: string | undefined;
@@ -65,6 +76,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const [isShowReason, setIsShowReason] = useState(false);
 
   const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<string|undefined>(undefined);
+
+  const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<OrderReturnReasonDetailModel[]>([]);
 
   const sortedFulfillments = useMemo(() => {
     if (!OrderDetailAllFulfillment?.fulfillments) {
@@ -425,6 +438,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           setValueSubStatusCode(sub_status_code);
           handleUpdateSubStatus();
           setReload(true);
+          setIsShowReason(false);
+          setSubReasonRequireWarehouseChange(undefined)
         })
       );
     }
@@ -535,7 +550,9 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       default:
         break;
       }
-    isChange = handleIfOrderStatusOther(sub_status_code);
+    if(isChange) {
+      isChange = handleIfOrderStatusOther(sub_status_code);
+    }
     if(isChange) {
       changeSubStatusCode(sub_status_code)
     }
@@ -594,6 +611,17 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     }
   }, [subStatusCode]);
 
+  useEffect(() => {
+    const code = ["change_depot"];
+    getOrderReasonService(code).then((response) => {
+      if(isFetchApiSuccessful(response)) {
+        setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons)
+      } else {
+        handleFetchApiError(response, "Danh sách lý do hủy đơn hàng", dispatch)
+      } 
+    })
+  }, [dispatch])
+
   return (
     <Card title="Xử lý đơn hàng">
       <Select
@@ -619,26 +647,32 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           })}
       </Select>
       {isShowReason ? (
-        <Select
-          showSearch
-          style={{ width: "100%" }}
-          placeholder="Chọn lý do đổi kho hàng"
-          optionFilterProp="children"
-          filterOption={(input, option) =>
-            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-          onChange={(value: string) =>setSubReasonRequireWarehouseChange(value)}
-          notFoundContent="Không tìm thấy lý do đổi kho hàng"
-        >
-          {listOrderSubStatus &&
-            listOrderSubStatus.map((single) => {
-              return (
-                <Select.Option value={single.code} key={single.code}>
-                  {single.sub_status}
-                </Select.Option>
-              );
-            })}
-        </Select>
+        <div style={{marginTop: 15}}>
+          <div style={{marginBottom: 8}}>
+            Chọn lý do đổi kho hàng chi tiết <span className="text-error">*</span>
+          </div>
+          <Select
+            showSearch
+            allowClear
+            style={{ width: "100%" }}
+            placeholder="Chọn lý do đổi kho hàng"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            onChange={(value: string) =>setSubReasonRequireWarehouseChange(value)}
+            notFoundContent="Không tìm thấy lý do đổi kho hàng"
+          >
+            {subReasonsRequireWarehouseChange &&
+              subReasonsRequireWarehouseChange.map((single) => {
+                return (
+                  <Select.Option value={single.id} key={single.id}>
+                    {single.name}
+                  </Select.Option>
+                );
+              })}
+          </Select>
+        </div>
       ) : null}
     </Card>
   );

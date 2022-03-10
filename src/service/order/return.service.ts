@@ -29,7 +29,7 @@ export const setIsReceivedProductOrderReturnService = (
 };
 
 export const getOrderReasonService = (orderCodes: string[]): Promise<
-  BaseResponse<OrderReasonModel>
+  BaseResponse<OrderReasonModel[]>
 > => {
   const query = {
     order_codes: orderCodes
