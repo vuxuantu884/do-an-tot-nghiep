@@ -708,27 +708,27 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   const actionList = (
     <Menu>
       {allowProductsUpdateStock && (
-        <Menu.Item key="1">
-          <span onClick={handleSyncStockItemsSelected}>
+        <Menu.Item key="1" onClick={handleSyncStockItemsSelected}>
+          <span>
             Đồng bộ tồn kho lên sàn
           </span>
         </Menu.Item>
       )}
 
       {allowProductsDelete && (
-        <Menu.Item key="2" disabled={isDisableAction()}>
-          <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
+        <Menu.Item key="2" onClick={handleDeleteItemsSelected} disabled={isDisableAction()}>
+          <span>Xóa sản phẩm lấy về</span>
         </Menu.Item>
       )}
 
       {allowProductsDisconnect && (
-        <Menu.Item key="3" disabled={isDisableAction()}>
-          <span onClick={handleDisconnectItemsSelected}>Hủy liên kết</span>
+        <Menu.Item key="3" onClick={handleDisconnectItemsSelected} disabled={isDisableAction()}>
+          <span>Hủy liên kết</span>
         </Menu.Item>
       )}
 
-      <Menu.Item key="1">
-        <span onClick={handleExportExcelProduct}>
+      <Menu.Item key="1" onClick={handleExportExcelProduct}>
+        <span>
           Xuất excel
         </span>
       </Menu.Item>

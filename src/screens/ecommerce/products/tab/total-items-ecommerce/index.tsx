@@ -790,8 +790,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1">
-        <span onClick={handleExportExcelProduct}>
+      <Menu.Item key="1" onClick={handleExportExcelProduct}>
+        <span>
           Xuất excel
         </span>
       </Menu.Item>
