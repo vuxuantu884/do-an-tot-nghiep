@@ -1,22 +1,13 @@
 import AuthRoute from "component/auth.route";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
-import React, { useEffect } from "react";
-import { Route, Switch, useLocation } from "react-router-dom";
+import React from "react";
+import { Route, Switch } from "react-router-dom";
 import Login from "screens/login";
+import routesNotShowInMenu from "./list-routes-not-show-in-menu";
 import menu from "./menu";
 import extra from "./menu/extra";
-import routesNotShowInMenu from "./list-routes-not-show-in-menu";
-import ReactGA from "react-ga";
 const NotFoundScreen = React.lazy(() => import("screens/notfound.screen"));
-
-/**
- * @description: tracking data for google analytics
- */
-const GA_TRACKING_ID = process.env.REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID;
-if (GA_TRACKING_ID) {
-  ReactGA.initialize(GA_TRACKING_ID);
-}
 
 /**
  * route dạng /:id cần phải để phía sau tránh bị ghi đè
@@ -65,16 +56,6 @@ const getAllRoute = (route: RouteMenu) => {
 };
 
 const MainRoute = () => {
-  
-  /**
-   * @description: tracking data for google analytics
-   */
-  const location = useLocation();
-  useEffect(() => {
-    if (GA_TRACKING_ID && location) {
-      ReactGA.pageview(location.pathname + location.search);
-    }
-  }, [location]);
 
   return (
     <Switch>
