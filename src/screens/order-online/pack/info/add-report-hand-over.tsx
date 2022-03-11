@@ -110,7 +110,7 @@ const AddReportHandOver: React.FC = () => {
         ecommerce_name: ecommerce_name,
         delivery_service_name: delivery_service_name,
         receipt_type_name: receipt_type_name,
-        delivery_service_type:value.delivery_service_id===-1?ShipmentMethod.EMPLOYEE : ShipmentMethod.EXTERNAL_SHIPPER,
+        delivery_service_type: value.delivery_service_id === -1 ? ShipmentMethod.EMPLOYEE : ShipmentMethod.EXTERNAL_SHIPPER,
       };
 
       dispatch(
@@ -165,33 +165,24 @@ const AddReportHandOver: React.FC = () => {
 
     let selectOrderPackSuccess = orderPackSuccess?.filter((p) => isFulFillmentPack.some((single) => single === p.order_code));
     let notSelectOrderPackSuccess = orderPackSuccess?.filter((p) => !isFulFillmentPack.some((single) => single === p.order_code));
-    console.log("selectOrderPackSuccess",selectOrderPackSuccess);
-    console.log("notSelectOrderPackSuccess",notSelectOrderPackSuccess);
-    if (!selectOrderPackSuccess) {
+    console.log("selectOrderPackSuccess", selectOrderPackSuccess);
+    console.log("notSelectOrderPackSuccess", notSelectOrderPackSuccess);
+    if (!selectOrderPackSuccess || (selectOrderPackSuccess && selectOrderPackSuccess.length<=0)) {
       showWarning("chưa chọn đơn hàng cần thêm vào biên bản");
       return;
     }
 
     let codes: any[] = [];
 
-    goodsReceipts?.orders?.forEach(function (i) {
+    goodsReceipts?.orders?.forEach((i) => {
       codes.push(i.code);
-
     });
-    selectOrderPackSuccess?.forEach(function (i: any) {
+    selectOrderPackSuccess?.forEach((i: any) => {
       codes.push(i.order_code);
     });
 
     let param: any = {
       ...goodsReceipts,
-      // store_id:goodsReceipts.store_id,
-      // store_name: goodsReceipts.store_name,
-      // ecommerce_id: goodsReceipts.ecommerce_id,
-      // ecommerce_name: goodsReceipts.ecommerce_name,
-      // receipt_type_id: goodsReceipts.receipt_type_id,
-      // receipt_type_name: goodsReceipts.receipt_type_name,
-      // delivery_service_id: goodsReceipts.delivery_service_id,
-      // delivery_service_name: goodsReceipts.delivery_service_name,
       codes: codes,
     };
 
@@ -209,8 +200,8 @@ const AddReportHandOver: React.FC = () => {
               ...packModel,
               order: [...notSelectOrderPackSuccess]
             }
-            console.log("packData",packData);
-            
+            console.log("packData", packData);
+
             setPackModel(packData);
             setPackInfo(packData);
 
@@ -257,7 +248,7 @@ const AddReportHandOver: React.FC = () => {
     >
       <div className="yody-pack-row">
         <Row className="pack-give-card-row">
-          <div className="pack-give-card-row-item" style={{width: "40%"}}>
+          <div className="pack-give-card-row-item" style={{ width: "35%" }}>
             <Select
               className="select-with-search"
               showSearch
@@ -282,7 +273,7 @@ const AddReportHandOver: React.FC = () => {
             >
               {listGoodsReceipts.map((item, index) => (
                 <Select.Option key={index.toString()} value={item.id}>
-                  {+item.delivery_service_id===-1?`${item.id} - Tự giao hàng`:`${item.id} - ${item.delivery_service_name}`} - {" "}
+                  {+item.delivery_service_id === -1 ? `${item.id} - Tự giao hàng` : `${item.id} - ${item.delivery_service_name}`} - {" "}
                   {``}
                   {item.receipt_type_name}- {item.ecommerce_name}
                 </Select.Option>
@@ -297,7 +288,7 @@ const AddReportHandOver: React.FC = () => {
             block
             onClick={showModal}
             className="pack-give-card-row-item"
-            style={{ width: "160px" }}
+            style={{ width: "145px" }}
           >
             Thêm mới
           </Button>
@@ -308,7 +299,7 @@ const AddReportHandOver: React.FC = () => {
             block
             onClick={handOrderAddGoodsReceipts}
             className="pack-give-card-row-item"
-            style={{ width: "160px" }}
+            style={{ width: "75px" }}
           >
             Lưu
           </Button>

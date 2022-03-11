@@ -1,10 +1,5 @@
 import { Modal, Form, Select, FormInstance, Row, Col } from "antd";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { useSelector } from "react-redux";
-import { haveAccess } from "utils/AppUtils";
-
 import { Input } from "antd";
 import { useContext, useMemo } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
@@ -23,31 +18,13 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
 ) => {
   const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit } = props;
 
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
-  //const dispatch = useDispatch();
-
   const orderPackContextData = useContext(OrderPackContext);
 
-  const listStores = orderPackContextData.listStores;
+  const listStoresDataCanAccess = orderPackContextData?.listStoresDataCanAccess;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
   const listChannels = orderPackContextData.listChannels;
   //const data=orderPackContextData.data;
-
-  const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
-      newData = listStores.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
-      );
-    }
-    return newData;
-  }, [listStores, userReducer.account]);
 
   const deliveryServiceProvider = useMemo(() => {
     let dataAccess: DeliveryServiceResponse[] = [];
@@ -101,7 +78,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   }}
                 >
                  
-                  {dataCanAccess.map((item, index) => (
+                  {listStoresDataCanAccess?.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>

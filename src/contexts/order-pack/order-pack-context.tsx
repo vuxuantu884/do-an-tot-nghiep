@@ -9,6 +9,8 @@ type OrderPackContextType = {
   setListThirdPartyLogistics: (value: DeliveryServiceResponse[]) => void;
   listStores:Array<StoreResponse>;
   setListStores:(value: Array<StoreResponse>)=>void;
+  listStoresDataCanAccess?:Array<StoreResponse>;
+  setListStoresDataCanAccess?:(value: Array<StoreResponse>)=>void;
   listGoodsReceiptsType:Array<GoodsReceiptsTypeResponse>;
   setListGoodsReceiptsType:(value: Array<GoodsReceiptsTypeResponse>)=>void;
   listChannels:Array<ChannelsResponse>;
@@ -24,6 +26,8 @@ export const OrderPackContext = createContext<OrderPackContextType>({
     setListThirdPartyLogistics:(value: DeliveryServiceResponse[]) =>{},
     listStores:[],
     setListStores:(value: StoreResponse[]) =>{},
+    listStoresDataCanAccess:[],
+    setListStoresDataCanAccess:(value: StoreResponse[]) =>{},
     listGoodsReceiptsType:[],
     setListGoodsReceiptsType:(value: GoodsReceiptsTypeResponse[]) =>{},
     listChannels:[],
