@@ -95,28 +95,24 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  
-  .ecommerce-order-list {
-    .ant-table-sticky-scroll-bar {
-      display: none;
-    }
-  }
 `;
 
 export const StyledOrderFilter = styled.div`
   .order-filter {
     overflow-x: auto;
+    margin-bottom: 5px;
     .ant-form {
       display: flex;
       .ant-form-item {
-        margin-bottom: 20px;
+        margin-bottom: 5px;
       }
     }
   }
 
   .order-filter-tags .tag {
-    margin-bottom: 15px;
-    padding: 6px 10px;
+    margin-bottom: 10px;
+    margin-top: 0;
+    padding: 5px 10px;
   }
 
   .ecommerce-dropdown {
