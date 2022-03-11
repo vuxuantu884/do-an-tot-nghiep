@@ -71,6 +71,7 @@ function* uploadLoyaltyCardSaga(action: YodyAction) {
 
 function* loyaltyCardAssignmentSaga(action: YodyAction) {
   const { query, id, callback } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
       loyaltyCardAssignmentApi,
@@ -93,11 +94,14 @@ function* loyaltyCardAssignmentSaga(action: YodyAction) {
   } catch (error) {
     callback(null);
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* loyaltyCardLockSaga(action: YodyAction) {
   const { id, callback } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
       loyaltyCardLockApi,
@@ -119,6 +123,8 @@ function* loyaltyCardLockSaga(action: YodyAction) {
   } catch (error) {
     callback(null);
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
