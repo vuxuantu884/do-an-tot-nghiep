@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
 import { Button, Card } from "antd";
-import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
+import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -78,6 +78,8 @@ import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDown
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
+import ExportModal from "screens/order-online/modal/export.modal";
+import { exportFile, getFile } from "service/other/export.service";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -151,6 +153,21 @@ const EcommerceOrders: React.FC = () => {
     not: false,
   });
 
+  const EXPORT_IDs = {
+    allOrders: 1,
+    ordersOnThisPage: 2,
+    selectedOrders: 3,
+    ordersFound: 4,
+  };
+
+  //setup channel
+  const [channelOrigin, setchannelOrigin] = useState(ALL_CHANNEL);
+
+  //export order
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(1);
+
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
   // todo thai: handle later
   // const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
@@ -162,8 +179,11 @@ const EcommerceOrders: React.FC = () => {
   //   []
   // );
 
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+
   const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowCodes, setSelectedRowCodes] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
@@ -201,6 +221,81 @@ const EcommerceOrders: React.FC = () => {
       })
     );
   }, [dispatch]);
+
+  const onExport = useCallback(
+    (optionExport, typeExport) => {
+      let newParams: any = { ...params };
+      // let hiddenFields = [];
+      switch (optionExport) {
+        case EXPORT_IDs.allOrders:
+          delete newParams.page;
+          delete newParams.limit;
+          newParams.channel_codes = channelOrigin
+          break;
+        case EXPORT_IDs.ordersOnThisPage:
+          break;
+        case EXPORT_IDs.selectedOrders:
+          newParams.code = selectedRowCodes;
+          break;
+        case EXPORT_IDs.ordersFound:
+          delete newParams.page;
+          delete newParams.limit;
+          newParams.channel_codes = channelOrigin
+          break;
+        default:
+          break;
+      }
+
+      let queryParams = generateQuery(newParams);
+      exportFile({
+        conditions: queryParams,
+        type: "EXPORT_ORDER",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(2);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusExport(4);
+          console.log("orders export file error", error);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },
+    [params, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, channelOrigin, listExportFile]
+  );
+
+  const checkExportFile = useCallback(() => {
+
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (exportProgress < 95) {
+            setExportProgress(exportProgress + 3);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(3);
+            setExportProgress(100);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+            setShowExportModal(false);
+            setExportProgress(0);
+            setStatusExport(1);
+          }
+        }
+      });
+    });
+  }, [exportProgress, listExportFile]);
+
 
   const status_order = [
     { name: "Nháp", value: "draft", className: "gray-status" },
@@ -592,6 +687,9 @@ const EcommerceOrders: React.FC = () => {
 
     const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowIds);
+
+    const selectedRowCodes = newSelectedRow.map((row: any) => row.code);
+    setSelectedRowCodes(selectedRowCodes);
   }, []);
 
   const onPageChange = useCallback(
@@ -705,14 +803,19 @@ const EcommerceOrders: React.FC = () => {
     printAction("shipment");
   }
 
+  const  handleExportOrder = () => {
+    setShowExportModal(true)
+  }
+
   const actions = [
+
     {
-      id: "export_excel",
-      name: "Xuất Excel",
-      icon: <PrinterOutlined />,
-      disabled: !data.items.length || true,
-      onClick: () => {}
+      id: 1,
+      icon: <FileExcelOutlined />,
+      name: "Xuất excel",
+      onClick: () => handleExportOrder()
     },
+
     {
       id: 2,
       name: "In phiếu giao hàng",
@@ -846,12 +949,21 @@ const EcommerceOrders: React.FC = () => {
     setAllShopIds(shopIds);
   }, []);
 
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listExportFile, statusExport]);
+
 
   useEffect(() => {
     if (allowOrdersView && allShopIds.length) {
       getEcommerceOrderList();
     }
-  }, [allShopIds, allowOrdersView, getEcommerceOrderList]);
+  }, [allShopIds, allowOrdersView, getEcommerceOrderList, params]);
 
   useEffect(() => {
     if (allowOrdersView) {
@@ -1026,6 +1138,8 @@ const EcommerceOrders: React.FC = () => {
                 subStatus={listOrderProcessingStatus}
                 onShowColumnSetting={() => setShowSettingColumn(true)}
                 onClearFilter={() => onClearFilter()}
+                ALL_CHANNEL={ALL_CHANNEL}
+                setchannelOrigin={setchannelOrigin}
               />
 
               <CustomTable
@@ -1112,6 +1226,23 @@ const EcommerceOrders: React.FC = () => {
               setColumn(data);
             }}
             data={columns}
+          />
+        )}
+
+        {showExportModal && (
+          <ExportModal
+            visible={showExportModal}
+            onCancel={() => {
+              setShowExportModal(false);
+              setExportProgress(0);
+              setStatusExport(1);
+            }}
+            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+            type="orders"
+            total={data.metadata.total}
+            exportProgress={exportProgress}
+            statusExport={statusExport}
+            selected={selectedRowCodes.length ? true : false}
           />
         )}
       </ContentContainer>

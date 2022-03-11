@@ -54,6 +54,8 @@ type EcommerceOrderFilterProps = {
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
+  ALL_CHANNEL: any
+  setchannelOrigin: (item: any) => void
 };
 
 const { Item } = Form;
@@ -91,7 +93,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     isLoading,
     onClearFilter,
     onFilter,
-    onShowColumnSetting
+    onShowColumnSetting,
+    ALL_CHANNEL,
+    setchannelOrigin
   } = props;
 
   const [actionList, setActionList] = useState<Array<any>>(actions);
@@ -302,6 +306,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   const handleSelectEcommerce = (key: any) => {
     if (key !== ecommerceKeySelected) {
+      setchannelOrigin(key)
       formSearchRef?.current?.setFieldsValue({
         ecommerce_shop_ids: []
       });
@@ -319,6 +324,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   };
 
   const handleRemoveEcommerce = useCallback(() => {
+    setchannelOrigin(ALL_CHANNEL)
     setEcommerceKeySelected("");
     setIsEcommerceSelected(false);
     formSearchRef?.current?.setFieldsValue({
@@ -326,7 +332,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       ecommerce_shop_ids: []
     });
     onFilter && onFilter({...params, ecommerce_shop_ids: [], channel_codes: []});
-  }, [formSearchRef, onFilter, params]);
+  }, [ALL_CHANNEL, formSearchRef, onFilter, params, setchannelOrigin]);
   // end handle Select Ecommerce
 
   // handle action dropdown
