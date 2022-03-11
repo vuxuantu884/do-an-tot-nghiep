@@ -6,5 +6,5 @@ export enum SupplierEnum {
   scorecard = "scorecard",
   type = "type",
   collection_id = "collection_id",
-  merchandiser = "merchandiser",
+  merchandiser = "pics",
 }

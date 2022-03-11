@@ -4,7 +4,7 @@ import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { Type } from "config/type.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import _, {isArray, sortBy} from "lodash";
+import _, { sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DepartmentResponse, DepartmentView } from "model/account/department.model";
 import { CityView, DistrictResponse } from "model/content/district.model";
@@ -1479,19 +1479,20 @@ export const goToTopPage = () => {
 
 export const formatFieldTag = (
   params: { [key: string]: any },
-  fieldMapping: any
+  fieldMapping?: any
 ): BaseFilterTag[] => {
   const transformParams = transformParamsToArray(params);
   let formatted: BaseFilterTag[] = [];
 
-  transformParams.forEach((item: any) => {
+  transformParams.forEach((item: any, i: number) => {
     for (let keyItem in item) {
       Object.keys(params).forEach((key: any, index) => {
         if(keyItem === "page" || keyItem === "limit") return
         if (keyItem === key) {
           formatted.push({
+            id: i,
             keyId: key,
-            keyName: fieldMapping[key],
+            keyName: fieldMapping && fieldMapping[key],
             valueId: item[key],
             valueName: null
           });
@@ -1505,13 +1506,7 @@ export const formatFieldTag = (
 export const transformParamsToArray = (params: { [key: string]: any }) => {
   let newParams: any = []
   Object.keys(params).forEach((key: any, index) => {
-    if(params[key] && typeof Object(!_.isEmpty(params[key]))) {
-      if(isArray(params[key])){
-        params[key].forEach((item: any) => {
-          newParams.push({[key]: params && item})
-        })
-        return
-      }
+    if(params[key] && !_.isEmpty(params[key])) {
       newParams.push({[key]: params && params[key]})
     }
   })

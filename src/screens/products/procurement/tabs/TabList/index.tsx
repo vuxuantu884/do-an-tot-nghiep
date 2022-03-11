@@ -18,12 +18,11 @@ import {
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
-import querystring from "querystring";
 import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState, lazy } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import { formatCurrency } from "utils/AppUtils";
+import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {
   OFFSET_HEADER_TABLE,
   POStatus,
@@ -34,10 +33,10 @@ import {
 import {
   ConvertDateToUtc,
   ConvertUtcToLocalDate,
-  DATE_FORMAT,
+  DATE_FORMAT, getStartOfDayCommon,
 } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
+import {getQueryParams, useQuery} from "utils/useQuery";
 import TabListFilter from "../../filter/TabList.filter";
 import { PoDetailAction } from "domain/actions/po/po.action";
 import { StyledComponent } from "./styles";
@@ -402,8 +401,10 @@ const TabList: React.FC = () => {
     completed_date: null,
   };
 
-  const qurery = useQuery();
-  const paramsrUrl: any = Object.fromEntries(qurery.entries());
+  const query = useQuery();
+  let paramsrUrl: any = useMemo(() => {
+    return {...getQueryParams(query)}
+  }, [query]);
 
   const onDetail = useCallback((result: PurchaseOrder | null) => {
     setLoading(false);
@@ -429,7 +430,7 @@ const TabList: React.FC = () => {
     paramsrUrl.page = page;
     paramsrUrl.limit = size;
     history.replace(
-      `${UrlConfig.PROCUREMENT}?${querystring.stringify(paramsrUrl)}`
+      `${UrlConfig.PROCUREMENT}?${generateQuery(paramsrUrl)}`
     );
   };
 
@@ -547,7 +548,6 @@ const TabList: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {
-    console.log('vao day', record)
     const { status = "", expect_store_id = 144, code } = record;
     switch (status) {
       case ProcumentStatus.DRAFT:
@@ -592,8 +592,17 @@ const TabList: React.FC = () => {
 
   const search = useCallback(()=> {
     setLoading(true);
+    const newParams = {
+      ...paramsrUrl,
+      expect_receipt_from: paramsrUrl.expect_receipt_from && getStartOfDayCommon(paramsrUrl.expect_receipt_from)?.format(),
+      expect_receipt_to: paramsrUrl.expect_receipt_to && getStartOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
+      stock_in_from: paramsrUrl.stock_in_from && getStartOfDayCommon(paramsrUrl.stock_in_from)?.format(),
+      stock_in_to: paramsrUrl.stock_in_to && getStartOfDayCommon(paramsrUrl.stock_in_to)?.format(),
+      active_from: paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
+      active_to: paramsrUrl.active_to && getStartOfDayCommon(paramsrUrl.active_to)?.format(),
+    }
     dispatch(
-      POSearchProcurement(paramsrUrl, (result) => {
+      POSearchProcurement(newParams, (result) => {
         setLoading(false);
         if (result) {
           setData(result);

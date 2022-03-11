@@ -101,7 +101,7 @@ const PackDetail: React.FC = () => {
 
           //PackQuantityProduct
           let keyProduct = 0;
-          let resultListProduct: GoodsReceiptsTotalProductModel[] = [];
+          let resultListProduct: any[] = [];
 
           let keyOrder = 0;
           let resultListOrder: GoodsReceiptsOrderListModel[] = [];
@@ -110,6 +110,7 @@ const PackDetail: React.FC = () => {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
               itemFFM.items.forEach(function (itemProduct, index) {
                 ////
+                const productOnHand = data.variant.find(i => i.sku === itemProduct.sku)
                 resultListProduct.push({
                   key: keyProduct++,
                   barcode: itemProduct.variant_barcode,
@@ -117,10 +118,11 @@ const PackDetail: React.FC = () => {
                   product_sku: itemProduct.sku,
                   product_name: itemProduct.product,
                   variant_id: itemProduct.variant_id,
-                  inventory: itemProduct.available ? itemProduct.available : 0,
+                  // inventory: itemProduct.available ? itemProduct.available : 0,
                   price: itemProduct.price,
                   total_quantity: itemProduct.quantity,
                   total_incomplate: 0,
+                  on_hand: productOnHand.on_hand,
                 });
 
                 ///

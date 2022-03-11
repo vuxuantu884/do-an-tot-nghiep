@@ -1479,7 +1479,7 @@ const ProductCreateScreen: React.FC = () => {
                       dataIndex: "name",
                     },
                     {
-                      title: "Mã màu",
+                      title: "Màu",
                       key: "color",
                       dataIndex: "color",
                     },

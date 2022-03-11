@@ -126,7 +126,7 @@ function ColorSelect(props: SelectContentProps): ReactElement {
     };
 
     getIntialValue();
-  }, [isFilter, mode, dispatch, value, defaultOptons]);
+  }, [isFilter, mode, dispatch, value, defaultOptons,key]);
 
   return (
     <SelectPagingV2
