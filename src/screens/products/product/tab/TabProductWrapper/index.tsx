@@ -74,7 +74,7 @@ const TabProductWrapper: React.FC = () => {
   });
 
   const actionsDefault: Array<MenuAction> = useMemo(()=>{
-    const disabled = selected && selected.length > 0 ? false: true;
+    const disabled = !(selected && selected.length > 0);
     return [
       {
         id: ACTIONS_INDEX.EXPORT_EXCEL,
@@ -252,10 +252,8 @@ const TabProductWrapper: React.FC = () => {
     if (item.id === ACTIONS_INDEX.ACTIVE || item.id === ACTIONS_INDEX.INACTIVE) {
       return canUpdateParentProduct;
     }
-    if (item.id === ACTIONS_INDEX.EXPORT_EXCEL) {
-      return true;
-    }
-    return false;
+    return item.id === ACTIONS_INDEX.EXPORT_EXCEL;
+
   });
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
@@ -391,12 +389,7 @@ const TabProductWrapper: React.FC = () => {
   }, [dispatch, setDataCategory]);
 
   useEffect(() => {
-    let newParams = {
-      ...params,
-      merchandiser_code: params.merchandiser_code ? JSON.parse(params.merchandiser_code).code : null,
-      designer_code: params.designer_code ? JSON.parse(params.designer_code).code : null,
-    }
-    dispatch(searchProductWrapperRequestAction(newParams, setSearchResult));
+    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
   return (

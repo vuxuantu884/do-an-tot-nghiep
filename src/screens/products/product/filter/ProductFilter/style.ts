@@ -45,4 +45,8 @@ export const StyledComponent = styled.div`
     background: rgba(42, 42, 134, 0.05);
     border-radius: 50px;
   }
+  
+  .w-100 {
+    width: 100%;
+  }
 `;
