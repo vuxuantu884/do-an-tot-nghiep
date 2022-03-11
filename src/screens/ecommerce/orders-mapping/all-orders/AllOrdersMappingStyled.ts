@@ -6,6 +6,17 @@ export const AllOrdersMappingStyled = styled.div`
 `;
 
 export const AllOrdersMappingFilterStyled = styled.div`
+  .order-filter {
+    overflow-x: auto;
+    margin-bottom: 5px;
+    .ant-form {
+      display: flex;
+      .ant-form-item {
+        margin-bottom: 5px;
+      }
+    }
+  }
+  
   .default-filter {
     display: flex;
     overflow-x: auto;
@@ -33,8 +44,13 @@ export const AllOrdersMappingFilterStyled = styled.div`
     }
   }
 
-  .ant-form-item {
-    margin-bottom: 20px;
+  .filter-tags {
+    .tag {
+      padding: 10px 10px;
+      margin-bottom: 10px;
+      background: rgba(42, 42, 134, 0.05);
+      border-radius: 50px;
+    }
   }
 
   .ant-tag {

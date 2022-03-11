@@ -3,14 +3,13 @@ import styled from "styled-components";
 export const OrdersMappingStyled = styled.div`
   .page-header {
     height: auto;
+    padding: 20px 0;
   }
 
-  .filter-tags {
-    .tag {
-      padding: 10px 10px;
-      margin-bottom: 20px;
-      background: rgba(42, 42, 134, 0.05);
-      border-radius: 50px;
+  .ant-tabs-nav {
+    padding: 0;
+    .ant-tabs-tab {
+      padding: 20px;
     }
   }
 

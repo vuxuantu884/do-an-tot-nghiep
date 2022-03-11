@@ -10,13 +10,12 @@ import {StyledComponent} from "../../index.screen.styles";
 const {Item} = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
-  setSelectedOrderList:(data:GoodsReceiptsOrderListModel[])=>void;
   actions: Array<MenuAction>;
   handleSearchOrder: (item: any) => void;
   onMenuClick: (item: number) => void;
 };
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
-  const {packOrderList, actions, handleSearchOrder, onMenuClick, setSelectedOrderList} = props;
+  const {packOrderList, actions, handleSearchOrder, onMenuClick } = props;
   const formSearchOrderRef = createRef<FormInstance>();
 
   const [dataPackOrderList, setDataPackOrderList]= useState<GoodsReceiptsOrderListModel[]>([]);
@@ -42,7 +41,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: "STT",
       dataIndex: "key",
       visible: true,
-      width: "3%",
+      width: "5%",
       align: "center",
       render: (value: number) => {
         return <div>{value + 1}</div>;
@@ -52,7 +51,8 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: "ID đơn ",
       dataIndex: "order_code",
       visible: true,
-      width: "7%",
+      width: "10%",
+      align: "center",
       render: (value: string) => {
         return (
           <React.Fragment>
@@ -210,16 +210,6 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
   ];
 
-  const rowSelection = {
-    onChange: (selectedRowKeys: any, selectedRows: any) => {
-      setSelectedOrderList(selectedRows);
-    },
-    onSelect: (record: any, selected: any, selectedRows: any) => {
-    },
-    onSelectAll: (selected: any, selectedRows: any, changeRows: any) => {
-    },
-  };
-
   return (
     <StyledComponent>
       <Card title="Danh sách đơn hàng trong biên bản" className="pack-card">
@@ -259,7 +249,6 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           dataSource={dataPackOrderList}
           scroll={{x: 1388}}
           columns={column}
-          rowSelection={rowSelection}
           //pagination={false}
           bordered
           className="row-padding"

@@ -35,7 +35,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
-import { StyledComponent } from "./list-shipments.styles";
+import { StyledComponent } from "./list-shipments-failed.styles";
 import queryString from "query-string";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
@@ -82,7 +82,7 @@ const initQuery: ShipmentSearchQuery = {
 	cancelled_on_max: null,
 	cancelled_on_predefined: null,
 	print_status: [],
-	pushing_status: [],
+	pushing_status: ['failed'],
 	store_ids: [],
 	source_ids: [],
 	account_codes: [],
@@ -93,9 +93,8 @@ const initQuery: ShipmentSearchQuery = {
 	tags: [],
 	reason_ids: [],
 };
-
-const ShipmentsScreen: React.FC = (props: any) => {
-	const {location} = props;
+const ShipmentsFailedScreen:React.FC=(props: any)=>{
+    const {location} = props;
 	const queryParamsParsed:any = queryString.parse(
     location.search
   );
@@ -110,7 +109,10 @@ const ShipmentsScreen: React.FC = (props: any) => {
 	let dataQuery: ShipmentSearchQuery = {
 		...initQuery,
 		...getQueryParams(query),
+        pushing_status:['failed']
 	};
+
+    
 	let [params, setPrams] = useState<ShipmentSearchQuery>(dataQuery);
 	const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
 	const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -562,11 +564,11 @@ const ShipmentsScreen: React.FC = (props: any) => {
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
       let currentParam = generateQuery(params);
-      let queryParam = generateQuery(newPrams);
+      let queryParam = generateQuery({...newPrams,pushing_status:[]});
       if (currentParam === queryParam) {
         handleFetchData(newPrams);
       } else {
-        history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
+        history.push(`${UrlConfig.SHIPMENTS_FAILED}?${queryParam}`);
       }
     },
     [handleFetchData, history, params]
@@ -658,7 +660,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			})
 			.catch((error) => {
 				setStatusExport(4)
-				console.log("orders export file error", error);
+				// console.log("orders export file error", error);
 				showError("Có lỗi xảy ra, vui lòng thử lại sau");
 			});
 	}, [params, selectedRowCodes, listExportFile]);
@@ -671,7 +673,9 @@ const ShipmentsScreen: React.FC = (props: any) => {
 
 			responses.forEach((response) => {
 				if (response.code === HttpStatus.SUCCESS) {
-					setExportProgress(response.data.num_of_record/response.data.total*100);
+					if (exportProgress < 95) {
+						setExportProgress(exportProgress + 3)
+					}
 					if (response.data && response.data.status === "FINISH") {
 						setStatusExport(3)
 						setExportProgress(100)
@@ -685,7 +689,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 				}
 			});
 		});
-	}, [listExportFile]);
+	}, [exportProgress, listExportFile]);
 
 	useEffect(() => {
 		if (listExportFile.length === 0 || statusExport === 3) return;
@@ -744,6 +748,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
     let dataQuery: ShipmentSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
+      pushing_status:['failed']
     };
     setPrams(dataQuery);
     handleFetchData(dataQuery);
@@ -753,14 +758,14 @@ const ShipmentsScreen: React.FC = (props: any) => {
 	return (
 		<StyledComponent>
 			<ContentContainer
-				title="Danh sách đơn giao hàng"
+				title="Danh sách đơn đẩy sang HVC thất bại"
 				breadcrumb={[
 					{
 						name: "Tổng quan",
 						path: UrlConfig.HOME,
 					},
 					{
-						name: "Danh sách đơn giao hàng",
+						name: "Danh sách đơn đẩy sang HVC thất bại",
 					},
 				]}
 				extra={
@@ -818,6 +823,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 						deliveryService={deliveryServices}
 						onShowColumnSetting={() => setShowSettingColumn(true)}
 						onClearFilter={() => onClearFilter()}
+                        isPushingStatusFailed={true}
 					/>
 					<CustomTable
 						isRowSelection
@@ -873,6 +879,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			</ContentContainer>
 		</StyledComponent>
 	);
-};
+}
 
-export default withRouter(ShipmentsScreen);
+export default withRouter(ShipmentsFailedScreen);

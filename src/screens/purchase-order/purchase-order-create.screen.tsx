@@ -177,8 +177,7 @@ const POCreateScreen: React.FC = () => {
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
+          name: "Kho hàng",
         },
         {
           name: "Đặt hàng",

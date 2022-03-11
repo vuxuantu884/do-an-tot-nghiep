@@ -24,7 +24,7 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
-import React, {createRef, lazy, useCallback, useMemo} from "react";
+import React, {createRef, lazy, useCallback, useEffect, useMemo} from "react";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -42,6 +42,9 @@ import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { Link } from "react-router-dom";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { POStatus } from "utils/Constants";
+import useKeyboardJs from 'react-use/lib/useKeyboardJs';
+import {IconAddMultiple} from "../../../component/icon/IconAddMultiple";
+import BaseButton from "../../../component/base/BaseButton";
 
 const PickManyProductModal = lazy(() => import("../modal/pick-many-product.modal"))
 type POProductProps = {
@@ -66,6 +69,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   // const [splitLine, setSplitLine] = useState<boolean>(false);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   // const [costLines, setCostLines] = useState<Array<CostLine>>([]);
+  const [isPressed] = useKeyboardJs('f3');
+
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
@@ -579,6 +584,19 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     [dispatch, onResultSearch]
   );
 
+  const onSearchProduct = () => {
+    let element: any = document.getElementById("#product_search");
+    element?.focus();
+    const y = element?.getBoundingClientRect()?.top + window.pageYOffset - 250;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+
+  useEffect(() => {
+    if(isPressed) {
+      onSearchProduct()
+    }
+  }, [isPressed])
+
   return (
     <React.Fragment>
       <Card
@@ -657,7 +675,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       loading={loadingSearch}
                       id="#product_search"
                       dropdownClassName="product"
-                      placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                      placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
                       onSearch={onSearch}
                       dropdownMatchSelectWidth={456}
                       style={{ width: "100%" }}
@@ -673,12 +691,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         );
                       }}
                     />
-                    <Button
+                    <BaseButton
+                      style={{ marginLeft: 10 }}
                       onClick={() => setVisibleManyProduct(true)}
-                      style={{ width: 132, marginLeft: 10 }}
+                      icon={<IconAddMultiple width={12} height={12} />}
                     >
                       Chọn nhiều
-                    </Button>
+                    </BaseButton>
                   </Input.Group>
                 )
               );
@@ -717,18 +736,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           style={{
                             background: "rgba(42,42,134,0.05)",
                           }}
-                          onClick={() => {
-                            let element: any =
-                              document.getElementById("#product_search");
-                            element?.focus();
-                            const y =
-                              element?.getBoundingClientRect()?.top +
-                              window.pageYOffset +
-                              -250;
-                            window.scrollTo({ top: y, behavior: "smooth" });
-                          }}
+                          onClick={onSearchProduct}
                         >
-                          Thêm sản phẩm ngay (F1)
+                          Thêm sản phẩm ngay (F3)
                         </Button>
                       </Empty>
                     ),
@@ -774,14 +784,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                                 <Link
                                   target="_blank"
                                   to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                  className="text-truncate-1"
                                 >
                                   {item.sku}
                                 </Link>
                               </div>
-                              <div className="product-item-name">
-                                <span className="product-item-name-detail">
+                              <div className="product-item-name text-truncate-1">
+                                <div className="product-item-name-detail">
                                   {value}
-                                </span>
+                                </div>
                                 {!item.showNote && (
                                   <Button
                                     onClick={() => {
@@ -827,25 +838,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         );
                       },
                     },
-                    // {
-                    //   align: "center",
-                    //   title: "Đơn vị",
-                    //   width: 100,
-                    //   dataIndex: "unit",
-                    //   render: (value) => {
-                    //     let result = "---";
-                    //     let index = -1;
-                    //     if (product_units) {
-                    //       index = product_units.findIndex(
-                    //         (item) => item.value === value
-                    //       );
-                    //       if (index !== -1) {
-                    //         result = product_units[index].name;
-                    //       }
-                    //     }
-                    //     return result;
-                    //   },
-                    // },
                     {
                       title: (
                         <div
@@ -970,7 +962,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         >
                           <div>VAT</div>
                           <NumberInput
-                            style={{ width: "80%" }}
+                            style={{ width: "100%" }}
                             className="product-item-vat"
                             prefix={<div>%</div>}
                             isFloat
@@ -991,7 +983,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           />
                         </div>
                       ),
-                      width: 175,
+                      width: 100,
                       dataIndex: "tax_rate",
                       render: (value, item, index) => {
                         return (
@@ -1072,7 +1064,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   dataSource={items}
                   tableLayout="fixed"
                   pagination={false}
-                  scroll={{ y: 300, x: 950 }}
+                  scroll={{ y: 515, x: 950 }}
                 />
               ) : (
                 <Table
@@ -1083,7 +1075,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   rowClassName="product-table-row"
                   dataSource={items}
                   tableLayout="fixed"
-                  scroll={{ y: 300, x: 1000 }}
+                  scroll={{ y: 515, x: 1000 }}
                   pagination={false}
                   columns={[
                     {
@@ -1130,15 +1122,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                                   {item.sku}
                                 </Link>
                               </div>
-                              <div className="product-item-name">
-                                <span className="product-item-name-detail">
+                              <div className="product-item-name text-truncate-1">
+                                <div className="product-item-name-detail">
                                   {value}
-                                </span>
+                                </div>
                               </div>
-                              <div className="product-item-name">
-                                <span className="product-item-name-detail">
+                              <div className="product-item-name text-truncate-1">
+                                <div className="product-item-name-detail">
                                   {item.note}
-                                </span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1328,78 +1320,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               <Form.Item name={POField.trade_discount_value} hidden noStyle>
                 <Input />
               </Form.Item>
-              {/* <Form.Item
-                shouldUpdate={(prevValues, curValues) =>
-                  prevValues.trade_discount_amount !==
-                  curValues.trade_discount_amount
-                }
-                noStyle
-              >
-                {({ getFieldValue }) => {
-                  let untaxed_amount = getFieldValue(POField.untaxed_amount);
-                  let trade_discount_amount = getFieldValue(
-                    POField.trade_discount_amount
-                  );
-                  let discount_rate = getFieldValue(
-                    POField.trade_discount_rate
-                  );
-                  let discount_value = getFieldValue(
-                    POField.trade_discount_value
-                  );
-                  let type = DiscountType.percent;
-                  if (discount_value !== null) {
-                    type = DiscountType.money;
-                  }
-                  return (
-                    <div className="po-payment-row">
-                      {isEdit ? (
-                        <Typography.Link
-                          style={{
-                            textDecoration: "underline",
-                            textDecorationColor: "#5D5D8A",
-                            color: "#5D5D8A",
-                            cursor: "default",
-                          }}
-                        >
-                          Chiết khấu thương mại
-                        </Typography.Link>
-                      ) : (
-                        <Popover
-                          trigger="click"
-                          content={
-                            <DiscountModal
-                              price={untaxed_amount}
-                              discount={
-                                type === DiscountType.money
-                                  ? discount_value
-                                  : discount_rate
-                              }
-                              onChange={onTradeDiscountChange}
-                              type={type}
-                            />
-                          }
-                        >
-                          <Typography.Link
-                            style={{
-                              textDecoration: "underline",
-                              textDecorationColor: "#5D5D8A",
-                              color: "#5D5D8A",
-                            }}
-                          >
-                            Chiết khấu thương mại
-                          </Typography.Link>
-                        </Popover>
-                      )}
-
-                      <div className="po-payment-row-result po-payment-row-result-discount">
-                        {trade_discount_amount === 0
-                          ? "-"
-                          : formatCurrency(Math.round(trade_discount_amount))}
-                      </div>
-                    </div>
-                  );
-                }}
-              </Form.Item> */}
               <Form.Item name={POField.payment_discount_amount} hidden noStyle>
                 <Input />
               </Form.Item>
@@ -1427,125 +1347,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   ));
                 }}
               </Form.Item>
-              {/* <Form.Item
-                shouldUpdate={(prevValues, curValues) =>
-                  prevValues[POField.payment_discount_amount] !==
-                  curValues[POField.payment_discount_amount]
-                }
-                noStyle
-              >
-                {({ getFieldValue }) => {
-                  let untaxed_amount = getFieldValue(POField.untaxed_amount);
-                  let trade_discount_amount = getFieldValue(
-                    POField.trade_discount_amount
-                  );
-                  let tax_lines = getFieldValue(POField.tax_lines);
-                  let total_after_tax = POUtils.getTotalAfterTax(
-                    untaxed_amount,
-                    trade_discount_amount,
-                    tax_lines
-                  );
-                  let payment_discount_amount = getFieldValue(
-                    POField.payment_discount_amount
-                  );
-                  let discount_rate = getFieldValue(
-                    POField.payment_discount_rate
-                  );
-                  let discount_value = getFieldValue(
-                    POField.payment_discount_value
-                  );
-                  let type = DiscountType.percent;
-                  if (discount_value !== null) {
-                    type = DiscountType.money;
-                  }
-                  return (
-                    <div className="po-payment-row">
-                      {isEdit ? (
-                        <Typography.Link
-                          style={{
-                            textDecoration: "underline",
-                            textDecorationColor: "#5D5D8A",
-                            color: "#5D5D8A",
-                            cursor: "default",
-                          }}
-                        >
-                          Chiết khấu thanh toán
-                        </Typography.Link>
-                      ) : (
-                        <Popover
-                          trigger="click"
-                          content={
-                            <DiscountModal
-                              price={total_after_tax}
-                              discount={
-                                type === "money"
-                                  ? discount_value
-                                  : discount_rate
-                              }
-                              onChange={onPaymentDiscountChange}
-                              type={type}
-                            />
-                          }
-                        >
-                          <Typography.Link
-                            style={{
-                              textDecoration: "underline",
-                              textDecorationColor: "#5D5D8A",
-                              color: "#5D5D8A",
-                            }}
-                          >
-                            Chiết khấu thanh toán
-                          </Typography.Link>
-                        </Popover>
-                      )}
-
-                      <div className="po-payment-row-result po-payment-row-result-discount">
-                        {payment_discount_amount === 0
-                          ? "-"
-                          : formatCurrency(Math.round(payment_discount_amount))}
-                      </div>
-                    </div>
-                  );
-                }}
-              </Form.Item> */}
-
-              {/* <Form.Item
-                shouldUpdate={(prevValues, curValues) =>
-                  prevValues[POField.total_cost_line] !==
-                  curValues[POField.total_cost_line]
-                }
-                noStyle
-              >
-                {({ getFieldValue }) => {
-                  let cost_lines = getFieldValue(POField.cost_lines);
-                  let total_cost_line = getFieldValue(POField.total_cost_line);
-                  return (
-                    <div className="po-payment-row">
-                      <Typography.Link
-                        onClick={() => {
-                          if (!isEdit) {
-                            setCostLines(cost_lines);
-                            setVisibleExpense(true);
-                          }
-                        }}
-                        style={{
-                          textDecoration: "underline",
-                          textDecorationColor: "#5D5D8A",
-                          color: "#5D5D8A",
-                          cursor: isEdit ? "default" : "pointer",
-                        }}
-                      >
-                        Chi phí
-                      </Typography.Link>
-                      <div className="po-payment-row-result">
-                        {total_cost_line === 0
-                          ? "-"
-                          : formatCurrency(total_cost_line)}
-                      </div>
-                    </div>
-                  );
-                }}
-              </Form.Item> */}
               <Divider style={{marginTop: 5, marginBottom: 10}} />
               <Form.Item name={POField.cost_lines} hidden noStyle>
                 <Input />
@@ -1583,18 +1384,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Row>
         </div>
       </Card>
-      {/* <ExpenseModal
-        visible={visibleExpense}
-        onCancel={() => setVisibleExpense(false)}
-        onOk={onOkExpense}
-        costLines={costLines}
-      /> */}
-      <PickManyProductModal
-        onSave={onPickManyProduct}
-        selected={[]}
-        onCancel={() => setVisibleManyProduct(false)}
-        visible={visibleManyProduct}
-      />
+      {
+        visibleManyProduct && (
+          <PickManyProductModal
+            onSave={onPickManyProduct}
+            selected={[]}
+            onCancel={() => setVisibleManyProduct(false)}
+            visible={visibleManyProduct}
+          />
+        )
+      }
     </React.Fragment>
   );
 };

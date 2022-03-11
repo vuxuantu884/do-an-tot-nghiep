@@ -30,6 +30,7 @@ import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
 import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -39,6 +40,7 @@ type ReturnFilterProps = {
   onFilter?: (values: GoodsReceiptsSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
+  deliveryServices: DeliveryServiceResponse[];
 };
 
 const {Item} = Form;
@@ -52,12 +54,13 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     onClearFilter,
     onFilter,
     onShowColumnSetting,
+    deliveryServices,
   } = props;
 
   const orderPackContextData = useContext(OrderPackContext);
   const listStores = orderPackContextData.listStores;
   const listChannels = orderPackContextData.listChannels;
-  const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
+  const listThirdPartyLogistics = deliveryServices;
   const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
 
   const [visible, setVisible] = useState(false);
@@ -285,7 +288,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
   return (
     <div>
       <div className="order-filter">
-        <div className="page-filter">
+        <div className="page-filter" style={{ paddingTop: 0}}>
           <div className="page-filter-heading">
             <div className="page-filter-left" style={{width: "10%"}}>
               <Space size={12}>

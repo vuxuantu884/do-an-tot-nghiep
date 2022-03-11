@@ -381,10 +381,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   // handle tag filter
   let filters = useMemo(() => {
     let list = [];
-    if (initialValues.channel_codes.length) {
+    if (initialValues?.channel_codes?.length) {
       let ecommerceFilterText = "";
       initialValues.channel_codes.forEach((ecommerceCode: any) => {
-        const ecommerceSelected = ECOMMERCE_LIST?.find(ecommerce => ecommerce.key.toString() === ecommerceCode.toString());
+        const ecommerceSelected = ECOMMERCE_LIST?.find(ecommerce => ecommerce.key?.toString() === ecommerceCode?.toString());
         ecommerceFilterText = ecommerceSelected ? ecommerceFilterText + ecommerceSelected.title + "; " : ecommerceFilterText;
       })
       list.push({
@@ -832,7 +832,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               disabled={isLoading}
             >
               <Button className="action-button">
-                <div style={{ marginRight: 10 }}>Thao tác</div>
+                <div style={{ marginRight: 5 }}>Thao tác</div>
                 <DownOutlined />
               </Button>
             </Dropdown>
@@ -851,14 +851,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             >
               {ECOMMERCE_LIST?.map((item: any) => (
                 <Option key={item.ecommerce_id} value={item.key}>
-                  <div>
-                    <img
-                      src={item.icon}
-                      alt={item.id}
-                      style={{ marginRight: "10px" }}
-                    />
-                    <span>{item.title}</span>
-                  </div>
+                  <img
+                    src={item.icon}
+                    alt={item.id}
+                    style={{ marginRight: "5px", width: "20px" }}
+                  />
+                  <span>{item.title}</span>
                 </Option>
               ))}
             </Select>
@@ -946,6 +944,29 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             />
           </Item>
 
+          <Item
+            className="select-sub-status"
+            name="sub_status_code"
+          >
+            <Select
+              mode="multiple"
+              showSearch
+              showArrow
+              allowClear
+              placeholder="TT xử lý đơn"
+              notFoundContent="Không tìm thấy kết quả"
+              disabled={isLoading}
+              optionFilterProp="children"
+              maxTagCount='responsive'
+            >
+              {subStatus?.map((item: any) => (
+                <Option key={item.id} value={item.code?.toString()}>
+                  {item.sub_status}
+                </Option>
+              ))}
+            </Select>
+          </Item>
+
           <div style={{ marginRight: "10px"}}>
             <Button
               type="primary"
@@ -961,9 +982,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               icon={<FilterOutlined />}
               onClick={openFilter}
               disabled={isLoading}
-            >
-              Thêm bộ lọc
-            </Button>
+            />
           </div>
 
           <Button
@@ -1126,26 +1145,26 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               </Col>
             
               <Col span={8} xxl={6}>
-                <p>Trạng thái xử lý đơn</p>
-                <Item name="sub_status_code">
-                  <CustomSelect
-                    mode="multiple"
-                    showArrow allowClear
-                    showSearch
-                    placeholder="Chọn trạng thái xử lý đơn"
-                    notFoundContent="Không tìm thấy kết quả"
-                    style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {subStatus?.map((item: any) => (
-                      <CustomSelect.Option key={item.id} value={item.code.toString()}>
-                        {item.sub_status}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item>
+                {/*<p>Trạng thái xử lý đơn</p>*/}
+                {/*<Item name="sub_status_code">*/}
+                {/*  <CustomSelect*/}
+                {/*    mode="multiple"*/}
+                {/*    showArrow allowClear*/}
+                {/*    showSearch*/}
+                {/*    placeholder="Chọn trạng thái xử lý đơn"*/}
+                {/*    notFoundContent="Không tìm thấy kết quả"*/}
+                {/*    style={{width: '100%'}}*/}
+                {/*    optionFilterProp="children"*/}
+                {/*    getPopupContainer={trigger => trigger.parentNode}*/}
+                {/*    maxTagCount='responsive'*/}
+                {/*  >*/}
+                {/*    {subStatus?.map((item: any) => (*/}
+                {/*      <CustomSelect.Option key={item.id} value={item.code.toString()}>*/}
+                {/*        {item.sub_status}*/}
+                {/*      </CustomSelect.Option>*/}
+                {/*    ))}*/}
+                {/*  </CustomSelect>*/}
+                {/*</Item>*/}
 
                 <p>Sản phẩm</p>
                 <Item name="variant_ids">

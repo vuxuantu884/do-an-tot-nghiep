@@ -1,10 +1,12 @@
 import {Tag} from "antd";
 import React from "react";
 import {TagStatusStyle} from "./tag-status.style";
+
 interface TagStatusProps {
   type?: "nomarl" | "success" | "danger" | "primary" | "warning" | "secondary" | string;
   children: React.ReactNode;
   isOutline?: boolean;
+  icon?: string | undefined;
 }
 
 TagStatus.defaultProps = {
@@ -21,7 +23,7 @@ export enum TagStatusType {
   secondary = "secondary",
 }
 function TagStatus(props: TagStatusProps) {
-  const {type, children, isOutline} = props;
+  const { type, children, isOutline, icon } = props;
   let bgColor = "";
   let color = "";
   switch (type) {
@@ -54,6 +56,7 @@ function TagStatus(props: TagStatusProps) {
   return (
     <TagStatusStyle>
       <Tag color={bgColor} style={{color: color, margin: 0}} className={isOutline ? "outline" :""}>
+        { icon && <img src={icon} alt="" style={{ marginRight: 4 }}/> }
         {children}
       </Tag>
     </TagStatusStyle>

@@ -19,8 +19,10 @@ import { POStatus, ProcumentStatus } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import POInventoryDraft from "./po-inventory/POInventoryDraft";
 import POInventoryView from "./po-inventory/po-inventory.view";
-import deliveryIcon from "assets/icon/delivery.svg";
-import procument from "assets/icon/procument.svg";
+import importIcon from "assets/icon/import-card.svg";
+import dashboardIcon from "assets/icon/dashboard.svg";
+import checkIcon from "assets/icon/check.svg";
+import editIcon from "assets/icon/edit.svg";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PoUpdateAction } from "domain/actions/po/po.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -48,22 +50,22 @@ const TAB = [
   {
     name: "Tổng quan",
     id: 1,
-    icon: deliveryIcon,
+    icon: dashboardIcon,
   },
   {
     name: "Phiếu nhập kho",
     id: 2,
-    icon: deliveryIcon,
+    icon: importIcon,
   },
   {
     name: "Phiếu đã duyệt",
     id: 3,
-    icon: procument,
+    icon: checkIcon,
   },
   {
     name: "Phiếu nháp",
     id: 4,
-    icon: deliveryIcon,
+    icon: editIcon,
   },
 ];
 
@@ -366,7 +368,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                       display: "flex",
                     }}
                     icon={<AiOutlinePlus size={16} />}
-                    type="primary"
                     className="create-button-custom ant-btn-outline fixed-button"
                   >
                     Tạo phiếu nhập kho nháp
@@ -428,85 +429,99 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         )}
       </div>
 
-      <ProcumentModal
-        onCancle={() => {
-          setVisible(false);
-        }}
-        isEdit={isEditProcument}
-        loading={loaddingCreate}
-        stores={stores}
-        poData={poData}
-        now={now}
-        visible={visible}
-        items={poItems}
-        item={draft}
-        defaultStore={storeExpect}
-        onOk={(value: PurchaseProcument) => {
-          onAddProcument(value);
-          setActiveTab(TAB[3].id);
-        }}
-        onDelete={onDeleteProcument}
-        procumentCode={procumentCodeRef.current}
-      />
-
-      <ProcumentConfirmModal
-        isEdit={isEditProcument}
-        items={poItems}
-        stores={stores}
-        poData={poData}
-        procumentCode={procumentCodeRef.current}
-        now={now}
-        visible={visibleDraft}
-        item={procumentDraft}
-        onOk={(value: PurchaseProcument) => {
-          onConfirmProcument(value);
-          setActiveTab(TAB[2].id);
-        }}
-        onDelete={onDeleteProcument}
-        loading={loadingConfirm}
-        defaultStore={storeExpect}
-        onCancel={() => {
-          setVisibleDraft(false);
-        }}
-      />
-
-      <ProcumentInventoryModal
-        loadDetail={loadDetail}
-        isEdit={isEditProcument}
-        items={poItems}
-        stores={stores}
-        now={now}
-        visible={visibleConfirm}
-        poData={poData}
-        item={procumentInventory}
-        onOk={(value: PurchaseProcument) => {
-          onReciveProcument(value);
-          setActiveTab(TAB[1].id);
-        }}
-        onDelete={onDeleteProcument}
-        loading={loadingRecive}
-        defaultStore={storeExpect}
-        procumentCode={procumentCodeRef.current}
-        onCancel={() => {
-          setVisibleConfirm(false);
-        }}
-      />
-      <POEditDraftProcurementModal
-        stores={stores}
-        visible={visibleEditProcurement}
-        onCancel={() => setVisibleEditProcurement(false)}
-        onOk={(value: Array<PurchaseProcurementViewDraft>) => {
-          setLoadingEditDraft(true);
-          let data = formMain.getFieldsValue(true);
-          let dataClone = { ...data, procurements: value }
-          if (idNumber) {
-            dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
-          }
-        }}
-        lineItems={poItems}
-        dataSource={procuments}
-        confirmLoading={loadingEditDraft}
-      />
+      {
+        visible && (
+          <ProcumentModal
+            onCancle={() => {
+              setVisible(false);
+            }}
+            isEdit={isEditProcument}
+            loading={loaddingCreate}
+            stores={stores}
+            poData={poData}
+            now={now}
+            visible={visible}
+            items={poItems}
+            item={draft}
+            defaultStore={storeExpect}
+            onOk={(value: PurchaseProcument) => {
+              onAddProcument(value);
+              setActiveTab(TAB[3].id);
+            }}
+            onDelete={onDeleteProcument}
+            procumentCode={procumentCodeRef.current}
+          />
+        )
+      }
+      {
+        visibleDraft && (
+          <ProcumentConfirmModal
+            isEdit={isEditProcument}
+            items={poItems}
+            stores={stores}
+            poData={poData}
+            procumentCode={procumentCodeRef.current}
+            now={now}
+            visible={visibleDraft}
+            item={procumentDraft}
+            onOk={(value: PurchaseProcument) => {
+              onConfirmProcument(value);
+              setActiveTab(TAB[2].id);
+            }}
+            onDelete={onDeleteProcument}
+            loading={loadingConfirm}
+            defaultStore={storeExpect}
+            onCancel={() => {
+              setVisibleDraft(false);
+            }}
+          />
+        )
+      }
+      {
+        visibleConfirm && (
+          <ProcumentInventoryModal
+            loadDetail={loadDetail}
+            isEdit={isEditProcument}
+            items={poItems}
+            stores={stores}
+            now={now}
+            visible={visibleConfirm}
+            poData={poData}
+            item={procumentInventory}
+            onOk={(value: PurchaseProcument) => {
+              onReciveProcument(value);
+              setActiveTab(TAB[1].id);
+            }}
+            onDelete={onDeleteProcument}
+            loading={loadingRecive}
+            defaultStore={storeExpect}
+            procumentCode={procumentCodeRef.current}
+            onCancel={() => {
+              setVisibleConfirm(false);
+            }}
+          />
+        )
+      }
+      {
+        visibleEditProcurement && (
+          <POEditDraftProcurementModal
+            stores={stores}
+            visible={visibleEditProcurement}
+            onCancel={() => setVisibleEditProcurement(false)}
+            onOk={(value: Array<PurchaseProcurementViewDraft>) => {
+              setLoadingEditDraft(true);
+              let data = formMain.getFieldsValue(true);
+              let dataClone = { ...data, procurements: value }
+              if (idNumber) {
+                dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+              }
+            }}
+            lineItems={poItems}
+            dataSource={procuments}
+            confirmLoading={loadingEditDraft}
+          />
+        )
+      }
     </Card>
   );
 };

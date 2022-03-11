@@ -6,7 +6,7 @@ import {
 } from "model/pack/pack.model";
 import React from "react";
 import {Link} from "react-router-dom";
-import threeDot from "assets/icon/three-dot.svg";
+// import threeDot from "assets/icon/three-dot.svg";
 import {
   DownOutlined,
   FileExcelOutlined,
@@ -25,49 +25,13 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
     handleAddOrderInPack,
   } = props;
 
-  const actionColumn = (
-  ) => {
-    const _actionColumn = {
-      title: "",
-      key: "14",
-      visible: true,
-      width: "5%",
-      className: "saleorder-product-card-action ",
-      render: (l: any, item: any, index: number) => {
-      
-        return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
-          >
-            <div
-              className="site-input-group-wrapper saleorder-input-group-wrapper"
-              style={{
-                borderRadius: 5,
-              }}
-            >
-              <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-            </div>
-          </div>
-        );
-      },
-    };
-    return _actionColumn;
-  };
-
   const column: Array<ICustomTableColumType<GoodsReceiptsTotalProductModel>> = [
     {
       title: "STT",
       dataIndex: "key",
       visible: true,
       width: "5%",
+      align: "center",
       render: (value: number, i: GoodsReceiptsTotalProductModel) => {
         return (
           <React.Fragment>
@@ -111,9 +75,10 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
     },
     {
       title: "Tồn trong kho ",
-      dataIndex: "inventory",
+      dataIndex: "on_hand",
       visible: true,
       width: "17%",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
@@ -132,6 +97,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       dataIndex: "total_quantity",
       visible: true,
       width: "15%",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
@@ -140,12 +106,12 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       title: "Thiếu",
       dataIndex: "total_incomplate",
       visible: true,
-      width: "8.5px",
+      width: "8.5%",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
     },
-    actionColumn()
   ];
 
   const menuCardProductQuantity = (

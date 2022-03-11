@@ -311,6 +311,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
           isRowSelection={isShowAction}
           isLoading={isLoading}
           showColumnSetting={true}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={
             isLoading
               ? false
