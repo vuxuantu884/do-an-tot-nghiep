@@ -63,6 +63,9 @@ export const StyledComponent = styled.div`
     width: 1px;
     height: 8px;
   }
+  .modal-des .ql-align-center img{
+    max-width: 100% ;
+  }
   .data-empty {
     color: red;
     height: 144.5px;
@@ -158,7 +161,6 @@ export const StyledComponent = styled.div`
         z-index: 10;
         bottom: -2px;    
         margin-right: auto;
-        padding-right: 36px;
         width: 100%;
         background: #fff;
     }
@@ -173,9 +175,9 @@ export const StyledComponent = styled.div`
         display: block;
     }
     .devvn_readmore_taxonomy_flatsome .button-show-more {
-        color: #1890ff;
+        color: #180973;
         display: block;
-        border-color: #1890ff;
+        border-color: #180973;
         margin:auto ;
     } 
 `;
