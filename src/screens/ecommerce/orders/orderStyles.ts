@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import {borderColor, primaryColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 295;
+export const nameQuantityWidth = 300;
 const quantityWidth = 50;
 const priceWidth = 85;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
@@ -121,12 +121,20 @@ export const StyledOrderFilter = styled.div`
 
   .ecommerce-dropdown {
     width: 160px;
-    min-width: 150px;
+    min-width: 140px;
     margin-right: 10px;
+    .ant-select-selector {
+      padding: 0 10px;
+      .ant-select-selection-item {
+        display: flex;
+        align-items: center;
+      }
+    }
   }
 
   .select-store-dropdown {
-    min-width: 350px;
+    min-width: 160px;
+    width: 250px;
     margin-right: 10px;
     .ant-select-selection-overflow-item-suffix {
       width: 30px;
@@ -134,14 +142,20 @@ export const StyledOrderFilter = styled.div`
   }
 
   .search-id-order-ecommerce {
-    min-width: 180px;
+    min-width: 160px;
     flex-grow: 1;
     margin-right: 10px;
   }
 
   .search-term-input {
-    min-width: 180px;
+    min-width: 170px;
     flex-grow: 1;
+    margin-right: 10px;
+  }
+
+  .select-sub-status {
+    min-width: 130px;
+    width: 200px;
     margin-right: 10px;
   }
   
@@ -172,10 +186,11 @@ export const StyledOrderFilter = styled.div`
   }
 
   .action-dropdown {
-    width: 110px;
+    width: 100px;
     margin-right: 10px;
     .action-button {
-      padding: 6px 15px;
+      width: 100%;
+      padding: 10px;
       border-radius: 5px;
       display: flex;
       align-items: center;
