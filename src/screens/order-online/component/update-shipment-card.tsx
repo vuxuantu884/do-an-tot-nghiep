@@ -1128,7 +1128,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 															<b>
 																{/* Lấy ra đối tác */}
 																{(fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE
-																	|| fulfillment.shipment?.delivery_service_provider_type === "shopee") && (
+																	|| (fulfillment.shipment?.delivery_service_provider_type && ["shopee", "lazada", "tiki"].includes(fulfillment.shipment?.delivery_service_provider_type))) && (
 																		renderDeliveryPartner(fulfillment.shipment)
 																		// <img
 																		//   style={{ width: "112px", height: 25 }}
@@ -1829,7 +1829,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 				shipping={isShipping}
 				onCancel={() => setIsvibleCancelFullfilment(false)}
 				onOk={onOKCancelFullfilment}
-				onOkandMore={onOkCancelAndGetGoodsBack}
+				onOkAndMore={onOkCancelAndGetGoodsBack}
 				visible={isvibleCancelFullfilment}
 				isCanceling={cancelShipment}
 				icon={DeleteIcon}

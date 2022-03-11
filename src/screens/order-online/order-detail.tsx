@@ -11,26 +11,18 @@ import UrlConfig from "config/url.config";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import { actionGetOrderReturnReasons, actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
+import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-	cancelOrderRequest,
-	orderConfigSaga,
-	confirmDraftOrderAction,
-	OrderDetailAction,
-	PaymentMethodGetList,
-	UpdatePaymentAction,
-  changeSelectedStoreBankAccountAction,
-  getStoreBankAccountNumbersAction,
-  changeShippingServiceConfigAction,
-  changeOrderCustomerAction,
-  changeStoreDetailAction,
+  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
+  PaymentMethodGetList,
+  UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-	OrderPaymentRequest,
-	UpdateOrderPaymentRequest
+  OrderPaymentRequest,
+  UpdateOrderPaymentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -38,31 +30,36 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import { OrderReasonModel, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
+import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-	checkPaymentAll,
-	checkPaymentStatusToShow,
-	formatCurrency,
-	generateQuery,
-	getAmountPayment,
-	handleFetchApiError,
-	isFetchApiSuccessful,
-	sortFulfillments,
-	SumCOD
+  checkPaymentAll,
+  checkPaymentStatusToShow,
+  formatCurrency,
+  generateQuery,
+  getAmountPayment,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  sortFulfillments,
+  SumCOD
 } from "utils/AppUtils";
 import {
   DELIVERY_SERVICE_PROVIDER_CODE,
-	FulFillmentStatus,
-	OrderStatus,
-	PaymentMethodCode,
-	PaymentMethodOption,
-	ShipmentMethodOption
+  FulFillmentStatus,
+  OrderStatus,
+  PaymentMethodCode,
+  PaymentMethodOption,
+  ShipmentMethodOption
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { yellowColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
+import { getEcommerceStoreAddress } from "../../domain/actions/ecommerce/ecommerce.actions";
+import { EcommerceAddressQuery, EcommerceStoreAddress } from "../../model/ecommerce/ecommerce.model";
+import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import UpdateCustomerCard from "./component/update-customer-card";
@@ -72,12 +69,6 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
-import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
-import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
-import { yellowColor } from "utils/global-styles/variables";
-import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
-import { getOrderReasonService } from "service/order/return.service";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -530,7 +521,9 @@ const OrderDetail = (props: PropType) => {
             if(sorted[0].shipment?.tracking_code || sorted[0].shipment?.pushing_status !== "failed") {
               onGetDetailSuccess(response.data);
               clearInterval(getTrackingCode);
-              showSuccess("Lấy mã vận đơn thành công!")
+              if(sorted[0].shipment?.tracking_code) {
+                showSuccess("Lấy mã vận đơn thành công!")
+              }
             }
 
           }
@@ -1205,7 +1198,7 @@ const OrderDetail = (props: PropType) => {
         onOk={(reason_id: string, sub_reason_id: string, reason: string) =>
           handleCancelOrder(reason_id, sub_reason_id, reason)
         }
-        reasons={orderCancelFulfillmentReasonResponse?.sub_reasons}
+        reasons={orderCancelFulfillmentReasonArr}
       />
       <LogisticConfirmModal
           visible={visibleLogisticConfirmModal}

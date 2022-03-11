@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import { Modal, Button, Form, Input } from "antd";
+import { Button, Form, Input, Modal } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import { OrderReturnReasonDetailModel } from "model/response/order/order.response";
 import { useCallback, useEffect, useState } from "react";
@@ -8,13 +8,13 @@ import { getOrderReasonService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
 
-type cancelFullfilmentModalProps = {
+type cancelFulfillmentModalProps = {
   shipping: boolean;
   visible: boolean;
   order_id?: number | null;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (reason_id: string, sub_reason_id: string, reason: string) => void;
-  onOkandMore: (reason_id: string, sub_reason_id: string, reason: string) => void;
+  onOkAndMore: (reason_id: string, sub_reason_id: string, reason: string) => void;
   text: string;
   title: string;
   icon: string;
@@ -27,9 +27,7 @@ type cancelFullfilmentModalProps = {
   }[];
 };
 
-const CancelFulfillmentModal: React.FC<cancelFullfilmentModalProps> = (
-  props: cancelFullfilmentModalProps
-) => {
+function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
   const {
     shipping,
     visible,
@@ -42,7 +40,7 @@ const CancelFulfillmentModal: React.FC<cancelFullfilmentModalProps> = (
     isCanceling,
     cancelText,
     reasons,
-    onOkandMore,
+    onOkAndMore,
   } = props;
   const onOkAndMoreType = "onOkAndMore";
   const otherReasonId = "1";
@@ -75,7 +73,7 @@ const CancelFulfillmentModal: React.FC<cancelFullfilmentModalProps> = (
     } else {
       const handleSuccess = () => {
         if(type === onOkAndMoreType) {
-          onOkandMore(reasonID, reasonSub || "", reasonOtherDescription);
+          onOkAndMore(reasonID, reasonSub || "", reasonOtherDescription);
         } else {
           onOk(reasonID, reasonSub || "", reasonOtherDescription);
         }
@@ -85,7 +83,7 @@ const CancelFulfillmentModal: React.FC<cancelFullfilmentModalProps> = (
       if(reasonID === otherReasonId) {
         if(!reasonOtherDescription) {
           showError("Vui lòng nhập lý do khác!");
-          focusElementById("otherReasonDescriptionId");
+          focusElementById("cancelFulfillmentOtherReasonDescriptionId");
         } else {
           handleSuccess();
         }
@@ -116,7 +114,12 @@ const CancelFulfillmentModal: React.FC<cancelFullfilmentModalProps> = (
 
   return (
     <Modal
-      onCancel={onCancel}
+      onCancel={(e) => {
+        onCancel(e);
+        setReason(undefined);
+        setReasonSub(undefined)
+        setReasonOtherDescription("")
+      }}
       // onOk={onOk}
       visible={visible}
       centered
@@ -219,7 +222,8 @@ const CancelFulfillmentModal: React.FC<cancelFullfilmentModalProps> = (
               onChange={(e) => setReasonOtherDescription(e.target.value)}
               style={{ width: "100%", height: "80px" }}
               placeholder="Nhập lý do huỷ đơn hàng"
-              id="otherReasonDescriptionId"
+              id="cancelFulfillmentOtherReasonDescriptionId"
+              value={reasonOtherDescription}
             />
           </Form.Item>
         )}
