@@ -764,7 +764,11 @@ const tab= document.getElementById("tab");
               visible={visibleDes}
               width="95%"
               onCancel={()=>{setVisibleDes(false)}}
-              footer={<></>}
+              footer={<>
+                <Button type="primary" onClick={()=>{setVisibleDes(false)}}>
+                  Đóng
+                </Button>
+              </>}
             >
             <div style={{overflow: "auto"}}>
               <div 

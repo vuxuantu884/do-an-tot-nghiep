@@ -56,4 +56,7 @@ export const globalCssLayoutOutsideComponent = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .modal-des .ql-align-center img{
+    max-width: 100% ;
+  }
 `;
