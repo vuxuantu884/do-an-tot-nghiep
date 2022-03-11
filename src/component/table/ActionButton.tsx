@@ -4,12 +4,13 @@ import {Button, Dropdown, DropDownProps, Menu} from "antd";
 import { ButtonType } from "antd/lib/button/button.d";
 import {CSSProperties} from "react";
 
-type ActionProps = Pick<DropDownProps, 'placement'> & {
+type ActionProps = Pick<DropDownProps, 'placement' | 'getPopupContainer'> & {
   menu?: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   disabled?: boolean;
   type?: ButtonType;
-  buttonStyle?: CSSProperties | undefined
+  buttonStyle?: CSSProperties | undefined;
+  querySelectorId?: string
 };
 
 export interface MenuAction {
@@ -26,6 +27,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
       disabled={props.disabled}
       overlayStyle={{ minWidth: "10rem" }}
       placement={props.placement}
+      getPopupContainer={() => document.getElementById(`${props.querySelectorId}`) as HTMLElement}
       overlay={
         <Menu>
           {props.menu &&

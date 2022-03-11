@@ -47,7 +47,7 @@ import  { MenuAction } from "component/table/ActionButton";
 import { callApiNative } from "utils/ApiUtils";
 import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
-import BaseTagStatus from "../../../../../component/base/BaseTagStatus";
+import BaseTagStatus from "component/base/BaseTagStatus";
 
 const ProcumentConfirmModal = lazy(() => import("screens/purchase-order/modal/procument-confirm.modal"))
 const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))

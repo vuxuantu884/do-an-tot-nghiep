@@ -241,7 +241,6 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                         display: "flex",
                       }}
                       icon={<AiOutlinePlus size={16} />}
-                      type="primary"
                       className="create-button-custom ant-btn-outline fixed-button"
                     >
                       Tạo thanh toán

@@ -204,10 +204,10 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                      <div>
                        <div>
                          <div className="product-item-sku">{item.sku}</div>
-                         <div className="product-item-name">
-                           <span className="product-item-name-detail">
+                         <div className="product-item-name text-truncate-1">
+                           <div className="product-item-name-detail">
                              {value}
-                           </span>
+                           </div>
                          </div>
                        </div>
                      </div>
