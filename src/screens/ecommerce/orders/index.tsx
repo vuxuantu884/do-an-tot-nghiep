@@ -156,9 +156,6 @@ const EcommerceOrders: React.FC = () => {
     ordersFound: 4,
   };
 
-  //setup channel
-  const [channelOrigin, setchannelOrigin] = useState(ALL_CHANNEL);
-
   //export order
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -208,8 +205,6 @@ const EcommerceOrders: React.FC = () => {
 
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
-  const [allShopIds, setAllShopIds] = useState([]);
-
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
@@ -221,12 +216,13 @@ const EcommerceOrders: React.FC = () => {
   const onExport = useCallback(
     (optionExport, typeExport) => {
       let newParams: any = { ...params };
-      // let hiddenFields = [];
+      if (!newParams.channel_codes?.length) {
+        newParams.channel_codes = ALL_CHANNEL;
+      }
       switch (optionExport) {
         case EXPORT_IDs.allOrders:
-          delete newParams.page;
-          delete newParams.limit;
-          newParams.channel_codes = channelOrigin
+          newParams = {};
+          newParams.channel_codes = ALL_CHANNEL;
           break;
         case EXPORT_IDs.ordersOnThisPage:
           break;
@@ -236,7 +232,6 @@ const EcommerceOrders: React.FC = () => {
         case EXPORT_IDs.ordersFound:
           delete newParams.page;
           delete newParams.limit;
-          newParams.channel_codes = channelOrigin
           break;
         default:
           break;
@@ -260,7 +255,7 @@ const EcommerceOrders: React.FC = () => {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, channelOrigin, listExportFile]
+    [params, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, listExportFile]
   );
 
   const checkExportFile = useCallback(() => {
@@ -327,7 +322,6 @@ const EcommerceOrders: React.FC = () => {
   );
 
   const getEcommerceOrderList = useCallback(() => {
-    debugger
     const requestParams = { ...params };
     if (!requestParams.channel_codes?.length) {
       requestParams.channel_codes = ALL_CHANNEL;
@@ -338,7 +332,7 @@ const EcommerceOrders: React.FC = () => {
       setTableLoading(false);
       setSearchResult(result);
     }));
-  }, [allShopIds, dispatch, params, setSearchResult]);
+  }, [dispatch, params, setSearchResult]);
   
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
@@ -972,18 +966,6 @@ const EcommerceOrders: React.FC = () => {
   };
   // end
 
-  // handle Select Ecommerce
-  const setAllShopListId = useCallback((result) => {
-    let shopIds: any = [];
-    if (result && result.length > 0) {
-      result.forEach((item: any) => {
-        shopIds.push(item.id);
-      });
-    }
-
-    setAllShopIds(shopIds);
-  }, []);
-
   useEffect(() => {
     if (listExportFile.length === 0 || statusExport === 3) return;
     checkExportFile();
@@ -995,14 +977,13 @@ const EcommerceOrders: React.FC = () => {
 
 
   useEffect(() => {
-    if (allowOrdersView && allShopIds.length) {
+    if (allowOrdersView) {
       getEcommerceOrderList();
     }
-  }, [allShopIds, allowOrdersView, getEcommerceOrderList, params]);
+  }, [allowOrdersView, getEcommerceOrderList, params]);
 
   useEffect(() => {
     if (allowOrdersView) {
-      dispatch(getShopEcommerceList({}, setAllShopListId));
       dispatch(AccountSearchAction({}, setDataAccounts));
       dispatch(getListSourceRequest(setListSource));
       dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -1016,7 +997,7 @@ const EcommerceOrders: React.FC = () => {
         )
       );
     }
-  }, [allowOrdersView, dispatch, setAllShopListId, setDataAccounts]);
+  }, [allowOrdersView, dispatch, setDataAccounts]);
 
     
   // handle progress download orders
@@ -1173,8 +1154,6 @@ const EcommerceOrders: React.FC = () => {
                 subStatus={listOrderProcessingStatus}
                 onShowColumnSetting={() => setShowSettingColumn(true)}
                 onClearFilter={() => onClearFilter()}
-                ALL_CHANNEL={ALL_CHANNEL}
-                setchannelOrigin={setchannelOrigin}
               />
 
               <CustomTable
@@ -1277,7 +1256,7 @@ const EcommerceOrders: React.FC = () => {
             total={data.metadata.total}
             exportProgress={exportProgress}
             statusExport={statusExport}
-            selected={selectedRowCodes.length ? true : false}
+            selected={!!selectedRowCodes.length}
           />
         )}
       </ContentContainer>
