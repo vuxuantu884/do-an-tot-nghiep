@@ -8,20 +8,10 @@ import {
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getGoodsReceiptsSerchService } from "service/order/order-pack.service";
-import { isFetchApiSuccessful, handleFetchApiError, sortFulfillments } from "utils/AppUtils";
+import { getOrderReasonService } from "service/order/return.service";
+import { handleFetchApiError, isFetchApiSuccessful, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
-import {
-  createOrderExchangeService,
-  createOrderReturnService,
-  getOrderReturnCalculateRefundService,
-  getOrderReturnLog,
-  getOrderReasonService,
-  getOrderReturnService,
-  orderRefundService,
-  setIsReceivedProductOrderReturnService,
-} from "service/order/return.service";
 
 type PropType = {
   subStatusCode?: string | undefined;
@@ -101,14 +91,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const handleOrderSubStatus = useCallback(
     (sub_status_code: string) => {
       const removeReturnInListIfOrderFinalize = (arr: OrderSubStatusResponse[]) => {
-        console.log("sub_status_code", sub_status_code);
-        console.log("status", status);
         if (
           status === OrderStatus.FINALIZED &&
           sub_status_code !== ORDER_RETURN_SUB_STATUS.returning.code &&
           sub_status_code !== ORDER_RETURN_SUB_STATUS.returned.code
         ) {
-          console.log("333333333");
           return arr.filter(
             (status) =>
               status.code !== ORDER_RETURN_SUB_STATUS.returning.code &&
@@ -238,6 +225,12 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           orderStatus: OrderStatus.FINALIZED,
           now: "returned",
           list: ["returned"],
+        },
+        // đổi trả
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: "order_return",
+          list: ["order_return"],
         },
       ];
       const STATUS_ORDER_AT_STORE = [
@@ -375,6 +368,12 @@ function SubStatusOrder(props: PropType): React.ReactElement {
             ORDER_SUB_STATUS.awaiting_saler_confirmation,
           ],
         },
+        //hoàn thành
+        {
+          orderStatus: OrderStatus.FINISHED,
+          now: ORDER_SUB_STATUS.shipped,
+          list: [ORDER_SUB_STATUS.shipped],
+        },
       ];
       const filterStatus = (arr: any[], arrOrderSubStatus: OrderSubStatusResponse[]) => {
         let result: OrderSubStatusResponse[] = [...arrOrderSubStatus];
@@ -399,7 +398,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       }
       let result = [...initOrderSubStatus];
       result = removeReturnInListIfOrderFinalize(result);
-
+      result = filterStatus(STATUS_ORDER_OTHER, result);
       switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
         // giao hàng hvc, tự giao hàng
         case ShipmentMethod.EXTERNAL_SERVICE:
@@ -411,7 +410,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           result = filterStatus(STATUS_ORDER_AT_STORE, result);
           break;
         default:
-          result = filterStatus(STATUS_ORDER_OTHER, result);
           break;
       }
       setListOrderSubStatus(result);
@@ -484,6 +482,10 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           isChange = false;
           setIsShowReason(true);
           showError("Chọn lý do đổi kho hàng chi tiết!");
+          setTimeout(() => {
+            const element = document.getElementById("requireWarehouseChangeId");
+            element?.focus();
+          }, 500);
         }
         break;
       }
@@ -560,6 +562,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         break;
       default:
         break;
+    }
+    if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
+      isChange = false;
+      setValueSubStatusCode(sub_status_code);
+      return;
     }
     if (isChange) {
       isChange = handleIfOrderStatusOther(sub_status_code);
@@ -659,7 +666,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       {isShowReason ? (
         <div style={{ marginTop: 15 }}>
           <Form.Item
-            style={{marginBottom: 0}}
+            style={{ marginBottom: 0 }}
             label={
               <div>
                 <span>Chọn lý do đổi kho hàng chi tiết </span>
@@ -667,6 +674,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
               </div>
             }>
             <Select
+              id="requireWarehouseChangeId"
               showSearch
               allowClear
               style={{ width: "100%" }}
@@ -675,7 +683,10 @@ function SubStatusOrder(props: PropType): React.ReactElement {
               filterOption={(input, option) =>
                 option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
-              onChange={(value: string) => setSubReasonRequireWarehouseChange(value)}
+              onChange={(value: string) => {
+                setSubReasonRequireWarehouseChange(value);
+                changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change);
+              }}
               notFoundContent="Không tìm thấy lý do đổi kho hàng">
               {subReasonsRequireWarehouseChange &&
                 subReasonsRequireWarehouseChange.map((single) => {
