@@ -14,5 +14,9 @@ export const OrdersMappingStyled = styled.div`
     }
   }
 
+  .ant-tabs-nav {
+    padding: 5px;
+  }
+
 `;
 
