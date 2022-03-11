@@ -91,8 +91,7 @@ function ColorSelect(props: SelectContentProps): ReactElement {
       } else {
         initParams = [];
       }
-
-      if (initParams.length > 0) {
+      if (initParams && initParams.toString().length > 0) {
         // call api lấy data của item(s) đang được chọn trước đó
         const initSelectedResponse = await callApiNative(
           { isShowError: true },
@@ -105,8 +104,16 @@ function ColorSelect(props: SelectContentProps): ReactElement {
 
         let totalItems: ColorResponse[] = [];
         if (initSelectedResponse?.items && defaultOptons?.length > 0) {
-          // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
-          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultOptons], "id");
+          let set = new Set();
+          let mergeItems = [...initSelectedResponse.items,...defaultOptons];
+          totalItems = mergeItems.filter(item => {
+            if (!set.has(item.id)) {
+              set.add(item.id);
+              return true;
+            }
+            return false;
+          }, set);
+           totalItems = _.uniqBy(totalItems, key!);
         } else if (defaultOptons) {
           totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
