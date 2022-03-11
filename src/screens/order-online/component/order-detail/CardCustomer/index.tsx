@@ -510,12 +510,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       let checkIfHasDefault = sources.find(source => source.default);
       if(checkIfHasDefault) {
         if(form && initialForm && !initialForm.source_id) {
-          if(!initDefaultOrderSourceId) {
-            form.setFieldsValue({
-              source_id: checkIfHasDefault.id
-            })
+          /**
+            * tạm thời chưa dùng
+            */
+          // if(!initDefaultOrderSourceId) {
+          //   form.setFieldsValue({
+          //     source_id: checkIfHasDefault.id
+          //   })
 
-          }
+          // }
         }
         return sources;
       } else {
@@ -530,20 +533,23 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             const defaultOrderSource = response.data.items.find(single => single.default && single.name.toLowerCase() !== CONSTANTS.POS.source_code)
             if(defaultOrderSource) {
               result.push(defaultOrderSource);
-              if(isAutoDefaultOrderSource) {
-                if(initialForm && !initialForm.source_id) {
-                  if(!initDefaultOrderSourceId) {
-                    form?.setFieldsValue({
-                      source_id: defaultOrderSource.id
-                    })
+              /**
+                * tạm thời chưa dùng
+                */
+              // if(isAutoDefaultOrderSource) {
+              //   if(initialForm && !initialForm.source_id) {
+              //     if(!initDefaultOrderSourceId) {
+              //       form?.setFieldsValue({
+              //         source_id: defaultOrderSource.id
+              //       })
     
-                  } else {
-                    form?.setFieldsValue({
-                      source_id: initDefaultOrderSourceId
-                    })
-                  }
-                }
-              }
+              //     } else {
+              //       form?.setFieldsValue({
+              //         source_id: initDefaultOrderSourceId
+              //       })
+              //     }
+              //   }
+              // }
             }
           } else {
             handleFetchApiError(response, "Nguồn đơn hàng", dispatch)
