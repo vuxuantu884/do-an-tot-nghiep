@@ -29,7 +29,7 @@ import {
   VariantUpdateRequest
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import {
+import React, {
   useCallback,
   useEffect, useMemo,
   useState
@@ -61,15 +61,14 @@ const initQuery: VariantSearchQuery = {
   info: "",
   barcode: "",
   status: "",
-  brand: "",
-  made_in: "",
-  size: "",
-  main_color: "",
-  color: "",
-  supplier: "",
+  brands: "",
+  made_ins: "",
+  sizes: "",
+  main_colors: "",
+  colors: ""
 };
 
-var variantResponse: VariantResponse | null = null;
+let variantResponse: VariantResponse | null = null;
 
 const TabProduct: React.FC<any> = (props) => {
   const { vExportProduct, setVExportProduct } = props;
@@ -109,7 +108,7 @@ const TabProduct: React.FC<any> = (props) => {
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
 
   const actionsDefault: Array<MenuAction> = useMemo(()=>{
-    const disabled = selected && selected.length > 0 ? false: true;
+    const disabled = !(selected && selected.length > 0);
 
     return [
       {
@@ -261,7 +260,7 @@ const TabProduct: React.FC<any> = (props) => {
           Products.convertVariantResponseToRequest(variantResponse);
         variantRequest.variant_images = variant_images;
         dispatch(
-          variantUpdateAction(variantResponse.id, variantRequest, (result) => {
+          variantUpdateAction(variantResponse.id, variantRequest, () => {
             dispatch(hideLoading());
             setTableLoading(true);
             dispatch(searchVariantsRequestAction(params, setSearchResult));
@@ -341,7 +340,7 @@ const TabProduct: React.FC<any> = (props) => {
       visible: true,
       align: "right",
       width: 110,
-      render: (value: number, item: VariantResponse) => <div> {value?formatCurrency(value,"."):"0"}</div>,
+      render: (value: number) => <div> {value?formatCurrency(value,"."):"0"}</div>,
     },
 
     {
@@ -350,7 +349,7 @@ const TabProduct: React.FC<any> = (props) => {
       visible: true,
       align: "center",
       width: 120,
-      render: (value: string, row: VariantResponse) => (
+      render: (value: string) => (
         <div className={value ? "text-success" : "text-error"}>
           {value ? "Cho phép bán" : "Ngừng  bán"}
         </div>
@@ -555,16 +554,7 @@ const TabProduct: React.FC<any> = (props) => {
 
   useEffect(() => {
     setTableLoading(true);
-    let newParams = {
-      ...params,
-      merchandiser: params.merchandiser ? JSON.parse(params.merchandiser).code : null,
-      designer: params.designer ? JSON.parse(params.designer).code : null,
-      size: params.size ? JSON.parse(params.size).code : null,
-      color: params.color ? JSON.parse(params.color).code : null,
-      main_color: params.main_color ? JSON.parse(params.main_color).code : null,
-      supplier: params.supplier ? JSON.parse(params.supplier).code : null
-    }
-    dispatch(searchVariantsRequestAction(newParams, setSearchResult));
+    dispatch(searchVariantsRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
   return (
