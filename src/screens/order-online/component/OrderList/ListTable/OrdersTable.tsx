@@ -744,7 +744,7 @@ function OrdersTable(props: PropTypes) {
                   onOk={(newNote) => {
                     editNote(newNote, "customer_note", record.id);
                   }}
-                  isDisable={record.status === OrderStatus.FINISHED}
+                  // isDisable={record.status === OrderStatus.FINISHED}
                 />
               </div>
               <div className="single">
@@ -755,7 +755,7 @@ function OrdersTable(props: PropTypes) {
                   onOk={(newNote) => {
                     editNote(newNote, "note", record.id);
                   }}
-                  isDisable={record.status === OrderStatus.FINISHED}
+                  // isDisable={record.status === OrderStatus.FINISHED}
                 />
               </div>
             </div>
