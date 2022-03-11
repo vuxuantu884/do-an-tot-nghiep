@@ -68,26 +68,28 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 <div className="row-expand">
                   {record.procurement_items.map((item, index) => (
                     <div className="item">
-                      <div className="item-col">{index + 1}</div>
-                      <div className="item-col item-col-img">
-                        <div className="product-item-image">
-                          <img
-                            src={
-                              item.variant_image === null
-                                ? imgDefIcon
-                                : item.variant_image
-                            }
-                            alt=""
-                            className=""
-                          />
+                      <div className="item-info-wrap">
+                        <div className="item-col item-col-index">{index + 1}</div>
+                        <div className="item-col item-col-img">
+                          <div className="product-item-image">
+                            <img
+                              src={
+                                item.variant_image === null
+                                  ? imgDefIcon
+                                  : item.variant_image
+                              }
+                              alt=""
+                              className=""
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className="item-col item-col-name">
-                        <div className="product-item-sku">{item.sku}</div>
-                        <div className="product-item-name">
-                          <span className="product-item-name-detail">
-                            {item.variant}
-                          </span>
+                        <div className="item-col item-col-name">
+                          <div className="product-item-sku">{item.sku}</div>
+                          <div className="product-item-name text-truncate-1">
+                            <div className="product-item-name-detail">
+                              {item.variant}
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="item-col item-col-number">
@@ -108,6 +110,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
             columns={[
               {
                 align: "left",
+                width: 120,
                 title: (
                   <div
                     style={{
@@ -145,7 +148,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
               },
               {
                 align: "right",
-                width: 200,
+                width: 120,
                 title: <div style={{ color: "#27AE60" }}>SL Thực nhận</div>,
                 dataIndex: "procurement_items",
                 render: (value, item, index: number) => (

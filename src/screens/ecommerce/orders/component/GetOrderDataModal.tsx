@@ -107,6 +107,10 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     setShopIdSelected(shop_id);
   }
 
+  const onClearShop = () => {
+    setShopIdSelected(null);
+  }
+
   //handle select date
 
   // check disable select date
@@ -259,18 +263,28 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
                 allowClear
                 onSelect={(value) => selectShopEcommerce(value)}
                 disabled={isLoading}
+                showSearch
+                onClear={onClearShop}
+                notFoundContent="Không có dữ liệu gian hàng"
+                filterOption={(input, option) => {
+                  if (option) {
+                    const shopName = option.children && option.children[1];
+                    return (
+                      shopName?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
               >
                 {ecommerceShopList &&
                   ecommerceShopList.map((shop: any) => (
                     <Option key={shop.id} value={shop.id}>
-                      <span>
-                        <img
-                          src={getEcommerceIcon(shop.ecommerce_id)}
-                          alt={"ecommerce_icon"}
-                          style={{ marginRight: "5px", height: "16px" }}
-                        />
-                        <span>{shop.name}</span>
-                      </span>
+                      <img
+                        src={getEcommerceIcon(shop.ecommerce_id)}
+                        alt={"ecommerce_icon"}
+                        style={{ marginRight: "5px", height: "16px" }}
+                      />
+                      {shop.name}
                     </Option>
                   ))
                 }

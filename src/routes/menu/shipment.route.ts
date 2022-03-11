@@ -7,6 +7,7 @@ const ShipmentsScreen = React.lazy(
   () => import("screens/order-online/list-shipments")
 );
 
+const ShipmentsFailedScreen=React.lazy(()=>import("screens/order-online/list-shipments-failed.screen"));
 
 const ShipmentDetailScreen = React.lazy(
   () => import("screens/order-online/shipment-detail")
@@ -37,6 +38,31 @@ const shipments: Array<RouteMenu> = [
     icon: "icon-dot",
     component: ShipmentsScreen,
     key: "submenu66",
+    isShow: true,
+    header: null,
+    permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+    subMenu: [
+      {
+        path: `${UrlConfig.SHIPMENTS}/:code`,
+        exact: true,
+        title: "Chi tiết đơn giao hàng",
+        icon: "icon-dot",
+        component: ShipmentDetailScreen,
+        key: "submenu-shipment-1",
+        isShow: true,
+        header: null,
+        permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    path: `${UrlConfig.SHIPMENTS_FAILED}`,
+    exact: true,
+    title: "Danh sách đơn hủy",
+    icon: "icon-dot",
+    component: ShipmentsFailedScreen,
+    key: "submenu67",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
