@@ -71,7 +71,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       amount: formPayment.getFieldValue("amount"),
       reference: formPayment.getFieldValue("reference"),
       note: formPayment.getFieldValue("note"),
-      is_refund: formPayment.getFieldValue("is_refund"), 
+      is_refund: formPayment.getFieldValue("is_refund"),
       status: PoPaymentStatus.DRAFT,
     };
     let old_payments: any = formMain.getFieldValue("payments");
@@ -150,6 +150,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       visible={visible}
       centered
       cancelText="Hủy"
+      okText="Tạo thanh toán"
       className="update-customer-modal"
       onOk={onOkPress}
       width={700}
