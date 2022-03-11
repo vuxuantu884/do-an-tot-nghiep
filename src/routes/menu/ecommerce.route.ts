@@ -32,7 +32,7 @@ const ecommerce: Array<RouteMenu> = [
   {
     path: `${UrlConfig.ECOMMERCE}-orders`,
     exact: true,
-    title: "Đơn hàng",
+    title: "Danh sách đơn hàng",
     icon: "icon-dot",
     component: EcommerceOrders,
     key: "ecommerce_orders",
@@ -43,7 +43,7 @@ const ecommerce: Array<RouteMenu> = [
   {
     path: `${UrlConfig.ECOMMERCE}-products`,
     exact: true,
-    title: "Sản phẩm",
+    title: "Danh sách sản phẩm",
     icon: "icon-dot",
     component: Products,
     key: "submenu401",
@@ -107,7 +107,7 @@ const ecommerce: Array<RouteMenu> = [
   {
     path: `${UrlConfig.ECOMMERCE}-configs`,
     exact: true,
-    title: "Cấu hình",
+    title: "Cấu hình gian hàng",
     icon: "icon-dot",
     component: Config,
     key: "404",

@@ -20,6 +20,7 @@ import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDown
 import {showError, showSuccess} from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import { isNullOrUndefined } from "utils/AppUtils";
+import UrlConfig from "config/url.config";
 
 
 const { TabPane } = Tabs;
@@ -248,6 +249,15 @@ const OrdersMapping: React.FC = () => {
     <OrdersMappingStyled>
       <ContentContainer
         title="Đồng bộ đơn hàng"
+        breadcrumb={[
+          {
+            name: "Sàn TMDT",
+            path: `${UrlConfig.ECOMMERCE}`,
+          },
+          {
+            name: "Đồng bộ đơn hàng",
+          },
+        ]}
         extra={
           <>
             {allowOrdersDownload &&

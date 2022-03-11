@@ -63,6 +63,8 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { colorDetailApi } from "service/product/color.service";
+import { callApiNative } from "utils/ApiUtils";
 import {
   convertCategory,
   formatCurrency, formatCurrencyForProduct,
@@ -366,19 +368,23 @@ const ProductCreateScreen: React.FC = () => {
   );
 
   const onColorSelected = useCallback(
-    (value: number, objColor: any) => {
+     async (value: number, objColor: any) => {
       let colorCode:string = "";
-      if (objColor && objColor?.children) {
-        colorCode = objColor?.children.split(" ")[0];
+      let colorName: string = "";
+
+      const res = await callApiNative({isShowLoading: false},dispatch,colorDetailApi,value);
+      if (res) {
+        colorCode = res.code;
+        colorName= res.name;
       }
       
-      const newColor = {id: value, name: colorCode,  code: colorCode } as ColorResponse;
+      const newColor = {id: value, name: colorName,  code: colorCode } as ColorResponse;
       let filter = [...variants.filter(e=>e.color !== null).map(e=>({id: e.color_id,name: e.color, code: e.color})), newColor] as Array<ColorResponse>;
 
        setColorSelected([...filter]);
        listVariantsFilter(filter, sizeSelected);
     },
-    [listVariantsFilter, sizeSelected, variants]
+    [listVariantsFilter, sizeSelected, variants, dispatch]
   );
 
   const statusValue = useMemo(() => {
