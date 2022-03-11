@@ -176,11 +176,12 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     const {
       designer_codes,
       merchandiser_codes,
+      store_ids
     } = params;
 
     const filter = {
       ...params,
-      store_ids: params.store_ids ? params.store_ids.map((i: string) => Number(i)) : [],
+      store_ids: store_ids ? Array.isArray(store_ids) ? store_ids.map((i: string) => Number(i)) : [Number(store_ids)] : [],
     };
 
     if (designer_codes && designer_codes !== '') getDesigners(designer_codes, 1);
@@ -616,7 +617,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         allowClear
                         tagRender={tagRender}
                         notFoundContent="Không tìm thấy kết quả"
-                        maxTagCount="responsive" 
+                        maxTagCount="responsive"
                       >
                         {listCountry?.map((item) => (
                           <CustomSelect.Option key={item.id} value={String(item.id)}>

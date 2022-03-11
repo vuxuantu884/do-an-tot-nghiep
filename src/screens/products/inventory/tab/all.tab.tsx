@@ -98,7 +98,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const onFilter = useCallback(
     (values) => {
-      console.log(values, params)
       const newValues = {...values,info: values.info?.trim()}
       const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
@@ -438,12 +437,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       })
     );
 
-      if (selectedRow && selectedRow.length > 0) { 
+      if (selectedRow && selectedRow.length > 0) {
 
         selectedRow.forEach((e)=>{
-          if (e === undefined)  
+          if (e === undefined)
               return;
-           
+
           objSum.Sum_On_hand += e.on_hand ?? 0;
           objSum.Sum_Available += e.available ?? 0;
           objSum.Sum_Committed += e.committed ?? 0;

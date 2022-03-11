@@ -1,16 +1,16 @@
 const SearchVariantField = {
-  made_in: 'made_in',
-  designer: 'designer',
-  merchandiser: 'merchandiser',
+  made_ins: 'made_ins',
+  designers: 'designers',
+  merchandisers: 'merchandisers',
   created_date: 'created_date',
   from_created_date: 'from_created_date',
   to_created_date: 'to_created_date',
-  size: 'size',
-  color: 'color',
-  main_color: 'main_color',
-  supplier: 'supplier',
+  sizes: 'sizes',
+  colors: 'colors',
+  main_colors: 'main_colors',
+  suppliers: 'suppliers',
   saleable: 'saleable',
-  brand: 'brand'
+  brands: 'brands'
 };
 
 const keysDateFilter = ['created_date'];
@@ -19,36 +19,36 @@ const keysDateWrapperFilter = ['create_date'];
 const SearchVariantMapping = {
   [SearchVariantField.created_date]: "Ngày tạo",
   [SearchVariantField.saleable]: "Cho phép bán",
-  [SearchVariantField.made_in]: "Xuất xứ",
-  [SearchVariantField.designer]: "Nhà thiết kế",
-  [SearchVariantField.merchandiser]: "Merchandiser",
-  [SearchVariantField.size]: "Kích thước",
-  [SearchVariantField.color]: "Màu sắc",
-  [SearchVariantField.main_color]: "Màu chủ đạo",
-  [SearchVariantField.supplier]: "Nhà cung cấp",
-  [SearchVariantField.brand]: "Thương hiệu",
+  [SearchVariantField.made_ins]: "Xuất xứ",
+  [SearchVariantField.designers]: "Nhà thiết kế",
+  [SearchVariantField.merchandisers]: "Merchandiser",
+  [SearchVariantField.sizes]: "Kích thước",
+  [SearchVariantField.colors]: "Màu sắc",
+  [SearchVariantField.main_colors]: "Màu chủ đạo",
+  [SearchVariantField.suppliers]: "Nhà cung cấp",
+  [SearchVariantField.brands]: "Thương hiệu",
 };
 
 const SearchVariantWrapperField = {
   create_date: "create_date",
   from_create_date: 'from_create_date',
   to_create_date: 'to_create_date',
-  designer_code: "designer_code",
-  merchandiser_code: "merchandiser_code",
+  designers: "designers",
+  merchandisers: "merchandisers",
   status: "status",
-  category_id: "category_id",
+  category_ids: "category_ids",
   goods: "goods",
-  material_id: "material_id",
+  material_ids: "material_ids",
 };
 
 const SearchVariantWrapperMapping = {
   [SearchVariantWrapperField.create_date]: "Ngày khởi tạo",
-  [SearchVariantWrapperField.designer_code]: "Nhà thiết kế",
-  [SearchVariantWrapperField.merchandiser_code]: "Merchandiser",
+  [SearchVariantWrapperField.designers]: "Nhà thiết kế",
+  [SearchVariantWrapperField.merchandisers]: "Merchandiser",
   [SearchVariantWrapperField.status]: "Trạng thái",
-  [SearchVariantWrapperField.category_id]: "Danh mục",
+  [SearchVariantWrapperField.category_ids]: "Danh mục",
   [SearchVariantWrapperField.goods]: "Ngành hàng",
-  [SearchVariantWrapperField.material_id]: "Chất liệu",
+  [SearchVariantWrapperField.material_ids]: "Chất liệu",
 };
 
 export {
