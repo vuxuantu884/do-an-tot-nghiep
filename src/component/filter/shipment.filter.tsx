@@ -30,19 +30,22 @@ import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
 import { StyledComponent } from "component/filter/shipment.filter.styles";
+import TreeStore from "component/tree-node/tree-store";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 
 type OrderFilterProps = {
   params: ShipmentSearchQuery;
   actions: Array<MenuAction>;
   listSource: Array<SourceResponse>;
-  listStore: Array<StoreResponse>| undefined;
+  listStore: Array<StoreResponse> | undefined;
   accounts: Array<AccountResponse>;
   shippers: Array<AccountResponse>;
   deliveryService: Array<any>;
-  reasons: Array<{id: number; name: string}>;
+  reasons: Array<{ id: number; name: string }>;
   isLoading?: boolean;
+  isPushingStatusFailed?: boolean;
   onMenuClick?: (index: number) => void;
-  onFilter?: (values: ShipmentSearchQuery| Object) => void;
+  onFilter?: (values: ShipmentSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
 };
@@ -52,7 +55,7 @@ const { Option } = Select;
 
 async function searchVariants(input: any) {
   try {
-    const result = await searchVariantsApi({info: input})
+    const result = await searchVariantsApi({ info: input })
     return result.data.items.map(item => {
       return {
         label: item.name,
@@ -63,7 +66,6 @@ async function searchVariants(input: any) {
     console.log(error);
   }
 }
-
 
 const OrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
@@ -78,6 +80,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     deliveryService,
     reasons,
     isLoading,
+    isPushingStatusFailed,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -104,52 +107,52 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       value: 'external_service',
     },
     {
-			name: 'Shopee',
-			value: 'shopee',
-		},
+      name: 'Shopee',
+      value: 'shopee',
+    },
   ], []);
 
   const controlStatus = useMemo(() => [
-    {name: "Chưa đối soát", value: "notControl"},
-    {name: "Đang đối soát", value: "controlling"},
-    {name: "Đã đối soát", value: "hasControl"},
+    { name: "Chưa đối soát", value: "notControl" },
+    { name: "Đang đối soát", value: "controlling" },
+    { name: "Đã đối soát", value: "hasControl" },
   ], []);
 
   const printStatus = useMemo(() => [
-    {name: "Chưa in", value: 'false'},
-    {name: "Đã in", value: 'true'},
+    { name: "Chưa in", value: 'false' },
+    { name: "Đã in", value: 'true' },
   ], []);
   const pushingStatus = useMemo(() => [
-    {name: "Thành công", value: 'completed'},
-    {name: "Không thành công", value: 'failed'},
+    { name: "Thành công", value: 'completed' },
+    { name: "Không thành công", value: 'failed' },
   ], []);
-  
+
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
-  const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string}[]>([]);
+  const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string }[]>([]);
 
-	const [accountData, setAccountData] = useState<Array<AccountResponse>>(
-		[]
-	);
+  const [accountData, setAccountData] = useState<Array<AccountResponse>>(
+    []
+  );
 
-	const [accountFound, setAccountFound] = useState<Array<AccountResponse>>(
-		[]
-	);
+  const [accountFound, setAccountFound] = useState<Array<AccountResponse>>(
+    []
+  );
 
-	useEffect(() => {
-		if (params.account_codes && params.account_codes?.length > 0) {
-			searchAccountApi({
-				codes: params.account_codes
-			}).then((response) => {
-				setAccountFound(response.data.items)
-			})
-		}
+  useEffect(() => {
+    if (params.account_codes && params.account_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.account_codes
+      }).then((response) => {
+        setAccountFound(response.data.items)
+      })
+    }
 
-	}, [params.account_codes])
-	
+  }, [params.account_codes])
+
   const onChangeOrderOptions = useCallback((e) => {
-    onFilter && onFilter({...params, status: e.target.value});
+    onFilter && onFilter({ ...params, status: e.target.value });
   }, [onFilter, params]);
 
   const onFilterClick = useCallback(() => {
@@ -173,83 +176,83 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     (e, tag) => {
       e.preventDefault();
       setRerender(false)
-      switch(tag.key) {
+      switch (tag.key) {
         case 'store':
-          onFilter && onFilter({...params, store_ids: []});
+          onFilter && onFilter({ ...params, store_ids: [] });
           break;
         case 'source':
-          onFilter && onFilter({...params, source_ids: []});
+          onFilter && onFilter({ ...params, source_ids: [] });
           break;
         case 'packed':
           setPackedClick('')
-          onFilter && onFilter({...params, packed_on_min: null, packed_on_max: null});
+          onFilter && onFilter({ ...params, packed_on_min: null, packed_on_max: null });
           break;
         case 'ship':
           setShipClick('')
-          onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
+          onFilter && onFilter({ ...params, ship_on_min: null, ship_on_max: null });
           break;
         case 'exported':
           setExportedClick('')
-          onFilter && onFilter({...params, exported_on_min: null, exported_on_max: null});
+          onFilter && onFilter({ ...params, exported_on_min: null, exported_on_max: null });
           break;
         case 'cancelled':
           setCancelledClick('')
-          onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
+          onFilter && onFilter({ ...params, cancelled_on_min: null, cancelled_on_max: null });
           break;
         case 'shipped':
           setShippedClick('')
-          onFilter && onFilter({...params, shipped_on_min: null, shipped_on_max: null});
-          break;  
+          onFilter && onFilter({ ...params, shipped_on_min: null, shipped_on_max: null });
+          break;
         // trạng thái đơn 
         // trạng thái đối soát
         case 'reference_status':
-          onFilter && onFilter({...params, reference_status: []});
+          onFilter && onFilter({ ...params, reference_status: [] });
           break;
 
         case 'delivery_provider_ids':
-          onFilter && onFilter({...params, delivery_provider_ids: []});
+          onFilter && onFilter({ ...params, delivery_provider_ids: [] });
           break;
         case 'shipper_codes':
-          onFilter && onFilter({...params, shipper_codes: []});
-          break;  
+          onFilter && onFilter({ ...params, shipper_codes: [] });
+          break;
         // trạng thái in
         case 'print_status':
-          onFilter && onFilter({...params, print_status: []});
+          onFilter && onFilter({ ...params, print_status: [] });
           break;
         case 'pushing_status':
-          onFilter && onFilter({...params, pushing_status: []});
-          break;  
+          onFilter && onFilter({ ...params, pushing_status: [] });
+          break;
         case 'shipping_address':
-          onFilter && onFilter({...params, shipping_address: ""});
+          onFilter && onFilter({ ...params, shipping_address: "" });
           break;
         case 'variant_ids':
-          onFilter && onFilter({...params, variant_ids: []});
+          onFilter && onFilter({ ...params, variant_ids: [] });
           break;
         case 'delivery_types':
-          onFilter && onFilter({...params, delivery_types: []});
+          onFilter && onFilter({ ...params, delivery_types: [] });
           break;
         case 'account_codes':
-          onFilter && onFilter({...params, account_codes: []});
+          onFilter && onFilter({ ...params, account_codes: [] });
           break;
         case 'reason_ids':
-          onFilter && onFilter({...params, reason_ids: []});
+          onFilter && onFilter({ ...params, reason_ids: [] });
           break;
         case 'note':
-          onFilter && onFilter({...params, note: ""});
+          onFilter && onFilter({ ...params, note: "" });
           break;
         case 'customer_note':
-          onFilter && onFilter({...params, customer_note: ""});
+          onFilter && onFilter({ ...params, customer_note: "" });
           break;
         case 'tags':
-          onFilter && onFilter({...params, tags: []});
+          onFilter && onFilter({ ...params, tags: [] });
           break;
-        
+
         default: break
       }
     },
     [onFilter, params]
   );
-  
+
   const [packedClick, setPackedClick] = useState('');
   const [exportedClick, setExportedClick] = useState('');
   const [shipClick, setShipClick] = useState('');
@@ -274,8 +277,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
-  }}, [params])
-  
+    }
+  }, [params])
+
+
+  // console.log("initialValues",initialValues)
+
   const [print, setPrint] = useState<any[]>(initialValues.print_status);
   const [pushing, setPushing] = useState<any[]>(initialValues.pushing_status);
   const [control, setControl] = useState<any[]>(initialValues.reference_status);
@@ -299,16 +306,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           newPrintStatus.push('false')
         }
         break;
-      
-      default: break;  
+
+      default: break;
     }
-    
+
     setPrint(newPrintStatus)
   }, [print]);
 
   const changeStatusPushing = useCallback((status) => {
     let newPushingStatus = [...pushing]
-    
+
     switch (status) {
       case 'completed':
         const index1 = newPushingStatus.indexOf('completed');
@@ -326,10 +333,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           newPushingStatus.push('failed')
         }
         break;
-      
-      default: break;  
+
+      default: break;
     }
-    
+
     setPushing(newPushingStatus)
   }, [pushing]);
 
@@ -348,7 +355,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         const index2 = newControl.indexOf('controlling');
         if (index2 > -1) {
           newControl.splice(index2, 1);
-        }  else {
+        } else {
           newControl.push('controlling')
         }
         break;
@@ -360,7 +367,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           newControl.push('hasControl')
         }
         break
-      default: break;  
+      default: break;
     }
     setControl(newControl)
   }, [control]);
@@ -395,77 +402,77 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   );
   let filters = useMemo(() => {
 
-		const splitCharacter = ", ";
+    const splitCharacter = ", ";
 
-		const renderSplitCharacter = (index: number, mappedArray: any[]) => {
-			let result = null;
-			if (index !== mappedArray.length - 1) {
-				result = (
-					<React.Fragment>
-						{splitCharacter}
-					</React.Fragment>
-				)
-			}
-			return result;
-		};
+    const renderSplitCharacter = (index: number, mappedArray: any[]) => {
+      let result = null;
+      if (index !== mappedArray.length - 1) {
+        result = (
+          <React.Fragment>
+            {splitCharacter}
+          </React.Fragment>
+        )
+      }
+      return result;
+    };
 
-		const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string, type?: string) => {
-			let result = null;
-			if (!mappedArray) {
-				return null;
-			};
-			if (type === "assignee_codes") {
-				
-			} else if(type === "account_codes") {
-				result = mappedArray.map((single, index) => {
-					return (
-						<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
-							{single.code} - {single.full_name}
-							{renderSplitCharacter(index, mappedArray)}
-						</Link>
-					)
-				})
-			} else {
-				result = mappedArray.map((single, index) => {
-					if (objectLink && endPoint && single[objectLink]) {
-						return (
-							<Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
-								{single[keyValue]}
-								{renderSplitCharacter(index, mappedArray)}
-							</Link>
-						)
-					}
-					return (
-						<React.Fragment>
-							{single[keyValue]}
-							{renderSplitCharacter(index, mappedArray)}
-						</React.Fragment>
-					)
-				})
+    const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string, type?: string) => {
+      let result = null;
+      if (!mappedArray) {
+        return null;
+      };
+      if (type === "assignee_codes") {
 
-			}
-			return <React.Fragment>{result}</React.Fragment>;
-		};
+      } else if (type === "account_codes") {
+        result = mappedArray.map((single, index) => {
+          return (
+            <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+              {single.code} - {single.full_name}
+              {renderSplitCharacter(index, mappedArray)}
+            </Link>
+          )
+        })
+      } else {
+        result = mappedArray.map((single, index) => {
+          if (objectLink && endPoint && single[objectLink]) {
+            return (
+              <Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
+                {single[keyValue]}
+                {renderSplitCharacter(index, mappedArray)}
+              </Link>
+            )
+          }
+          return (
+            <React.Fragment>
+              {single[keyValue]}
+              {renderSplitCharacter(index, mappedArray)}
+            </React.Fragment>
+          )
+        })
+
+      }
+      return <React.Fragment>{result}</React.Fragment>;
+    };
 
     let list = []
     if (initialValues.store_ids.length) {
-			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
-			let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
-			list.push({
-				key: 'store',
-				name: 'Cửa hàng',
-				value: text,
-			})
-		}
-		if (initialValues.source_ids.length) {
-			let mappedSources = listSources?.filter((source) => initialValues.source_ids?.some((single) => single === source.id.toString()))
-			let text = getFilterString(mappedSources, "name", undefined, undefined);
-			list.push({
-				key: 'source',
-				name: 'Nguồn',
-				value: text,
-			})
-		}
+      let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+      let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
+      list.push({
+        key: 'store',
+        name: 'Cửa hàng',
+        value: text,
+      })
+    }
+    if (initialValues.source_ids.length) {
+      let mappedSources = listSources?.filter((source) => initialValues.source_ids?.some((single) => single === source.id.toString()))
+      let text = getFilterString(mappedSources, "name", undefined, undefined);
+      list.push({
+        key: 'source',
+        name: 'Nguồn',
+        value: text,
+      })
+    }
     if (initialValues.packed_on_min || initialValues.packed_on_max) {
       let textOrderCreateDate = (initialValues.packed_on_min ? initialValues.packed_on_min : '??') + " ~ " + (initialValues.packed_on_max ? initialValues.packed_on_max : '??')
       list.push({
@@ -509,60 +516,60 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.reference_status.length) {
-			let mappedSources = controlStatus?.filter((item) => initialValues.reference_status?.some((single) => single === item.value))
-			let text = getFilterString(mappedSources, "name", undefined, undefined);
-			list.push({
-				key: 'reference_status',
+      let mappedSources = controlStatus?.filter((item) => initialValues.reference_status?.some((single) => single === item.value))
+      let text = getFilterString(mappedSources, "name", undefined, undefined);
+      list.push({
+        key: 'reference_status',
         name: 'Trạng thái đối soát',
-				value: text,
-			})
+        value: text,
+      })
     }
-		if (initialValues.shipper_codes.length) {
-			let mappedShippers = shippers?.filter((account) => initialValues.shipper_codes?.some((single) => single === account.code.toString()))
-			let text = getFilterString(mappedShippers, "full_name", undefined, undefined);
-			list.push({
-				key: 'shipper_codes',
-				name: 'Đối tác giao hàng',
-				value: text,
-			})
-		}
+    if (initialValues.shipper_codes.length) {
+      let mappedShippers = shippers?.filter((account) => initialValues.shipper_codes?.some((single) => single === account.code.toString()))
+      let text = getFilterString(mappedShippers, "full_name", undefined, undefined);
+      list.push({
+        key: 'shipper_codes',
+        name: 'Đối tác giao hàng',
+        value: text,
+      })
+    }
     if (initialValues.delivery_provider_ids.length) {
-			let mappedDeliverProviderIds = deliveryService?.filter((deliveryServiceSingle) => initialValues.delivery_provider_ids?.some((item) => item === deliveryServiceSingle.id.toString()))
-			let text = getFilterString(mappedDeliverProviderIds, "name", undefined, undefined);
-			list.push({
-				key: 'delivery_provider_ids',
-				name: 'Đơn vị vận chuyển',
-				value: text,
-			})
-		}
+      let mappedDeliverProviderIds = deliveryService?.filter((deliveryServiceSingle) => initialValues.delivery_provider_ids?.some((item) => item === deliveryServiceSingle.id.toString()))
+      let text = getFilterString(mappedDeliverProviderIds, "name", undefined, undefined);
+      list.push({
+        key: 'delivery_provider_ids',
+        name: 'Đơn vị vận chuyển',
+        value: text,
+      })
+    }
 
     if (initialValues.print_status.length) {
-			let mappedPaymentMethods = printStatus?.filter((single) => initialValues.print_status?.some((item) => item === single.value))
-			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
-			list.push({
-				key: 'print_status',
+      let mappedPaymentMethods = printStatus?.filter((single) => initialValues.print_status?.some((item) => item === single.value))
+      let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
+      list.push({
+        key: 'print_status',
         name: 'Trạng thái in',
-				value: text,
-			})
+        value: text,
+      })
     }
-    if (initialValues.pushing_status.length) {
-			let mappedPaymentMethods = pushingStatus?.filter((single) => initialValues.pushing_status?.some((item) => item === single.value))
-			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
-			list.push({
-				key: 'pushing_status',
+    if (initialValues.pushing_status.length && !isPushingStatusFailed) {
+      let mappedPaymentMethods = pushingStatus?.filter((single) => initialValues.pushing_status?.some((item) => item === single.value))
+      let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
+      list.push({
+        key: 'pushing_status',
         name: 'Trạng thái đẩy đơn',
-				value: text,
-			})
+        value: text,
+      })
     }
 
     if (initialValues.account_codes.length) {
-			let text = getFilterString(accountFound, "full_name", UrlConfig.ACCOUNTS, "code", "account_codes");
-			list.push({
-				key: 'account_codes',
-				name: 'Nhân viên tạo đơn',
-				value: text,
-			})
-		}
+      let text = getFilterString(accountFound, "full_name", UrlConfig.ACCOUNTS, "code", "account_codes");
+      list.push({
+        key: 'account_codes',
+        name: 'Nhân viên tạo đơn',
+        value: text,
+      })
+    }
 
     if (initialValues.shipping_address) {
       list.push({
@@ -573,80 +580,80 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.variant_ids.length) {
-			let textVariant = "";
-			for (let i = 0; i < optionsVariant.length; i++) {
-				if (i < optionsVariant.length - 1) {
-					textVariant = textVariant + optionsVariant[i].label + splitCharacter
-				} else {
-					textVariant = textVariant + optionsVariant[i].label;
-				}
-			}
-			list.push({
-				key: 'variant_ids',
-				name: 'Sản phẩm',
-				value: <React.Fragment>{textVariant}</React.Fragment>
-			})
-		}
+      let textVariant = "";
+      for (let i = 0; i < optionsVariant.length; i++) {
+        if (i < optionsVariant.length - 1) {
+          textVariant = textVariant + optionsVariant[i].label + splitCharacter
+        } else {
+          textVariant = textVariant + optionsVariant[i].label;
+        }
+      }
+      list.push({
+        key: 'variant_ids',
+        name: 'Sản phẩm',
+        value: <React.Fragment>{textVariant}</React.Fragment>
+      })
+    }
 
     if (initialValues.delivery_types.length) {
-			let mappedDeliverTypes = serviceType?.filter((deliverType) => initialValues.delivery_types?.some((item) => item === deliverType.value.toString()))
-			let text = getFilterString(mappedDeliverTypes, "name", undefined, undefined);
-			list.push({
-				key: 'delivery_types',
-				name: 'Hình thức vận chuyển',
-				value: text,
-			})
-		}
+      let mappedDeliverTypes = serviceType?.filter((deliverType) => initialValues.delivery_types?.some((item) => item === deliverType.value.toString()))
+      let text = getFilterString(mappedDeliverTypes, "name", undefined, undefined);
+      list.push({
+        key: 'delivery_types',
+        name: 'Hình thức vận chuyển',
+        value: text,
+      })
+    }
 
     if (initialValues.reason_ids.length) {
-			let mappedPaymentMethods = reasons?.filter((single) => initialValues.reason_ids?.some((item) => item === single.id.toString()))
-			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
-			list.push({
-				key: 'reason_ids',
+      let mappedPaymentMethods = reasons?.filter((single) => initialValues.reason_ids?.some((item) => item === single.id.toString()))
+      let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
+      list.push({
+        key: 'reason_ids',
         name: 'Lý do huỷ giao',
-				value: text,
-			})
+        value: text,
+      })
     }
     if (initialValues.note) {
-			list.push({
-				key: 'note',
-				name: 'Ghi chú nội bộ',
-				value: <React.Fragment>{initialValues.note}</React.Fragment>
-			})
-		}
+      list.push({
+        key: 'note',
+        name: 'Ghi chú nội bộ',
+        value: <React.Fragment>{initialValues.note}</React.Fragment>
+      })
+    }
 
-		if (initialValues.customer_note) {
-			list.push({
-				key: 'customer_note',
-				name: 'Ghi chú của khách',
-				value: <React.Fragment>{initialValues.customer_note}</React.Fragment>
-			})
-		}
+    if (initialValues.customer_note) {
+      list.push({
+        key: 'customer_note',
+        name: 'Ghi chú của khách',
+        value: <React.Fragment>{initialValues.customer_note}</React.Fragment>
+      })
+    }
 
     if (initialValues.tags.length) {
-			let textStatus = "";
-			for (let i = 0; i < initialValues.tags.length; i++) {
-				if (i < initialValues.tags.length - 1) {
-					textStatus = textStatus + initialValues.tags[i] + splitCharacter
-				} else {
-					textStatus = textStatus + initialValues.tags[i];
-				}
-			}
-			list.push({
-				key: 'tags',
-				name: 'Tags',
-				value: <React.Fragment>{textStatus}</React.Fragment>
-			})
-		}
+      let textStatus = "";
+      for (let i = 0; i < initialValues.tags.length; i++) {
+        if (i < initialValues.tags.length - 1) {
+          textStatus = textStatus + initialValues.tags[i] + splitCharacter
+        } else {
+          textStatus = textStatus + initialValues.tags[i];
+        }
+      }
+      list.push({
+        key: 'tags',
+        name: 'Tags',
+        value: <React.Fragment>{textStatus}</React.Fragment>
+      })
+    }
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.shipped_on_min, initialValues.shipped_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons]
+    [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.shipped_on_min, initialValues.shipped_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons, isPushingStatusFailed]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
       return 1400
-    } else if (window.innerWidth < 1600 && window.innerWidth >=1200){
+    } else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
       return 1000
     } else {
       return 800
@@ -660,7 +667,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     setShipClick('')
     setShippedClick('')
     setCancelledClick('')
-  
+
     setVisible(false);
     setRerender(false);
   };
@@ -668,15 +675,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     window.addEventListener('resize', () => setVisible(false))
   }, []);
 
-	useEffect(() => {
-		if (accounts) {
-			setAccountData(accounts)
-		}
-	}, [accounts])
+  useEffect(() => {
+    if (accounts) {
+      setAccountData(accounts)
+    }
+  }, [accounts])
 
   useEffect(() => {
     if (params.variant_ids.length) {
-			let variant_ids = Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
+      let variant_ids = Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
       (async () => {
         let variants: any = [];
         await Promise.all(
@@ -688,7 +695,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 label: result.data.name,
                 value: result.data.id.toString()
               })
-            } catch {}
+            } catch { }
           })
         );
         setOptionsVariant(variants)
@@ -701,17 +708,19 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   return (
     <StyledComponent>
-      <div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.status}>
-          <Radio.Button value={null}>Tất cả đơn giao hàng</Radio.Button>
-          <Radio.Button value="unshipped">Chờ lấy hàng</Radio.Button>
-          <Radio.Button value="picked">Đã lấy hàng</Radio.Button>
-          <Radio.Button value="shipping">Đang giao hàng</Radio.Button>
-          <Radio.Button value="shipped">Đã giao hàng</Radio.Button>
-          <Radio.Button value="returning">Huỷ giao - Chờ nhận</Radio.Button>
-          <Radio.Button value="returned">Huỷ giao - Đã nhận</Radio.Button>
-        </Radio.Group>
-      </div>
+      {!isPushingStatusFailed && (
+        <div className="order-options">
+          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.status}>
+            <Radio.Button value={null}>Tất cả đơn giao hàng</Radio.Button>
+            <Radio.Button value="unshipped">Chờ lấy hàng</Radio.Button>
+            <Radio.Button value="picked">Đã lấy hàng</Radio.Button>
+            <Radio.Button value="shipping">Đang giao hàng</Radio.Button>
+            <Radio.Button value="shipped">Đã giao hàng</Radio.Button>
+            <Radio.Button value="returning">Huỷ giao - Chờ nhận</Radio.Button>
+            <Radio.Button value="returned">Huỷ giao - Đã nhận</Radio.Button>
+          </Radio.Group>
+        </div>
+      )}
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
@@ -726,7 +735,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 }}
               />
             </Item>
-            
+
             <Item>
               <Button type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
@@ -740,7 +749,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Item>
               <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
-            <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
+            <Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
           </Form>
         </CustomFilter>
 
@@ -762,7 +771,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={12} xxl={8}>
                 <p>Kho cửa hàng</p>
                 <Item name="store_ids">
-                  <CustomSelect
+                  {/* <CustomSelect
                     mode="multiple"
                     showArrow allowClear
                     showSearch
@@ -779,7 +788,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         {item.name}
                       </CustomSelect.Option>
                     ))}
-                  </CustomSelect>
+                  </CustomSelect> */}
+                  <TreeStore listStore={listStore} placeholder="Cửa hàng" />
                 </Item>
                 <p>Trạng thái đối soát</p>
                 <div className="button-option-2">
@@ -808,7 +818,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="source_ids">
                   <CustomSelect
                     mode="multiple"
-                    style={{ width: '100%'}}
+                    style={{ width: '100%' }}
                     showArrow maxTagCount='responsive'
                     showSearch allowClear
                     placeholder="Nguồn đơn hàng"
@@ -845,7 +855,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </div>
                 {/* </Item> */}
               </Col>
-              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+              <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày đóng gói</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="packed_on_min"
@@ -856,7 +866,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   formRef={formRef}
                 />
               </Col>
-              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+              <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày xuất kho</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="exported_on_min"
@@ -867,7 +877,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   formRef={formRef}
                 />
               </Col>
-              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+              <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày giao hàng</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="ship_on_min"
@@ -878,7 +888,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   formRef={formRef}
                 />
               </Col>
-              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+              <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày hoàn tất đơn</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="shipped_on_min"
@@ -889,46 +899,63 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   formRef={formRef}
                 />
               </Col>
-              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+              <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày huỷ đơn</p>
-                <CustomRangeDatePicker
-                  fieldNameFrom="cancelled_on_min"
-                  fieldNameTo="cancelled_on_max"
-                  activeButton={cancelledClick}
-                  setActiveButton={setCancelledClick}
-                  format="DD-MM-YYYY"
-                  formRef={formRef}
-                />
+                <div style={{ margin: "0 0 20px" }}>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="cancelled_on_min"
+                    fieldNameTo="cancelled_on_max"
+                    activeButton={cancelledClick}
+                    setActiveButton={setCancelledClick}
+                    format={"DD-MM-YYYY"}
+                    formRef={formRef}
+                  />
+                </div>
+                <p>Hình thức vận chuyển</p>
+                <Item name="delivery_types">
+                  <Select
+                    mode="multiple" showArrow maxTagCount='responsive'
+                    optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
+                    placeholder="Chọn hình thức vận chuyển" style={{ width: '100%' }}
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
+                  >
+                    {serviceType?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
               </Col>
               <Col span={12} xxl={8}>
                 <p>Đối tác giao hàng</p>
                 <Item name="shipper_codes">
-                <CustomSelect
-										mode="multiple" showSearch allowClear
-										showArrow placeholder="Chọn đối tác giao hàng"
-										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
-										optionFilterProp="children"
-										getPopupContainer={trigger => trigger.parentNode}
-										maxTagCount='responsive'
-									>
-										{shippers && shippers.map((shipper) => (
-											<CustomSelect.Option key={shipper.code} value={shipper.code}>
-												{shipper.full_name} - {shipper.code}
-											</CustomSelect.Option>
-										))}
-									</CustomSelect>
+                  <CustomSelect
+                    mode="multiple" showSearch allowClear
+                    showArrow placeholder="Chọn đối tác giao hàng"
+                    notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
+                  >
+                    {shippers && shippers.map((shipper) => (
+                      <CustomSelect.Option key={shipper.code} value={shipper.code}>
+                        {shipper.full_name} - {shipper.code}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
                 </Item>
                 <p>Nhân viên tạo đơn</p>
                 <Item name="account_codes">
-									<AccountCustomSearchSelect
-											placeholder="Tìm theo họ tên hoặc mã nhân viên"
-											dataToSelect={accountData}
-											setDataToSelect={setAccountData}
-											initDataToSelect={accounts}
-											mode="multiple"
-											getPopupContainer={(trigger: any) => trigger.parentNode}
-											maxTagCount='responsive'
-									/>
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={accounts}
+                    mode="multiple"
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    maxTagCount='responsive'
+                  />
                 </Item>
               </Col>
               <Col span={12} xxl={8}>
@@ -949,44 +976,30 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   />
                 </Item>
               </Col>
-              <Col  span={12} xxl={8}>
-                <p>Hình thức vận chuyển</p>
-                <Item name="delivery_types">
+              <Col span={12} xxl={8}>
+
+                <p>Đơn vị vận chuyển</p>
+                <Item name="delivery_provider_ids">
                   <Select
-                    mode="multiple" showArrow maxTagCount='responsive'
-                    optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
-                    placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                    mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
+                    notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+                    optionFilterProp="children" showArrow maxTagCount='responsive'
                     getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
-                    {serviceType?.map((item) => (
-                      <Option key={item.value} value={item.value}>
+                    {deliveryService?.map((item) => (
+                      <Option key={item.id} value={item.id.toString()}>
                         {item.name}
                       </Option>
                     ))}
                   </Select>
                 </Item>
-                <p>Đơn vị vận chuyển</p>
-                <Item name="delivery_provider_ids">
-                <Select
-                  mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
-                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children" showArrow maxTagCount='responsive'
-                  getPopupContainer={trigger => trigger.parentNode} allowClear
-                >
-                  {deliveryService?.map((item) => (
-                    <Option key={item.id} value={item.id.toString()}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-                </Item>
               </Col>
-              <Col  span={12} xxl={8}>
+              <Col span={12} xxl={8}>
                 <p>Lý do huỷ giao</p>
                 <Item name="reason_ids">
                   <Select
                     mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
                     optionFilterProp="children" showArrow maxTagCount='responsive'
                     getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
@@ -999,54 +1012,59 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Item>
                 <p>Ghi chú của khách</p>
                 <Item name="customer_note">
-                <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
+                  <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
                 </Item>
               </Col>
               <Col span={12} xxl={8}>
                 <p>Tags</p>
                 <Item name="tags">
                   <Select
-                    mode="tags"showArrow maxTagCount='responsive'
+                    mode="tags" showArrow maxTagCount='responsive'
                     optionFilterProp="children" showSearch
                     placeholder="Chọn 1 hoặc nhiều tag"
-                    style={{width: '100%'}} allowClear
+                    style={{ width: '100%' }} allowClear
                   >
-                </Select>
+                  </Select>
                 </Item>
                 <p>Ghi chú nội bộ</p>
                 <Item name="note">
                   <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
                 </Item>
               </Col>
-              <Col span={12} xxl={8}>
-                <p>Trạng thái đẩy đơn</p>
-                <div className="button-option-1">
-                  <Button
-                    onClick={() => changeStatusPushing('completed')}
-                    className={pushing.includes('completed') ? 'active' : 'deactive'}
-                  >
-                    Thành công
-                  </Button>
-                  <Button
-                    onClick={() => changeStatusPushing('failed')}
-                    className={pushing.includes('failed') ? 'active' : 'deactive'}
-                  >
-                    Không thành công
-                  </Button>
-                </div>
-              </Col>
+              {(!isPushingStatusFailed) && (
+                <Col span={12} xxl={8}>
+                  <p>Trạng thái đẩy đơn</p>
+                  <div className="button-option-1">
+                    <Button
+                      onClick={() => changeStatusPushing('completed')}
+                      className={pushing.includes('completed') ? 'active' : 'deactive'}
+                    >
+                      Thành công
+                    </Button>
+                    <Button
+                      onClick={() => changeStatusPushing('failed')}
+                      className={pushing.includes('failed') ? 'active' : 'deactive'}
+                    >
+                      Không thành công
+                    </Button>
+                  </div>
+                </Col>
+              )}
+
             </Row>
-            
+
           </Form>}
         </BaseFilter>
       </div>
-      <div className="order-filter-tags">
-        {filters && filters.map((filter: any, index) => {
-          return (
-            <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
-          )
-        })}
-      </div>
+      {filters && filters.length > 0 && (
+        <div className="order-filter-tags">
+          {filters.map((filter: any, index) => {
+            return (
+              <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+            )
+          })}
+        </div>
+      )}
     </StyledComponent>
   );
 };
