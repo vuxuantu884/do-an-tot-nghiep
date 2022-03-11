@@ -54,7 +54,7 @@ export const StyledComponent = styled.div`
   }
   .data-content {
     color: #222222;
-    max-height: 144.5px;
+    max-height: 160px;
     overflow: auto;
     padding: 10px 0px;
     // border: 1px solid #d9d9d9;
@@ -149,6 +149,33 @@ export const StyledComponent = styled.div`
       .anticon {
         vertical-align: 0.125em;
       }
-    }
+    } 
   }
+  .devvn_readmore_taxonomy_flatsome {
+        text-align: center;
+        cursor: pointer;
+        position: absolute;
+        z-index: 10;
+        bottom: -2px;    
+        margin-right: auto;
+        padding-right: 36px;
+        width: 100%;
+        background: #fff;
+    }
+    .devvn_readmore_taxonomy_flatsome:before {
+        height: 55px;
+        margin-top: -45px;
+        content: "";
+        background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+        background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
+        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff00', endColorstr='#ffffff',GradientType=0 );
+        display: block;
+    }
+    .devvn_readmore_taxonomy_flatsome .button-show-more {
+        color: #1890ff;
+        display: block;
+        border-color: #1890ff;
+        margin:auto ;
+    } 
 `;
