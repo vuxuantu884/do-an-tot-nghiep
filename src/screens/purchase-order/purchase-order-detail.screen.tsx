@@ -426,7 +426,7 @@ const PODetailScreen: React.FC = () => {
               type="primary"
               placement={'topCenter'}
               buttonStyle={{ borderRadius: 2 }}
-              querySelectorId={'bottomRight'}
+              getPopupContainer={(trigger: any) => trigger.parentNode}
             />
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
                 <Button

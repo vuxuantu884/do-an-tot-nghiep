@@ -10,7 +10,6 @@ type ActionProps = Pick<DropDownProps, 'placement' | 'getPopupContainer'> & {
   disabled?: boolean;
   type?: ButtonType;
   buttonStyle?: CSSProperties | undefined;
-  querySelectorId?: string
 };
 
 export interface MenuAction {
@@ -27,7 +26,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
       disabled={props.disabled}
       overlayStyle={{ minWidth: "10rem" }}
       placement={props.placement}
-      getPopupContainer={() => document.getElementById(`${props.querySelectorId}`) as HTMLElement}
+      getPopupContainer={props.getPopupContainer}
       overlay={
         <Menu>
           {props.menu &&
