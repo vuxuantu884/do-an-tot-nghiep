@@ -2,6 +2,6 @@ export type BaseFilterTag = {
   [key: string]: any,
   keyId: string,
   keyName: string,
-  valueId: string | number,
+  valueId: any,
   valueName?: string | null,
 }

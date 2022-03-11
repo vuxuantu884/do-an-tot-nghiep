@@ -6,16 +6,16 @@ export const useArray = (defaultValue: any[]) => {
   const prevArray = usePrevious(array);
 
   const push = (element: any) => {
-    setArray((e) => [...e, element]);
+    setArray((prevArr) => [...prevArr, element]);
   };
   const filter = (callback: any) => {
-    setArray((e) => e.filter(callback));
+    setArray((prevArr) => prevArr.filter(callback));
   };
   const update = (index: number, newElement: any) => {
-    setArray((e) => [...e.slice(0, index), newElement, ...e.slice(index + 1, e.length)]);
+    setArray((prevArr) => [...prevArr.slice(0, index), newElement, ...prevArr.slice(index + 1, prevArr.length)]);
   };
   const remove = (index: number) => {
-    setArray((e) => [...e.slice(0, index), ...e.slice(index + 1, e.length)]);
+    setArray((prevArr) => [...prevArr.slice(0, index), ...prevArr.slice(index + 1, prevArr.length)]);
   };
   const clear = () => {
     setArray([]);
