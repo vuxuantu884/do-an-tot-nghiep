@@ -72,7 +72,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       const currentUser = { id: userReducer.account?.id, code: userReducer.account?.code, full_name: userReducer.account?.full_name }
       const findUser = response?.items.find((item: any) => item.code === userReducer.account?.code)
 
-      let items = []
+      let items: any[]
       if(findUser) {
         items = response?.items
       } else {
@@ -142,7 +142,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       }}
       filterOption={() => true}//lấy kết quả từ server
       {...selectProps}
-      defaultValue={contentProps.defaultValue || value}
+      value={contentProps.defaultValue || value}
       >
       {data?.items?.map((item) => (
         <SelectPagingV2.Option key={item.code + name} value={isFilter ? JSON.stringify({
@@ -156,10 +156,8 @@ function SelectSearch(contentProps: SelectContentProps) {
   );
 }
 
-const AccountSearchPaging = React.memo(SelectSearch, (prev, next) => {
-  const { fixedQuery } = prev;
-  const { fixedQuery: nextQuery } = next;
-  return _.isEqual(fixedQuery, nextQuery);
+const AccountSearchPaging = React.memo(SelectSearch, () => {
+  return false;
 });
 
 export default AccountSearchPaging;
