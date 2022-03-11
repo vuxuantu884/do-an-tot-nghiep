@@ -1,5 +1,4 @@
 import {
-  DeleteOutlined,
   FileExcelOutlined,
   PrinterOutlined,
   ReconciliationOutlined,
@@ -45,15 +44,9 @@ const actions: Array<MenuAction> = [
   },
   {
     id: 4,
-    name: "Thêm đơn hàng vào biên bản",
+    name: "Thêm/xoá đơn hàng vào biên bản",
     icon: <ReconciliationOutlined />,
-  },
-  {
-    id: 5,
-    name: "Xóa",
-      icon: <DeleteOutlined />,
-      color: "#E24343"
-  },
+  }
 ];
 
 const typePrint={
@@ -100,8 +93,6 @@ const PackDetail: React.FC = () => {
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
   const [htmlContent, setHtmlContent] = useState("");
-  const [selectedOrderList, setSelectedOrderList]=useState<GoodsReceiptsOrderListModel[]>([]);
-  console.log(selectedOrderList)
   useEffect(() => {
     if (PackId) {
       dispatch(
@@ -214,13 +205,6 @@ const PackDetail: React.FC = () => {
 
   const handleAddOrderInPack = () => { };
 
-  const handleDeleteOrderInPack = () => {
-    let request: any = {
-      ids: selectedOrderList
-    }
-    
-    
-  };
 
   const handleSearchOrder = (value: any) => { };
 
@@ -239,14 +223,11 @@ const PackDetail: React.FC = () => {
         case 4:
           history.push(`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${PackId}`);
           break;
-        case 5:
-          handleDeleteOrderInPack();
-          break;  
         default:
           break;
       }
     },
-    [history, PackId,handleExportExcelOrderPack,handlePrintPack]
+    [handlePrintPack, handleExportExcelOrderPack, history, PackId]
   );
 
   return (
@@ -288,7 +269,6 @@ const PackDetail: React.FC = () => {
         actions={actions}
         handleSearchOrder={handleSearchOrder}
         onMenuClick={onMenuListOrderClick}
-        setSelectedOrderList={setSelectedOrderList}
       />
 			
 			<React.Fragment>
