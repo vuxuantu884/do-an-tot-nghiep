@@ -27,7 +27,6 @@ import {showSuccess, showWarning} from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
 import {
   DeleteOutlined,
-  ExportOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
@@ -45,11 +44,6 @@ const actionsDefault: Array<MenuAction> = [
     id: 2,
     name: "Xóa",
     icon: <DeleteOutlined />,
-  },
-  {
-    id: 3,
-    name: "Export",
-    icon: <ExportOutlined />,
   },
 ];
 
@@ -153,11 +147,6 @@ const SizeListScreen: React.FC = () => {
   }, [dispatch, params, searchSizeCallback, selected]);
 
   const onDelete = useCallback(() => {
-    if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần từ cần xóa");
-      return;
-    }
-
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(sizeDeleteOneAction(id, onDeleteSuccess));
@@ -187,11 +176,15 @@ const SizeListScreen: React.FC = () => {
           onUpdate();
           break;
         case 2:
+          if (selected.length === 0) {
+            showWarning("Vui lòng chọn kích cỡ cần xóa");
+            return;
+          }
           setConfirmDelete(true);
           break;
       }
     },
-    [onUpdate]
+    [onUpdate, selected]
   );
 
   const isFirstLoad = useRef(true);

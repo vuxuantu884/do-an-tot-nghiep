@@ -25,7 +25,7 @@ import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
@@ -36,11 +36,6 @@ const actionDefault: Array<MenuAction> = [
     id: 0,
     name: "Xóa",
     icon:<DeleteOutlined />
-  },
-  {
-    id: 1,
-    name: "Export",
-    icon:<ExportOutlined />
   },
 ];
 
@@ -162,11 +157,6 @@ const ColorListScreen: React.FC = () => {
   }, [dispatch, params, searchColorCallback, selected]);
 
   const onDelete = useCallback(() => {
-    if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần từ cần xóa");
-      return;
-    }
-
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(colorDeleteAction(id, onDeleteSuccess));
@@ -215,11 +205,14 @@ const ColorListScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
       case 0:
+        if (selected.length === 0) {
+          showWarning("Vui lòng chọn màu sắc cần xóa");
+          return;
+        }
         setConfirmDelete(true);
-        // onDelete();
         break;
     }
-  }, []);
+  }, [selected]);
 
   useEffect(() => {
     dispatch(
