@@ -373,13 +373,18 @@ function OrderList(props: PropTypes) {
             window.open(response.data.url);
             setListExportFile(newListExportFile);
           }
-        }
+          if (response.data && response.data.status === "ERROR") {
+						setStatusExport(4)
+					}
+				} else {
+					setStatusExport(4)
+				}
       });
     });
   }, [listExportFile]);
 
   useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3) return;
+    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);

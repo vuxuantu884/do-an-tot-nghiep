@@ -155,7 +155,7 @@ const ExportModal: React.FC<ExportModalProps> = (
       <Row style={{ justifyContent: 'center'}}>
         {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
         {statusExport === 3 && <p>Đã tạo file thành công</p>}
-        {statusExport === 4 && <p>Đã có lỗi xảy ra!!!</p>}
+        {statusExport === 4 && <p style={{ color: "#e24343"}}>Đã có lỗi xảy ra!!!</p>}
         <Row style={{ justifyContent: 'center', width: '100%'}}><Progress
           type="circle"
           strokeColor={{
