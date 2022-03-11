@@ -1,6 +1,7 @@
 import React from "react";
 import { Tag, TagProps } from "antd";
 import isEmpty from "lodash/isEmpty";
+import isEqual from "lodash/isEqual";
 import { CloseOutlined } from "@ant-design/icons";
 import { StyledComponent } from "./styles";
 import { BaseFilterTag } from "../../../model/base/base-filter-tag";
@@ -17,7 +18,7 @@ function BaseFilterResult({ data = [], onClose, ...props }: BaseFilterResultProp
         <StyledComponent>
           {data?.map((item: BaseFilterTag, index) => (
             <Tag
-              key={item.keyId}
+              key={`${item.keyId}-${item.valueId}-${index}`}
               closable
               closeIcon={<CloseOutlined size={24} />}
               className="tag"
@@ -32,4 +33,4 @@ function BaseFilterResult({ data = [], onClose, ...props }: BaseFilterResultProp
   );
 }
 
-export default BaseFilterResult;
+export default React.memo(BaseFilterResult, isEqual);

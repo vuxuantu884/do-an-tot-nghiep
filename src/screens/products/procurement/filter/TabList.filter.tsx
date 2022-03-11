@@ -1,8 +1,7 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row } from "antd";
 import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
-import AccountSearchSelect from "component/custom/select-search/account-select";
 import BaseFilter from "component/filter/base.filter";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import ButtonSetting from "component/table/ButtonSetting";
@@ -12,72 +11,30 @@ import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
-import { ProcurementQuery } from "model/purchase-order/purchase-procument";
-import querystring from "querystring";
-import React, { createRef, Fragment, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { FilterProcurementStyle, ProcurementStatusStyle } from "./styles";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import { splitDateRange } from "utils/DateUtils";
+import BaseFilterResult from "component/base/BaseFilterResult";
+import { useArray } from "hook/useArray";
+import { formatFieldTag, generateQuery, transformParamsToObject } from "utils/AppUtils";
+import {
+  ProcurementFilter,
+  ProcurementFilterAdvanceEnum,
+  ProcurementFilterAdvanceName,
+  ProcurementFilterBasicEnum,
+  ProcurementFilterBasicName,
+  ProcurementFilterProps,
+} from "component/filter/interfaces/procurement";
+import AccountSearchPaging from "../../../../component/custom/select-search/account-select-paging";
+import isEqual from "lodash/isEqual";
 import { isArray } from "lodash";
+
 const { Item } = Form;
-const BaseProcumentField = {
-  content: "content",
-  merchandisers: "merchandisers",
-  suppliers: "suppliers"
-};
-
-interface ProcurementFilter {
-  active_from: string;
-  active_to: string;
-  stock_in_from: string;
-  stock_in_to: string;
-  expect_receipt_from: string;
-  expect_receipt_to: string;
-  stockUser: string;
-  confirmUser: string;
-  status: string;
-  cancelDate: string;
-  merchandisers: string;
-  stores: string;
-  suppliers: string;
-}
-
-const SearchProcurementField = {
-  active_from: 'active_from',
-  active_to: 'active_to',
-  stock_in_from: 'stock_in_from',
-  stock_in_to: 'stock_in_to',
-  expect_receipt_from: 'expect_receipt_from',
-  expect_receipt_to: 'expect_receipt_to'
-};
-
-interface ProcurementFilterProps{
-  onClickOpen?: () => void;
-  paramsUrl?: any;
-}
-
-const ProcurementFilterItem = {
-  stockDate: "active",
-  confirmDate: "stock_in",
-  expectDate: "expect_receipt",
-  stores: "stores",
-  status: "status",
-};
-
-const ProcurementFilterName = {
-  [ProcurementFilterItem.stockDate]: "Ngày duyệt phiếu nhập",
-  [ProcurementFilterItem.confirmDate]: "Ngày nhập kho",
-  [ProcurementFilterItem.status]: "Trạng thái phiếu nhập kho",
-  [ProcurementFilterItem.stores]: "Kho nhận hàng",
-  [ProcurementFilterItem.expectDate]: "Ngày nhận dự kiến",
-};
-
-const keysDateFilter = [ProcurementFilterItem.stockDate, ProcurementFilterItem.confirmDate, ProcurementFilterItem.expectDate]
 
 function TabListFilter(props: ProcurementFilterProps) {
   const {
@@ -89,22 +46,18 @@ function TabListFilter(props: ProcurementFilterProps) {
   const formRef = createRef<FormInstance>()
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const [visible, setVisible] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [dateClick, setDateClick] = useState('');
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [allStore, setAllStore] = useState<Array<StoreResponse>>();
+  const {array: selectedStatuses, set: setSelectedStatuses, remove: removeStatus} = useArray([])
+  const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
 
   const [formBase] = useForm();
   const [formAdvanced] = useForm();
 
-  const openVisibleFilter = () => {
-    setVisible(true);
-  };
-  const cancelFilter = () => {
-    setVisible(false);
-  };
+  const openVisibleFilter = () => setVisible(true)
+  const cancelFilter = () => setVisible(false)
 
-  const resetFilter = useCallback(() => {
+  const resetFilter = () => {
     let fields = formAdvanced.getFieldsValue(true);
     for (let key in fields) {
       if(fields[key] instanceof Array) {
@@ -116,182 +69,182 @@ function TabListFilter(props: ProcurementFilterProps) {
     formAdvanced.resetFields();
     formAdvanced.submit();
     setVisible(false);
-  }, [formAdvanced]);
+  }
 
-  const onAdvanceFinish = useCallback(
-    (data: ProcurementFilter) => {
-      setVisible(false);
-      const params: ProcurementQuery = parseDataToString(data);
+  const onAdvanceFinish = async (data: ProcurementFilter) => {
+    setVisible(false);
+    setSelectedStatuses(formAdvanced.getFieldValue('status'))
+    await history.replace(`${UrlConfig.PROCUREMENT}?${generateQuery({ ...paramsUrl, ...data })}`);
+  }
 
-      const formBaseData = formBase.getFieldsValue(true);
-      const newFormBaseData = { ...formBaseData };
-      newFormBaseData.merchandisers = formBaseData?.merchandisers?.toString();
-      setAdvanceFilters(data);
-      history.replace(
-        `${UrlConfig.PROCUREMENT}?${querystring.stringify({
-          ...params,
-          ...newFormBaseData,
-        })}`
-      );
-    },
-    [formBase, history]
-  );
+  const handleClickStatus = (value: string) => {
+    const findSelected = selectedStatuses.find(status => status === value)
+    if(!findSelected) {
+      setSelectedStatuses([...selectedStatuses, value])
+    } else {
+      const findIndexSelected = selectedStatuses.findIndex(status => status === value)
+      removeStatus(findIndexSelected)
+    }
+  }
 
-  const resetField = useCallback(
-    (field: string[]) => {
-      if (field.length === 1) {
-        formAdvanced.resetFields([field[0]]);
-        if (field[0] === 'status') setSelectedStatuses([]);
-      }
-
-      formAdvanced.resetFields([field[0], field[1]]);
-
-      onAdvanceFinish(field.length === 1 ? {
-        ...advanceFilters,
-        [field[0]]: undefined,
-      } : {
-        ...advanceFilters,
-        [field[0]]: undefined,
-        [field[1]]: undefined,
-      });
-    },
-    [formAdvanced, onAdvanceFinish, advanceFilters]
-  );
+  const onRemoveStatus = useCallback((index: number) => {
+    remove(index)
+  }, [remove])
 
   const convertParams = (params: any) => {
     return {
       ...params,
-      [SearchProcurementField.active_from]: formatDateFilter(params[SearchProcurementField.active_from])?.format(DATE_FORMAT.DDMMYYY),
-      [SearchProcurementField.active_to]: formatDateFilter(params[SearchProcurementField.active_to])?.format(DATE_FORMAT.DDMMYYY),
-      [SearchProcurementField.stock_in_from]: formatDateFilter(params[SearchProcurementField.stock_in_from])?.format(DATE_FORMAT.DDMMYYY),
-      [SearchProcurementField.stock_in_to]: formatDateFilter(params[SearchProcurementField.stock_in_to])?.format(DATE_FORMAT.DDMMYYY),
-      [SearchProcurementField.expect_receipt_from]: formatDateFilter(params[SearchProcurementField.expect_receipt_from])?.format(DATE_FORMAT.DDMMYYY),
-      [SearchProcurementField.expect_receipt_to]: formatDateFilter(params[SearchProcurementField.expect_receipt_to])?.format(DATE_FORMAT.DDMMYYY),
-      [ProcurementFilterItem.stores]: params.stores ? params.stores?.split(',').map((x: string) => parseInt(x)) : undefined,
+      [ProcurementFilterAdvanceEnum.status]: params.status,
+      [ProcurementFilterAdvanceEnum.stores]: params.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
     };
   }
 
-  const handleClickStatus = useCallback((value: string, mountOnce?: boolean) => {
-    let statusList = formAdvanced.getFieldValue('status') || [];
+  const onBaseFinish = (data: any) => {
+    let queryParam = generateQuery({ ...paramsUrl, ...data });
+    history.replace(`${UrlConfig.PROCUREMENT}?${queryParam}`);
+  };
 
-    if (!isArray(statusList)) {
-      statusList = statusList.split(',');
+  const formatDateRange = (from: Date, to: Date) => {
+    if(!from && !to) return
+    return `${from || '??'} ~ ${to || '??'}`
+  }
+
+  useEffect(() => {
+    dispatch(SupplierGetAllAction((suppliers) => setAllSupplier(suppliers)))
+    dispatch(getListStoresSimpleAction((stores) =>  setAllStore(stores)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const newParams = {
+      ...paramsUrl,
+      active: formatDateRange(paramsUrl.active_from, paramsUrl.active_to),
+      stock_in: formatDateRange(paramsUrl.stock_in_from, paramsUrl.stock_in_to),
+      expect_receipt: formatDateRange(paramsUrl.expect_receipt_from, paramsUrl.expect_receipt_to),
     }
+    // delete params date
+    const { active_from, active_to, stock_in_from, stock_in_to, expect_receipt_from, expect_receipt_to, ...rest} = newParams
 
-    if (statusList && !statusList.includes(value)) {
-      statusList.push(value);
-    } else if (statusList && statusList.includes(value) && !mountOnce) {
-      const index = statusList.indexOf(value);
-      if (index > -1) {
-        statusList.splice(index, 1);
+    const formatted = formatFieldTag(rest, {...ProcurementFilterAdvanceName, ...ProcurementFilterBasicName})
+    const transformParams = formatted.map((item) => {
+      switch (item.keyId) {
+        case ProcurementFilterBasicEnum.suppliers:
+          if(isArray(item.valueId)) {
+            const filterSupplier = allSupplier?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
+            if(filterSupplier)
+            return {...item, valueName: filterSupplier?.map((item: any) => item.pic).toString()}
+          }
+          const findSupplier = allSupplier?.find(supplier => +supplier.id === +item.valueId)
+          return {...item, valueName: findSupplier?.name}
+        case ProcurementFilterAdvanceEnum.stores:
+          if(isArray(item.valueId)) {
+            const filterStore = allStore?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
+            if(filterStore)
+            return {...item, valueName: filterStore?.map((item: any) => item.department).toString()}
+          }
+          const findStore= allStore?.find(store => +store.id === +item.valueId)
+          return {...item, valueName: findStore?.department}
+        case ProcurementFilterAdvanceEnum.status:
+          let statuses: any = [];
+          if(isArray(item.valueId)) {
+            item.valueId.forEach((item: any) => {statuses.push(ProcurementStatusName[item])})
+          } else {
+            statuses = ProcurementStatusName[item.valueId]
+          }
+          return {...item, valueName: statuses?.toString()}
+        case ProcurementFilterBasicEnum.content:
+        case ProcurementFilterBasicEnum.merchandisers:
+        case ProcurementFilterAdvanceEnum.active:
+        case ProcurementFilterAdvanceEnum.stock_in:
+        case ProcurementFilterAdvanceEnum.expect_receipt:
+          return {...item, valueName: item.valueId.toString()}
+        default:
+          return item
       }
-    } else {
-      statusList.push(value);
-    }
+    })
+    setParamsArray(transformParams)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[paramsUrl, JSON.stringify(allStore), JSON.stringify(allSupplier)])
 
-    formAdvanced.setFieldsValue({
-      ...formAdvanced.getFieldsValue(),
-      status: statusList
-    });
+  const removeDate = (params: any, key: string) => {
+    const {start, end} = splitDateRange(params[key])
+    params[`${key}_from`] = start !== "??" ? start : undefined
+    params[`${key}_to`] = end !== "??" ? end : undefined
+  }
 
-    setSelectedStatuses([...statusList]);
-  }, [formAdvanced]);
+  //watch remove tag
+  useEffect(() => {
+    (async () => {
+      if(paramsArray.length < (prevArray?.length || 0)) {
+        const filterStatusInParams = paramsArray.filter((item: any) => item.keyId === 'status').map((param: any) => param.status)
+        setSelectedStatuses(filterStatusInParams)
+        let newParams = transformParamsToObject(paramsArray)
+        if(newParams?.active) {
+          removeDate(newParams, ProcurementFilterAdvanceEnum.active)
+        }
+        if(newParams?.stock_in) {
+          removeDate(newParams, ProcurementFilterAdvanceEnum.stock_in)
+        }
+        if(newParams?.expect_receipt) {
+          removeDate(newParams, ProcurementFilterAdvanceEnum.expect_receipt)
+        }
+        delete newParams[ProcurementFilterAdvanceEnum.active]
+        delete newParams[ProcurementFilterAdvanceEnum.stock_in]
+        delete newParams[ProcurementFilterAdvanceEnum.expect_receipt]
+        await history.push(`${UrlConfig.PROCUREMENT}?${generateQuery(newParams)}`)
+      }
+    })();
+  }, [setSelectedStatuses, paramsArray, history, prevArray])
 
   useEffect(() => {
     const filters = convertParams(paramsUrl);
-
-    setAdvanceFilters(filters);
-    formAdvanced.setFieldsValue(filters);
-    handleClickStatus(paramsUrl.status, true);
-  }, [formAdvanced, handleClickStatus, paramsUrl]);
-
-  const parseDataToString = (data: ProcurementFilter) => {
-    const params: ProcurementQuery = {} as ProcurementQuery;
-    const { active_from, active_to, stock_in_from, stock_in_to, expect_receipt_from, expect_receipt_to } = data;
-
-    //ngay duyet
-    if (active_from) params.active_from = getStartOfDayCommon(active_from)?.format();
-    if (active_to ) params.active_to = getEndOfDayCommon(active_to)?.format();
-
-    //ngay xac nhan phieu
-    if (stock_in_from) params.stock_in_from = getStartOfDayCommon(stock_in_from)?.format();
-    if (stock_in_to) params.stock_in_to = getEndOfDayCommon(stock_in_to)?.format();
-
-    // ngay nhan du kien
-    if (expect_receipt_from) params.expect_receipt_from = getStartOfDayCommon(expect_receipt_from)?.format();
-    if (expect_receipt_to) params.expect_receipt_to = getEndOfDayCommon(expect_receipt_to)?.format();
-
-    //trang thai
-    if (data.status) {
-      params.status = data.status.toString();
-    }
-
-    //cua hang
-    if (data?.stores) {
-      params.stores = data.stores.toString();
-    }
-
-    if (data?.suppliers) {
-      params.suppliers = data.suppliers.toString();
-    }
-
-    return params;
-  };
-
-  const onBaseFinish = (data: any) => {
-    data.merchandisers = data?.merchandisers?.toString();
-    data.suppliers = data?.suppliers?.toString();
-    const formAdvanceData = formAdvanced.getFieldsValue(true);
-    const formAdvanceParams: ProcurementQuery = parseDataToString(formAdvanceData);
-    const query = JSON.parse(JSON.stringify({ ...formAdvanceParams, ...data, }));
-    history.push(
-      `${UrlConfig.PROCUREMENT}?${querystring.stringify(query)}`
-    );
-  };
+    formBase.setFieldsValue({
+      [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers?.toString()?.split(',').map((x: string) => parseInt(x)),
+      [ProcurementFilterBasicEnum.content]: paramsUrl.content,
+      [ProcurementFilterBasicEnum.merchandisers]: paramsUrl.merchandisers?.toString()?.split(','),
+    })
+    formAdvanced.setFieldsValue({
+      ...filters,
+      status: filters.status,
+      active_from: filters.active_from,
+      active_to: filters.active_to,
+      stock_in_from: filters.stock_in_from,
+      stock_in_to: filters.stock_in_to,
+      expect_receipt_from: filters.expect_receipt_from,
+      expect_receipt_to: filters.expect_receipt_to,
+    });
+  }, [formAdvanced, paramsUrl, formBase]);
 
   useEffect(() => {
-    dispatch(
-      SupplierGetAllAction((stores) => {
-        setAllSupplier(stores);
-      })
-    );
-
-    dispatch(
-      getListStoresSimpleAction((stores) => {
-        setAllStore(stores);
-      })
-    );
-  }, [dispatch]);
+    setSelectedStatuses(selectedStatuses)
+    formAdvanced.setFieldsValue({
+      ...formAdvanced.getFieldsValue(),
+      status: selectedStatuses
+    });
+  }, [setSelectedStatuses, selectedStatuses, formAdvanced])
 
   return (
     <Form.Provider>
       <Form onFinish={onBaseFinish} form={formBase} layout="inline">
         <FilterProcurementStyle>
-          <Item name={BaseProcumentField.content} className="search">
+          <Item name={ProcurementFilterBasicEnum.content} className="search">
             <Input
               prefix={<img src={search} alt="" />}
+              allowClear
               placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng"
             />
           </Item>
           <Item className="suppliers">
             <SupplierSearchSelect
-                  label=""
-                  name={BaseProcumentField.suppliers}
-                  mode="multiple"
-                  help={false}
-                  maxTagCount="responsive"
-              />
+              label
+              name={ProcurementFilterBasicEnum.suppliers}
+              mode="multiple"
+              help={false}
+              maxTagCount="responsive"
+            />
           </Item>
-          <Item className="merchandisers">
-            <AccountSearchSelect
-                label=""
-                placeholder="Chọn merchandisers"
-                name={BaseProcumentField.merchandisers}
-                mode="multiple"
-                queryAccount={{department_ids: [AppConfig.WIN_DEPARTMENT]}}
-                help={false}
-                maxTagCount="responsive"
-              />
+          <Item className="merchandisers" name={ProcurementFilterBasicEnum.merchandisers}>
+            <AccountSearchPaging placeholder="Chọn Merchandiser" mode="multiple" fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT]}}/>
           </Item>
           <div className="btn-action">
             <Item>
@@ -309,32 +262,21 @@ function TabListFilter(props: ProcurementFilterProps) {
           </div>
         </FilterProcurementStyle>
       </Form>
-
-      {advanceFilters && (
-        <FilterList
-          filters={advanceFilters}
-          resetField={resetField}
-          allSupplier={allSupplier}
-          stores={allStore}
-        />
-      )}
       <BaseFilter
         onClearFilter={resetFilter}
-        onFilter={() => {
-          formAdvanced.submit();
-        }}
+        onFilter={formAdvanced.submit}
         onCancel={cancelFilter}
         visible={visible}
         width={700}
       >
         <Form ref={formRef} onFinish={onAdvanceFinish} form={formAdvanced}>
           <Row gutter={20}>
-            {Object.values(ProcurementFilterItem).map((field) => {
+            {Object.values(ProcurementFilterAdvanceEnum).map((field) => {
               let component: any = null;
               switch (field) {
-                case ProcurementFilterItem.stockDate:
-                case ProcurementFilterItem.confirmDate:
-                case ProcurementFilterItem.expectDate:
+                case ProcurementFilterAdvanceEnum.active:
+                case ProcurementFilterAdvanceEnum.stock_in:
+                case ProcurementFilterAdvanceEnum.expect_receipt:
                   component = <CustomFilterDatePicker
                     fieldNameFrom={`${field}_from`}
                     fieldNameTo={`${field}_to`}
@@ -343,10 +285,10 @@ function TabListFilter(props: ProcurementFilterProps) {
                     formRef={formRef}
                   />;
                   break;
-                case ProcurementFilterItem.stores:
+                case ProcurementFilterAdvanceEnum.stores:
                   component = <TreeStore name={field} form={formAdvanced} listStore={allStore}/>;
                   break;
-                case ProcurementFilterItem.status:
+                case ProcurementFilterAdvanceEnum.status:
                   component = (
                     <ProcurementStatusStyle>
                       {Object.keys(ProcurementStatus).map((item) => (
@@ -354,9 +296,7 @@ function TabListFilter(props: ProcurementFilterProps) {
                           key={item}
                           value={item}
                           onClick={() => handleClickStatus(item)}
-                          className={
-                            selectedStatuses.includes(item) ? "active" : ""
-                          }
+                          className={selectedStatuses?.includes(item) ? "active" : ""}
                         >
                           {ProcurementStatusName[item]}
                         </Button>
@@ -366,8 +306,8 @@ function TabListFilter(props: ProcurementFilterProps) {
                   break;
               }
               return (
-                <Col span={field === ProcurementFilterItem.status ? 24 : 12} key={field}>
-                  <div className="font-weight-500">{ProcurementFilterName[field]}</div>
+                <Col span={field === ProcurementFilterAdvanceEnum.status ? 24 : 12} key={field}>
+                  <div className="font-weight-500">{ProcurementFilterAdvanceName[field]}</div>
                   <Item name={field}>{component}</Item>
                 </Col>
               );
@@ -375,84 +315,8 @@ function TabListFilter(props: ProcurementFilterProps) {
           </Row>
         </Form>
       </BaseFilter>
+      <BaseFilterResult data={paramsArray} onClose={onRemoveStatus} />
     </Form.Provider>
   );
 }
-type FilterListProps = {
-  filters: any;
-  resetField: (field: string[]) => void;
-  allSupplier: Array<SupplierResponse> | undefined;
-  stores: Array<StoreResponse> | undefined;
-};
-const FilterList = ({ filters, resetField, stores }: FilterListProps) => {
-  const newFilters = {...filters};
-  let filtersKeys = Object.keys(newFilters);
-  let renderTxt: any = null;
-  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
-  filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
-
-  const getStoreName = (storeId: number) => {
-    if (!stores) return '';
-
-    if (stores?.length > 0) {
-      const storesFiltered = stores?.filter((i) => i.id === Number(storeId));
-      return storesFiltered[0].name
-    }
-
-    return '';
-  };
-
-  return (
-    <div>
-      {[...newKeys, ...filtersKeys].map((filterKey, index) => {
-        let value = filters[filterKey];
-
-        if (!ProcurementFilterName[filterKey]) return <Fragment />;
-
-        switch (filterKey) {
-          case ProcurementFilterItem.stockDate:
-          case ProcurementFilterItem.confirmDate:
-          case ProcurementFilterItem.expectDate:
-            renderTxt = `${ProcurementFilterName[filterKey]} 
-            : ${filters[`${filterKey}_from`] ? filters[`${filterKey}_from`] : '??'} 
-            ~ ${filters[`${filterKey}_to`] ? filters[`${filterKey}_to`] : '??'}`
-            break;
-          case ProcurementFilterItem.stores:
-            if (!value) return null;
-            const newValuesStore = Array.isArray(value) ? value : value.split(',');
-
-            renderTxt = `${ProcurementFilterName[filterKey]} : `;
-            newValuesStore.forEach((i: number, index: number) => {
-              renderTxt = renderTxt + `${getStoreName(i)}${newValuesStore.length - 1 === index ? '' : ', '}`
-            });
-            break;
-          case ProcurementFilterItem.status:
-            if (!value || value === '') return null;
-            let newValuesStatus = Array.isArray(value) ? value : value.split(',');
-
-            newValuesStatus = newValuesStatus.filter((e: any) => e !== '');
-            renderTxt = `${ProcurementFilterName[filterKey]} : `;
-            newValuesStatus.forEach((i: string, index: number) => {
-              renderTxt = renderTxt + `${ProcurementStatusName[i]}${newValuesStatus.length - 1 === index ? '' : ', '}`
-            });
-        }
-
-        return (
-          <Tag
-            onClose={() => {
-              if (keysDateFilter.indexOf(filterKey) !== -1) {
-                resetField([`${filterKey}_from`, `${filterKey}_to`]);
-                return;
-              }
-              resetField([filterKey]);
-            }}
-            key={index}
-            className="fade margin-bottom-20"
-            closable
-          >{`${renderTxt}`}</Tag>
-        );
-      })}
-    </div>
-  );
-};
-export default TabListFilter;
+export default React.memo(TabListFilter, isEqual);

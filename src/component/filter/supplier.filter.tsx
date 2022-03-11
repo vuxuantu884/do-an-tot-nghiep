@@ -123,7 +123,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     });
     setTimeout(() => {
       formAdvance.setFieldsValue({
-        merchandiser: params.merchandiser
+        pics: params.pics
       });
     })
   }, [formAdvance, listDistrict, params.district_id, visible, params]);
@@ -156,8 +156,8 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           return {...item, valueName: item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân"}
         case "condition":
           return {...item, valueName: item.valueId}
-        case "merchandiser":
-          return {...item, valueName: item.valueId}
+        case "pics":
+          return {...item, valueName: item.valueId.toString()}
         case "district_id":
           const findDistrict = listDistrict?.find(district => +district.id === +item.valueId)
           return {...item, valueName: findDistrict?.name}
@@ -195,7 +195,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
             />
           </Form.Item>
 
-          <Form.Item name="merchandiser" style={{ width: 200 }}>
+          <Form.Item name="pics" style={{ width: 200 }}>
             <AccountSearchPaging placeholder="Chọn Merchandiser" mode="multiple" fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT]}}/>
           </Form.Item>
 

@@ -11,7 +11,7 @@ import CustomSelect from "component/custom/select.custom";
 const {Option} = Select;
 interface Props extends FormItemProps {
   form?: FormInstance;
-  label: string;
+  label?: string | boolean;
   name: string;
   rules?: any[];
   placeholder?: string;
@@ -70,7 +70,7 @@ function SupplierSelect({
             items: res.items,
             isLoading: false,
           });
-        } 
+        }
       }
     },
     [dispatch, querySupplier]
@@ -95,7 +95,7 @@ function SupplierSelect({
     }
   }, [handleChangeSupplierSearch, querySupplier?.condition, mode, defaultValue, form, name]);
 
-  return ( 
+  return (
     <Form.Item
       label={label}
       name={name}
@@ -103,7 +103,7 @@ function SupplierSelect({
       labelCol={{span: 24, offset: 0}}
       {...restFormProps}
     >
-      <CustomSelect 
+      <CustomSelect
         mode={mode}
         placeholder={placeholder}
         showArrow

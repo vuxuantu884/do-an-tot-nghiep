@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 const {Option} = Select;
 interface Props extends FormItemProps {
   form?: FormInstance;
-  label: string;
+  label?: string | boolean;
   name: string;
   rules?: any[];
   placeholder?: string;
