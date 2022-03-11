@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
-import { showError } from "utils/ToastUtils";
+import { showError, showWarning } from "utils/ToastUtils";
 
 type PropType = {
   subStatusCode?: string | undefined;
@@ -64,9 +64,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
   const [isShowReason, setIsShowReason] = useState(false);
-
+  
   const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<
-    string | undefined
+    number | undefined
+  >(undefined);
+
+  const [reasonId, setReasonId] = useState<
+    number | undefined
   >(undefined);
 
   const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
@@ -437,16 +441,23 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     ]
   );
 
-  const changeSubStatusCode = (sub_status_code: string) => {
+  const changeSubStatusCode = (sub_status_code: string, reasonId?: number, subReasonRequireWarehouseChange?: number) => {
     if (orderId) {
       dispatch(
-        setSubStatusAction(orderId, sub_status_code, () => {
-          setValueSubStatusCode(sub_status_code);
-          handleUpdateSubStatus();
-          setReload(true);
-          setIsShowReason(false);
-          setSubReasonRequireWarehouseChange(undefined);
-        })
+        setSubStatusAction(
+          orderId,
+          sub_status_code,
+          () => {
+            setValueSubStatusCode(sub_status_code);
+            handleUpdateSubStatus();
+            setReload(true);
+            setIsShowReason(false);
+            setSubReasonRequireWarehouseChange(undefined);
+          },
+          undefined,
+          reasonId,
+          subReasonRequireWarehouseChange,
+        )
       );
     }
   };
@@ -481,7 +492,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         } else {
           isChange = false;
           setIsShowReason(true);
-          showError("Chọn lý do đổi kho hàng chi tiết!");
+          showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
           setTimeout(() => {
             const element = document.getElementById("requireWarehouseChangeId");
             element?.focus();
@@ -634,11 +645,20 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     getOrderReasonService(code).then((response) => {
       if (isFetchApiSuccessful(response)) {
         setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons);
+        setReasonId(response.data[0].id);
       } else {
-        handleFetchApiError(response, "Danh sách lý do hủy đơn hàng", dispatch);
+        handleFetchApiError(response, "Danh sách lý do đổi kho hàng", dispatch);
       }
     });
   }, [dispatch]);
+
+  useEffect(() => {
+    if(subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
+      setIsShowReason(true);
+      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id)
+    }
+  }, [ORDER_SUB_STATUS.require_warehouse_change, OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
+  
 
   return (
     <Card title="Xử lý đơn hàng">
@@ -683,10 +703,15 @@ function SubStatusOrder(props: PropType): React.ReactElement {
               filterOption={(input, option) =>
                 option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
-              onChange={(value: string) => {
+              onChange={(value: number) => {
+                if(!value) {
+                  showError("Vui lòng chọn lý do đổi kho hàng chi tiết!");
+                  return;
+                }
                 setSubReasonRequireWarehouseChange(value);
-                changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change);
+                changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change, reasonId, value);
               }}
+              value={subReasonRequireWarehouseChange}
               notFoundContent="Không tìm thấy lý do đổi kho hàng">
               {subReasonsRequireWarehouseChange &&
                 subReasonsRequireWarehouseChange.map((single) => {

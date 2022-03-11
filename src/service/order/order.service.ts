@@ -300,14 +300,20 @@ export const getOrderSubStatusService = (
 export const setSubStatusService = (
   order_id: number,
   statusCode: string,
-  action: string
+  action: string,
+  reason_id?: number,
+  sub_reason_id?: number,
 ): Promise<BaseResponse<SourceResponse>> => {
-  const params = {
+  const query = {
     action,
   };
+  const queryParams = generateQuery({
+    reason_id,
+    sub_reason_id
+  })
   return BaseAxios.put(
-    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusCode}`,
-    params
+    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusCode}?${queryParams}`,
+   query 
   );
 };
 
