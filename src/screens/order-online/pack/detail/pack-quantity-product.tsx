@@ -6,7 +6,7 @@ import {
 } from "model/pack/pack.model";
 import React from "react";
 import {Link} from "react-router-dom";
-import threeDot from "assets/icon/three-dot.svg";
+// import threeDot from "assets/icon/three-dot.svg";
 import {
   DownOutlined,
   FileExcelOutlined,
@@ -31,6 +31,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       dataIndex: "key",
       visible: true,
       width: "5%",
+      align: "center",
       render: (value: number, i: GoodsReceiptsTotalProductModel) => {
         return (
           <React.Fragment>
@@ -74,9 +75,10 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
     },
     {
       title: "Tồn trong kho ",
-      dataIndex: "inventory",
+      dataIndex: "on_hand",
       visible: true,
       width: "17%",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
@@ -95,6 +97,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       dataIndex: "total_quantity",
       visible: true,
       width: "15%",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
@@ -103,7 +106,8 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       title: "Thiếu",
       dataIndex: "total_incomplate",
       visible: true,
-      width: "8.5px",
+      width: "8.5%",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
