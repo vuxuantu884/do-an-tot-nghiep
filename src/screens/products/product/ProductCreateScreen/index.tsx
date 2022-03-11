@@ -352,7 +352,11 @@ const ProductCreateScreen: React.FC = () => {
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
-      const newSize = {id: value, code: objSize?.children } as SizeResponse;
+      let size:string = "";
+      if (objSize && objSize?.children) {
+        size = objSize?.children.split(" ")[0];
+      }
+      const newSize = {id: value, code: size } as SizeResponse;
       let filter = [...variants.filter(e=>e.size !== null).map(e=>({id: e.size_id, code: e.size})), newSize] as Array<SizeResponse>;
 
       setSizeSelected([...filter]);
@@ -363,7 +367,12 @@ const ProductCreateScreen: React.FC = () => {
 
   const onColorSelected = useCallback(
     (value: number, objColor: any) => {
-      const newColor = {id: value, name: objColor?.children,  code: objColor?.children } as ColorResponse;
+      let colorCode:string = "";
+      if (objColor && objColor?.children) {
+        colorCode = objColor?.children.split(" ")[0];
+      }
+      
+      const newColor = {id: value, name: colorCode,  code: colorCode } as ColorResponse;
       let filter = [...variants.filter(e=>e.color !== null).map(e=>({id: e.color_id,name: e.color, code: e.color})), newColor] as Array<ColorResponse>;
 
        setColorSelected([...filter]);
