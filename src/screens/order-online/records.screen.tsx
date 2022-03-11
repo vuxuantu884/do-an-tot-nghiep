@@ -3,10 +3,9 @@ import { Card, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import {
-  DeliveryServicesGetList,
+  // DeliveryServicesGetList,
   getChannels,
 } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import { useEffect, useState } from "react";
 import {
   ChannelsResponse,
@@ -31,15 +30,6 @@ const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
   const query = useQuery();
   //useState
-
-  const [data, setData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 1,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
 
   const [allowCreateGoodsReceipt] = useAuthorization({
     acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
@@ -74,11 +64,11 @@ const PackSupportScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setListThirdPartyLogistics(response);
-      })
-    );
+    // dispatch(
+    //   DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+    //     setListThirdPartyLogistics(response);
+    //   })
+    // );
 
     dispatch(getGoodsReceiptsType(setListGoodsReceiptsType));
 
@@ -121,7 +111,7 @@ const PackSupportScreen: React.FC = () => {
         }
       >
         <StyledComponent>
-          <Card className="pack-card">
+          <Card>
             <PackReportHandOver query={query} />
           </Card>
         </StyledComponent>

@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card } from "antd";
+import { Button, Card, Divider } from "antd";
 import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { primaryColor } from "utils/global-styles/variables";
 // todo thai: handle later
 // import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -38,8 +39,8 @@ import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataMo
 import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
 import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
 
-// todo thai: handle later
-// import UpdateConnectionModal from "./component/UpdateConnectionModal";
+import { updateOrderPartial } from "domain/actions/order/order.action";
+
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
@@ -49,12 +50,6 @@ import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
 import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
-import DollarCircleIcon from "assets/icon/dollar-circle.svg";
-
-// // todo thai: handle later
-// import ConnectIcon from "assets/icon/connect.svg";
-// import SuccessIcon from "assets/icon/success.svg";
-// import ErrorIcon from "assets/icon/error.svg";
 
 import { nameQuantityWidth, StyledComponent, } from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
@@ -66,7 +61,7 @@ import { getToken } from "utils/LocalStorageUtils";
 import axios from "axios";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
-import { FulFillmentStatus } from "utils/Constants";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { exitProgressDownloadEcommerceAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
 import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
@@ -78,8 +73,9 @@ import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDown
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
-import ExportModal from "screens/order-online/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
+import ExportModal from "screens/order-online/modal/export.modal";
+import EditNote from "screens/order-online/component/edit-note";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -319,25 +315,48 @@ const EcommerceOrders: React.FC = () => {
     }
   };
 
+  // set ecommerce order data
+  const setSearchResult = useCallback(
+    (result: PageResponse<OrderModel> | false) => {
+      setTableLoading(false);
+      if (!!result) {
+        setData(result);
+      }
+    },
+    []
+  );
 
-  // // todo thai: handle later
-  // const handleUpdateProductConnection = (data: any) => {
-  //   setUpdateConnectionData(data.items);
-  //   setIsShowUpdateConnectionModal(true);
+  const getEcommerceOrderList = useCallback(() => {
+    debugger
+    const requestParams = { ...params };
+    if (!requestParams.channel_codes?.length) {
+      requestParams.channel_codes = ALL_CHANNEL;
+    }
 
-  //   showSuccess("Click mở modal cập nhật ghép nối nè");
-  // };
-
-  // const cancelUpdateConnectionModal = () => {
-  //   setIsShowUpdateConnectionModal(false);
-  // };
-
-  // const updateProductConnection = () => {
-  //   setIsShowUpdateConnectionModal(false);
-
-  // showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
-  //thai todo: call API
-  // };
+    setTableLoading(true);
+    dispatch(getListOrderAction(requestParams, (result) => {
+      setTableLoading(false);
+      setSearchResult(result);
+    }));
+  }, [allShopIds, dispatch, params, setSearchResult]);
+  
+  const editNote = useCallback(
+    (newNote, noteType, orderID) => {
+      let params: any = {};
+      if (noteType === "note") {
+        params.note = newNote;
+      }
+      if (noteType === "customer_note") {
+        params.customer_note = newNote;
+      }
+      dispatch(
+        updateOrderPartial(params, orderID, () => {
+          getEcommerceOrderList();
+        })
+      );
+    },
+    [dispatch, getEcommerceOrderList]
+  );
 
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
@@ -351,11 +370,10 @@ const EcommerceOrders: React.FC = () => {
       width: 175,
       render: (data: any, item: OrderModel) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${item.id}`}><strong>{data.code}</strong></Link>
+          <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong>{data.code}</strong></Link>
           <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
-          <div><span style={{ color: "#666666" }}>Kho: </span><span style={{ color: "#2A2A86" }}>{data.store}</span></div>
-          <div><span style={{ color: "#666666" }}>GH: </span><span style={{ color: "#2A2A86" }}>{data.ecommerce_shop_name}</span></div>
-          <div style={{ color: "#2A2A86" }}>({data.reference_code})</div>
+          <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
+          <div>({data.reference_code})</div>
         </div>
       ),
     },
@@ -377,7 +395,7 @@ const EcommerceOrders: React.FC = () => {
               </Link>{" "}
             </div>
             <div className="p-b-3">{record.shipping_address.phone}</div>
-            <div className="p-b-3">{record.shipping_address.full_address}</div>
+            <div><strong>{record.ecommerce_shop_name}</strong></div>
           </div>
         ) : (
           <div className="customer custom-td">
@@ -452,11 +470,10 @@ const EcommerceOrders: React.FC = () => {
       key: "customer_amount_money",
       visible: true,
       align: "right",
-      width: 105,
+      width: 95,
       render: (record: any) => (
         <>
           <div>
-            <img src={DollarCircleIcon} alt="" style={{ marginRight: 3, height: 13 }} />
             <NumberFormat
               value={record.total_line_amount_after_line_discount}
               className="foo"
@@ -475,6 +492,96 @@ const EcommerceOrders: React.FC = () => {
           </div>
         </>
       ),
+    },
+    {
+      title: "TT Xử lý",
+      dataIndex: "sub_status",
+      key: "sub_status",
+      visible: true,
+      width: 130,
+      align: "center",
+      render: (sub_status: string) => {
+        return (
+          <div
+            style={{
+              background: "rgba(42, 42, 134, 0.1)",
+              borderRadius: "100px",
+              color: "#2A2A86",
+              width: "fit-content",
+              padding: "5px 10px",
+              margin: "0 auto",
+            }}
+          >
+            {sub_status}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Ghi chú",
+      className: "notes",
+      render: (value: string, record: OrderModel) => (
+        <div className="orderNotes">
+          <div className="inner">
+            <div className="single">
+              <EditNote
+                note={record.customer_note}
+                title="Khách hàng: "
+                color={primaryColor}
+                onOk={(newNote) => {
+                  editNote(newNote, "customer_note", record.id);
+                }}
+                isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div>
+            <Divider />
+            <div className="single">
+              <EditNote
+                note={record.note}
+                title="Nội bộ: "
+                color={primaryColor}
+                onOk={(newNote) => {
+                  editNote(newNote, "note", record.id);
+                }}
+                isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div>
+          </div>
+        </div>
+      ),
+      key: "note",
+      visible: true,
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "TT Đơn hàng",
+      dataIndex: "status",
+      key: "order_status",
+      visible: true,
+      align: "center",
+      width: 150,
+      render: (status_value: string) => {
+        const status = status_order.find(
+          (status) => status.value === status_value
+        );
+        return (
+          <StyledStatus>
+            <div className={status?.className}>{status?.name}</div>
+          </StyledStatus>
+        );
+      },
+    },
+    {
+      title: "Địa chỉ giao hàng",
+      key: "shipping_address",
+      visible: true,
+      width: 200,
+      render: (item: any) => {
+        return (
+          <div className="p-b-3">{item.shipping_address.full_address}</div>
+        )
+      },
     },
     {
       title: "Vận chuyển",
@@ -522,55 +629,6 @@ const EcommerceOrders: React.FC = () => {
           </>
         );
       },
-    },
-    {
-      title: "TT Xử lý",
-      dataIndex: "sub_status",
-      key: "sub_status",
-      visible: true,
-      width: 130,
-      align: "center",
-      render: (sub_status: string) => {
-        return (
-          <div
-            style={{
-              background: "rgba(42, 42, 134, 0.1)",
-              borderRadius: "100px",
-              color: "#2A2A86",
-              width: "fit-content",
-              padding: "5px 10px",
-              margin: "0 auto",
-            }}
-          >
-            {sub_status}
-          </div>
-        );
-      },
-    },
-    {
-      title: "TT Đơn hàng",
-      dataIndex: "status",
-      key: "order_status",
-      visible: true,
-      align: "center",
-      width: 150,
-      render: (status_value: string) => {
-        const status = status_order.find(
-          (status) => status.value === status_value
-        );
-        return (
-          <StyledStatus>
-            <div className={status?.className}>{status?.name}</div>
-          </StyledStatus>
-        );
-      },
-    },
-    {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      key: "note",
-      visible: true,
-      width: 200,
     },
     {
       title: "Đóng gói",
@@ -867,16 +925,6 @@ const EcommerceOrders: React.FC = () => {
   ];
   // end handle action button
 
-  const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
-
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -916,19 +964,6 @@ const EcommerceOrders: React.FC = () => {
       
     }
   };
-
-  const getEcommerceOrderList = useCallback(() => {
-    const requestParams = { ...params };
-    if (!requestParams.channel_codes?.length) {
-      requestParams.channel_codes = ALL_CHANNEL;
-    }
-
-    setTableLoading(true);
-    dispatch(getListOrderAction(requestParams, (result) => {
-      setTableLoading(false);
-      setSearchResult(result);
-    }));
-  }, [allShopIds, dispatch, params, setSearchResult]);
 
   const reloadPage = () => {
     if (allowOrdersView) {
@@ -1147,7 +1182,7 @@ const EcommerceOrders: React.FC = () => {
                 bordered
                 isLoading={tableLoading}
                 showColumnSetting={true}
-                scroll={{ x: 2350 }}
+                scroll={{ x: 2400 }}
                 sticky={{ offsetScroll: 10, offsetHeader: 55 }}
                 pagination={
                   tableLoading

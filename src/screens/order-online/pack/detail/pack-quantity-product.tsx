@@ -25,43 +25,6 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
     handleAddOrderInPack,
   } = props;
 
-  const actionColumn = (
-  ) => {
-    const _actionColumn = {
-      title: "",
-      key: "14",
-      visible: true,
-      width: "5%",
-      className: "saleorder-product-card-action ",
-      render: (l: any, item: any, index: number) => {
-      
-        return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
-          >
-            <div
-              className="site-input-group-wrapper saleorder-input-group-wrapper"
-              style={{
-                borderRadius: 5,
-              }}
-            >
-              <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-            </div>
-          </div>
-        );
-      },
-    };
-    return _actionColumn;
-  };
-
   const column: Array<ICustomTableColumType<GoodsReceiptsTotalProductModel>> = [
     {
       title: "STT",
@@ -145,7 +108,6 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
         return <div>{value}</div>;
       },
     },
-    actionColumn()
   ];
 
   const menuCardProductQuantity = (

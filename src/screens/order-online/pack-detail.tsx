@@ -44,9 +44,9 @@ const actions: Array<MenuAction> = [
   },
   {
     id: 4,
-    name: "Thêm đơn hàng vào biên bản",
+    name: "Thêm/xoá đơn hàng vào biên bản",
     icon: <ReconciliationOutlined />,
-  },
+  }
 ];
 
 const typePrint={
@@ -76,16 +76,16 @@ const PackDetail: React.FC = () => {
   const [isError, setError] = useState<boolean>(false);
   const [packDetail, setPackDetail] = useState<GoodsReceiptsResponse>();
   const [packFile] = useState<GoodsReceiptsFileModel[]>([
-    {
-      file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
-      create_name: "le van long",
-      create_time: "17-11-2021",
-    },
-    {
-      file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
-      create_name: "le van long",
-      create_time: "17-11-2021",
-    },
+    // {
+    //   file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
+    //   create_name: "le van long",
+    //   create_time: "17-11-2021",
+    // },
+    // {
+    //   file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
+    //   create_name: "le van long",
+    //   create_time: "17-11-2021",
+    // },
   ]);
 
   const [packProductQuantity, setPackProductQuantity] = useState<GoodsReceiptsTotalProductModel[]>([]);
@@ -93,8 +93,6 @@ const PackDetail: React.FC = () => {
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
   const [htmlContent, setHtmlContent] = useState("");
-  const [selectedOrderList,setSelectedOrderList]=useState<GoodsReceiptsOrderListModel[]>([]);
-  console.log(selectedOrderList)
   useEffect(() => {
     if (PackId) {
       dispatch(
@@ -207,6 +205,7 @@ const PackDetail: React.FC = () => {
 
   const handleAddOrderInPack = () => { };
 
+
   const handleSearchOrder = (value: any) => { };
 
   const onMenuListOrderClick = useCallback(
@@ -222,13 +221,13 @@ const PackDetail: React.FC = () => {
           handleExportExcelOrderPack();
           break;
         case 4:
-          history.push(`${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${PackId}`);
+          history.push(`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${PackId}`);
           break;
         default:
           break;
       }
     },
-    [history, PackId,handleExportExcelOrderPack,handlePrintPack]
+    [handlePrintPack, handleExportExcelOrderPack, history, PackId]
   );
 
   return (
@@ -270,7 +269,6 @@ const PackDetail: React.FC = () => {
         actions={actions}
         handleSearchOrder={handleSearchOrder}
         onMenuClick={onMenuListOrderClick}
-        setSelectedOrderList={setSelectedOrderList}
       />
 			
 			<React.Fragment>
