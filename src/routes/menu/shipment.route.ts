@@ -59,7 +59,7 @@ const shipments: Array<RouteMenu> = [
   {
     path: `${UrlConfig.SHIPMENTS_FAILED}`,
     exact: true,
-    title: "Danh sách sang HVC thất bại",
+    title: "Danh sách đơn hủy",
     icon: "icon-dot",
     component: ShipmentsFailedScreen,
     key: "submenu67",

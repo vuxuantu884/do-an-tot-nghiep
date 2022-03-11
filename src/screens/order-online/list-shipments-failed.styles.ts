@@ -3,8 +3,8 @@ import { borderColor } from "utils/global-styles/variables";
 const quantityWidth = 80;
 
 export const StyledComponent = styled.div`
-  .ant-card-body{
-    padding-top:10px;
+  .ant-card-body {
+    padding-top: 0;
   }
   th {
     .productNameQuantityHeader {

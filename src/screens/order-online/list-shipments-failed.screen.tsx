@@ -35,7 +35,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
-import { StyledComponent } from "./list-shipments.styles";
+import { StyledComponent } from "./list-shipments-failed.styles";
 import queryString from "query-string";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
