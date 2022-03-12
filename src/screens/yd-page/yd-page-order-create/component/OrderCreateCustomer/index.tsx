@@ -368,6 +368,26 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [listSource]);
 
   useEffect(() => {
+		if(!listSource) return
+		if(!defaultSourceId) return
+
+    let defaultSourceIndex = listSource.findIndex(data => {
+      return data.id === defaultSourceId;
+    });
+    if (defaultSourceIndex < 0) {
+			let query = {
+				ids: [defaultSourceId]
+			}
+			getSourcesWithParamsService(query).then((response) => {
+				setListSource([...listSource, response.data.items[0]])
+				form.setFieldsValue({ source_id: defaultSourceId })
+			}).catch((error) => {
+				console.log('error', error)
+			})
+    }
+  }, [listSource, defaultSourceId]);
+
+  useEffect(() => {
     let query = {
       name: '',
       active: true
