@@ -95,6 +95,7 @@ const PackUpdate: React.FC = () => {
               variant_id: itemProduct.variant_id,
               variant: itemProduct.variant,
               variant_barcode: itemProduct.variant_barcode,
+              quantity:itemProduct.quantity
             });
           });
         });
@@ -210,6 +211,7 @@ const PackUpdate: React.FC = () => {
                       variant_id: itemProduct.variant_id,
                       variant: itemProduct.variant,
                       variant_barcode: itemProduct.variant_barcode,
+                      quantity:itemProduct.quantity
                     });
                   });
                 });

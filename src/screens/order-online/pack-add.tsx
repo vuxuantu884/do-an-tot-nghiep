@@ -1,31 +1,29 @@
 // type AddReportHandOverProps={
 import { DeleteOutlined } from "@ant-design/icons";
-import {Row, Col, Select, Form, Card} from "antd";
+import { Row, Col, Select, Form, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import { MenuAction } from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
-import {AddReportHandOverContext} from "contexts/order-pack/add-report-hand-over-context";
-import {StoreGetListAction} from "domain/actions/core/store.action";
+import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-over-context";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import { createGoodsReceipts, getGoodsReceiptsType, getOrderConcernGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
 import { DeliveryServicesGetList, getChannels } from "domain/actions/order/order.action";
-import {StoreResponse} from "model/core/store.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {ChannelsResponse, DeliveryServiceResponse} from "model/response/order/order.response";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { ChannelsResponse, DeliveryServiceResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse, OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
-import {useCallback, useEffect, useLayoutEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {haveAccess} from "utils/AppUtils";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./pack/add/add-order-bottombar";
 import AddOrderInReport from "./pack/add/add-order-in-report";
 import "assets/css/_pack.scss";
-import { useHistory } from "react-router";
 
 var barcode = "";
 // }
 const AddReportHandOver: React.FC<any> = (props: any) => {
   const dispatch = useDispatch();
-  const history = useHistory();
   const [goodsReceiptsForm] = Form.useForm();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
@@ -33,8 +31,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const [orderListResponse, setOrderListResponse] = useState<OrderConcernGoodsReceiptsResponse[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
-  const [listGoodsReceiptsType,setListGoodsReceiptsType] =useState<Array<GoodsReceiptsTypeResponse>>([]);
-  const [listChannels,setListChannels]= useState<Array<ChannelsResponse>>([]);
+  const [listGoodsReceiptsType, setListGoodsReceiptsType] = useState<Array<GoodsReceiptsTypeResponse>>([]);
+  const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
 
   const addReportHandOverContextData = {
     listStores,
@@ -46,12 +44,18 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
-      newData = listStores.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
-      );
+      if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
+        newData = listStores.filter((store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+        );
+      }
+      else {
+        // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+        newData=listStores;
+      }
     }
     return newData;
   }, [listStores, userReducer.account]);
@@ -60,20 +64,21 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     {
       id: 1,
       name: "Xóa",
-      icon:<DeleteOutlined />,
-      color:"#E24343"
+      icon: <DeleteOutlined />,
+      color: "#E24343"
     }
   ];
 
-  const handleAddOrder = useCallback((orderCode:string) => {
-    if (orderCode)
-    {
+  const handleAddOrder = useCallback((orderCode: string) => {
+    if (orderCode) {
       dispatch(
         getOrderConcernGoodsReceipts(
           orderCode,
           (data: OrderConcernGoodsReceiptsResponse[]) => {
             if (data.length > 0) {
+              console.log(data);
               data.forEach(function (item, index) {
+                
                 let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
                 if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
 
@@ -87,30 +92,29 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         )
       );
     }
-    else{
+    else {
       showWarning("Vui lòng nhập mã đơn hàng");
     }
   }, [dispatch, orderListResponse, setOrderListResponse]);
 
-  const eventBarcodeOrder= useCallback((event:KeyboardEvent)=>{
-    if(event.target instanceof HTMLBodyElement)
-    {
-      if(event.key !=="Enter"){
-        barcode+=event.key;
+  const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
+    if (event.target instanceof HTMLBodyElement) {
+      if (event.key !== "Enter") {
+        barcode += event.key;
       }
-      else{
+      else {
         handleAddOrder(barcode)
         barcode = "";
       }
     }
-  },[handleAddOrder]);
+  }, [handleAddOrder]);
 
-  useEffect(()=>{
-    window.addEventListener("keypress",eventBarcodeOrder);
-    return()=>{
+  useEffect(() => {
+    window.addEventListener("keypress", eventBarcodeOrder);
+    return () => {
       window.removeEventListener("keypress", eventBarcodeOrder);
     }
-  },[eventBarcodeOrder]);
+  }, [eventBarcodeOrder]);
 
   useEffect(() => {
     dispatch(
@@ -121,7 +125,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
 
     dispatch(getGoodsReceiptsType(setListGoodsReceiptsType))
 
-    dispatch(getChannels(2,(data:ChannelsResponse[])=>{
+    dispatch(getChannels(2, (data: ChannelsResponse[]) => {
       setListChannels(data)
     }))
 
@@ -134,60 +138,48 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const handSubmit = useCallback(
     (value: any) => {
 
-      let codes:any=[];
-      if(orderListResponse.length>0)
-      {
-        orderListResponse.forEach(function(data){
-          codes.push(data.code)
+      let orderCode:string[] = orderListResponse.map((p)=>p.code);
+
+      let store_name = listStores.find(
+        (data) => data.id === value.store_id
+      )?.name;
+
+      let ecommerce_name = "Biên bản đơn tự tạo";
+      if (value !== -1) {
+        let changeName = listChannels.find(
+          (data) => data.id === value.ecommerce_id
+        )?.name;
+        ecommerce_name = changeName ? changeName : "Biên bản đơn tự tạo";
+      }
+
+      let delivery_service_name = listThirdPartyLogistics.find(
+        (data) => data.id === value.delivery_service_id
+      )?.name;
+      let receipt_type_name = listGoodsReceiptsType.find(
+        (data) => data.id === value.receipt_type_id
+      )?.name;
+
+      let param: any = {
+        ...value,
+        store_name: store_name,
+        ecommerce_name: ecommerce_name,
+        delivery_service_name: delivery_service_name,
+        receipt_type_name: receipt_type_name,
+        codes: orderCode
+      };
+
+      dispatch(
+        createGoodsReceipts(param, (value: GoodsReceiptsResponse) => {
+          if (value) {
+            showSuccess("Thêm biên bản bàn giao thành công");
+            console.log(value.id)
+            window.location.href=`${UrlConfig.DELIVERY_RECORDS}/${value.id}`
+          }
         })
-  
-        let store_name = listStores.find(
-          (data) => data.id === value.store_id
-        )?.name;
-  
-        let ecommerce_name = "Biên bản đơn tự tạo";
-        if (value !== -1) {
-          let changeName = listChannels.find(
-            (data) => data.id === value.ecommerce_id
-          )?.name;
-          ecommerce_name = changeName ? changeName : "Biên bản đơn tự tạo";
-        }
-  
-        let delivery_service_name = listThirdPartyLogistics.find(
-          (data) => data.id === value.delivery_service_id
-        )?.name;
-        let receipt_type_name = listGoodsReceiptsType.find(
-          (data) => data.id === value.receipt_type_id
-        )?.name;
-  
-        let param: any = {
-          ...value,
-          store_name: store_name,
-          ecommerce_name: ecommerce_name,
-          delivery_service_name: delivery_service_name,
-          receipt_type_name: receipt_type_name,
-          codes:codes
-        };
-  
-        dispatch(
-          createGoodsReceipts(param, (value: GoodsReceiptsResponse) => {
-            if(value)
-            {
-              showSuccess("Thêm biên bản bàn giao thành công");
-              history.push(
-                `${UrlConfig.PACK_SUPPORT}/${value.id}`
-              );
-            }
-          })
-        );
-      }
-      else{
-        showWarning("Chưa có đơn hàng nào được thêm");
-      }
+      );
     },
     [
       dispatch,
-      history,
       listGoodsReceiptsType,
       listStores,
       listThirdPartyLogistics,
@@ -200,8 +192,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     goodsReceiptsForm.submit();
   }, [goodsReceiptsForm]);
 
-  const onMenuClick =(index: number)=>{
-    switch (index){
+  const onMenuClick = (index: number) => {
+    switch (index) {
       case 1:
         setOrderListResponse([]);
         break;
@@ -233,7 +225,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         ]}
       >
         <Card className="pack-card">
-          <Form layout="vertical" 
+          <Form layout="vertical"
             form={goodsReceiptsForm}
             onFinish={handSubmit}
             className="yody-pack-row"
@@ -254,7 +246,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "95%"}}
+                    style={{ width: "95%" }}
                     placeholder="Chọn cửa hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
@@ -276,7 +268,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col md={6} style={{padding:"0px 4px 0px 15px"}}>
+              <Col md={6} style={{ padding: "0px 4px 0px 15px" }}>
                 <Form.Item
                   label="Hãng vận chuyển"
                   name="delivery_service_id"
@@ -291,7 +283,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "95%"}}
+                    style={{ width: "95%" }}
                     placeholder="Chọn hãng vận chuyển"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
@@ -313,7 +305,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col md={6} style={{padding:"0px 0px 0px 22px"}}>
+              <Col md={6} style={{ padding: "0px 0px 0px 22px" }}>
                 <Form.Item
                   label="Loại biên bản"
                   name="receipt_type_id"
@@ -328,7 +320,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "95%"}}
+                    style={{ width: "95%" }}
                     placeholder="Chọn loại biên bản"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
@@ -350,7 +342,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col md={6} className="col-item-right" style={{padding:"0px 0px 0px 24px"}}>
+              <Col md={6} className="col-item-right" style={{ padding: "0px 0px 0px 24px" }}>
                 <Form.Item
                   label="Biên bản sàn"
                   name="ecommerce_id"
@@ -365,7 +357,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "98%"}}
+                    style={{ width: "98%" }}
                     placeholder="Chọn biên bản sàn"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
@@ -402,7 +394,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           handleAddOrder={handleAddOrder}
         />
 
-        <AddOrderBottombar onOkPress={onOkPress}/>
+        <AddOrderBottombar onOkPress={onOkPress} />
 
       </ContentContainer>
     </AddReportHandOverContext.Provider>

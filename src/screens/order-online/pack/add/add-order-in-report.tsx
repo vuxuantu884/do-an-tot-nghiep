@@ -78,7 +78,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               sku: item.sku,
               variant_id: item.variant_id,
               price: fulfillment.total,
-              quantity: fulfillment.total_quantity,
+              quantity: item.quantity,
               postage: 0,
               total_revenue: fulfillment.total,
             });
