@@ -28,44 +28,55 @@ function PackList() {
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
 
   const orderData: OrderResponse[] | undefined = useMemo(() =>
-    orderPackContextData?.packModel?.order?.reverse(), [orderPackContextData?.packModel]);
+    orderPackContextData?.packModel?.order, [orderPackContextData?.packModel]);
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: 1,
     perPage: 10
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>({
-    currentPage: pagingParam.currentPage,
+    currentPage: 1,
     lastPage: 1,
-    perPage: pagingParam.perPage,
+    perPage: 10,
     total: 0,
     result: []
   });
 
   useEffect(() => {
-    if (!orderData) return;
-    let total: number = orderData.length;
-    let totalPage: number = Math.ceil(total / pagingParam.perPage);
-
-    if (pagingParam.currentPage > total)
-      pagingParam.currentPage = totalPage;
-
-    let start: number = (pagingParam.currentPage - 1) * pagingParam.perPage;
-    let end: number = start + pagingParam.perPage;
-    let orderDataReverse = orderData.reverse();
-    let orderDataCopy = orderDataReverse.slice(start, end);
-
-    let result: ResultPaging = {
-      currentPage: pagingParam.currentPage,
-      lastPage: totalPage,
-      perPage: pagingParam.perPage,
-      total: total,
-      result: orderDataCopy
+    if (!orderData) {
+      setResultPaging({
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 10,
+        total: 0,
+        result: []
+      })
     }
-    // console.log("pagingParam", pagingParam)
-    // console.log("resultPaging", result)
+    else {
+      let total: number = orderData.length;
+      let totalPage: number = Math.ceil(total / pagingParam.perPage);
 
-    setResultPaging(result);
+      if (pagingParam.currentPage > total)
+        pagingParam.currentPage = totalPage;
+
+      let start: number = (pagingParam.currentPage - 1) * pagingParam.perPage;
+      let end: number = start + pagingParam.perPage;
+      let orderDataReverse = orderData.reverse();
+      let orderDataCopy = orderDataReverse.slice(start, end);
+
+      let result: ResultPaging = {
+        currentPage: pagingParam.currentPage,
+        lastPage: totalPage,
+        perPage: pagingParam.perPage,
+        total: total,
+        result: orderDataCopy
+      }
+      // console.log("pagingParam", pagingParam)
+      // console.log("resultPaging", result)
+
+      setResultPaging(result);
+    }
+
   }, [orderData, pagingParam])
 
 
@@ -134,7 +145,7 @@ function PackList() {
   };
 
   // console.log("pagingParam", pagingParam)
-  // // console.log("resultPaging",resultPaging)
+  // console.log("resultPaging",resultPaging)
   // console.log("orderData", orderData)
   return (
     <Card
