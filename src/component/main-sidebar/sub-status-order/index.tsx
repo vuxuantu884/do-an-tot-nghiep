@@ -10,7 +10,7 @@ import {
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { sortFulfillments } from "utils/AppUtils";
+import { isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
 import { OrderStatus, ShipmentMethod } from "utils/Constants";
 
 type PropType = {
@@ -375,6 +375,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 				notFoundContent="Không tìm thấy trạng thái phụ"
 				value={valueSubStatusCode}
 				key={Math.random()}
+				disabled = {isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
 			>
 				{listOrderSubStatus &&
 					listOrderSubStatus.map((single) => {

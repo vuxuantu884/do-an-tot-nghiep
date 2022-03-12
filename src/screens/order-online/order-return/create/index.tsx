@@ -687,7 +687,6 @@ ShippingServiceConfigDetailResponseModel[]
             reason: form.getFieldValue("reason"),
             sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
-            channel_id: ADMIN_ORDER.channel_id,
             discounts: handleRecalculateOriginDiscount(itemsResult),
           };
 

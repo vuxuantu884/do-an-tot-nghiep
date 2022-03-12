@@ -45,7 +45,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { ErrorGHTK, PaymentMethodCode, POS, ShipmentMethod } from "./Constants";
+import { ErrorGHTK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
 import { RegUtil } from "./RegUtils";
@@ -1442,7 +1442,7 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 	return result;
 }
 
-export const isOrderFromPOS = (OrderDetail: OrderResponse | null) => {
+export const isOrderFromPOS = (OrderDetail: OrderResponse | null|undefined) => {
 	if(OrderDetail?.channel_id === POS.channel_id || OrderDetail?.source_code === POS.source_code) {
 		return true;
 	}
@@ -1648,4 +1648,10 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
 
 export const getCustomerShippingAddress = (customer: CustomerResponse) => {
   return customer.shipping_addresses.find((item) => item.default);
+};
+
+export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | undefined) => {
+  return  orderDetail?.status === OrderStatus.FINISHED ||
+   orderDetail?.status === OrderStatus.COMPLETED ||
+   orderDetail?.status === OrderStatus.CANCELLED 
 };
