@@ -121,14 +121,14 @@ import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag"
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 
 // let typeButton = "";
-type PropType = {
+type PropTypes = {
 	id?: string;
 	isCloneOrder?: boolean;
 };
 type OrderParam = {
 	id: string;
 };
-export default function Order(props: PropType) {
+export default function Order(props: PropTypes) {
 	const dispatch = useDispatch();
 	const history = useHistory();
 	let { id } = useParams<OrderParam>();
@@ -1741,6 +1741,7 @@ ShippingServiceConfigDetailResponseModel[]
 													loyaltyRate={loyaltyRate}
 													isDisablePostPayment={isDisablePostPayment}
 													listPaymentMethod={listPaymentMethod}
+													orderDetail={OrderDetail}
 												/>
 											</Card>
 										)}
@@ -1761,6 +1762,7 @@ ShippingServiceConfigDetailResponseModel[]
 												form={form}
 												shippingServiceConfig={shippingServiceConfig}
 												orderConfig={orderConfig}
+												OrderDetail={OrderDetail}
 											/>
 										</Card>
 									)}

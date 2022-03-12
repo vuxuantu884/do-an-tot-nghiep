@@ -246,9 +246,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   onClick={() => orderActionsClick && orderActionsClick("update")}
                   disabled={
                     disabledBottomActions ||
-										orderDetail?.status === OrderStatus.FINISHED ||
-										orderDetail?.status === OrderStatus.COMPLETED ||
-                    stepsStatusValue === OrderStatus.CANCELLED || !isPassed
+										// orderDetail?.status === OrderStatus.FINISHED ||
+										// orderDetail?.status === OrderStatus.COMPLETED ||
+                    // stepsStatusValue === OrderStatus.CANCELLED || 
+                    !isPassed
                   }
                 >
                   Sửa đơn hàng

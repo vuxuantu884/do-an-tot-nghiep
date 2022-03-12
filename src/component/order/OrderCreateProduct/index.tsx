@@ -100,6 +100,7 @@ import {
 	handleFetchApiError,
 	haveAccess,
 	isFetchApiSuccessful,
+	isOrderFinishedOrCancel,
 	replaceFormatString
 } from "utils/AppUtils";
 import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE } from "utils/Constants";
@@ -2078,7 +2079,7 @@ function OrderCreateProduct(props: PropType) {
 				title={returnOrderInformation ? "Thông tin sản phẩm đổi" : "Sản phẩm"}
 				extra={
 					<Space size={window.innerWidth > 1366 ? 20 : 10}>
-						<Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
+						<Checkbox onChange={() => setSplitLine(!splitLine)} disabled = {isOrderFinishedOrCancel(orderDetail)}>Tách dòng</Checkbox>
 						{/* <span>Chính sách giá:</span> */}
 						<Form.Item name="price_type" hidden>
 							<Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
@@ -2119,6 +2120,7 @@ function OrderCreateProduct(props: PropType) {
 							</Select.Option>
 						</Select> */}
 						<Button
+							disabled = {isOrderFinishedOrCancel(orderDetail)}
 							onClick={() => {
 								showInventoryModal();
 							}}
