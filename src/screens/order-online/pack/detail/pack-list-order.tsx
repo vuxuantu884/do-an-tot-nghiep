@@ -190,12 +190,12 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Trạng thái",
-      dataIndex: "status",
+      // dataIndex: "status",
       visible: true,
       width: "10%",
       align: "center",
-      render: (value: string) => {
-        return <div>{value}</div>;
+      render: (item: any) => {
+        return <div style={{ color: item.status_color }}>{item.status}</div>;
       },
     },
     {
