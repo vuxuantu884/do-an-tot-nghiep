@@ -91,28 +91,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       };
 
       const STATUS_ORDER_PARTNER = [
-        // tạo nháp
-        {
-          orderStatus: OrderStatus.DRAFT,
-          now: ORDER_SUB_STATUS.first_call_attempt,
-          list: [
-            ORDER_SUB_STATUS.first_call_attempt,
-            ORDER_SUB_STATUS.second_call_attempt,
-            ORDER_SUB_STATUS.third_call_attempt,
-          ],
-        },
-        // gọi điện lần 2
-        {
-          orderStatus: OrderStatus.DRAFT,
-          now: ORDER_SUB_STATUS.second_call_attempt,
-          list: [ORDER_SUB_STATUS.second_call_attempt, ORDER_SUB_STATUS.third_call_attempt],
-        },
-        // gọi điện lần 3
-        {
-          orderStatus: OrderStatus.DRAFT,
-          now: ORDER_SUB_STATUS.third_call_attempt,
-          list: [ORDER_SUB_STATUS.third_call_attempt],
-        },
         // duyệt đơn hàng
         {
           orderStatus: OrderStatus.FINALIZED,
@@ -214,25 +192,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       ];
       const STATUS_ORDER_AT_STORE = [
         {
-          orderStatus: OrderStatus.DRAFT,
-          now: ORDER_SUB_STATUS.first_call_attempt,
-          list: [
-            ORDER_SUB_STATUS.first_call_attempt,
-            ORDER_SUB_STATUS.second_call_attempt,
-            ORDER_SUB_STATUS.third_call_attempt,
-          ],
-        },
-        {
-          orderStatus: OrderStatus.DRAFT,
-          now: ORDER_SUB_STATUS.second_call_attempt,
-          list: [ORDER_SUB_STATUS.second_call_attempt, ORDER_SUB_STATUS.third_call_attempt],
-        },
-        {
-          orderStatus: OrderStatus.DRAFT,
-          now: ORDER_SUB_STATUS.third_call_attempt,
-          list: [ORDER_SUB_STATUS.third_call_attempt],
-        },
-        {
           orderStatus: OrderStatus.FINALIZED,
           now: ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
           list: [
@@ -317,13 +276,15 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           now: ORDER_SUB_STATUS.third_call_attempt,
           list: [ORDER_SUB_STATUS.third_call_attempt],
         },
-        // chờ sale xác nhận lại
+        //duyệt đơn hàng
         {
           orderStatus: OrderStatus.FINALIZED,
-          now: ORDER_SUB_STATUS.awaiting_saler_confirmation,
+          now: ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
           list: [
-            ORDER_SUB_STATUS.awaiting_saler_confirmation,
             ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.fourHour_delivery,
           ],
         },
         //đổi kho hàng
