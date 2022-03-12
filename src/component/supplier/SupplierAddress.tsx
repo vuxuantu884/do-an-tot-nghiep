@@ -14,6 +14,7 @@ import {
   DistrictGetByCountryAction,
 } from "../../domain/actions/content/content.action";
 import { useDispatch } from "react-redux";
+import { strForSearch } from "../../utils/StringUtils";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -69,11 +70,20 @@ const SupplierAddress = ({
       [ComponentType.Select]: (
         <Item rules={control.rules} label={control.label} name={[name, control.name]}>
           <Select
+            showSearch
             className="selector"
             placeholder={control.placeholder}
             onSelect={(value: number) =>
               control.name === FormFields.district_id && onSelectDistrict(name, value)
-            }>
+            }
+            filterOption={(input: String, option: any) => {
+              if (option.props.value) {
+                return strForSearch(option.props.children).includes(strForSearch(input));
+              }
+
+              return false;
+            }}
+          >
             {data?.map((item) => (
               <Option key={item.name} value={item.value || 0}>
                 {item.name}

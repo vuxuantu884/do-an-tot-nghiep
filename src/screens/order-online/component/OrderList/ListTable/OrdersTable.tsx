@@ -249,6 +249,9 @@ function OrdersTable(props: PropTypes) {
   };
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
+    if(data.items.length === 0) {
+      return []
+    }
     return [
       {
         title: "ID đơn hàng",
@@ -744,7 +747,7 @@ function OrdersTable(props: PropTypes) {
                   onOk={(newNote) => {
                     editNote(newNote, "customer_note", record.id);
                   }}
-                  isDisable={record.status === OrderStatus.FINISHED}
+                  // isDisable={record.status === OrderStatus.FINISHED}
                 />
               </div>
               <div className="single">
@@ -755,7 +758,7 @@ function OrdersTable(props: PropTypes) {
                   onOk={(newNote) => {
                     editNote(newNote, "note", record.id);
                   }}
-                  isDisable={record.status === OrderStatus.FINISHED}
+                  // isDisable={record.status === OrderStatus.FINISHED}
                 />
               </div>
             </div>
@@ -875,7 +878,7 @@ function OrdersTable(props: PropTypes) {
         width: 120,
       },
     ];
-  }, [deliveryServices, editNote, renderOrderPayments, status_order]);
+  }, [data.items.length, deliveryServices, editNote, renderOrderPayments, status_order]);
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 

@@ -54,7 +54,7 @@ export const StyledComponent = styled.div`
   }
   .data-content {
     color: #222222;
-    max-height: 144.5px;
+    max-height: 160px;
     overflow: auto;
     padding: 10px 0px;
     // border: 1px solid #d9d9d9;
@@ -62,6 +62,9 @@ export const StyledComponent = styled.div`
   .data-content::-webkit-scrollbar {
     width: 1px;
     height: 8px;
+  }
+  .modal-des .ql-align-center img{
+    max-width: 100% ;
   }
   .data-empty {
     color: red;
@@ -119,10 +122,10 @@ export const StyledComponent = styled.div`
     flex-direction: row;
     width: 100%;
     &-left {
-      width: 35%;
+      width: 40%;
     }
     &-right {
-      width: 65%;
+      width: 60%;
     }
     .dot {
       margin-right: 10px;
@@ -149,6 +152,32 @@ export const StyledComponent = styled.div`
       .anticon {
         vertical-align: 0.125em;
       }
-    }
+    } 
   }
+  .devvn_readmore_taxonomy_flatsome {
+        text-align: center;
+        cursor: pointer;
+        position: absolute;
+        z-index: 10;
+        bottom: -2px;    
+        margin-right: auto;
+        width: 100%;
+        background: #fff;
+    }
+    .devvn_readmore_taxonomy_flatsome:before {
+        height: 55px;
+        margin-top: -45px;
+        content: "";
+        background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+        background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
+        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff00', endColorstr='#ffffff',GradientType=0 );
+        display: block;
+    }
+    .devvn_readmore_taxonomy_flatsome .button-show-more {
+        color: #180973;
+        display: block;
+        border-color: #180973;
+        margin:auto ;
+    } 
 `;

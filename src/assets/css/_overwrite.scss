@@ -551,6 +551,14 @@
                 padding: 0 12px;
                 line-height: 30px !important;
             }
+            .ant-select-selection-overflow{
+                height: 100%;
+            }
+            .ant-select-selection-overflow-item {
+                height: 100%;
+                display: inline-flex;
+                align-items: center;
+            }
         }
         &-focused {
             .ant-select-arrow {

@@ -27,19 +27,22 @@ const UrlConfig = {
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,
+  SHIPMENTS_FAILED: `/shipments-failed`,
   YD_PAGE: `/yd-page`,
   YDPAGE: `/YDpage`,
   ECOMMERCE: "/ecommerce",
+  ECOMMERCE_PRODUCTS: "/ecommerce-products",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
-  PROCUREMENT: '/procurements',
+  PROCUREMENT: "/procurements",
   INVENTORY_TRANSFERS: `/inventory-transfers`,
-  INVENTORY_ADJUSTMENTS: `/inventory-adjustments`, 
+  INVENTORY_ADJUSTMENTS: `/inventory-adjustments`,
   DEPARTMENT: `/departments`,
   DISCOUNT: `/discounts`,
   PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
   PACK_SUPPORT:`/orders-pack`,
+  DELIVERY_RECORDS:`/delivery-records`,
   BANK:`/bank`,
   BANK_ACCOUNT:`/bank-account`,
 };
@@ -52,8 +55,8 @@ export const ProductTabUrl = {
 };
 
 export const SupplierTabUrl = {
-  ADDRESSES: 'addresses',
-  CONTACTS: 'contacts',
+  ADDRESSES: "addresses",
+  CONTACTS: "contacts",
   PAYMENTS: "payments",
 };
 
@@ -63,7 +66,7 @@ export const InventoryTransferTabUrl = {
 };
 export const InventoryTabUrl = {
   ALL: UrlConfig.INVENTORY,
-  DETAIL: UrlConfig.INVENTORY+ "/details",
+  DETAIL: UrlConfig.INVENTORY + "/details",
   HISTORIES: UrlConfig.INVENTORY + "/histories",
   INVENTORY: UrlConfig.VARIANTS + "/inventories",
 };
@@ -71,13 +74,19 @@ export const InventoryTabUrl = {
 export const ProcurementTabUrl = {
   TODAY: UrlConfig.PROCUREMENT + "/today",
   ALL: UrlConfig.PROCUREMENT,
-  LOGS: UrlConfig.PROCUREMENT+'/logs'
+  LOGS: UrlConfig.PROCUREMENT + "/logs",
 };
 
 export const PurchaseOrderTabUrl = {
-  INVENTORY: UrlConfig.PURCHASE_ORDERS +  "/inventories",
-  HISTORY: UrlConfig.PURCHASE_ORDERS +  "/procurement-histories",
-}
+  INVENTORY: UrlConfig.PURCHASE_ORDERS + "/inventories",
+  HISTORY: UrlConfig.PURCHASE_ORDERS + "/procurement-histories",
+};
+
+export const EcommerceProductTabUrl = {
+  TOTAL_ITEM: UrlConfig.ECOMMERCE_PRODUCTS + "/total-item",
+  CONNECTED: UrlConfig.ECOMMERCE_PRODUCTS + "/connected-item",
+  NOT_CONNECTED: UrlConfig.ECOMMERCE_PRODUCTS + "/not-connected-item",
+};
 
 export const BASE_NAME_ROUTER = "/admin";
 // export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;

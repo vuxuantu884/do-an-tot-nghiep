@@ -1,54 +1,39 @@
 import { Modal, Form, Select, FormInstance, Row, Col } from "antd";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { useSelector } from "react-redux";
-import { haveAccess } from "utils/AppUtils";
-
 import { Input } from "antd";
 import { useContext, useMemo } from "react";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 const { TextArea } = Input;
 
 type ReportHandOverModalProps = {
   handleOk: () => void;
   handleCancel: () => void;
-  handSubmit:(value:any)=>void;
+  handSubmit: (value: any) => void;
   visible: boolean;
   formRef: React.RefObject<FormInstance<any>>;
-  goodsReceiptsForm:any;
+  goodsReceiptsForm: any;
 };
 const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   props: ReportHandOverModalProps
 ) => {
-  const { handleCancel, visible, formRef,goodsReceiptsForm,handleOk,handSubmit } = props;
-
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
-  //const dispatch = useDispatch();
+  const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit } = props;
 
   const orderPackContextData = useContext(OrderPackContext);
 
-  const listStores = orderPackContextData.listStores;
+  const listStoresDataCanAccess = orderPackContextData?.listStoresDataCanAccess;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
-  const listGoodsReceiptsType= orderPackContextData.listGoodsReceiptsType;
-  const listChannels=orderPackContextData.listChannels;
+  const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
+  const listChannels = orderPackContextData.listChannels;
   //const data=orderPackContextData.data;
 
-  const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
-      newData = listStores.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
-      );
-    }
-    return newData;
-  }, [listStores, userReducer.account]);
-
-
+  const deliveryServiceProvider = useMemo(() => {
+    let dataAccess: DeliveryServiceResponse[] = [];
+    listThirdPartyLogistics.forEach((item, index) => {
+      if (dataAccess.findIndex((p) => p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim())!== -1)===-1)
+        dataAccess.push({ ...item })
+    });
+    return dataAccess;
+  }, [listThirdPartyLogistics]);
 
 
   return (
@@ -92,7 +77,8 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {dataCanAccess.map((item, index) => (
+                 
+                  {listStoresDataCanAccess?.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -133,7 +119,10 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listThirdPartyLogistics.map((item, index) => (
+                   <Select.Option key={-1} value={-1}>
+                    Tự giao hàng
+                  </Select.Option>
+                  {deliveryServiceProvider.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -218,7 +207,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   }}
                 >
                   <Select.Option key={-1} value={-1}>
-                      Mặc định
+                    Mặc định
                   </Select.Option>
                   {listChannels.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
@@ -234,12 +223,12 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
               <Form.Item
                 label="Mô tả:"
                 name="description"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng nhập mô tả",
-                //   },
-                // ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Vui lòng nhập mô tả",
+              //   },
+              // ]}
               >
                 <TextArea
                   rows={4}

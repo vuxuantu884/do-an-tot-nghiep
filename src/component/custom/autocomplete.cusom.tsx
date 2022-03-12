@@ -83,7 +83,6 @@ export default class CustomAutoComplete extends Component<
         id={this.props.id}
         value={this.state.value}
         ref={(ref) => (this.autoCompleteRef = ref)}
-        maxLength={255}
         notFoundContent={
           this.state.value ? (this.props.textEmpty ? this.props.textEmpty : "Không có dữ liệu") : "Vui lòng điền kí tự!"
         }

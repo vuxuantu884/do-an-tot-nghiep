@@ -28,6 +28,7 @@ import {
   CustomerUpdateAction, getCustomerDetailAction,
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
 import {
   CustomerResponse,
@@ -35,7 +36,8 @@ import {
 } from "model/response/customer/customer.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -57,6 +59,8 @@ type UpdateCustomerProps = {
   ShowAddressModalEdit: () => void;
   showAddressModalDelete: () => void;
   ShowAddressModalAdd: () => void;
+  setShippingFeeInformedToCustomer: ((value: number | null) => void) | undefined;
+  form: FormInstance<any>;
 };
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
@@ -76,8 +80,15 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     showAddressModalDelete,
     ShowAddressModalAdd,
     setShippingAddressesSecondPhone,
-
+    setShippingFeeInformedToCustomer,
+    form,
   } = props;
+
+  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
@@ -286,9 +297,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       }
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
         if (datas) {
-          showSuccess("Cập nhật thông tin khách thành công");
+          showSuccess("Cập nhật thông tin khách thành công!");
           setVisibleBtnUpdate(false);
           handleChangeCustomer(datas);
+          const shippingAddress = getCustomerShippingAddress(datas);
+          const orderAmount = totalAmount(orderLineItems);
+          handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
         }
         else{
           dispatch(
@@ -305,7 +319,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
       }));
     },
-    [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer,shippingWards,wards]
+    [customerItem, shippingAddress, areas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
   );
 
   const onOkPress = useCallback(() => {
@@ -557,6 +571,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                             handleShippingDelete={showAddressModalDelete}
                             handleSingleShippingAddress={setSingleShippingAddress}
                             handleShippingAddress={ShippingAddressChange}
+                            form= {form}
+                            setShippingFeeInformedToCustomer= {setShippingFeeInformedToCustomer}
                           />
                         }
                         trigger="click"

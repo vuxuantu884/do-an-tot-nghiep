@@ -37,6 +37,13 @@ function PickCouponModal(props: PropType){
 		}
   }, [couponInputText])
 
+  useEffect(() => {
+    if(visible) {
+      let element = document.getElementById("inputCouponModal");
+      element?.focus();
+    }
+  }, [visible])
+
   return (
     <Modal
       title="Mã giảm giá"
@@ -58,6 +65,7 @@ function PickCouponModal(props: PropType){
         onKeyPress={(e) => handleEnterToSubmit(e.which)}
       >
         <Input
+          id="inputCouponModal"
           placeholder="Mã giảm giá"
           onFocus={(e) => e.target.select()}
           style={{ width: "99%" }}

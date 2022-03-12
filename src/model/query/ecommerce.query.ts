@@ -37,7 +37,7 @@ export interface GetOrdersMappingQuery extends BaseQuery {
   created_date_from: number | null;
   created_date_to: number | null;
   ecommerce_order_statuses: Array<any> | null;
-  shop_ids: Array<any> | null;
+  shop_ids: Array<any> | [];
 }
 
 export interface RequestSyncStockQuery {

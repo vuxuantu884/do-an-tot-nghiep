@@ -45,6 +45,12 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
 import EditNote from "../order-online/component/edit-note";
+import statusDraft from 'assets/icon/status-draft.svg'
+import statusFinalized from 'assets/icon/status-finalized.svg'
+import statusStored from 'assets/icon/status-stored.svg'
+import statusFinished from 'assets/icon/status-finished.svg'
+import statusCompleted from 'assets/icon/status-completed.svg'
+import statusCancelled from 'assets/icon/status-cancelled.svg'
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
@@ -229,27 +235,38 @@ const PurchaseOrderListScreen: React.FC = () => {
         dataIndex: "status",
         render: (value: string, record) => {
           let type = TagStatusType.nomarl;
+          let icon = "";
           if (!value) {
             return "";
           }
           switch (record.status) {
             case POStatus.FINALIZED:
+              type = TagStatusType.primary;
+              icon = statusFinalized
+              break;
             case POStatus.STORED:
               type = TagStatusType.primary;
+              icon = statusStored
               break;
             case POStatus.CANCELLED:
               type = TagStatusType.danger;
+              icon = statusCancelled
               break;
             case POStatus.FINISHED:
+              type = TagStatusType.nomarl;
+              icon = statusFinished
+              break;
             case POStatus.COMPLETED:
               type = TagStatusType.success;
+              icon = statusCompleted
               break;
             case POStatus.DRAFT:
-              type = TagStatusType.nomarl;
+              type = TagStatusType.primary;
+              icon = statusDraft
               break;
           }
 
-          return <TagStatus type={type}>{ArrPoStatus.find(e=>e.key === value)?.value}</TagStatus>;
+          return <TagStatus icon={icon} type={type}>{ArrPoStatus.find(e=>e.key === value)?.value}</TagStatus>;
         },
         visible: true,
       },
@@ -609,6 +626,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           <Row>
             <Space>
               <Button
+                hidden
                 className="light"
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}

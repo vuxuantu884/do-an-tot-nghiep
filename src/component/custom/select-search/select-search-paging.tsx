@@ -1,7 +1,7 @@
-import { SelectProps } from "antd";
+import { SelectProps, Select } from "antd";
 import { AccountPublicSearchQuery } from "model/account/account.model";
 import { BaseMetadata } from "model/base/base-metadata.response";
-import React, {ReactNode} from "react";
+import React from "react";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
 
 export interface SelectContentProps<T> extends SelectProps<any> {
@@ -9,14 +9,19 @@ export interface SelectContentProps<T> extends SelectProps<any> {
 
   fixedQuery?: any;
   data: T[];
-  renderItem: (item: T, index: number) => ReactNode;
   metadata: BaseMetadata;
   isLoading?: boolean;
+  optionKeyValue: string;
+  optionKeyName: string;
+  defaultValue?: string | number | undefined | null
 }
 
 function SelectSearchPaging<T>({
   id: name,
   value,
+  defaultValue,
+  optionKeyValue,
+  optionKeyName,
   mode = undefined,
   fixedQuery,
   key = "code",
@@ -39,7 +44,7 @@ function SelectSearchPaging<T>({
       id={name}
       mode={mode}
       loading={isLoading}
-      defaultValue={value}
+      defaultValue={defaultValue && { key: +defaultValue }}
       metadata={metadata}
       labelInValue
       filterOption={false}
@@ -50,8 +55,15 @@ function SelectSearchPaging<T>({
       onClear={() => handleSearch({ condition: "" })}
       onPageChange={(key: string, page: number) => handleSearch({ condition: key, page: page })}
       notFoundContent={notFoundContent}
-      {...rest}>
-      {data.map((item, index) => renderItem(item,index)) }
+      {...rest}
+    >
+      {data.map((item: any, index) => {
+        return (
+          <Select.Option key={item[optionKeyValue]} value={item[optionKeyValue]}>
+            {item[optionKeyName]}
+          </Select.Option>
+        )
+      }) }
     </SelectPagingV2>
   );
 }

@@ -18,6 +18,8 @@ export interface GoodsReceiptsResponse extends BaseObject{
     delivery_service_id:number;
     delivery_service_name:string;
     orders:Array<OrderResponse> | null;
+    delivery_service_type:string;
+    variant: Array<any>;
 }
 
 export interface  GoodsReceiptsSearchResponse extends BaseObject{

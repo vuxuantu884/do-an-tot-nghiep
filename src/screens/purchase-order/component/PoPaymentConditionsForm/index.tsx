@@ -123,7 +123,6 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                 display: "flex",
               }}
               icon={<AiOutlinePlus size={16} />}
-              type="primary"
               className="create-button-custom ant-btn-outline fixed-button"
             >
               Tạo thanh toán
@@ -207,17 +206,21 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
               ))}
             </Timeline>
           </div>
-          <POCreatePaymentModal
-            visible={isVisiblePaymentModal}
-            isEditPage={isEdit}
-            formMain={formMain}
-            deletePayment={deletePayment}
-            purchasePayment={paymentItem}
-            indexPurchasePayment={indexPurchasePayment}
-            onCancel={CancelPaymentModal}
-            onChangeDataPayments={onChangeDataPayments}
-            remainPayment={formMain.getFieldValue(POField.total)}
-          />
+          {
+            isVisiblePaymentModal && (
+              <POCreatePaymentModal
+                visible={isVisiblePaymentModal}
+                isEditPage={isEdit}
+                formMain={formMain}
+                deletePayment={deletePayment}
+                purchasePayment={paymentItem}
+                indexPurchasePayment={indexPurchasePayment}
+                onCancel={CancelPaymentModal}
+                onChangeDataPayments={onChangeDataPayments}
+                remainPayment={formMain.getFieldValue(POField.total)}
+              />
+            )
+          }
         </Card>
       </POPaymentConditionsFormStyled>
     );

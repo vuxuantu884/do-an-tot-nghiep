@@ -17,6 +17,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import TreeStore from "component/tree-node/tree-store";
 import UrlConfig from "config/url.config";
+import { getListChannelRequest } from "domain/actions/order/order.action";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
@@ -24,8 +25,9 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
@@ -158,7 +160,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 	]
 
-	
+	const dispatch = useDispatch();
+	const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
+
 	const formRef = createRef<FormInstance>();
 	const formSearchRef = createRef<FormInstance>();
 	const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string }[]>([]);
@@ -326,6 +330,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				case 'return_status':
 					onFilter && onFilter({ ...params, return_status: "" });
 					break;
+				case 'channel_codes':
+					onFilter && onFilter({ ...params, channel_codes: [] });
+					break;	
 				default: break
 			}
 			// const tags = filters.filter((tag: any) => tag.key !== key);
@@ -362,6 +369,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
 			assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
 			account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
+			channel_codes: Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes],
 			coordinator_codes: Array.isArray(params.coordinator_codes) ? params.coordinator_codes : [params.coordinator_codes],
 			marketer_codes: Array.isArray(params.marketer_codes) ? params.marketer_codes : [params.marketer_codes],
 			delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
@@ -698,6 +706,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 
+		if (initialValues.channel_codes.length) {
+			let mappedChannels = listChannel?.filter((channel) => initialValues.channel_codes?.some((single) => single === channel.code.toString()))
+			let text = getFilterString(mappedChannels, "name", undefined, undefined);
+			list.push({
+				key: 'channel_codes',
+				name: 'Kênh bán hàng',
+				value: text,
+			})
+		}
+
 		if (initialValues.note) {
 			list.push({
 				key: 'note',
@@ -738,7 +756,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 		return list
-	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers]);
+	}, [initialValues, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
 	const widthScreen = () => {
 		if (window.innerWidth >= 1600) {
@@ -835,7 +853,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 	useEffect(() => {
 	 setServices(initialValues.services);
-	}, [initialValues.services])
+	 dispatch(getListChannelRequest(setListChannel));
+	}, [dispatch, initialValues.services])
 
 	const renderFilterTag = (filter: ListFilterTagTypes) => {
 		return (
@@ -1324,6 +1343,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										{shippers && shippers.map((shipper) => (
 											<CustomSelect.Option key={shipper.code} value={shipper.code}>
 												{shipper.code} - {shipper.name}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
+								</Item>
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="channel_codes" label="Kênh bán hàng">
+									<CustomSelect
+										mode="multiple" showSearch allowClear
+										showArrow placeholder="Chọn kênh bán hàng"
+										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+										optionFilterProp="children"
+										getPopupContainer={trigger => trigger.parentNode}
+										maxTagCount='responsive'
+									>
+										{listChannel && listChannel.map((channel) => (
+											<CustomSelect.Option key={channel.code} value={channel.code}>
+												{channel.code} - {channel.name}
 											</CustomSelect.Option>
 										))}
 									</CustomSelect>

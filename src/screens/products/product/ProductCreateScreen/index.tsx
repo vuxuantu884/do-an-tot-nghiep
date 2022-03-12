@@ -63,6 +63,8 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { colorDetailApi } from "service/product/color.service";
+import { callApiNative } from "utils/ApiUtils";
 import {
   convertCategory,
   formatCurrency, formatCurrencyForProduct,
@@ -264,7 +266,7 @@ const ProductCreateScreen: React.FC = () => {
               newVariants.push({
                 name: `${name} - ${i1.name} - ${i2.code}`,
                 color_id: i1.id,
-                color: i1.code,
+                color: i1.name,
                 size_id: i2.id,
                 size: i2.code,
                 sku: sku,
@@ -291,7 +293,7 @@ const ProductCreateScreen: React.FC = () => {
             newVariants.push({
               name: `${name} - ${i1.name}`,
               color_id: i1.id,
-              color: i1.code,
+              color: i1.name,
               size_id: null,
               size: null,
               sku: `${code}-${i1.code}`,
@@ -352,8 +354,11 @@ const ProductCreateScreen: React.FC = () => {
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
-      const sizerCode = objSize?.children.substr(0,3);
-      const newSize = {id: value, code: sizerCode } as SizeResponse;
+      let size:string = "";
+      if (objSize && objSize?.children) {
+        size = objSize?.children.split(" ")[0];
+      }
+      const newSize = {id: value, code: size } as SizeResponse;
       let filter = [...variants.filter(e=>e.size !== null).map(e=>({id: e.size_id, code: e.size})), newSize] as Array<SizeResponse>;
 
       setSizeSelected([...filter]);
@@ -363,15 +368,23 @@ const ProductCreateScreen: React.FC = () => {
   );
 
   const onColorSelected = useCallback(
-    (value: number, objColor: any) => {
-      const colorCode = objColor?.children.substr(0,3);
-      const newColor = {id: value, name: colorCode,  code: colorCode } as ColorResponse;
+     async (value: number, objColor: any) => {
+      let colorCode:string = "";
+      let colorName: string = "";
+
+      const res = await callApiNative({isShowLoading: false},dispatch,colorDetailApi,value);
+      if (res) {
+        colorCode = res.code;
+        colorName= res.name;
+      }
+      
+      const newColor = {id: value, name: colorName,  code: colorCode } as ColorResponse;
       let filter = [...variants.filter(e=>e.color !== null).map(e=>({id: e.color_id,name: e.color, code: e.color})), newColor] as Array<ColorResponse>;
 
        setColorSelected([...filter]);
        listVariantsFilter(filter, sizeSelected);
     },
-    [listVariantsFilter, sizeSelected, variants]
+    [listVariantsFilter, sizeSelected, variants, dispatch]
   );
 
   const statusValue = useMemo(() => {
@@ -1466,7 +1479,7 @@ const ProductCreateScreen: React.FC = () => {
                       dataIndex: "name",
                     },
                     {
-                      title: "Mã màu",
+                      title: "Màu",
                       key: "color",
                       dataIndex: "color",
                     },

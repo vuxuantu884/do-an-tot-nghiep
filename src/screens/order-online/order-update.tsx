@@ -47,7 +47,9 @@ import {
 	getStoreBankAccountNumbersAction,
 	changeSelectedStoreBankAccountAction,
 	setIsExportBillAction,
-	setIsShouldSetDefaultStoreBankAccountAction
+	setIsShouldSetDefaultStoreBankAccountAction,
+	changeOrderCustomerAction,
+	changeShippingServiceConfigAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
@@ -119,14 +121,14 @@ import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag"
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 
 // let typeButton = "";
-type PropType = {
+type PropTypes = {
 	id?: string;
 	isCloneOrder?: boolean;
 };
 type OrderParam = {
 	id: string;
 };
-export default function Order(props: PropType) {
+export default function Order(props: PropTypes) {
 	const dispatch = useDispatch();
 	const history = useHistory();
 	let { id } = useParams<OrderParam>();
@@ -933,6 +935,7 @@ ShippingServiceConfigDetailResponseModel[]
 					dispatch(
 						getCustomerDetailAction(customer_id, (responseCustomer) => {
 							setCustomer(responseCustomer);
+							dispatch(changeOrderCustomerAction(responseCustomer));
 						})
 					);
 				}
@@ -1228,6 +1231,7 @@ ShippingServiceConfigDetailResponseModel[]
 		dispatch(
 			actionListConfigurationShippingServiceAndShippingFee((response) => {
 				setShippingServiceConfig(response);
+				dispatch(changeShippingServiceConfigAction(response))
 			})
 		);
 	}, [dispatch]);
@@ -1308,6 +1312,8 @@ ShippingServiceConfigDetailResponseModel[]
 										OrderDetail={OrderDetail}
 										shippingAddressesSecondPhone={shippingAddressesSecondPhone}
 										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+										form={form}
+										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 									/>
 									{/* <CardProduct
                     orderId={id}
@@ -1362,6 +1368,7 @@ ShippingServiceConfigDetailResponseModel[]
 										orderDetail={OrderDetail}
 										orderConfig={orderConfig}
 										loyaltyPoint={loyaltyPoint}
+										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 									/>
 
 									{OrderDetail !== null &&
@@ -1734,6 +1741,7 @@ ShippingServiceConfigDetailResponseModel[]
 													loyaltyRate={loyaltyRate}
 													isDisablePostPayment={isDisablePostPayment}
 													listPaymentMethod={listPaymentMethod}
+													orderDetail={OrderDetail}
 												/>
 											</Card>
 										)}
@@ -1754,6 +1762,7 @@ ShippingServiceConfigDetailResponseModel[]
 												form={form}
 												shippingServiceConfig={shippingServiceConfig}
 												orderConfig={orderConfig}
+												OrderDetail={OrderDetail}
 											/>
 										</Card>
 									)}

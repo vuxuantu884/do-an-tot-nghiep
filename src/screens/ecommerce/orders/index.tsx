@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card } from "antd";
-import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
+import { Button, Card, Divider } from "antd";
+import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { primaryColor } from "utils/global-styles/variables";
 // todo thai: handle later
 // import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -38,8 +39,8 @@ import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataMo
 import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
 import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
 
-// todo thai: handle later
-// import UpdateConnectionModal from "./component/UpdateConnectionModal";
+import { updateOrderPartial } from "domain/actions/order/order.action";
+
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
@@ -49,12 +50,6 @@ import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
 import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
-import DollarCircleIcon from "assets/icon/dollar-circle.svg";
-
-// // todo thai: handle later
-// import ConnectIcon from "assets/icon/connect.svg";
-// import SuccessIcon from "assets/icon/success.svg";
-// import ErrorIcon from "assets/icon/error.svg";
 
 import { nameQuantityWidth, StyledComponent, } from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
@@ -66,7 +61,7 @@ import { getToken } from "utils/LocalStorageUtils";
 import axios from "axios";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
-import { FulFillmentStatus } from "utils/Constants";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { exitProgressDownloadEcommerceAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
 import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
@@ -78,6 +73,9 @@ import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDown
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
+import { exportFile, getFile } from "service/other/export.service";
+import ExportModal from "screens/order-online/modal/export.modal";
+import EditNote from "screens/order-online/component/edit-note";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -100,6 +98,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_max: null,
   ship_on_predefined: null,
   ecommerce_shop_ids: [],
+  channel_codes: [],
   channel_id: undefined,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
@@ -130,6 +129,8 @@ const initQuery: EcommerceOrderSearchQuery = {
 };
 
 
+const ALL_CHANNEL = ["Shopee","lazada","sendo","tiki"];
+
 const ordersViewPermission = [EcommerceOrderPermission.orders_read];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
@@ -148,6 +149,18 @@ const EcommerceOrders: React.FC = () => {
     not: false,
   });
 
+  const EXPORT_IDs = {
+    allOrders: 1,
+    ordersOnThisPage: 2,
+    selectedOrders: 3,
+    ordersFound: 4,
+  };
+
+  //export order
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(1);
+
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
   // todo thai: handle later
   // const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
@@ -159,8 +172,11 @@ const EcommerceOrders: React.FC = () => {
   //   []
   // );
 
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+
   const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowCodes, setSelectedRowCodes] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
@@ -189,8 +205,6 @@ const EcommerceOrders: React.FC = () => {
 
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
-  const [allShopIds, setAllShopIds] = useState([]);
-
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
@@ -198,6 +212,81 @@ const EcommerceOrders: React.FC = () => {
       })
     );
   }, [dispatch]);
+
+  const onExport = useCallback(
+    (optionExport, typeExport) => {
+      let newParams: any = { ...params };
+      if (!newParams.channel_codes?.length) {
+        newParams.channel_codes = ALL_CHANNEL;
+      }
+      switch (optionExport) {
+        case EXPORT_IDs.allOrders:
+          newParams = {};
+          newParams.channel_codes = ALL_CHANNEL;
+          break;
+        case EXPORT_IDs.ordersOnThisPage:
+          break;
+        case EXPORT_IDs.selectedOrders:
+          newParams.code = selectedRowCodes;
+          break;
+        case EXPORT_IDs.ordersFound:
+          delete newParams.page;
+          delete newParams.limit;
+          break;
+        default:
+          break;
+      }
+
+      let queryParams = generateQuery(newParams);
+      exportFile({
+        conditions: queryParams,
+        type: "EXPORT_ORDER",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(2);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusExport(4);
+          console.log("orders export file error", error);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },
+    [params, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, listExportFile]
+  );
+
+  const checkExportFile = useCallback(() => {
+
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (exportProgress < 95) {
+            setExportProgress(exportProgress + 3);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(3);
+            setExportProgress(100);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+            setShowExportModal(false);
+            setExportProgress(0);
+            setStatusExport(1);
+          }
+        }
+      });
+    });
+  }, [exportProgress, listExportFile]);
+
 
   const status_order = [
     { name: "Nháp", value: "draft", className: "gray-status" },
@@ -221,25 +310,47 @@ const EcommerceOrders: React.FC = () => {
     }
   };
 
+  // set ecommerce order data
+  const setSearchResult = useCallback(
+    (result: PageResponse<OrderModel> | false) => {
+      setTableLoading(false);
+      if (!!result) {
+        setData(result);
+      }
+    },
+    []
+  );
 
-  // // todo thai: handle later
-  // const handleUpdateProductConnection = (data: any) => {
-  //   setUpdateConnectionData(data.items);
-  //   setIsShowUpdateConnectionModal(true);
+  const getEcommerceOrderList = useCallback(() => {
+    const requestParams = { ...params };
+    if (!requestParams.channel_codes?.length) {
+      requestParams.channel_codes = ALL_CHANNEL;
+    }
 
-  //   showSuccess("Click mở modal cập nhật ghép nối nè");
-  // };
-
-  // const cancelUpdateConnectionModal = () => {
-  //   setIsShowUpdateConnectionModal(false);
-  // };
-
-  // const updateProductConnection = () => {
-  //   setIsShowUpdateConnectionModal(false);
-
-  // showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
-  //thai todo: call API
-  // };
+    setTableLoading(true);
+    dispatch(getListOrderAction(requestParams, (result) => {
+      setTableLoading(false);
+      setSearchResult(result);
+    }));
+  }, [dispatch, params, setSearchResult]);
+  
+  const editNote = useCallback(
+    (newNote, noteType, orderID) => {
+      let params: any = {};
+      if (noteType === "note") {
+        params.note = newNote;
+      }
+      if (noteType === "customer_note") {
+        params.customer_note = newNote;
+      }
+      dispatch(
+        updateOrderPartial(params, orderID, () => {
+          getEcommerceOrderList();
+        })
+      );
+    },
+    [dispatch, getEcommerceOrderList]
+  );
 
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
@@ -253,11 +364,10 @@ const EcommerceOrders: React.FC = () => {
       width: 175,
       render: (data: any, item: OrderModel) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${item.id}`}><strong>{data.code}</strong></Link>
+          <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong>{data.code}</strong></Link>
           <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
-          <div><span style={{ color: "#666666" }}>Kho: </span><span style={{ color: "#2A2A86" }}>{data.store}</span></div>
-          <div><span style={{ color: "#666666" }}>GH: </span><span style={{ color: "#2A2A86" }}>{data.ecommerce_shop_name}</span></div>
-          <div style={{ color: "#2A2A86" }}>({data.reference_code})</div>
+          <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
+          <div>({data.reference_code})</div>
         </div>
       ),
     },
@@ -279,7 +389,7 @@ const EcommerceOrders: React.FC = () => {
               </Link>{" "}
             </div>
             <div className="p-b-3">{record.shipping_address.phone}</div>
-            <div className="p-b-3">{record.shipping_address.full_address}</div>
+            <div><strong>{record.ecommerce_shop_name}</strong></div>
           </div>
         ) : (
           <div className="customer custom-td">
@@ -312,6 +422,7 @@ const EcommerceOrders: React.FC = () => {
                       target="_blank"
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
                     >
+                      <div>({item.sku})</div>
                       {item.variant}
                     </Link>
                   </div>
@@ -353,11 +464,10 @@ const EcommerceOrders: React.FC = () => {
       key: "customer_amount_money",
       visible: true,
       align: "right",
-      width: 105,
+      width: 95,
       render: (record: any) => (
         <>
           <div>
-            <img src={DollarCircleIcon} alt="" style={{ marginRight: 3, height: 13 }} />
             <NumberFormat
               value={record.total_line_amount_after_line_discount}
               className="foo"
@@ -376,53 +486,6 @@ const EcommerceOrders: React.FC = () => {
           </div>
         </>
       ),
-    },
-    {
-      title: "Vận chuyển",
-      key: "",
-      visible: true,
-      width: 130,
-      align: "center",
-      render: (item: any) => {
-        const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
-        return (
-          <>
-            {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
-              <>
-                <strong>{shipment?.delivery_service_provider_name}</strong>
-                <div>
-                  <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
-                  <NumberFormat
-                    value={shipment?.shipping_fee_informed_to_customer}
-                    className="foo"
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
-                </div>
-                <div>
-                  <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
-                  <NumberFormat
-                    value={shipment?.shipping_fee_paid_to_three_pls}
-                    className="foo"
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
-                </div>
-              </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
-              <>
-                <strong>Nhận tại cửa hàng</strong>
-              </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "Shipper" &&
-              <>
-                <strong>Tự giao hàng</strong>
-              </>
-            }
-          </>
-        );
-      },
     },
     {
       title: "TT Xử lý",
@@ -449,6 +512,90 @@ const EcommerceOrders: React.FC = () => {
       },
     },
     {
+      title: "Ghi chú",
+      className: "notes",
+      render: (value: string, record: OrderModel) => (
+        <div className="orderNotes">
+          <div className="inner">
+            <div className="single">
+              <EditNote
+                note={record.customer_note}
+                title="Khách hàng: "
+                color={primaryColor}
+                onOk={(newNote) => {
+                  editNote(newNote, "customer_note", record.id);
+                }}
+                isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div>
+            <Divider />
+            <div className="single">
+              <EditNote
+                note={record.note}
+                title="Nội bộ: "
+                color={primaryColor}
+                onOk={(newNote) => {
+                  editNote(newNote, "note", record.id);
+                }}
+                isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div>
+          </div>
+        </div>
+      ),
+      key: "note",
+      visible: true,
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Vận chuyển",
+      key: "",
+      visible: true,
+      width: 130,
+      align: "center",
+      render: (item: any) => {
+        const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
+        return (
+          <>
+            {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
+                <>
+                    <strong>{shipment?.delivery_service_provider_name}</strong>
+                    <div>
+                        <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
+                        <NumberFormat
+                            value={shipment?.shipping_fee_informed_to_customer}
+                            className="foo"
+                            displayType={"text"}
+                            thousandSeparator={true}
+                        />
+                    </div>
+                    <div>
+                        <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
+                        <NumberFormat
+                            value={shipment?.shipping_fee_paid_to_three_pls}
+                            className="foo"
+                            displayType={"text"}
+                            thousandSeparator={true}
+                        />
+                    </div>
+                </>
+            }
+            {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
+                <>
+                    <strong>Nhận tại cửa hàng</strong>
+                </>
+            }
+            {shipment && shipment.delivery_service_provider_type === "Shipper" &&
+                <>
+                    <strong>Tự giao hàng</strong>
+                </>
+            }
+          </>
+        );
+      },
+    },
+    {
       title: "TT Đơn hàng",
       dataIndex: "status",
       key: "order_status",
@@ -467,11 +614,15 @@ const EcommerceOrders: React.FC = () => {
       },
     },
     {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      key: "note",
+      title: "Địa chỉ giao hàng",
+      key: "shipping_address",
       visible: true,
       width: 200,
+      render: (item: any) => {
+        return (
+          <div className="p-b-3">{item.shipping_address.full_address}</div>
+        )
+      },
     },
     {
       title: "Đóng gói",
@@ -588,6 +739,9 @@ const EcommerceOrders: React.FC = () => {
 
     const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowIds);
+
+    const selectedRowCodes = newSelectedRow.map((row: any) => row.code);
+    setSelectedRowCodes(selectedRowCodes);
   }, []);
 
   const onPageChange = useCallback(
@@ -614,7 +768,7 @@ const EcommerceOrders: React.FC = () => {
 
   // handle action button
   const token = getToken();
-  const handlePrintDeliveryNote = useCallback(() => {
+  const handlePrintShopeeDeliveryNote = useCallback(() => {
     if (selectedRowKeys?.length > 0) {
       setTableLoading(true);
       let order_list: any = [];
@@ -701,40 +855,69 @@ const EcommerceOrders: React.FC = () => {
     printAction("shipment");
   }
 
+  const  handleExportOrder = () => {
+    setShowExportModal(true)
+  }
+
   const actions = [
+
     {
       id: 1,
-      name: "In phiếu giao hàng Shopee",
-      icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length,
-      onClick: handlePrintDeliveryNote
+      icon: <FileExcelOutlined />,
+      name: "Xuất excel",
+      onClick: () => handleExportOrder()
     },
+
     {
       id: 2,
       name: "In phiếu giao hàng",
       icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length,
+      disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: () => handlePrintShipment()
     },
     {
       id: 3,
       name: "In phiếu xuất kho",
       icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length,
+      disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: () => printAction("stock_export")
     },
   ];
-  // end handle action button
 
-  const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
+  const shopeeActions = [
+    {
+      id: "shopee_print_shipment",
+      name: "In phiếu giao hàng Shopee",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length || !data.items.length,
+      onClick: handlePrintShopeeDeliveryNote
+    }
+  ];
+
+  const lazadaActions = [
+    {
+      id: "lazada_print_shipment",
+      name: "In phiếu giao hàng Lazada",
+      icon: <PrinterOutlined />,
+      disabled: !data.items.length || true,
+      onClick: () => {}
     },
-    []
-  );
+    {
+      id: "lazada_create_package",
+      name: "Tạo gói hàng Lazada",
+      icon: <PrinterOutlined />,
+      disabled: !data.items.length || true,
+      onClick: () => {}
+    },
+    {
+      id: "lazada_notify_ready_to_deliver",
+      name: "Báo Lazada sẵn sàng giao",
+      icon: <PrinterOutlined />,
+      disabled: !data.items.length || true,
+      onClick: () => {}
+    }
+  ];
+  // end handle action button
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -776,19 +959,6 @@ const EcommerceOrders: React.FC = () => {
     }
   };
 
-  const getEcommerceOrderList = useCallback(() => {
-    const requestParams = { ...params };
-    if (!requestParams.ecommerce_shop_ids.length) {
-      requestParams.ecommerce_shop_ids = allShopIds;
-    }
-
-    setTableLoading(true);
-    dispatch(getListOrderAction(requestParams, (result) => {
-      setTableLoading(false);
-      setSearchResult(result);
-    }));
-  }, [allShopIds, dispatch, params, setSearchResult]);
-
   const reloadPage = () => {
     if (allowOrdersView) {
       getEcommerceOrderList();
@@ -796,28 +966,24 @@ const EcommerceOrders: React.FC = () => {
   };
   // end
 
-  // handle Select Ecommerce
-  const setAllShopListId = useCallback((result) => {
-    let shopIds: any = [];
-    if (result && result.length > 0) {
-      result.forEach((item: any) => {
-        shopIds.push(item.id);
-      });
-    }
-
-    setAllShopIds(shopIds);
-  }, []);
-
-
   useEffect(() => {
-    if (allowOrdersView && allShopIds.length) {
-      getEcommerceOrderList();
-    }
-  }, [allShopIds, allowOrdersView, getEcommerceOrderList]);
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listExportFile, statusExport]);
+
 
   useEffect(() => {
     if (allowOrdersView) {
-      dispatch(getShopEcommerceList({}, setAllShopListId));
+      getEcommerceOrderList();
+    }
+  }, [allowOrdersView, getEcommerceOrderList, params]);
+
+  useEffect(() => {
+    if (allowOrdersView) {
       dispatch(AccountSearchAction({}, setDataAccounts));
       dispatch(getListSourceRequest(setListSource));
       dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -831,7 +997,7 @@ const EcommerceOrders: React.FC = () => {
         )
       );
     }
-  }, [allowOrdersView, dispatch, setAllShopListId, setDataAccounts]);
+  }, [allowOrdersView, dispatch, setDataAccounts]);
 
     
   // handle progress download orders
@@ -975,6 +1141,8 @@ const EcommerceOrders: React.FC = () => {
             <Card>
               <EcommerceOrderFilter
                 actions={actions}
+                shopeeActions={shopeeActions}
+                lazadaActions={lazadaActions}
                 onFilter={onFilter}
                 isLoading={tableLoading}
                 params={params}
@@ -993,7 +1161,7 @@ const EcommerceOrders: React.FC = () => {
                 bordered
                 isLoading={tableLoading}
                 showColumnSetting={true}
-                scroll={{ x: 2350 }}
+                scroll={{ x: 2400 }}
                 sticky={{ offsetScroll: 10, offsetHeader: 55 }}
                 pagination={
                   tableLoading
@@ -1072,6 +1240,23 @@ const EcommerceOrders: React.FC = () => {
               setColumn(data);
             }}
             data={columns}
+          />
+        )}
+
+        {showExportModal && (
+          <ExportModal
+            visible={showExportModal}
+            onCancel={() => {
+              setShowExportModal(false);
+              setExportProgress(0);
+              setStatusExport(1);
+            }}
+            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+            type="orders"
+            total={data.metadata.total}
+            exportProgress={exportProgress}
+            statusExport={statusExport}
+            selected={!!selectedRowCodes.length}
           />
         )}
       </ContentContainer>

@@ -18,13 +18,11 @@ import {
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
-import querystring from "querystring";
-import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState, lazy } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import ProcumentConfirmModal from "screens/purchase-order/modal/procument-confirm.modal";
-import { formatCurrency } from "utils/AppUtils";
+import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {
   OFFSET_HEADER_TABLE,
   POStatus,
@@ -35,24 +33,26 @@ import {
 import {
   ConvertDateToUtc,
   ConvertUtcToLocalDate,
-  DATE_FORMAT,
+  DATE_FORMAT, getStartOfDayCommon,
 } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
+import {getQueryParams, useQuery} from "utils/useQuery";
 import TabListFilter from "../../filter/TabList.filter";
 import { PoDetailAction } from "domain/actions/po/po.action";
 import { StyledComponent } from "./styles";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import CustomFilter from "component/table/custom.filter";
 import  { MenuAction } from "component/table/ActionButton";
-import ModalConfirm from "component/modal/ModalConfirm";
-import ProducmentInventoryMultiModal from "screens/purchase-order/modal/procument-inventory-multi.modal";
-import ProcumentInventoryModal from "screens/purchase-order/modal/procument-inventory.modal";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { callApiNative } from "utils/ApiUtils";
 import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
-import BaseTagStatus from "../../../../../component/base/BaseTagStatus";
+import BaseTagStatus from "component/base/BaseTagStatus";
+
+const ProcumentConfirmModal = lazy(() => import("screens/purchase-order/modal/procument-confirm.modal"))
+const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
+const ProducmentInventoryMultiModal = lazy(() => import("screens/purchase-order/modal/procument-inventory-multi.modal"))
+const ProcumentInventoryModal = lazy(() => import("screens/purchase-order/modal/procument-inventory.modal"))
+const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
 
 const ACTIONS_INDEX = {
   CONFIRM_MULTI: 1,
@@ -401,8 +401,10 @@ const TabList: React.FC = () => {
     completed_date: null,
   };
 
-  const qurery = useQuery();
-  const paramsrUrl: any = Object.fromEntries(qurery.entries());
+  const query = useQuery();
+  let paramsrUrl: any = useMemo(() => {
+    return {...getQueryParams(query)}
+  }, [query]);
 
   const onDetail = useCallback((result: PurchaseOrder | null) => {
     setLoading(false);
@@ -428,7 +430,7 @@ const TabList: React.FC = () => {
     paramsrUrl.page = page;
     paramsrUrl.limit = size;
     history.replace(
-      `${UrlConfig.PROCUREMENT}?${querystring.stringify(paramsrUrl)}`
+      `${UrlConfig.PROCUREMENT}?${generateQuery(paramsrUrl)}`
     );
   };
 
@@ -546,7 +548,6 @@ const TabList: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {
-    console.log('vao day', record)
     const { status = "", expect_store_id = 144, code } = record;
     switch (status) {
       case ProcumentStatus.DRAFT:
@@ -591,8 +592,17 @@ const TabList: React.FC = () => {
 
   const search = useCallback(()=> {
     setLoading(true);
+    const newParams = {
+      ...paramsrUrl,
+      expect_receipt_from: paramsrUrl.expect_receipt_from && getStartOfDayCommon(paramsrUrl.expect_receipt_from)?.format(),
+      expect_receipt_to: paramsrUrl.expect_receipt_to && getStartOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
+      stock_in_from: paramsrUrl.stock_in_from && getStartOfDayCommon(paramsrUrl.stock_in_from)?.format(),
+      stock_in_to: paramsrUrl.stock_in_to && getStartOfDayCommon(paramsrUrl.stock_in_to)?.format(),
+      active_from: paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
+      active_to: paramsrUrl.active_to && getStartOfDayCommon(paramsrUrl.active_to)?.format(),
+    }
     dispatch(
-      POSearchProcurement(paramsrUrl, (result) => {
+      POSearchProcurement(newParams, (result) => {
         setLoading(false);
         if (result) {
           setData(result);
@@ -646,71 +656,87 @@ const TabList: React.FC = () => {
           onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
         />
         {/* Duyệt phiếu nháp */}
-        <ProcumentConfirmModal
-          isEdit={false}
-          items={[]}
-          stores={listStore}
-          poData={poItems || initPurchaseOrder}
-          procumentCode={procumentCode}
-          now={now}
-          visible={visibleDraft}
-          item={item}
-          onOk={(value: PurchaseProcument) => {
-            onConfirmProcument(value);
-          }}
-          onDelete={onDeleteProcument}
-          loading={loadingConfirm}
-          defaultStore={storeExpect}
-          onCancel={() => {
-            setVisibleDaft(false);
-          }}
-        />
-        <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumns(data);
-          }}
-          data={columns}
-        />
+        {
+          visibleDraft && (
+            <ProcumentConfirmModal
+              isEdit={false}
+              items={[]}
+              stores={listStore}
+              poData={poItems || initPurchaseOrder}
+              procumentCode={procumentCode}
+              now={now}
+              visible={visibleDraft}
+              item={item}
+              onOk={(value: PurchaseProcument) => {
+                onConfirmProcument(value);
+              }}
+              onDelete={onDeleteProcument}
+              loading={loadingConfirm}
+              defaultStore={storeExpect}
+              onCancel={() => {
+                setVisibleDaft(false);
+              }}
+            />
+          )
+        }
+        {
+          showSettingColumn && (
+            <ModalSettingColumn
+              visible={showSettingColumn}
+              onCancel={() => setShowSettingColumn(false)}
+              onOk={(data) => {
+                setShowSettingColumn(false);
+                setColumns(data);
+              }}
+              data={columns}
+            />
+          )
+        }
         {/* Xác nhận nhập */}
-        <ProducmentInventoryMultiModal
-          title={titleMultiConfirm}
-          visible={showConfirm}
-          listProcurement={listProcurement}
-          onOk={(value: Array<PurchaseProcumentLineItem>) => {
-            if (value) onReciveMultiProcument(value);
-          }}
-          loading={loadingRecive}
-          onCancel={() => {
-            setShowConfirm(false);
-          }}
-        />
-
+        {
+          showConfirm && (
+            <ProducmentInventoryMultiModal
+              title={titleMultiConfirm}
+              visible={showConfirm}
+              listProcurement={listProcurement}
+              onOk={(value: Array<PurchaseProcumentLineItem>) => {
+                if (value) onReciveMultiProcument(value);
+              }}
+              loading={loadingRecive}
+              onCancel={() => {
+                setShowConfirm(false);
+              }}
+            />
+          )
+        }
         {/* Xác nhận nhập và Chi tiết phiếu nhập kho */}
-        <ProcumentInventoryModal
-          isDetail={isDetail}
-          loadDetail={loadDetail}
-          isEdit={false}
-          items={[]}
-          stores={listStore}
-          now={now}
-          visible={visibleConfirm}
-          item={procumentInventory}
-          onOk={(value: PurchaseProcument) => {
-            onReciveProcument(value);
-          }}
-          onDelete={onDeleteProcument}
-          loading={loadingRecive}
-          defaultStore={storeExpect}
-          procumentCode={procumentCode}
-          onCancel={() => {
-            setVisibleConfirm(false);
-          }}
-        />
-
-          <ModalConfirm
+        {
+          visibleConfirm && (
+            <ProcumentInventoryModal
+              isDetail={isDetail}
+              loadDetail={loadDetail}
+              isEdit={false}
+              items={[]}
+              stores={listStore}
+              now={now}
+              visible={visibleConfirm}
+              item={procumentInventory}
+              onOk={(value: PurchaseProcument) => {
+                onReciveProcument(value);
+              }}
+              onDelete={onDeleteProcument}
+              loading={loadingRecive}
+              defaultStore={storeExpect}
+              procumentCode={procumentCode}
+              onCancel={() => {
+                setVisibleConfirm(false);
+              }}
+            />
+          )
+        }
+        {
+          showWarConfirm && (
+            <ModalConfirm
               onCancel={(()=>{
                 setShowWarConfirm(false);
               })}
@@ -724,6 +750,8 @@ const TabList: React.FC = () => {
               subTitle={contentWarning}
               visible={showWarConfirm}
             />
+          )
+        }
       </div>
     </StyledComponent>
   );

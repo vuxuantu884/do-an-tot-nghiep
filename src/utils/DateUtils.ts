@@ -100,12 +100,28 @@ export const getEndOfDay = (date: Date | string | number | Moment) => {
 }
 
 export const getStartOfDayCommon = (date: Date | string | number | Moment) => {
-  return date ? moment(date, DATE_FORMAT.DDMMYYY).startOf("day").utc(true) : undefined;
+  if(!date) return
+  return moment(date, DATE_FORMAT.DDMMYYY).startOf("day").utc(true);
 }
 export const getEndOfDayCommon = (date: Date | string | number | Moment) => {
-  return date ? moment(date, DATE_FORMAT.DDMMYYY).endOf("day").utc(true) : undefined;
+  if(!date) return
+  return moment(date, DATE_FORMAT.DDMMYYY).endOf("day").utc(true);
 }
 
 export const formatDateFilter = (date: Date | string | number | Moment | undefined) => {
-  return date ? moment(date).utc(false) : undefined;
+  if(!date) return
+  return moment(date).utc(false)
+}
+
+export const formatDateCommon = (date: Date, format?: string) => {
+  if(!date) return
+  return moment(date).format(format)
+}
+
+export const splitDateRange = (dateRange: any) => {
+  if(!dateRange) return { start: undefined, end: undefined}
+  const splitDate = dateRange.split(' ~ ')
+  const start = splitDate[0] || undefined
+  const end = splitDate[1] || undefined
+  return { start, end }
 }

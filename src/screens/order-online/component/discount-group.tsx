@@ -2,8 +2,10 @@ import { Input, Select, Typography } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
-import { formatCurrency, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency, getLineAmountAfterLineDiscount, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue, replaceFormatString } from "utils/AppUtils";
+import _ from "lodash";
 import { MoneyType } from "utils/Constants";
+import { showError } from "utils/ToastUtils";
 
 type DiscountGroupProps = {
   price: number;
@@ -19,6 +21,7 @@ type DiscountGroupProps = {
 const DiscountGroup: React.FC<DiscountGroupProps> = (
   props: DiscountGroupProps
 ) => {
+  console.log('props', props)
   const { items, disabled = false } = props;
   const { Text } = Typography;
   const [selected, setSelected] = useState(MoneyType.MONEY);
@@ -39,7 +42,8 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
       } else {
         v= Math.round(v);
       }
-      let _items = [...items];
+      // let _items = [...items];
+      let _items = _.cloneDeep(items)
       let _item = _items[props.index];
 			if(_item.discount_items.length === 0) {
 				_item.discount_items = [{
@@ -57,12 +61,19 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 				if(_itemDiscount.value === v) {
 					return;
 				}
+        if(_price < v) {
+					showError("Chiết khấu không lớn hơn giá sản phẩm!");
+				}
         _itemDiscount.value = v;
         _itemDiscount.rate = (v / _price) * 100;
        
       } else {
 				if(_itemDiscount.rate === v) {
 					return;
+				}
+        if(100 < v) {
+					// v = 100 ;
+          showError("Chiết khấu không lớn hơn 100%!");
 				}
         _itemDiscount.value = Math.round((v * _price) / 100);
         _itemDiscount.rate = v;
@@ -71,6 +82,9 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 			_item.discount_value = getLineItemDiscountValue(_item);
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
+			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
+      
+      console.log('_items', _items)
       props.handleCardItems(_items);
     },
     [items, props, selected]

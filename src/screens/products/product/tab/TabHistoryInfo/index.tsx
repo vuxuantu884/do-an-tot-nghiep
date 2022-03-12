@@ -93,19 +93,17 @@ const TabHistoryInfo: React.FC = () => {
       visible: true,
       align: "left",
       render: (value, record) => {
-        if(value!==null)
-        {
-          return (
-            <div>
-              <Link to={`${UrlConfig.ACCOUNTS}/${value}`}>{value}</Link>
-              <div>{record.action_name}</div>
-            </div>
-          );
-        }
-        else {
-          return (<div>---</div>)
-        }
-      },
+        return(
+          <div>
+             {
+              value !==null?
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.action_by}`}> 
+                  {record.action_name} 
+                </Link>  :"---"
+            }
+          </div>
+        )
+    },
     },
     {
       title: "Log ID",

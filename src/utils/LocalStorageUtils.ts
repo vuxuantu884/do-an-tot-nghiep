@@ -33,7 +33,7 @@ const setPackInfo = (appSeting: any) => {
   localStorage.setItem(PACKINFO_APP, data);
 };
 
-const getPackInfo = (): String | null => {
+const getPackInfo = (): string | null => {
   return localStorage.getItem(PACKINFO_APP);
 };
 

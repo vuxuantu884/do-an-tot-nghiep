@@ -125,7 +125,7 @@
       }
       .ant-tabs-nav {
         position: fixed;
-        z-index: 1051;
+        z-index: 999;
         width: 100%;
         padding: 0;
         height: 42px;
@@ -222,8 +222,6 @@
     .saleorder_shipment_button {
       padding: 3px 10px;
     }
-    .saleorder_shipment_button_active {
-    }
   }
   .fpage-discount-select {
     .ant-select-selector {
@@ -236,7 +234,7 @@
   .ant-layout-header {
     display: none;
   }
-  .saleorder-product-modal {
+  .saleorder-products-modal {
     .ant-modal-body {
       .ant-table-cell:last-child {
         min-width: 50px;
@@ -245,10 +243,6 @@
         min-width: 170px;
       }
     }
-  }
-  .ant-btn:hover,
-  .ant-btn:focus {
-    //background-color: transparent;
   }
   .fpage-ant-btn-custom {
     border: none !important;
@@ -260,7 +254,7 @@
   .padding-12 {
     padding: 12px;
   }
-  .saleorder-product-modal {
+  .saleorder-products-modal {
     .ant-table-wrapper {
       padding: 0;
     }
@@ -420,11 +414,6 @@
     .btn-list-method {
       padding: 0;
       justify-content: space-between;
-      .ant-btn {
-        // padding: 10px 20px !important;
-        // margin-top: 5px;
-        // width: 190px;
-      }
     }
   }
   .order-source-selected {
@@ -620,13 +609,8 @@
 }
 
 @media screen and (max-width: 500px) {
-  .create-order-payment {
-    .btn-list-method {
-      .ant-btn {
-        // padding: 10px 20px !important;
-        // margin-top: 5px;
-        // width: 162px;
-      }
-    }
-  }
+	body.ant-scrolling-effect {
+		width: 100% !important;
+    overflow: unset !important;
+	}
 }

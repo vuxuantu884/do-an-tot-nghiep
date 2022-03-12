@@ -17,13 +17,14 @@ import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -35,11 +36,6 @@ const actionsDefault: Array<MenuAction> = [
     id: 2,
     name: "Xóa",
     icon:<DeleteOutlined />
-  },
-  {
-    id: 3,
-    name: "Export",
-    icon:<ExportOutlined />
   },
 ];
 const { Item } = Form;
@@ -58,6 +54,7 @@ const ListMaterial: React.FC = () => {
     },
   });
   const [loading, setLoading] = useState<boolean>(true);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const columns = [
     {
       title: "Mã chất liệu",
@@ -105,10 +102,6 @@ const ListMaterial: React.FC = () => {
   }, [dispatch, onGetSuccess, params, selected]);
 
   const onDelete = useCallback(() => {
-    if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần từ cần xóa");
-      return;
-    }
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(deleteOneMaterialAction(id, onDeleteSuccess));
@@ -168,11 +161,15 @@ const ListMaterial: React.FC = () => {
           onUpdate();
           break;
         case 2:
-          onDelete();
+          if (selected.length === 0) {
+            showWarning("Vui lòng chọn chất liệu cần xóa");
+            return;
+          }
+          setConfirmDelete(true);
           break;
       }
     },
-    [onDelete, onUpdate]
+    [selected, onUpdate]
   );
 
   const [canDeleteMaterials] = useAuthorization({
@@ -266,6 +263,16 @@ const ListMaterial: React.FC = () => {
           columns={columns}
           onSelectedChange={onSelect}
           rowKey={(item: MaterialResponse) => item.id}
+        />
+         <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            setConfirmDelete(false);
+            onDelete();
+          }}
+          title="Bạn chắc chắn xóa màu sắc ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          visible={isConfirmDelete}
         />
       </Card>
     </ContentContainer>

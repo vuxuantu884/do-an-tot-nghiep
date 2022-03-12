@@ -1664,8 +1664,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     <Menu>
       {actionList.map((item, index) => {
         return (
-          <Menu.Item key={item.type} disabled={selectedCustomerIds?.length < 1}>
-            <span onClick={() => changeCustomerPoint(item.type)}>
+          <Menu.Item key={item.type} onClick={() => changeCustomerPoint(item.type)} disabled={selectedCustomerIds?.length < 1}>
+            <span>
               {item.name}
             </span>
           </Menu.Item>

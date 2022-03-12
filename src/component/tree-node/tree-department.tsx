@@ -1,7 +1,7 @@
 import React from "react";
 import { Tag, TreeSelect, TreeSelectProps } from "antd";
 import { DepartmentResponse } from "model/account/department.model";
-import extra from "../../routes/menu/extra";
+import { strForSearch } from "../../utils/StringUtils";
 
 interface Props extends TreeSelectProps<string> {
     name?: string;
@@ -15,11 +15,10 @@ const TreeDepartment = (props: Props) => {
 
     const propConvert = () => {
         const restPropsExt: any = { ...restProps, }
-        const restPropsConvert = {
+        return {
             ...restProps,
             value: restPropsExt?.value?.map((p: string | number) => +p)
-        }
-        return restPropsConvert;
+        };
     }
 
     function tagRender(props: any) {
@@ -69,8 +68,12 @@ const TreeDepartment = (props: Props) => {
             showCheckedStrategy={TreeSelect.SHOW_ALL}
             onChange={onChange}
             {...propConvert()}
-            filterTreeNode={(search: any, item: any) => {
-                return item?.title.toLowerCase().includes(search.toLowerCase().trim());
+            filterTreeNode={(input: String, option: any) => {
+                if (option.value) {
+                    return strForSearch(option.title).includes(strForSearch(input));
+                }
+
+                return false;
             }}
         >
               {listDepartment?.map((item, index) => (
