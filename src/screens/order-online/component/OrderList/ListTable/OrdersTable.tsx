@@ -249,6 +249,9 @@ function OrdersTable(props: PropTypes) {
   };
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
+    if(data.items.length === 0) {
+      return []
+    }
     return [
       {
         title: "ID đơn hàng",
@@ -875,7 +878,7 @@ function OrdersTable(props: PropTypes) {
         width: 120,
       },
     ];
-  }, [deliveryServices, editNote, renderOrderPayments, status_order]);
+  }, [data.items.length, deliveryServices, editNote, renderOrderPayments, status_order]);
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
