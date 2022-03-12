@@ -76,6 +76,7 @@ function* createGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch (e) {
     showError("Có lỗi xảy ra, vui lòng thử lại");
+    console.log(e)
   }
   finally{
     put(hideLoading())
