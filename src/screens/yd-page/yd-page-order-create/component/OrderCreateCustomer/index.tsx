@@ -379,7 +379,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 				ids: [defaultSourceId]
 			}
 			getSourcesWithParamsService(query).then((response) => {
-				setListSource([...listSource, response.data.items[0]])
+				setListSource(oldArray => [...oldArray, response.data.items[0]])
 				form.setFieldsValue({ source_id: defaultSourceId })
 			}).catch((error) => {
 				console.log('error', error)
