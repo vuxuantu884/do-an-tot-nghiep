@@ -1384,27 +1384,32 @@ html
 // };
 
 export const isFetchApiSuccessful = (response:BaseResponse<any>) => {
-	switch (response.code) {
-		case HttpStatus.SUCCESS:
-			return true;
-		default:
-			return false;
-	}
+	if(response){
+    switch (response?.code) {
+      case HttpStatus.SUCCESS:
+        return true;
+      default:
+        return false;
+    }
+  }
+  return false;
 };
 
 export function handleFetchApiError(response: BaseResponse<any>, textApiInformation: string, dispatch: any) {
-  switch (response.code) {
-    case HttpStatus.UNAUTHORIZED:
-      dispatch(unauthorizedAction());
-      break;
-    default:
-      if(response?.message) {
-        showError(`${textApiInformation}: ${response?.message}`);
-      }
-      if(response?.errors && response?.errors.length > 0) {
-        response?.errors?.forEach((e:any) => showError(e));
-      }
-      break;
+  if(response){
+    switch (response.code) {
+      case HttpStatus.UNAUTHORIZED:
+        dispatch(unauthorizedAction());
+        break;
+      default:
+        if(response?.message) {
+          showError(`${textApiInformation}: ${response?.message}`);
+        }
+        if(response?.errors && response?.errors.length > 0) {
+          response?.errors?.forEach((e:any) => showError(e));
+        }
+        break;
+    }
   }
 }
 
