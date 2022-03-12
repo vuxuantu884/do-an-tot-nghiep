@@ -19,6 +19,8 @@ type OrderPackContextType = {
   setPackModel:(value:PackModel)=>void;
   setIsFulFillmentPack:(fulFillmentCode:string[])=>void;
   isFulFillmentPack:string[];
+  setLoading?:(value:boolean)=>void;
+  loading?:boolean;
 };
 // tạo context
 export const OrderPackContext = createContext<OrderPackContextType>({
@@ -35,5 +37,7 @@ export const OrderPackContext = createContext<OrderPackContextType>({
     packModel:null,
     setPackModel:(value:PackModel)=>{},
     setIsFulFillmentPack:(fulFillmentCode:string[])=>{},
-    isFulFillmentPack:[]
+    isFulFillmentPack:[],
+    setLoading:(value:boolean)=>{},
+    loading:false
 });

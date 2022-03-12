@@ -21,7 +21,7 @@ import {
 } from "model/response/order/order.response";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
@@ -38,7 +38,7 @@ interface OrderLineItemResponseExt extends OrderLineItemResponse {
 var barcode = "";
 
 const PackInfo: React.FC = () => {
-
+  const history = useHistory();
   const dispatch = useDispatch();
 
   //form
@@ -56,7 +56,7 @@ const PackInfo: React.FC = () => {
   const [disableProduct, setDisableProduct] = useState(true);
   const [disableQuality, setDisableQuality] = useState(true);
 
- 
+
   //element
   const btnFinishPackElement = document.getElementById("btnFinishPack");
   const btnClearPackElement = document.getElementById("btnClearPack");
@@ -76,7 +76,6 @@ const PackInfo: React.FC = () => {
 
   const setPackModel = orderPackContextData?.setPackModel;
   const packModel = orderPackContextData?.packModel;
-
   const listStoresDataCanAccess = orderPackContextData?.listStoresDataCanAccess;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
 
@@ -90,7 +89,7 @@ const PackInfo: React.FC = () => {
   const deliveryServiceProvider = useMemo(() => {
     let dataAccess: DeliveryServiceResponse[] = [];
     listThirdPartyLogistics.forEach((item, index) => {
-      if (dataAccess.findIndex((p) => p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim())!== -1)===-1)
+      if (dataAccess.findIndex((p) => p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim()) !== -1) === -1)
         dataAccess.push({ ...item })
     });
     return dataAccess;
@@ -257,9 +256,19 @@ const PackInfo: React.FC = () => {
   useEffect(() => {
     if (orderResponse) {
       console.log("orderResponse", orderResponse);
-      let item: any[] = [];
-      orderResponse.items.forEach(function (i: any) {
-        item.push({ ...i, pick: 0, color: "#E24343" });
+      let item: OrderLineItemResponseExt[] = [];
+      orderResponse.items.forEach(function (i: OrderLineItemResponse) {
+
+        let indexDuplicate = item.findIndex(p => p.variant_id === i.variant_id);
+        if (indexDuplicate !== -1) {
+          let quantity = item[indexDuplicate].quantity + i.quantity;
+          
+          //item.push({ ...i, quantity: quantity || 0, pick: 0, color: "#E24343" });
+          item[indexDuplicate].quantity=quantity;
+          console.log("indexDuplicate", item[indexDuplicate]);
+        }
+        else
+          item.push({ ...i, pick: 0, color: "#E24343" });
       });
       setItemProductList(item);
     }
@@ -272,8 +281,10 @@ const PackInfo: React.FC = () => {
       itemProductList.length !== 0
     ) {
       let indexPack = itemProductList.filter(
-        (p: OrderProductListModel) => Number(p.quantity) !== Number(p.pick)
+        (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
       );
+
+      console.log("indexPack",indexPack)
 
       if (indexPack === undefined || indexPack.length === 0) {
         let request = {
@@ -299,14 +310,7 @@ const PackInfo: React.FC = () => {
         );
       }
     }
-  }, [
-    dispatch,
-    itemProductList,
-    orderResponse,
-    btnClearPackElement,
-    packModel,
-    setPackModel,
-  ]);
+  }, [dispatch, itemProductList, orderResponse, btnClearPackElement, packModel, setPackModel, history]);
 
   useEffect(() => {
     if (disableOrder) {
@@ -385,7 +389,7 @@ const PackInfo: React.FC = () => {
     ),
     className: "yody-pos-quantity text-center",
     width: "15%",
-    align:"center",
+    align: "center",
     render: (l: any, item: any, index: number) => {
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
@@ -403,7 +407,7 @@ const PackInfo: React.FC = () => {
       return (
         <div
           className="yody-product-pick"
-          style={{ background: `${l.color}`}}
+          style={{ background: `${l.color}` }}
         >
           {formatCurrency(l.pick)}
         </div>
@@ -563,7 +567,7 @@ const PackInfo: React.FC = () => {
       </Form>
       {itemProductList && itemProductList.length > 0 && (
         <div className="yody-row-flex yody-pack-row">
-          <div className="yody-row-item" style={{  width: "42%", paddingRight: "97px" }}>
+          <div className="yody-row-item" style={{ width: "42%", paddingRight: "97px" }}>
             <span className="customer-detail-text">
               <strong>Đơn hàng:</strong>
               <Typography.Text
@@ -577,7 +581,7 @@ const PackInfo: React.FC = () => {
               </Typography.Text>
             </span>
           </div>
-          <div className="yody-row-item" style={{width:"55%"}}>
+          <div className="yody-row-item" style={{ width: "55%" }}>
             <span className="customer-detail-text">
               <strong>Hãng vận chuyển:</strong>
               <Typography.Text
@@ -591,7 +595,7 @@ const PackInfo: React.FC = () => {
               </Typography.Text>
             </span>
           </div>
-          <div className="yody-row-item" style={{ paddingLeft: "30px",width:"100%" }}>
+          <div className="yody-row-item" style={{ paddingLeft: "30px", width: "100%" }}>
             <span className="customer-detail-text">
               <strong>Khách hàng: </strong>
               <Typography.Text
@@ -609,6 +613,7 @@ const PackInfo: React.FC = () => {
       )}
       <Row justify="space-between" className="yody-pack-row">
         <Table
+          //loading={loading}
           locale={{
             emptyText: (
               <div className="sale_order_empty_product">

@@ -20,15 +20,24 @@ interface ResultPaging {
   result: any;
 }
 
-function PackList() {
+interface OrderResponseTable extends OrderResponse{
+  key:number;
+}
 
+function PackList() {
+  
   const loading = useSelector((state: RootReducerType) => state.loadingReducer);
 
   const orderPackContextData = useContext(OrderPackContext);
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
 
-  const orderData: OrderResponse[] | undefined = useMemo(() =>
-    orderPackContextData?.packModel?.order, [orderPackContextData?.packModel]);
+  const orderData: OrderResponseTable[] | undefined = useMemo(() =>
+    {
+      let order=orderPackContextData?.packModel?.order;
+      let result= order?.map((p,index)=>({...p,key:index}));
+
+      return result?.reverse()
+    },[orderPackContextData]);
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: 1,
@@ -43,7 +52,7 @@ function PackList() {
   });
 
   useEffect(() => {
-    if (!orderData) {
+    if (!orderData || (orderData&&orderData.length<=0)) {
       setResultPaging({
         currentPage: 1,
         lastPage: 1,
@@ -61,8 +70,8 @@ function PackList() {
 
       let start: number = (pagingParam.currentPage - 1) * pagingParam.perPage;
       let end: number = start + pagingParam.perPage;
-      let orderDataReverse = orderData.reverse();
-      let orderDataCopy = orderDataReverse.slice(start, end);
+      // let orderDataReverse = orderData.reverse();
+      let orderDataCopy = orderData.slice(start, end);
 
       let result: ResultPaging = {
         currentPage: pagingParam.currentPage,
@@ -137,16 +146,16 @@ function PackList() {
     let code: string[] = [];
 
     selectedRow.forEach((row: any) => {
-      if (row) code.push(row.code);
+      if (row) code.push(row.order_code);
     });
 
     setIsFulFillmentPack([...code]);
     console.log("code", code);
   };
 
-  // console.log("pagingParam", pagingParam)
-  // console.log("resultPaging",resultPaging)
-  // console.log("orderData", orderData)
+   console.log("pagingParam", pagingParam)
+   console.log("resultPaging",resultPaging)
+   console.log("orderData", orderData)
   return (
     <Card
       title="Đơn đã đóng gói "
