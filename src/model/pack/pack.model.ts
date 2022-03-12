@@ -109,6 +109,7 @@ export interface GoodsReceiptsOrderListModel{
   postage:number;
   card_number:number;
   status:string;
+  status_color?: string;
   note:string|null;
   items:Array<FulfillmentsItemModel>;
 }

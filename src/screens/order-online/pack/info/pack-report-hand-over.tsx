@@ -395,7 +395,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       fixed: "left",
       width:"120px",
       render: (l: any, item: any, index: number) => {
-        console.log('item', item);
         
         const service_id = item.delivery_service_id;
         if (service_id === -1) {
@@ -411,7 +410,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           );
         } else {
           const service = delivery_services.find((service) => service.id === service_id);
-          console.log('service', service);
           return (
             <React.Fragment>
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
@@ -577,7 +575,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   let newColumns = columns
   const columnFinal = useMemo(
     () => {
-      // console.log('allowDeleteGR', allowDeleteGoodsReceipt);
       return newColumns.filter((item: any) => item.visible === true)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
