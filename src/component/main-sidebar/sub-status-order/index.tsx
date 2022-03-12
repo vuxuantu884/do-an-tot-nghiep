@@ -342,7 +342,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           now: ORDER_SUB_STATUS.third_call_attempt,
           list: [ORDER_SUB_STATUS.third_call_attempt],
         },
-        // duyệt đơn hàng
+        // Chờ xác nhận
         {
           orderStatus: OrderStatus.FINALIZED,
           now: ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
@@ -353,13 +353,14 @@ function SubStatusOrder(props: PropType): React.ReactElement {
             ORDER_SUB_STATUS.fourHour_delivery,
           ],
         },
-        // chờ sale xác nhận lại
+        // Chờ xử lý
         {
           orderStatus: OrderStatus.FINALIZED,
           now: ORDER_SUB_STATUS.awaiting_saler_confirmation,
           list: [
             ORDER_SUB_STATUS.awaiting_saler_confirmation,
             ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+            ORDER_SUB_STATUS.coordinator_confirmed,
           ],
         },
         //đổi kho hàng
