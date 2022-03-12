@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, isOrderFromPOS } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -212,17 +212,29 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             dataToSelect={assigneeAccountData}
             setDataToSelect={setAssigneeAccountData}
             initDataToSelect={initAssigneeAccountData}
+            disabled = {isOrderFinishedOrCancel(orderDetail)}
           />
         </Form.Item>
         <Form.Item
           label="Nhân viên marketing"
           name="marketer_code"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng chọn nhân viên marketing!",
-            },
-          ]}
+          rules={
+            // nguồn POS thì không validate
+            !isOrderFromPOS(orderDetail)
+              ? [
+                  {
+                    required: true,
+                    message: "Vui lòng chọn nhân viên marketing!",
+                  },
+                ]
+              : undefined
+          }
+          // rules={[
+          //   {
+          //     required: true,
+          //     message: "Vui lòng chọn nhân viên marketing!",
+          //   },
+          // ]}
         >
           <AccountCustomSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -230,6 +242,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             dataToSelect={marketingAccountData}
             setDataToSelect={setMarketingAccountData}
             initDataToSelect={initMarketingAccountData}
+            disabled = {isOrderFinishedOrCancel(orderDetail)}
           />
         </Form.Item>
         {/* <Form.Item
@@ -252,7 +265,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền tham chiếu" maxLength={255} />
+          <Input placeholder="Điền tham chiếu" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail)} />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"
@@ -262,7 +275,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền đường dẫn" maxLength={255} />
+          <Input placeholder="Điền đường dẫn" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail)}/>
         </Form.Item>
         {renderSplitOrder()}
       </Card>
