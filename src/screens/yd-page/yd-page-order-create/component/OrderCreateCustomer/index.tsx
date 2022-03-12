@@ -368,6 +368,26 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [listSource]);
 
   useEffect(() => {
+		if(!listSource) return
+		if(!defaultSourceId) return
+
+    let defaultSourceIndex = listSource.findIndex(data => {
+      return data.id === defaultSourceId;
+    });
+    if (defaultSourceIndex < 0) {
+			let query = {
+				ids: [defaultSourceId]
+			}
+			getSourcesWithParamsService(query).then((response) => {
+				setListSource(oldArray => [...oldArray, response.data.items[0]])
+				form.setFieldsValue({ source_id: defaultSourceId })
+			}).catch((error) => {
+				console.log('error', error)
+			})
+    }
+  }, [listSource, defaultSourceId]);
+
+  useEffect(() => {
     let query = {
       name: '',
       active: true
@@ -569,8 +589,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               align="middle"
               justify="space-between"
               className="row-customer-detail"
-              style={{ margin: "10px 0" }}
-            >
+              style={{ margin: "5px 0" }}>
               <Col style={{ display: "flex", alignItems: "center" }}>
                 {levelOrder < 3 && (
                   <CloseOutlined
@@ -578,13 +597,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                     onClick={CustomerDeleteInfo}
                   />
                 )}
-                <div className="fpage-order-avatar-customer">
-                  <img
-                    style={{ width: 34, height: 34 }}
-                    src={logoMobile}
-                    alt="logo"
-                  />
-                </div>
+                {/* <div className="fpage-order-avatar-customer">
+                  <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo" />
+                </div> */}
                 <Link
                   target="_blank"
                   to={`${UrlConfig.CUSTOMER}/${customer?.id}`}
