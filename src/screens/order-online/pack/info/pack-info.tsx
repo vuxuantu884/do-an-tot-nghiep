@@ -481,7 +481,7 @@ const PackInfo: React.FC = () => {
                   disabled={disableDeliveryPproviderId}
                   onChange={(value?: number) => onChangeDeliveryServiceId(value)}
                 >
-                  <Select.Option key={-1} value={-1}>Tự vận chuyển</Select.Option>
+                  <Select.Option key={-1} value={-1}>Tự giao hàng</Select.Option>
                   {
                     deliveryServiceProvider.map((item, index) => (
                       <Select.Option key={index.toString()} value={item.id}>
