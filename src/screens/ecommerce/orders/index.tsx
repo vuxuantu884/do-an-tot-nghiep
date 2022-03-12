@@ -549,6 +549,53 @@ const EcommerceOrders: React.FC = () => {
       width: 150,
     },
     {
+      title: "Vận chuyển",
+      key: "",
+      visible: true,
+      width: 130,
+      align: "center",
+      render: (item: any) => {
+        const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
+        return (
+          <>
+            {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
+                <>
+                    <strong>{shipment?.delivery_service_provider_name}</strong>
+                    <div>
+                        <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
+                        <NumberFormat
+                            value={shipment?.shipping_fee_informed_to_customer}
+                            className="foo"
+                            displayType={"text"}
+                            thousandSeparator={true}
+                        />
+                    </div>
+                    <div>
+                        <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
+                        <NumberFormat
+                            value={shipment?.shipping_fee_paid_to_three_pls}
+                            className="foo"
+                            displayType={"text"}
+                            thousandSeparator={true}
+                        />
+                    </div>
+                </>
+            }
+            {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
+                <>
+                    <strong>Nhận tại cửa hàng</strong>
+                </>
+            }
+            {shipment && shipment.delivery_service_provider_type === "Shipper" &&
+                <>
+                    <strong>Tự giao hàng</strong>
+                </>
+            }
+          </>
+        );
+      },
+    },
+    {
       title: "TT Đơn hàng",
       dataIndex: "status",
       key: "order_status",
@@ -575,53 +622,6 @@ const EcommerceOrders: React.FC = () => {
         return (
           <div className="p-b-3">{item.shipping_address.full_address}</div>
         )
-      },
-    },
-    {
-      title: "Vận chuyển",
-      key: "",
-      visible: true,
-      width: 130,
-      align: "center",
-      render: (item: any) => {
-        const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
-        return (
-          <>
-            {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
-              <>
-                <strong>{shipment?.delivery_service_provider_name}</strong>
-                <div>
-                  <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
-                  <NumberFormat
-                    value={shipment?.shipping_fee_informed_to_customer}
-                    className="foo"
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
-                </div>
-                <div>
-                  <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
-                  <NumberFormat
-                    value={shipment?.shipping_fee_paid_to_three_pls}
-                    className="foo"
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
-                </div>
-              </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
-              <>
-                <strong>Nhận tại cửa hàng</strong>
-              </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "Shipper" &&
-              <>
-                <strong>Tự giao hàng</strong>
-              </>
-            }
-          </>
-        );
       },
     },
     {
