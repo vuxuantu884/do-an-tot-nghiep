@@ -66,7 +66,7 @@
   }
 
   .pack-give-card-row-item {
-    margin-right: 10px;
+    margin-right: 16px;
     width: 100%;
   }
 }
@@ -146,4 +146,21 @@
 .yody-pack-row {
   margin-top: 11px;
   padding: 0 14px;
+}
+.order-product-pick{
+  .ant-table-tbody>tr>td, .ant-table-thead>tr>th, .ant-table tfoot>tr>td, .ant-table tfoot>tr>th{
+    position: relative;
+    padding: 5px;
+    overflow-wrap: break-word;
+  }
+  .yody-product-pick{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
 }

@@ -9,6 +9,8 @@ type OrderPackContextType = {
   setListThirdPartyLogistics: (value: DeliveryServiceResponse[]) => void;
   listStores:Array<StoreResponse>;
   setListStores:(value: Array<StoreResponse>)=>void;
+  listStoresDataCanAccess?:Array<StoreResponse>;
+  setListStoresDataCanAccess?:(value: Array<StoreResponse>)=>void;
   listGoodsReceiptsType:Array<GoodsReceiptsTypeResponse>;
   setListGoodsReceiptsType:(value: Array<GoodsReceiptsTypeResponse>)=>void;
   listChannels:Array<ChannelsResponse>;
@@ -17,6 +19,8 @@ type OrderPackContextType = {
   setPackModel:(value:PackModel)=>void;
   setIsFulFillmentPack:(fulFillmentCode:string[])=>void;
   isFulFillmentPack:string[];
+  setLoading?:(value:boolean)=>void;
+  loading?:boolean;
 };
 // tạo context
 export const OrderPackContext = createContext<OrderPackContextType>({
@@ -24,6 +28,8 @@ export const OrderPackContext = createContext<OrderPackContextType>({
     setListThirdPartyLogistics:(value: DeliveryServiceResponse[]) =>{},
     listStores:[],
     setListStores:(value: StoreResponse[]) =>{},
+    listStoresDataCanAccess:[],
+    setListStoresDataCanAccess:(value: StoreResponse[]) =>{},
     listGoodsReceiptsType:[],
     setListGoodsReceiptsType:(value: GoodsReceiptsTypeResponse[]) =>{},
     listChannels:[],
@@ -31,5 +37,7 @@ export const OrderPackContext = createContext<OrderPackContextType>({
     packModel:null,
     setPackModel:(value:PackModel)=>{},
     setIsFulFillmentPack:(fulFillmentCode:string[])=>{},
-    isFulFillmentPack:[]
+    isFulFillmentPack:[],
+    setLoading:(value:boolean)=>{},
+    loading:false
 });

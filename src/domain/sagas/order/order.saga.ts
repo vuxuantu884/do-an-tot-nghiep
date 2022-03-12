@@ -677,8 +677,9 @@ function* putFulfillmentsSagaPack(action: YodyAction) {
     }
   } catch (error) {
     console.log(error);
-    showError("Có lỗi khi cập nhật fulfillment! Vui lòng thử lại sau! 22");
-  } finally {
+    showError("Có lỗi khi cập nhật fulfillment! Vui lòng thử lại sau!");
+  } 
+  finally {
     yield put(hideLoading());
   }
 }
@@ -693,7 +694,7 @@ function* getFulfillmentsPackedSaga(action: YodyAction) {
       yield put(fetchApiErrorAction(response, "Danh sách fulfillment"));
     }
   } catch (error) {
-    showError("Có lỗi khi lấy danh sách fulfillment! Vui lòng thử lại sau! 33");
+    showError("Có lỗi khi lấy danh sách fulfillment! Vui lòng thử lại sau!");
   }
 }
 

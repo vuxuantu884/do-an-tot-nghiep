@@ -13,28 +13,22 @@ import {
 import UrlConfig from "config/url.config";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { getFulfillments, getFulfillmentsPack } from "domain/actions/order/order.action";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderResponse,
   OrderProductListModel,
-  OrderLineItemResponse
+  OrderLineItemResponse,
+  DeliveryServiceResponse
 } from "model/response/order/order.response";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { formatCurrency, haveAccess } from "utils/AppUtils";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { formatCurrency } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { RegUtil } from "utils/RegUtils";
-
-// type PackInfoProps = {
-//   setFulfillmentsPackedItems: (items: OrderResponse[]) => void;
-//   fulfillmentData: OrderResponse[];
-// };
 
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
@@ -44,7 +38,7 @@ interface OrderLineItemResponseExt extends OrderLineItemResponse {
 var barcode = "";
 
 const PackInfo: React.FC = () => {
-
+  const history = useHistory();
   const dispatch = useDispatch();
 
   //form
@@ -62,7 +56,7 @@ const PackInfo: React.FC = () => {
   const [disableProduct, setDisableProduct] = useState(true);
   const [disableQuality, setDisableQuality] = useState(true);
 
-  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
   //element
   const btnFinishPackElement = document.getElementById("btnFinishPack");
   const btnClearPackElement = document.getElementById("btnClearPack");
@@ -82,8 +76,7 @@ const PackInfo: React.FC = () => {
 
   const setPackModel = orderPackContextData?.setPackModel;
   const packModel = orderPackContextData?.packModel;
-
-  const listStores = orderPackContextData?.listStores;
+  const listStoresDataCanAccess = orderPackContextData?.listStoresDataCanAccess;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
 
   const shipName =
@@ -93,18 +86,14 @@ const PackInfo: React.FC = () => {
       )?.name
       : "";
 
-  const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = [];
-    if (listStores) {
-      newData = listStores.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
-      );
-    }
-    return newData;
-  }, [listStores, userReducer.account]);
+  const deliveryServiceProvider = useMemo(() => {
+    let dataAccess: DeliveryServiceResponse[] = [];
+    listThirdPartyLogistics.forEach((item, index) => {
+      if (dataAccess.findIndex((p) => p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim()) !== -1) === -1)
+        dataAccess.push({ ...item })
+    });
+    return dataAccess;
+  }, [listThirdPartyLogistics]);
 
   ///context
 
@@ -204,7 +193,7 @@ const PackInfo: React.FC = () => {
   const FinishPack = useCallback(() => {
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
-    if(value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())){
+    if (value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())) {
       return
     }
 
@@ -220,7 +209,7 @@ const PackInfo: React.FC = () => {
       );
 
       if (indexPack !== -1) {
-        
+
         if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
           showError("Số lượng nhặt không đúng");
           return
@@ -267,9 +256,19 @@ const PackInfo: React.FC = () => {
   useEffect(() => {
     if (orderResponse) {
       console.log("orderResponse", orderResponse);
-      let item: any[] = [];
-      orderResponse.items.forEach(function (i: any) {
-        item.push({ ...i, pick: 0, color: "#E24343" });
+      let item: OrderLineItemResponseExt[] = [];
+      orderResponse.items.forEach(function (i: OrderLineItemResponse) {
+
+        let indexDuplicate = item.findIndex(p => p.variant_id === i.variant_id);
+        if (indexDuplicate !== -1) {
+          let quantity = item[indexDuplicate].quantity + i.quantity;
+          
+          //item.push({ ...i, quantity: quantity || 0, pick: 0, color: "#E24343" });
+          item[indexDuplicate].quantity=quantity;
+          console.log("indexDuplicate", item[indexDuplicate]);
+        }
+        else
+          item.push({ ...i, pick: 0, color: "#E24343" });
       });
       setItemProductList(item);
     }
@@ -282,8 +281,10 @@ const PackInfo: React.FC = () => {
       itemProductList.length !== 0
     ) {
       let indexPack = itemProductList.filter(
-        (p: OrderProductListModel) => Number(p.quantity) !== Number(p.pick)
+        (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
       );
+
+      console.log("indexPack",indexPack)
 
       if (indexPack === undefined || indexPack.length === 0) {
         let request = {
@@ -309,14 +310,7 @@ const PackInfo: React.FC = () => {
         );
       }
     }
-  }, [
-    dispatch,
-    itemProductList,
-    orderResponse,
-    btnClearPackElement,
-    packModel,
-    setPackModel,
-  ]);
+  }, [dispatch, itemProductList, orderResponse, btnClearPackElement, packModel, setPackModel, history]);
 
   useEffect(() => {
     if (disableOrder) {
@@ -354,7 +348,7 @@ const PackInfo: React.FC = () => {
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
-    width: "30%",
+    width: "25%",
     className: "yody-pos-name",
     render: (l: any, item: any, index: number) => {
       return (
@@ -395,6 +389,7 @@ const PackInfo: React.FC = () => {
     ),
     className: "yody-pos-quantity text-center",
     width: "15%",
+    align: "center",
     render: (l: any, item: any, index: number) => {
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
@@ -402,7 +397,7 @@ const PackInfo: React.FC = () => {
   const QualtityPickColumn = {
     title: () => (
       <div>
-        <span style={{ color: "#222222", textAlign: "right" }}>Số lượng nhặt</span>
+        <span style={{ color: "#222222", textAlign: "right" }}>Đã nhặt hàng</span>
       </div>
     ),
     className: "yody-columns-of-picks text-right",
@@ -411,8 +406,8 @@ const PackInfo: React.FC = () => {
     render: (l: any, item: any, index: number) => {
       return (
         <div
-          className="yody-pos-price"
-          style={{ background: `${l.color}`, padding: "15px" }}
+          className="yody-product-pick"
+          style={{ background: `${l.color}` }}
         >
           {formatCurrency(l.pick)}
         </div>
@@ -436,7 +431,7 @@ const PackInfo: React.FC = () => {
                 message: "Vui lòng chọn cửa hàng"
               },
             ]}
-            style={{ width: "100%", paddingRight: "30px" }}
+            style={{ width: "42%", paddingRight: "97px" }}
           >
             <Select
               className="select-with-search"
@@ -457,7 +452,7 @@ const PackInfo: React.FC = () => {
               }}
               disabled={disableStoreId}
             >
-              {dataCanAccess.map((item, index) => (
+              {listStoresDataCanAccess?.map((item, index) => (
                 <Select.Option key={index.toString()} value={item.id}>
                   {item.name}
                 </Select.Option>
@@ -472,10 +467,10 @@ const PackInfo: React.FC = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn hãng vẫn chuyển"
+                    message: "Vui lòng chọn hãng vận chuyển"
                   },
                 ]}
-                style={+window.screen.availWidth >= 1920 ? { width: "220px", margin: 0 } : { width: "150px", margin: 0 }}
+                style={{ width: "220px", margin: 0 }}
               >
                 <Select
                   style={{ width: "100%" }}
@@ -486,9 +481,9 @@ const PackInfo: React.FC = () => {
                   disabled={disableDeliveryPproviderId}
                   onChange={(value?: number) => onChangeDeliveryServiceId(value)}
                 >
-                  <Select.Option key={-1} value={-1}>Tự vận chuyển</Select.Option>
+                  <Select.Option key={-1} value={-1}>Tự giao hàng</Select.Option>
                   {
-                    listThirdPartyLogistics.map((item, index) => (
+                    deliveryServiceProvider.map((item, index) => (
                       <Select.Option key={index.toString()} value={item.id}>
                         {item.name}
                       </Select.Option>
@@ -506,7 +501,7 @@ const PackInfo: React.FC = () => {
                     message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
                   },
                 ]}
-                style={+window.screen.availWidth >= 1920 ? { width: "calc(100% - 220px)" } : { width: "calc(100% - 150px)" }}
+                style={{ width: "calc(100% - 220px)" }}
               >
                 <Input
                   placeholder="ID đơn hàng/Mã vận đơn"
@@ -521,7 +516,7 @@ const PackInfo: React.FC = () => {
               </Form.Item>
             </Input.Group>
           </Form.Item>
-          <Form.Item label="Sản phẩm:" style={{ width: "100%", paddingLeft: "30px" }}>
+          <Form.Item label="Sản phẩm:" style={{ width: "55%", paddingLeft: "30px" }}>
             <Input.Group compact className="select-with-search" style={{ width: "100%" }}>
               <Form.Item
                 noStyle
@@ -572,7 +567,7 @@ const PackInfo: React.FC = () => {
       </Form>
       {itemProductList && itemProductList.length > 0 && (
         <div className="yody-row-flex yody-pack-row">
-          <div className="yody-row-item" style={{ paddingRight: "30px" }}>
+          <div className="yody-row-item" style={{ width: "42%", paddingRight: "97px" }}>
             <span className="customer-detail-text">
               <strong>Đơn hàng:</strong>
               <Typography.Text
@@ -586,7 +581,7 @@ const PackInfo: React.FC = () => {
               </Typography.Text>
             </span>
           </div>
-          <div className="yody-row-item">
+          <div className="yody-row-item" style={{ width: "55%" }}>
             <span className="customer-detail-text">
               <strong>Hãng vận chuyển:</strong>
               <Typography.Text
@@ -600,7 +595,7 @@ const PackInfo: React.FC = () => {
               </Typography.Text>
             </span>
           </div>
-          <div className="yody-row-item" style={{ paddingLeft: "30px" }}>
+          <div className="yody-row-item" style={{ paddingLeft: "30px", width: "100%" }}>
             <span className="customer-detail-text">
               <strong>Khách hàng: </strong>
               <Typography.Text
@@ -618,6 +613,7 @@ const PackInfo: React.FC = () => {
       )}
       <Row justify="space-between" className="yody-pack-row">
         <Table
+          //loading={loading}
           locale={{
             emptyText: (
               <div className="sale_order_empty_product">
@@ -629,10 +625,9 @@ const PackInfo: React.FC = () => {
           rowKey={(record) => record.id}
           columns={columns}
           dataSource={itemProductList}
-          className="ecommerce-order-list"
+          className="order-product-pick"
           tableLayout="fixed"
           pagination={false}
-          bordered
           footer={() =>
             itemProductList && itemProductList.length > 0 ? (
               <div className="row-footer-custom">
@@ -641,7 +636,7 @@ const PackInfo: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    width: "27.66%",
+                    width: "23.5%",
                     float: "left",
                     textAlign: "right",
                     fontWeight: 400,
@@ -656,7 +651,7 @@ const PackInfo: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    width: "23.18%",
+                    width: "25.9%",
                     float: "left",
                     textAlign: "right",
                     fontWeight: 400,

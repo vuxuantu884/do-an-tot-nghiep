@@ -14,7 +14,7 @@ import {
   ChannelsResponse,
   DeliveryServiceResponse,
 } from "model/response/order/order.response";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -26,19 +26,21 @@ import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getListOrderApi } from "service/order/order.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const [packModel, setPackModel] = useState<PackModel | null>();
 
-  const [packModel,setPackModel]=useState<PackModel|null>();
-
-  const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
+  const [isFulFillmentPack, setIsFulFillmentPack] = useState<string[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
     DeliveryServiceResponse[]
   >([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [listStoresDataCanAccess, setListStoresDataCanAccess] = useState<Array<StoreResponse>>([]);
   const [listGoodsReceiptsType, setListGoodsReceiptsType] = useState<
     Array<GoodsReceiptsTypeResponse>
   >([]);
@@ -57,6 +59,8 @@ const PackSupportScreen: React.FC = () => {
     setPackModel,
     isFulFillmentPack,
     setIsFulFillmentPack,
+    listStoresDataCanAccess,
+    setListStoresDataCanAccess
   };
 
   useEffect(() => {
@@ -77,6 +81,25 @@ const PackSupportScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
+  useEffect(() => {
+    let newData: Array<StoreResponse> = [];
+    if (listStores && listStores.length) {
+      if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
+        newData = listStores.filter((store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+        );
+        setListStoresDataCanAccess(newData);
+      }
+      else {
+        // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+        setListStoresDataCanAccess(listStores);
+      }
+    }
+  }, [listStores, userReducer.account]);
+
   // useLayoutEffect(() => {
   //   setActiveTab(newParam.tab);
   // }, [newParam.tab]);
@@ -87,28 +110,23 @@ const PackSupportScreen: React.FC = () => {
       dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
       let packData: PackModel = { ...new PackModelDefaltValue(), ...packInfoConvertJson };
-
+      let storeId: number | null | undefined = packData.store_id ? 
+        listStoresDataCanAccess.findIndex((p) => p.id === packData.store_id) !== -1 
+        ? packData.store_id : null : null;
       let queryCode = packData.order.map(p => p.order_code);
       let queryParam: any = { code: queryCode }
       getListOrderApi(queryParam).then((response) => {
         if (isFetchApiSuccessful(response)) {
-          let orderEnd= packData.order.filter((p)=>response.data.items.some(p1=>p1.code===p.order_code && !p1.goods_receipt_id)); 
-          setPackModel({...packData,order:orderEnd});
-          setPackInfo({...packData,order:orderEnd});
-        } 
+          let orderEnd = packData.order.filter((p) => response.data.items.some(p1 => p1.code === p.order_code && !p1.goods_receipt_id));
+          setPackModel({ ...packData,store_id:storeId ,order: orderEnd });
+          setPackInfo({ ...packData,store_id:storeId, order: orderEnd });
+        }
         else handleFetchApiError(response, "Danh sách Fullfiment", dispatch)
       }).catch((err) => {
         console.log(err);
-      }).finally(()=>{dispatch(hideLoading());});
+      }).finally(() => { dispatch(hideLoading()); });
     }
-  }, [dispatch]);
-
-  // const handleClickTab = (value: string) => {
-  //   setActiveTab(value);
-
-  //   let queryParam = generateQuery({ ...newParam, tab: value });
-  //   history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
-  // };
+  }, [dispatch, listStoresDataCanAccess]);
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
@@ -128,11 +146,11 @@ const PackSupportScreen: React.FC = () => {
           <Row>
             <Col xs={24}>
               <Card className="pack-card">
-                <PackInfo/>
+                <PackInfo />
               </Card>
             </Col>
           </Row>
-          
+
           <Row gutter={24}>
             <Col xs={24}>
               <PackList />
