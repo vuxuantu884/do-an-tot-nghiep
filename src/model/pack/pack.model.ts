@@ -38,7 +38,10 @@ export interface fulfillmentsModel{
   total: number;
   total_quantity: number;
   status: string;
-  shipment: string;
+  shipment:{
+    shipping_fee_informed_to_customer?:number;
+    id?:number;
+  }
   items:Array<VariantModel>;
 }
 export interface VariantModel{
@@ -49,6 +52,7 @@ export interface VariantModel{
   variant: string;
   variant_barcode: string;
   quantity:number;
+  price?:number;
 }
 
 export interface GoodsReceiptsSearhModel{

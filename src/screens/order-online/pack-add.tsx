@@ -11,7 +11,7 @@ import { DeliveryServicesGetList, getChannels } from "domain/actions/order/order
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ChannelsResponse, DeliveryServiceResponse } from "model/response/order/order.response";
-import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse, OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
+import { GoodsReceiptsAddOrderRequest, GoodsReceiptsResponse, GoodsReceiptsTypeResponse, OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
@@ -19,6 +19,7 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./pack/add/add-order-bottombar";
 import AddOrderInReport from "./pack/add/add-order-in-report";
 import "assets/css/_pack.scss";
+import {StyledComponent} from  "./pack/styles";
 
 var barcode = "";
 // }
@@ -69,11 +70,11 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     }
   ];
 
-  const handleAddOrder = useCallback((orderCode: string) => {
-    if (orderCode) {
+  const handleAddOrder = useCallback((param:GoodsReceiptsAddOrderRequest) => {
+    if (param) {
       dispatch(
         getOrderConcernGoodsReceipts(
-          orderCode,
+          param,
           (data: OrderConcernGoodsReceiptsResponse[]) => {
             if (data.length > 0) {
               console.log(data);
@@ -103,11 +104,29 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         barcode += event.key;
       }
       else {
-        handleAddOrder(barcode)
+        const {store_id,delivery_service_provider_id,ecommerce_id}= goodsReceiptsForm.getFieldsValue();
+        let param={
+          order_codes:barcode,
+          store_id:store_id,
+          delivery_service_provider_id:delivery_service_provider_id,
+          ecommerce_id:ecommerce_id
+        }
+        handleAddOrder(param)
         barcode = "";
       }
     }
-  }, [handleAddOrder]);
+  }, [goodsReceiptsForm, handleAddOrder]);
+
+  const handleAddOrdersCode=useCallback((order_codes:string)=>{
+    const {store_id,delivery_service_provider_id,ecommerce_id}= goodsReceiptsForm.getFieldsValue();
+    let param={
+      order_codes:order_codes,
+      store_id:store_id,
+      delivery_service_provider_id:delivery_service_provider_id,
+      ecommerce_id:ecommerce_id
+    }
+    handleAddOrder(param)
+  },[goodsReceiptsForm, handleAddOrder])
 
   useEffect(() => {
     window.addEventListener("keypress", eventBarcodeOrder);
@@ -152,8 +171,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         ecommerce_name = changeName ? changeName : "Biên bản đơn tự tạo";
       }
 
-      let delivery_service_name = listThirdPartyLogistics.find(
-        (data) => data.id === value.delivery_service_id
+      let delivery_service_provider_id = listThirdPartyLogistics.find(
+        (data) => data.id === value.delivery_service_provider_id
       )?.name;
       let receipt_type_name = listGoodsReceiptsType.find(
         (data) => data.id === value.receipt_type_id
@@ -163,7 +182,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         ...value,
         store_name: store_name,
         ecommerce_name: ecommerce_name,
-        delivery_service_name: delivery_service_name,
+        delivery_service_provider_id: delivery_service_provider_id,
         receipt_type_name: receipt_type_name,
         codes: orderCode
       };
@@ -224,6 +243,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           },
         ]}
       >
+        <StyledComponent>
         <Card className="pack-card">
           <Form layout="vertical"
             form={goodsReceiptsForm}
@@ -271,7 +291,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
               <Col md={6} style={{ padding: "0px 4px 0px 15px" }}>
                 <Form.Item
                   label="Hãng vận chuyển"
-                  name="delivery_service_id"
+                  name="delivery_service_provider_id"
                   rules={[
                     {
                       required: true,
@@ -391,10 +411,12 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           setOrderListResponse={setOrderListResponse}
           menu={actions}
           onMenuClick={onMenuClick}
-          handleAddOrder={handleAddOrder}
+          handleAddOrder={handleAddOrdersCode}
         />
 
         <AddOrderBottombar onOkPress={onOkPress} />
+        </StyledComponent>
+        
 
       </ContentContainer>
     </AddReportHandOverContext.Provider>
