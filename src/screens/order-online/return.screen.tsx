@@ -352,7 +352,7 @@ const ListOrderScreen: React.FC = () => {
       
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(response.data.num_of_record/response.data.total*100);
+          setExportProgress(Math.round(response.data.num_of_record/response.data.total * 10000) / 100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3)
             setExportProgress(100)

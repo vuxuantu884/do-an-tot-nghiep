@@ -29,7 +29,7 @@ import "assets/css/_pack.scss";
 import "./scss/index.screen.scss";
 import {GoodsReceiptsInfoOrderModel, VariantModel} from "model/pack/pack.model";
 import {Link} from "react-router-dom";
-import {StyledComponent} from "./index.screen.styles";
+import {StyledComponent} from "./scss/index.screen.styles";
 import {showSuccess, showWarning} from "utils/ToastUtils";
 
 const {Item} = Form;
