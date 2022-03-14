@@ -54,8 +54,11 @@ function CardReturnProductContainer(props: PropType) {
   // const listOrderProducts = OrderDetail?.items;
   const isStepExchange = createOrderReturnContext?.isStepExchange;
   const isExchange = createOrderReturnContext?.isExchange;
+  console.log('createOrderReturnContext', createOrderReturnContext)
 
   const onSelectSearchedVariant = (value: string) => {
+    console.log('value', value)
+    console.log('listReturnProducts', listReturnProducts)
     if (!listItemCanBeReturn) {
       return;
     }
@@ -63,7 +66,7 @@ function CardReturnProductContainer(props: PropType) {
       return;
     }
     const selectedVariant = listItemCanBeReturn.find((single) => {
-      return single.id === +value;
+      return single.variant_id === +value;
     });
     if (!selectedVariant) return;
     let selectedVariantWithMaxQuantity: ReturnProductModel = {
@@ -71,7 +74,7 @@ function CardReturnProductContainer(props: PropType) {
       maxQuantityCanBeReturned: selectedVariant.quantity,
     };
     let indexSelectedVariant = listReturnProducts.findIndex((single) => {
-      return single.id === selectedVariantWithMaxQuantity.id;
+      return single.variant_id === selectedVariantWithMaxQuantity.variant_id;
     });
     let result = [...listReturnProducts];
     if (indexSelectedVariant === -1) {
@@ -154,24 +157,17 @@ function CardReturnProductContainer(props: PropType) {
     setIsCheckReturnAll(e.target.checked);
   };
 
+
   useEffect(() => {
-    if (!listItemCanBeReturn) {
+    if (!listReturnProducts) {
       return;
     }
-    if(isCheckReturnAll) {
-      const resultReturnProducts: ReturnProductModel[] = listItemCanBeReturn.map(
-        (single) => {
-          return {
-            ...single,
-            maxQuantityCanBeReturned: single.quantity,
-          };
-        }
-      );
-      if (setListReturnProducts) {
-        setListReturnProducts(resultReturnProducts);
-      }
+    if(listReturnProducts.some(single => single.maxQuantityCanBeReturned > single.quantity) || listReturnProducts.length !== listItemCanBeReturn?.length) {
+      setIsCheckReturnAll(false)
+    } else {
+      setIsCheckReturnAll(true)
     }
-  }, [isCheckReturnAll, listItemCanBeReturn, setListReturnProducts])
+  }, [listItemCanBeReturn?.length, listReturnProducts])
   
 
   const renderSearchVariant = (item: OrderLineItemResponse) => {
@@ -233,7 +229,7 @@ function CardReturnProductContainer(props: PropType) {
     listOrderProductsResult.forEach((item: OrderLineItemResponse, index: number) => {
       options.push({
         label: renderSearchVariant(item),
-        value: item.id ? item.id.toString() : "",
+        value: item.variant_id ? item.variant_id.toString() : "",
       });
     });
 
@@ -276,18 +272,6 @@ function CardReturnProductContainer(props: PropType) {
     }
     if (setListReturnProducts) {
       setListReturnProducts(resultListReturnProducts);
-    }
-    if (
-      resultListReturnProducts.some((single) => {
-        return (
-          single.maxQuantityCanBeReturned &&
-          single.quantity < single.maxQuantityCanBeReturned
-        );
-      })
-    ) {
-      setIsCheckReturnAll(false);
-    } else {
-      setIsCheckReturnAll(true);
     }
     checkIfIsCanReturn(resultListReturnProducts);
   };

@@ -276,7 +276,7 @@ function CardReturnProducts(props: PropType) {
             onClick={() => {
               if(listReturnProducts) {
                 let result = [...listReturnProducts];
-                result.splice(index, 1)
+                result.splice(index, 1);
                 setListReturnProducts && setListReturnProducts(result)
               }
             }}
