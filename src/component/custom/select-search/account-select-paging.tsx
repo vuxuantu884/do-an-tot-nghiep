@@ -135,10 +135,10 @@ function SelectSearch(contentProps: SelectContentProps) {
       mode={mode}
       metadata={data?.metadata}
       loading={isSearching}
-      onSearch={(value) => handleSearch({ condition: value })}
+      onSearch={(value) => handleSearch({ condition: value.trim() })}
       onClear={() => handleSearch({ condition: "" })}
       onPageChange={(key: string, page: number) => {
-        handleSearch({ condition: key, page: page });
+        handleSearch({ condition: key.trim(), page: page });
       }}
       filterOption={() => true}//lấy kết quả từ server
       {...selectProps}
