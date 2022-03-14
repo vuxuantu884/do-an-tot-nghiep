@@ -191,18 +191,7 @@ function OrderSources(props: PropTypes) {
 
   const history = useHistory();
 
-  let [queryParams, setQueryParams] = useState<any>(null);
-
-  const onPageChange = useCallback(
-    (page, size) => {
-      queryParams.page = page;
-      queryParams.limit = size;
-      let queryParam = generateQuery(queryParams);
-      history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
-      window.scrollTo(0, 0);
-    },
-    [history, queryParams]
-  );
+  let [queryParams, setQueryParams] = useState<any>(null); 
 
   const handleDeleteMultiOrderSource = () => {
     showLoading();
@@ -333,6 +322,23 @@ function OrderSources(props: PropTypes) {
       code: formValues.code? formValues.code: undefined,
     };
   };
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      queryParams.page = page;
+      queryParams.limit = size;
+
+      const resultParams = {
+        ...queryParams,
+        name: queryParams.name ? queryParams.name.trim() : ""
+      };
+      
+      fetchData(resultParams);   
+      history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
+      window.scrollTo(0, 0);
+    },
+    [history, queryParams, fetchData]
+  );
 
   const handleFormOrderSource = {
     create: (formValues: OrderSourceModel) => {
