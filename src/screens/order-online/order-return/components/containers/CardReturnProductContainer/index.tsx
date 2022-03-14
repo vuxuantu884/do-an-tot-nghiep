@@ -154,6 +154,26 @@ function CardReturnProductContainer(props: PropType) {
     setIsCheckReturnAll(e.target.checked);
   };
 
+  useEffect(() => {
+    if (!listItemCanBeReturn) {
+      return;
+    }
+    if(isCheckReturnAll) {
+      const resultReturnProducts: ReturnProductModel[] = listItemCanBeReturn.map(
+        (single) => {
+          return {
+            ...single,
+            maxQuantityCanBeReturned: single.quantity,
+          };
+        }
+      );
+      if (setListReturnProducts) {
+        setListReturnProducts(resultReturnProducts);
+      }
+    }
+  }, [isCheckReturnAll, listItemCanBeReturn, setListReturnProducts])
+  
+
   const renderSearchVariant = (item: OrderLineItemResponse) => {
     let avatar = item.variant_image;
     return (
