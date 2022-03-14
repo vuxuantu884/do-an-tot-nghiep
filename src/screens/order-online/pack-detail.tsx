@@ -151,7 +151,7 @@ const PackDetail: React.FC = () => {
                   price: itemProduct.price,
                   total_quantity: itemProduct.quantity,
                   total_incomplate: 0,
-                  on_hand: productOnHand.on_hand,
+                  on_hand: productOnHand? productOnHand.on_hand : undefined,
                 });
 
                 ///
