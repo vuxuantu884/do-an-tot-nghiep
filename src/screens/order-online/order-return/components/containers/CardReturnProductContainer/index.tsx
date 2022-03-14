@@ -38,7 +38,7 @@ function CardReturnProductContainer(props: PropType) {
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
 
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
-  const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
+  const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
   const [pointRefund, setPointRefund] = useState(0);
 
   const listReturnProducts = createOrderReturnContext?.return.listReturnProducts;
@@ -448,6 +448,7 @@ function CardReturnProductContainer(props: PropType) {
       searchVariantInputValue={searchVariantInputValue}
       totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={isShowProductSearch()}
+      setListReturnProducts={setListReturnProducts}
     />
   );
 }

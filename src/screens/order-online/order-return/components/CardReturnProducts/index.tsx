@@ -23,6 +23,7 @@ import { OrderResponse, ReturnProductModel } from "model/response/order/order.re
 import React, { createRef, useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
+import iconDelete from "assets/icon/deleteIcon.svg";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -42,6 +43,7 @@ type PropType = {
   onSelectSearchedVariant?: (value: string) => void;
   onChangeProductQuantity?: (value: number | null, index: number) => void;
   handleChangeReturnAll?: (e: CheckboxChangeEvent) => void;
+  setListReturnProducts: ((listReturnProducts: ReturnProductModel[]) => void) | undefined
 };
 
 function CardReturnProducts(props: PropType) {
@@ -61,6 +63,7 @@ function CardReturnProducts(props: PropType) {
     onSelectSearchedVariant,
     onChangeProductQuantity,
     handleChangeReturnAll,
+    setListReturnProducts,
   } = props;
 
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -251,6 +254,35 @@ function CardReturnProducts(props: PropType) {
                 value.quantity
             )}
           </div>
+        );
+      },
+    },
+    {
+      title: "Xóa sản phẩm",
+      dataIndex: "delete_variant",
+      key: "delete_variant",
+      render: (value, record: ReturnProductModel, index: number) => {
+        return (
+          <Button
+            icon={<img alt="" style={{ marginRight: 5 }} src={iconDelete} />}
+            type="text"
+            className=""
+            style={{
+              paddingLeft: 24,
+              background: "transparent",
+              border: "none",
+              color: "red",
+            }}
+            onClick={() => {
+              if(listReturnProducts) {
+                let result = [...listReturnProducts];
+                result.splice(index, 1)
+                setListReturnProducts && setListReturnProducts(result)
+              }
+            }}
+          >
+            Xóa
+          </Button>
         );
       },
     },
