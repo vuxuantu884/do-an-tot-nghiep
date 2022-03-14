@@ -24,6 +24,7 @@ import {useArray} from "../../hook/useArray";
 import {useHistory} from "react-router";
 import UrlConfig from "../../config/url.config";
 import {isEqual} from "lodash";
+import {strForSearch} from "../../utils/StringUtils";
 
 type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -232,7 +233,17 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           </Form.Item>
 
           <Item label="Khu vực" name="district_id">
-            <Select allowClear showSearch placeholder="Chọn khu vực" optionFilterProp="children">
+            <Select
+              allowClear
+              showSearch
+              showArrow
+              placeholder="Chọn khu vực"
+              optionFilterProp="children"
+              filterOption={(input: String, option: any) => {
+                if (!option.props.value) return false;
+                return strForSearch(option.props.children.toString()).includes(strForSearch(input));
+              }}
+            >
               {listDistrict?.map((item) => (
                 <Option key={item.id} value={item.id.toString()}>
                   {item.city_name} - {item.name}
