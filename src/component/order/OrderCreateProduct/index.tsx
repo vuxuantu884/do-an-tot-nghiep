@@ -527,9 +527,11 @@ function OrderCreateProduct(props: PropType) {
 			_item.discount_items.forEach((singleDiscount) => {
 				singleDiscount.amount = _item.quantity * singleDiscount.value;
 			});
+			_item.amount = _item.quantity * _item.price;
 			_item.discount_value = getLineItemDiscountValue(_item);
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
+			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
 			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
 	};
@@ -1379,6 +1381,7 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
+		console.log('_items', _items)
 		isShouldUpdateCouponRef.current = true;
 		if (!_items || _items?.length === 0 || !coupon) {
 			return;
@@ -1439,6 +1442,8 @@ function OrderCreateProduct(props: PropType) {
 								let couponType = applyDiscountResponse.value_type;
 								let listDiscountItem: any[] = [];
 								let totalAmount = getTotalAmountAfterDiscount(_items);
+								console.log('totalAmount', totalAmount)
+								console.log('_items222222222222', _items)
 								response.data.line_items.forEach((single) => {
 									if (listDiscountItem.some((a) => a.variant_id === single.variant_id)) {
 										return;
@@ -1810,6 +1815,7 @@ function OrderCreateProduct(props: PropType) {
 		_items: Array<OrderLineItemRequest>,
 		_promotion?: OrderDiscountRequest | null,
 	) => {
+		console.log('_promotion', _promotion)
 		if (_promotion === undefined) {
 			if (promotion) {
 				let _value = 0;
@@ -1841,6 +1847,14 @@ function OrderCreateProduct(props: PropType) {
 			}
 		}
 		props.changeInfo(_items, _promotion);
+		dispatch(changeOrderLineItemsAction(_items));
+		const orderAmount = totalAmount(_items);
+		if(orderCustomer) {
+			const shippingAddress = getCustomerShippingAddress(orderCustomer);
+			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
+				transportService, form, setShippingFeeInformedToCustomer
+				);
+		}
 	};
 
 	const dataCanAccess = useMemo(() => {
