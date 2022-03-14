@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import {StyledComponent} from "./index.screen.styles";
+import {StyledComponent} from "../../scss/index.screen.styles";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
