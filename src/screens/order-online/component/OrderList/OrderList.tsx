@@ -508,7 +508,8 @@ function OrderList(props: PropTypes) {
             onClearFilter={() => onClearFilter()}
 						isHideTab= {isHideTab}
           />
-					{ deliveryServices.length > 0 && (
+          
+					{ deliveryServices.length > 0 ? (
 						<OrdersTable
 							tableLoading={tableLoading}
 							data={data}
@@ -520,8 +521,8 @@ function OrderList(props: PropTypes) {
 							setShowSettingColumn={setShowSettingColumn}
 							deliveryServices={deliveryServices}
 						/>
-						
-						)}
+						) : "Đang tải dữ liệu..."
+          }
         </Card>
 
         <ModalSettingColumn
