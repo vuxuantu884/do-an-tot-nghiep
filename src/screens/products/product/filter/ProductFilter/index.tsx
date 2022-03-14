@@ -29,7 +29,7 @@ import { SizeResponse } from "model/product/size.model";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { DATE_FORMAT, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { StyledComponent } from "./style";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
@@ -209,6 +209,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
 
     const filter = {
       ...params,
+      from_created_date: formatDateFilter(params.from_created_date),
+      to_created_date: formatDateFilter(params.to_created_date),
       sizes: sizes ? Array.isArray(sizes) ? sizes.map((i: string) => Number(i)) : [Number(sizes)] : [],
       colors: colors ? Array.isArray(colors) ? colors.map((i: string) => Number(i)) : [Number(colors)] : [],
       main_colors: main_colors ? Array.isArray(main_colors) ? main_colors.map((i: string) => Number(i)) : [Number(main_colors)] : [],
@@ -572,13 +574,11 @@ const FilterList = ({
   let renderTxt: any = null;
   const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
-
   return (
     <div>
       {[...newKeys, ...filtersKeys].map((filterKey) => {
         let value = filters[filterKey];
         if (!value && !filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return null;
-        if (!value && value !==0) return null;
         if (value && Array.isArray(value) && value.length === 0) return null;
         if (!SearchVariantMapping[filterKey]) return null;
 
