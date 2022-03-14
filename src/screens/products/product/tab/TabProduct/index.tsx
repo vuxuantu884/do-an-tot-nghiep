@@ -138,9 +138,12 @@ const TabProduct: React.FC<any> = (props) => {
       params.page = page;
       params.limit = size;
       setPrams({...params});
+      let queryParam = generateQuery(params);
+      history.push(`${UrlConfig.VARIANTS}${history.location.hash}?${queryParam}`);
     },
-    [params]
+    [history,params] 
   );
+
   const onFilter = useCallback((values) => {
     let {info} = values;
     values.info = info && info.trim();
@@ -301,7 +304,7 @@ const TabProduct: React.FC<any> = (props) => {
       title:  "Sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => {
-        let strName=(i.name.trim()).toLocaleLowerCase();
+        let strName=(i.name.trim());
         strName=window.screen.width>=1920?splitEllipsis(strName,100,30)
           :window.screen.width>=1600?strName=splitEllipsis(strName,60,30)
           :window.screen.width>=1366?strName=splitEllipsis(strName,47,30):strName;
