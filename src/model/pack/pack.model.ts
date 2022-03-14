@@ -48,6 +48,7 @@ export interface VariantModel{
   variant_id: number;
   variant: string;
   variant_barcode: string;
+  quantity:number;
 }
 
 export interface GoodsReceiptsSearhModel{
@@ -109,6 +110,7 @@ export interface GoodsReceiptsOrderListModel{
   postage:number;
   card_number:number;
   status:string;
+  status_color?: string;
   note:string|null;
   items:Array<FulfillmentsItemModel>;
 }

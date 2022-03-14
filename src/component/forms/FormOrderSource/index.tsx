@@ -96,14 +96,18 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
     // eslint-disable-next-line
   }, [listDepartments]);
 
-  const getDepartmentName = (list: any, value: any): any => {
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].id === value) {
-        return list[i].name;
+  const getDepartmentName = (element: any, matchingId: number): any => {
+    if (element.id === matchingId){
+      return element;
+    } else if (element.children !== null) {
+      let i;
+      let result = null;
+      for(i = 0; result == null && i < element.children.length; i++){
+        result = getDepartmentName(element.children[i], matchingId);
       }
-
-      if (list[i].children.length > 0) return getDepartmentName(list[i].children, value);
+      return result;
     }
+    return null;
   };
 
   return (
@@ -157,8 +161,11 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                 notFoundContent="Không tìm thấy phòng ban"
                 treeNodeFilterProp='title'
                 onChange={(value: any) => {
-                  let name: string = getDepartmentName(departmentsForSource, value);
-                  form.setFieldsValue({ department: name });
+                  let department: any = {};
+                  for (let i = 0; i < departmentsForSource.length; i++) {
+                    if (getDepartmentName(departmentsForSource[i], value)) department = getDepartmentName(departmentsForSource[i], value);
+                  }
+                  form.setFieldsValue({ department: department.name });
                 }}
                 filterTreeNode={(input: String, option: any) => {
                   if (option.value) {

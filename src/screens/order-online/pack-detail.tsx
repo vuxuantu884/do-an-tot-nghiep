@@ -18,6 +18,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { useReactToPrint } from "react-to-print";
+import { FulFillmentStatus } from "utils/Constants";
 import PackDetailInfo from "./pack/detail/pack-detail-info";
 import PackListOrder from "./pack/detail/pack-list-order";
 import PackQuantityProduct from "./pack/detail/pack-quantity-product";
@@ -53,6 +54,34 @@ const typePrint={
   simple:"simple",
   detail:"detail"
 }
+
+const listStatusTagWithoutReturn = [
+  {
+    name: "Chưa giao hàng",
+    status: FulFillmentStatus.UNSHIPPED,
+    color: "#666666",
+  },
+  {
+    name: "Đang nhặt hàng",
+    status: FulFillmentStatus.PICKED,
+    color: "#FCAF17",
+  },
+  {
+    name: "Đã đóng gói",
+    status: FulFillmentStatus.PACKED,
+    color: "#FCAF17",
+  },
+  {
+    name: "Đang giao hàng",
+    status: FulFillmentStatus.SHIPPING,
+    color: "#FCAF17",
+  },
+  {
+    name: "Đã giao hàng",
+    status: FulFillmentStatus.SHIPPED,
+    color: "#27AE60",
+  },
+];
 
 interface GoodReceiptPrint{
   good_receipt_id:number;
@@ -138,9 +167,16 @@ const PackDetail: React.FC = () => {
             let total_price = 0;
             let postage = 0;
             let card_number = 0;
+            let findStatus: any = "";
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-
+            if (itemOrder.fulfillments && itemOrder.fulfillments.length) {
+              const status = itemOrder.fulfillments[0].status;
+              
+              findStatus = listStatusTagWithoutReturn.find(stt => stt.status === status);
+            }
+            const statusName = findStatus ? findStatus.name : "";
+            const statusColor = findStatus ? findStatus.color : "";
             itemOrder.fulfillments?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
@@ -174,7 +210,8 @@ const PackDetail: React.FC = () => {
               total_price: total_price,
               postage: postage,
               card_number: card_number,//tong thanh toan
-              status: "",
+              status: statusName,
+              status_color: statusColor,
               note: itemOrder.note,
               items: _itemProduct
             })

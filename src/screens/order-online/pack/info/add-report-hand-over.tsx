@@ -165,8 +165,8 @@ const AddReportHandOver: React.FC = () => {
 
     let selectOrderPackSuccess = orderPackSuccess?.filter((p) => isFulFillmentPack.some((single) => single === p.order_code));
     let notSelectOrderPackSuccess = orderPackSuccess?.filter((p) => !isFulFillmentPack.some((single) => single === p.order_code));
-    console.log("selectOrderPackSuccess", selectOrderPackSuccess);
-    console.log("notSelectOrderPackSuccess", notSelectOrderPackSuccess);
+    // console.log("selectOrderPackSuccess", selectOrderPackSuccess);
+    // console.log("notSelectOrderPackSuccess", notSelectOrderPackSuccess);
     if (!selectOrderPackSuccess || (selectOrderPackSuccess && selectOrderPackSuccess.length<=0)) {
       showWarning("chưa chọn đơn hàng cần thêm vào biên bản");
       return;
