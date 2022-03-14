@@ -1273,7 +1273,7 @@ function OrderCreateProduct(props: PropType) {
 			return [PRODUCT_TYPE.normal, PRODUCT_TYPE.combo].includes(item.product_type)
 		}).map((single) => {
 			return {
-				original_unit_price: single.price,
+				original_unit_price: single.price - single.discount_value,
 				product_id: single.product_id,
 				quantity: single.quantity,
 				sku: single.sku,
