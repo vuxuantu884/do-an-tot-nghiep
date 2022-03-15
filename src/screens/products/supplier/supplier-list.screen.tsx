@@ -287,11 +287,10 @@ const ListSupplierScreen: React.FC = () => {
           title="Quản lý nhà cung cấp"
           breadcrumb={[
             {
-              name: "Tổng quan",
-              path: UrlConfig.HOME,
+              name: "Sản phầm",
             },
             {
-              name: "Sản phẩm",
+              name: "Quản lý sản phẩm",
               path: `${UrlConfig.PRODUCT}`,
             },
             {

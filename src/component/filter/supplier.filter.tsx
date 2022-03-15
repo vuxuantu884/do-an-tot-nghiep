@@ -1,10 +1,8 @@
 import { Button, Form, Input, Select } from "antd";
 import "assets/css/custom-filter.scss";
 import search from "assets/img/search.svg";
-import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import { AppConfig } from "config/app.config";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { DistrictResponse } from "model/content/district.model";
 import { SupplierQuery } from "model/core/supplier.model";
@@ -25,6 +23,10 @@ import {useHistory} from "react-router";
 import UrlConfig from "../../config/url.config";
 import {isEqual} from "lodash";
 import {strForSearch} from "../../utils/StringUtils";
+import {callApiNative} from "../../utils/ApiUtils";
+import {searchAccountPublicApi} from "../../service/accounts/account.service";
+import BaseSelectPaging from "../base/BaseSelect/BaseSelectPaging";
+import {AccountPublicSearchQuery, AccountResponse} from "../../model/account/account.model";
 
 type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -68,6 +70,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   const dispatch = useDispatch()
   const history = useHistory()
   const [visible, setVisible] = useState(false);
+  const [formBasic] = Form.useForm();
   const [formAdvance] = Form.useForm();
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>({
     metadata: {
@@ -78,6 +81,15 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     items: [],
   });
   const [isSearchingCollections, setIsSearchingCollections] = React.useState(false);
+  const [isSearchingMerchan, setIsSearchingMerchan] = React.useState(false);
+  const [merchandiser, setMerchandiser] = useState<PageResponse<AccountResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
   const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
 
   // const formRef = createRef<FormInstance>();
@@ -105,12 +117,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     setVisible(false);
     formAdvance.submit();
   }, [formAdvance, initValue]);
-  const openFilter = useCallback(() => {
-    setVisible(true);
-  }, []);
-  const onCancelFilter = useCallback(() => {
-    setVisible(false);
-  }, []);
+
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -119,15 +126,16 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   );
   useEffect(() => {
     if (visible) formAdvance.resetFields();
+    formBasic.setFieldsValue({
+      ...formBasic.getFieldsValue(true),
+      condition: params.condition,
+      pics: params.pics,
+    });
     formAdvance.setFieldsValue({
+      ...formAdvance.getFieldsValue(true),
       district_id: params.district_id
     });
-    setTimeout(() => {
-      formAdvance.setFieldsValue({
-        pics: params.pics
-      });
-    })
-  }, [formAdvance, listDistrict, params.district_id, visible, params]);
+  }, [formAdvance, formBasic, listDistrict, visible, params]);
 
   const onGetSuccess = (results: PageResponse<CollectionResponse>) => {
     if (results?.items) {
@@ -136,8 +144,26 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     }
   };
 
+  const fetchMerchandisers = async (query: AccountPublicSearchQuery) => {
+    setIsSearchingMerchan(true)
+    try {
+      const response = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        searchAccountPublicApi,
+        { ...merchandiser.metadata, ...query  }
+      );
+      setMerchandiser(response);
+      setIsSearchingMerchan(false)
+    }catch (err) {
+      console.error(err)
+    }
+
+  }
+
   useEffectOnce(() => {
     dispatch(getCollectionRequestAction({ ...params, limit: collections.metadata.limit }, onGetSuccess));
+    fetchMerchandisers({...merchandiser.metadata})
   })
 
   const onSearchCollections = (values: any) => {
@@ -151,20 +177,20 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     const formatted = formatFieldTag(params, fieldMapping)
     const newParams = formatted.map((item) => {
       switch (item.keyId) {
-        case "status":
+        case SupplierEnum.status:
           return {...item, valueName: item.valueId === "inactive" ? "Ngừng hoạt động" : "Đang hoạt động"}
-        case "type":
+        case SupplierEnum.type:
           return {...item, valueName: item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân"}
-        case "condition":
+        case SupplierEnum.condition:
           return {...item, valueName: item.valueId}
-        case "pics":
+        case SupplierEnum.merchandiser:
           return {...item, valueName: item.valueId.toString()}
-        case "district_id":
+        case SupplierEnum.district_id:
           const findDistrict = listDistrict?.find(district => +district.id === +item.valueId)
           return {...item, valueName: findDistrict?.name}
-        case "scorecard":
+        case SupplierEnum.scorecard:
           return {...item, valueName: item.valueId}
-        case "collection_id":
+        case SupplierEnum.collection_id:
           const findCollection = collections.items.find(collection => +collection.id === +item.valueId)
           return {...item, valueName: findCollection?.name}
         default:
@@ -176,6 +202,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   }, [params, JSON.stringify(listDistrict), JSON.stringify(collections), setParamsArray])
 
   useEffect(() => {
+    //Xóa tag
     if(paramsArray.length < (prevArray?.length || 0)) {
       const newParams = transformParamsToObject(paramsArray)
       setParams(newParams)
@@ -186,7 +213,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   return (
     <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form onFinish={onFinish} initialValues={params} layout="inline">
+        <Form onFinish={onFinish} initialValues={params} form={formBasic} layout="inline">
           <Form.Item name="condition" style={{ flex: 1 }} shouldUpdate={(pre, cur) => pre.condition !== cur.condition}>
             <Input
               prefix={<img src={search} alt="" />}
@@ -197,7 +224,14 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           </Form.Item>
 
           <Form.Item name="pics" style={{ width: 200 }}>
-            <AccountSearchPaging placeholder="Chọn Merchandiser" mode="multiple" fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT]}}/>
+            <BaseSelectPaging
+              loading={isSearchingMerchan}
+              data={merchandiser.items}
+              metadata={merchandiser.metadata}
+              fetchData={fetchMerchandisers}
+              renderItem={(item) => <Option key={item.id} value={item.code}>{item.code} - {item.full_name}</Option>}
+              placeholder={"Chọn Merchandiser"}
+            />
           </Form.Item>
 
           <Form.Item>
@@ -206,14 +240,14 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
             </Button>
           </Form.Item>
           <Form.Item>
-            <Button onClick={openFilter}>Thêm bộ lọc</Button>
+            <Button onClick={() => setVisible(true)}>Thêm bộ lọc</Button>
           </Form.Item>
         </Form>
       </CustomFilter>
       <BaseFilter
         onClearFilter={onClearFilterAdvanceClick}
         onFilter={onFilterClick}
-        onCancel={onCancelFilter}
+        onCancel={() => setVisible(false)}
         visible={visible}
         width={396}
       >
