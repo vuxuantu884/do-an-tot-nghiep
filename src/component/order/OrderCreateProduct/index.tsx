@@ -51,8 +51,7 @@ import {
 	SplitOrderRequest
 } from "model/request/order.request";
 import {
-	DiscountRequestModel,
-	LineItemRequestModel
+	DiscountRequestModel
 } from "model/request/promotion.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -1783,33 +1782,33 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
-	const fillCustomNote = (items: OrderLineItemRequest[]) => {
-		if(items.some(item => {
-			return (item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason) 
-		})) {
-			let discountTitleArr: string[] = [];
-			items.forEach(item => {
-				let reason = item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason;
-				if(reason) {
-					return discountTitleArr.push(reason)
-				}
-			})
-			discountTitleArr = _.uniq(discountTitleArr);
-			if(discountTitleArr && discountTitleArr.length > 0) {
-				let title = ""
-				for (let i = 0; i < discountTitleArr.length; i++) {
-					if(i< discountTitleArr.length -1) {
-						title = title + discountTitleArr[i] + ", "
-					} else {
-						title = title + discountTitleArr[i] + "."
-					}
-				}
-				form.setFieldsValue({
-					note: `(title)`
-				})
-			}
-		}
-	};
+	// const fillCustomNote = (items: OrderLineItemRequest[]) => {
+	// 	if(items.some(item => {
+	// 		return (item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason) 
+	// 	})) {
+	// 		let discountTitleArr: string[] = [];
+	// 		items.forEach(item => {
+	// 			let reason = item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason;
+	// 			if(reason) {
+	// 				return discountTitleArr.push(reason)
+	// 			}
+	// 		})
+	// 		discountTitleArr = _.uniq(discountTitleArr);
+	// 		if(discountTitleArr && discountTitleArr.length > 0) {
+	// 			let title = ""
+	// 			for (let i = 0; i < discountTitleArr.length; i++) {
+	// 				if(i< discountTitleArr.length -1) {
+	// 					title = title + discountTitleArr[i] + ", "
+	// 				} else {
+	// 					title = title + discountTitleArr[i] + "."
+	// 				}
+	// 			}
+	// 			form.setFieldsValue({
+	// 				note: `(title)`
+	// 			})
+	// 		}
+	// 	}
+	// };
 
 	const calculateChangeMoney = (
 		_items: Array<OrderLineItemRequest>,
