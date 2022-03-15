@@ -38,6 +38,7 @@ import search from "assets/img/search.svg";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 import TreeStore from "component/tree-node/tree-store";
 import "screens/ecommerce/orders/ecommerce-order.scss"
+import CustomSelectTags from "component/custom/custom-select-tag";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -152,10 +153,20 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const [isEcommerceSelected, setIsEcommerceSelected] = useState<boolean>(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
 
+  //handle tag filter
+	const [tags, setTags] = useState<Array<any>>([]);
+
+  const onChangeTag = useCallback(
+		(value: any) => {
+      setTags(value)
+		},
+		[]
+	);
 
   const onFilterClick = useCallback(() => {
     formRef.current?.submit();
   }, [formRef]);
+
   const openFilter = useCallback(() => {
     setVisible(true);
     setRerender(true);
@@ -220,11 +231,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             price_max: values?.price_min,
           }
         }
-        onFilter && onFilter(values);
+        onFilter && onFilter({...values, tags: [...tags]});
         setRerender(false)
       }
     },
-    [formRef, onFilter]
+    [formRef, onFilter, tags]
   );
 
   const widthScreen = () => {
@@ -790,6 +801,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           break;
         case 'tags':
           onFilter && onFilter({...params, tags: []});
+          setTags([]);
           break;
         case 'reference_code':
           formSearchRef?.current?.setFieldsValue({
@@ -1394,14 +1406,15 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               <Col span={8} xxl={6}>
                 <p>Tags</p>
                 <Item name="tags">
-                  <CustomSelect
+                  {/* <CustomSelect
                     mode="tags" optionFilterProp="children"
                     showSearch showArrow allowClear
                     placeholder="Điền 1 hoặc nhiều tag"
                     style={{width: '100%'}}
                   >
 
-                  </CustomSelect>
+                  </CustomSelect> */}
+                 <CustomSelectTags onChangeTag={onChangeTag} tags={tags} />
                 </Item>
               </Col>
 
