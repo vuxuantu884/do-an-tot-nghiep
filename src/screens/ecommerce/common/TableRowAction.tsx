@@ -1,5 +1,6 @@
 import { Button, Dropdown, Menu } from "antd";
 import threeDot from "assets/icon/three-dot.svg";
+import  "./TableRowAction.scss"
 
 const TableRowAction = (menuItems: any) => {
   const RenderActionColumn = (rowData: any, itemData: any, index: number) => {
@@ -20,6 +21,7 @@ const TableRowAction = (menuItems: any) => {
         <Button
           type="text"
           className="p-0 ant-btn-custom"
+          style={{width:"30px" , height:"30px"}}
           icon={<img src={threeDot} alt=""></img>}
         />
       </Dropdown>
@@ -29,8 +31,8 @@ const TableRowAction = (menuItems: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "80px",
-    className: "ecommerce-product-action-column",
+    width: "40px",
+    className: "threedot-button",
     render: (rowData: any, item: any, index: number) =>
       RenderActionColumn(rowData, item, index),
   };
