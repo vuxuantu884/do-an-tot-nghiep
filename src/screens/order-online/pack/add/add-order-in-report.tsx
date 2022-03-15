@@ -19,14 +19,14 @@ type AddOrderInReportProps = {
   setOrderListResponse: (item: Array<OrderConcernGoodsReceiptsResponse>) => void;
   onMenuClick?: (index: number) => void;
   handleAddOrder: (code: string) => void;
+  formSearchOrderRef:any;
 };
 const { Item } = Form;
 
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder } = props;
-  const formSearchOrderRef = createRef<FormInstance>();
+  const { menu, orderListResponse, handleAddOrder ,formSearchOrderRef} = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
