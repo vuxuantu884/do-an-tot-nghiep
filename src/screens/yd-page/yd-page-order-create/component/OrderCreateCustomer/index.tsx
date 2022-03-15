@@ -5,7 +5,7 @@ import {
   LoadingOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import logoMobile from "assets/icon/logoMobile.svg";
+// import logoMobile from "assets/icon/logoMobile.svg";
 import {
   AutoComplete,
   Button,

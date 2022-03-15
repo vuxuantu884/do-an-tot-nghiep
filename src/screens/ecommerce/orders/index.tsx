@@ -8,8 +8,6 @@ import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-desig
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
-// todo thai: handle later
-// import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
@@ -50,6 +48,7 @@ import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
 import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 import { nameQuantityWidth, StyledComponent, } from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
@@ -57,16 +56,17 @@ import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { getToken } from "utils/LocalStorageUtils";
-import axios from "axios";
-import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { exitProgressDownloadEcommerceAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import {
+  downloadPrintForm,
+  exitEcommerceJobsAction,
+  exitProgressDownloadEcommerceAction,
+} from "domain/actions/ecommerce/ecommerce.actions";
 import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
 import BaseResponse from "base/base.response";
-import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
+import { getEcommerceJobsApi, getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
@@ -76,6 +76,9 @@ import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import ExportModal from "screens/order-online/modal/export.modal";
 import EditNote from "screens/order-online/component/edit-note";
+import {getEcommerceIdByChannelId} from "screens/ecommerce/common/commonAction";
+import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
+import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -162,15 +165,6 @@ const EcommerceOrders: React.FC = () => {
   const [statusExport, setStatusExport] = useState<number>(1);
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
-  // todo thai: handle later
-  // const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
-  //   useState(false);
-
-
-  // todo thai: handle later
-  // const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
-  //   []
-  // );
 
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
 
@@ -333,7 +327,7 @@ const EcommerceOrders: React.FC = () => {
       setSearchResult(result);
     }));
   }, [dispatch, params, setSearchResult]);
-  
+
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
       let params: any = {};
@@ -699,36 +693,6 @@ const EcommerceOrders: React.FC = () => {
         <div>{ConvertUtcToLocalDate(cancelled_on, "DD/MM/YYYY")}</div>
       ),
     },
-    // //todo thai: handle later
-    // {
-    //   title: (
-    //     <Tooltip
-    //       overlay="Tình trạng ghép nối của sản phẩm"
-    //       placement="topRight"
-    //       color="blue"
-    //     >
-    //       <img src={ConnectIcon} alt="" />
-    //     </Tooltip>
-    //   ),
-    //   key: "connect_status",
-    //   visible: true,
-    //   width: 50,
-    //   align: "center",
-    //   render: (data) => {
-    //     if (data.connect_status) {
-    //       return <img src={SuccessIcon} alt="" />;
-    //     } else {
-    //       return (
-    //         <img
-    //           src={ErrorIcon}
-    //           alt=""
-    //           onClick={() => handleUpdateProductConnection(data)}
-    //           style={{ cursor: "pointer" }}
-    //         />
-    //       );
-    //     }
-    //   },
-    // },
   ]);
 
   const onSelectTableRow = useCallback((selectedRowTable) => {
@@ -766,11 +730,147 @@ const EcommerceOrders: React.FC = () => {
     setPrams(initQuery);
   }, []);
 
-  // handle action button
-  const token = getToken();
-  const handlePrintShopeeDeliveryNote = useCallback(() => {
+
+  // handle process modal
+  const [isVisibleProcessModal, setIsVisibleProcessModal] = useState<boolean>(false);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [processMessage, setProcessMessage] = useState<any>({
+    success: "",
+  });
+
+  const [commonProcessId, setCommonProcessId] = useState(null);
+  const [commonProcessPercent, setCommonProcessPercent] = useState<number>(0);
+  const [commonProcessData, setCommonProcessData] = useState<any>(null);
+
+  const resetCommonProcess = () => {
+    setCommonProcessId(null);
+    setCommonProcessPercent(0);
+    setCommonProcessData(null);
+  }
+
+  // handle exit process modal
+  const [isVisibleExitProcessModal, setIsVisibleExitProcessModal] = useState<boolean>(false);
+  const [exitProcessModal, setExitProcessModal] = useState<any>({
+    exitProgressContent: <></>
+  });
+
+  const onCancelExitProcessModal = () => {
+    setIsVisibleExitProcessModal(false);
+  }
+
+  const onOkExitProcessModal = () => {
+    resetCommonProcess();
+    setIsVisibleExitProcessModal(false);
+    setIsVisibleProcessModal(false);
+    if (commonProcessId) {
+      dispatch(
+        exitEcommerceJobsAction(commonProcessId, (responseData) => {
+          if (responseData) {
+            showSuccess(responseData);
+          }
+        })
+      );
+    }
+  };
+  // end handle exit process modal
+
+  const handleProgress = useCallback(() => {
+    if (!commonProcessId) {
+      return;
+    }
+    let getProgressPromises: Promise<BaseResponse<any>> = getEcommerceJobsApi(commonProcessId);
+
+    Promise.all([getProgressPromises]).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+          const responseData = response.data;
+          setCommonProcessData(responseData);
+          if (responseData.finish) {
+            setIsProcessing(false);
+            setCommonProcessId(null);
+            setCommonProcessPercent(100);
+            if (!responseData.api_error) {
+              showSuccess(`${processMessage.success}`);
+            } else {
+              resetCommonProcess();
+              setIsVisibleProcessModal(false);
+              showError(responseData.api_error);
+            }
+          } else {
+            const progressCount = responseData.total_created + responseData.total_updated + responseData.total_error;
+            const percent = Math.floor(progressCount / responseData.total * 100);
+            setCommonProcessPercent(percent);
+          }
+        }
+      });
+    });
+  }, [commonProcessId, processMessage.success]);
+
+  useEffect(() => {
+    if (commonProcessPercent === 100 || !commonProcessId) {
+      return;
+    }
+    handleProgress();
+    const getFileInterval = setInterval(handleProgress, 3000);
+    return () => clearInterval(getFileInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commonProcessId, handleProgress]);
+  // end progress download orders
+
+  // handle print ecommerce delivery note
+  const [isPrintEcommerceDeliveryNote, setIsPrintEcommerceDeliveryNote] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isVisibleProcessModal) {
+      setIsPrintEcommerceDeliveryNote(false);
+    }
+  }, [isVisibleProcessModal]);
+  
+  const okPrintEcommerceDeliveryNote = () => {
+    setIsVisibleProcessModal(false);
+    // setIsPrintEcommerceDeliveryNote(false);
+    if (commonProcessData?.url) {
+      showSuccess("Tải phiếu giao hàng sàn thành công!");
+      window.open(commonProcessData?.url);
+    } else {
+      showError("Tải phiếu giao hàng sàn thất bại!");
+    }
+  };
+  
+  const cancelPrintEcommerceDeliveryNote = () => {
+    if (isProcessing) {
+      setIsVisibleExitProcessModal(true);
+    } else {
+      setIsVisibleProcessModal(false);
+      // setIsPrintEcommerceDeliveryNote(false);
+      resetCommonProcess();
+    }
+  };
+  
+  const downloadEcommerceDeliveryNote = useCallback((data: any) => {
+    if(data && data.process_id){
+      setCommonProcessId(data.process_id);
+      setIsVisibleProcessModal(true);
+      setIsProcessing(true);
+      setProcessMessage({
+        success: "Tải dữ liệu phiếu giao hàng sàn thành công!",
+      })
+      
+      setExitProcessModal({
+        exitProgressContent:
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img src={DeleteIcon} alt="" />
+            <div style={{ marginLeft: 15 }}>
+              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải phiếu giao hàng không?</strong>
+              <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải phiếu giao hàng, bạn vẫn có thể tải lại sau nếu muốn.</div>
+            </div>
+          </div>
+      })
+    }
+  }, [])
+
+  const handlePrintEcommerceDeliveryNote = useCallback(() => {
     if (selectedRowKeys?.length > 0) {
-      setTableLoading(true);
       let order_list: any = [];
       selectedRowKeys.forEach(idSelected => {
         const orderMatched = data?.items.find(i => i.id === idSelected)
@@ -779,41 +879,20 @@ const EcommerceOrders: React.FC = () => {
             "order_sn": orderMatched.reference_code,
             "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
             "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
-            "ecommerce_id": 1,
+            "ecommerce_id": getEcommerceIdByChannelId(orderMatched.channel_id),
             "shop_id": orderMatched.ecommerce_shop_id
           }
           order_list.push(orderRequest)
         }
       })
-
-      let url = `${AppConfig.baseUrl}${AppConfig.ECOMMERCE_SERVICE}/orders/print-forms`;
-      axios.post(url, { order_list },
-        {
-          responseType: 'arraybuffer',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/pdf',
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        .then((response) => {
-          if(response.data){
-            showSuccess("Tạo phiếu giao hàng thành công")
-            let blob = new Blob([response.data], { type: 'application/pdf' })
-            let fileURL = URL.createObjectURL(blob);
-            window.open(fileURL)
-          }else {
-            showError("Không thể tạo phiếu giao hàng")
-          }
-          setTableLoading(false)
-        })
-        .catch(() => {
-          setTableLoading(false)
-          showError("Không thể tạo phiếu giao hàng")
-        });
+      resetCommonProcess();
+      setIsPrintEcommerceDeliveryNote(true);
+      dispatch(downloadPrintForm({order_list}, downloadEcommerceDeliveryNote))
     }
-  }, [selectedRowKeys, token, data?.items]);
-
+  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
+  // handle print ecommerce delivery note
+  
+  // handle print yody delivery note
   const printAction = useCallback(
     (printType: string) => {
       let params = {
@@ -854,20 +933,19 @@ const EcommerceOrders: React.FC = () => {
 
     printAction("shipment");
   }
+  // end handle print yody delivery note
 
   const  handleExportOrder = () => {
     setShowExportModal(true)
   }
 
   const actions = [
-
     {
       id: 1,
       icon: <FileExcelOutlined />,
       name: "Xuất excel",
       onClick: () => handleExportOrder()
     },
-
     {
       id: 2,
       name: "In phiếu giao hàng",
@@ -882,26 +960,16 @@ const EcommerceOrders: React.FC = () => {
       disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: () => printAction("stock_export")
     },
-  ];
-
-  const shopeeActions = [
     {
-      id: "shopee_print_shipment",
-      name: "In phiếu giao hàng Shopee",
+      id: "ecommerce_print_shipment",
+      name: "In phiếu giao hàng sàn",
       icon: <PrinterOutlined />,
       disabled: !selectedRowKeys?.length || !data.items.length,
-      onClick: handlePrintShopeeDeliveryNote
+      onClick: handlePrintEcommerceDeliveryNote
     }
   ];
 
   const lazadaActions = [
-    {
-      id: "lazada_print_shipment",
-      name: "In phiếu giao hàng Lazada",
-      icon: <PrinterOutlined />,
-      disabled: !data.items.length || true,
-      onClick: () => {}
-    },
     {
       id: "lazada_create_package",
       name: "Tạo gói hàng Lazada",
@@ -951,7 +1019,7 @@ const EcommerceOrders: React.FC = () => {
       } else {
         setIsShowGetOrderModal(false);
         setProcessId(data.process_id);
-        setIsVisibleProgressModal(true);
+        setIsVisibleProgressDownloadOrdersModal(true);
 
         setIsDownloading(true);
       }
@@ -1002,7 +1070,7 @@ const EcommerceOrders: React.FC = () => {
     
   // handle progress download orders
   const [isVisibleConflictModal, setIsVisibleConflictModal] = useState<boolean>(false);
-  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
+  const [isVisibleProgressDownloadOrdersModal, setIsVisibleProgressDownloadOrdersModal] = useState<boolean>(false);
   const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] = useState<boolean>(false);
   const [processId, setProcessId] = useState(null);
   const [progressPercent, setProgressPercent] = useState<number>(0);
@@ -1028,7 +1096,7 @@ const EcommerceOrders: React.FC = () => {
   const onOKProgressDownloadOrder = () => {
     resetProgress();
     reloadPage();
-    setIsVisibleProgressModal(false);
+    setIsVisibleProgressDownloadOrdersModal(false);
   }
   // end
 
@@ -1068,7 +1136,7 @@ const EcommerceOrders: React.FC = () => {
               showSuccess("Tải đơn hàng thành công!");
             }else {
               resetProgress();
-              setIsVisibleProgressModal(false);
+              setIsVisibleProgressDownloadOrdersModal(false);
               showError(processData.api_error);
             }
           } else {
@@ -1141,7 +1209,7 @@ const EcommerceOrders: React.FC = () => {
             <Card>
               <EcommerceOrderFilter
                 actions={actions}
-                shopeeActions={shopeeActions}
+                shopeeActions={[]}
                 lazadaActions={lazadaActions}
                 onFilter={onFilter}
                 isLoading={tableLoading}
@@ -1193,9 +1261,9 @@ const EcommerceOrders: React.FC = () => {
           />
         }
 
-        {isVisibleProgressModal &&
+        {isVisibleProgressDownloadOrdersModal &&
           <ProgressDownloadOrdersModal
-            visible={isVisibleProgressModal}
+            visible={isVisibleProgressDownloadOrdersModal}
             onCancel={onCancelProgressDownloadOrder}
             onOk={onOKProgressDownloadOrder}
             progressData={progressData}
@@ -1203,6 +1271,28 @@ const EcommerceOrders: React.FC = () => {
             isDownloading={isDownloading}
           />
         }
+
+        {/*print ecommerce delivery note process*/}
+        {isPrintEcommerceDeliveryNote && isVisibleProcessModal &&
+          <PrintEcommerceDeliveryNoteProcess
+            visible={isPrintEcommerceDeliveryNote && isVisibleProcessModal}
+            isProcessing={isProcessing}
+            onOk={okPrintEcommerceDeliveryNote}
+            onCancel={cancelPrintEcommerceDeliveryNote}
+            processData={commonProcessData}
+            processPercent={commonProcessPercent}
+          />
+        }
+
+        {isVisibleExitProcessModal &&
+          <ExitProgressModal
+            visible={isVisibleExitProcessModal}
+            onCancel={onCancelExitProcessModal}
+            onOk={onOkExitProcessModal}
+            exitProgressContent={exitProcessModal.exitProgressContent}
+          />
+        }
+        {/*end print ecommerce delivery note process*/}
 
         {isVisibleConflictModal &&
           <ConflictDownloadModal
@@ -1219,16 +1309,6 @@ const EcommerceOrders: React.FC = () => {
             onOk={onOkExitDownloadOrdersModal}
           />
         }
-
-        {/* // todo thai: handle later
-        {isShowUpdateConnectionModal && (
-          <UpdateConnectionModal
-            visible={isShowUpdateConnectionModal}
-            onCancel={cancelUpdateConnectionModal}
-            onOk={updateProductConnection}
-            data={updateConnectionData}
-          />
-        )} */}
 
         {showSettingColumn && (
           <ModalSettingColumn

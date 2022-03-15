@@ -188,19 +188,34 @@ const createEcommerceLogisticApi = (requestBody : EcommerceCreateLogistic) => {
 }
 
 
-export const importConcatenateByExcelService = (file: File) => {
-  let formData = new FormData();
-  formData.append("file_upload", file);
+export const importConcatenateByExcelService = (formData: FormData) => {
   return BaseAxios.post(`${ApiConfig.ECOMMERCE}/import-export/variants-import`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });
 }
 
-export const getProgressImportConcatenateByExcelApi = (
+// get ecommerce jobs api
+export const getEcommerceJobsApi = (
   process_id: any
 ): Promise<BaseResponse<any>> => {
 const requestUrl = `${ApiConfig.ECOMMERCE}/jobs/${process_id}`;
 return BaseAxios.get(requestUrl);
+};
+
+//exit ecommerce jobs api
+export const exitEcommerceJobsApi = (
+  query: ExitProgressDownloadEcommerceQuery
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/jobs/${query.processId}`;
+  return BaseAxios.put(requestUrl);
+};
+
+// get ecommerce delivery note
+export const getEcommercePrintForm = (
+    requestBody: any
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/orders/print-forms`;
+  return BaseAxios.post(requestUrl, requestBody);
 };
 
 export {

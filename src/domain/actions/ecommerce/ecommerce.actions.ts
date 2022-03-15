@@ -233,6 +233,30 @@ export const createEcommerceLogistic = (
   });
 };
 
-export const concatenateByExcelAction = (file: File, callback: (data: any) => void) => {
-  return BaseAction(EcommerceType.CONCANATE_BY_EXCEL, {file, callback});
+export const concatenateByExcelAction = (formData: FormData, callback: (data: any) => void) => {
+  return BaseAction(EcommerceType.CONCANATE_BY_EXCEL, {formData,  callback});
 }
+
+export const downloadPrintForm = (
+    request: any,
+    callback: (data: any) => void
+) => {
+  return BaseAction(EcommerceType.DOWNLOAD_PRINT_FORM, {
+    request,
+    callback
+  });
+};
+
+// exit Progress Download Ecommerce Print Form Action
+export const exitEcommerceJobsAction = (
+  processId: number | null,
+  callback: (response: PageResponse<any> | false) => void
+) => {
+  const query = {
+    processId: processId
+  }
+  return BaseAction(EcommerceType.EXIT_ECOMMERCE_JOBS, {
+    query,
+    callback
+  });
+};

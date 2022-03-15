@@ -4,6 +4,7 @@ import BaseAxios from "base/base.axios";
 import {ApiConfig} from "config/api.config";
 import BaseResponse from "base/base.response";
 import {
+  GoodsReceiptsAddOrderRequest,
   GoodsReceiptsResponse,
   GoodsReceiptsTypeResponse,
   OrderConcernGoodsReceiptsResponse,
@@ -89,10 +90,11 @@ export const getOrderGoodsReceiptsService = (): Promise<BaseResponse<OrderRespon
  * Tìm kiếm đơn hàng thỏa mãn biên bản bàn giao
  */
 export const getOrderConcernGoodsReceiptsService = (
-  orderCodes: string
+  param: GoodsReceiptsAddOrderRequest
 ): Promise<BaseResponse<OrderConcernGoodsReceiptsResponse[]>> => {
+  const queryString = generateQuery(param);
   return BaseAxios.get(
-    `${ApiConfig.ORDER}/goods-receipt-manager/orders?order_codes=${orderCodes}`
+    `${ApiConfig.ORDER}/goods-receipt-manager/orders?${queryString}`
   );
 };
 

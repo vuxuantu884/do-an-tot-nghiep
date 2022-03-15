@@ -8,8 +8,6 @@ import { RiNotification2Line, RiArrowDropDownLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutAction } from "domain/actions/auth/auth.action";
 import { StyledComponent } from "./header.container.styles";
-import { useContext } from "react";
-import { AccountDetailContext } from "screens/settings/account/provider/account.detail.provider";
 import { RootReducerType } from "../../model/reducers/RootReducerType";
 
 type HeaderContainerProps = {

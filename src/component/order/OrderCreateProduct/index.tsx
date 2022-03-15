@@ -52,7 +52,7 @@ import {
 } from "model/request/order.request";
 import {
 	DiscountRequestModel,
-	LineItemRequestModel
+	// LineItemRequestModel
 } from "model/request/promotion.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
