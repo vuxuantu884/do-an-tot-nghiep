@@ -429,11 +429,22 @@ export const getChannelsService = (
  * chuyển trạng thái pick: (khi in nhiều phiếu bàn giao)
  */
 export const changeOrderStatusToPickedService = (
-  orderIds: number[]
+  orderFulfillmentIds: number[]
+): Promise<BaseResponse<any>> => {
+  const orderFulfillmentIdsTexts = orderFulfillmentIds.map((id) => `ids=${id}`);
+  const params = orderFulfillmentIdsTexts.join("&");
+  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/status/picked?${params}`);
+};
+
+/**
+ * chuyển trạng thái đơn hàng
+ */
+ export const changeMultiOrderStatus = (
+  orderIds: number[], type: string,
 ): Promise<BaseResponse<any>> => {
   const orderIdTexts = orderIds.map((id) => `ids=${id}`);
   const params = orderIdTexts.join("&");
-  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/picked?${params}`);
+  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/status/${type}?${params}`);
 };
 
 export const updateOrderPartialService = (
