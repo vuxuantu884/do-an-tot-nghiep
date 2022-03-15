@@ -1025,7 +1025,8 @@ function OrdersTable(props: PropTypes) {
     if (columns.length === 0) {
       setColumns(initColumns);
     }
-  }, [columns, initColumns, setColumns]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setColumns]);
 
   return (
     <StyledComponent>
