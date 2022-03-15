@@ -243,6 +243,8 @@ const HistoryInventoryTransferTab: React.FC = () => {
       params.page = page;
       params.limit = size;
       setPrams({ ...params });
+      let queryParam = generateQuery({...params});
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}/histories?${queryParam}`);
     },
     [params]
   );
