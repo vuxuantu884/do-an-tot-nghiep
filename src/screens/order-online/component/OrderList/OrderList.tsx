@@ -41,7 +41,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
-import { changeOrderStatusToPickedService } from "service/order/order.service";
+import { changeMultiOrderStatus, changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -251,9 +251,28 @@ function OrderList(props: PropTypes) {
           break;
         case ACTION_ID.printStockExport:
           // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
-          window.open(printPreviewUrlExport);
-          break;
+         
+          {
+            dispatch(showLoading());
+            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/ print-preview?${queryParam}`;
+            let ids: number[] = [];
+            selectedRow.forEach((row) =>
+              row.fulfillments?.forEach((single) => {
+                ids.push(single.id);
+              })
+            );
+            window.open(printPreviewUrlExport);
+            changeMultiOrderStatus(ids, "packed").then(response => {
+              if(isFetchApiSuccessful(response)) {
+              } else {
+                handleFetchApiError(response, "Chuyển trạng thái nhiều đơn hàng", dispatch)
+              }
+            }).finally(()=>{
+              dispatch(hideLoading());
+            })
+            break;
+          }
+
         case ACTION_ID.printOrder:
           const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
           const queryParamOrder = generateQuery({
