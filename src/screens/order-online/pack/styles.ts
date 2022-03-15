@@ -28,11 +28,16 @@ export const StyledComponent = styled.div`
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantity {
-    padding: 0 10px !important;
+    padding: 0 !important;
+    .items .item{
+      padding: 0 10px;
+
+    }
   }
   td {
     position: relative;
     overflow: hidden;
+    border-right: 1px solid ${borderColor};
   }
   .productNameQuantityHeader {
     display: flex;
