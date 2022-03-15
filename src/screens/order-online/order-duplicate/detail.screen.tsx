@@ -1123,6 +1123,7 @@ const OrderDuplicate: React.FC = () => {
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
             listShippers={listShippers}
+            initSubStatus={listOrderProcessingStatus}
           />
           <CustomTable
             isRowSelection
