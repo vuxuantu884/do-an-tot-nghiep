@@ -27,7 +27,7 @@ import UrlConfig from "config/url.config";
 import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
 import {AccountResponse} from "model/account/account.model";
-import { AccountSearchAction, searchAccountPublicAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import {getListInventoryAdjustmentAction} from "domain/actions/inventory/inventory-adjustment.action";
 import {StoreResponse} from "model/core/store.model";
 import {useReactToPrint} from "react-to-print";

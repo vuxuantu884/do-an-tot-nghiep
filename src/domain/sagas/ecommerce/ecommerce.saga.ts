@@ -659,10 +659,10 @@ function* createEcommerceLogisticOrder(action: YodyAction){
 }
 
 function* concatenateByExcel(action: YodyAction) {
-  const { file, callback } = action.payload;
+  const { formData, callback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<any> = yield call(importConcatenateByExcelService, file);
+    const response: BaseResponse<any> = yield call(importConcatenateByExcelService, formData);
     if (response.code) {
       callback(response);
     } else {

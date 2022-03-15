@@ -325,6 +325,7 @@ export interface VariantRequestView {
   name: string,
   color_id: number|null,
   color: string|null,
+  code: string|null,
   size_id: number|null,
   size: string|null,
   sku: string,

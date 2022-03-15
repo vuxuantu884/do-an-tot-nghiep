@@ -143,6 +143,7 @@ const Products: React.FC = () => {
             if (!processData.api_error) {
               processType === "variant" ? showSuccess("Tải sản phẩm thành công!")
                 : showSuccess("Đồng bộ tồn thành công!");
+              setIsReloadPage(true)
             } else {
               resetProgress();
               setIsVisibleProgressModal(false);
@@ -274,7 +275,7 @@ const Products: React.FC = () => {
               }
 
               {activeTab === EcommerceProductTabUrl.CONNECTED &&
-                <ConnectedItems handleSyncStockJob={handleSyncStockJob} />
+                <ConnectedItems isReloadPage={isReloadPage} handleSyncStockJob={handleSyncStockJob} />
               }
 
               {activeTab === EcommerceProductTabUrl.NOT_CONNECTED &&
