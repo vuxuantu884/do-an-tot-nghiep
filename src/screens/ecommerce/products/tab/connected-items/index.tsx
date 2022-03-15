@@ -80,10 +80,11 @@ const productsDisconnectPermission = [
 
 type ConnectedItemsProps = {
   handleSyncStockJob: (x: number) => void;
+  isReloadPage: boolean;
 }
 
 const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
-  const {handleSyncStockJob} = props;
+  const {isReloadPage, handleSyncStockJob} = props;
   const history = useHistory();
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
@@ -186,7 +187,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   useEffect(() => {
     window.scrollTo(0, 0);
     getProductUpdated(query);
-  }, [getProductUpdated, query]);
+  }, [getProductUpdated, query, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);
