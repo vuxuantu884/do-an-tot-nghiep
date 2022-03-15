@@ -78,12 +78,11 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
             if (data.length > 0) {
               console.log(data);
               data.forEach(function (item, index) {
-                
-                let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
-                if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
-
-                orderListResponse.push(item);
-                setOrderListResponse([...orderListResponse]);
+                let newOrderList = [...orderListResponse];
+                let indexOrder = newOrderList.findIndex((p) => p.id === item.id);
+                if (indexOrder !== -1) newOrderList.splice(indexOrder, 1);
+                newOrderList.push(item);
+                setOrderListResponse(newOrderList);
               });
             } else {
               showError("Không tìm thấy đơn hàng");
@@ -192,16 +191,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     goodsReceiptsForm.submit();
   }, [goodsReceiptsForm]);
 
-  const onMenuClick = (index: number) => {
-    switch (index) {
-      case 1:
-        setOrderListResponse([]);
-        break;
-      default:
-        break;
-    }
-  }
-
   return (
     <AddReportHandOverContext.Provider value={addReportHandOverContextData}>
       <ContentContainer
@@ -297,6 +286,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                       return false;
                     }}
                   >
+                    <Select.Option key={-1} value={-1}>Tự giao hàng</Select.Option>
                     {listThirdPartyLogistics.map((item, index) => (
                       <Select.Option key={index.toString()} value={item.id}>
                         {item.name}
@@ -390,7 +380,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           orderListResponse={orderListResponse}
           setOrderListResponse={setOrderListResponse}
           menu={actions}
-          onMenuClick={onMenuClick}
+          // onMenuClick={onMenuClick}
           handleAddOrder={handleAddOrder}
         />
 
