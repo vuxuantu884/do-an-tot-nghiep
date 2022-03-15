@@ -33,6 +33,8 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [isVisibleExitConcatenateByExcelModal, setIsVisibleExitConcatenateByExcelModal] = useState<boolean>(false);
   const [isVisibleImportModal, setIsVisibleImportModal] = useState(true);
+  const [selectedShopId, setSelectedtShopId] = useState<number>(0);
+
   useEffect(() => {
     dispatch(getShopEcommerceList({}, setEcommerceShopList));
   }, [dispatch]);
@@ -73,12 +75,16 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
   }
 
   const checkDisableOkButton = useCallback(() => {
-    return !fileList.length;
-  }, [fileList.length]);
+    return !fileList.length || !selectedShopId;
+  }, [fileList.length, selectedShopId]);
 
+  
   const onOkImportModal = () => {
     if (fileList?.length) {
-      dispatch(concatenateByExcelAction(fileList[0], callbackImportExcel));
+      const formData = new FormData();
+      formData.append("file_upload", fileList[0]);
+      formData.append("shop_id", selectedShopId.toString());
+      dispatch(concatenateByExcelAction(formData,  callbackImportExcel));
     } else {
       showWarning("Vui lòng chọn file!")
     }
@@ -153,6 +159,10 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
     onOKProgressConcatenateByExcel();
   }
 
+  const getSelectedShop = (shop_id: number) => {
+    setSelectedtShopId(shop_id)
+  }
+
   return (
     <div>
       <Modal
@@ -177,6 +187,7 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
               >
               <Select
                 placeholder="Chọn gian hàng"
+                onChange={getSelectedShop}
                 >
                 {listShopOption}
               </Select>
