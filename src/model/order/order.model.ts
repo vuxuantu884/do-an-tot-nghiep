@@ -117,7 +117,8 @@ export interface OrderModel extends BaseObject {
   total_weight: number | null;
   channel_code: string;
   created_on?: string | null;
-  total_quantity: number ;
+  total_quantity: number;
+  goods_receipt_id: number;
   export_bill: boolean;
 }
 
@@ -173,6 +174,7 @@ export interface OrderSearchQuery {
   reference_code: string | null;
   search_term?: string | null;
 	services?: [];
+  channel_codes?: Array<any> | [];
 }
 
 export interface OrderSearchQueryModel {
@@ -260,4 +262,12 @@ export interface StoreBankAccountNumberModel {
   default: boolean;
   status: boolean;
   id: number;
+}
+
+export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
+  full_address:string,
+  ward:string,
+  district:string,
+  city:string,
+  country:string
 }

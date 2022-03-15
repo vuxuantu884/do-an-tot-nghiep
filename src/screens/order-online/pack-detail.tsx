@@ -18,6 +18,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { useReactToPrint } from "react-to-print";
+import { FulFillmentStatus } from "utils/Constants";
 import PackDetailInfo from "./pack/detail/pack-detail-info";
 import PackListOrder from "./pack/detail/pack-list-order";
 import PackQuantityProduct from "./pack/detail/pack-quantity-product";
@@ -44,15 +45,43 @@ const actions: Array<MenuAction> = [
   },
   {
     id: 4,
-    name: "Thêm đơn hàng vào biên bản",
+    name: "Thêm/xoá đơn hàng vào biên bản",
     icon: <ReconciliationOutlined />,
-  },
+  }
 ];
 
 const typePrint={
   simple:"simple",
   detail:"detail"
 }
+
+const listStatusTagWithoutReturn = [
+  {
+    name: "Chưa giao hàng",
+    status: FulFillmentStatus.UNSHIPPED,
+    color: "#666666",
+  },
+  {
+    name: "Đang nhặt hàng",
+    status: FulFillmentStatus.PICKED,
+    color: "#FCAF17",
+  },
+  {
+    name: "Đã đóng gói",
+    status: FulFillmentStatus.PACKED,
+    color: "#FCAF17",
+  },
+  {
+    name: "Đang giao hàng",
+    status: FulFillmentStatus.SHIPPING,
+    color: "#FCAF17",
+  },
+  {
+    name: "Đã giao hàng",
+    status: FulFillmentStatus.SHIPPED,
+    color: "#27AE60",
+  },
+];
 
 interface GoodReceiptPrint{
   good_receipt_id:number;
@@ -76,16 +105,16 @@ const PackDetail: React.FC = () => {
   const [isError, setError] = useState<boolean>(false);
   const [packDetail, setPackDetail] = useState<GoodsReceiptsResponse>();
   const [packFile] = useState<GoodsReceiptsFileModel[]>([
-    {
-      file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
-      create_name: "le van long",
-      create_time: "17-11-2021",
-    },
-    {
-      file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
-      create_name: "le van long",
-      create_time: "17-11-2021",
-    },
+    // {
+    //   file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
+    //   create_name: "le van long",
+    //   create_time: "17-11-2021",
+    // },
+    // {
+    //   file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
+    //   create_name: "le van long",
+    //   create_time: "17-11-2021",
+    // },
   ]);
 
   const [packProductQuantity, setPackProductQuantity] = useState<GoodsReceiptsTotalProductModel[]>([]);
@@ -93,8 +122,6 @@ const PackDetail: React.FC = () => {
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
   const [htmlContent, setHtmlContent] = useState("");
-  const [selectedOrderList,setSelectedOrderList]=useState<GoodsReceiptsOrderListModel[]>([]);
-  console.log(selectedOrderList)
   useEffect(() => {
     if (PackId) {
       dispatch(
@@ -103,7 +130,7 @@ const PackDetail: React.FC = () => {
 
           //PackQuantityProduct
           let keyProduct = 0;
-          let resultListProduct: GoodsReceiptsTotalProductModel[] = [];
+          let resultListProduct: any[] = [];
 
           let keyOrder = 0;
           let resultListOrder: GoodsReceiptsOrderListModel[] = [];
@@ -112,6 +139,7 @@ const PackDetail: React.FC = () => {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
               itemFFM.items.forEach(function (itemProduct, index) {
                 ////
+                const productOnHand = data.variant.find(i => i.sku === itemProduct.sku)
                 resultListProduct.push({
                   key: keyProduct++,
                   barcode: itemProduct.variant_barcode,
@@ -119,10 +147,11 @@ const PackDetail: React.FC = () => {
                   product_sku: itemProduct.sku,
                   product_name: itemProduct.product,
                   variant_id: itemProduct.variant_id,
-                  inventory: itemProduct.available ? itemProduct.available : 0,
+                  // inventory: itemProduct.available ? itemProduct.available : 0,
                   price: itemProduct.price,
                   total_quantity: itemProduct.quantity,
                   total_incomplate: 0,
+                  on_hand: productOnHand? productOnHand.on_hand : undefined,
                 });
 
                 ///
@@ -138,9 +167,16 @@ const PackDetail: React.FC = () => {
             let total_price = 0;
             let postage = 0;
             let card_number = 0;
+            let findStatus: any = "";
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-
+            if (itemOrder.fulfillments && itemOrder.fulfillments.length) {
+              const status = itemOrder.fulfillments[0].status;
+              
+              findStatus = listStatusTagWithoutReturn.find(stt => stt.status === status);
+            }
+            const statusName = findStatus ? findStatus.name : "";
+            const statusColor = findStatus ? findStatus.color : "";
             itemOrder.fulfillments?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
@@ -174,7 +210,8 @@ const PackDetail: React.FC = () => {
               total_price: total_price,
               postage: postage,
               card_number: card_number,//tong thanh toan
-              status: "",
+              status: statusName,
+              status_color: statusColor,
               note: itemOrder.note,
               items: _itemProduct
             })
@@ -207,6 +244,7 @@ const PackDetail: React.FC = () => {
 
   const handleAddOrderInPack = () => { };
 
+
   const handleSearchOrder = (value: any) => { };
 
   const onMenuListOrderClick = useCallback(
@@ -222,13 +260,13 @@ const PackDetail: React.FC = () => {
           handleExportExcelOrderPack();
           break;
         case 4:
-          history.push(`${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${PackId}`);
+          history.push(`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${PackId}`);
           break;
         default:
           break;
       }
     },
-    [history, PackId,handleExportExcelOrderPack,handlePrintPack]
+    [handlePrintPack, handleExportExcelOrderPack, history, PackId]
   );
 
   return (
@@ -270,7 +308,6 @@ const PackDetail: React.FC = () => {
         actions={actions}
         handleSearchOrder={handleSearchOrder}
         onMenuClick={onMenuListOrderClick}
-        setSelectedOrderList={setSelectedOrderList}
       />
 			
 			<React.Fragment>

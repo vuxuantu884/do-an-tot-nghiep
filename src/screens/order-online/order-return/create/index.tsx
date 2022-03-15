@@ -17,7 +17,7 @@ import {
 	actionCreateOrderReturn,
 	actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import { changeSelectedStoreBankAccountAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
+import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -687,7 +687,6 @@ ShippingServiceConfigDetailResponseModel[]
             reason: form.getFieldValue("reason"),
             sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
-            channel_id: ADMIN_ORDER.channel_id,
             discounts: handleRecalculateOriginDiscount(itemsResult),
           };
 
@@ -822,6 +821,7 @@ ShippingServiceConfigDetailResponseModel[]
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
     values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
+    values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -1133,8 +1133,13 @@ ShippingServiceConfigDetailResponseModel[]
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
 										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
+                    form={form}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
+                    initialForm={initialForm}
+                    updateOrder
+                    initDefaultOrderSourceId={OrderDetail?.source_id}
+                    isAutoDefaultOrderSource= {false}
                   />
                 )}
 
@@ -1287,7 +1292,10 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
     if (storeId != null) {
-      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+      dispatch(StoreDetailCustomAction(storeId, (data: StoreCustomResponse) => {
+        setStoreDetail(data);
+        dispatch(changeStoreDetailAction(data))
+      }));
       getStoreBankAccountNumbersService({
 				store_ids: [storeId]
 			}).then((response) => {
@@ -1336,7 +1344,10 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomer));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
+        setCustomer(data);
+        dispatch(changeOrderCustomerAction(data));
+      }));
       setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone||'');
     }
   }, [dispatch, OrderDetail]);
@@ -1406,6 +1417,7 @@ ShippingServiceConfigDetailResponseModel[]
 		dispatch(
 			actionListConfigurationShippingServiceAndShippingFee((response) => {
 				setShippingServiceConfig(response);
+        dispatch(changeShippingServiceConfigAction(response))
 			})
 		);
 	}, [dispatch]);

@@ -11,15 +11,14 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import UrlConfig from "config/url.config"
+import UrlConfig from "config/url.config";
 import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   DeliveryServicesGetList,
   getListOrderAction,
-  PaymentMethodGetList,
+  PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
@@ -29,11 +28,11 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
-  OrderProcessingStatusResponseModel,
+  OrderProcessingStatusResponseModel
 } from "model/response/order-processing-status.response";
 import {
   DeliveryServiceResponse,
-  OrderResponse,
+  OrderResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -363,9 +362,7 @@ function OrderList(props: PropTypes) {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (exportProgress < 95) {
-            setExportProgress(exportProgress + 3);
-          }
+          setExportProgress(Math.round(response.data.num_of_record/response.data.total * 10000) / 100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -376,13 +373,18 @@ function OrderList(props: PropTypes) {
             window.open(response.data.url);
             setListExportFile(newListExportFile);
           }
-        }
+          if (response.data && response.data.status === "ERROR") {
+						setStatusExport(4)
+					}
+				} else {
+					setStatusExport(4)
+				}
       });
     });
-  }, [exportProgress, listExportFile]);
+  }, [listExportFile]);
 
   useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3) return;
+    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
@@ -509,7 +511,8 @@ function OrderList(props: PropTypes) {
             onClearFilter={() => onClearFilter()}
 						isHideTab= {isHideTab}
           />
-					{ deliveryServices.length > 0 && (
+          
+					{ deliveryServices.length > 0 ? (
 						<OrdersTable
 							tableLoading={tableLoading}
 							data={data}
@@ -521,8 +524,8 @@ function OrderList(props: PropTypes) {
 							setShowSettingColumn={setShowSettingColumn}
 							deliveryServices={deliveryServices}
 						/>
-						
-						)}
+						) : "Đang tải dữ liệu..."
+          }
         </Card>
 
         <ModalSettingColumn

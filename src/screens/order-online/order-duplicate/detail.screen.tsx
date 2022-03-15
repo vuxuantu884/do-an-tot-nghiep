@@ -849,9 +849,7 @@ const OrderDuplicate: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (exportProgress < 95) {
-            setExportProgress(exportProgress + 3);
-          }
+          setExportProgress(Math.round(response.data.num_of_record/response.data.total * 10000) / 100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -862,13 +860,18 @@ const OrderDuplicate: React.FC = () => {
             window.open(response.data.url);
             setListExportFile(newListExportFile);
           }
+          if (response.data && response.data.status === "ERROR") {
+            setStatusExport(4)
+          }
+        } else {
+          setStatusExport(4)
         }
       });
     });
-  }, [exportProgress, listExportFile]);
+  }, [listExportFile]);
 
   useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3) return;
+    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);

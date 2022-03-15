@@ -32,7 +32,7 @@ import {
   StoreCreateAction,
   StoreGetTypeAction,
   StoreRankAction,
-  StoreValidateAction,
+  // StoreValidateAction,
 } from "domain/actions/core/store.action";
 import {AccountResponse} from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
@@ -47,14 +47,14 @@ import {
   StoreTypeRequest,
 } from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
-import {RuleObject, StoreValue} from "rc-field-form/lib/interface";
+// import {RuleObject, StoreValue} from "rc-field-form/lib/interface";
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {RegUtil} from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Item} = Form;
@@ -112,7 +112,7 @@ const StoreCreateScreen: React.FC = () => {
 
   //ref
   const firstload = useRef(true);
-  const debounceSearchStoreNameRef = useRef<ReturnType<typeof setTimeout>>();
+  // const debounceSearchStoreNameRef = useRef<ReturnType<typeof setTimeout>>();
 
   const onSelectDistrict = useCallback(
     (value: number) => {
@@ -143,27 +143,27 @@ const StoreCreateScreen: React.FC = () => {
     [history]
   );
 
-  const checkDuplicateStoreName = (
-    rule: RuleObject,
-    value: StoreValue,
-    callback: (error?: string) => void
-  ) => {
-    if (debounceSearchStoreNameRef.current) {
-      clearTimeout(debounceSearchStoreNameRef.current);
-    }
-
-    debounceSearchStoreNameRef.current = setTimeout(() => {
-      dispatch(
-        StoreValidateAction({name: value}, (data) => {
-          if (data instanceof Array) {
-            callback("Tên cửa hàng đã tồn tại");
-          } else {
-            callback();
-          }
-        })
-      );
-    }, 300);
-  };
+  // const checkDuplicateStoreName = (
+  //   rule: RuleObject,
+  //   value: StoreValue,
+  //   callback: (error?: string) => void
+  // ) => {
+  //   if (debounceSearchStoreNameRef.current) {
+  //     clearTimeout(debounceSearchStoreNameRef.current);
+  //   }
+  //
+  //   debounceSearchStoreNameRef.current = setTimeout(() => {
+  //     dispatch(
+  //       StoreValidateAction({name: value}, (data) => {
+  //         if (data instanceof Array) {
+  //           callback("Tên cửa hàng đã tồn tại");
+  //         } else {
+  //           callback();
+  //         }
+  //       })
+  //     );
+  //   }, 300);
+  // };
   const onFinish = useCallback(
     (values: StoreCreateRequest) => {
       setIsLoading(true);
@@ -255,11 +255,11 @@ const StoreCreateScreen: React.FC = () => {
                         pattern: RegUtil.STRINGUTF8,
                         message: "Tên cửa hàng không gồm kí tự đặc biệt",
                       },
-                      {
-                        validator: (rule, value, callback) => {
-                          checkDuplicateStoreName(rule, value, callback);
-                        },
-                      },
+                      // {
+                      //   validator: (rule, value, callback) => {
+                      //     checkDuplicateStoreName(rule, value, callback);
+                      //   },
+                      // },
                     ]}
                     label="Tên cửa hàng"
                     name="name"
@@ -407,12 +407,12 @@ const StoreCreateScreen: React.FC = () => {
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    label="Trực thuộc"
+                    label="Phòng ban tương ứng"
                     name="department_id"
-                    rules={[{required: true, message: "Vui lòng chọn trực thuộc"}]}
+                    rules={[{required: true, message: "Vui lòng chọn phòng ban tương ứng"}]}
                   >
                     <TreeSelect
-                      placeholder="Chọn trực thuộc"
+                      placeholder="Chọn phòng ban tương ứng"
                       treeDefaultExpandAll
                       className="selector"
                       allowClear
@@ -537,7 +537,7 @@ const StoreCreateScreen: React.FC = () => {
                     name="rank"
                   >
                     <Select>
-                      {storeRanks.map((i, index) => (
+                      {storeRanks.map((i) => (
                         <Option key={i.id} value={i.id}>
                           {i.code}
                         </Option>

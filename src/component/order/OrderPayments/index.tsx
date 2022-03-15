@@ -73,8 +73,6 @@ function OrderPayments(props: PropType): JSX.Element {
     return usageRate;
   }, [loyaltyRate]);
 
-  console.log('payments', payments)
-
   const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
     let paymentsResult = [...payments]
     let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);

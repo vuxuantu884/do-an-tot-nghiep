@@ -15,7 +15,7 @@ export interface RoleResponse extends RoleAuthorize {}
 
 export interface RoleSearchQuery extends BaseQuery {
   name?: string;
-  
+
 }
 
 export interface AuthenRequest {
@@ -23,7 +23,6 @@ export interface AuthenRequest {
   password: string;
 }
 
-export interface RoleProfile {
-  code: string;
-  name: string;
+export interface AuthenLogoutRequest {
+  operatorKcId: string;
 }

@@ -90,7 +90,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
           loading={loading}
           title={
             <div>
-              {isEdit ? "Sửa phiếu nháp " : "Tạo phiếu nháp "}
+              {isEdit ? "Sửa phiếu nháp " : "Tạo phiếu nháp"}
               <span style={{ color: "#2A2A86" }}>{item?.code}</span>
             </div>
           }
@@ -143,10 +143,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                       <div>
                         <div>
                           <div className="product-item-sku">{item.sku}</div>
-                          <div className="product-item-name">
-                            <span className="product-item-name-detail">
+                          <div className="product-item-name text-truncate-1">
+                            <div className="product-item-name-detail">
                               {value}
-                            </span>
+                            </div>
                           </div>
                         </div>
                       </div>

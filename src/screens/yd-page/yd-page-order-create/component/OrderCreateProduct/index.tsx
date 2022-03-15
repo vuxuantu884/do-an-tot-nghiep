@@ -36,7 +36,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+// import { RootReducerType } from "model/reducers/RootReducerType";
 import {
 	OrderDiscountRequest,
 	OrderItemDiscountRequest,
@@ -64,7 +64,7 @@ import React, {
 	useRef,
 	useState
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import DiscountGroup from "screens/yd-page/yd-page-order-create/component/discount-group";
@@ -87,7 +87,7 @@ import {
 	getTotalDiscount,
 	handleDelayActionWhenInsertTextInSearchInput,
 	handleFetchApiError,
-	haveAccess,
+	// haveAccess,
 	isFetchApiSuccessful,
 	replaceFormatString
 } from "utils/AppUtils";
@@ -213,10 +213,10 @@ function OrderCreateProduct(props: PropType) {
 	const [storeArrayResponse, setStoreArrayResponse] =
 		useState<Array<StoreResponse> | null>([]);
 
-	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+	// const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
-	const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
-	const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
+	const isShouldUpdateCouponRef = useRef(!orderDetail);
+	const isShouldUpdateDiscountRef = useRef(!orderDetail);
 
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
@@ -265,20 +265,18 @@ function OrderCreateProduct(props: PropType) {
 									let index = _items.findIndex((i) => i.variant_id === data.id);
 									const item: OrderLineItemRequest = createItem(data);
 									item.position = items.length + 1;
-									if (true) {
-										if (splitLine || index === -1) {
-											_items.unshift(item);
-											calculateChangeMoney(_items);
-										} else {
-											let variantItems = _items.filter((item) => item.variant_id === data.id);
-											let firstIndex = 0;
-											variantItems[firstIndex].quantity += 1;
-											variantItems[firstIndex].line_amount_after_line_discount +=
-												variantItems[firstIndex].price -
-												variantItems[firstIndex].discount_items[0]?.amount *
-												variantItems[firstIndex].quantity;
-											calculateChangeMoney(_items);
-										}
+									if (splitLine || index === -1) {
+										_items.unshift(item);
+										calculateChangeMoney(_items);
+									} else {
+										let variantItems = _items.filter((item) => item.variant_id === data.id);
+										let firstIndex = 0;
+										variantItems[firstIndex].quantity += 1;
+										variantItems[firstIndex].line_amount_after_line_discount +=
+											variantItems[firstIndex].price -
+											variantItems[firstIndex].discount_items[0]?.amount *
+											variantItems[firstIndex].quantity;
+										calculateChangeMoney(_items);
 									}
 
 									if (isAutomaticDiscount && _items.length > 0) {
@@ -515,7 +513,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const convertResultSearchVariant = useMemo(() => {
 		let options: any[] = [];
-		resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+		resultSearchVariant.items.forEach((item: VariantResponse) => {
 			options.push({
 				label: renderSearchVariant(item),
 				value: item.id ? item.id.toString() : "",
@@ -1102,7 +1100,7 @@ function OrderCreateProduct(props: PropType) {
 				.then(async (response: BaseResponse<ApplyCouponResponseModel>) => {
 					if (isFetchApiSuccessful(response)) {
 						const applyDiscountResponse = response.data.applied_discount;
-							if (applyDiscountResponse.invalid === true) {
+							if (applyDiscountResponse.invalid) {
 								showError(applyDiscountResponse.invalid_description);
 								if (
 									applyDiscountResponse.invalid_description ===
@@ -1476,26 +1474,26 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const dataCanAccess = useMemo(() => {
-		let newData: Array<StoreResponse> = [];
-		if (listStores && listStores.length) {
-			newData = listStores.filter((store) =>
-				haveAccess(
-					store.id,
-					userReducer.account ? userReducer.account.account_stores : []
-				)
-			);
-			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
-			if (storeId && userReducer.account) {
-				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
-					let initStore = listStores.find((single) => single.id === storeId)
-					if (initStore) {
-						newData.push(initStore);
-					}
-				}
-			}
-		}
-		return newData;
-	}, [listStores, storeId, userReducer.account]);
+		// let newData: Array<StoreResponse> = [];
+		// if (listStores && listStores.length) {
+		// 	newData = listStores.filter((store) =>
+		// 		haveAccess(
+		// 			store.id,
+		// 			userReducer.account ? userReducer.account.account_stores : []
+		// 		)
+		// 	);
+		// 	// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+		// 	if (storeId && userReducer.account) {
+		// 		if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
+		// 			let initStore = listStores.find((single) => single.id === storeId)
+		// 			if (initStore) {
+		// 				newData.push(initStore);
+		// 			}
+		// 		}
+		// 	}
+		// }
+		return listStores;
+	}, [listStores]);
   
 	const [firstLoad, setFirstLoad] = useState<boolean>(false);
 	useEffect(() => {

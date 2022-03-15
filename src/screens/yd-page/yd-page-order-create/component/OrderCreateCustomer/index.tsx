@@ -5,7 +5,7 @@ import {
   LoadingOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import logoMobile from "assets/icon/logoMobile.svg";
+// import logoMobile from "assets/icon/logoMobile.svg";
 import {
   AutoComplete,
   Button,
@@ -352,12 +352,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "POS");
-  }, [listSource]);
+  // const listSources = useMemo(() => {
+  //   return listSource.filter((item) => item.code !== "POS");
+  // }, [listSource]);
 
   useEffect(() => {
-    let defaultSourceIndex = listSources.findIndex(data => {
+    let defaultSourceIndex = listSource.findIndex(data => {
       return data.id === defaultSourceId;
     });
     if (defaultSourceIndex > -1) {
@@ -365,7 +365,27 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     } else {
       form.setFieldsValue({ source_id: null })
     }
-  }, [listSources]);
+  }, [listSource]);
+
+  useEffect(() => {
+		if(!listSource) return
+		if(!defaultSourceId) return
+
+    let defaultSourceIndex = listSource.findIndex(data => {
+      return data.id === defaultSourceId;
+    });
+    if (defaultSourceIndex < 0) {
+			let query = {
+				ids: [defaultSourceId]
+			}
+			getSourcesWithParamsService(query).then((response) => {
+				setListSource(oldArray => [...oldArray, response.data.items[0]])
+				form.setFieldsValue({ source_id: defaultSourceId })
+			}).catch((error) => {
+				console.log('error', error)
+			})
+    }
+  }, [listSource, defaultSourceId]);
 
   useEffect(() => {
     let query = {
@@ -501,7 +521,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 setOrderSourceId && setOrderSourceId(value)
               }}
             >
-              {listSources.map((item, index) => (
+              {listSource.map((item, index) => (
                 <CustomSelect.Option
                   style={{ width: "100%" }}
                   key={index.toString()}
@@ -569,8 +589,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               align="middle"
               justify="space-between"
               className="row-customer-detail"
-              style={{ margin: "10px 0" }}
-            >
+              style={{ margin: "5px 0" }}>
               <Col style={{ display: "flex", alignItems: "center" }}>
                 {levelOrder < 3 && (
                   <CloseOutlined
@@ -578,13 +597,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                     onClick={CustomerDeleteInfo}
                   />
                 )}
-                <div className="fpage-order-avatar-customer">
-                  <img
-                    style={{ width: 34, height: 34 }}
-                    src={logoMobile}
-                    alt="logo"
-                  />
-                </div>
+                {/* <div className="fpage-order-avatar-customer">
+                  <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo" />
+                </div> */}
                 <Link
                   target="_blank"
                   to={`${UrlConfig.CUSTOMER}/${customer?.id}`}

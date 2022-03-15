@@ -167,7 +167,7 @@ const PODetailScreen: React.FC = () => {
   const onStoreResult = useCallback((result: Array<StoreResponse>) => {
     if (result) {
       const storeTotals = result.filter(e=>e.name?.toLocaleLowerCase().includes('kho tổng'));
-      
+
       let res = _.uniqBy([...storeTotals, ...result], "name");
       setListStore(res);
     }
@@ -376,7 +376,7 @@ const PODetailScreen: React.FC = () => {
                   className="create-button-custom"
                   loading={loadingConfirmButton}
                 >
-                  Duyệt
+                  Xác nhận
                 </Button>
               </AuthWrapper>
             </>
@@ -410,8 +410,8 @@ const PODetailScreen: React.FC = () => {
 
     return (
       <>
-        <div id="test" className="page-filter" style={{ marginRight: -14 }}>
-          <Space direction="horizontal">
+        <div id="bottomRight" className="page-filter" style={{ marginRight: -14 }}>
+          <Space direction="horizontal" id="bottomRight">
             <Button
                 type="default"
                 onClick={(e) => {
@@ -420,7 +420,14 @@ const PODetailScreen: React.FC = () => {
                 }}
                 icon={<FilePdfOutlined />}
             >Xuất file</Button>
-            <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" placement={'topCenter'} buttonStyle={{ borderRadius: 2 }} />
+            <ActionButton
+              menu={menu}
+              onMenuClick={onMenuClick}
+              type="primary"
+              placement={'topCenter'}
+              buttonStyle={{ borderRadius: 2 }}
+              getPopupContainer={(trigger: any) => trigger.parentNode}
+            />
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
                 <Button
                     type="primary"
@@ -461,7 +468,7 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
-  
+
 
   useEffect(() => {
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
@@ -516,12 +523,12 @@ const PODetailScreen: React.FC = () => {
     tempChild.innerHTML = printContent;
     let value = document.body.appendChild(temp);
     if (value === null) return;
-    
-    
+
+
     const imgWidth = pageWidth;
     const rate = 1.8 // mò ra
     const imgHeight  = (value.offsetHeight)* (value.offsetWidth/canvasFormWidth) / rate;
-    
+
     var heightLeft = imgHeight;
     var position = 0;
     const getCanvas = (canvas: HTMLCanvasElement, pdf: jsPDF) => {

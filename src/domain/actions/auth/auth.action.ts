@@ -17,8 +17,10 @@ export const unauthorizedSuccessAction = () => {
   return BaseAction(AuthType.UNAUTHORIZED_SUCCESS, null);
 }
 
-export const logoutAction = () => {
-  return BaseAction(AuthType.LOGOUT_REQUEST, null);
+export const logoutAction = (userId: string | undefined) => {
+  return BaseAction(AuthType.LOGOUT_REQUEST, {
+    operatorKcId: userId
+  });
 }
 
 export const logoutSuccessAction = () => {

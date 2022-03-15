@@ -74,7 +74,7 @@ import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.respons
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { YDpageCustomerRequest } from "model/request/customer.request";
-import {getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage} from "../../../domain/actions/loyalty/loyalty.action";
+import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "../../../domain/actions/loyalty/loyalty.action";
 
 let typeButton = "";
 
@@ -444,7 +444,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     form.resetFields();
     setItems([]);
     setPayments([]);
-    setPaymentMethod(0);
+    setPaymentMethod(PaymentMethodOption.COD);
     setOrderAmount(0);
     setCheckSplitLine(false);
     setThirdPL(thirdPL.delivery_transport_type = "")
@@ -535,6 +535,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id;
+    values.reference_code = `fb_${fbCustomerId}_${fbPageId}_${userId}`;
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -593,14 +594,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
-        if (shipmentMethod !== ShipmentMethodOption.DELIVER_PARTNER) {
-          showError("Vui lòng nhập địa chỉ giao hàng!");
-          const element: any = document.getElementById(
-            "customer_update_shipping_addresses_full_address"
-          );
-          scrollAndFocusToDomElement(element);
-          return;
-        }
         let valuesCalculateReturnAmount = {
           ...values,
           payments: reCalculatePaymentReturn(payments).filter(
@@ -1224,8 +1217,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
               </Form>
             )
           ) : (
-            <NoPermission />
-          )
+              <NoPermission />
+            )
         }
       </AuthWrapper>
 

@@ -1,24 +1,23 @@
 import { DownOutlined, FilterOutlined } from "@ant-design/icons";
 import {
   Button,
-  Checkbox,
   Dropdown,
   Form,
   Input,
   Menu,
   Select,
   Tag,
-  Tooltip,
+  TreeSelect,
 } from "antd";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {fullTextSearch} from "utils/StringUtils";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
 import {
   AllOrdersMappingFilterStyled,
-  StyledRenderShopList,
 } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import { StyledEcommerceOrderBaseFilter } from "screens/ecommerce/orders/orderStyles";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -77,7 +76,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
-  const [shopIdsSelected, setShopIdsSelected] = useState<Array<any>>([]);
 
   useEffect(() => {
     setEcommerceShopList(shopList || []);
@@ -101,8 +99,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1" disabled={isDisableAction()}>
-        <span onClick={() => handleDownloadSelectedOrders(1)}>Đồng bộ đơn hàng</span>
+      <Menu.Item key="1" onClick={() => handleDownloadSelectedOrders(1)} disabled={isDisableAction()}>
+        <span>Đồng bộ đơn hàng</span>
       </Menu.Item>
     </Menu>
   );
@@ -197,82 +195,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   }, []);
   // end handle select date
 
-  // handle select shop
-  const onClearSelectedShop = useCallback(() => {
-    const copyEcommerceShopList = [...ecommerceShopList];
-    copyEcommerceShopList.forEach((item: any) => {
-      item.isSelected = false;
-    });
-
-    setEcommerceShopList(copyEcommerceShopList);
-    setShopIdsSelected([]);
-  }, [ecommerceShopList]);
-
-  const onSelectShopChange = (shop: any, e: any) => {
-    if (e.target.checked) {
-      shop.isSelected = true;
-      const shopsSelected = [...shopIdsSelected];
-      shopsSelected.push(shop.id);
-      setShopIdsSelected(shopsSelected);
-    } else {
-      shop.isSelected = false;
-      const shopsSelected = shopIdsSelected?.filter((item: any) => {
-        return item !== shop.id;
-      });
-      setShopIdsSelected(shopsSelected);
-    }
-  };
-
-  const getPlaceholderSelectShop = () => {
-    if (shopIdsSelected && shopIdsSelected.length > 0) {
-      return `Đã chọn: ${shopIdsSelected.length} gian hàng`;
-    } else {
-      return "Chọn gian hàng";
-    }
-  };
-
-  const renderShopList = () => {
-    return (
-      <StyledRenderShopList>
-        <div className="shop-list">
-          {ecommerceShopList.map((item: any) => (
-            <div key={item.id} className="shop-name">
-              <Checkbox
-                onChange={(e) => onSelectShopChange(item, e)}
-                checked={item.isSelected}>
-                <span className="check-box-name">
-                  {getEcommerceIcon(item.ecommerce) && (
-                    <img
-                      src={getEcommerceIcon(item.ecommerce)}
-                      alt={item.id}
-                      style={{ marginRight: "5px", height: "16px" }}
-                    />
-                  )}
-
-                  {item.name && item.name.length > 25 && (
-                    <Tooltip title={item.name} color="#1890ff" placement="top">
-                      <span className="name">{item.name}</span>
-                    </Tooltip>
-                  )}
-
-                  {item.name && item.name.length <= 25 && (
-                    <span className="name">{item.name}</span>
-                  )}
-                </span>
-              </Checkbox>
-            </div>
-          ))}
-
-          {ecommerceShopList.length === 0 && (
-            <div style={{ color: "#737373", padding: 10 }}>
-              Không có dữ liệu
-            </div>
-          )}
-        </div>
-      </StyledRenderShopList>
-    );
-  };
-
   // handle tag filter
   let filters = useMemo(() => {
     let list = [];
@@ -356,7 +278,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         case "shop_ids":
           onFilter && onFilter({ ...params, shop_ids: [] });
           formFilter?.setFieldsValue({ shop_ids: [] });
-          onClearSelectedShop();
           break;
         case "connected_status":
           onFilter && onFilter({ ...params, connected_status: null });
@@ -381,7 +302,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           break;
       }
     },
-    [formFilter, onClearSelectedShop, onFilter, params]
+    [formFilter, onFilter, params]
   );
   // end handle tag filter
 
@@ -408,26 +329,24 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   const onClearBaseFilter = useCallback(() => {
     onClearCreatedDate();
-    onClearSelectedShop();
 
     setVisibleBaseFilter(false);
     formFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
-  }, [formFilter, initQuery, onClearFilter, onClearSelectedShop]);
+  }, [formFilter, initQuery, onClearFilter]);
   // end handle filter action
 
   const onFinish = useCallback(
     (values) => {
       const formValues = {
         ...values,
-        shop_ids: shopIdsSelected,
         created_date_from: createdDateFrom,
         created_date_to: createdDateTo,
       };
 
       onFilter && onFilter(formValues);
     },
-    [shopIdsSelected, createdDateFrom, createdDateTo, onFilter]
+    [createdDateFrom, createdDateTo, onFilter]
   );
 
   return (
@@ -447,12 +366,45 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             </Dropdown>
           </Form.Item>
 
-          <Form.Item className="select-shop-dropdown">
-            <Select
-              disabled={isLoading}
-              placeholder={getPlaceholderSelectShop()}
-              dropdownRender={() => renderShopList()}
-            />
+          <Form.Item
+            className="select-shop-dropdown"
+            name="shop_ids"
+          >
+            <TreeSelect
+              placeholder="Chọn gian hàng"
+              treeDefaultExpandAll
+              className="selector"
+              allowClear
+              showArrow
+              showSearch
+              multiple
+              treeCheckable
+              treeNodeFilterProp="title"
+              maxTagCount="responsive"
+              filterTreeNode={(textSearch: any, item: any) => {
+                const treeNodeTitle = item?.title?.props?.children[1];
+                return fullTextSearch(textSearch, treeNodeTitle);
+              }}
+            >
+              {ecommerceShopList?.map((shopItem: any) => (
+                <TreeSelect.TreeNode
+                  key={shopItem.id}
+                  value={shopItem.id}
+                  title={
+                    <span>
+                      {getEcommerceIcon(shopItem.ecommerce) &&
+                        <img
+                          src={getEcommerceIcon(shopItem.ecommerce)}
+                          alt={shopItem.id}
+                          style={{ marginRight: "5px", height: "16px" }}
+                        />
+                      }
+                      {shopItem.name}
+                    </span>
+                  }
+                />
+              ))}
+            </TreeSelect>
           </Form.Item>
 
           <Item name="ecommerce_order_code" className="search-input">
@@ -481,13 +433,13 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             />
           </Item>
 
-          <Item className="filter-item">
+          <Item style={{ marginRight: "15px"}}>
             <Button type="primary" htmlType="submit" disabled={isLoading}>
               Lọc
             </Button>
           </Item>
 
-          <Item className="filter-item">
+          <Item>
             <Button
               icon={<FilterOutlined />}
               onClick={openBaseFilter}
@@ -545,7 +497,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   optionFilterProp="children"
                   maxTagCount="responsive"
                   getPopupContainer={(trigger) => trigger.parentNode}>
-                  {ECOMMERCE_ORDER_STATUS?.map((item, index) => (
+                  {ECOMMERCE_ORDER_STATUS?.map((item) => (
                     <Option key={item.value} value={item.value.toString()}>
                       {item.name}
                     </Option>
@@ -558,7 +510,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       </div>
 
       <div className="filter-tags">
-        {filters?.map((filter: any, index) => {
+        {filters?.map((filter: any) => {
           return (
             <Tag
               key={filter.key}

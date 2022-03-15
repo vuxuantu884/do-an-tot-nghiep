@@ -1,5 +1,6 @@
 import { BaseObject } from "model/base/base.response";
 import { BaseQuery } from "model/base/base.query";
+import {CollectionResponse} from "../product/collection.model";
 
 export interface SupplierResponse extends BaseObject {
   name: string,
@@ -27,9 +28,11 @@ export interface SupplierResponse extends BaseObject {
   note: string|null,
   pic_code: string,
   pic: string,
+  collection: CollectionResponse,
   debt_time: number|null,
   debt_time_unit: string|null,
   debt_time_unit_name: string|null,
+  collection_id: number | null,
   payments: Array<SupplierPaymentResposne>,
   addresses: Array<SupplierAddressResposne>,
   contacts: Array<SupplierContactResposne>,
@@ -127,6 +130,7 @@ export interface SupplierQuery extends BaseQuery {
   status?: string,
   type?: string,
   codes?: Array<string>;
+  collection_id?: string;
 }
 
 export interface SupplierCreateRequest {

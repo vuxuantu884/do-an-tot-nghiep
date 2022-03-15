@@ -1,21 +1,22 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Card, Form, Select, Table } from "antd";
+import { Button, Card, Form, Select, Table } from "antd";
 import Column from "antd/lib/table/Column";
+import iconDelete from "assets/icon/deleteIcon.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { ProvinceModel } from "model/content/district.model";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { optionAllCities } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   listProvinces: ProvinceModel[];
 };
 
-function OrderSettingValue(props: PropType) {
+function OrderSettingValue(props: PropTypes) {
   const { listProvinces } = props;
 
   const OrderSettingTable = (props: any) => {
-    const { shipping_fee_configs, add } = props;
+    const { shipping_fee_configs, add, remove } = props;
     return (
       <Table
         dataSource={shipping_fee_configs}
@@ -86,16 +87,11 @@ function OrderSettingValue(props: PropType) {
                   placeholder="Chọn tỉnh/thành phố"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
-                    option?.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
+                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
                   notFoundContent="Không tìm thấy tỉnh/thành phố"
                 >
-                  <Select.Option
-                    value={optionAllCities.name}
-                    key={optionAllCities.id}
-                  >
+                  <Select.Option value={optionAllCities.name} key={optionAllCities.id}>
                     {optionAllCities.name}
                   </Select.Option>
                   {listProvinces &&
@@ -119,9 +115,7 @@ function OrderSettingValue(props: PropType) {
             return (
               <Form.Item
                 name={[index, "transport_fee"]}
-                rules={[
-                  { required: true, message: "Vui lòng nhập phí vận chuyển" },
-                ]}
+                rules={[{ required: true, message: "Vui lòng nhập phí vận chuyển" }]}
               >
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
@@ -130,6 +124,34 @@ function OrderSettingValue(props: PropType) {
                   maxLength={15}
                   min={0}
                 />
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          title={"Thao tác"}
+          width="10%"
+          align="center"
+          render={(value, row, index) => {
+            return (
+              <Form.Item>
+                <Button
+                  icon={<img alt="" style={{ marginRight: 5 }} src={iconDelete} />}
+                  type="text"
+                  className=""
+                  style={{
+                    paddingLeft: 24,
+                    background: "transparent",
+                    border: "none",
+                    color: "red",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    remove(index);
+                  }}
+                >
+                  Xóa
+                </Button>
               </Form.Item>
             );
           }}

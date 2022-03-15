@@ -15,6 +15,7 @@ import {
   ProductBarcodeRequest,
 } from "model/product/product.model";
 import { ProductUploadModel } from "model/product/product-upload.model";
+import { ExportRequest, ExportResponse, JobResponse} from "model/other/files/export-model";
 
 export const searchVariantsApi = (
   query: VariantSearchQuery
@@ -104,3 +105,15 @@ export const productCheckDuplicateCodeApi = (code: string) : Promise<BaseRespons
   const url = `${ApiConfig.PRODUCT}/products/validate`;
   return BaseAxios.post(url,{code})
 }
+
+export const exportFile = (
+  params: ExportRequest
+): Promise<BaseResponse<ExportResponse>> => {
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/excel/job/export`, params);
+};
+
+export const getJobByCode = (
+  code: string
+): Promise<BaseResponse<JobResponse>> => {
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/excel/jobs/${code}`);
+};

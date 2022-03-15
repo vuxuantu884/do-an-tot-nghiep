@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { Card, Row, Tabs, Col } from "antd";
+import { Card, Row, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack/info/pack-info";
@@ -9,60 +9,42 @@ import {
   DeliveryServicesGetList,
   getChannels,
 } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import { useEffect, useState } from "react";
 import {
   ChannelsResponse,
   DeliveryServiceResponse,
 } from "model/response/order/order.response";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
-import PackReportHandOver from "./pack/info/pack-report-hand-over";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import useAuthorization from "hook/useAuthorization";
 import { StyledComponent } from "./pack/styles";
 import './pack/styles.scss';
-
-const { TabPane } = Tabs;
+import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
+import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getListOrderApi } from "service/order/order.service";
+import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const query = useQuery();
-  const newParam: any = getQueryParams(query);
-  const history = useHistory();
-  //useState
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const [packModel, setPackModel] = useState<PackModel | null>();
 
-  const [data, setData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 1,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
-  const [activeTab, setActiveTab] = useState("1");
+  const [isFulFillmentPack, setIsFulFillmentPack] = useState<string[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
     DeliveryServiceResponse[]
   >([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [listStoresDataCanAccess, setListStoresDataCanAccess] = useState<Array<StoreResponse>>([]);
   const [listGoodsReceiptsType, setListGoodsReceiptsType] = useState<
     Array<GoodsReceiptsTypeResponse>
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
-
-  const [allowReadGoodReceipt] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
-    not: false,
-  });
 
   const packSupportContextData = {
     listThirdPartyLogistics,
@@ -73,8 +55,12 @@ const PackSupportScreen: React.FC = () => {
     setListGoodsReceiptsType,
     listChannels,
     setListChannels,
-    data,
-    setData,
+    packModel,
+    setPackModel,
+    isFulFillmentPack,
+    setIsFulFillmentPack,
+    listStoresDataCanAccess,
+    setListStoresDataCanAccess
   };
 
   useEffect(() => {
@@ -95,27 +81,58 @@ const PackSupportScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
+  useEffect(() => {
+    let newData: Array<StoreResponse> = [];
+    if (listStores && listStores.length) {
+      if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
+        newData = listStores.filter((store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+        );
+        setListStoresDataCanAccess(newData);
+      }
+      else {
+        // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+        setListStoresDataCanAccess(listStores);
+      }
+    }
+  }, [listStores, userReducer.account]);
+
+  // useLayoutEffect(() => {
+  //   setActiveTab(newParam.tab);
+  // }, [newParam.tab]);
 
   useLayoutEffect(() => {
-    setActiveTab(newParam.tab);
-  }, [newParam.tab]);
-
-  const handleClickTab = (value: string) => {
-    setActiveTab(value);
-
-    let queryParam = generateQuery({ ...newParam, tab: value });
-    history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
-  };
+    let packInfo: string | null = getPackInfo();
+    if (packInfo) {
+      dispatch(showLoading());
+      let packInfoConvertJson: any = JSON.parse(packInfo);
+      let packData: PackModel = { ...new PackModelDefaltValue(), ...packInfoConvertJson };
+      let storeId: number | null | undefined = packData.store_id ? 
+        listStoresDataCanAccess.findIndex((p) => p.id === packData.store_id) !== -1 
+        ? packData.store_id : null : null;
+      let queryCode = packData.order.map(p => p.order_code);
+      let queryParam: any = { code: queryCode }
+      getListOrderApi(queryParam).then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          let orderEnd = packData.order.filter((p) => response.data.items.some(p1 => p1.code === p.order_code && !p1.goods_receipt_id));
+          setPackModel({ ...packData,store_id:storeId ,order: orderEnd });
+          setPackInfo({ ...packData,store_id:storeId, order: orderEnd });
+        }
+        else handleFetchApiError(response, "Danh sách Fullfiment", dispatch)
+      }).catch((err) => {
+        console.log(err);
+      }).finally(() => { dispatch(hideLoading()); });
+    }
+  }, [dispatch, listStoresDataCanAccess]);
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
       <ContentContainer
         title="Hỗ trợ đóng gói"
         breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
           {
             name: "Đơn hàng",
             path: UrlConfig.ORDER,
@@ -127,37 +144,24 @@ const PackSupportScreen: React.FC = () => {
       >
         <StyledComponent>
           <Row>
-            <Col>
+            <Col xs={24}>
               <Card className="pack-card">
-                <Tabs activeKey={activeTab} onChange={handleClickTab}>
-                  <TabPane tab="Đóng gói" key="1">
-                    <PackInfo
-                      setFulfillmentsPackedItems={setData}
-                      fulfillmentData={data}
-                    ></PackInfo>
-                  </TabPane>
-                  <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
-                    <PackReportHandOver query={query} />
-                  </TabPane>
-                </Tabs>
+                <PackInfo />
               </Card>
             </Col>
           </Row>
-          {activeTab !== "2" && (
-            <div>
-              <Row gutter={24}>
-                <Col xs={24}>
-                  <PackList data={data} />
-                </Col>
-              </Row>
 
-              <Row gutter={24}>
-                <Col xs={24}>
-                  <AddReportHandOver />
-                </Col>
-              </Row>
-            </div>
-          )}
+          <Row gutter={24}>
+            <Col xs={24}>
+              <PackList />
+            </Col>
+          </Row>
+
+          <Row gutter={24}>
+            <Col xs={24}>
+              <AddReportHandOver />
+            </Col>
+          </Row>
         </StyledComponent>
 
       </ContentContainer>

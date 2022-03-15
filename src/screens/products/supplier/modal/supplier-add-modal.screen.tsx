@@ -14,7 +14,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
-import SelectSearchPaging from "component/custom/select-search/select-search-paging";
+import {validatePhoneSupplier} from "../../../../utils/supplier";
+import AccountSearchPaging from "../../../../component/custom/select-search/account-select-paging";
 
 type SupplierAddModalProps = {
   visible: boolean;
@@ -30,14 +31,12 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   const dispatch = useDispatch();
   const [formSupplierAdd] = Form.useForm();
   const { visible, onCancel, onOk } = props;
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [metadata, setMetadata] = useState<BaseMetadata>({
     limit: 10,
     page: 1,
     total: 0
   });
 
-  const [isLoadingAccount, setIsLoadingAccount] = useState(false);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
 
   const supplier_type = useSelector(
@@ -52,12 +51,10 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse>|false) => {
-      setIsLoadingAccount(false)
       if(!data) {
         return false;
       }
       let listWinAccount = data.items;
-      setAccounts(listWinAccount);
       setMetadata(data.metadata)
       let checkUser = listWinAccount.findIndex(
         (val) => val.code === currentUserCode
@@ -100,35 +97,14 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   };
 
   const validatePhone = (rule: any, value: any, callback: any): void => {
-    if (value) {
-      if (!RegUtil.PHONE.test(value)) {
-        callback(`Số điện thoại không đúng định dạng`);
-      } else {
-        listSupplier.forEach((supplier: SupplierResponse) => {
-          if (supplier?.phone === value) {
-            callback(`Số điện thoại đã tồn tại`);
-          }
-          return
-        })
-        callback();
-      }
-    } else {
-      callback();
-    }
+    validatePhoneSupplier({
+      value,
+      callback,
+      phoneList: listSupplier
+    })
   };
 
-  const onSearchAccount = (values: any) => {
-    fetchAccount(values)
-  }
-
-  const renderAccountItem = (item: AccountResponse) => (
-    <Option key={item.code} value={item.code}>
-      {item.full_name}
-    </Option>
-  )
-
   const fetchAccount = (values: any) => {
-    setIsLoadingAccount(true)
     dispatch(
       AccountSearchAction(
         { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active", limit: metadata.limit, page: metadata.page, ...values },
@@ -141,7 +117,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     if(goods) {
       formSupplierAdd.setFieldsValue({ goods: ['fashion'] })
     }
-  }, [goods])
+  }, [goods, formSupplierAdd])
 
   useEffect(() => {
     fetchAccount({ condition: "", page: metadata.page })
@@ -272,22 +248,13 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọ nhân viên phụ trách",
+                  message: "Vui lòng chọn Merchandiser",
                 },
               ]}
               name="pic_code"
-              label="Nhân viên phụ trách"
+              label="Merchandiser"
             >
-              <SelectSearchPaging
-                data={accounts}
-                renderItem={renderAccountItem}
-                metadata={metadata}
-                placeholder="Chọn nhân viên phụ trách"
-                className="selector"
-                onSearch={onSearchAccount}
-                isLoading={isLoadingAccount}
-                onSelect={(value) => formSupplierAdd.setFieldsValue({ pic_code: value.value })}
-              />
+              <AccountSearchPaging placeholder="Chọn Merchandiser" />
             </Item>
           </Col>
           <Col xs={24} lg={12}>

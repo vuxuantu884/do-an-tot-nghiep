@@ -1,5 +1,5 @@
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
-import {Button, Card, Form, Input, Select} from "antd";
+import { Button, Card, Form, Input, Select } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
@@ -29,9 +29,8 @@ import React, {useCallback, useEffect, useLayoutEffect, useMemo, useState} from 
 import {useDispatch} from "react-redux";
 import {withRouter} from "react-router";
 import {useHistory} from "react-router-dom";
-import {getDepartmentAllApi} from "service/accounts/account.service";
 import {deleteMultiOrderSourceService} from "service/order/order.service";
-import {convertDepartment, generateQuery, handleFetchApiError, isFetchApiSuccessful} from "utils/AppUtils";
+import {generateQuery} from "utils/AppUtils";
 import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import {StyledComponent} from "./styles";
@@ -40,11 +39,12 @@ import { SourcePermissions } from "config/permissions/setting.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import "assets/css/custom-filter.scss";
-import { strForSearch } from "utils/RemoveDiacriticsString";
-import { callApiNative } from "utils/ApiUtils";  
+import { callApiNative } from "utils/ApiUtils";
 import {
   getSourcesWithParamsService
 } from "service/order/order.service";
+import { DepartmentGetListAction } from "domain/actions/account/account.action";
+import TreeDepartment from "component/tree-node/tree-department";
 
 type formValuesType = {
   name: string | undefined;
@@ -92,7 +92,7 @@ function OrderSources(props: PropTypes) {
   const [form] = Form.useForm();
 
   const [rowSelectedObject, setRowSelectedObject] = useState<Array<OrderSourceModel>>([]);
-  const [listDepartments, setListDepartments] = useState<any[]>([]); 
+  const [listDepartments, setListDepartments] = useState<any[]>([]);
 
   //permission
 
@@ -119,7 +119,7 @@ function OrderSources(props: PropTypes) {
       visible: true,
       className: "columnTitle",
       width: "15%",
-      render: (value, record, index) => {
+      render: (value) => {
         if (value) {
           return (
             <span title={value} className="title" style={{color: primaryColor, fontWeight: 500}}>
@@ -135,7 +135,7 @@ function OrderSources(props: PropTypes) {
       visible: true,
       className: "columnTitle",
       width: "20%",
-      render: (value, record, index) => {
+      render: (value) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -151,7 +151,7 @@ function OrderSources(props: PropTypes) {
       visible: true,
       className: "columnTitle",
       width: "25%",
-      render: (value, record, index) => {
+      render: (value) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -167,7 +167,7 @@ function OrderSources(props: PropTypes) {
       visible: true,
       width: "20%",
       align: "center",
-      render: (value, record: OrderSourceModel, index) => {
+      render: (value) => {
         if (value) {
           return <div className="status active">Đang áp dụng</div>;
         }
@@ -191,18 +191,7 @@ function OrderSources(props: PropTypes) {
 
   const history = useHistory();
 
-  let [queryParams, setQueryParams] = useState<any>(null);
-
-  const onPageChange = useCallback(
-    (page, size) => {
-      queryParams.page = page;
-      queryParams.limit = size;
-      let queryParam = generateQuery(queryParams);
-      history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
-      window.scrollTo(0, 0);
-    },
-    [history, queryParams]
-  );
+  let [queryParams, setQueryParams] = useState<any>(null); 
 
   const handleDeleteMultiOrderSource = () => {
     showLoading();
@@ -233,7 +222,7 @@ function OrderSources(props: PropTypes) {
               break;
           }
         })
-        .catch((error) => {
+        .catch(() => {
           showError("Xóa thất bại!");
         })
         .finally(() => {
@@ -264,8 +253,8 @@ function OrderSources(props: PropTypes) {
     allowDeleteSource,
   ]);
 
-  const handleNavigateByQueryParams = (queryParams: any) => { 
-    history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`); 
+  const handleNavigateByQueryParams = (queryParams: any) => {
+    history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
     window.scrollTo(0, 0);
   };
 
@@ -274,6 +263,7 @@ function OrderSources(props: PropTypes) {
     const resultParams = {
       ...queryParams,
       ...values,
+      department_ids: values.department_ids ? values.department_ids.join(',') : null,
 			page: 1,
     };
     fetchData({...resultParams,name: name.trim()});
@@ -307,11 +297,11 @@ function OrderSources(props: PropTypes) {
 
   const fetchData = useCallback(async(params: any) => {
     const res: OrderSourceResponseModel = await callApiNative({isShowLoading: false},dispatch,getSourcesWithParamsService,params ?? queryParams);
-    
+
     if (res) {
       setListOrderSources(res.items);
       setTotal(res.metadata.total);
-    } 
+    }
     setTableLoading(false);
   }, [dispatch, queryParams]);
 
@@ -332,6 +322,23 @@ function OrderSources(props: PropTypes) {
       code: formValues.code? formValues.code: undefined,
     };
   };
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      queryParams.page = page;
+      queryParams.limit = size;
+
+      const resultParams = {
+        ...queryParams,
+        name: queryParams.name ? queryParams.name.trim() : ""
+      };
+      
+      fetchData(resultParams);   
+      history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
+      window.scrollTo(0, 0);
+    },
+    [history, queryParams, fetchData]
+  );
 
   const handleFormOrderSource = {
     create: (formValues: OrderSourceModel) => {
@@ -378,13 +385,14 @@ function OrderSources(props: PropTypes) {
   useLayoutEffect(() => {
       setTableLoading(true);
       gotoFirstPage();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const valuesFromParams: formValuesType = {
       name: queryParamsParsed.name || undefined,
       department_ids: queryParamsParsed.department_ids
-        ? +queryParamsParsed.department_ids
+        ? queryParamsParsed.department_ids.split(',').map((i: any) => Number(i))
         : undefined,
     };
     form.setFieldsValue(valuesFromParams);
@@ -408,23 +416,23 @@ function OrderSources(props: PropTypes) {
     queryParamsParsed.page,
   ]);
 
+  const filterDepartmentLevelThree = (newList: Array<Object>, list: Array<Object>) => {
+    list.forEach((i: any) => {
+      if (i.level === 3) newList.push(i);
+      if (i.children.length > 0) filterDepartmentLevelThree(newList, i.children);
+    });
+  };
+
   useEffect(() => {
-    getDepartmentAllApi()
-      .then((response: BaseResponse<DepartmentResponse[]>) => {
-				if (isFetchApiSuccessful(response)) {
-					if (response.data) {
-						// setListDepartments(response.data);
-						let array: any = convertDepartment(response.data);
-						setListDepartments(array);
-					}
-				} else {
-					handleFetchApiError(response, "Danh sách phòng ban", dispatch)
-				}
-      })
-      .catch((error) => {
-				console.log('error', error)
-        showError("Có lỗi khi lấy danh sách phòng ban!");
-      });
+    dispatch(DepartmentGetListAction((response: DepartmentResponse[]) => {
+      if (response) {
+        let newDepartments: Array<object> = [];
+
+        filterDepartmentLevelThree(newDepartments, response);
+        setListDepartments(newDepartments);
+      }
+    }));
+    // eslint-disable-next-line
   }, [dispatch]);
 
   return (
@@ -462,39 +470,11 @@ function OrderSources(props: PropTypes) {
                     placeholder="Nguồn đơn hàng"
                   />
                 </Form.Item>
-                <Form.Item name="department_ids" style={{width: 305}}>
-                  <Select
-                    showSearch
-                    allowClear
-                    placeholder="Phòng ban"
-                    optionFilterProp="title"
-                    notFoundContent="Không tìm thấy phòng ban"
-                    filterOption={(input: String, option: any) => {
-                      if (option.props.value) {
-                        return strForSearch(option.props.children[2]).includes(strForSearch(input));
-                      }
-
-                      return false;
-                    }}
-                  >
-                    {listDepartments &&
-                      listDepartments.map((single) => {
-                        return (
-                          <Select.Option value={single.id} key={single.id} title={single.name}>
-                            <span
-                              className="hideInSelect"
-                              style={{ paddingLeft: +18 * single.level }}
-                            />
-                            {single?.parent?.name && (
-                              <span className="hideInDropdown">
-                                {single?.parent?.name} -{" "}
-                              </span>
-                            )}
-                            {single.name}
-                          </Select.Option>
-                        );
-                      })}
-                  </Select>
+                <Form.Item
+                  style={{ width: 305 }}
+                  name="department_ids"
+                >
+                  <TreeDepartment listDepartment={listDepartments} style={{ width: '100%' }} />
                 </Form.Item>
                 <Form.Item name="active" style={{width: 200}}>
                   <Select
@@ -589,19 +569,5 @@ function OrderSources(props: PropTypes) {
     </StyledComponent>
   );
 }
-
-// const TreeDepartment = (item: DepartmentResponse) => {
-//   return (
-//     <TreeSelect.TreeNode value={item.id} title={item.name}>
-//       {item.children.length > 0 && (
-//         <React.Fragment>
-//           {item.children.map((item, index) => (
-//             <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-//           ))}
-//         </React.Fragment>
-//       )}
-//     </TreeSelect.TreeNode>
-//   );
-// };
 
 export default withRouter(OrderSources);

@@ -255,7 +255,8 @@ export const COD = {
 
 export const ADMIN_ORDER = {
 	channel_id: 13,
-  channel_code: "admin"
+  channel_code: "admin",
+  channel_name: "ADMIN"
 };
 
 export const POS = {
@@ -347,4 +348,11 @@ export const LABEL_JOB_TYPE = [
 
 export const getJobType = (type: String) => {
   return LABEL_JOB_TYPE.find(item => item.label === type)
+}
+
+export const PRODUCT_TYPE = {
+  normal: "normal",
+  combo: "combo",
+  gift: "gift",
+  service: "service",
 }

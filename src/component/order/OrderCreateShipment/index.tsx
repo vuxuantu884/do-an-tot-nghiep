@@ -29,7 +29,7 @@ import {
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
+import { getShippingAddressDefault, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
@@ -189,6 +189,7 @@ function OrderCreateShipment(props: PropType) {
               <div
                 className="saleorder_shipment_button 2"
                 key={button.value}
+                style={isOrderFinishedOrCancel(OrderDetail) ? {pointerEvents: "none"} : undefined}
                 onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
               >
                 <img src={button.icon} alt="icon"></img>
@@ -202,6 +203,7 @@ function OrderCreateShipment(props: PropType) {
                     : "saleorder_shipment_button active"
                 }
                 key={button.value}
+                style={isOrderFinishedOrCancel(OrderDetail) ? {pointerEvents: "none"} : undefined}
               >
                 <img src={button.icon} alt="icon"></img>
                 <span>{button.name}</span>
@@ -350,13 +352,14 @@ function OrderCreateShipment(props: PropType) {
                   className="r-5 w-100 ip-search"
                   placeholder={DATE_FORMAT.DDMMYYY}
                   disabledDate={(current: any) => moment().add(-1, "days") >= current}
+                  disabled = {isOrderFinishedOrCancel(OrderDetail)}
                 />
               </Form.Item>
             </Col>
 
             <Col md={6}>
               <Form.Item name="office_time" valuePropName="checked">
-                <Checkbox  style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+                <Checkbox  style={{marginTop: "8px"}} disabled = {isOrderFinishedOrCancel(OrderDetail)}>Giờ hành chính</Checkbox>
               </Form.Item>
             </Col>
             <Col md={9}>
@@ -369,7 +372,7 @@ function OrderCreateShipment(props: PropType) {
                   notFoundContent="Không tìm thấy kết quả"
                   style={{width: "100%"}}
                   placeholder="Chọn yêu cầu"
-                  disabled={orderConfig?.for_all_order}
+                  disabled={orderConfig?.for_all_order || isOrderFinishedOrCancel(OrderDetail)}
                   filterOption={(input, option) => {
                     if (option) {
                       return (

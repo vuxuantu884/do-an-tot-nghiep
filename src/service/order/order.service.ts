@@ -56,7 +56,7 @@ export const getDetailOrderApi = (orderId: any): Promise<BaseResponse<OrderRespo
 
 export const getListOrderApi = (
   query: OrderSearchQuery
-): Promise<BaseResponse<OrderModel>> => {
+): Promise<BaseResponse<PageResponse<OrderModel>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
 };
@@ -82,8 +82,8 @@ export const getReturnApi = (
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns?${queryString}`);
 };
 
-export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.CORE}/sources`);
+export const getSources = (): Promise<BaseResponse<SourceResponse[]>> => {
+  return BaseAxios.get(`${ApiConfig.CORE}/sources?limit=1000`);
 };
 
 export const getPaymentMethod = (): Promise<
@@ -361,8 +361,13 @@ export const getOrderConfig = (): Promise<any> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders-config`);
 };
 
-export const getFulfillmentsApi = (code: string): Promise<BaseResponse<any>> => {
-  let link = `${ApiConfig.ORDER}/fulfillments/packing?code=${code}`;
+export const getFulfillmentsApi = (code: string, store_id:number, delivery_service_provider_id:number): Promise<BaseResponse<any>> => {
+  const queryString = generateQuery({
+    code:code,
+    store_id,
+    delivery_service_provider_id:delivery_service_provider_id
+  });
+  let link = `${ApiConfig.ORDER}/fulfillments/packing?${queryString}`;
   return BaseAxios.get(link);
 };
 

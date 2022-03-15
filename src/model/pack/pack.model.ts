@@ -1,3 +1,9 @@
+import { OrderResponse } from 'model/response/order/order.response';
+export interface PackModel{
+  store_id?:number|null;
+  delivery_service_provider_id?:number|null;
+  order:OrderResponse[];
+}
 export interface PackSearchQuery {
   page: number;
   limit: number;
@@ -32,7 +38,10 @@ export interface fulfillmentsModel{
   total: number;
   total_quantity: number;
   status: string;
-  shipment: string;
+  shipment:{
+    shipping_fee_informed_to_customer?:number;
+    id?:number;
+  }
   items:Array<VariantModel>;
 }
 export interface VariantModel{
@@ -42,6 +51,8 @@ export interface VariantModel{
   variant_id: number;
   variant: string;
   variant_barcode: string;
+  quantity:number;
+  price?:number;
 }
 
 export interface GoodsReceiptsSearhModel{
@@ -103,6 +114,7 @@ export interface GoodsReceiptsOrderListModel{
   postage:number;
   card_number:number;
   status:string;
+  status_color?: string;
   note:string|null;
   items:Array<FulfillmentsItemModel>;
 }
@@ -116,4 +128,10 @@ export interface FulfillmentsItemModel{
   net_weight:number|undefined|null;
   quantity:number|undefined|null;
   price:number|undefined|null;
+}
+
+export class PackModelDefaltValue implements PackModel{
+  store_id=null;
+  delivery_service_id=null;
+  order=[];
 }

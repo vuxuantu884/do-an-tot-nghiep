@@ -63,6 +63,8 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { colorDetailApi } from "service/product/color.service";
+import { callApiNative } from "utils/ApiUtils";
 import {
   convertCategory,
   formatCurrency, formatCurrencyForProduct,
@@ -263,8 +265,9 @@ const ProductCreateScreen: React.FC = () => {
               let sku = `${code}-${i1.code}-${i2.code}`;
               newVariants.push({
                 name: `${name} - ${i1.name} - ${i2.code}`,
+                code: i1.code,
                 color_id: i1.id,
-                color: i1.code,
+                color: i1.name,
                 size_id: i2.id,
                 size: i2.code,
                 sku: sku,
@@ -274,14 +277,15 @@ const ProductCreateScreen: React.FC = () => {
             });
           });
         } else if (colors.length === 0 && sizes.length > 0) {
-          sizes.forEach((i2) => {
+          sizes.forEach((i2: any) => {
             newVariants.push({
               name: `${name} - ${i2.code}`,
+              code: null,
               color_id: null,
               color: null,
               size_id: i2.id,
               size: i2.code,
-              sku: `${code}-${i2.code}`,
+              sku: `${code}-${i2.color}`,
               variant_images: [],
               quantity: 0,
             });
@@ -291,7 +295,8 @@ const ProductCreateScreen: React.FC = () => {
             newVariants.push({
               name: `${name} - ${i1.name}`,
               color_id: i1.id,
-              color: i1.code,
+              code: i1.code,
+              color: i1.name,
               size_id: null,
               size: null,
               sku: `${code}-${i1.code}`,
@@ -304,6 +309,7 @@ const ProductCreateScreen: React.FC = () => {
           newVariants.push({
             name: name,
             color_id: null,
+            code: null,
             color: null,
             size_id: null,
             size: null,
@@ -313,9 +319,7 @@ const ProductCreateScreen: React.FC = () => {
           });
         }
 
-        let uniqueObjArray = [
-          ...new Map(newVariants.map((item) => [item["sku"], item])).values(),
-      ];
+        let uniqueObjArray = [...new Map(newVariants.map((item) => [item["sku"], item])).values()];
         setVariants([...uniqueObjArray]);
       }
     },
@@ -352,8 +356,11 @@ const ProductCreateScreen: React.FC = () => {
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
-      const sizerCode = objSize?.children.substr(0,3);
-      const newSize = {id: value, code: sizerCode } as SizeResponse;
+      let size:string = "";
+      if (objSize && objSize?.children) {
+        size = objSize?.children.split(" ")[0];
+      }
+      const newSize = {id: value, code: size } as SizeResponse;
       let filter = [...variants.filter(e=>e.size !== null).map(e=>({id: e.size_id, code: e.size})), newSize] as Array<SizeResponse>;
 
       setSizeSelected([...filter]);
@@ -363,15 +370,22 @@ const ProductCreateScreen: React.FC = () => {
   );
 
   const onColorSelected = useCallback(
-    (value: number, objColor: any) => {
-      const colorCode = objColor?.children.substr(0,3);
-      const newColor = {id: value, name: colorCode,  code: colorCode } as ColorResponse;
-      let filter = [...variants.filter(e=>e.color !== null).map(e=>({id: e.color_id,name: e.color, code: e.color})), newColor] as Array<ColorResponse>;
+     async (value: number, objColor: any) => {
+      let colorCode:string = "";
+      let colorName: string = "";
 
-       setColorSelected([...filter]);
-       listVariantsFilter(filter, sizeSelected);
+      const res = await callApiNative({isShowLoading: false},dispatch,colorDetailApi,value);
+      if (res) {
+        colorCode = res.code;
+        colorName= res.name;
+      }
+
+      const newColor = { id: value, name: colorName, code: colorCode } as ColorResponse;
+      let filter = [...variants.filter(e=>e.color !== null).map((e: any) => ({ id: e.color_id,name: e.color, code: e.code })), newColor] as Array<ColorResponse>;
+      setColorSelected([...filter]);
+      listVariantsFilter(filter, sizeSelected);
     },
-    [listVariantsFilter, sizeSelected, variants]
+    [listVariantsFilter, sizeSelected, variants, dispatch]
   );
 
   const statusValue = useMemo(() => {
@@ -398,12 +412,10 @@ const ProductCreateScreen: React.FC = () => {
 
   useEffect(() => {
     const newSelected = careLabelsString ? careLabelsString.split(";") : [];
-    console.log('newSelected', newSelected);
     let careLabels: any[] = []
     newSelected.forEach((value: string) => {
       careInformation.washing.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -413,7 +425,6 @@ const ProductCreateScreen: React.FC = () => {
 
       careInformation.beleaching.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -422,7 +433,6 @@ const ProductCreateScreen: React.FC = () => {
       });
       careInformation.ironing.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -431,7 +441,6 @@ const ProductCreateScreen: React.FC = () => {
       });
       careInformation.drying.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -440,7 +449,6 @@ const ProductCreateScreen: React.FC = () => {
       });
       careInformation.professionalCare.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -1466,7 +1474,7 @@ const ProductCreateScreen: React.FC = () => {
                       dataIndex: "name",
                     },
                     {
-                      title: "Mã màu",
+                      title: "Màu",
                       key: "color",
                       dataIndex: "color",
                     },
@@ -1540,7 +1548,6 @@ const ProductCreateScreen: React.FC = () => {
           <CareModal
             onCancel={() => setShowCareModal(false)}
             onOk={(data) => {
-              console.log('data data', data);
               setCareLabelsString(data);
               setShowCareModal(false);
             }}

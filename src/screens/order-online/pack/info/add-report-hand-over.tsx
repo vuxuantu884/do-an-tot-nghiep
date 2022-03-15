@@ -1,10 +1,11 @@
 import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
-import { Button, Card, Col, FormInstance, Row, Select, Form } from "antd";
+import { Button, Card, FormInstance, Row, Select, Form } from "antd";
 import React, {
   createRef,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 // import { useDispatch } from "react-redux";
@@ -16,12 +17,15 @@ import {
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { useDispatch } from "react-redux";
-import { removePackInfo } from "utils/LocalStorageUtils";
+import { setPackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment from "moment";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
+import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { OrderResponse } from "model/response/order/order.response";
+import { ShipmentMethod } from "utils/Constants";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 5,
@@ -55,12 +59,17 @@ const AddReportHandOver: React.FC = () => {
 
   //Context
   const orderPackContextData = useContext(OrderPackContext);
-  const data = orderPackContextData.data;
+  const setPackModel = orderPackContextData?.setPackModel;
+  const packModel = orderPackContextData?.packModel;
   const listStores = orderPackContextData.listStores;
   const listChannels = orderPackContextData.listChannels;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
-  const setData = orderPackContextData.setData;
+  const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
+
+  const orderPackSuccess: OrderResponse[] = useMemo(() => {
+    return !packModel ? [] : !packModel?.order ? [] : packModel.order;
+  }, [packModel])
 
   const handleOk = () => {
     goodsReceiptsForm.submit();
@@ -101,6 +110,7 @@ const AddReportHandOver: React.FC = () => {
         ecommerce_name: ecommerce_name,
         delivery_service_name: delivery_service_name,
         receipt_type_name: receipt_type_name,
+        delivery_service_type: value.delivery_service_id === -1 ? ShipmentMethod.EMPLOYEE : ShipmentMethod.EXTERNAL_SHIPPER,
       };
 
       dispatch(
@@ -143,38 +153,36 @@ const AddReportHandOver: React.FC = () => {
   );
 
   const handOrderAddGoodsReceipts = useCallback(() => {
-
-
     if (!goodsReceipts) {
       showWarning("Chưa chọn biên bản bàn giao");
       return;
     }
 
-    if (data.items.length <= 0) {
+    if (orderPackSuccess.length <= 0) {
       showWarning("Chưa có đơn hàng đóng gói");
+      return;
+    }
+
+    let selectOrderPackSuccess = orderPackSuccess?.filter((p) => isFulFillmentPack.some((single) => single === p.order_code));
+    let notSelectOrderPackSuccess = orderPackSuccess?.filter((p) => !isFulFillmentPack.some((single) => single === p.order_code));
+    // console.log("selectOrderPackSuccess", selectOrderPackSuccess);
+    // console.log("notSelectOrderPackSuccess", notSelectOrderPackSuccess);
+    if (!selectOrderPackSuccess || (selectOrderPackSuccess && selectOrderPackSuccess.length<=0)) {
+      showWarning("chưa chọn đơn hàng cần thêm vào biên bản");
       return;
     }
 
     let codes: any[] = [];
 
-    goodsReceipts?.orders?.forEach(function (i) {
+    goodsReceipts?.orders?.forEach((i) => {
       codes.push(i.code);
-
     });
-    data.items.forEach(function (i: any) {
-      codes.push(i.code);
+    selectOrderPackSuccess?.forEach((i: any) => {
+      codes.push(i.order_code);
     });
 
     let param: any = {
       ...goodsReceipts,
-      // store_id:goodsReceipts.store_id,
-      // store_name: goodsReceipts.store_name,
-      // ecommerce_id: goodsReceipts.ecommerce_id,
-      // ecommerce_name: goodsReceipts.ecommerce_name,
-      // receipt_type_id: goodsReceipts.receipt_type_id,
-      // receipt_type_name: goodsReceipts.receipt_type_name,
-      // delivery_service_id: goodsReceipts.delivery_service_id,
-      // delivery_service_name: goodsReceipts.delivery_service_name,
       codes: codes,
     };
 
@@ -185,21 +193,24 @@ const AddReportHandOver: React.FC = () => {
         (value: GoodsReceiptsResponse) => {
           if (value) {
             setGoodsReceipts(value);
-            removePackInfo();
-            setData({
-              metadata: {
-                limit: 1,
-                page: 1,
-                total: 0,
-              },
-              items: [],
-            });
+            //removePackInfo();
+
+            let packData: PackModel = {
+              ...new PackModelDefaltValue(),
+              ...packModel,
+              order: [...notSelectOrderPackSuccess]
+            }
+            console.log("packData", packData);
+
+            setPackModel(packData);
+            setPackInfo(packData);
+
             showSuccess("Thêm đơn hàng vào biên bản bàn giao thành công");
           }
         }
       )
     );
-  }, [dispatch, setData, data, goodsReceipts]);
+  }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel]);
 
   useEffect(() => {
     const toDate = new Date();
@@ -237,7 +248,7 @@ const AddReportHandOver: React.FC = () => {
     >
       <div className="yody-pack-row">
         <Row className="pack-give-card-row">
-          <div className="pack-give-card-row-item" style={{width: "40%"}}>
+          <div className="pack-give-card-row-item" style={{ width: "35%" }}>
             <Select
               className="select-with-search"
               showSearch
@@ -262,7 +273,8 @@ const AddReportHandOver: React.FC = () => {
             >
               {listGoodsReceipts.map((item, index) => (
                 <Select.Option key={index.toString()} value={item.id}>
-                  {item.id}- {item.delivery_service_name}-{" "}
+                  {+item.delivery_service_id === -1 ? `${item.id} - Tự giao hàng` : `${item.id} - ${item.delivery_service_name}`} - {" "}
+                  {``}
                   {item.receipt_type_name}- {item.ecommerce_name}
                 </Select.Option>
               ))}
@@ -276,7 +288,7 @@ const AddReportHandOver: React.FC = () => {
             block
             onClick={showModal}
             className="pack-give-card-row-item"
-            style={{ width: "160px" }}
+            style={{ width: "145px" }}
           >
             Thêm mới
           </Button>
@@ -287,7 +299,7 @@ const AddReportHandOver: React.FC = () => {
             block
             onClick={handOrderAddGoodsReceipts}
             className="pack-give-card-row-item"
-            style={{ width: "160px" }}
+            style={{ width: "75px" }}
           >
             Lưu
           </Button>

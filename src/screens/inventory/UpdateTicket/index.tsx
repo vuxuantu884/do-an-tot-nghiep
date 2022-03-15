@@ -77,7 +77,7 @@ import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
-import { strForSearch } from "utils/RemoveDiacriticsString";
+import { strForSearch } from "utils/StringUtils";
 
 const { Option } = Select;
 

@@ -1,5 +1,5 @@
 import { Loading3QuartersOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Image, Popover, Row, Spin, Switch, Tabs, Tag } from "antd";
+import { Button, Card, Col, Image, Modal, Popover, Row, Spin, Switch, Tabs, Tag } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -23,6 +23,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
+import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import { Products } from "utils/AppUtils";
 import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
@@ -62,6 +63,7 @@ const ProductDetailScreen: React.FC = () => {
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
+  const [visibleDes,setVisibleDes] = useState<boolean>(false);
   const [dataInventory, setDataInventory] = useState<
     PageResponse<InventoryResponse>
   >({
@@ -137,8 +139,12 @@ const ProductDetailScreen: React.FC = () => {
 
   const update = useCallback(
     (product: ProductResponse) => {
+      let productRequest: any = {...product};
       setLoadingVariant(true);
-      dispatch(productUpdateAction(idNumber, product, onResultUpdate));
+      if (productRequest.collections) {
+        productRequest.collections = productRequest.collections.map((e: CollectionCreateRequest)=>e.code);
+      }  
+      dispatch(productUpdateAction(idNumber, productRequest, onResultUpdate));
     },
     [dispatch, idNumber, onResultUpdate]
   );
@@ -243,7 +249,7 @@ const ProductDetailScreen: React.FC = () => {
         data?.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
             item.saleable = false;
-          }
+          } 
         });
         data.variants = getFirstProductAvatarByVariantResponse(data.variants);
         update(data);
@@ -522,13 +528,19 @@ const tab= document.getElementById("tab");
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={24}>
-                        {data.description ? (
-                          <div
+                        {data.description ? ( 
+                        <div style={{position: "relative"}}>
+                            <div 
                             dangerouslySetInnerHTML={{
                               __html: data.description,
-                            }}
+                            }} 
                             className="data-content"
-                          />
+                          > 
+                           </div> 
+                             <div className="devvn_readmore_taxonomy_flatsome devvn_readmore_taxonomy_flatsome_show" style={{display: "block"}}>
+                             <Button className="button-show-more" onClick={()=>{setVisibleDes(true)}}>Xem thêm</Button>
+                           </div> 
+                        </div>
                         ) : (
                           <div className="data-empty">Không có mô tả</div>
                         )}
@@ -543,8 +555,16 @@ const tab= document.getElementById("tab");
                   </div>
                 </Card>
                 <Card title="Phòng win" className="card">
-                    <RowDetail title="Merchandiser " value={data.merchandiser} />
-                    <RowDetail title="Thiết kế" value={data.designer} />
+                    <RowDetail title="Merchandiser " value={<>
+                      <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${data.merchandiser_code}`}> 
+                        {data.merchandiser} 
+                      </Link>  
+                    </>} />
+                    <RowDetail title="Thiết kế" value={<>
+                      <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${data.designer_code}`}> 
+                        {data.designer} 
+                      </Link>  
+                    </>} />
                 </Card>
               </Col>
             </Row>
@@ -737,6 +757,27 @@ const tab= document.getElementById("tab");
                 </div>
               </Col>
             </Row>
+            <Modal
+              className="modal-des"
+              title="Mô tả sản phẩm"
+              centered
+              visible={visibleDes}
+              width="95%"
+              onCancel={()=>{setVisibleDes(false)}}
+              footer={<>
+                <Button type="primary" onClick={()=>{setVisibleDes(false)}}>
+                  Đóng
+                </Button>
+              </>}
+            >
+            <div style={{overflow: "auto"}}>
+              <div 
+                dangerouslySetInnerHTML={{
+                  __html: data.description,
+                }} 
+                className="data-content" ></div>
+              </div>
+            </Modal>
           </React.Fragment>
         )}
         <BottomBarContainer
@@ -746,7 +787,7 @@ const tab= document.getElementById("tab");
               <Button onClick={onEdit}>Sửa sản phẩm</Button>
             </AuthWrapper>
           }
-        />
+        /> 
       </ContentContainer>
     </StyledComponent>
   );

@@ -219,7 +219,6 @@ function YDPageAdmin() {
         activeKey={activeTabKey}
         onChange={(value: string) => handleOnchangeTabs(value)}
       >
-				{console.log(newCustomerInfo)}
         <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}>
           <YDPageCustomer
             customer={customer}

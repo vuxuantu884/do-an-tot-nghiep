@@ -19,11 +19,10 @@ import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import {
-  SupplierDetailAction,
+  SupplierDetailAction, SupplierSearchAction,
   SupplierUpdateAction
 } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
-// import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   SupplierResponse,
@@ -36,8 +35,10 @@ import { useHistory, useParams } from "react-router";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
-import {getCollectionRequestAction} from "../../../domain/actions/product/collection.action";
-import {CollectionQuery, CollectionResponse} from "../../../model/product/collection.model";
+import { getCollectionRequestAction } from "../../../domain/actions/product/collection.action";
+import { CollectionQuery, CollectionResponse } from "../../../model/product/collection.model";
+import { validatePhoneSupplier } from "../../../utils/supplier";
+import SelectSearchPaging from "../../../component/custom/select-search/select-search-paging";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -57,6 +58,9 @@ const UpdateSupplierScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const isFirstLoad = useRef(true);
+  const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+  const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
+
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
   );
@@ -72,13 +76,21 @@ const UpdateSupplierScreen: React.FC = () => {
   const supplier_status = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
   );
+
   //State
   const [status, setStatus] = useState<string>();
   const [supplier, setSupplier] = useState<SupplierResponse | null>(null);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
-  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
+  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse>>( {
+    metadata: {
+      limit: 10,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  })
 
   const [type, setType] = useState("personal");
 
@@ -109,18 +121,12 @@ const UpdateSupplierScreen: React.FC = () => {
     setLoading(false);
   };
 
-  const onGetSuccess = (results: PageResponse<CollectionResponse>) => {
-    if (results && results.items) {
-      setGroupProducts(results);
-    }
-  }
-
   const onFinish = (values: SupplierUpdateRequest) => {
     const newValues = {...values, phone: values.phone || supplier?.phone || ''}
+
     setLoading(true);
-    dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
-    dispatch(SupplierUpdateAction(idNumber, newValues, onUpdateSuccess))
-  }
+      dispatch(SupplierUpdateAction(idNumber, newValues, onUpdateSuccess));
+    };
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -163,6 +169,29 @@ const UpdateSupplierScreen: React.FC = () => {
     }
   };
 
+  const validatePhone = (_:any, value: any, callback: any): void => {
+    validatePhoneSupplier({
+      value,
+      callback,
+      phoneCurrent: supplier?.phone,
+      phoneList: listSupplier
+    })
+  };
+
+  const onGetSuccess = (results: PageResponse<CollectionResponse>) => {
+    if (results && results.items) {
+      setGroupProducts(results);
+      setIsSearchingGroupProducts(false);
+    }
+  };
+
+  const onSearchGroupProducts = (values: any) => {
+    setIsSearchingGroupProducts(true);
+    dispatch(
+      getCollectionRequestAction({ ...params, ...values, limit: groupProducts.metadata.limit }, onGetSuccess)
+    );
+  };
+
   //end memo
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -173,6 +202,13 @@ const UpdateSupplierScreen: React.FC = () => {
       }
     }
     isFirstLoad.current = false;
+    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
+      if (response) {
+        setListSupplier(response.items)
+      } else {
+        setListSupplier([]);
+      }
+    }))
   }, [dispatch, idNumber, setSupplierDetail, params]);
 
   return (
@@ -346,13 +382,12 @@ const UpdateSupplierScreen: React.FC = () => {
                       label="Số điện thoại"
                       rules={[
                         {
-                          pattern: RegUtil.PHONE,
-                          message: 'Số điện thoại không đúng định dạng'
-                        },
-                        {
                           required: true,
                           message: "Vui lòng nhập số điện thoại",
                         },
+                        {
+                          validator: validatePhone
+                        }
                       ]}
                       name="phone"
                     >
@@ -365,13 +400,17 @@ const UpdateSupplierScreen: React.FC = () => {
                       name="collection_id"
                       label="Nhóm hàng"
                     >
-                      <Select allowClear placeholder="Chọn nhóm hàng">
-                        {groupProducts && groupProducts?.items.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                      <SelectSearchPaging
+                        data={groupProducts?.items || []}
+                        onSearch={onSearchGroupProducts}
+                        isLoading={isSearchingGroupProducts}
+                        metadata={groupProducts?.metadata}
+                        defaultValue={supplier?.collection_id}
+                        onSelect={(item) => formRef.current?.setFieldsValue({ collection_id: item.value })}
+                        optionKeyValue="id"
+                        optionKeyName="name"
+                        placeholder="Nhập nhóm hàng"
+                      />
                     </Item>
                   </Col>
                 </Row>

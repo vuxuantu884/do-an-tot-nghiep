@@ -3,16 +3,17 @@ import Calculate from "assets/icon/caculate.svg";
 import OrderPayments from "component/order/OrderPayments";
 import {OrderPaymentRequest} from "model/request/order.request";
 import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {useMemo} from "react";
-import {formatCurrency, getAmountPayment} from "utils/AppUtils";
+import {formatCurrency, getAmountPayment, isOrderFinishedOrCancel} from "utils/AppUtils";
 import {PaymentMethodOption, ShipmentMethodOption} from "utils/Constants";
 import { yellowColor } from "utils/global-styles/variables";
 import {StyledComponent} from "./styles";
 
 const {Panel} = Collapse;
 
-type PropType = {
+type PropTypes = {
   payments: OrderPaymentRequest[];
   paymentMethod: number;
   totalAmountOrder: number;
@@ -24,6 +25,7 @@ type PropType = {
   listPaymentMethod: PaymentMethodResponse[];
   setPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
+  orderDetail?: OrderResponse | null;
 };
 
 /**
@@ -48,7 +50,7 @@ type PropType = {
  * listPaymentMethod: danh sách payment method
  *
  */
-function OrderCreatePayments(props: PropType): JSX.Element {
+function OrderCreatePayments(props: PropTypes): JSX.Element {
   const {
     totalAmountOrder,
     levelOrder = 0,
@@ -60,6 +62,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
     listPaymentMethod,
     setPayments,
     setPaymentMethod,
+    orderDetail,
   } = props;
 
   const changePaymentMethod = (value: number) => {
@@ -90,7 +93,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
           <Radio.Group
             value={paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
-            disabled={levelOrder > 2}
+            disabled={levelOrder > 2 || isOrderFinishedOrCancel(orderDetail)}
           >
             <Space size={20}>
               <Radio value={PaymentMethodOption.COD}>COD</Radio>

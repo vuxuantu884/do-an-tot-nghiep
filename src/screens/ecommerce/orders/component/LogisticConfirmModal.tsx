@@ -37,12 +37,11 @@ const LogisticConfirmModal: React.FC<LogisticConfirmModalProps> = (
         pickup_time_id: pickupTime && pickupTime.toString()
       }
     }
-    console.log(request)
+
     dispatch(createEcommerceLogistic(request, (data) => {
-      if (data.error === ""){
+      if (!data.error){
         showSuccess("Gửi thông tin lấy hàng đến hãng vận chuyển thành công")
-        window.location.reload();
-      }else {
+      } else {
         showError(data.message)
       }
     }))

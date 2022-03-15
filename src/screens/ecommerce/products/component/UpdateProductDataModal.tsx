@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { Button, DatePicker, Modal, Select, Tooltip } from "antd";
@@ -6,6 +6,7 @@ import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 
 import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import { getIconByEcommerceId } from "screens/ecommerce/common/commonAction";
 
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -105,6 +106,10 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
 
   const selectShopEcommerce = (shop_id: any) => {
     setShopIdSelected(shop_id);
+  }
+
+  const onClearShop = () => {
+    setShopIdSelected(null);
   }
 
   //handle select date
@@ -229,10 +234,26 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
                 allowClear
                 onSelect={(value) => selectShopEcommerce(value)}
                 disabled={isLoading}
+                onClear={onClearShop}
+                notFoundContent="Không có dữ liệu gian hàng"
+                filterOption={(input, option) => {
+                  if (option) {
+                    const shopName = option.children && option.children[1];
+                    return (
+                      shopName?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
               >
                 {ecommerceShopList &&
                   ecommerceShopList.map((shop: any) => (
                     <Option key={shop.id} value={shop.id}>
+                      <img
+                        src={getIconByEcommerceId(shop?.ecommerce_id)}
+                        alt={"ecommerce_icon"}
+                        style={{ marginRight: "5px", height: "16px" }}
+                      />
                       {shop.name}
                     </Option>
                   ))
