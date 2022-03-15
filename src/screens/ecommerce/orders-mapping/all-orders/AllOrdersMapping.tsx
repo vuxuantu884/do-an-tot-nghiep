@@ -1,4 +1,4 @@
-import { Card } from "antd";
+import { Card, Tooltip } from "antd";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
@@ -23,6 +23,9 @@ import { getIconByEcommerceId } from "screens/ecommerce/common/commonAction";
 
 import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import checkIcon from "assets/icon/CheckIcon.svg"
+import stopIcon from "assets/icon/Stop.svg"
+import "./AllOrdersMapping.scss"
 
 const initQuery: GetOrdersMappingQuery = {
   page: 1,
@@ -103,46 +106,59 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     },
   ];
 
+  const formatShowStatus:any = (name:any) =>{
+    if (name === undefined) {
+      return <div>{"--"}</div>;
+    }
+
+    if (name === "Chờ lấy hàng (đã xử lý)") {
+      return (
+        <div>
+          <div>Chờ lấy hàng</div>
+          <div>(đã xử lý)</div>
+        </div>
+      ) 
+    } else if (name === "Chờ lấy hàng (chưa xử lý)") {
+      return (
+        <div>
+          <div>Chờ lấy hàng</div>
+          <div>(chưa xử lý)</div>
+        </div>
+      ) 
+    } else {
+      return <div>{name}</div>
+    }
+    
+  }
+
   const [columns] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
-      title: "Mã đơn trên sàn",
+      title: "ID đơn (Sàn)",
       dataIndex: "ecommerce_order_code",
       key: "order_id",
-      width: "13%",
-    },
-    {
-      title: "Gian hàng",
-      key: "shop",
-      width: "18%",
+      width: "15%",
       render: (item) => (
         <div>
-          {getIconByEcommerceId(item.ecommerce_id) && (
-            <img
-              src={getIconByEcommerceId(item.ecommerce_id)}
-              alt={item.id}
-              style={{ marginRight: "5px", height: "16px" }}
-            />
-          )}
-          <span className="name">{item.shop}</span>
+          <span style={{ textAlign: "center"}}>{item}</span>
         </div>
       ),
     },
     {
-      title: "Trạng thái trên sàn",
+      title: "Trạng thái (Sàn)",
       dataIndex: "ecommerce_order_status",
       key: "ecommerce_order_status",
-      width: "16%",
+      width: "12%",
       render: (status_value: string) => {
-        const ecommerceStatus = ECOMMERCE_ORDER_STATUS.find(
+        const ecommerceStatus: any = ECOMMERCE_ORDER_STATUS.find(
           (status) => status.value === status_value
         );
-        return <div>{ecommerceStatus?.name || "--"}</div>;
+        return <div>{formatShowStatus(ecommerceStatus?.name)}</div>
       },
     },
     {
-      title: "Mã đơn trên Yody",
+      title: "ID đơn (Yody)",
       key: "core_order_code",
-      width: "11%",
+      width: "10%x",
       render: (item: any, row: any) => (
         <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
           <b>{item.core_order_code}</b>
@@ -150,11 +166,11 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       ),
     },
     {
-      title: "Trạng thái trên Yody",
+      title: "Trạng thái (Yody)",
       dataIndex: "core_order_status",
       key: "core_order_status",
       align: "center",
-      width: "13%",
+      width: "15%",
       render: (status_value: string) => {
         const status = CORE_ORDER_STATUS.find(
           (status) => status.value === status_value
@@ -167,29 +183,74 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       },
     },
     {
-      title: "	Trạng thái liên kết ",
+      title: "Liên kết",
       dataIndex: "connected_status",
       key: "connected_status",
       align: "center",
-      width: "13%",
+      width: "8%",
       render: (value: any, item: any, index: any) => {
         return (
           <div>
             {value === "connected" && (
-              <span style={{ color: "#27AE60" }}>Thành công</span>
+              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8 }} />
             )}
 
             {
               value !== "connected" && (
-                <span style={{ color: "#E24343" }}>Thất bại</span>
+                <Tooltip title={item.error_description}>
+                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8 }} />
+                </Tooltip>
+                
               )
-              // <Tooltip title="Sẽ hiển thị lỗi liên kết thất bại ở đây">
-              //   <span style={{ color: "#E24343" }}>Thất bại</span>
-              // </Tooltip>
             }
           </div>
         );
       },
+    },
+    {
+      title: "Đồng bộ",
+      dataIndex: "updated_status",
+      key: "updated_status",
+      align: "center",
+      width: "9%",
+      render: (value: any, item: any, index: any) => {
+        return (
+          <div>
+            {value === "connected" && (
+              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8 }} />
+            )}
+
+            {
+              value !== "connected" && (
+                <Tooltip title={item.error_description}>
+                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8 }} />
+                </Tooltip>
+              )
+            }
+          </div>
+        );
+      },
+    },
+    {
+      title: "Gian hàng",
+      key: "shop",
+      align: "center",
+      width: "17%",
+      render: (value: any, item: any, index: any) => (
+        <div className="shop-show-style" style={{ textAlign: "left", minWidth:"150px"}}>
+          {getIconByEcommerceId(item.ecommerce_id) && (
+            <img
+              src={getIconByEcommerceId(item.ecommerce_id)}
+              alt={item.id}
+              style={{ marginRight: "5px", height: "16px" }}
+            />
+          )}
+          <Tooltip title={item.shop}>
+            <span className="name">{item.shop}</span>
+          </Tooltip>
+        </div>
+        
+      ),
     },
     {
       title: "Ngày tạo",
@@ -197,8 +258,11 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       key: "received_status",
       align: "center",
       width: "11%",
-      render: (ecommerce_created_date) => (
-        <div>{convertDateTimeFormat(ecommerce_created_date)}</div>
+      render: (value: any, item: any, index: any) => (
+        <div style={{ textAlign: "center" }}>
+          <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
+        </div>
+        
       ),
     },
 
