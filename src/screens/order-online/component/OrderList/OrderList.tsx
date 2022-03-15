@@ -250,11 +250,9 @@ function OrderList(props: PropTypes) {
           window.open(printPreviewUrl);
           break;
         case ACTION_ID.printStockExport:
-          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-         
           {
             dispatch(showLoading());
-            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/ print-preview?${queryParam}`;
+            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
             let ids: number[] = [];
             selectedRow.forEach((row) =>
               row.fulfillments?.forEach((single) => {
