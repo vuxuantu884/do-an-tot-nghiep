@@ -507,7 +507,7 @@ const PackInfo: React.FC = () => {
                   placeholder="ID đơn hàng/Mã vận đơn"
                   addonAfter={<img src={barcodeIcon} alt="" />}
                   onPressEnter={(e: any) => {
-                    onPressEnterOrder(e.target.value);
+                    onPressEnterOrder(e.target.value?.toUpperCase());
                   }}
 
                   disabled={disableOrder}
