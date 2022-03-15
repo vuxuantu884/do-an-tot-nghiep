@@ -188,9 +188,7 @@ const createEcommerceLogisticApi = (requestBody : EcommerceCreateLogistic) => {
 }
 
 
-export const importConcatenateByExcelService = (file: File) => {
-  let formData = new FormData();
-  formData.append("file_upload", file);
+export const importConcatenateByExcelService = (formData: FormData) => {
   return BaseAxios.post(`${ApiConfig.ECOMMERCE}/import-export/variants-import`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });

@@ -233,8 +233,8 @@ export const createEcommerceLogistic = (
   });
 };
 
-export const concatenateByExcelAction = (file: File, callback: (data: any) => void) => {
-  return BaseAction(EcommerceType.CONCANATE_BY_EXCEL, {file, callback});
+export const concatenateByExcelAction = (formData: FormData, callback: (data: any) => void) => {
+  return BaseAction(EcommerceType.CONCANATE_BY_EXCEL, {formData,  callback});
 }
 
 export const downloadPrintForm = (

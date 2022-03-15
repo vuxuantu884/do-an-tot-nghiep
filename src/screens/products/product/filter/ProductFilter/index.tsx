@@ -1,9 +1,11 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, FormInstance, Col, Form, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 import search from "assets/img/search.svg";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import ColorSearchSelect from "component/custom/select-search/color-select";
 import SizeSearchSelect from "component/custom/select-search/size-search";
+import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
 import CustomSelectOne from "component/filter/component/select-one.custom";
@@ -11,9 +13,13 @@ import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
 import { AppConfig } from "config/app.config";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getColorAction } from "domain/actions/product/color.action";
 import { sizeSearchAction } from "domain/actions/product/size.action";
+import useAuthorization from "hook/useAuthorization";
+import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CountryResponse } from "model/content/country.model";
@@ -22,20 +28,16 @@ import { ColorResponse } from "model/product/color.model";
 import {
   keysDateFilter,
   SearchVariantField,
-  SearchVariantMapping,
+  SearchVariantMapping
 } from "model/product/product-mapping";
 import { VariantSearchQuery } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { StyledComponent } from "./style";
-import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
-import { AccountResponse } from "model/account/account.model";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
-import CustomSelect from "component/custom/select.custom";
 
 type ProductFilterProps = {
   params: any;
@@ -83,6 +85,9 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     actions,
     onMenuClick,
   } = props;
+
+  const [allowReadSuppiers]= useAuthorization({acceptPermissions: [SuppliersPermissions.READ]});
+
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState('');
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
@@ -128,7 +133,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   );
 
   const getSuppliers = useCallback((key: string, page: number) => {
-    dispatch(SupplierSearchAction({ ids: key, page: page }, (data: PageResponse<SupplierResponse>) => {
+    if(allowReadSuppiers){
+      dispatch(SupplierSearchAction({ ids: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier((suppliers) => {
         return {
           ...suppliers,
@@ -140,8 +146,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         }
       });
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+    }
+  }, [dispatch, allowReadSuppiers]);
 
   const setDataDesigners = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -502,26 +508,28 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     );
                     break;
                   case SearchVariantField.suppliers:
-                    component = (
-                      <SelectPaging
-                        searchPlaceholder="Tìm kiếm nhà cung cấp"
-                        metadata={suppliers.metadata}
-                        showSearch={false}
-                        maxTagCount="responsive"
-                        allowClear
-                        mode="multiple"
-                        placeholder="Chọn nhà cung cấp"
-                        onSearch={(key) => getSuppliers(key, 1)}
-                        onPageChange={(key, page) => getSuppliers(key, page)}
-                        onSelect={()=>{}} // to disable onSearch when select item
-                      >
-                        {suppliers.items.map((item) => (
-                          <SelectPaging.Option key={item.id} value={item.id}>
-                            {item.name}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
-                    );
+                    if (allowReadSuppiers) {
+                      component = (
+                        <SelectPaging
+                          searchPlaceholder="Tìm kiếm nhà cung cấp"
+                          metadata={suppliers.metadata}
+                          showSearch={false}
+                          maxTagCount="responsive"
+                          allowClear
+                          mode="multiple"
+                          placeholder="Chọn nhà cung cấp"
+                          onSearch={(key) => getSuppliers(key, 1)}
+                          onPageChange={(key, page) => getSuppliers(key, page)}
+                          onSelect={() => { }} // to disable onSearch when select item
+                        >
+                          {suppliers.items.map((item) => (
+                            <SelectPaging.Option key={item.id} value={item.id}>
+                              {item.name}
+                            </SelectPaging.Option>
+                          ))}
+                        </SelectPaging>
+                      );
+                    }
                     break;
                   case SearchVariantField.saleable:
                     component = (
@@ -542,11 +550,14 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                       </Select>
                     );
                 }
+                
                 return (
-                  <Col span={12} key={key}>
+                  <>
+                  {component ? <Col span={12} key={key}>
                     <div className="font-weight-500">{SearchVariantMapping[key]}</div>
                     <Item name={key}>{component}</Item>
-                  </Col>
+                  </Col> : <React.Fragment/>}
+                  </>
                 );
               })}
             </Row>

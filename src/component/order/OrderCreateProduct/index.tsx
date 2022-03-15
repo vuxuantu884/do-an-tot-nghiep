@@ -527,9 +527,11 @@ function OrderCreateProduct(props: PropType) {
 			_item.discount_items.forEach((singleDiscount) => {
 				singleDiscount.amount = _item.quantity * singleDiscount.value;
 			});
+			_item.amount = _item.quantity * _item.price;
 			_item.discount_value = getLineItemDiscountValue(_item);
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
+			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
 			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
 	};
@@ -853,7 +855,7 @@ function OrderCreateProduct(props: PropType) {
 						disabled={
 							levelOrder > 3 ||
 							checkIfLineItemHasAutomaticDiscount(l) ||
-							couponInputText !== "" ||
+							// couponInputText !== "" ||
 							checkIfOrderHasAutomaticDiscount()
 						}
 					/>
@@ -1271,7 +1273,7 @@ function OrderCreateProduct(props: PropType) {
 			return [PRODUCT_TYPE.normal, PRODUCT_TYPE.combo].includes(item.product_type)
 		}).map((single) => {
 			return {
-				original_unit_price: single.price,
+				original_unit_price: single.price - single.discount_value,
 				product_id: single.product_id,
 				quantity: single.quantity,
 				sku: single.sku,
@@ -1331,7 +1333,7 @@ function OrderCreateProduct(props: PropType) {
 							let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
 							if(promotionResult) {
 								form.setFieldsValue({
-									note: `Chương trình chiết khấu: ${promotionResult.reason}`
+									note: `(${promotionResult.reason})`
 								})
 							}
 							calculateChangeMoney(items, promotionResult)
@@ -1347,7 +1349,7 @@ function OrderCreateProduct(props: PropType) {
 						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
 						if(promotionResult) {
 							form.setFieldsValue({
-								note: `Chương trình chiết khấu: ${promotionResult.reason}`
+								note: `(${promotionResult.reason})`
 							})
 						}
 						calculateChangeMoney(items, promotionResult)
@@ -1379,6 +1381,7 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
+		console.log('_items', _items)
 		isShouldUpdateCouponRef.current = true;
 		if (!_items || _items?.length === 0 || !coupon) {
 			return;
@@ -1438,7 +1441,9 @@ function OrderCreateProduct(props: PropType) {
 								// const discount_code = applyDiscountResponse.code || undefined;
 								let couponType = applyDiscountResponse.value_type;
 								let listDiscountItem: any[] = [];
-								let totalAmount = getTotalAmount(_items);
+								let totalAmount = getTotalAmountAfterDiscount(_items);
+								console.log('totalAmount', totalAmount)
+								console.log('_items222222222222', _items)
 								response.data.line_items.forEach((single) => {
 									if (listDiscountItem.some((a) => a.variant_id === single.variant_id)) {
 										return;
@@ -1557,7 +1562,7 @@ function OrderCreateProduct(props: PropType) {
 										break;
 								}
 								form.setFieldsValue({
-									note: `Chương trình khuyến mại coupon: ${applyDiscountResponse.title}`
+									note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`
 								})
 								calculateChangeMoney(_items, promotionResult)
 								showSuccess("Thêm coupon thành công!");
@@ -1791,7 +1796,7 @@ function OrderCreateProduct(props: PropType) {
 			})
 			discountTitleArr = _.uniq(discountTitleArr);
 			if(discountTitleArr && discountTitleArr.length > 0) {
-				let title = "Chương trình chiết khấu: "
+				let title = ""
 				for (let i = 0; i < discountTitleArr.length; i++) {
 					if(i< discountTitleArr.length -1) {
 						title = title + discountTitleArr[i] + ", "
@@ -1800,7 +1805,7 @@ function OrderCreateProduct(props: PropType) {
 					}
 				}
 				form.setFieldsValue({
-					note: title
+					note: `(title)`
 				})
 			}
 		}
@@ -1810,6 +1815,7 @@ function OrderCreateProduct(props: PropType) {
 		_items: Array<OrderLineItemRequest>,
 		_promotion?: OrderDiscountRequest | null,
 	) => {
+		console.log('_promotion', _promotion)
 		if (_promotion === undefined) {
 			if (promotion) {
 				let _value = 0;
@@ -1817,17 +1823,9 @@ function OrderCreateProduct(props: PropType) {
 				let totalOrderAmount = totalAmount(_items);
 				if (discountType === MoneyType.MONEY) {
 					_value = promotion?.value || 0;
-					if(_value >= totalOrderAmount)	{
-						_value = totalOrderAmount;
-					} else if(totalOrderAmount === 0) {
-						_value = 0;
-					}
 					_rate = (_value / totalOrderAmount) * 100;
 				} else if (discountType === MoneyType.PERCENT) {
 					_rate = promotion?.rate || 0;
-					if(_rate >= 100)	{
-						_rate = 100;
-					}
 					_value = (_rate * totalOrderAmount) / 100;
 				}
 				_promotion = {
@@ -1840,12 +1838,14 @@ function OrderCreateProduct(props: PropType) {
 					source: null,
 					value: _value,
 				}
+				if(promotion?.discount_code && promotion.value) {
+					let _rate = (promotion.value / totalOrderAmount) * 100;
+					_promotion.rate = _rate;
+				}
 			} else {
 				_promotion = null
 			}
 		}
-		fillCustomNote(_items);
-		console.log('_items', _items)
 		props.changeInfo(_items, _promotion);
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);

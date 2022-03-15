@@ -25,6 +25,7 @@ export interface ColorUpdateRequest extends ColorCreateRequest {
 export interface ColorResponse extends BaseObject {
   name:string,
   hex_code: string|null,
+  color: string|null,
   parent_id: number|null
   image_id: number|null
   image: string|null
