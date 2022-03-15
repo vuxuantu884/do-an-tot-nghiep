@@ -197,7 +197,7 @@ function OrdersTable(props: PropTypes) {
           ) : (
             <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
               <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">{formatCurrency(payment.amount}</span>
+              <span className="amount">{formatCurrency(payment.amount)}</span>
             </Tooltip>
           )}
         </div>
