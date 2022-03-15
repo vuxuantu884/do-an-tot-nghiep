@@ -7,6 +7,13 @@ export interface GoodsReceiptsTypeResponse extends BaseObject {
     name: string
 }
 
+export interface GoodsReceiptsAddOrderRequest{
+    order_codes:string;
+    store_id:number;
+    delivery_service_provider_id:number;
+    channel_id:number;
+}
+
 export interface GoodsReceiptsResponse extends BaseObject{
     key:number;
     store_id:number;

@@ -33,7 +33,7 @@ export const getByIdGoodsReceipts=(goodsReceiptsId:number,setData:(data:GoodsRec
     return BaseAction(GoodsReceiptsType.GETBYID_GOODS_RECEIPTS,{goodsReceiptsId,setData})
 }
 
-export const getOrderConcernGoodsReceipts=(param:string, setData:(data:OrderConcernGoodsReceiptsResponse[])=>void)=>{
+export const getOrderConcernGoodsReceipts=(param:any, setData:(data:OrderConcernGoodsReceiptsResponse[])=>void)=>{
     return BaseAction(GoodsReceiptsType.GET_ORDER_CONCERN_GOODS_RECEIPTS,{param, setData});
 }
 
