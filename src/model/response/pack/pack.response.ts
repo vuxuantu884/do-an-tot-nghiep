@@ -11,7 +11,7 @@ export interface GoodsReceiptsAddOrderRequest{
     order_codes:string;
     store_id:number;
     delivery_service_provider_id:number;
-    ecommerce_id:number;
+    channel_id:number;
 }
 
 export interface GoodsReceiptsResponse extends BaseObject{

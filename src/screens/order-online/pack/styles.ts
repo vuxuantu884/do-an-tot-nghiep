@@ -32,6 +32,7 @@ export const StyledComponent = styled.div`
   }
   td {
     position: relative;
+    overflow: hidden;
   }
   .productNameQuantityHeader {
     display: flex;

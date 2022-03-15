@@ -38,47 +38,60 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   // const orderListResponse= addReportHandOverContextData?.orderListResponse;
   const setOrderListResponse = addReportHandOverContextData?.setOrderListResponse;
   //
-  const handleSearchOrder = useCallback(() => {
-    formSearchOrderRef.current?.validateFields(["search_term"]);
-    let search_term: any = formSearchOrderRef.current?.getFieldValue(["search_term"]);
-    if (search_term) {
-      formSearchOrderRef.current?.resetFields();
-      handleAddOrder(search_term);
+  // const handleSearchOrder = useCallback(() => {
+  //   formSearchOrderRef.current?.validateFields(["search_term"]);
+  //   let search_term: any = formSearchOrderRef.current?.getFieldValue(["search_term"]);
+  //   if (search_term) {
+  //     formSearchOrderRef.current?.resetFields();
+  //     handleAddOrder(search_term);
+  //   }
+  //   else {
+  //     showWarning("Vui lòng nhập mã đơn hàng");
+  //   }
+  // }, [formSearchOrderRef, handleAddOrder]);
+
+  const handSubmit = useCallback((value: any) => {
+    console.log(value)
+    if (value.search_term && value.search_term.length>0) {
+      //formSearchOrderRef.current?.resetFields();
+      handleAddOrder(value.search_term);
     }
     else {
       showWarning("Vui lòng nhập mã đơn hàng");
     }
-  }, [formSearchOrderRef, handleAddOrder]);
+  }, [handleAddOrder])
 
   const onMenuClickExt = useCallback(
     (index: number) => {
       switch (index) {
         case 1:
-          if(isOrderPack && isOrderPack.length<=0)
-          {
+          if (isOrderPack && isOrderPack.length <= 0) {
             showWarning("Vui lòng chọn đơn hàng cần xóa");
             break;
           }
-          let orderListResponseCopy=[...orderListResponse];
-          isOrderPack.forEach((value)=>{
-            let indexOrder=orderListResponseCopy.findIndex((p)=>p.code);
-            if(indexOrder!==-1)orderListResponseCopy.splice(indexOrder, 1);
+          let orderListResponseCopy = [...orderListResponse];
+          console.log("orderListResponseCopy1",orderListResponseCopy)
+          isOrderPack.forEach((value) => {
+            let indexOrder = orderListResponseCopy.findIndex((p) => p.code);
+            if (indexOrder !== -1) orderListResponseCopy.splice(indexOrder, 1);
           })
+          console.log("orderListResponseCopy2",orderListResponseCopy)
           setOrderListResponse([...orderListResponseCopy]);
+          setIsOrderPack([]);
           break;
         default:
           break;
       }
     },
-    [setOrderListResponse,isOrderPack,orderListResponse]
+    [setOrderListResponse,setIsOrderPack, isOrderPack, orderListResponse]
   );
 
-  console.log("isOrderPack",isOrderPack)
+  console.log("isOrderPack", isOrderPack)
 
   useEffect(() => {
     if (orderListResponse.length > 0) {
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
-      orderListResponse.forEach(function (order,index) {
+      orderListResponse.forEach(function (order, index) {
         let product: VariantModel[] = [];
         let ship_price = 0;
         let total_price = 0;
@@ -98,8 +111,8 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               variant_id: itemProduct.variant_id,
               variant: itemProduct.variant,
               variant_barcode: itemProduct.variant_barcode,
-              quantity:itemProduct.quantity,
-              price:itemProduct.price
+              quantity: itemProduct.quantity,
+              price: itemProduct.price
             });
           });
         });
@@ -123,10 +136,10 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     }
   }, [orderListResponse]);
 
-  const columns:Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
+  const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
     {
       title: "ID",
-      align:"center",
+      align: "center",
       render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
         return (
           <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`}>
@@ -139,7 +152,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       title: "Người nhận",
       dataIndex: "customer_name",
       key: "customer_name",
-      align:"center"
+      align: "center"
     },
 
     {
@@ -239,21 +252,21 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       title: "Cước phí",
       dataIndex: "ship_price",
       key: "ship_price",
-      align:"center"
+      align: "center"
     },
     {
       title: "Tổng thu",
       dataIndex: "total_price",
       key: "total_price",
-      align:"center"
+      align: "center"
     },
   ];
 
   const rowSelection = {
-    selectedRowKeys:isOrderPack,
+    selectedRowKeys: isOrderPack,
     onChange: (selectedRowKeys: React.Key[], selectedRows: GoodsReceiptsInfoOrderModel[]) => {
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      let order_code:string[]= selectedRows.map((p)=>p.order_code);
+      let order_code: string[] = selectedRows.map((p) => p.order_code);
       setIsOrderPack(order_code);
     }
   };
@@ -268,7 +281,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             </div>
             <div className="page-filter-right" style={{ width: "60%" }}>
               <Space size={4}>
-                <Form layout="inline" ref={formSearchOrderRef}>
+                <Form layout="inline" ref={formSearchOrderRef} onFinish={handSubmit}>
                   <Item name="search_term" style={{ width: "calc(95% - 142px)" }}>
                     <Input
                       style={{ width: "100%" }}
@@ -278,7 +291,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                   </Item>
 
                   <Item style={{ width: "142px", marginLeft: 10, marginRight: 0 }}>
-                    <Button type="primary" htmlType="submit" onClick={handleSearchOrder}>
+                    <Button type="primary" htmlType="submit">
                       Thêm đơn hàng
                     </Button>
                   </Item>

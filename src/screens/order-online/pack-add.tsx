@@ -71,7 +71,9 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   ];
 
   const handleAddOrder = useCallback((param:GoodsReceiptsAddOrderRequest) => {
+    console.log(param)
     if (param) {
+      
       dispatch(
         getOrderConcernGoodsReceipts(
           param,
@@ -104,12 +106,12 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         barcode += event.key;
       }
       else {
-        const {store_id,delivery_service_provider_id,ecommerce_id}= goodsReceiptsForm.getFieldsValue();
+        const {store_id,delivery_service_provider_id,channel_id}= goodsReceiptsForm.getFieldsValue();
         let param={
           order_codes:barcode,
           store_id:store_id,
           delivery_service_provider_id:delivery_service_provider_id,
-          ecommerce_id:ecommerce_id
+          channel_id:channel_id
         }
         handleAddOrder(param)
         barcode = "";
@@ -118,13 +120,19 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   }, [goodsReceiptsForm, handleAddOrder]);
 
   const handleAddOrdersCode=useCallback((order_codes:string)=>{
-    const {store_id,delivery_service_provider_id,ecommerce_id}= goodsReceiptsForm.getFieldsValue();
+    console.log(order_codes)
+    goodsReceiptsForm.validateFields(['store_id','delivery_service_provider_id','channel_id']);
+    const {store_id,delivery_service_provider_id,channel_id}= goodsReceiptsForm.getFieldsValue();
+    if(!store_id||!delivery_service_provider_id||!channel_id)
+      return;
+    
     let param={
       order_codes:order_codes,
       store_id:store_id,
       delivery_service_provider_id:delivery_service_provider_id,
-      ecommerce_id:ecommerce_id
+      channel_id:channel_id
     }
+    console.log(param)
     handleAddOrder(param)
   },[goodsReceiptsForm, handleAddOrder])
 
@@ -166,7 +174,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
       let ecommerce_name = "Biên bản đơn tự tạo";
       if (value !== -1) {
         let changeName = listChannels.find(
-          (data) => data.id === value.ecommerce_id
+          (data) => data.id === value.channel_id
         )?.name;
         ecommerce_name = changeName ? changeName : "Biên bản đơn tự tạo";
       }
@@ -365,7 +373,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
               <Col md={6} className="col-item-right" style={{ padding: "0px 0px 0px 24px" }}>
                 <Form.Item
                   label="Biên bản sàn"
-                  name="ecommerce_id"
+                  name="channel_id"
                   rules={[
                     {
                       required: true,
