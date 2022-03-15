@@ -30,7 +30,9 @@ import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, use
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
+import { getSourcesWithParamsService } from "service/order/order.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { POS } from "utils/Constants";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
@@ -45,6 +47,7 @@ type PropTypes = {
 	shippers?: Array<DeliverPartnerResponse>;
 	deliveryService: Array<any>;
 	listPaymentMethod: Array<PaymentMethodResponse>;
+	initSubStatus: Array<OrderProcessingStatusModel>;
 	subStatus: Array<OrderProcessingStatusModel>;
 	isLoading?: boolean;
 	isHideTab?: boolean;
@@ -53,6 +56,8 @@ type PropTypes = {
 	onFilter?: (values: OrderSearchQuery | Object) => void;
 	onShowColumnSetting?: () => void;
 	onClearFilter?: () => void;
+	setListSource?: (values: SourceResponse[]) => void;
+	setListOrderProcessingStatus?: (values: OrderProcessingStatusModel[]) => void;
 };
 
 type ListFilterTagTypes = {
@@ -86,6 +91,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		accounts,
 		shippers,
 		deliveryService,
+		initSubStatus,
 		subStatus,
 		listPaymentMethod,
 		isLoading,
@@ -93,7 +99,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		onMenuClick,
 		onClearFilter,
 		onFilter,
-		onShowColumnSetting
+		onShowColumnSetting,
+		setListSource,
+		setListOrderProcessingStatus,
 	} = props;
 	const [visible, setVisible] = useState(false);
 	const [rerender, setRerender] = useState(false);
@@ -864,6 +872,22 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		)
 	};
 
+	useEffect(() => {
+		if(initialValues.source_ids) {
+			const params = {
+				ids: initialValues.source_ids
+			}
+			getSourcesWithParamsService(params).then((response) => {
+				if(isFetchApiSuccessful(response)) {
+					setListSource && setListSource([...response.data.items]);
+				} else {
+					handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch)
+				}
+			})
+		}
+	}, [dispatch, initialValues.source_ids, setListSource])
+	
+
 	return (
 		<StyledComponent>
 			{!isHideTab && (
@@ -972,6 +996,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										optionFilterProp="children"
 										getPopupContainer={trigger => trigger.parentNode}
 										maxTagCount='responsive'
+										onSearch={(value) => {
+											if(value.length > 1) {
+												const params = {
+													name: value
+												}
+												getSourcesWithParamsService(params).then((response) => {
+													if(isFetchApiSuccessful(response)) {
+														setListSource && setListSource(response.data.items);
+													} else {
+														handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch)
+													}
+												})
+
+											}
+										}}
 									>
 										{listSources.map((item, index) => (
 											<CustomSelect.Option
@@ -1008,6 +1047,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										optionFilterProp="children"
 										getPopupContainer={trigger => trigger.parentNode}
 										maxTagCount='responsive'
+										onSearch={(value) => {
+											if(value.length > 0) {
+												let result =initSubStatus.filter(single => single.sub_status.toLowerCase().includes(value.toLowerCase()))
+												setListOrderProcessingStatus && setListOrderProcessingStatus(result);
+											} else {
+												setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus);
+											}
+										}}
+										onBlur={() => setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus)}
 									>
 										{subStatus?.map((item: any) => (
 											<CustomSelect.Option key={item.id} value={item.code.toString()}>
