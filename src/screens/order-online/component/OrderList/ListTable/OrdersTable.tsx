@@ -878,7 +878,8 @@ function OrdersTable(props: PropTypes) {
         width: 120,
       },
     ];
-  }, [data.items.length, deliveryServices, editNote, renderOrderPayments, status_order]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.items.length, deliveryServices, editNote, status_order]);
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 

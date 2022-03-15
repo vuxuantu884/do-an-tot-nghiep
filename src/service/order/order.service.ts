@@ -83,7 +83,7 @@ export const getReturnApi = (
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse[]>> => {
-  return BaseAxios.get(`${ApiConfig.CORE}/sources?limit=1000`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources?limit=50`);
 };
 
 export const getPaymentMethod = (): Promise<

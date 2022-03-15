@@ -98,6 +98,9 @@ function OrderList(props: PropTypes) {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+  const [initListOrderProcessingStatus, setInitListOrderProcessingStatus] = useState<
+    OrderProcessingStatusModel[]
+  >([]);
 
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
@@ -439,6 +442,7 @@ function OrderList(props: PropTypes) {
         {},
         (data: OrderProcessingStatusResponseModel) => {
           setListOrderProcessingStatus(data.items);
+          setInitListOrderProcessingStatus(data.items);
         }
       )
     );
@@ -524,9 +528,12 @@ function OrderList(props: PropTypes) {
             deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}
+            initSubStatus={initListOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
 						isHideTab= {isHideTab}
+						setListSource= {setListSource}
+						setListOrderProcessingStatus= {setListOrderProcessingStatus}
           />
           
 					{ deliveryServices.length > 0 ? (
