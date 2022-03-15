@@ -9,7 +9,7 @@ import {concatenateByExcelAction} from "domain/actions/ecommerce/ecommerce.actio
 import ProgressConcatenateByExcelModal from "./ProgressConcatenateByExcel"
 import {HttpStatus} from "config/http-status.config";
 import BaseResponse from "base/base.response";
-import {getProgressImportConcatenateByExcelApi} from "service/ecommerce/ecommerce.service";
+import {getEcommerceJobsApi} from "service/ecommerce/ecommerce.service";
 import { isNullOrUndefined } from "utils/AppUtils";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
@@ -113,7 +113,7 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
   }
 
   const getProgressImportFile = useCallback(() => {
-    let getImportProgressPromise: Promise<BaseResponse<any>> = getProgressImportConcatenateByExcelApi(processId);
+    let getImportProgressPromise: Promise<BaseResponse<any>> = getEcommerceJobsApi(processId);
 
     Promise.all([getImportProgressPromise]).then((responses) => {
       responses.forEach((response) => {
