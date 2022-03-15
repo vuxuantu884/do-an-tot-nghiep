@@ -26,8 +26,9 @@ const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
 
   useEffect(() => {
     if (progressData?.message) {
-    const errorList = progressData?.message.slice(1).split("\n");
-    setErrorData(errorList);
+    const errorList = progressData?.message.slice(0).split("\n");
+    const checkErrorList = errorList.filter((item: any) => item !== "")
+    setErrorData(checkErrorList);
     }
   }, [progressData?.message]);
 
