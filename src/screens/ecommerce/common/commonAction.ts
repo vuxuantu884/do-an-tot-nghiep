@@ -19,18 +19,21 @@ export const ECOMMERCE_LIST = [
     icon: shopeeIcon,
     key: "shopee",
     ecommerce_id: 1,
+    channel_id: 3
   },
   {
     title: "Sàn Lazada",
     icon: lazadaIcon,
     key: "lazada",
     ecommerce_id: 2,
+    channel_id: 15
   },
   {
     title: "Sàn Tiki",
     icon: tikiIcon,
     key: "tiki",
     ecommerce_id: 3,
+    channel_id: 16
   },
   {
     title: "Sàn Sendo",
@@ -38,6 +41,7 @@ export const ECOMMERCE_LIST = [
     key: "sendo",
     isActive: false,
     ecommerce_id: 4,
+    channel_id: 17
   },
 ];
 
@@ -49,4 +53,9 @@ export const getEcommerceIcon = (ecommerce_key: string) => {
 export const getIconByEcommerceId = (ecommerce_id: number) => {
   const ecommerce = ECOMMERCE_LIST.find(item => item.ecommerce_id === ecommerce_id);
   return ecommerce?.icon;
+};
+
+export const getEcommerceIdByChannelId = (channel_id: number) => {
+  const ecommerce = ECOMMERCE_LIST.find(item => item.channel_id.toString() === channel_id.toString());
+  return ecommerce?.ecommerce_id;
 };

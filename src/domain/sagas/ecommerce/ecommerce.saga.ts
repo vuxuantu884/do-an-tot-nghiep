@@ -1,5 +1,5 @@
 import { callApiSaga } from "utils/ApiUtils";
-import { showSuccess } from "./../../../utils/ToastUtils";
+import { showSuccess } from "../../../utils/ToastUtils";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -31,7 +31,7 @@ import {
   getOrderMappingListApi,
   exitProgressDownloadEcommerceApi,
   ecommerceSyncStockItemApi, getEcommerceStoreAddressApi, createEcommerceLogisticApi,
-  importConcatenateByExcelService
+  importConcatenateByExcelService, getEcommercePrintForm, exitEcommerceJobsApi
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -676,6 +676,34 @@ function* concatenateByExcel(action: YodyAction) {
   }
 }
 
+function* downloadPrintForm(action: YodyAction) {
+  const { request, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(getEcommercePrintForm, request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* exitEcommerceJobsSaga(action: YodyAction) {
+  const { query, callback } = action.payload;
+  yield callApiSaga({isShowLoading:true}, callback, exitEcommerceJobsApi, query);
+}
 
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
@@ -795,5 +823,17 @@ export function* ecommerceSaga() {
   yield takeLatest(
     EcommerceType.CONCANATE_BY_EXCEL,
     concatenateByExcel
+  );
+
+  // download print form
+  yield takeLatest(
+      EcommerceType.DOWNLOAD_PRINT_FORM,
+      downloadPrintForm
+  );
+
+  // exit download print form
+  yield takeLatest(
+      EcommerceType.EXIT_ECOMMERCE_JOBS,
+    exitEcommerceJobsSaga
   );
 }
