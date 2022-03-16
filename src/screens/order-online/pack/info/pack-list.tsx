@@ -20,24 +20,23 @@ interface ResultPaging {
   result: any;
 }
 
-interface OrderResponseTable extends OrderResponse{
-  key:number;
+interface OrderResponseTable extends OrderResponse {
+  key: number;
 }
 
 function PackList() {
-  
+
   const loading = useSelector((state: RootReducerType) => state.loadingReducer);
 
   const orderPackContextData = useContext(OrderPackContext);
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
+  const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
+  const orderData: OrderResponseTable[] | undefined = useMemo(() => {
+    let order = orderPackContextData?.packModel?.order;
+    let result = order?.map((p, index) => ({ ...p, key: index }));
 
-  const orderData: OrderResponseTable[] | undefined = useMemo(() =>
-    {
-      let order=orderPackContextData?.packModel?.order;
-      let result= order?.map((p,index)=>({...p,key:index}));
-
-      return result?.reverse()
-    },[orderPackContextData]);
+    return result?.reverse()
+  }, [orderPackContextData]);
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: 1,
@@ -52,7 +51,7 @@ function PackList() {
   });
 
   useEffect(() => {
-    if (!orderData || (orderData&&orderData.length<=0)) {
+    if (!orderData || (orderData && orderData.length <= 0)) {
       setResultPaging({
         currentPage: 1,
         lastPage: 1,
@@ -80,8 +79,6 @@ function PackList() {
         total: total,
         result: orderDataCopy
       }
-      // console.log("pagingParam", pagingParam)
-      // console.log("resultPaging", result)
 
       setResultPaging(result);
     }
@@ -142,20 +139,35 @@ function PackList() {
     },
   ];
 
-  const onSelectedChange = (selectedRow: OrderResponse[]) => {
-    let code: string[] = [];
+  const onSelectedChange = (selectedRow: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
+    //let code: string[] = [];
+    let isFulFillmentPackCopy = [...isFulFillmentPack];
+    // console.log("selected", selected, changeRow)
 
-    selectedRow.forEach((row: any) => {
-      if (row) code.push(row.order_code);
-    });
+    if(selected===true){
+      changeRow?.forEach((data, index) => {
+        let indexItem = isFulFillmentPack.findIndex((p) => p === data.order_code)
+        if (indexItem === -1) {
+          isFulFillmentPackCopy.push(data.order_code);
+        }
+      })
+    }
+    else{
+      isFulFillmentPack.forEach((data, index)=>{
+        let indexItem = changeRow?.findIndex((p) => p.order_code === data);
+        if (indexItem !== -1) {
+          let i=isFulFillmentPackCopy.findIndex((p) => p === data);
+          isFulFillmentPackCopy.splice(i,1);
+        }
+      })
+    }
 
-    setIsFulFillmentPack([...code]);
-    console.log("code", code);
+    setIsFulFillmentPack([...isFulFillmentPackCopy]);
+    // console.log("code", isFulFillmentPackCopy);
   };
 
-   console.log("pagingParam", pagingParam)
-   console.log("resultPaging",resultPaging)
-   console.log("orderData", orderData)
+  console.log("isFulFillmentPack",isFulFillmentPack)
+
   return (
     <Card
       title="Đơn đã đóng gói "
@@ -182,10 +194,11 @@ function PackList() {
               setPagingParam({ perPage: size || 10, currentPage: page })
             },
           }}
-          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+          onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+          selectedRowKey={isFulFillmentPack}
           dataSource={resultPaging.result}
           columns={columnsOrderPack}
-          rowKey={(item: any) => item.code}
+          rowKey={(item: any) => item.order_code}
           className="ecommerce-order-list"
         />
       </div>
