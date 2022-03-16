@@ -8,7 +8,7 @@ import CustomPagination from "./CustomPagination";
 export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   pagination?: false | ICustomTablePaginationConfig;
   onShowColumnSetting?: () => void;
-  onSelectedChange?: (selectedRows: any[]) => void;
+  onSelectedChange?: (selectedRows: any[], selected?:boolean,changeRow?: any[]) => void;
   isLoading?: boolean;
   showColumnSetting?: boolean;
   isRowSelection?: boolean;
@@ -70,13 +70,17 @@ const CustomTable = (props: ICustomTableProps) => {
   const configSettingColumns: ICustomTableColumType<any>[] = [];
   const onSelect = useCallback(
     (item: any, selected: boolean, selectedRow: any[]) => {
-      onSelectedChange && onSelectedChange(selectedRow);
+      onSelectedChange && onSelectedChange(selectedRow,selected,[{...item}]);
+      // console.log("changeRow",selectedRow,)
+      // console.log("selected",selected, item)
     },
     [onSelectedChange]
   );
   const onSelectAll = useCallback(
     (selected, selectedRow: any[], changeRow: any[]) => {
-      onSelectedChange && onSelectedChange(selectedRow);
+      onSelectedChange && onSelectedChange(selectedRow,selected,changeRow);
+      // console.log("changeRowAll",changeRow)
+      // console.log("selectedAll",selected)
     },
     [onSelectedChange]
   );
