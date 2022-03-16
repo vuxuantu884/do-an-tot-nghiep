@@ -1,6 +1,7 @@
 import { ModuleAuthorize } from "model/auth/module.model";
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
+import { PageResponse } from "../base/base-metadata.response";
 
 export interface AccountBaseModel {
   user_name: string;
@@ -22,6 +23,7 @@ export interface AccountBaseModel {
   store_ids: Array<number>
 }
 
+export interface MerchandiserSelectResponse extends PageResponse<Pick<AccountResponse, "code" | "full_name">> {}
 export interface AccountResponse extends AccountBaseModel, BaseObject {
   gender_name: string;
   country_name: string;
