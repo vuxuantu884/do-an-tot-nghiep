@@ -249,7 +249,15 @@ const EcommerceOrders: React.FC = () => {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, listExportFile]
+    [
+      params,
+      selectedRowCodes,
+      EXPORT_IDs.allOrders,
+      EXPORT_IDs.ordersOnThisPage,
+      EXPORT_IDs.selectedOrders,
+      EXPORT_IDs.ordersFound,
+      listExportFile,
+    ]
   );
 
   const checkExportFile = useCallback(() => {
@@ -260,9 +268,7 @@ const EcommerceOrders: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (exportProgress < 95) {
-            setExportProgress(exportProgress + 3);
-          }
+          setExportProgress(Math.round(response.data?.num_of_record / response.data?.total * 10000) / 100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -274,12 +280,19 @@ const EcommerceOrders: React.FC = () => {
             setListExportFile(newListExportFile);
             setShowExportModal(false);
             setExportProgress(0);
-            setStatusExport(1);
           }
+          if (response.data && response.data.status === "ERROR") {
+            setStatusExport(4);
+            setExportProgress(0);
+            setListExportFile([]);
+            showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          }
+        } else {
+          setStatusExport(4);
         }
       });
     });
-  }, [exportProgress, listExportFile]);
+  }, [listExportFile]);
 
 
   const status_order = [
@@ -825,7 +838,7 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(false);
     }
   }, [isVisibleProcessModal]);
-  
+
   const okPrintEcommerceDeliveryNote = () => {
     setIsVisibleProcessModal(false);
     // setIsPrintEcommerceDeliveryNote(false);
@@ -836,7 +849,7 @@ const EcommerceOrders: React.FC = () => {
       showError("Tải phiếu giao hàng sàn thất bại!");
     }
   };
-  
+
   const cancelPrintEcommerceDeliveryNote = () => {
     if (isProcessing) {
       setIsVisibleExitProcessModal(true);
@@ -846,7 +859,7 @@ const EcommerceOrders: React.FC = () => {
       resetCommonProcess();
     }
   };
-  
+
   const downloadEcommerceDeliveryNote = useCallback((data: any) => {
     if(data && data.process_id){
       setCommonProcessId(data.process_id);
@@ -855,7 +868,7 @@ const EcommerceOrders: React.FC = () => {
       setProcessMessage({
         success: "Tải dữ liệu phiếu giao hàng sàn thành công!",
       })
-      
+
       setExitProcessModal({
         exitProgressContent:
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -891,7 +904,7 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
   // handle print ecommerce delivery note
-  
+
   // handle print yody delivery note
   const printAction = useCallback(
     (printType: string) => {
@@ -1035,13 +1048,12 @@ const EcommerceOrders: React.FC = () => {
   // end
 
   useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3) return;
+    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listExportFile, statusExport]);
+  }, [checkExportFile, listExportFile, statusExport]);
 
 
   useEffect(() => {
