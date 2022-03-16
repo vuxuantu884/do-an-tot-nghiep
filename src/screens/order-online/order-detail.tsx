@@ -13,25 +13,17 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-	cancelOrderRequest,
-	orderConfigSaga,
-	confirmDraftOrderAction,
-	getListReasonRequest,
-	OrderDetailAction,
-	PaymentMethodGetList,
-	UpdatePaymentAction,
-  changeSelectedStoreBankAccountAction,
-  getStoreBankAccountNumbersAction,
-  changeShippingServiceConfigAction,
-  changeOrderCustomerAction,
-  changeStoreDetailAction,
+  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction,
+  getListReasonRequest, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
+  PaymentMethodGetList,
+  UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-	OrderPaymentRequest,
-	UpdateOrderPaymentRequest
+  OrderPaymentRequest,
+  UpdateOrderPaymentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -43,26 +35,31 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
+import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-	checkPaymentAll,
-	checkPaymentStatusToShow,
-	formatCurrency,
-	generateQuery,
-	getAmountPayment,
-	handleFetchApiError,
-	isFetchApiSuccessful,
-	sortFulfillments,
-	SumCOD
+  checkPaymentAll,
+  checkPaymentStatusToShow,
+  formatCurrency,
+  generateQuery,
+  getAmountPayment,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  sortFulfillments,
+  SumCOD
 } from "utils/AppUtils";
 import {
-	FulFillmentStatus,
-	OrderStatus,
-	PaymentMethodCode,
-	PaymentMethodOption,
-	ShipmentMethodOption
+  FulFillmentStatus,
+  OrderStatus,
+  PaymentMethodCode,
+  PaymentMethodOption,
+  ShipmentMethodOption
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { yellowColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
+import { getEcommerceStoreAddress } from "../../domain/actions/ecommerce/ecommerce.actions";
+import { EcommerceAddressQuery, EcommerceStoreAddress } from "../../model/ecommerce/ecommerce.model";
+import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import UpdateCustomerCard from "./component/update-customer-card";
@@ -72,11 +69,6 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
-import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
-import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
-import { yellowColor } from "utils/global-styles/variables";
-import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -496,10 +488,10 @@ const OrderDetail = (props: PropType) => {
     if(!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
-    const trackingCode =  OrderDetail?.fulfillments[0].shipment?.tracking_code;
-    const pushingStatus =  OrderDetail?.fulfillments[0].shipment?.pushing_status;
-    let isRequest = true;
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+    const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
+    const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
+    let isRequest = true;
     let getTrackingCode = setInterval(()=> {
       if (isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
         getOrderDetail(id).then(response => {

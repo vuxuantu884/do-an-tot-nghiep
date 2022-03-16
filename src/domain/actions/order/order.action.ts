@@ -15,16 +15,16 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
-  VTPFeeRequest,
+  VTPFeeRequest
 } from "model/request/order.request";
 import {
   createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
+  deleteDeliveryMappedStoreReQuestModel
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   ActionLogDetailResponse,
-  OrderActionLogResponse,
+  OrderActionLogResponse
 } from "model/response/order/action-log.response";
 import {
   ChannelsResponse,
@@ -38,7 +38,7 @@ import {
   ShippingGHTKResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
+  VTPFeeResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse } from "model/response/order/source.response";
