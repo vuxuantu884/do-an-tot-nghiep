@@ -190,7 +190,7 @@ function* deleteAllGoodsReceipSaga(action: YodyAction)
   }
   catch(e){
     console.log(e);
-    showError("Có lỗi xảy ra, Xóa nhiều biên bản bàn giao");
+    showError("Có lỗi xảy ra khi xoá nhiều biên bản bàn giao");
   }
   finally {
     yield put(hideLoading());
