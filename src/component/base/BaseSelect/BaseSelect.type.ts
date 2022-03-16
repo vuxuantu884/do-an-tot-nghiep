@@ -1,7 +1,10 @@
 import { ReactElement, ReactNode } from "react";
 import { SelectProps } from "antd";
-import {BaseMetadata, PageResponse} from "../../../model/base/base-metadata.response";
-import {AccountPublicSearchQuery, AccountResponse} from "../../../model/account/account.model";
+import { BaseMetadata } from "../../../model/base/base-metadata.response";
+import {
+  AccountPublicSearchQuery,
+  MerchandiserSelectResponse,
+} from "../../../model/account/account.model";
 
 export type BaseSelectType<T> = SelectProps<any> & {
   children?: ReactNode;
@@ -22,7 +25,7 @@ export type BaseSelectPaginationType = {
 };
 
 export type BaseSelectMerchandiserProps = SelectProps<any> & {
-  merchans: PageResponse<AccountResponse>;
+  merchans: MerchandiserSelectResponse;
   fetchMerchans: (query: AccountPublicSearchQuery) => void;
   isLoadingMerchans: boolean;
 };

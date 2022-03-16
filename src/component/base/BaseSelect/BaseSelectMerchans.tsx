@@ -16,7 +16,7 @@ const BaseSelectMerchans = ({
         metadata={merchans?.metadata}
         data={merchans?.items}
         renderItem={(item) => (
-          <Option key={item.id} value={item.code}>
+          <Option key={item.code} value={item.code}>
             {item.code} - {item.full_name}
           </Option>
         )}

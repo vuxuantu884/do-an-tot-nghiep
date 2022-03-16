@@ -76,6 +76,7 @@ const SupplierAddress = ({
                 {item.name}
               </Option>
             )}
+            showSearch
             placeholder={control.placeholder}
             onSelect={(value: number) =>
               control.name === FormFields.district_id && onSelectDistrict(name, value)

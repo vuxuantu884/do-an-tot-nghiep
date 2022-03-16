@@ -19,12 +19,24 @@ type POInfoFormProps = {
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail } = props;
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
+  const {fetchMerchans, merchans, isLoadingMerchans, setMerchans} = useFetchMerchans()
 
   useEffect(() => {
+    if(merchans.items.length) {
+      const findCurrentUser = merchans.items?.find(merchan => merchan.code === userReducer.account?.code);
+      //Check nếu tài khoản hiện tại không có trong danh sách merchandiser thì thêm vào
+      if(!findCurrentUser && userReducer) {
+        setMerchans({
+          ...merchans,
+          items: [
+            { code: userReducer.account?.code || "", full_name: userReducer.account?.full_name || ""},
+            ...merchans.items,
+          ]})
+      }
+    }
     props.formMain?.setFieldsValue({ [POField.merchandiser_code]: userReducer.account?.code })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [JSON.stringify(merchans)])
 
   if (isEdit && !isEditDetail) {
     return (
