@@ -498,22 +498,25 @@ const OrderDetail = (props: PropType) => {
     }
     const trackingCode =  OrderDetail?.fulfillments[0].shipment?.tracking_code;
     const pushingStatus =  OrderDetail?.fulfillments[0].shipment?.pushing_status;
-    // let getTrackingCode = setInterval(()=> {
-    //   if (!trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed") {
-    //     getOrderDetail(id).then(response => {
-    //       if(response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
-    //         onGetDetailSuccess(response.data);
-    //         clearInterval(getTrackingCode);
-    //         showSuccess("Lấy mã vận đơn thành công!")
-    //       }
-    //     })
-    //   } else {
-    //     clearInterval(getTrackingCode);
-    //   }
-    // }, 2000)
-    // return () => {
-    //   clearInterval(getTrackingCode)
-    // }
+    let isRequest = true;
+    const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+    let getTrackingCode = setInterval(()=> {
+      if (isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
+        getOrderDetail(id).then(response => {
+          if(response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
+            onGetDetailSuccess(response.data);
+            clearInterval(getTrackingCode);
+            isRequest = false;
+            showSuccess("Lấy mã vận đơn thành công!")
+          }
+        })
+      } else {
+        clearInterval(getTrackingCode);
+      }
+    }, 2000)
+    return () => {
+      clearInterval(getTrackingCode)
+    }
   }, [OrderDetail?.fulfillments, id, onGetDetailSuccess, stepsStatusValue])
 
 	useEffect(() => {

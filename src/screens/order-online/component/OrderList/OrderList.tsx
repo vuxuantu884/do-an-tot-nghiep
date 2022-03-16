@@ -98,6 +98,9 @@ function OrderList(props: PropTypes) {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+  const [initListOrderProcessingStatus, setInitListOrderProcessingStatus] = useState<
+    OrderProcessingStatusModel[]
+  >([]);
 
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
@@ -250,11 +253,9 @@ function OrderList(props: PropTypes) {
           window.open(printPreviewUrl);
           break;
         case ACTION_ID.printStockExport:
-          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-         
           {
             dispatch(showLoading());
-            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/ print-preview?${queryParam}`;
+            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
             let ids: number[] = [];
             selectedRow.forEach((row) =>
               row.fulfillments?.forEach((single) => {
@@ -262,7 +263,7 @@ function OrderList(props: PropTypes) {
               })
             );
             window.open(printPreviewUrlExport);
-            changeMultiOrderStatus(ids, "packed").then(response => {
+            changeMultiOrderStatus(ids, "shipping").then(response => {
               if(isFetchApiSuccessful(response)) {
               } else {
                 handleFetchApiError(response, "Chuyển trạng thái nhiều đơn hàng", dispatch)
@@ -441,6 +442,7 @@ function OrderList(props: PropTypes) {
         {},
         (data: OrderProcessingStatusResponseModel) => {
           setListOrderProcessingStatus(data.items);
+          setInitListOrderProcessingStatus(data.items);
         }
       )
     );
@@ -526,9 +528,12 @@ function OrderList(props: PropTypes) {
             deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}
+            initSubStatus={initListOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
 						isHideTab= {isHideTab}
+						setListSource= {setListSource}
+						setListOrderProcessingStatus= {setListOrderProcessingStatus}
           />
           
 					{ deliveryServices.length > 0 ? (
