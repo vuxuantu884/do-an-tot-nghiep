@@ -129,6 +129,7 @@ export interface OrderLineItemResponse {
   position?: number;
   gifts: Array<OrderLineItemResponse>;
   available:number|null;
+  order_line_item_id?:number|null;
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {
