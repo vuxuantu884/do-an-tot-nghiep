@@ -217,6 +217,13 @@ function OrderList(props: PropTypes) {
 		history.push(`${location.pathname}?${queryParam}`);
   }, [history, initQuery, location.pathname]);
 
+  const onFilterPhoneCustomer= useCallback((phone:string) => {
+    let paramCopy= {...params, search_term:phone};
+    setPrams(paramCopy);
+    let queryParam = generateQuery(paramCopy);
+		history.push(`${location.pathname}?${queryParam}`);
+  }, [history, location.pathname,params]);
+
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
@@ -547,6 +554,7 @@ function OrderList(props: PropTypes) {
 							onSelectedChange={onSelectedChange}
 							setShowSettingColumn={setShowSettingColumn}
 							deliveryServices={deliveryServices}
+              onFilterPhoneCustomer={onFilterPhoneCustomer}
 						/>
 						) : "Đang tải dữ liệu..."
           }

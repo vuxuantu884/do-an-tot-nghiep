@@ -1,4 +1,4 @@
-import { Col, Row, Tooltip } from "antd";
+import { Button, Col, Row, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { updateOrderPartial } from "domain/actions/order/order.action";
@@ -52,6 +52,7 @@ type PropTypes = {
   onPageChange: (page: any, size: any) => void;
   onSelectedChange: (selectedRow: any) => void;
   setShowSettingColumn: (value: boolean) => void;
+  onFilterPhoneCustomer:(value:string)=>void;
 };
 
 function OrdersTable(props: PropTypes) {
@@ -65,6 +66,7 @@ function OrdersTable(props: PropTypes) {
     setShowSettingColumn,
     setColumns,
     setData,
+    onFilterPhoneCustomer
   } = props;
 
   const dispatch = useDispatch();
@@ -302,7 +304,12 @@ function OrdersTable(props: PropTypes) {
 						<div className="p-b-3">{record.shipping_address.full_address}</div> */}
             {record.customer_phone_number && (
               <div className="p-b-3">
-                <a href={`tel:${record.customer_phone_number}`}>{record.customer_phone_number}</a>
+                 <Button style={{padding: "0px"}} type="link" onClick={()=> onFilterPhoneCustomer(record.customer_phone_number?record.customer_phone_number:"")}>
+                   {record.customer_phone_number}
+                  </Button>
+                {/* <Button  type="link" onClick={()=>{
+                  onFilterPhoneCustomer(record.customer_phone_number)
+                }}>{record.customer_phone_number}</Button> */}
               </div>
             )}
             <div className="p-b-3">{renderShippingAddress(record)}</div>
