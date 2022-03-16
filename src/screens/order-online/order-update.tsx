@@ -155,6 +155,7 @@ export default function Order(props: PropTypes) {
 	const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
 		Array<LoyaltyUsageResponse>
 	>([]);
+	const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
 	const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(null);
 	const [listPaymentMethod, setListPaymentMethod] = useState<
 		Array<PaymentMethodResponse>
@@ -1077,13 +1078,17 @@ ShippingServiceConfigDetailResponseModel[]
 
 	useEffect(() => {
 		if (customer) {
-			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+			dispatch(getLoyaltyPoint(customer.id, (data) => {
+				setLoyaltyPoint(data);
+				setCountFinishingUpdateCustomer(prev => prev + 1);
+			}));
 			let shippingAddressItem = customer.shipping_addresses.find(
 				(p: any) => p.default === true
 			);
 			if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
 		} else {
 			setLoyaltyPoint(null);
+			setCountFinishingUpdateCustomer(prev => prev + 1);
 			onChangeShippingAddress(null);
 		}
 	}, [dispatch, customer]);
@@ -1369,6 +1374,7 @@ ShippingServiceConfigDetailResponseModel[]
 										orderConfig={orderConfig}
 										loyaltyPoint={loyaltyPoint}
 										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+										countFinishingUpdateCustomer={countFinishingUpdateCustomer}
 									/>
 
 									{OrderDetail !== null &&
