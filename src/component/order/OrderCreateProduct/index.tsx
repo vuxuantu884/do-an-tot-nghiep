@@ -1356,13 +1356,19 @@ function OrderCreateProduct(props: PropType) {
 						}
 						calculateChangeMoney(items, promotionResult)
 					} else {
+						let itemsAfterRemove = items.map(single => {
+							removeDiscountItem(single)
+							return single
+						})
+						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
+						calculateChangeMoney(items, promotionResult)
 						form.setFieldsValue({
 							note: ``
 						})
-						calculateChangeMoney(items)
 					}
 					showSuccess("Cập nhật chiết khấu tự động thành công!");
 				} else {
+					
 					form.setFieldsValue({
 						note: ""
 					})
