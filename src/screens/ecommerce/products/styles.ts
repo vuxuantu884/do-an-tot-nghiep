@@ -65,10 +65,6 @@ export const StyledProductFilter = styled.div`
     }
   }
 
-  .filter-item {
-    margin-right: 10px;
-  }
-
   .select-channel-dropdown {
     margin-right: 10px;
     min-width: 150px;
@@ -76,19 +72,19 @@ export const StyledProductFilter = styled.div`
 
   .select-store-dropdown {
     margin-right: 10px;
-    min-width: 200px;
+    min-width: 180px;
     width: 300px;
   }
 
-  .shoppe-search {
+  .search-ecommerce-product {
     margin-right: 10px;
-    min-width: 230px;
+    min-width: 180px;
     flex-grow: 1;
   }
 
-  .yody-search {
+  .search-yody-product {
     margin-right: 10px;
-    min-width: 200px;
+    min-width: 180px;
     flex-grow: 1;
   }
 
@@ -104,9 +100,9 @@ export const StyledProductFilter = styled.div`
     }
     .select-store-dropdown {
       margin-right: 15px;
-      width: 450px;
+      width: 38%;
     }
-    .shoppe-search {
+    .search-ecommerce-product {
       margin-right: 15px;
     }
   }

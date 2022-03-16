@@ -37,6 +37,7 @@ import {
   getProductEcommerceList,
   getShopEcommerceList,
   postSyncStockEcommerceProduct,
+  exitEcommerceJobsAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -63,12 +64,14 @@ import ConnectedItemActionColumn from "screens/ecommerce/products/tab/connected-
 import { StyledComponent } from "screens/ecommerce/products/tab/connected-items/styles";
 import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
 import { exportFileProduct, getFileProduct } from "service/other/export.service";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {fullTextSearch} from "utils/StringUtils";
 import SyncProductModal from "./SyncProductModal";
 import { EcommerceProductTabUrl } from "config/url.config";
+
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [
@@ -81,6 +84,11 @@ const productsDisconnectPermission = [
 type ConnectedItemsProps = {
   handleSyncStockJob: (x: number) => void;
   isReloadPage: boolean;
+}
+
+const EXPORT_PRODUCT_OPTION = {
+  SELECTED: "selected",
+  FILTERED: "filtered",
 }
 
 const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
@@ -118,13 +126,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
   //export file excel
   const [isShowExportExcelModal, setIsShowExportExcelModal] = useState(false);
-  const [isShowBtnExportProduct, setShowBtnExportProduct] = useState(true)
-  const [isTypeExportProduct, setTypeExportProduct] = useState(false)
-  const [exportProgress, setExportProgress] = useState<number>(0);
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
-  const [exportProcessId, setExportProcessId] = useState<any>(null);
+  const [exportProcessPercent, setExportProcessPercent] = useState<number>(0);
 
-  
+  const [exportProductType, setExportProductType] = useState<string>("");
+  const [exportProcessId, setExportProcessId] = useState<any>(null);
 
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
@@ -340,6 +346,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   };
 
   //handle export file
+  const resetExportProductProcess = () => {
+    setExportProcessId(null);
+    setExportProcessPercent(0);
+  }
+
   const handleExportExcelProduct = () => {
     const itemSelected: any[] = [];
     if (selectedRow && selectedRow.length > 0) {
@@ -353,11 +364,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   }
 
   const cancelExportExcelProductModal = () => {
-    setIsShowExportExcelModal(false)
+    setIsShowExportExcelModal(false);
+    setExportProductType("");
   }
 
   const onCancelProgressModal = () => {
-    setIsVisibleProgressModal(false);
+    setIsVisibleExitProcessModal(true);
   }
 
   const okExportExcelProduct = () => {
@@ -365,7 +377,19 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       ...query,
       category_id: null,
       core_variant_id: null,
-      variant_ids: isTypeExportProduct ? idsItemSelected : [],
+      variant_ids: exportProductType === EXPORT_PRODUCT_OPTION.SELECTED ? idsItemSelected : [],
+    }
+
+    if (exportProductType === EXPORT_PRODUCT_OPTION.FILTERED) {
+      const queryParam = {...query};
+      delete queryParam.page;
+      delete queryParam.limit;
+      const generateQueryParam = generateQuery(queryParam);
+      if (!generateQueryParam) {
+        showError("Chưa áp dụng bộ lọc sản phẩm. Vui lòng kiểm tra lại.");
+        cancelExportExcelProductModal();
+        return;
+      }
     }
 
     exportFileProduct(RequestExportExcel)
@@ -373,14 +397,14 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         if (response.code === HttpStatus.SUCCESS) {
           setExportProcessId(response.data.process_id)
           setIsVisibleProgressModal(true);
-          setIsShowExportExcelModal(false)
+          cancelExportExcelProductModal();
         }
       })
       .catch(() => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
 
-      setExportProgress(0)
+    setExportProcessPercent(0);
   }
 
   const checkExportFile = useCallback(() => {
@@ -388,48 +412,71 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (
-          response.code === HttpStatus.SUCCESS &&
-          response.data &&
-          response.data.total !== null
-        ) {
-          if (!!response.data.url) {
-            setExportProgress(100);
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.finish) {
+            if (response.data.api_error) {
+              setExportProcessPercent(0);
+              showError(`${response.data.api_error}`);
+            } else {
+              if (response.data.url) {
+                setExportProcessPercent(100);
+                showSuccess("Xuất file dữ liệu sản phẩm thành công!");
+                window.open(response.data.url);
+              }
+            }
+            setExportProcessId(null);
             setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu sản phẩm thành công!");
-            window.open(response.data.url);
-            setExportProcessId(null)
           } else {
-            if (response.data.total !== 0) {
+            if (response.data.total > 0) {
               const percent = Math.floor(response.data.total_success / response.data.total * 100);
-              setExportProgress(percent);
+              setExportProcessPercent(percent >= 100 ? 99 : percent);
             }
           }
         }
       });
+    })
+    .catch(() => {
+      showError("Có lỗi xảy ra, vui lòng thử lại sau");
     });
   }, [exportProcessId]);
 
   useEffect(() => {
-    if (exportProgress === 100 || exportProcessId === null) return;
+    if (exportProcessPercent === 100 || !exportProcessId) return;
 
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
-  }, [checkExportFile, exportProcessId, exportProgress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkExportFile, exportProcessId]);
 
-  const handleCheckedExportProductSelected = () => {
-    setShowBtnExportProduct(false)
-    setTypeExportProduct(true)
-  }
-
-  const handleCheckedExportAllProductFilter = () => {
-    setShowBtnExportProduct(false)
-    setTypeExportProduct(false)
-  }
-
+  const onChangeExportProductOption = (e: any) => {
+    setExportProductType(e.target.value);
+  };
   //end handle export file
+
+  // handle exit export product
+  const [isVisibleExitProcessModal, setIsVisibleExitProcessModal] = useState<boolean>(false);
+
+  const onCancelExitProcessModal = () => {
+    setIsVisibleExitProcessModal(false);
+  }
+
+  const onOkExitProcessModal = () => {
+    resetExportProductProcess();
+    setIsVisibleExitProcessModal(false);
+    setIsVisibleProgressModal(false);
+    if (exportProcessId) {
+      dispatch(
+        exitEcommerceJobsAction(exportProcessId, (responseData) => {
+          if (responseData) {
+            showSuccess(responseData);
+          }
+        })
+      );
+    }
+  };
+  // end handle exit process modal
 
   const convertDateTimeFormat = (dateTimeData: any) => {
     const formatDateTime = "DD/MM/YYYY HH:mm:ss";
@@ -488,7 +535,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       },
     },
     {
-      title: "Sản phẩm (Yody)",
+      title: "Sản phẩm (Unicorn)",
       visible: true,
       render: (item: any) => {
         return (
@@ -607,6 +654,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };
+    setQuery(querySearch);
     getProductUpdated(querySearch);
   };
 
@@ -733,7 +781,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         </Menu.Item>
       )}
 
-      <Menu.Item key="1" onClick={handleExportExcelProduct}>
+      <Menu.Item
+        key="export"
+        onClick={handleExportExcelProduct}
+        disabled={!variantData.metadata || !variantData.metadata.total}
+      >
         <span>
           Xuất excel
         </span>
@@ -914,7 +966,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 }
               </Form.Item>
 
-              <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
+              <Form.Item name="sku_or_name_ecommerce" className="search-ecommerce-product">
                 <Input
                   disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
@@ -922,7 +974,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 />
               </Form.Item>
 
-              <Form.Item name="sku_or_name_core" className="yody-search">
+              <Form.Item name="sku_or_name_core" className="search-yody-product">
                 <Input
                   disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
@@ -930,7 +982,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 />
               </Form.Item>
 
-              <Form.Item className="filter-item">
+              <Form.Item style={{ marginRight: 10 }}>
                 <Button type="primary" htmlType="submit" disabled={isLoading}>
                   Lọc
                 </Button>
@@ -953,7 +1005,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           onSelectedChange={onSelectTableRow}
           columns={columns}
           dataSource={variantData.items}
-          scroll={{ x: 1500 }}
+          scroll={{ x: 1400 }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
@@ -1065,7 +1117,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                       ? moment(new Date(connectionEndDate), "DD-MM-YYYY")
                       : null,
                   ]}
-                  onChange={(date, dateString) =>
+                  onChange={(date) =>
                     onChangeRangeDate(date)
                   }
                 />
@@ -1111,63 +1163,79 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         onOk={(item, shop_ids) => okSyncStockModal(item, shop_ids)}
       />
 
+      {/*Export product modal*/}
       <Modal
-          width="600px"
-          visible={isShowExportExcelModal}
-          title="Xuất excel sản phẩm"
-          okText="Tải về"
-          cancelText="Hủy"
-          onCancel={cancelExportExcelProductModal}
-          onOk={okExportExcelProduct}
-          okButtonProps={{
-            disabled: isShowBtnExportProduct
-          }}>
-          <Radio.Group>
-            <Space direction="vertical">
+        width="600px"
+        visible={isShowExportExcelModal}
+        title="Xuất excel sản phẩm"
+        okText="Tải về"
+        cancelText="Hủy"
+        onCancel={cancelExportExcelProductModal}
+        onOk={okExportExcelProduct}
+        okButtonProps={{ disabled: !exportProductType }}
+      >
+        <Radio.Group onChange={onChangeExportProductOption} value={exportProductType}>
+          <Space direction="vertical">
             <Radio
-                value="1"
-                disabled={selectedRow.length <= 0}
-                onClick={handleCheckedExportProductSelected}
-              >
-                Tải sản phẩm đã chọn
-              </Radio>
-              <Radio
-                value="2"
-                onClick={handleCheckedExportAllProductFilter}
-              >
-                Tải toàn bộ sản phẩm(toàn bộ sản phẩm trong các trang được lọc)
-              </Radio>
+              value={EXPORT_PRODUCT_OPTION.SELECTED}
+              disabled={selectedRow.length <= 0}
+            >
+              Tải sản phẩm đã chọn
+            </Radio>
+            <Radio value={EXPORT_PRODUCT_OPTION.FILTERED}>
+              Tải toàn bộ sản phẩm(toàn bộ sản phẩm trong các trang được lọc)
+            </Radio>
+          </Space>
+        </Radio.Group>
+      </Modal>
 
-            </Space>
-          </Radio.Group>
-        </Modal>
-
-        {/* Progress export customer data */}
-        <Modal
-          onCancel={onCancelProgressModal}
-          visible={isVisibleProgressModal}
-          title="Xuất file"
-          centered
-          width={600}
-          footer={[
-            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-              Thoát
-            </Button>,
-          ]}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 15 }}>
-              Đang tạo file, vui lòng đợi trong giây lát
-            </div>
-            <Progress
-              type="circle"
-              strokeColor={{
-                "0%": "#108ee9",
-                "100%": "#87d068",
-              }}
-              percent={exportProgress}
-            />
+      {/*Process export product modal*/}
+      <Modal
+        onCancel={onCancelProgressModal}
+        visible={isVisibleProgressModal}
+        title="Xuất file"
+        centered
+        width={600}
+        footer={[
+          <Button key="cancel" danger onClick={onCancelProgressModal}>
+            Thoát
+          </Button>,
+        ]}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ marginBottom: 15 }}>
+            Đang tạo file, vui lòng đợi trong giây lát
           </div>
-        </Modal>
+          <Progress
+            type="circle"
+            strokeColor={{
+              "0%": "#108ee9",
+              "100%": "#87d068",
+            }}
+            percent={exportProcessPercent}
+          />
+        </div>
+      </Modal>
+
+      {/*Exit export product process modal*/}
+      <Modal
+        width="600px"
+        centered
+        visible={isVisibleExitProcessModal}
+        title=""
+        okText="Xác nhận"
+        cancelText="Hủy"
+        onCancel={onCancelExitProcessModal}
+        onOk={onOkExitProcessModal}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <img src={DeleteIcon} alt="" />
+          <div style={{ marginLeft: 15 }}>
+            <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải sản phẩm không?</strong>
+            <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.</div>
+          </div>
+        </div>
+      </Modal>
+
     </StyledComponent>
   );
 };

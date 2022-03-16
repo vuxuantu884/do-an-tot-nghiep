@@ -24,7 +24,7 @@ import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import {fullTextSearch} from "utils/StringUtils";
 import UrlConfig from "config/url.config";
 import TotalItemActionColumn from "screens/ecommerce/products/tab/total-items-ecommerce/TotalItemActionColumn";
@@ -38,6 +38,7 @@ import {
   disconnectEcommerceItem,
   postSyncStockEcommerceProduct,
   getProductEcommerceList,
+  exitEcommerceJobsAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -64,10 +65,17 @@ import {
 import { HttpStatus } from "config/http-status.config";
 import BaseResponse from "base/base.response";
 
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+
 const STATUS = {
   WAITING: "waiting",
   CONNECTED: "connected",
 };
+
+const EXPORT_PRODUCT_OPTION = {
+  SELECTED: "selected",
+  FILTERED: "filtered",
+}
 
 type TotalItemsEcommercePropsType = {
   isReloadPage: boolean;
@@ -104,14 +112,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
 
   // export product
-  const [isShowBtnExportProduct, setShowBtnExportProduct] = useState(true)
-  const [isTypeExportProduct, setTypeExportProduct] = useState(false)
-
+  const [exportProductType, setExportProductType] = useState<string>("");
   const [exportProcessId, setExportProcessId] = useState<any>(null);
 
   // process export modal
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
-  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [exportProcessPercent, setExportProcessPercent] = useState<number>(0);
 
   const [ecommerceIdSelected, setEcommerceIdSelected] = useState(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -307,7 +313,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       },
     },
     {
-      title: "Sản phẩm (Yody)",
+      title: "Sản phẩm (Unicorn)",
       visible: true,
       render: (item: any) => {
         return (
@@ -446,6 +452,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };
+    setQuery(querySearch);
     getProductUpdated(querySearch);
   };
 
@@ -625,8 +632,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   }, []);
 
 
-
-  //handle export file
+  // handle export product
+  const resetExportProductProcess = () => {
+    setExportProcessId(null);
+    setExportProcessPercent(0);
+  }
 
   const handleExportExcelProduct = () => {
     const itemSelected: any[] = [];
@@ -641,11 +651,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   }
 
   const cancelExportExcelProductModal = () => {
-    setIsShowExportExcelModal(false)
+    setIsShowExportExcelModal(false);
+    setExportProductType("");
   }
 
   const onCancelProgressModal = () => {
-    setIsVisibleProgressModal(false);
+    setIsVisibleExitProcessModal(true);
   }
 
   const okExportExcelProduct = () => {
@@ -653,7 +664,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       ...query,
       category_id: null,
       core_variant_id: null,
-      variant_ids: isTypeExportProduct ? idsItemSelected : [],
+      variant_ids: exportProductType === EXPORT_PRODUCT_OPTION.SELECTED ? idsItemSelected : [],
+    }
+
+    if (exportProductType === EXPORT_PRODUCT_OPTION.FILTERED) {
+      const queryParam = {...query};
+      delete queryParam.page;
+      delete queryParam.limit;
+      const generateQueryParam = generateQuery(queryParam);
+      if (!generateQueryParam) {
+        showError("Chưa áp dụng bộ lọc sản phẩm. Vui lòng kiểm tra lại.");
+        cancelExportExcelProductModal();
+        return;
+      }
     }
 
     exportFileProduct(RequestExportExcel)
@@ -661,14 +684,14 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
         if (response.code === HttpStatus.SUCCESS) {
           setExportProcessId(response.data.process_id)
           setIsVisibleProgressModal(true);
-          setIsShowExportExcelModal(false)
+          cancelExportExcelProductModal();
         }
       })
       .catch(() => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
 
-      setExportProgress(0)
+    setExportProcessPercent(0);
   }
 
   const checkExportFile = useCallback(() => {
@@ -676,52 +699,79 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (
-          response.code === HttpStatus.SUCCESS &&
-          response.data &&
-          response.data.total !== null
-        ) {
-          if (!!response.data.url) {
-            setExportProgress(100);
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.finish) {
+            if (response.data.api_error) {
+              setExportProcessPercent(0);
+              showError(`${response.data.api_error}`);
+            } else {
+              if (response.data.url) {
+                setExportProcessPercent(100);
+                showSuccess("Xuất file dữ liệu sản phẩm thành công!");
+                window.open(response.data.url);
+              }
+            }
+            setExportProcessId(null);
             setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu sản phẩm thành công!");
-            window.open(response.data.url);
-            setExportProcessId(null)
           } else {
-            if (response.data.total !== 0) {
+            if (response.data.total > 0) {
               const percent = Math.floor(response.data.total_success / response.data.total * 100);
-              setExportProgress(percent);
+              setExportProcessPercent(percent >= 100 ? 99 : percent);
             }
           }
         }
       });
+    })
+    .catch(() => {
+      showError("Có lỗi xảy ra, vui lòng thử lại sau");
     });
   }, [exportProcessId]);
 
   useEffect(() => {
-    if (exportProgress === 100 || exportProcessId === null) return;
+    if (exportProcessPercent === 100 || !exportProcessId) return;
 
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
-  }, [checkExportFile, exportProcessId, exportProgress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkExportFile, exportProcessId]);
 
-  const handleCheckedExportProductSelected = () => {
-    setShowBtnExportProduct(false)
-    setTypeExportProduct(true)
-  }
-
-  const handleCheckedExportAllProductFilter = () => {
-    setShowBtnExportProduct(false)
-    setTypeExportProduct(false)
-  }
-
+  const onChangeExportProductOption = (e: any) => {
+    setExportProductType(e.target.value);
+  };
   // end handle export file
+
+  // handle exit export product
+  const [isVisibleExitProcessModal, setIsVisibleExitProcessModal] = useState<boolean>(false);
+
+  const onCancelExitProcessModal = () => {
+    setIsVisibleExitProcessModal(false);
+  }
+
+  const onOkExitProcessModal = () => {
+    resetExportProductProcess();
+    setIsVisibleExitProcessModal(false);
+    setIsVisibleProgressModal(false);
+    if (exportProcessId) {
+      dispatch(
+        exitEcommerceJobsAction(exportProcessId, (responseData) => {
+          if (responseData) {
+            showSuccess(responseData);
+          }
+        })
+      );
+    }
+  };
+  // end handle exit process modal
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1" onClick={handleExportExcelProduct}>
+      <Menu.Item
+        key="export"
+        onClick={handleExportExcelProduct}
+        disabled={!variantData.metadata || !variantData.metadata.total}
+      >
         <span>
           Xuất excel
         </span>
@@ -824,7 +874,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
                 }
               </Form.Item>
 
-              <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
+              <Form.Item name="sku_or_name_ecommerce" className="search-ecommerce-product">
                 <Input
                   disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
@@ -832,7 +882,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
                 />
               </Form.Item>
 
-              <Form.Item name="sku_or_name_core" className="yody-search">
+              <Form.Item name="sku_or_name_core" className="search-yody-product">
                 <Input
                   disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
@@ -840,13 +890,13 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
                 />
               </Form.Item>
 
-              <Form.Item className="filter-item">
+              <Form.Item style={{ marginRight: 10 }}>
                 <Button type="primary" htmlType="submit" disabled={isLoading}>
                   Lọc
                 </Button>
               </Form.Item>
 
-              <Form.Item className="filter-item">
+              <Form.Item>
                 <Button onClick={openFilter} disabled={isLoading}>
                   <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                   <span>Thêm bộ lọc</span>
@@ -1019,63 +1069,80 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
         </div>
       </Modal>
-        <Modal
-          width="600px"
-          visible={isShowExportExcelModal}
-          title="Xuất excel sản phẩm"
-          okText="Tải về"
-          cancelText="Hủy"
-          onCancel={cancelExportExcelProductModal}
-          onOk={okExportExcelProduct}
-          okButtonProps={{
-            disabled: isShowBtnExportProduct
-          }}>
-          <Radio.Group>
-            <Space direction="vertical">
+
+      {/*Export product modal*/}
+      <Modal
+        width="600px"
+        visible={isShowExportExcelModal}
+        title="Xuất excel sản phẩm"
+        okText="Tải về"
+        cancelText="Hủy"
+        onCancel={cancelExportExcelProductModal}
+        onOk={okExportExcelProduct}
+        okButtonProps={{ disabled: !exportProductType }}
+      >
+        <Radio.Group onChange={onChangeExportProductOption} value={exportProductType}>
+          <Space direction="vertical">
             <Radio
-                value="1"
-                disabled={selectedRow.length <= 0}
-                onClick={handleCheckedExportProductSelected}
-              >
-                Tải sản phẩm đã chọn
-              </Radio>
-              <Radio
-                value="2"
-                onClick={handleCheckedExportAllProductFilter}
-              >
-                Tải toàn bộ sản phẩm(toàn bộ sản phẩm trong các trang được lọc)
-              </Radio>
+              value={EXPORT_PRODUCT_OPTION.SELECTED}
+              disabled={selectedRow.length <= 0}
+            >
+              Tải sản phẩm đã chọn
+            </Radio>
+            <Radio value={EXPORT_PRODUCT_OPTION.FILTERED}>
+              Tải toàn bộ sản phẩm(toàn bộ sản phẩm trong các trang được lọc)
+            </Radio>
+          </Space>
+        </Radio.Group>
+      </Modal>
 
-            </Space>
-          </Radio.Group>
-        </Modal>
-
-        {/* Progress export customer data */}
-        <Modal
-          onCancel={onCancelProgressModal}
-          visible={isVisibleProgressModal}
-          title="Xuất file"
-          centered
-          width={600}
-          footer={[
-            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-              Thoát
-            </Button>,
-          ]}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 15 }}>
-              Đang tạo file, vui lòng đợi trong giây lát
-            </div>
-            <Progress
-              type="circle"
-              strokeColor={{
-                "0%": "#108ee9",
-                "100%": "#87d068",
-              }}
-              percent={exportProgress}
-            />
+      {/*Process export product modal*/}
+      <Modal
+        onCancel={onCancelProgressModal}
+        visible={isVisibleProgressModal}
+        title="Xuất file"
+        centered
+        width={600}
+        footer={[
+          <Button key="cancel" danger onClick={onCancelProgressModal}>
+            Thoát
+          </Button>,
+        ]}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ marginBottom: 15 }}>
+            Đang tạo file, vui lòng đợi trong giây lát
           </div>
-        </Modal>
+          <Progress
+            type="circle"
+            strokeColor={{
+              "0%": "#108ee9",
+              "100%": "#87d068",
+            }}
+            percent={exportProcessPercent}
+          />
+        </div>
+      </Modal>
+
+      {/*Exit export product process modal*/}
+      <Modal
+        width="600px"
+        centered
+        visible={isVisibleExitProcessModal}
+        title=""
+        okText="Xác nhận"
+        cancelText="Hủy"
+        onCancel={onCancelExitProcessModal}
+        onOk={onOkExitProcessModal}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <img src={DeleteIcon} alt="" />
+          <div style={{ marginLeft: 15 }}>
+            <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải sản phẩm không?</strong>
+            <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.</div>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   </StyledComponent>
   );
