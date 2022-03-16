@@ -189,6 +189,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
+  const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   //Store
@@ -1184,6 +1185,7 @@ ShippingServiceConfigDetailResponseModel[]
                     setPromotion={setPromotion}
                     customer={customer}
                     loyaltyPoint={loyaltyPoint}
+                    countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
                   />
                 )}
                 {!isExchange && (
@@ -1354,7 +1356,10 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
     if (customer) {
-      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+      dispatch(getLoyaltyPoint(customer.id, (data) => {
+				setLoyaltyPoint(data);
+				setCountFinishingUpdateCustomer(prev => prev + 1);
+			}));
       if (customer.shipping_addresses) {
         let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
         let shipping_addresses=shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null
@@ -1370,6 +1375,7 @@ ShippingServiceConfigDetailResponseModel[]
         onChangeBillingAddress(null)
     } else {
       setLoyaltyPoint(null);
+      setCountFinishingUpdateCustomer(prev => prev + 1);
     }
   }, [dispatch, customer]);
 
