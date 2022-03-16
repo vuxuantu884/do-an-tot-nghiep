@@ -66,6 +66,7 @@ const AddReportHandOver: React.FC = () => {
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
   const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
+  const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
 
   const orderPackSuccess: OrderResponse[] = useMemo(() => {
     return !packModel ? [] : !packModel?.order ? [] : packModel.order;
@@ -204,13 +205,13 @@ const AddReportHandOver: React.FC = () => {
 
             setPackModel(packData);
             setPackInfo(packData);
-
+            setIsFulFillmentPack([]);
             showSuccess("Thêm đơn hàng vào biên bản bàn giao thành công");
           }
         }
       )
     );
-  }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel]);
+  }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel,setIsFulFillmentPack]);
 
   useEffect(() => {
     const toDate = new Date();

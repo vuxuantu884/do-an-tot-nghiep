@@ -21,14 +21,13 @@ function BaseSelectPaging<T>({ metadata, fetchData, ...props }: BaseSelectPaging
     <BaseSelect
       optionFilterProp="children"
       showSearch
-      mode={"multiple"}
       onSearch={debounce(onSearchValue, AppConfig.TYPING_TIME_REQUEST)}
       filterOption={false}
       {...props}
       dropdownRender={(menu) => (
         <BaseSelectPagination
           page={metadata?.page}
-          totalPage={metadata.total}
+          totalPage={totalPage}
           onChange={onChange}
           menu={menu}
         />
