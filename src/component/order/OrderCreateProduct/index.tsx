@@ -2041,7 +2041,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customer?.id, storeId, orderSourceId]);
+	}, [loyaltyPoint, storeId, orderSourceId]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2062,7 +2062,7 @@ function OrderCreateProduct(props: PropType) {
 			isShouldUpdateDiscountRef.current = true;
 		}, 1000);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customer?.id, storeId, orderSourceId]);
+	}, [loyaltyPoint, storeId, orderSourceId]);
 
 	useEffect(() => {
 		if (items && items.length === 0) {
