@@ -15,7 +15,8 @@ import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import {validatePhoneSupplier} from "../../../../utils/supplier";
-import AccountSearchPaging from "../../../../component/custom/select-search/account-select-paging";
+import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
+import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
 
 type SupplierAddModalProps = {
   visible: boolean;
@@ -38,6 +39,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   });
 
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
 
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
@@ -254,7 +256,11 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
               name="pic_code"
               label="Merchandiser"
             >
-              <AccountSearchPaging placeholder="Chọn Merchandiser" />
+              <BaseSelectMerchans
+                merchans={merchans}
+                fetchMerchans={fetchMerchans}
+                isLoadingMerchans={isLoadingMerchans}
+              />
             </Item>
           </Col>
           <Col xs={24} lg={12}>
