@@ -999,7 +999,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										onSearch={(value) => {
 											if(value.length > 1) {
 												const params = {
-													name: value
+													name: value,
+													limit: 200,
 												}
 												getSourcesWithParamsService(params).then((response) => {
 													if(isFetchApiSuccessful(response)) {
