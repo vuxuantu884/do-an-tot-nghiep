@@ -13,7 +13,6 @@ const {TabPane} = Tabs;
 const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
   const history = useHistory();
   const path = history.location.pathname;
-  console.log(path, history);
 
   const [activeTab, setActiveTab] = useState<string>(ProcurementTabUrl.ALL);
 

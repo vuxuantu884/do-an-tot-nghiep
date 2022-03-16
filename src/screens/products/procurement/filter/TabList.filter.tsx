@@ -5,7 +5,6 @@ import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import ButtonSetting from "component/table/ButtonSetting";
-import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
@@ -30,9 +29,10 @@ import {
   ProcurementFilterBasicName,
   ProcurementFilterProps,
 } from "component/filter/interfaces/procurement";
-import AccountSearchPaging from "../../../../component/custom/select-search/account-select-paging";
 import isEqual from "lodash/isEqual";
 import { isArray } from "lodash";
+import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
+import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
 
 const { Item } = Form;
 
@@ -44,6 +44,7 @@ function TabListFilter(props: ProcurementFilterProps) {
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>()
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState('');
@@ -244,7 +245,12 @@ function TabListFilter(props: ProcurementFilterProps) {
             />
           </Item>
           <Item className="merchandisers" name={ProcurementFilterBasicEnum.merchandisers}>
-            <AccountSearchPaging placeholder="Chọn Merchandiser" mode="multiple" fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT]}}/>
+            <BaseSelectMerchans
+              merchans={merchans}
+              fetchMerchans={fetchMerchans}
+              isLoadingMerchans={isLoadingMerchans}
+              mode={"multiple"}
+            />
           </Item>
           <div className="btn-action">
             <Item>

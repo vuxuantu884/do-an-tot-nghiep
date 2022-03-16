@@ -1,55 +1,27 @@
 import { Button, Form, Input, Select } from "antd";
 import "assets/css/custom-filter.scss";
 import search from "assets/img/search.svg";
-import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { DistrictResponse } from "model/content/district.model";
 import { SupplierQuery } from "model/core/supplier.model";
-import React, {memo, useCallback, useEffect, useState} from "react";
+import React, {memo, useEffect, useState} from "react";
 import BaseFilter from "./base.filter";
 import CustomSelectOne from "./component/select-one.custom";
-import SelectSearchPaging from "../custom/select-search/select-search-paging";
 import {PageResponse} from "../../model/base/base-metadata.response";
 import {CollectionResponse} from "../../model/product/collection.model";
 import {getCollectionRequestAction} from "../../domain/actions/product/collection.action";
 import {useDispatch} from "react-redux";
 import useEffectOnce from "react-use/lib/useEffectOnce";
 import BaseFilterResult from "../base/BaseFilterResult";
-import {SupplierEnum} from "./interfaces/supplier";
+import {FieldMapping, SupplierEnum, SupplierFilterProps} from "./interfaces/supplier";
 import {formatFieldTag, generateQuery, transformParamsToObject} from "../../utils/AppUtils";
 import {useArray} from "../../hook/useArray";
 import {useHistory} from "react-router";
 import UrlConfig from "../../config/url.config";
 import {isEqual} from "lodash";
-import {strForSearch} from "../../utils/StringUtils";
-import {callApiNative} from "../../utils/ApiUtils";
-import {searchAccountPublicApi} from "../../service/accounts/account.service";
 import BaseSelectPaging from "../base/BaseSelect/BaseSelectPaging";
-import {AccountPublicSearchQuery, AccountResponse} from "../../model/account/account.model";
-
-type SupplierFilterProps = {
-  initValue: SupplierQuery;
-  params: SupplierQuery & { [key: string]: any };
-  setParams: any;
-  onFilter?: (values: SupplierQuery) => void;
-  supplierStatus?: Array<BaseBootstrapResponse>;
-  listSupplierType?: Array<BaseBootstrapResponse>;
-  scorecard?: Array<BaseBootstrapResponse>;
-  listDistrict?: Array<DistrictResponse>;
-  onMenuClick?: (index: number) => void;
-  actions: Array<MenuAction>;
-};
-
-const fieldMapping = {
-  [SupplierEnum.status]: "Trạng thái",
-  [SupplierEnum.merchandiser]: "Merchandiser",
-  [SupplierEnum.collection_id]: "Nhóm hàng",
-  [SupplierEnum.condition]: "Thông tin LH",
-  [SupplierEnum.scorecard]: "Phân cấp",
-  [SupplierEnum.district_id]: "Khu vực",
-  [SupplierEnum.type]: "Loại",
-}
+import {useFetchMerchans} from "../../hook/useFetchMerchans";
+import BaseSelect from "../base/BaseSelect/BaseSelect";
+import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -81,24 +53,12 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     items: [],
   });
   const [isSearchingCollections, setIsSearchingCollections] = React.useState(false);
-  const [isSearchingMerchan, setIsSearchingMerchan] = React.useState(false);
-  const [merchandiser, setMerchandiser] = useState<PageResponse<AccountResponse>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
   const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
 
-  // const formRef = createRef<FormInstance>();
-  const onFinish = useCallback(
-    (values: SupplierQuery) => {
-      onFilter && onFilter({...values, condition: values.condition?.trim()});
-    },
-    [onFilter]
-  );
+  const onFinish = (values: SupplierQuery) => {
+    onFilter && onFilter({...values, condition: values.condition?.trim()});
+  }
   const getStatusObjFromEnum= () => {
   const statusObj:any = {};
   if (supplierStatus) {
@@ -108,22 +68,19 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   }
   return statusObj;
   }
-  const onFilterClick = useCallback(() => {
+  const onFilterClick = () => {
     setVisible(false);
     formAdvance.submit();
-  }, [formAdvance]);
-  const onClearFilterAdvanceClick = useCallback(() => {
+  }
+  const onClearFilterAdvanceClick = () => {
     formAdvance.setFieldsValue(initValue);
     setVisible(false);
     formAdvance.submit();
-  }, [formAdvance, initValue]);
+  }
 
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+  const onActionClick = (index: number) => {
+    onMenuClick && onMenuClick(index);
+  }
   useEffect(() => {
     if (visible) formAdvance.resetFields();
     formBasic.setFieldsValue({
@@ -144,26 +101,8 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     }
   };
 
-  const fetchMerchandisers = async (query: AccountPublicSearchQuery) => {
-    setIsSearchingMerchan(true)
-    try {
-      const response = await callApiNative(
-        { isShowError: true },
-        dispatch,
-        searchAccountPublicApi,
-        { ...merchandiser.metadata, ...query  }
-      );
-      setMerchandiser(response);
-      setIsSearchingMerchan(false)
-    }catch (err) {
-      console.error(err)
-    }
-
-  }
-
   useEffectOnce(() => {
     dispatch(getCollectionRequestAction({ ...params, limit: collections.metadata.limit }, onGetSuccess));
-    fetchMerchandisers({...merchandiser.metadata})
   })
 
   const onSearchCollections = (values: any) => {
@@ -174,7 +113,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   };
 
   useEffect(() => {
-    const formatted = formatFieldTag(params, fieldMapping)
+    const formatted = formatFieldTag(params, FieldMapping)
     const newParams = formatted.map((item) => {
       switch (item.keyId) {
         case SupplierEnum.status:
@@ -214,34 +153,30 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} form={formBasic} layout="inline">
-          <Form.Item name="condition" style={{ flex: 1 }} shouldUpdate={(pre, cur) => pre.condition !== cur.condition}>
+          <Item name="condition" style={{ flex: 1 }} shouldUpdate={(pre, cur) => pre.condition !== cur.condition}>
             <Input
               prefix={<img src={search} alt="" />}
               placeholder="Tìm kiếm theo tên, mã, số điện thoại nhà cung cấp"
               defaultValue={formAdvance.getFieldValue('condition')}
               allowClear
             />
-          </Form.Item>
-
-          <Form.Item name="pics" style={{ width: 200 }}>
-            <BaseSelectPaging
-              loading={isSearchingMerchan}
-              data={merchandiser.items}
-              metadata={merchandiser.metadata}
-              fetchData={fetchMerchandisers}
-              renderItem={(item) => <Option key={item.id} value={item.code}>{item.code} - {item.full_name}</Option>}
-              placeholder={"Chọn Merchandiser"}
+          </Item>
+          <Item name="pics" style={{ width: 200 }}>
+            <BaseSelectMerchans
+              merchans={merchans}
+              fetchMerchans={fetchMerchans}
+              isLoadingMerchans={isLoadingMerchans}
+              mode={"multiple"}
             />
-          </Form.Item>
-
-          <Form.Item>
+          </Item>
+          <Item>
             <Button type="primary" htmlType="submit">
               Lọc
             </Button>
-          </Form.Item>
-          <Form.Item>
+          </Item>
+          <Item>
             <Button onClick={() => setVisible(true)}>Thêm bộ lọc</Button>
-          </Form.Item>
+          </Item>
         </Form>
       </CustomFilter>
       <BaseFilter
@@ -254,74 +189,60 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
         <Form
           form={formAdvance}
           onFinish={onFinish}
-          //ref={formRef}
           initialValues={params}
           layout="vertical"
         >
           <Item name="status" label="Trạng thái">
               <CustomSelectOne span={12} data={getStatusObjFromEnum()} />
           </Item>
-
-          <Form.Item label="Thông tin liên hệ" name="condition">
+          <Item label="Thông tin liên hệ" name="condition">
             <Input placeholder="Tên/SDT người liên hệ" />
-          </Form.Item>
-
+          </Item>
           <Item label="Khu vực" name="district_id">
-            <Select
-              allowClear
+            <BaseSelect
               showSearch
               showArrow
-              placeholder="Chọn khu vực"
-              optionFilterProp="children"
-              filterOption={(input: String, option: any) => {
-                if (!option.props.value) return false;
-                return strForSearch(option.props.children.toString()).includes(strForSearch(input));
-              }}
-            >
-              {listDistrict?.map((item) => (
+              data={listDistrict}
+              renderItem={(item) => (
                 <Option key={item.id} value={item.id.toString()}>
                   {item.city_name} - {item.name}
                 </Option>
-              ))}
-            </Select>
-          </Item>
-
-          <Item name="scorecard" label="Phân cấp">
-            <Select placeholder="Chọn phân cấp" allowClear>
-              {scorecard?.map((item) => (
-                <Option key={item.value} value={item.value}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
-          </Item>
-
-          <Item name="collection_id" label="Nhóm hàng">
-            <SelectSearchPaging
-              data={collections.items}
-              onSearch={onSearchCollections}
-              isLoading={isSearchingCollections}
-              defaultValue={params?.collection_id}
-              metadata={collections.metadata}
-              placeholder="Chọn nhóm hàng"
-              optionKeyValue="id"
-              optionKeyName="name"
-              onSelect={(item) => formAdvance.setFieldsValue({ collection_id: item.value })}
+              )}
+              placeholder="Chọn khu vực"
             />
           </Item>
-
-           <Form.Item name="type" label="Loại">
-            <Select
-              allowClear
-              placeholder="Loại nhà cung cấp"
-            >
-              {listSupplierType?.map((item) => (
+          <Item name="scorecard" label="Phân cấp">
+            <BaseSelect
+              data={scorecard}
+              placeholder="Chọn phân cấp"
+              renderItem={(item) => (
+                <Option key={item.value} value={item.value.toString()}>
+                  {item.name}
+                </Option>
+                )}
+            />
+          </Item>
+          <Item name="collection_id" label="Nhóm hàng">
+            <BaseSelectPaging
+              loading={isSearchingCollections}
+              metadata={collections.metadata}
+              data={collections.items}
+              renderItem={(item) => <Option key={item.id} value={item.id.toString()}>{item.name}</Option>}
+              fetchData={onSearchCollections}
+              placeholder="Chọn nhóm hàng"
+            />
+          </Item>
+           <Item name="type" label="Loại">
+             <BaseSelect
+              data={listSupplierType}
+              renderItem={(item) => (
                 <Select.Option key={item.value} value={item.value}>
                   {item.name}
                 </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+              )}
+              placeholder="Loại nhà cung cấp"
+             />
+          </Item>
         </Form>
       </BaseFilter>
       <BaseFilterResult data={paramsArray} onClose={remove}/>
