@@ -21,7 +21,7 @@ export const AllOrdersMappingFilterStyled = styled.div`
     display: flex;
     overflow-x: auto;
     .search-input {
-      min-width: 250px;
+      min-width: 100px;
       flex-grow: 1;
       margin-right: 15px;
     }
@@ -58,8 +58,22 @@ export const AllOrdersMappingFilterStyled = styled.div`
   }
 
   .select-shop-dropdown {
-    min-width: 350px;
+    min-width: 200px;
     margin-right: 15px;
+    margin-left: 15px;
+  }
+
+  .ecommerce-dropdown {
+    width: 160px;
+    min-width: 140px;
+    margin-right: 10px;
+    .ant-select-selector {
+      padding: 0 10px;
+      .ant-select-selection-item {
+        display: flex;
+        align-items: center;
+      }
+    }
   }
 `;
 
