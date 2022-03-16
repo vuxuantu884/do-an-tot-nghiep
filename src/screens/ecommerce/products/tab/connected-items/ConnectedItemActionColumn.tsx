@@ -75,9 +75,8 @@ const ConnectedItemActionColumn = (handleDeleteItem: any, handleSyncStock?: any,
             <Button
               type="text"
               className="p-0 ant-btn-custom"
-              icon={<img src={threeDot} alt=""></img>}
-            ></Button>
-
+              icon={<img src={threeDot} alt=""/>}
+            />
           </Dropdown>
         }
       </>
@@ -87,7 +86,7 @@ const ConnectedItemActionColumn = (handleDeleteItem: any, handleSyncStock?: any,
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "80px",
+    width: "45px",
     className: "ecommerce-product-action-column",
     render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index)
   };
