@@ -121,9 +121,11 @@ export default function Order() {
 
 	const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
 	const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-		Array<LoyaltyUsageResponse>
+	Array<LoyaltyUsageResponse>
 	>([]);
 	const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+
+	const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
 
 	const [thirdPL, setThirdPL] = useState<thirdPLModel>({
 		delivery_service_provider_code: "",
@@ -946,7 +948,10 @@ ShippingServiceConfigDetailResponseModel[]
 
 	useEffect(() => {
 		if (customer) {
-			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+			dispatch(getLoyaltyPoint(customer.id, (data) => {
+				setLoyaltyPoint(data);
+				setCountFinishingUpdateCustomer(prev => prev + 1);
+			}));
 			setVisibleCustomer(true);
 			if (customer.shipping_addresses) {
 				let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
@@ -963,6 +968,7 @@ ShippingServiceConfigDetailResponseModel[]
 				onChangeBillingAddress(null)
 		} else {
 			setLoyaltyPoint(null);
+			setCountFinishingUpdateCustomer(prev => prev + 1);
 		}
 	}, [dispatch, customer]);
 
@@ -1230,6 +1236,7 @@ ShippingServiceConfigDetailResponseModel[]
 											orderSourceId={orderSourceId}
 											loyaltyPoint={loyaltyPoint}
 											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+											countFinishingUpdateCustomer={countFinishingUpdateCustomer}
 										/>
 										<Card title="THANH TOÁN">
 											<OrderCreatePayments

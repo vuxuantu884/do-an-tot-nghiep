@@ -143,6 +143,7 @@ type PropType = {
 		totalAmountExchangePlusShippingFee: number;
 	};
 	setShippingFeeInformedToCustomer?:(value:number | null)=>void;
+	countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
 };
 
 var barcode = "";
@@ -225,6 +226,7 @@ function OrderCreateProduct(props: PropType) {
 		setCoupon,
 		setPromotion,
 		setShippingFeeInformedToCustomer,
+		countFinishingUpdateCustomer,
 	} = props;
 	
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
@@ -2042,7 +2044,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customer?.id, storeId, orderSourceId]);
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2063,7 +2065,7 @@ function OrderCreateProduct(props: PropType) {
 			isShouldUpdateDiscountRef.current = true;
 		}, 1000);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customer?.id, storeId, orderSourceId]);
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
 
 	useEffect(() => {
 		if (items && items.length === 0) {
