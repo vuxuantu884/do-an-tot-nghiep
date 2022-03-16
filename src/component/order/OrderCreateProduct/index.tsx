@@ -1804,7 +1804,7 @@ function OrderCreateProduct(props: PropType) {
 					}
 				}
 				form.setFieldsValue({
-					note: `${title}`
+					note: `(${title})`
 				})
 			}
 		}
