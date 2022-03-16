@@ -370,6 +370,8 @@ ShippingServiceConfigDetailResponseModel[]
 		[deliveryServices]
 	);
 
+	const sortedFulfillments = OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
+
 	const copyOrderID = (e: any, data: string | null) => {
 		e.stopPropagation();
 		e.target.style.width = "26px";
@@ -398,7 +400,18 @@ ShippingServiceConfigDetailResponseModel[]
 			discount_amount: null,
 			total_line_amount_after_line_discount: null,
 			shipment: shipmentRequest,
-			items: items,
+			items: items.map((item) => {
+				let index = sortedFulfillments[0]?.items.findIndex(single => single?.order_line_item_id === item.id);
+				if(index > -1) {
+					return {
+						...item,
+						id: sortedFulfillments[0]?.items[index]?.id,
+					}
+				}
+				return {
+					...item,
+				}
+			}),
 		};
 		if (OrderDetail?.fulfillments && OrderDetail?.fulfillments.length) {
 			request.id = OrderDetail?.fulfillments[0].id;
