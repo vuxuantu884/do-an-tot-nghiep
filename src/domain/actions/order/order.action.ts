@@ -15,16 +15,16 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
-  VTPFeeRequest,
+  VTPFeeRequest
 } from "model/request/order.request";
 import {
   createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
+  deleteDeliveryMappedStoreReQuestModel
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   ActionLogDetailResponse,
-  OrderActionLogResponse,
+  OrderActionLogResponse
 } from "model/response/order/action-log.response";
 import {
   ChannelsResponse,
@@ -38,7 +38,7 @@ import {
   ShippingGHTKResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
+  VTPFeeResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse } from "model/response/order/source.response";
@@ -276,7 +276,9 @@ export const setSubStatusAction = (
   statusCode: string,
   handleData: () => void,
   handleError?: () => void,
-  action: string = "Chuyển trạng thái phụ"
+  reason_id?: number,
+  sub_reason_id?: number,
+  action: string = "Chuyển trạng thái phụ",
 ) => {
   return {
     type: OrderType.SET_SUB_STATUS,
@@ -286,6 +288,8 @@ export const setSubStatusAction = (
       action,
       handleData,
       handleError,
+      reason_id,
+      sub_reason_id,
     },
   };
 };

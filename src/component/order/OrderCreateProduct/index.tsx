@@ -199,7 +199,7 @@ function OrderCreateProduct(props: PropType) {
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
-	const QUANTITY_DELAY_TIME = 300;
+	const QUANTITY_DELAY_TIME = 800;
 	const {
 		form,
 		items,

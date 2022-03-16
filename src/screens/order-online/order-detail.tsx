@@ -13,56 +13,53 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-	cancelOrderRequest,
-	orderConfigSaga,
-	confirmDraftOrderAction,
-	getListReasonRequest,
-	OrderDetailAction,
-	PaymentMethodGetList,
-	UpdatePaymentAction,
-  changeSelectedStoreBankAccountAction,
-  getStoreBankAccountNumbersAction,
-  changeShippingServiceConfigAction,
-  changeOrderCustomerAction,
-  changeStoreDetailAction,
+  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
+  PaymentMethodGetList,
+  UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-	OrderPaymentRequest,
-	UpdateOrderPaymentRequest
+  OrderPaymentRequest,
+  UpdateOrderPaymentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import { OrderReasonModel, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
+import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-	checkPaymentAll,
-	checkPaymentStatusToShow,
-	formatCurrency,
-	generateQuery,
-	getAmountPayment,
-	handleFetchApiError,
-	isFetchApiSuccessful,
-	sortFulfillments,
-	SumCOD
+  checkPaymentAll,
+  checkPaymentStatusToShow,
+  formatCurrency,
+  generateQuery,
+  getAmountPayment,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  sortFulfillments,
+  SumCOD
 } from "utils/AppUtils";
 import {
-	FulFillmentStatus,
-	OrderStatus,
-	PaymentMethodCode,
-	PaymentMethodOption,
-	ShipmentMethodOption
+  DELIVERY_SERVICE_PROVIDER_CODE,
+  FulFillmentStatus,
+  OrderStatus,
+  PaymentMethodCode,
+  PaymentMethodOption,
+  ShipmentMethodOption
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { yellowColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
+import { getEcommerceStoreAddress } from "../../domain/actions/ecommerce/ecommerce.actions";
+import { EcommerceAddressQuery, EcommerceStoreAddress } from "../../model/ecommerce/ecommerce.model";
+import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import UpdateCustomerCard from "./component/update-customer-card";
@@ -72,11 +69,6 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
-import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
-import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
-import { yellowColor } from "utils/global-styles/variables";
-import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -129,9 +121,28 @@ const OrderDetail = (props: PropType) => {
   >([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
-  const [reasons, setReasons] = useState<
-    Array<{id: number; name: string; sub_reasons: any[]}>
-  >([]);
+  const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] = useState<
+  OrderReasonModel|null
+  >(null);
+  
+  const orderCancelFulfillmentReasonArr = [
+    {
+      title: "Khách hàng hủy",
+      value: "customer_cancel",
+    },
+    {
+      title: "Hệ thống hủy",
+      value: "order_error",
+    },
+    {
+      title: "Hãng vận chuyển hủy",
+      value: "dsp_cancel",
+    },
+    {
+      title: "Lý do khác ",
+      value: "other",
+    },
+  ]
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
@@ -526,10 +537,6 @@ const OrderDetail = (props: PropType) => {
         dispatch(changeShippingServiceConfigAction(response))
       })
     );
-  }, [dispatch]);
-
-  useLayoutEffect(() => {
-    dispatch(getListReasonRequest(setReasons));
   }, [dispatch]);
 
   useEffect(() => {
@@ -1107,7 +1114,8 @@ const OrderDetail = (props: PropType) => {
                 onReload={() => setReload(true)}
                 disabledActions={disabledActions}
                 disabledBottomActions={disabledBottomActions}
-                reasons={reasons}
+                reasons={orderCancelFulfillmentReasonArr}
+                subReasons={orderCancelFulfillmentReasonResponse?.sub_reasons}
                 isEcommerceOrder={isEcommerceOrder.current}
 								shippingServiceConfig={shippingServiceConfig}
 								orderConfig={orderConfig}
@@ -1183,7 +1191,7 @@ const OrderDetail = (props: PropType) => {
         onOk={(reason_id: string, sub_reason_id: string, reason: string) =>
           handleCancelOrder(reason_id, sub_reason_id, reason)
         }
-        reasons={reasons}
+        reasons={orderCancelFulfillmentReasonArr}
       />
       <LogisticConfirmModal
           visible={visibleLogisticConfirmModal}

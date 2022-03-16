@@ -6,8 +6,9 @@ import { ExchangeRequest, OrderRequest, OrderReturnCalculateRefundRequestModel }
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import {
   OrderPaymentResponse,
-  OrderReturnReasonModel
+  OrderReasonModel
 } from "model/response/order/order.response";
+import { generateQuery } from "utils/AppUtils";
 
 export const getOrderReturnService = (
   id: number
@@ -27,10 +28,14 @@ export const setIsReceivedProductOrderReturnService = (
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/return/${id}/received`);
 };
 
-export const getOrderReturnReasonService = (): Promise<
-  BaseResponse<OrderReturnReasonModel[]>
+export const getOrderReasonService = (orderCodes: string[]): Promise<
+  BaseResponse<OrderReasonModel[]>
 > => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/reasons`);
+  const query = {
+    order_codes: orderCodes
+  }
+  const order_codes = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/reasons?${order_codes}`);
 };
 
 export const orderRefundService = (
