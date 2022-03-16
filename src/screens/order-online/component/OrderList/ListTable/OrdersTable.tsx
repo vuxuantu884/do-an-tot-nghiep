@@ -41,6 +41,7 @@ import IconStore from "./images/store.svg";
 import IconFacebook from "./images/facebook.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
+import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -303,8 +304,8 @@ function OrdersTable(props: PropTypes) {
             {/* <div className="p-b-3">{record.shipping_address.phone}</div>
 						<div className="p-b-3">{record.shipping_address.full_address}</div> */}
             {record.customer_phone_number && (
-              <div className="p-b-3">
-                 <Button style={{padding: "0px"}} type="link" onClick={()=> onFilterPhoneCustomer(record.customer_phone_number?record.customer_phone_number:"")}>
+              <div className="p-b-3" style={{ color: "#2A2A86"}}>
+                 <Button style={{padding: "0px",fontWeight:500 }} type="link" onClick={()=> onFilterPhoneCustomer(record.customer_phone_number?record.customer_phone_number:"")}>
                    {record.customer_phone_number}
                   </Button>
                 {/* <Button  type="link" onClick={()=>{
