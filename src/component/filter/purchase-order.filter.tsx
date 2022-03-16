@@ -1,9 +1,8 @@
 import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag, Select } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import CustomSelect from "component/custom/select.custom";
 import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
@@ -34,7 +33,11 @@ import CustomSelectOne from "./component/select-one.custom";
 import CustomFilterDatePicker from "../custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import { isArray } from "lodash";
+import BaseSelect from "../base/BaseSelect/BaseSelect";
+import {useFetchMerchans} from "../../hook/useFetchMerchans";
+import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
 
+const { Option } = Select;
 const { Item } = Form;
 
 var isWin = false;
@@ -396,6 +399,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
 
   const [lstQC, setlstQC] = useState<PageResponse<AccountResponse>>(
     {
@@ -686,29 +690,27 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                 />
               </Item>
               <Item name={filterFields.merchandiser} style={{width: 250}}>
-                <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                tagRender={tagRender}
-                mode="multiple"
-                defaultValue={params?.merchandiser}
-                placeholder="Chọn Merchandiser"/>
+                <BaseSelectMerchans
+                  mode={"tags"}
+                  tagRender={tagRender}
+                  merchans={merchans}
+                  fetchMerchans={fetchMerchans}
+                  isLoadingMerchans={isLoadingMerchans}
+                />
               </Item>
               <Item name={filterFields.status}>
-                <CustomSelect
+                <BaseSelect
                   showArrow
+                  mode={"tags"}
                   placeholder="Trạng thái đơn"
-                  mode="multiple"
-                  allowClear
                   tagRender={tagRender}
+                  data={Object.keys(listPOStatus)}
+                  renderItem={(item) => (
+                    <Option key={item} value={item}>{listPOStatus[item]}</Option>
+                  )}
                   notFoundContent="Không tìm thấy kết quả"
                   style={{width: 200}}
-                  maxTagCount="responsive"
-                >
-                  {Object.keys(listPOStatus)?.map((key) => (
-                    <CustomSelect.Option key={key} value={key}>
-                      {listPOStatus[key]}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
+                />
               </Item>
               <Item>
                 <Button type="primary" htmlType="submit">
@@ -778,34 +780,29 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               </Col>
               <Col span={6}>
                 <Item name={filterFields.merchandiser}>
-                  <AccountSearchPaging
-                    fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                  <BaseSelectMerchans
+                    mode={"tags"}
                     tagRender={tagRender}
-                    mode="multiple"
-                    placeholder="Chọn Merchandiser"
+                    merchans={merchans}
+                    fetchMerchans={fetchMerchans}
+                    isLoadingMerchans={isLoadingMerchans}
                   />
                 </Item>
               </Col>
               <Col span={6}>
                 <Item name={filterFields.status}>
-                  <CustomSelect
+                  <BaseSelect
                     showArrow
+                    mode={"tags"}
                     placeholder="Trạng thái đơn"
-                    mode="multiple"
-                    allowClear
                     tagRender={tagRender}
+                    data={Object.keys(listPOStatus)}
+                    renderItem={(item) => (
+                      <Option key={item} value={item}>{listPOStatus[item]}</Option>
+                    )}
                     notFoundContent="Không tìm thấy kết quả"
-                    style={{
-                      width: "100%",
-                    }}
-                    maxTagCount="responsive"
-                  >
-                    {Object.keys(listPOStatus)?.map((key) => (
-                      <CustomSelect.Option key={key} value={key}>
-                        {listPOStatus[key]}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
+                    style={{width: 200}}
+                  />
                 </Item>
               </Col>
             </Row>

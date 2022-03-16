@@ -1782,33 +1782,33 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
-	// const fillCustomNote = (items: OrderLineItemRequest[]) => {
-	// 	if(items.some(item => {
-	// 		return (item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason) 
-	// 	})) {
-	// 		let discountTitleArr: string[] = [];
-	// 		items.forEach(item => {
-	// 			let reason = item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason;
-	// 			if(reason) {
-	// 				return discountTitleArr.push(reason)
-	// 			}
-	// 		})
-	// 		discountTitleArr = _.uniq(discountTitleArr);
-	// 		if(discountTitleArr && discountTitleArr.length > 0) {
-	// 			let title = ""
-	// 			for (let i = 0; i < discountTitleArr.length; i++) {
-	// 				if(i< discountTitleArr.length -1) {
-	// 					title = title + discountTitleArr[i] + ", "
-	// 				} else {
-	// 					title = title + discountTitleArr[i] + "."
-	// 				}
-	// 			}
-	// 			form.setFieldsValue({
-	// 				note: `(title)`
-	// 			})
-	// 		}
-	// 	}
-	// };
+	const fillCustomNote = (items: OrderLineItemRequest[]) => {
+		if(items.some(item => {
+			return (item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason) 
+		})) {
+			let discountTitleArr: string[] = [];
+			items.forEach(item => {
+				let reason = item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason;
+				if(reason) {
+					return discountTitleArr.push(reason)
+				}
+			})
+			discountTitleArr = _.uniq(discountTitleArr);
+			if(discountTitleArr && discountTitleArr.length > 0) {
+				let title = ""
+				for (let i = 0; i < discountTitleArr.length; i++) {
+					if(i< discountTitleArr.length -1) {
+						title = title + discountTitleArr[i] + ", "
+					} else {
+						title = title + discountTitleArr[i] + "."
+					}
+				}
+				form.setFieldsValue({
+					note: `(${title})`
+				})
+			}
+		}
+	};
 
 	const calculateChangeMoney = (
 		_items: Array<OrderLineItemRequest>,
@@ -1845,6 +1845,7 @@ function OrderCreateProduct(props: PropType) {
 				_promotion = null
 			}
 		}
+		fillCustomNote(_items);
 		props.changeInfo(_items, _promotion);
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
@@ -2040,7 +2041,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customer?.id, storeId, orderSourceId]);
+	}, [loyaltyPoint, storeId, orderSourceId]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2061,7 +2062,7 @@ function OrderCreateProduct(props: PropType) {
 			isShouldUpdateDiscountRef.current = true;
 		}, 1000);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customer?.id, storeId, orderSourceId]);
+	}, [loyaltyPoint, storeId, orderSourceId]);
 
 	useEffect(() => {
 		if (items && items.length === 0) {

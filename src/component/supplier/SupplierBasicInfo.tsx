@@ -7,8 +7,6 @@ import {
   FormFields,
   IFormControl,
 } from "../../screens/products/supplier/add/supplier-add.type";
-import AccountSearchPaging from "../custom/select-search/account-select-paging";
-import SelectSearchPaging from "../custom/select-search/select-search-paging";
 import { RadioChangeEvent } from "antd/lib/radio/interface";
 import { SupplierResponse } from "../../model/core/supplier.model";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +17,10 @@ import { getCollectionRequestAction } from "../../domain/actions/product/collect
 import { useParams } from "react-router-dom";
 import { SupplierSearchAction } from "../../domain/actions/core/supplier.action";
 import { validatePhoneSupplier } from "../../utils/supplier";
+import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
+import {useFetchMerchans} from "../../hook/useFetchMerchans";
+import BaseSelectPaging from "../base/BaseSelect/BaseSelectPaging";
+import BaseSelect from "../base/BaseSelect/BaseSelect";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -37,6 +39,7 @@ const SupplierBasicInfo = ({
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
   const [isActiveStatus, setIsActiveStatus] = useState(initialSupplierForm.status === "active");
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
 
   const [data, setData] = useState<PageResponse<CollectionResponse>>({
     metadata: {
@@ -112,13 +115,15 @@ const SupplierBasicInfo = ({
 
   const renderSelectOptions = ({ placeholder, ...rest }: Partial<IFormControl>) => {
     return (
-      <Select allowClear placeholder={placeholder}>
-        {scorecards?.map((item) => (
-          <Option key={item.name} value={item.value || 0}>
+      <BaseSelect
+        placeholder={placeholder}
+        data={scorecards}
+        renderItem={(item) => (
+          <Option key={item.name} value={item.value}>
             {item.name}
           </Option>
-        ))}
-      </Select>
+        )}
+      />
     );
   };
 
@@ -166,20 +171,26 @@ const SupplierBasicInfo = ({
           {name === FormFields.pic_code ? (
             <Item {...{ name, label, rules }}>
               {/*Chọn merchandiser*/}
-              <AccountSearchPaging placeholder="Chọn Merchandiser" />
+              <BaseSelectMerchans
+                merchans={merchans}
+                fetchMerchans={fetchMerchans}
+                isLoadingMerchans={isLoadingMerchans}
+              />
             </Item>
           ) : (
             <Item {...{ name, label, rules }}>
               {/*Chọn nhóm hàng*/}
-              <SelectSearchPaging
-                data={data.items}
-                onSearch={onSearchGroupProducts}
-                isLoading={isSearchingGroupProducts}
+              <BaseSelectPaging
                 metadata={data.metadata}
+                fetchData={onSearchGroupProducts}
+                data={data.items}
+                renderItem={(item) => (
+                  <Option value={item.id} key={item.id}>
+                    {item.name}
+                  </Option>
+                )}
                 placeholder={placeholder}
-                optionKeyValue="id"
-                optionKeyName="name"
-                onSelect={(item) => form.setFieldsValue({ [name]: item.value })}
+                loading={isSearchingGroupProducts}
               />
             </Item>
           )}
