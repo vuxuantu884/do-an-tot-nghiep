@@ -1,19 +1,15 @@
 import { Col, Form, FormInstance, Row } from "antd";
-import LogoDHL from "assets/img/LogoDHL.svg";
-import LogoGHN from "assets/img/LogoGHN.svg";
-import LogoGHTK from "assets/img/LogoGHTK.svg";
-import LogoVTP from "assets/img/LogoVTP.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { thirdPLModel } from "model/order/shipment.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { FeesResponse } from "model/response/order/order.response";
+import {DeliveryServiceResponse, FeesResponse} from "model/response/order/order.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import moment from "moment";
-import React, { useCallback, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
-import { replaceFormatString } from "utils/AppUtils";
-import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
+import {handleCalculateShippingFeeApplyOrderSetting, replaceFormatString} from "utils/AppUtils";
 import { StyledComponent } from "./styles";
+import {changeOrderThirdPLAction, DeliveryServicesGetList} from "domain/actions/order/order.action";
+import {useDispatch} from "react-redux";
 
 type PropType = {
   totalAmountCustomerNeedToPay: number | undefined;
@@ -48,152 +44,43 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     renderButtonCreateActionHtml,
   } = props;
 
-  const deliveryService: any = useMemo(() => {
-    return {
-      ghtk: {
-        code: "ghtk",
-        id: 1,
-        logo: LogoGHTK,
-        name: "Giao hàng tiết kiệm",
-      },
-      ghn: {
-        code: "ghn",
-        id: 2,
-        logo: LogoGHN,
-        name: "Giao hàng nhanh",
-      },
-      vtp: {
-        code: "vtp",
-        id: 3,
-        logo: LogoVTP,
-        name: "Viettel Post",
-      },
-      dhl: {
-        code: "dhl",
-        id: 4,
-        logo: LogoDHL,
-        name: "DHL",
-      },
-    };
-  }, []);
-  const thirdPLServiceGroup: any = useMemo(() => {
-    return {
-      ghtk: infoFees.filter((item) => item.delivery_service_code === "ghtk"),
-      ghn: infoFees.filter((item) => item.delivery_service_code === "ghn"),
-      vtp: infoFees.filter((item) => item.delivery_service_code === "vtp"),
-      dhl: infoFees.filter((item) => item.delivery_service_code === "dhl"),
-    };
-  }, [infoFees]);
+  const dispatch = useDispatch();
 
-  /**
-   * check cấu hình đơn hàng để tính phí ship báo khách
-   */
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
-  const shippingFeeApplyOrderSetting = useCallback(
-    (transportType: string) => {
-      const customerShippingAddress = customer?.shipping_addresses.find((single) => single.default);
-      if (!customerShippingAddress || orderPrice === undefined) {
-        return;
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
+  }, [dispatch]);
+
+  const serviceFees = useMemo(() => {
+    let services: any = []
+    deliveryServices?.forEach(deliveryService => {
+      const service = infoFees.filter((item) => item.delivery_service_code === deliveryService.code)
+      if (service.length) {
+        services.push({
+          ...deliveryService,
+          fees: service
+        })
       }
-      const customerShippingAddressCityId = customerShippingAddress.city_id;
+    })
+    return services;
+  }, [deliveryServices, infoFees]);
 
-      if (!shippingServiceConfig || !customerShippingAddress) {
-        return;
-      }
-      //check thời gian
-      const checkIfIsInTimePeriod = (startDate: any, endDate: any) => {
-        const now = moment();
-        const checkIfTodayAfterStartDate = moment(startDate).isBefore(now);
-        const checkIfTodayBeforeEndDate = moment(now).isBefore(endDate);
-        return checkIfTodayAfterStartDate && checkIfTodayBeforeEndDate;
-      };
+  const shippingAddress = useMemo(() => {
+    const address = customer?.shipping_addresses.find((item) => {
+      return item.default;
+    })
+    if(address) {
+      return address
+    } else {
+      return null
+    }
+  }, [customer?.shipping_addresses])
 
-      // check dịch vụ
-      const checkIfListServicesContainSingle = (listServices: any[], singleService: string) => {
-        let result = false;
-        let checkCondition = listServices.some((single) => {
-          return single.code === singleService;
-        });
-        if (checkCondition) {
-          result = true;
-        }
-        return result;
-      };
-
-      // check tỉnh giao hàng ( config -1 là tất cả tỉnh thành)
-      const checkIfSameCity = (
-        configShippingAddressCityId: number,
-        customerShippingAddressCityId: number
-      ) => {
-        if (configShippingAddressCityId === -1) {
-          return true;
-        }
-        return customerShippingAddressCityId === configShippingAddressCityId;
-      };
-
-      // check giá
-      const checkIfPrice = (orderPrice: number, fromPrice: number, toPrice: number) => {
-        return fromPrice <= orderPrice && orderPrice <= toPrice;
-      };
-
-      // filter thời gian, active
-      const filteredShippingServiceConfig = shippingServiceConfig.filter((single) => {
-        return (
-          checkIfIsInTimePeriod(single.start_date, single.end_date) &&
-          single.status === ORDER_SETTINGS_STATUS.active &&
-          single.transport_types &&
-          checkIfListServicesContainSingle(single.transport_types, transportType)
-        );
-      });
-
-      // filter city
-      let listCheckedShippingFeeConfig = [];
-
-      if (filteredShippingServiceConfig) {
-        for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
-          const checkedShippingFeeConfig =
-            singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
-              return (
-                checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
-                checkIfPrice(orderPrice, single.from_price, single.to_price)
-              );
-            });
-          listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
-        }
-      }
-
-      //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
-      const flattenArray = (arr: any) => {
-        return arr.reduce(function (flat: any, toFlatten: any) {
-          return flat.concat(Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten);
-        }, []);
-      };
-
-      const listCheckedShippingFeeConfigFlatten = flattenArray(listCheckedShippingFeeConfig);
-
-      // lấy số nhỏ nhất
-      if (listCheckedShippingFeeConfigFlatten && listCheckedShippingFeeConfigFlatten.length > 0) {
-        let result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
-        listCheckedShippingFeeConfigFlatten.forEach((single: any) => {
-          if (single.transport_fee < result) {
-            result = single.transport_fee;
-          }
-        });
-        form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
-        setShippingFeeInformedToCustomer(result);
-      } else {
-        form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
-        setShippingFeeInformedToCustomer(0);
-      }
-    },
-    [
-      customer?.shipping_addresses,
-      form,
-      orderPrice,
-      setShippingFeeInformedToCustomer,
-      shippingServiceConfig,
-    ]
-  );
 
   return (
     <StyledComponent>
@@ -251,100 +138,114 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             </Form.Item>
           </Col>
         </Row>
-        <div className="ant-table ant-table-bordered custom-table" style={{ marginTop: 20 }}>
+
+        <div className="ant-table ant-table-bordered custom-table">
           <div className="ant-table-container">
             <div className="ant-table-content">
-              <table className="table-bordered" style={{ width: "100%", tableLayout: "auto" }}>
+              <table
+                className="table-bordered"
+                style={{width: "100%", tableLayout: "auto"}}
+              >
                 <thead className="ant-table-thead">
                   <tr>
-                    <th className="ant-table-cell">Hãng vận chuyển</th>
-                    <th className="ant-table-cell">Dịch vụ chuyển phát</th>
-                    <th className="ant-table-cell" style={{ textAlign: "right" }}>
-                      Cước phí
-                    </th>
+                    <th style={{ padding: "5px", textAlign: "center"}}>Hãng vận chuyển</th>
+                    <th style={{ padding: "5px", textAlign: "center"}}>Dịch vụ chuyển phát</th>
+                    <th style={{ padding: "5px", textAlign: "center"}}>Cước phí</th>
                   </tr>
                 </thead>
                 <tbody className="ant-table-tbody">
-                  {["ghtk", "ghn", "vtp", "dhl"].map((deliveryServiceName: string, index) => {
-                    return (
-                      (thirdPLServiceGroup[deliveryServiceName].length && (
-                        <React.Fragment key={deliveryServiceName}>
+                  {serviceFees.map(
+                    (serviceFee: any) => {
+                      return (
+                        <React.Fragment key={serviceFee.code}>
                           <tr>
-                            <td>
-                              {/* <img
-                                className="logoHVC"
-                                src={deliveryService[deliveryServiceName].logo}
-                                alt=""
-                              /> */}
-                              <span>{deliveryService[deliveryServiceName].code.toUpperCase()}</span>
+                            <td style={{ width: "100px", padding: "5px", textAlign: "center" }}>
+                              {/*<img*/}
+                              {/*  className="logoHVC"*/}
+                              {/*  src={serviceFee.logo}*/}
+                              {/*  alt=""*/}
+                              {/*/>*/}
+                              <strong>{serviceFee.name}</strong>
                             </td>
                             <td style={{ padding: 0 }}>
-                              {thirdPLServiceGroup[deliveryServiceName].map(
-                                (service: any, index: number) => {
+                              {serviceFee.fees.map(
+                                (fee: any) => {
                                   return (
                                     <div
-                                      style={{ padding: "8px" }}
+                                      style={{ padding: "5px" }}
                                       className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                      key={index}>
-                                      <label className="radio-container">
+                                    >
+                                      <label className="radio-container" style={{ marginLeft: "0 !important"}}>
                                         <input
                                           type="radio"
                                           name="tt"
                                           className="radio-delivery"
-                                          value={service.transport_type}
-                                          checked={thirdPL?.service === service.transport_type}
+                                          value={fee.transport_type}
+                                          checked={
+                                            thirdPL?.service ===
+                                            fee.transport_type
+                                          }
                                           onChange={(e) => {
-                                            shippingFeeApplyOrderSetting(service.transport_type);
-                                            setThirdPL({
-                                              delivery_service_provider_code:
-                                                deliveryService[deliveryServiceName].code,
-                                              insurance_fee: service.insurance_fee,
-                                              delivery_service_provider_id:
-                                                deliveryService[deliveryServiceName].id,
-                                              delivery_service_provider_name:
-                                                deliveryService[deliveryServiceName].name,
-                                              delivery_transport_type: service.transport_type_name,
-                                              service: service.transport_type,
-                                              shipping_fee_paid_to_three_pls: service.total_fee,
-                                            });
+                                            handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
+                                              fee.transport_type, form, setShippingFeeInformedToCustomer
+                                            );
+                                            const thirdPLResult = {
+                                              delivery_service_provider_id: serviceFee.id,
+                                              delivery_service_provider_code: serviceFee.code,
+                                              insurance_fee: fee.insurance_fee,
+                                              service: fee.transport_type,
+                                              shipping_fee_paid_to_three_pls: fee.total_fee,
+                                              delivery_service_provider_name: serviceFee.name,
+                                              delivery_transport_type: fee.transport_type_name,
+                                            }
+                                            setThirdPL(thirdPLResult);
+                                            dispatch(changeOrderThirdPLAction(thirdPLResult))
                                           }}
-                                          // disabled={service.total_fee === 0 || levelOrder > 3}
+                                          disabled={
+                                            fee.total_fee === 0 || levelOrder > 3
+                                            // levelOrder > 3
+                                          }
+                                          style={{ marginLeft: "0 !important" }}
                                         />
-                                        <span className="checkmark" />
-                                        {service.transport_type_name}
+                                        <span
+                                          className="checkmark"
+                                          style={fee.total_fee === 0 ? { backgroundColor: "#f0f0f0", border: 'none' } : {}}>
+                                        </span>
+                                        <span>{fee.transport_type_name}</span>
                                       </label>
                                     </div>
                                   );
                                 }
                               )}
                             </td>
-                            <td style={{ padding: 0, textAlign: "right" }}>
-                              {thirdPLServiceGroup[deliveryServiceName].map(
-                                (service: any, index: number) => {
+
+                            <td style={{ padding: 0, textAlign: "right", width: "75px" }}>
+                              {serviceFee.fees?.map(
+                                (fee: any) => {
                                   return (
-                                    <React.Fragment key={index}>
+                                    <>
                                       <div
-                                        style={{ padding: "8px 16px" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio">
+                                        style={{ padding: "5px", width: "75px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
                                         {/* {service.total_fee} */}
                                         <NumberFormat
-                                          value={service.total_fee}
+                                          value={fee.total_fee}
                                           className="foo"
                                           displayType={"text"}
                                           thousandSeparator={true}
                                         />
                                       </div>
-                                    </React.Fragment>
+                                    </>
                                   );
                                 }
                               )}
                             </td>
                           </tr>
                         </React.Fragment>
-                      )) ||
-                      null
-                    );
-                  })}
+                      );
+                    }
+                  )}
                 </tbody>
               </table>
             </div>
