@@ -158,7 +158,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     {
       title: "ID đơn (Yody)",
       key: "core_order_code",
-      width: "10%x",
+      width: "10%",
       render: (item: any, row: any) => (
         <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
           <b>{item.core_order_code}</b>
