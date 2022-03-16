@@ -114,6 +114,7 @@ function* getGoodsReceiptsSerchSaga(action: YodyAction) {
  */
 function* updateGoodsReceiptsSaga(action: YodyAction) {
   let {goodsReceiptsId, data, setData} = action.payload;
+  yield put(showLoading())
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       updateGoodsReceiptsService,
@@ -133,6 +134,9 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch (e) {
     showError("Có lỗi xảy ra, vui lòng thử lại");
+  }
+  finally{
+    yield put(hideLoading())
   }
 }
 

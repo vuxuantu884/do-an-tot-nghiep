@@ -143,7 +143,7 @@ const PackInfo: React.FC = () => {
               setDisableStoreId(false);
               setDisableDeliveryProviderId(false)
               setDisableOrder(false);
-              showError("Đơn hàng chưa nhặt hàng");
+              showError("Không tìm thấy đơn hàng");
             }
           })
         );
