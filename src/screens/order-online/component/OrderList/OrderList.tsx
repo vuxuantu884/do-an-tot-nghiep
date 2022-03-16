@@ -260,7 +260,7 @@ function OrderList(props: PropTypes) {
               })
             );
             window.open(printPreviewUrlExport);
-            changeMultiOrderStatus(ids, "packed").then(response => {
+            changeMultiOrderStatus(ids, "shipping").then(response => {
               if(isFetchApiSuccessful(response)) {
               } else {
                 handleFetchApiError(response, "Chuyển trạng thái nhiều đơn hàng", dispatch)
