@@ -1,393 +1,735 @@
-import { Card, Select } from "antd";
-import {
-	getListSubStatusAction,
-	setSubStatusAction
-} from "domain/actions/order/order.action";
+import { Card, Form, Select } from "antd";
+import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order/order.action";
 import {
 	FulFillmentResponse,
 	OrderResponse,
+	OrderReturnReasonDetailModel,
 	OrderSubStatusResponse
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
-import { OrderStatus, ShipmentMethod } from "utils/Constants";
+import { getOrderReasonService } from "service/order/return.service";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
+import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
+import { showError, showWarning } from "utils/ToastUtils";
 
 type PropType = {
-	subStatusCode?: string | undefined;
-	status?: string | null;
-	orderId?: number;
-	fulfillments?: FulFillmentResponse[] | null;
-	handleUpdateSubStatus: () => void;
-	setReload: (value: boolean) => void;
-	OrderDetailAllFulfillment?: OrderResponse | null;
+  subStatusCode?: string | undefined;
+  status?: string | null;
+  orderId?: number;
+  fulfillments?: FulFillmentResponse[] | null;
+  handleUpdateSubStatus: () => void;
+  setReload: (value: boolean) => void;
+  OrderDetailAllFulfillment?: OrderResponse | null;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-	const ORDER_RETURN_SUB_STATUS = {
-		returning: {
-			code: "returning",
-		},
-		returned: {
-			code: "returned",
-		}
-	}
-	const { status, orderId, fulfillments, subStatusCode, handleUpdateSubStatus, setReload, OrderDetailAllFulfillment } = props;
-	const dispatch = useDispatch();
-	const [initOrderSubStatus, setInitOrderSubStatus] = useState<OrderSubStatusResponse[]>(
-		[]
-	);
-	const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
-		[]
-	);
-	const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
+  const ORDER_SUB_STATUS = {
+    first_call_attempt: "first_call_attempt",
+    second_call_attempt: "second_call_attempt",
+    third_call_attempt: "third_call_attempt",
+    awaiting_coordinator_confirmation: "awaiting_coordinator_confirmation",
+    awaiting_saler_confirmation: "awaiting_saler_confirmation",
+    coordinator_confirmed: "coordinator_confirmed",
+    merchandise_picking: "merchandise_picking",
+    require_warehouse_change: "require_warehouse_change",
+    merchandise_packed: "merchandise_packed",
+    awaiting_shipper: "awaiting_shipper",
+    shipping: "shipping",
+    shipped: "shipped",
+    canceled: "canceled",
+    fourHour_delivery: "4h_delivery",
+    order_return: "order_return",
+  };
+  const ORDER_RETURN_SUB_STATUS = {
+    returning: {
+      code: "returning",
+    },
+    returned: {
+      code: "returned",
+    },
+  };
+  const {
+    status,
+    orderId,
+    fulfillments,
+    subStatusCode,
+    handleUpdateSubStatus,
+    setReload,
+    OrderDetailAllFulfillment,
+  } = props;
+  const dispatch = useDispatch();
+  const [initOrderSubStatus, setInitOrderSubStatus] = useState<OrderSubStatusResponse[]>([]);
+  const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>([]);
+  const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
-	const sortedFulfillments = useMemo(() => {
-		if(!OrderDetailAllFulfillment?.fulfillments) {
-			return []
-		} else {
-			return sortFulfillments(OrderDetailAllFulfillment?.fulfillments)
+  const [isShowReason, setIsShowReason] = useState(false);
+  
+  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<
+    number | undefined
+  >(undefined);
 
-		}
-	}, [OrderDetailAllFulfillment?.fulfillments])
-	console.log('sortedFulfillments', sortedFulfillments)
+  const [reasonId, setReasonId] = useState<
+    number | undefined
+  >(undefined);
 
-	const handleOrderSubStatus = useCallback((sub_status_code: string) => {
-		const removeReturnInListIfOrderFinalize = (arr: OrderSubStatusResponse[]) => {
-			console.log('sub_status_code', sub_status_code)
-			console.log('status', status)
-			if(status === OrderStatus.FINALIZED && sub_status_code !== ORDER_RETURN_SUB_STATUS.returning.code && sub_status_code !== ORDER_RETURN_SUB_STATUS.returned.code) {
-				console.log('333333333')
-				return arr.filter(status => status.code !== ORDER_RETURN_SUB_STATUS.returning.code && status.code !== ORDER_RETURN_SUB_STATUS.returned.code)
-			};
-			return arr
-		}
+  const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
+    OrderReturnReasonDetailModel[]
+  >([]);
 
-		const STATUS_ORDER_PARTNER = [
-			// tạo nháp
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "first_call_attempt",
-				list: ["first_call_attempt", "second_call_attempt", "third_call_attempt"]
-			},
-			// gọi điện lần 2
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "second_call_attempt",
-				list: ["second_call_attempt", "third_call_attempt"]
-			},
-			// gọi điện lần 3 
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "third_call_attempt",
-				list: ["third_call_attempt"]
-			},
-			// duyệt đơn hàng	
-      {
-				orderStatus: OrderStatus.FINALIZED,
-				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "4h_delivery"]
-			},
-			// chờ sale xác nhận lại	
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "awaiting_saler_confirmation",
-				list: ["awaiting_saler_confirmation", "awaiting_coordinator_confirmation"]
-			},
-			// đã xác nhận
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "coordinator_confirmed",
-				list: ["coordinator_confirmed", "merchandise_picking","require_warehouse_change"]
-			},
-			// giao 4h
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "4h_delivery",
-				list: ["4h_delivery", "merchandise_picking","require_warehouse_change"]
-			},
-			//đổi kho hàng
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "require_warehouse_change",
-				list: ["require_warehouse_change", "coordinator_confirmed","awaiting_saler_confirmation"]
-			},
-			// đang nhặt hàng
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "merchandise_picking",
-				list: ["merchandise_picking", "require_warehouse_change"]
-			},
-			// đã đóng gói
-      {
-				orderStatus: OrderStatus.FINALIZED,
-				now: "merchandise_packed",
-				list: ["merchandise_packed", "awaiting_shipper"]
-			},
-			// chờ thu gom
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "awaiting_shipper",
-				list: ["awaiting_shipper"]
-			},
-			// đang chuyển
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "shipping",
-				list: ["shipping"]
-			},
-			// hvc cập nhật thành công
-			{
-				orderStatus: OrderStatus.FINISHED,
-				now: "shipped",
-				list: ["shipped"]
-			},
-			// hủy đơn
-			{
-				orderStatus: OrderStatus.CANCELLED,
-				now: "cancelled",
-				list: ["cancelled"]
-			},
-			// đang hoàn
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "returning",
-				list: ["returning", "returned"]
-			},
-			// đã hoàn
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "returned",
-				list: ["returned"]
-			},
-		]
-		const STATUS_ORDER_AT_STORE = [
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "first_call_attempt",
-				list: ["first_call_attempt", "second_call_attempt", "third_call_attempt"]
-			},
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "second_call_attempt",
-				list: ["second_call_attempt", "third_call_attempt"]
-			},
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "third_call_attempt",
-				list: ["third_call_attempt"]
-			},
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "4h_delivery"]
-			},
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "merchandise_picking",
-				list: ["merchandise_picking", "require_warehouse_change"]
-			},
-			// chờ sale xác nhận lại	
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "awaiting_saler_confirmation",
-				list: ["awaiting_saler_confirmation", "awaiting_coordinator_confirmation"]
-			},
-			// đã xác nhận
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "coordinator_confirmed",
-				list: ["coordinator_confirmed", "merchandise_picking","require_warehouse_change"]
-			},
-			//đổi kho hàng
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "require_warehouse_change",
-				list: ["require_warehouse_change", "coordinator_confirmed","awaiting_saler_confirmation"]
-			},
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "merchandise_packed",
-				list: ["merchandise_packed"]
-			},
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "shipping",
-				list: ["shipping"]
-			},
-			{
-				orderStatus: OrderStatus.FINISHED,
-				now: "shipped",
-				list: ["shipped"]
-			},
-			{
-				orderStatus: OrderStatus.CANCELLED,
-				now: "cancelled",
-				list: ["cancelled"]
-			},
-		]
-		const STATUS_ORDER_OTHER = [
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "first_call_attempt",
-				list: ["first_call_attempt", "second_call_attempt", "third_call_attempt"]
-			},
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "second_call_attempt",
-				list: ["second_call_attempt", "third_call_attempt"]
-			},
-			{
-				orderStatus: OrderStatus.DRAFT,
-				now: "third_call_attempt",
-				list: ["third_call_attempt"]
-			},
-			// duyệt đơn hàng	
-      {
-				orderStatus: OrderStatus.FINALIZED,
-				now: "awaiting_coordinator_confirmation",
-				list: ["awaiting_coordinator_confirmation", "awaiting_saler_confirmation","coordinator_confirmed", "4h_delivery"]
-			},
-			// chờ sale xác nhận lại	
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "awaiting_saler_confirmation",
-				list: ["awaiting_saler_confirmation", "awaiting_coordinator_confirmation"]
-			},
-			// giao 4h
-			{
-				orderStatus: OrderStatus.FINALIZED,
-				now: "4h_delivery",
-				list: ["4h_delivery", "merchandise_picking","require_warehouse_change"]
-			},
-		]
-		const filterStatus = (arr: any[], arrOrderSubStatus: OrderSubStatusResponse[] ) => {
-			let result: OrderSubStatusResponse[] = [...arrOrderSubStatus];
-			const foundStatus = arr.find((single) => {
-				return single.now === sub_status_code && single.orderStatus === status
-			})
-			if (foundStatus) {
-				let arrResult: OrderSubStatusResponse[] = [];
-				foundStatus.list.forEach((single: any) => {
-					let mapStatuses = arrOrderSubStatus.find(status => status.code === single)
-					if (mapStatuses) {
-						arrResult.push(mapStatuses)
-					}
-				})
-				result = arrResult;
-				console.log('arrResult', arrResult)
-			}
-			return result;
-		};
-		// console.log('OrderDetailAllFulfillment', OrderDetailAllFulfillment)
-		if (!OrderDetailAllFulfillment?.fulfillments) {
-			return;
-		}
-		let result = [...initOrderSubStatus];
-		result = removeReturnInListIfOrderFinalize(result)
+  const sortedFulfillments = useMemo(() => {
+    if (!OrderDetailAllFulfillment?.fulfillments) {
+      return [];
+    } else {
+      const returnStatus = [
+        FulFillmentStatus.RETURNED,
+        FulFillmentStatus.CANCELLED,
+        FulFillmentStatus.RETURNING,
+      ];
+      let sort = sortFulfillments(OrderDetailAllFulfillment?.fulfillments);
+      // bỏ trạng thái fulfillment đã hủy
+      return sort.filter((single) => single.status && !returnStatus.includes(single.status));
+    }
+  }, [OrderDetailAllFulfillment?.fulfillments]);
 
-		switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
-			// giao hàng hvc, tự giao hàng
-			case ShipmentMethod.EXTERNAL_SERVICE:
-			case ShipmentMethod.EMPLOYEE:
-				result = filterStatus(STATUS_ORDER_PARTNER, result);
-				break;
-			// nhận tại cửa hàng
-			case ShipmentMethod.PICK_AT_STORE:
-				result = filterStatus(STATUS_ORDER_AT_STORE, result);
-				break
-			default:
-				result = filterStatus(STATUS_ORDER_OTHER, result);
-				break;
-		}
-		setListOrderSubStatus(result)
-	}, [ORDER_RETURN_SUB_STATUS.returned.code, ORDER_RETURN_SUB_STATUS.returning.code, OrderDetailAllFulfillment?.fulfillments, initOrderSubStatus, sortedFulfillments, status]);
+  const handleOrderSubStatus = useCallback(
+    (sub_status_code: string) => {
+      const removeReturnInListIfOrderFinalize = (arr: OrderSubStatusResponse[]) => {
+        if (
+          status === OrderStatus.FINALIZED &&
+          sub_status_code !== ORDER_RETURN_SUB_STATUS.returning.code &&
+          sub_status_code !== ORDER_RETURN_SUB_STATUS.returned.code
+        ) {
+          return arr.filter(
+            (status) =>
+              status.code !== ORDER_RETURN_SUB_STATUS.returning.code &&
+              status.code !== ORDER_RETURN_SUB_STATUS.returned.code
+          );
+        }
+        return arr;
+      };
 
-	const handleChange = (sub_status_code: string) => {
+      const STATUS_ORDER_PARTNER = [
+        // tạo nháp
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.first_call_attempt,
+          list: [
+            ORDER_SUB_STATUS.first_call_attempt,
+            ORDER_SUB_STATUS.second_call_attempt,
+            ORDER_SUB_STATUS.third_call_attempt,
+          ],
+        },
+        // gọi điện lần 2
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.second_call_attempt,
+          list: [ORDER_SUB_STATUS.second_call_attempt, ORDER_SUB_STATUS.third_call_attempt],
+        },
+        // gọi điện lần 3
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.third_call_attempt,
+          list: [ORDER_SUB_STATUS.third_call_attempt],
+        },
+        // duyệt đơn hàng
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+          list: [
+            ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.fourHour_delivery,
+          ],
+        },
+        // chờ sale xác nhận lại
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_saler_confirmation,
+          list: [
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+          ],
+        },
+        // đã xác nhận
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.coordinator_confirmed,
+          list: [
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.merchandise_picking,
+            ORDER_SUB_STATUS.require_warehouse_change,
+          ],
+        },
+        // giao 4h
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.fourHour_delivery,
+          list: [
+            ORDER_SUB_STATUS.fourHour_delivery,
+            ORDER_SUB_STATUS.merchandise_picking,
+            ORDER_SUB_STATUS.require_warehouse_change,
+          ],
+        },
+        //đổi kho hàng
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.require_warehouse_change,
+          list: [
+            ORDER_SUB_STATUS.require_warehouse_change,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+          ],
+        },
+        // đang nhặt hàng
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.merchandise_picking,
+          list: [ORDER_SUB_STATUS.merchandise_picking, ORDER_SUB_STATUS.require_warehouse_change],
+        },
+        // đã đóng gói
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.merchandise_packed,
+          list: [ORDER_SUB_STATUS.merchandise_packed, ORDER_SUB_STATUS.awaiting_shipper],
+        },
+        // chờ thu gom
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_shipper,
+          list: [ORDER_SUB_STATUS.awaiting_shipper],
+        },
+        // đang chuyển
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.shipping,
+          list: [ORDER_SUB_STATUS.shipping],
+        },
+        // hvc cập nhật thành công
+        {
+          orderStatus: OrderStatus.FINISHED,
+          now: ORDER_SUB_STATUS.shipped,
+          list: [ORDER_SUB_STATUS.shipped],
+        },
+        // hủy đơn
+        {
+          orderStatus: OrderStatus.CANCELLED,
+          now: "cancelled",
+          list: ["cancelled"],
+        },
+        // đang hoàn
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: "returning",
+          list: ["returning", "returned"],
+        },
+        // đã hoàn
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: "returned",
+          list: ["returned"],
+        },
+        // đổi trả
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: "order_return",
+          list: ["order_return"],
+        },
+      ];
+      const STATUS_ORDER_AT_STORE = [
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.first_call_attempt,
+          list: [
+            ORDER_SUB_STATUS.first_call_attempt,
+            ORDER_SUB_STATUS.second_call_attempt,
+            ORDER_SUB_STATUS.third_call_attempt,
+          ],
+        },
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.second_call_attempt,
+          list: [ORDER_SUB_STATUS.second_call_attempt, ORDER_SUB_STATUS.third_call_attempt],
+        },
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.third_call_attempt,
+          list: [ORDER_SUB_STATUS.third_call_attempt],
+        },
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+          list: [
+            ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.fourHour_delivery,
+          ],
+        },
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.merchandise_picking,
+          list: [ORDER_SUB_STATUS.merchandise_picking, ORDER_SUB_STATUS.require_warehouse_change],
+        },
+        // chờ sale xác nhận lại
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_saler_confirmation,
+          list: [
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+          ],
+        },
+        // đã xác nhận
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.coordinator_confirmed,
+          list: [
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.merchandise_picking,
+            ORDER_SUB_STATUS.require_warehouse_change,
+          ],
+        },
+        //đổi kho hàng
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.require_warehouse_change,
+          list: [
+            ORDER_SUB_STATUS.require_warehouse_change,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+          ],
+        },
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.merchandise_packed,
+          list: [ORDER_SUB_STATUS.merchandise_packed],
+        },
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.shipping,
+          list: [ORDER_SUB_STATUS.shipping],
+        },
+        {
+          orderStatus: OrderStatus.FINISHED,
+          now: ORDER_SUB_STATUS.shipped,
+          list: [ORDER_SUB_STATUS.shipped],
+        },
+        {
+          orderStatus: OrderStatus.CANCELLED,
+          now: "cancelled",
+          list: ["cancelled"],
+        },
+      ];
+      const STATUS_ORDER_OTHER = [
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.first_call_attempt,
+          list: [
+            ORDER_SUB_STATUS.first_call_attempt,
+            ORDER_SUB_STATUS.second_call_attempt,
+            ORDER_SUB_STATUS.third_call_attempt,
+          ],
+        },
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.second_call_attempt,
+          list: [ORDER_SUB_STATUS.second_call_attempt, ORDER_SUB_STATUS.third_call_attempt],
+        },
+        {
+          orderStatus: OrderStatus.DRAFT,
+          now: ORDER_SUB_STATUS.third_call_attempt,
+          list: [ORDER_SUB_STATUS.third_call_attempt],
+        },
+        // Chờ xác nhận
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+          list: [
+            ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.fourHour_delivery,
+          ],
+        },
+        // Chờ xử lý
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.awaiting_saler_confirmation,
+          list: [
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+            ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+          ],
+        },
+        //đổi kho hàng
+        {
+          orderStatus: OrderStatus.FINALIZED,
+          now: ORDER_SUB_STATUS.require_warehouse_change,
+          list: [
+            ORDER_SUB_STATUS.require_warehouse_change,
+            ORDER_SUB_STATUS.coordinator_confirmed,
+            ORDER_SUB_STATUS.awaiting_saler_confirmation,
+          ],
+        },
+        //hoàn thành
+        {
+          orderStatus: OrderStatus.FINISHED,
+          now: ORDER_SUB_STATUS.shipped,
+          list: [ORDER_SUB_STATUS.shipped],
+        },
+      ];
+      const filterStatus = (arr: any[], arrOrderSubStatus: OrderSubStatusResponse[]) => {
+        let result: OrderSubStatusResponse[] = [...arrOrderSubStatus];
+        const foundStatus = arr.find((single) => {
+          return single.now === sub_status_code && single.orderStatus === status;
+        });
+        if (foundStatus) {
+          let arrResult: OrderSubStatusResponse[] = [];
+          foundStatus.list.forEach((single: any) => {
+            let mapStatuses = arrOrderSubStatus.find((status) => status.code === single);
+            if (mapStatuses) {
+              arrResult.push(mapStatuses);
+            }
+          });
+          result = arrResult;
+          console.log("arrResult", arrResult);
+        }
+        return result;
+      };
+      if (!OrderDetailAllFulfillment?.fulfillments) {
+        return;
+      }
+      let result = [...initOrderSubStatus];
+      result = removeReturnInListIfOrderFinalize(result);
+      result = filterStatus(STATUS_ORDER_OTHER, result);
+      switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
+        // giao hàng hvc, tự giao hàng
+        case ShipmentMethod.EXTERNAL_SERVICE:
+        case ShipmentMethod.EMPLOYEE:
+          result = filterStatus(STATUS_ORDER_PARTNER, result);
+          break;
+        // nhận tại cửa hàng
+        case ShipmentMethod.PICK_AT_STORE:
+          result = filterStatus(STATUS_ORDER_AT_STORE, result);
+          break;
+        default:
+          break;
+      }
+      setListOrderSubStatus(result);
+    },
+    [
+      ORDER_RETURN_SUB_STATUS.returned.code,
+      ORDER_RETURN_SUB_STATUS.returning.code,
+      ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
+      ORDER_SUB_STATUS.awaiting_saler_confirmation,
+      ORDER_SUB_STATUS.awaiting_shipper,
+      ORDER_SUB_STATUS.coordinator_confirmed,
+      ORDER_SUB_STATUS.first_call_attempt,
+      ORDER_SUB_STATUS.fourHour_delivery,
+      ORDER_SUB_STATUS.merchandise_packed,
+      ORDER_SUB_STATUS.merchandise_picking,
+      ORDER_SUB_STATUS.require_warehouse_change,
+      ORDER_SUB_STATUS.second_call_attempt,
+      ORDER_SUB_STATUS.shipped,
+      ORDER_SUB_STATUS.shipping,
+      ORDER_SUB_STATUS.third_call_attempt,
+      OrderDetailAllFulfillment?.fulfillments,
+      initOrderSubStatus,
+      sortedFulfillments,
+      status,
+    ]
+  );
 
-		if (orderId) {
-			dispatch(setSubStatusAction(orderId, sub_status_code, () => {
-				setValueSubStatusCode(sub_status_code);
-				handleUpdateSubStatus();
-				setReload(true)
-			}));
-		}
-	};
+  const changeSubStatusCode = (sub_status_code: string, reasonId?: number, subReasonRequireWarehouseChange?: number) => {
+    if (orderId) {
+      dispatch(
+        setSubStatusAction(
+          orderId,
+          sub_status_code,
+          () => {
+            setValueSubStatusCode(sub_status_code);
+            handleUpdateSubStatus();
+            setReload(true);
+            setIsShowReason(false);
+            setSubReasonRequireWarehouseChange(undefined);
+          },
+          undefined,
+          reasonId,
+          subReasonRequireWarehouseChange,
+        )
+      );
+    }
+  };
 
-	useEffect(() => {
-		const listFulfillmentMapSubStatus = {
-			packed: {
-				fulfillmentStatus: "packed",
-				subStatus: "packed",
-			},
-			finalized: {
-				fulfillmentStatus: "shipping",
-				subStatus: "shipping",
-			},
-		};
-		if (status) {
-			let resultStatus = status;
-			if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
-				switch (fulfillments[0].status) {
-					case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
-						resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
-						break;
-					case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
-						resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
-						break;
-					default:
-						break;
-				}
-			}
-			dispatch(
-				getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
-					setInitOrderSubStatus(data);
-				})
-			);
-		}
-	}, [dispatch, fulfillments, status]);
+  const handleIfOrderStatusWithPartner = (sub_status_code: string) => {
+    let isChange = true;
+    switch (sub_status_code) {
+      // backend đã xử lý khi chưa có biên bản bàn giao
+      // case ORDER_SUB_STATUS.awaiting_shipper: {
+      //   if (!OrderDetailAllFulfillment?.code) {
+      //     return isChange;
+      //   }
+      //   const query = {
+      //     order_codes: OrderDetailAllFulfillment?.code,
+      //   };
+      //   getGoodsReceiptsSerchService(query).then((response) => {
+      //     if (isFetchApiSuccessful(response)) {
+      //       if (response.data?.items?.length > 0) {
+      //         isChange = true;
+      //       } else {
+      //         isChange = false;
+      //         showError("Đơn hàng chưa có trong biên bản bàn giao!");
+      //       }
+      //     }
+      //   });
+      //   break;
+      // }
 
-	useEffect(() => {
-		if (valueSubStatusCode) {
-			handleOrderSubStatus(valueSubStatusCode)
-		} else {
-			setListOrderSubStatus(initOrderSubStatus)
-		}
-	}, [handleOrderSubStatus, valueSubStatusCode, OrderDetailAllFulfillment?.fulfillments, fulfillments, initOrderSubStatus])
+      case ORDER_SUB_STATUS.require_warehouse_change: {
+        if (subReasonRequireWarehouseChange) {
+          isChange = true;
+        } else {
+          isChange = false;
+          setIsShowReason(true);
+          showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
+          setTimeout(() => {
+            const element = document.getElementById("requireWarehouseChangeId");
+            element?.focus();
+          }, 500);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    return isChange;
+  };
 
-	useEffect(() => {
-		if (subStatusCode) {
-			setValueSubStatusCode(subStatusCode);
-		}
-	}, [subStatusCode]);
+  const handleIfOrderStatusPickAtStore = (sub_status_code: string) => {
+    let isChange = true;
+    return isChange;
+    // changeSubStatusCode(sub_status_code);
+  };
 
-	return (
-		<Card title="Xử lý đơn hàng">
-			<Select
-				showSearch
-				style={{ width: "100%" }}
-				placeholder="Chọn trạng thái phụ"
-				optionFilterProp="children"
-				filterOption={(input, option) =>
-					option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-				}
-				onChange={handleChange}
-				notFoundContent="Không tìm thấy trạng thái phụ"
-				value={valueSubStatusCode}
-				key={Math.random()}
+  const handleIfOrderStatusOther = (sub_status_code: string) => {
+    let isChange = true;
+    switch (sub_status_code) {
+      case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
+        const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
+        if (
+          !sortedFulfillments[0]?.shipment ||
+          (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status))
+        ) {
+          isChange = true;
+        } else {
+          isChange = false;
+          showError("Bạn chưa hủy đơn giao hàng!");
+        }
+        break;
+      }
+      case ORDER_SUB_STATUS.coordinator_confirmed: {
+        const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
+        if (
+          (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status)) ||
+          !sortedFulfillments[0]?.shipment
+        ) {
+          isChange = false;
+          showError("Chưa có hình thức vận chuyển!");
+        } else {
+          isChange = true;
+        }
+        break;
+      }
+      case ORDER_SUB_STATUS.fourHour_delivery: {
+        if (sortedFulfillments[0]?.shipment?.service !== SHIPPING_TYPE.DELIVERY_4H) {
+          isChange = false;
+          showError("Chưa chọn giao hàng 4h!");
+        } else {
+          isChange = true;
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    return isChange;
+  };
+
+  const handleChange = (sub_status_code: string) => {
+    if (!orderId) {
+      return;
+    }
+    let isChange = true;
+    switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
+      // giao hàng hvc, tự giao hàng
+      case ShipmentMethod.EXTERNAL_SERVICE:
+      case ShipmentMethod.EMPLOYEE:
+        isChange = handleIfOrderStatusWithPartner(sub_status_code);
+        break;
+      // nhận tại cửa hàng
+      case ShipmentMethod.PICK_AT_STORE:
+        isChange = handleIfOrderStatusPickAtStore(sub_status_code);
+        break;
+      default:
+        break;
+    }
+    if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
+      isChange = false;
+      setValueSubStatusCode(sub_status_code);
+      return;
+    }
+    if (isChange) {
+      isChange = handleIfOrderStatusOther(sub_status_code);
+    }
+    if (isChange) {
+      changeSubStatusCode(sub_status_code);
+    }
+  };
+
+  useEffect(() => {
+    const listFulfillmentMapSubStatus = {
+      packed: {
+        fulfillmentStatus: "packed",
+        subStatus: "packed",
+      },
+      finalized: {
+        fulfillmentStatus: ORDER_SUB_STATUS.shipping,
+        subStatus: ORDER_SUB_STATUS.shipping,
+      },
+    };
+    if (status) {
+      let resultStatus = status;
+      if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
+        switch (fulfillments[0].status) {
+          case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
+            resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
+            break;
+          case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
+            resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
+            break;
+          default:
+            break;
+        }
+      }
+      dispatch(
+        getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
+          setInitOrderSubStatus(data);
+        })
+      );
+    }
+  }, [ORDER_SUB_STATUS.shipping, dispatch, fulfillments, status]);
+
+  useEffect(() => {
+    if (valueSubStatusCode) {
+      handleOrderSubStatus(valueSubStatusCode);
+    } else {
+      setListOrderSubStatus(initOrderSubStatus);
+    }
+  }, [
+    handleOrderSubStatus,
+    valueSubStatusCode,
+    OrderDetailAllFulfillment?.fulfillments,
+    fulfillments,
+    initOrderSubStatus,
+  ]);
+
+  useEffect(() => {
+    if (subStatusCode) {
+      setValueSubStatusCode(subStatusCode);
+    }
+  }, [subStatusCode]);
+
+  useEffect(() => {
+    const code = ["change_depot"];
+    getOrderReasonService(code).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons);
+        setReasonId(response.data[0].id);
+      } else {
+        handleFetchApiError(response, "Danh sách lý do đổi kho hàng", dispatch);
+      }
+    });
+  }, [dispatch]);
+
+  useEffect(() => {
+    if(subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
+      setIsShowReason(true);
+      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id)
+    }
+  }, [ORDER_SUB_STATUS.require_warehouse_change, OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
+  
+
+  return (
+    <Card title="Xử lý đơn hàng">
+      <Select
+        showSearch
+        style={{ width: "100%" }}
+        placeholder="Chọn trạng thái phụ"
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        }
+        onChange={handleChange}
+        notFoundContent="Không tìm thấy trạng thái phụ"
+        value={valueSubStatusCode}
 				disabled = {isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
-			>
-				{listOrderSubStatus &&
-					listOrderSubStatus.map((single) => {
-						return (
-							<Select.Option value={single.code} key={single.code}>
-								{single.sub_status}
-							</Select.Option>
-						);
-					})}
-			</Select>
-		</Card>
-	);
+        key={Math.random()}>
+        {listOrderSubStatus &&
+          listOrderSubStatus.map((single) => {
+            return (
+              <Select.Option value={single.code} key={single.code}>
+                {single.sub_status}
+              </Select.Option>
+            );
+          })}
+      </Select>
+      {isShowReason ? (
+        <div style={{ marginTop: 15 }}>
+          <Form.Item
+            style={{ marginBottom: 0 }}
+            label={
+              <div>
+                <span>Chọn lý do đổi kho hàng chi tiết </span>
+                <span className="text-error">*</span>
+              </div>
+            }>
+            <Select
+              id="requireWarehouseChangeId"
+              showSearch
+              allowClear
+              style={{ width: "100%" }}
+              placeholder="Chọn lý do đổi kho hàng"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              onChange={(value: number) => {
+                if(!value) {
+                  showError("Vui lòng chọn lý do đổi kho hàng chi tiết!");
+                  return;
+                }
+                setSubReasonRequireWarehouseChange(value);
+                changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change, reasonId, value);
+              }}
+							disabled = {isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
+              value={subReasonRequireWarehouseChange}
+              notFoundContent="Không tìm thấy lý do đổi kho hàng">
+              {subReasonsRequireWarehouseChange &&
+                subReasonsRequireWarehouseChange.map((single) => {
+                  return (
+                    <Select.Option value={single.id} key={single.id}>
+                      {single.name}
+                    </Select.Option>
+                  );
+                })}
+            </Select>
+          </Form.Item>
+        </div>
+      ) : null}
+    </Card>
+  );
 }
 
 export default SubStatusOrder;
