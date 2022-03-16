@@ -226,6 +226,7 @@ function OrderCreateProduct(props: PropType) {
 		setPromotion,
 		setShippingFeeInformedToCustomer,
 	} = props;
+	
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
 
   const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
@@ -2041,7 +2042,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [loyaltyPoint, storeId, orderSourceId]);
+	}, [customer?.id, storeId, orderSourceId]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2062,7 +2063,7 @@ function OrderCreateProduct(props: PropType) {
 			isShouldUpdateDiscountRef.current = true;
 		}, 1000);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [loyaltyPoint, storeId, orderSourceId]);
+	}, [customer?.id, storeId, orderSourceId]);
 
 	useEffect(() => {
 		if (items && items.length === 0) {
