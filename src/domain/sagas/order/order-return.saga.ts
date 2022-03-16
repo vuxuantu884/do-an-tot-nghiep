@@ -3,14 +3,14 @@ import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { ORDER_RETURN_TYPES } from "domain/types/order-return";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
-import { OrderReturnReasonModel } from "model/response/order/order.response";
+import { OrderReasonModel } from "model/response/order/order.response";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
 	createOrderExchangeService,
 	createOrderReturnService,
 	getOrderReturnCalculateRefundService,
 	getOrderReturnLog,
-	getOrderReturnReasonService,
+	getOrderReasonService,
 	getOrderReturnService,
 	orderRefundService,
 	setIsReceivedProductOrderReturnService
@@ -84,13 +84,15 @@ function* setIsReceivedProductReturnSaga(action: YodyAction) {
 
 function* getOrderReturnReasonsSaga(action: YodyAction) {
   const { handleData } = action.payload;
+  const code = ["order_return"];
   try {
     yield put(showLoading());
-    let response: BaseResponse<OrderReturnReasonModel[]> = yield call(
-      getOrderReturnReasonService
+    let response: BaseResponse<OrderReasonModel[]> = yield call(
+      getOrderReasonService,
+      code
     );
 		if (isFetchApiSuccessful(response)) {
-			handleData(response.data);
+			handleData(response.data[0]);
 		} else {
 			yield put(fetchApiErrorAction(response, "Danh sách lý do trả hàng"));
 		}

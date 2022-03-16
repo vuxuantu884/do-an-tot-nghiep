@@ -547,7 +547,7 @@ function* getListSubStatusSaga(action: YodyAction) {
 }
 
 function* setSubStatusSaga(action: YodyAction) {
-  let { order_id, statusCode, handleData, handleError } = action.payload;
+  let { order_id, statusCode, handleData, handleError, reason_id, sub_reason_id } = action.payload;
   const actionText = action.payload.action;
   yield put(showLoading());
   try {
@@ -555,7 +555,9 @@ function* setSubStatusSaga(action: YodyAction) {
       setSubStatusService,
       order_id,
       statusCode,
-      actionText
+      actionText,
+      reason_id,
+      sub_reason_id,
     );
     if (isFetchApiSuccessful(response)) {
       showSuccess("Cập nhật trạng thái phụ đơn hàng thành công!");

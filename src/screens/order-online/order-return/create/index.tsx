@@ -40,7 +40,7 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import {
 	OrderLineItemResponse,
 	OrderResponse,
-	OrderReturnReasonModel,
+	OrderReasonModel,
 	ReturnProductModel,
 	ShippingAddress,
 	StoreCustomResponse
@@ -171,9 +171,9 @@ const ScreenReturnCreate = (props: PropType) => {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
-  const [listOrderReturnReason, setListOrderReturnReason] = useState<
-    OrderReturnReasonModel[]
-  >([]);
+  const [orderReturnReasonResponse, setOrderReturnReasonResponse] = useState<
+  OrderReasonModel|null
+  >(null);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
   const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
@@ -458,8 +458,8 @@ ShippingServiceConfigDetailResponseModel[]
         items: itemsResult,
         fulfillments: [],
         payments: payments,
-        reason_id: form.getFieldValue("reason_id"),
-        reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
+        reason_id: orderReturnReasonResponse?.id || 0,
+        reason_name: orderReturnReasonResponse?.sub_reasons.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
         reason: form.getFieldValue("reason"),
         sub_reason_id: form.getFieldValue("sub_reason_id") || null,
         received: isReceivedReturnProducts,
@@ -682,8 +682,8 @@ ShippingServiceConfigDetailResponseModel[]
             items: itemsResult,
             fulfillments: [],
             payments: payments,
-            reason_id: form.getFieldValue("reason_id"),
-            reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
+            reason_id: orderReturnReasonResponse?.id || 0,
+            reason_name: orderReturnReasonResponse?.sub_reasons.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
             reason: form.getFieldValue("reason"),
             sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
@@ -1244,7 +1244,7 @@ ShippingServiceConfigDetailResponseModel[]
 
               <Col md={6}>
                 <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
-                <OrderReturnReason listOrderReturnReason={listOrderReturnReason} form={form} />
+                <OrderReturnReason orderReturnReasonResponse={orderReturnReasonResponse} form={form} />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               </Col>
             </Row>
@@ -1382,7 +1382,7 @@ ShippingServiceConfigDetailResponseModel[]
   useEffect(() => {
     dispatch(
       actionGetOrderReturnReasons((response) => {
-        setListOrderReturnReason(response);
+        setOrderReturnReasonResponse(response);
       })
     );
 

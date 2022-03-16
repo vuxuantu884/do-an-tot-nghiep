@@ -94,7 +94,8 @@ export interface OrderResponse extends BaseObject {
     utm_term?: string | null;
     utm_content?: string | null;
   };
-  export_bill: boolean;
+  export_bill: boolean; 
+  sub_reason_id?: number;
 }
 
 export interface OrderLineItemResponse {
@@ -464,10 +465,19 @@ export interface OrderReturnModel extends OrderResponse {
   total_amount: number;
 }
 
-export interface OrderReturnReasonModel {
+export interface OrderReasonModel {
+  code: string;
   id: number;
   name: string;
-  sub_reasons: {
+  sub_reasons: OrderReturnReasonDetailModel[]
+}
+
+export interface OrderReturnReasonDetailModel {
+  code: string;
+  id: number;
+  name: string;
+  sub_reason_details: {
+    code: string;
     id: number;
     name: string;
   }[]

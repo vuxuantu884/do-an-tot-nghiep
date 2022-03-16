@@ -3,7 +3,7 @@ import { OrderType } from "domain/types/order.type";
 import { ExchangeRequest, OrderRequest, OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import { LoyalTyCalCulateRefund } from "model/response/loyalty/loyalty-points.response";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
-import { OrderReturnReasonModel } from "model/response/order/order.response";
+import { OrderReasonModel } from "model/response/order/order.response";
 
 export const actionGetOrderReturnDetails = (
   id: number,
@@ -45,7 +45,7 @@ export const actionSetIsReceivedOrderReturn = (
 };
 
 export const actionGetOrderReturnReasons = (
-  handleData: (data: OrderReturnReasonModel[]) => void
+  handleData: (data: OrderReasonModel) => void
 ) => {
   return {
     type: ORDER_RETURN_TYPES.GET_LIST_RETURN_REASON,

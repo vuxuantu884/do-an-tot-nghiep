@@ -994,7 +994,7 @@ export const getServiceName = (item: OrderResponse) => {
   }
 };
 
-export const scrollAndFocusToDomElement = (element?: HTMLElement) => {
+export const scrollAndFocusToDomElement = (element?: HTMLElement|null) => {
   if (!element) {
     return;
   }
