@@ -197,8 +197,8 @@ const TabProductWrapper: React.FC = () => {
           <div>
              {
               (record?.designer) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.designer_code}`}> 
-                  {record?.designer} 
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.designer_code}`}>
+                  {record?.designer}
                 </Link>  :"---"
             }
           </div>
@@ -213,8 +213,8 @@ const TabProductWrapper: React.FC = () => {
           <div>
              {
               (record?.merchandiser) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.merchandiser_code}`}> 
-                  {record?.merchandiser} 
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.merchandiser_code}`}>
+                  {record?.merchandiser}
                 </Link>  :"---"
             }
           </div>
@@ -282,8 +282,10 @@ const TabProductWrapper: React.FC = () => {
     (page, size) => {
       let newParams = {...params, page, limit: size};
       setParams(newParams);
+      let queryParam = generateQuery(newParams);
+      history.push(`${UrlConfig.PRODUCT}${history.location.hash}?${queryParam}`);
     },
-    [params]
+    [history, params]
   );
 
   const columnFinal = useMemo(

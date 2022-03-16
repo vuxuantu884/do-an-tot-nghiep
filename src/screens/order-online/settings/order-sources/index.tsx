@@ -191,7 +191,7 @@ function OrderSources(props: PropTypes) {
 
   const history = useHistory();
 
-  let [queryParams, setQueryParams] = useState<any>(null); 
+  let [queryParams, setQueryParams] = useState<any>(null);
 
   const handleDeleteMultiOrderSource = () => {
     showLoading();
@@ -332,8 +332,8 @@ function OrderSources(props: PropTypes) {
         ...queryParams,
         name: queryParams.name ? queryParams.name.trim() : ""
       };
-      
-      fetchData(resultParams);   
+
+      fetchData(resultParams);
       history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
       window.scrollTo(0, 0);
     },
@@ -384,7 +384,6 @@ function OrderSources(props: PropTypes) {
 
   useLayoutEffect(() => {
       setTableLoading(true);
-      gotoFirstPage();
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -399,22 +398,18 @@ function OrderSources(props: PropTypes) {
   }, [form, queryParamsParsed.department_ids, queryParamsParsed.name]);
 
   useEffect(() => {
-    setQueryParams({
+    const currentParams = {
       page: +(queryParamsParsed.page || DEFAULT_PAGINATION.page),
       limit: +(queryParamsParsed.limit || DEFAULT_PAGINATION.limit),
       sort_type: "desc",
       sort_column: "updated_date",
       name: queryParamsParsed.name,
       department_ids: queryParamsParsed.department_ids,
-    });
-  }, [
-    DEFAULT_PAGINATION.limit,
-    DEFAULT_PAGINATION.page,
-    queryParamsParsed.department_ids,
-    queryParamsParsed.limit,
-    queryParamsParsed.name,
-    queryParamsParsed.page,
-  ]);
+    };
+    setQueryParams(currentParams);
+    fetchData(currentParams);
+    // eslint-disable-next-line
+  }, []);
 
   const filterDepartmentLevelThree = (newList: Array<Object>, list: Array<Object>) => {
     list.forEach((i: any) => {
