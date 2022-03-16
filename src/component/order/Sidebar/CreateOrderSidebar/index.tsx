@@ -218,17 +218,17 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
         <Form.Item
           label="Nhân viên marketing"
           name="marketer_code"
-          rules={
-            // nguồn POS thì không validate
-            !isOrderFromPOS(orderDetail)
-              ? [
-                  {
-                    required: true,
-                    message: "Vui lòng chọn nhân viên marketing!",
-                  },
-                ]
-              : undefined
-          }
+          // rules={
+          //   // nguồn POS thì không validate
+          //   !isOrderFromPOS(orderDetail)
+          //     ? [
+          //         {
+          //           required: true,
+          //           message: "Vui lòng chọn nhân viên marketing!",
+          //         },
+          //       ]
+          //     : undefined
+          // }
           // rules={[
           //   {
           //     required: true,
