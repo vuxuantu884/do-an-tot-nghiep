@@ -3,8 +3,10 @@ import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import {RouteMenu} from "model/other";
 import React from "react";
-import ColorUpdateScreen from "screens/products/color/color-update.screen";
 
+const ColorUpdateScreen = React.lazy(
+  () => import("screens/products/color/color-update.screen")
+);
 const Category = React.lazy(
   () => import("screens/products/category/category-list.screen")
 );
