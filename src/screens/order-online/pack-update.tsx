@@ -1,4 +1,4 @@
-import {DeleteOutlined} from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import {
   Card,
   Col,
@@ -12,34 +12,36 @@ import {
 } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import ContentContainer from "component/container/content.container";
-import ActionButton, {MenuAction} from "component/table/ActionButton";
+import ActionButton, { MenuAction } from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
 import {
   getByIdGoodsReceipts,
   // getOrderGoodsReceipts,
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
-import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
-import React, {createRef, useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useParams} from "react-router-dom";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
+import React, { createRef, useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 import search from "assets/img/search.svg";
 import moment from "moment";
 import "assets/css/_pack.scss";
 import "./scss/index.screen.scss";
-import {GoodsReceiptsInfoOrderModel, VariantModel} from "model/pack/pack.model";
-import {Link} from "react-router-dom";
-import {StyledComponent} from "./scss/index.screen.styles";
-import {showSuccess, showWarning} from "utils/ToastUtils";
+import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
+import { Link } from "react-router-dom";
+import { StyledComponent } from "./scss/index.screen.styles";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 
-const {Item} = Form;
+const { Item } = Form;
 type PackParam = {
   id: string;
 };
 
+var barcode = "";
+
 const PackUpdate: React.FC = () => {
   const dispatch = useDispatch();
-  let {id} = useParams<PackParam>();
+  let { id } = useParams<PackParam>();
   let PackId = parseInt(id);
   const formSearchOrderRef = createRef<FormInstance>();
   const [searchOrderForm] = Form.useForm();
@@ -96,7 +98,8 @@ const PackUpdate: React.FC = () => {
               variant_id: itemProduct.variant_id,
               variant: itemProduct.variant,
               variant_barcode: itemProduct.variant_barcode,
-              quantity:itemProduct.quantity
+              quantity: itemProduct.quantity,
+              price: itemProduct.price
             });
           });
         });
@@ -175,74 +178,42 @@ const PackUpdate: React.FC = () => {
 
   const handleSubmit = useCallback(
     (value: any) => {
+      if (!packDetail) return;
 
-      let order_id = value.order_id;
-      if (order_id.trim()) {
-        let codes: any[] = [];
-        codes.push(order_id);
+      let order_id = value.order_id?.trim();
 
-        let id = packDetail?.id ? packDetail?.id : 0;
-        let param: any = {
-          ...packDetail,
-          codes: codes,
-        };
-
-        dispatch(
-          updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
-            if (data) {
-              let result: GoodsReceiptsInfoOrderModel[] = [];
-              data.orders?.forEach(function (itemOrder, index) {
-                let product: VariantModel[] = [];
-                let ship_price = 0;
-                let total_price = 0;
-
-                itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-                  ship_price =
-                    ship_price +
-                    (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
-                      ? itemFulfillment.shipment.shipping_fee_informed_to_customer
-                      : 0);
-                  total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
-
-                  itemFulfillment.items.forEach(function (itemProduct) {
-                    product.push({
-                      sku: itemProduct.sku,
-                      product_id: itemProduct.product_id,
-                      product: itemProduct.product,
-                      variant_id: itemProduct.variant_id,
-                      variant: itemProduct.variant,
-                      variant_barcode: itemProduct.variant_barcode,
-                      quantity:itemProduct.quantity
-                    });
-                  });
-                });
-
-                let resultItem: GoodsReceiptsInfoOrderModel = {
-                  key: index,
-                  order_id: itemOrder.id ? itemOrder.id : 0,
-                  order_code: itemOrder.code ? itemOrder.code : "",
-                  customer_id: 1,
-                  customer_name: itemOrder.customer ? itemOrder.customer : "",
-                  customer_phone: itemOrder.customer_phone_number
-                    ? itemOrder.customer_phone_number
-                    : "api chua tra ra du lieu",
-                  customer_address: "api chua tra ra du lieu",
-                  product: product,
-                  ship_price: ship_price,
-                  total_price: total_price,
-                };
-
-                result.push(resultItem);
-              });
-              setGoodsReceiptsInfoOrderModel(result);
-              showSuccess("Thêm đơn hàng vào biên bản thành công");
-            }
-          })
-        );
-        searchOrderForm.resetFields();
-      } else {
+      if (!order_id) {
         showWarning("Vui lòng chọn đơn hàng cần thêm");
+        return;
       }
+
+      let indexOrder = packDetail.orders?.findIndex((p) => p.code === order_id);
+      if (indexOrder !== -1) {
+        showWarning("Đơn hàng đã tồn tại trong biên bản");
+        return;
+      }
+
+      let codes: string[] = [];
+      packDetail.orders?.forEach((item) => {
+        if (item.code) codes.push(item.code);
+      });
+      codes.push(order_id);
+
+      let id = packDetail?.id ? packDetail?.id : 0;
+      let param: any = {
+        ...packDetail,
+        codes: codes,
+      };
+
+      dispatch(
+        updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
+          if (data) {
+            setPackDetail(data);
+            showSuccess("Thêm đơn hàng vào biên bản thành công");
+          }
+        })
+      );
+      searchOrderForm.resetFields();
     },
     [packDetail, dispatch, searchOrderForm]
   );
@@ -260,7 +231,7 @@ const PackUpdate: React.FC = () => {
             <Link
               target="_blank"
               to={`${UrlConfig.ORDER}/${i.order_id}`}
-              style={{fontWeight: 500}}
+              style={{ fontWeight: 500 }}
             >
               {value}
             </Link>
@@ -274,12 +245,12 @@ const PackUpdate: React.FC = () => {
       render: (value: string, i: GoodsReceiptsInfoOrderModel) => {
         return (
           <React.Fragment>
-            <div style={{padding: "5px 10px"}}>
+            <div style={{ padding: "5px 10px" }}>
               <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${i.customer_id}`}>
                 {value}
               </Link>
-              <div style={{fontSize: "0.86em"}}>{i.customer_phone}</div>
-              <div style={{fontSize: "0.86em", marginTop: 5}}>{i.customer_address}</div>
+              <div style={{ fontSize: "0.86em" }}>{i.customer_phone}</div>
+              <div style={{ fontSize: "0.86em", marginTop: 5 }}>{i.customer_address}</div>
             </div>
           </React.Fragment>
         );
@@ -318,10 +289,10 @@ const PackUpdate: React.FC = () => {
                     </Link>
                   </div>
                   <div className="quantity quantityWidth">
-                    <span>0</span>
+                    <span>{item.quantity}</span>
                   </div>
                   <div className="price priceWidth">
-                    <span>0</span>
+                    <span>{item.price}</span>
                   </div>
                 </div>
               );
@@ -350,6 +321,58 @@ const PackUpdate: React.FC = () => {
       align: "center",
     },
   ];
+
+  const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
+    if (event.target instanceof HTMLBodyElement) {
+      if (event.key !== "Enter") {
+        barcode += event.key;
+      }
+      else {
+        if (!packDetail) return;
+
+        let indexOrder = packDetail?.orders?.findIndex((p) => p.code === barcode);
+        if (indexOrder !== -1) {
+          showWarning("Đơn hàng đã tồn tại trong biên bản");
+          return;
+        }
+  
+        let codes: string[] = [];
+        packDetail?.orders?.forEach((item) => {
+          if (item.code) codes.push(item.code);
+        });
+        codes.push(barcode);
+  
+        let id = packDetail?.id ? packDetail?.id : 0;
+        let param: any = {
+          ...packDetail,
+          codes: codes,
+        };
+  
+        dispatch(
+          updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
+            if (data) {
+              setPackDetail(data);
+              showSuccess("Thêm đơn hàng vào biên bản thành công");
+            }
+          })
+        );
+        barcode = "";
+      }
+    }
+  }, [dispatch, packDetail]);
+
+  useEffect(() => {
+    const orderIdElement: any = document.getElementById("order_id");
+
+    orderIdElement?.addEventListener("focus", (e: any) => {
+      orderIdElement.select();
+    });
+
+    window.addEventListener("keypress", eventBarcodeOrder);
+    return () => {
+      window.removeEventListener("keypress", eventBarcodeOrder);
+    }
+  }, [eventBarcodeOrder]);
 
   return (
     <StyledComponent>
@@ -441,14 +464,14 @@ const PackUpdate: React.FC = () => {
 
         <Card title="Thông tin biên bản bàn giao" className="pack-info-update-card">
           <div className="order-filter">
-            <div className="page-filter" style={{padding: "0px 0px 20px 0px"}}>
+            <div className="page-filter" style={{ padding: "0px 0px 20px 0px" }}>
               <div className="page-filter-heading">
                 <div className="page-filter-left">
                   <ActionButton menu={actions} onMenuClick={onMenuClick} />
                 </div>
                 <div
                   className="page-filter-right"
-                  style={{width: "88%", display: "flex", justifyContent: "flex-end" }}
+                  style={{ width: "88%", display: "flex", justifyContent: "flex-end" }}
                 >
                   <Form
                     layout="inline"
@@ -456,18 +479,18 @@ const PackUpdate: React.FC = () => {
                     form={searchOrderForm}
                     onFinish={handleSubmit}
                   >
-                    <Item name="order_id" style={{width: 400}}>
+                    <Item name="order_id" style={{ width: 400 }}>
                       <Input
                         prefix={<img src={search} alt="" />}
                         placeholder="ID đơn hàng"
                       />
                     </Item>
-                    <Item style={{width: 150, marginRight: 0}}>
+                    <Item style={{ width: 150, marginRight: 0 }}>
                       <Button
                         type="primary"
                         //onClick={handleSearchOrder}
                         htmlType="submit"
-                        style={{width: 150}}
+                        style={{ width: 150 }}
                       >
                         Thêm đơn hàng
                       </Button>
@@ -485,7 +508,7 @@ const PackUpdate: React.FC = () => {
             bordered
             columns={columns}
             dataSource={goodsReceiptsInfoOrderModel}
-            //key={Math.random()}
+          //key={Math.random()}
           />
         </Card>
       </ContentContainer>
