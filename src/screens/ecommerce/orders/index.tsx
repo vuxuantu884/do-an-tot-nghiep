@@ -268,7 +268,7 @@ const EcommerceOrders: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(Math.round(response.data?.num_of_record / response.data?.total * 10000) / 100);
+          setExportProgress(Math.round(response.data?.num_of_record / response.data?.total * 100));
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -278,8 +278,6 @@ const EcommerceOrders: React.FC = () => {
             });
             window.open(response.data.url);
             setListExportFile(newListExportFile);
-            setShowExportModal(false);
-            setExportProgress(0);
           }
           if (response.data && response.data.status === "ERROR") {
             setStatusExport(4);
@@ -948,8 +946,13 @@ const EcommerceOrders: React.FC = () => {
   }
   // end handle print yody delivery note
 
-  const  handleExportOrder = () => {
-    setShowExportModal(true)
+  const handleExportOrder = () => {
+    if (listExportFile.length) {
+      setStatusExport(2);
+    } else {
+      setStatusExport(1);
+    }
+    setShowExportModal(true);
   }
 
   const actions = [
