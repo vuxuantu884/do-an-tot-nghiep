@@ -94,7 +94,7 @@ export interface OrderResponse extends BaseObject {
     utm_term?: string | null;
     utm_content?: string | null;
   };
-  export_bill: boolean; 
+  export_bill: boolean;
   sub_reason_id?: number;
 }
 
@@ -129,7 +129,7 @@ export interface OrderLineItemResponse {
   position?: number;
   gifts: Array<OrderLineItemResponse>;
   available:number|null;
-  order_line_item_id?: number|null;
+  order_line_item_id?:number|null;
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {

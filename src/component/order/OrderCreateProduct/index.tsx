@@ -1356,11 +1356,11 @@ function OrderCreateProduct(props: PropType) {
 						}
 						calculateChangeMoney(items, promotionResult)
 					} else {
-						let itemsAfterRemove = items.map(single => {
-							removeDiscountItem(single)
+						let itemsAfterRemoveAutomaticDiscount = items.map(single => {
+							removeAutomaticDiscountItem(single)
 							return single
 						})
-						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
+						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
 						calculateChangeMoney(items, promotionResult)
 						form.setFieldsValue({
 							note: ``

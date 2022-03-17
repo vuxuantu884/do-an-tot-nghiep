@@ -271,13 +271,9 @@ const PackDetail: React.FC = () => {
 
   return (
     <ContentContainer
-      title="Biên bản bàn giao"
+      title={`Biên bản bàn giao: ${PackId}`}
       isError={isError}
       breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
         {
           name: "Đơn hàng",
           path: UrlConfig.ORDER,
