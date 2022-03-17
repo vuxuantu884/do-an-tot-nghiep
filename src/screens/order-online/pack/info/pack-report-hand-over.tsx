@@ -30,6 +30,7 @@ import useAuthorization from "hook/useAuthorization";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -71,26 +72,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     not: false,
   });
 
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "In biên bản đầy đủ ",
-      icon: <PrinterOutlined />,
-    },
-    {
-      id: 2,
-      name: "In biên bản rút gọn ",
-      icon: <PrinterOutlined />,
-    },
-    {
-      id: 3,
-      name: "Xóa",
-      icon: <DeleteOutlined />,
-      color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
-      disabled: !allowDeleteGoodsReceipt
-    },
-  ];
-
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(dataQuery);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -105,6 +86,28 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
     items: [],
   });
+
+  const actions: Array<MenuAction> = useMemo(() => [
+    {
+      id: 1,
+      name: "In biên bản đầy đủ ",
+      icon: <PrinterOutlined />,
+      disabled: selectedRowKeys.length === 0
+    },
+    {
+      id: 2,
+      name: "In biên bản rút gọn ",
+      icon: <PrinterOutlined />,
+      disabled: selectedRowKeys.length === 0
+    },
+    {
+      id: 3,
+      name: "Xóa",
+      icon: <DeleteOutlined />,
+      color: (allowDeleteGoodsReceipt && selectedRowKeys.length !== 0) ? "#E24343" : "rgba(0,0,0,.25)",
+      disabled: !allowDeleteGoodsReceipt || selectedRowKeys.length === 0
+    },
+  ], [allowDeleteGoodsReceipt, selectedRowKeys.length]);
 
   const [modalDeleteComfirm, setModalDeleteComfirm] = useState(false);
 
@@ -313,8 +316,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   },[dispatch, params, selectedRowKeys]);
 
   const menu = (item: any) => {
+    // console.log('allowDeleteGoodsReceipt', allowDeleteGoodsReceipt);
     return (
-      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+      <Menu
+        className="yody-line-item-action-menu saleorders-product-dropdown"
+      >
         <Menu.Item key="1">
           <Button
             icon={<img style={{ marginRight: 12 }} alt="" src={IconPrint} />}
@@ -364,22 +370,26 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           </Button>
         </Menu.Item>
 
-        {/* <Menu.Item key="4">
-          <Button
-            icon={<DeleteOutlined />}
-            type="text"
-            className=""
-            style={{
-              color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
-            }}
-            disabled={!allowDeleteGoodsReceipt}
-            onClick={() => {
-              hanldRemoveGoodsReceiptOk(item.id_handover_record);
-            }}
-          >
-            Xoá
-          </Button>
-        </Menu.Item> */}
+        <Menu.Item key="4">
+          <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT]} passThrough>
+            {(isPassed: boolean) =>
+              <Button
+                icon={<DeleteOutlined />}
+                type="text"
+                className=""
+                style={{
+                  color: isPassed ? "#E24343" : "rgba(0,0,0,.25)",
+                }}
+                disabled={!isPassed}
+                onClick={() => {
+                  hanldRemoveGoodsReceiptOk(item.id_handover_record);
+                }}
+              >
+                Xoá
+              </Button>
+            }
+          </AuthWrapper>
+        </Menu.Item>
       </Menu>
     );
   };
@@ -545,40 +555,30 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       render: (l: any, item: any, index: number) => {
         
         return (
-          <div
-            style={{
-              //display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
+          <Dropdown
+            overlayStyle={{ minWidth: "15rem" }}
+            overlay={() => menu(item)}
+            // getPopupContainer={(trigger) => trigger}
+            // trigger={["click"]}
+            // placement="bottomRight"
           >
-            <div
-              className="site-input-group-wrapper saleorder-input-group-wrapper"
-              style={{
-                borderRadius: 5,
-              }}
-            >
-              <Dropdown overlay={() => menu(item)} trigger={["click"]} placement="bottomRight">
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-              </Dropdown>
-            </div>
-          </div>
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              icon={<img src={threeDot} alt=""></img>}
+            />
+          </Dropdown>
         );
       },
     }
   ]);
 
-  let newColumns = columns
+  // let newColumns = columns
   const columnFinal = useMemo(
     () => {
-      return newColumns.filter((item: any) => item.visible === true)
+      return columns.filter((item: any) => item.visible === true)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [newColumns, allowDeleteGoodsReceipt]
+    [columns]
   );
 
   useEffect(() => {

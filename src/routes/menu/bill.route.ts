@@ -190,6 +190,7 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
       },
       {
         path: `${UrlConfig.DELIVERY_RECORDS}/:id`,
@@ -214,7 +215,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       }
     ],
-    permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
+    permissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
   },
 
 ];
