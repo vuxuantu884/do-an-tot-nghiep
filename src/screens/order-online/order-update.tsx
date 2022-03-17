@@ -134,7 +134,7 @@ export default function Order(props: PropTypes) {
 	let { id } = useParams<OrderParam>();
 	const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
-  )	
+  )
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
@@ -369,8 +369,6 @@ ShippingServiceConfigDetailResponseModel[]
 		},
 		[deliveryServices]
 	);
-	
-	const sortedFulfillments = OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
 
 	const sortedFulfillments = OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
 
@@ -1815,7 +1813,7 @@ ShippingServiceConfigDetailResponseModel[]
 												<Space size={26}>
 													{OrderDetail?.fulfillments &&
 														OrderDetail?.fulfillments.length > 0 &&
-														// OrderDetail?.fulfillments[0].shipment?.expected_received_date && 
+														// OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
 														(
 															<div className="text-menu">
 																{OrderDetail?.fulfillments[0].shipment?.expected_received_date && (
@@ -2209,7 +2207,7 @@ ShippingServiceConfigDetailResponseModel[]
 																					</Row>
 																				</Col>
 
-																				{requirementNameView && (	
+																				{requirementNameView && (
 																					<Col md={12}>
 																						<Row gutter={30}>
 																							<Col span={10}>
