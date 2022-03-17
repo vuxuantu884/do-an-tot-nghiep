@@ -24,9 +24,7 @@ import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
-import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomSelect from "component/custom/select.custom";
-import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
@@ -83,7 +81,12 @@ import UploadImageModal, {
   VariantImageModel
 } from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
+import BaseSelectPaging from "../../../../component/base/BaseSelect/BaseSelectPaging";
+import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
+import { useFetchMerchans } from "../../../../hook/useFetchMerchans";
+import BaseSelect from "../../../../component/base/BaseSelect/BaseSelect";
 const { Item, List } = Form;
+const { Option } = Select;
 
 const initialRequest: ProductRequestView = {
   goods: null,
@@ -214,12 +217,17 @@ const ProductCreateScreen: React.FC = () => {
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
   const [changeDescription, setIsChangeDescription] = useState(true);
+  const [supplierLoading, setSupplierLoading] = useState(false);
+  const [collectionLoading, setCollectionLoading] = useState(false);
+  const [sizeLoading, setSizeLoading] = useState(false);
+  const [colorLoading, setColorLoading] = useState(false);
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
   //end category
   //end state
 
@@ -356,6 +364,7 @@ const ProductCreateScreen: React.FC = () => {
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
+      console.log('sĩe select')
       let size:string = "";
       if (objSize && objSize?.children) {
         size = objSize?.children.split(" ")[0];
@@ -645,16 +654,26 @@ const ProductCreateScreen: React.FC = () => {
   );
 
   const getColors = useCallback((info: string, page: number) => {
-    dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, setColors));
+    setColorLoading(true);
+    dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, (res) => {
+      setColors(res)
+      setColorLoading(false);
+    }));
   }, [dispatch]);
 
   const getSizes = useCallback((code: string, page: number) => {
-    dispatch(sizeSearchAction({ code: code, page: page }, setSizes));
+    setSizeLoading(true);
+    dispatch(sizeSearchAction({ code: code, page: page }, (res) => {
+      setSizes(res)
+      setSizeLoading(false);
+    }));
   }, [dispatch]);
 
   const getSuppliers = useCallback((key: string, page: number) => {
+    setSupplierLoading(true);
     dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
+      setSupplierLoading(false);
     }));
   }, [dispatch]);
 
@@ -677,10 +696,14 @@ const ProductCreateScreen: React.FC = () => {
   }, [form]);
 
   const getCollections = useCallback((code: string, page: number) => {
+    setCollectionLoading(true);
     dispatch(
       getCollectionRequestAction(
         { condition: code, page: page},
-        setCollections
+        (res) => {
+          setCollections(res);
+          setCollectionLoading(false);
+        }
       )
     );
   }, [dispatch, setCollections]);
@@ -872,39 +895,34 @@ const ProductCreateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item name="brand" label="Thương hiệu">
-                      <CustomSelect placeholder="Chọn thương hiệu">
-                        {brandList?.map((item) => (
-                          <CustomSelect.Option
+                      <BaseSelect
+                        data={brandList}
+                        renderItem={(item) => (
+                          <Option
                             key={item.value}
                             value={item.value}
                           >
                             {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
+                          </Option>
+                        )}
+                        placeholder="Chọn thương hiệu"
+                      />
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item label="Nhóm hàng" name="product_collections">
-                      <SelectPaging
-                          metadata={collections.metadata}
-                          showSearch={false}
-                          mode="multiple"
-                          maxTagCount="responsive"
-                          showArrow
-                          allowClear
-                          searchPlaceholder="Tìm kiếm nhóm hàng"
-                          placeholder="Chọn nhóm hàng"
-                          onPageChange={(key, page) => getCollections(key, page)}
-                          onSearch={(key) => getCollections(key, 1)}
-                        >
-
-                          {collections.items.map((item) => (
-                            <SelectPaging.Option key={item.code} value={item.code}>
-                              {`${item.code} - ${item.name}`}
-                            </SelectPaging.Option>
-                          ))}
-                        </SelectPaging>
+                      <BaseSelectPaging
+                        metadata={collections.metadata}
+                        data={collections.items}
+                        renderItem={(item) => (
+                          <Option key={item.code} value={item.code}>
+                            {`${item.code} - ${item.name}`}
+                          </Option>
+                        )}
+                        placeholder="Chọn nhóm hàng"
+                        loading={collectionLoading}
+                        fetchData={(query) => getCollections(query.condition || "", query.page || 1)}
+                      />
                     </Item>
                   </Col>
                 </Row>
@@ -961,21 +979,18 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item name="supplier_id" label="Nhà cung cấp">
-                      <SelectPaging
-                        searchPlaceholder="Tìm kiếm nhà cung cấp"
+                      <BaseSelectPaging
+                        loading={supplierLoading}
                         metadata={suppliers.metadata}
-                        showSearch={false}
-                        allowClear
-                        placeholder="Chọn nhà cung cấp"
-                        onSearch={(key) => getSuppliers(key, 1)}
-                        onPageChange={(key, page) => getSuppliers(key, page)}
-                      >
-                        {suppliers.items.map((item) => (
-                          <SelectPaging.Option key={item.id} value={item.id}>
+                        data={suppliers.items}
+                        renderItem={(item) => (
+                          <Option key={item.id} value={item.id}>
                             {item.name}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                          </Option>
+                        )}
+                        fetchData={(query) => getSuppliers(query?.condition || "", query.page || 1)}
+                        placeholder={'Chọn nhà cung cấp'}
+                      />
                     </Item>
                   </Col>
                  {/* tuwf k */}
@@ -1163,20 +1178,14 @@ const ProductCreateScreen: React.FC = () => {
                     icon: <InfoCircleOutlined />,
                   }}
                 >
-                  <AccountSearchPaging
-                    placeholder="Chọn Merchandiser"
-                    fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                   />
+                  <BaseSelectMerchans {...{isLoadingMerchans, fetchMerchans, merchans}} />
                 </Item>
                 <Item
                   name="designer_code"
                   label="Thiết kế"
                   tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
                 >
-                  <AccountSearchPaging
-                    placeholder="Chọn thiết kế"
-                    fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                   />
+                  <BaseSelectMerchans {...{isLoadingMerchans, fetchMerchans, merchans}} />
                 </Item>
               </Card>
             </Col>
@@ -1387,54 +1396,43 @@ const ProductCreateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item label="Màu sắc" name="color_id">
-                      <SelectPaging
+                      <BaseSelectPaging
+                        loading={colorLoading}
                         metadata={colors.metadata}
-                        notFoundContent={"Không có dữ liệu"}
-                        showSearch={false}
-                        searchPlaceholder="Tìm kiếm màu sắc"
-                        mode="multiple"
-                        maxTagCount="responsive"
-                        showArrow
-                        allowClear
-                        onSelect={onColorSelected}
-                        onSearch={(key) => getColors(key, 1)}
-                        onPageChange={(key, page) => getColors(key, page)}
-                        placeholder="Chọn màu sắc"
-                      >
-                        {colors.items.map((item) => (
-                          <SelectPaging.Option key={item.id} value={item.id}>
+                        data={colors.items}
+                        renderItem={(item) => (
+                          <Option key={item.id} value={item.id}>
                             {`${item.code} - ${item.name}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                          </Option>
+                        )}
+                        onSelect={onColorSelected}
+                        placeholder="Chọn màu sắc"
+                        notFoundContent={"Không có dữ liệu"}
+                        mode="multiple"
+                        fetchData={(params) => getColors(params.condition || "", params.page || 1)}
+                      />
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item name="size" label="Kích cỡ">
-                      <SelectPaging
+                      <BaseSelectPaging
+                        loading={sizeLoading}
                         metadata={sizes.metadata}
-                        onSelect={onSizeSelected}
-                        showSearch={false}
-                        notFoundContent={"Không có dữ liệu"}
-                        placeholder="Chọn kích cỡ"
-                        maxTagCount="responsive"
-                        mode="multiple"
-                        optionFilterProp="children"
-                        allowClear
-                        showArrow
-                        onSearch={(key) => getSizes(key, 1)}
-                        onPageChange={(key, page) => getSizes(key, page)}
-                        searchPlaceholder="Tìm kiếm kích cỡ"
-                      >
-                        {sizes.items.map((item) => (
-                          <SelectPaging.Option
+                        data={sizes.items}
+                        renderItem={(item) => (
+                          <Option
                             key={item.code}
                             value={item.id}
                           >
                             {item.code}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                          </Option>
+                        )}
+                        onSelect={onSizeSelected}
+                        placeholder="Chọn kích cỡ"
+                        notFoundContent={"Không có dữ liệu"}
+                        mode="multiple"
+                        fetchData={(params) => getSizes(params.condition || "", params.page || 1)}
+                      />
                     </Item>
                   </Col>
                 </Row>
