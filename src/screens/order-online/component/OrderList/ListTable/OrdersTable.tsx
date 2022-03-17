@@ -48,10 +48,11 @@ type PropTypes = {
   data: PageResponse<OrderModel>;
   columns: ICustomTableColumType<OrderModel>[];
   deliveryServices: DeliveryServiceResponse[];
+  selectedRowKeys:number[];
   setColumns: (columns: ICustomTableColumType<OrderModel>[]) => void;
   setData: (data: PageResponse<OrderModel>) => void;
   onPageChange: (page: any, size: any) => void;
-  onSelectedChange: (selectedRow: any) => void;
+  onSelectedChange: (selectedRows: any[], selected?: boolean, changeRow?: any[]) => void;
   setShowSettingColumn: (value: boolean) => void;
   onFilterPhoneCustomer:(value:string)=>void;
 };
@@ -62,6 +63,7 @@ function OrdersTable(props: PropTypes) {
     data,
     columns,
     deliveryServices,
+    selectedRowKeys,
     onPageChange,
     onSelectedChange,
     setShowSettingColumn,
@@ -1053,10 +1055,11 @@ function OrdersTable(props: PropTypes) {
           onShowSizeChange: onPageChange,
         }}
         rowSelectionRenderCell={rowSelectionRenderCell}
-        onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+        onSelectedChange={(selectedRows: any[], selected?: boolean, changeRow?: any[]) => onSelectedChange(selectedRows, selected, changeRow)}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}
+        selectedRowKey={selectedRowKeys}
         rowKey={(item: OrderModel) => item.id}
         className="order-list"
         footer={() => renderFooter()}

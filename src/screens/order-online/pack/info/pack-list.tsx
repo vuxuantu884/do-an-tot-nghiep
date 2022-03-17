@@ -40,12 +40,12 @@ function PackList() {
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: 1,
-    perPage: 10
+    perPage: 30
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>({
     currentPage: 1,
     lastPage: 1,
-    perPage: 10,
+    perPage: 30,
     total: 0,
     result: []
   });
@@ -55,7 +55,7 @@ function PackList() {
       setResultPaging({
         currentPage: 1,
         lastPage: 1,
-        perPage: 10,
+        perPage: 30,
         total: 0,
         result: []
       })
@@ -140,9 +140,7 @@ function PackList() {
   ];
 
   const onSelectedChange = (selectedRow: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
-    //let code: string[] = [];
     let isFulFillmentPackCopy = [...isFulFillmentPack];
-    // console.log("selected", selected, changeRow)
 
     if(selected===true){
       changeRow?.forEach((data, index) => {
