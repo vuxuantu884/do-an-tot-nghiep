@@ -638,7 +638,7 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const checkIfOrderHasAutomaticDiscount = () => {
-		if (promotion && promotion.promotion_id) {
+		if (promotion && promotion.promotion_id && promotion?.amount && promotion?.amount > 0) {
 			return true;
 		}
 		return false;
