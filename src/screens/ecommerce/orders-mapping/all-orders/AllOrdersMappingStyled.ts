@@ -66,7 +66,7 @@ export const AllOrdersMappingFilterStyled = styled.div`
   .ecommerce-dropdown {
     width: 160px;
     min-width: 140px;
-    margin-right: 10px;
+    // margin-right: 10px;
     .ant-select-selector {
       padding: 0 10px;
       .ant-select-selection-item {

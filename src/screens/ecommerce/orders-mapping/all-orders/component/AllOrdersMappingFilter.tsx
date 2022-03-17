@@ -346,6 +346,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     setVisibleBaseFilter(false);
     formFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
+    removeEcommerce();
   }, [formFilter, initQuery, onClearFilter]);
   // end handle filter action
 
@@ -403,6 +404,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   }, []);
 
   const removeEcommerce = () => {
+    formFilter.setFieldsValue({ecommerce_id: null,})
     setIsEcommerceSelected(false);
     setEcommerceIdSelected(null);
     formFilter?.setFieldsValue({ shop_ids: [] });
