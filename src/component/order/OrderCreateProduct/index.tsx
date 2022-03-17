@@ -634,7 +634,7 @@ function OrderCreateProduct(props: PropType) {
 	}, [resultSearchVariant]);
 
 	const checkIfLineItemHasAutomaticDiscount = (lineItem: OrderLineItemRequest) => {
-		return lineItem.discount_items.some((discount) => discount.promotion_id);
+		return lineItem.discount_items.some((discount) => discount.promotion_id && discount?.amount > 0);
 	};
 
 	const checkIfOrderHasAutomaticDiscount = () => {
