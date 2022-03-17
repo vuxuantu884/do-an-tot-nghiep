@@ -6,11 +6,19 @@ import {
   DepartmentsPermissions,
 } from "config/permissions/account.permisssion";
 import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion";
-import AccountMeScreen from "screens/settings/account/account.me.screen";
-import BankAccountScreen from "screens/settings/bank/bank-account.screen";
-import BankAccountCreateScreen from "screens/settings/bank/create/bank-account.create.screen";
-import BackAccountUpdateScreen from "screens/settings/bank/update/bank-account.update.screen";
 
+const AccountMeScreen = React.lazy(
+  () => import("screens/settings/account/account.me.screen")
+);
+const BankAccountScreen = React.lazy(
+  () => import("screens/settings/bank/bank-account.screen")
+);
+const BankAccountCreateScreen = React.lazy(
+  () => import("screens/settings/bank/create/bank-account.create.screen")
+);
+const BackAccountUpdateScreen = React.lazy(
+  () => import("screens/settings/bank/update/bank-account.update.screen")
+);
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
 );

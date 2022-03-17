@@ -28,6 +28,7 @@ export const StyledComponent = styled.div`
 
   .ecommerce-product-action-column {
     text-align: center;
+    padding: 0 !important;
   }
 `;
 

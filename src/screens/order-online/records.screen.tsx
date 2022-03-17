@@ -24,7 +24,7 @@ import useAuthorization from "hook/useAuthorization";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import ButtonCreate from "component/header/ButtonCreate";
 import { PackModel } from "model/pack/pack.model";
-// import './pack/styles.scss';
+import './pack/styles.scss';
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -84,7 +84,7 @@ const PackSupportScreen: React.FC = () => {
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
       <ContentContainer
-        title="Hỗ trợ đóng gói"
+        title="Biên bản bàn giao"
         breadcrumb={[
           {
             name: "Tổng quan",

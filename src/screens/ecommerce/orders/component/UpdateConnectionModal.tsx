@@ -308,7 +308,7 @@ const UpdateConnectionModal: React.FC<UpdateConnectionModalType> = (
       },
     },
     {
-      title: "Sản phẩm (Yody)",
+      title: "Sản phẩm (Unicorn)",
       visible: true,
       render: (item: any, v: any, i: any) => RenderProductColumn(item)
     }

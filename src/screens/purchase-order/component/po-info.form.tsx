@@ -2,13 +2,13 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import {Card, Form, FormInstance, Input} from "antd";
 import HashTag from "component/custom/hashtag";
 import RowDetail from "component/custom/RowDetail";
-import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import { AppConfig } from "config/app.config";
 import { POField } from "model/purchase-order/po-field";
-import {Fragment, useEffect} from "react";
+import React, {Fragment, useEffect} from "react";
 import { POStatus } from "utils/Constants";
 import {useSelector} from "react-redux";
 import {RootReducerType} from "../../../model/reducers/RootReducerType";
+import {useFetchMerchans} from "../../../hook/useFetchMerchans";
+import BaseSelectMerchans from "../../../component/base/BaseSelect/BaseSelectMerchans";
 
 type POInfoFormProps = {
   isEdit: boolean;
@@ -16,15 +16,27 @@ type POInfoFormProps = {
   formMain?: FormInstance
 };
 
-
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail } = props;
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const {fetchMerchans, merchans, isLoadingMerchans, setMerchans} = useFetchMerchans()
 
   useEffect(() => {
+    if(merchans.items.length) {
+      const findCurrentUser = merchans.items?.find(merchan => merchan.code === userReducer.account?.code);
+      //Check nếu tài khoản hiện tại không có trong danh sách merchandiser thì thêm vào
+      if(!findCurrentUser && userReducer) {
+        setMerchans({
+          ...merchans,
+          items: [
+            { code: userReducer.account?.code || "", full_name: userReducer.account?.full_name || ""},
+            ...merchans.items,
+          ]})
+      }
+    }
     props.formMain?.setFieldsValue({ [POField.merchandiser_code]: userReducer.account?.code })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [JSON.stringify(merchans)])
 
   if (isEdit && !isEditDetail) {
     return (
@@ -394,24 +406,27 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                         message: "Vui lòng chọn Merchandiser",
                       },
                     ]}>
-                    <AccountSearchPaging
-                      defaultValue={!isEdit && userReducer.account?.code}
+                    <BaseSelectMerchans
+                      merchans={merchans}
+                      fetchMerchans={fetchMerchans}
+                      isLoadingMerchans={isLoadingMerchans}
                       placeholder="Chọn Merchandiser"
-                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
                   </Form.Item>
-
                   <Form.Item name={POField.qc_code} label="QC">
-                    <AccountSearchPaging
+                    <BaseSelectMerchans
+                      merchans={merchans}
+                      fetchMerchans={fetchMerchans}
+                      isLoadingMerchans={isLoadingMerchans}
                       placeholder="Chọn QC"
-                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                     />
                   </Form.Item>
-
                   <Form.Item name={POField.designer_code} label="Thiết kế">
-                    <AccountSearchPaging
-                      placeholder="Chọn nhà thiết kế"
-                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                    <BaseSelectMerchans
+                      merchans={merchans}
+                      fetchMerchans={fetchMerchans}
+                      isLoadingMerchans={isLoadingMerchans}
+                      placeholder="Chọn Nhà thiết kế"
                     />
                   </Form.Item>
 

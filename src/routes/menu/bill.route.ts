@@ -2,16 +2,16 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
-import OrderUpdate from "screens/order-online/order-update";
-import PackDetail from "screens/order-online/pack-detail";
-import PackSupportScreen from "screens/order-online/pack.screen";
-import DeliveryRecordsScreen from "screens/order-online/records.screen";
-import AddReportHandOver from "screens/order-online/pack-add";
-import PackUpdate from "screens/order-online/pack-update";
-import SplitOrdersScreen from "screens/order-online/split-orders.screen";
-import CustomerDuplicate from "screens/order-online/order-duplicate/index";
-import OrderDuplicate from 'screens/order-online/order-duplicate/detail.screen'
 
+const OrderUpdate = React.lazy(() => import("screens/order-online/order-update"));
+const PackDetail = React.lazy(() => import("screens/order-online/pack-detail"));
+const PackSupportScreen = React.lazy(() => import("screens/order-online/pack.screen"));
+const DeliveryRecordsScreen = React.lazy(() => import("screens/order-online/records.screen"));
+const AddReportHandOver = React.lazy(() => import("screens/order-online/pack-add"));
+const PackUpdate = React.lazy(() => import("screens/order-online/pack-update"));
+const SplitOrdersScreen = React.lazy(() => import("screens/order-online/split-orders.screen"));
+const CustomerDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/index"));
+const OrderDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/detail.screen"));
 const ListOrder = React.lazy(() => import("screens/order-online/orders/index.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
@@ -190,6 +190,7 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
       },
       {
         path: `${UrlConfig.DELIVERY_RECORDS}/:id`,
@@ -214,7 +215,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       }
     ],
-    permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
+    permissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
   },
 
 ];

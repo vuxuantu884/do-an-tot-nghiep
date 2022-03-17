@@ -71,12 +71,16 @@ const CustomTable = (props: ICustomTableProps) => {
   const onSelect = useCallback(
     (item: any, selected: boolean, selectedRow: any[]) => {
       onSelectedChange && onSelectedChange(selectedRow,selected,[{...item}]);
+      // console.log("changeRow",selectedRow,)
+      // console.log("selected",selected, item)
     },
     [onSelectedChange]
   );
   const onSelectAll = useCallback(
     (selected, selectedRow: any[], changeRow: any[]) => {
       onSelectedChange && onSelectedChange(selectedRow,selected,changeRow);
+      // console.log("changeRowAll",changeRow)
+      // console.log("selectedAll",selected)
     },
     [onSelectedChange]
   );

@@ -74,7 +74,6 @@ type CustomerCardProps = {
   setCustomer: (items: CustomerResponse | null) => void;
   setShippingAddress: (items: ShippingAddress | null) => void;
   setBillingAddress: (items: BillingAddress | null) => void;
-  setDistrictId: (items: number | null) => void;
   setVisibleCustomer: (item: boolean) => void;
   customer: CustomerResponse | null;
   newCustomerInfo?: YDpageCustomerRequest;
@@ -86,7 +85,6 @@ type CustomerCardProps = {
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
   modalAction: modalActionType;
-  districtId: number | null;
   setOrderSourceId?: (value: number) => void;
   defaultSourceId: number | null;
   form: FormInstance<any>;
@@ -122,13 +120,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     shippingAddress,
     setModalAction,
     modalAction,
-    districtId,
-    setDistrictId,
     setBillingAddress,
     setShippingAddress,
     setOrderSourceId,
     defaultSourceId,
-    form
+    form,
   } = props;
 
   const dispatch = useDispatch();
@@ -139,6 +135,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const [countryId] = React.useState<number>(233);
   const [areas, setAreas] = React.useState<Array<any>>([]);
+
+  const [districtId, setDistrictId] = React.useState<any>(null);
 
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
@@ -406,6 +404,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
+    } else {
+      setWards([]);
     }
   }, [dispatch, districtId]);
 	
@@ -420,13 +420,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [dispatch]);
 
   useEffect(() => {
-    if (customer) setDistrictId(customer.district_id);
+    if (customer) {
+      setDistrictId(customer.district_id);
+      dispatch(WardGetByDistrictAction(Number(customer.district_id), setWards));
+    }
   }, [customer]);
 
   const handleChangeArea = (districtId: number) => {
-    if (districtId) {
-      setDistrictId(districtId);
-    }
+    setDistrictId(districtId);
   };
 
   const handleChangeCustomer = (customers: any) => {
@@ -680,6 +681,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 ShippingAddressChange={props.setShippingAddress}
                 keySearchCustomer={keySearchCustomer}
                 CustomerDeleteInfo={CustomerDeleteInfo}
+                setBillingAddress={setBillingAddress}
+                setCustomer={setCustomer}
               />
             )}
           </div>

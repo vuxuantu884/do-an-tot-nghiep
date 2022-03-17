@@ -94,7 +94,7 @@ export interface OrderResponse extends BaseObject {
     utm_term?: string | null;
     utm_content?: string | null;
   };
-  export_bill: boolean; 
+  export_bill: boolean;
   sub_reason_id?: number;
 }
 

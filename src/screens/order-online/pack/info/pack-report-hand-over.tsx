@@ -24,19 +24,20 @@ import PackFilter from "component/filter/pack.filter";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { MenuAction } from "component/table/ActionButton";
 import { Link } from "react-router-dom";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
   page: 1,
   sort_column: "",
   sort_type: "",
-  ids:null,
+  ids: null,
   store_ids: null,
   delivery_service_ids: null,
   ecommerce_ids: null,
@@ -71,31 +72,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     not: false,
   });
 
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "In biên bản đầy đủ ",
-      icon: <PrinterOutlined />,
-    },
-    {
-      id: 2,
-      name: "In biên bản rút gọn ",
-      icon: <PrinterOutlined />,
-    },
-    {
-      id: 3,
-      name: "Xóa",
-      icon: <DeleteOutlined />,
-      color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
-      disabled: !allowDeleteGoodsReceipt
-    },
-  ];
-
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(dataQuery);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const [goodsReceipt,setGoodsReceipt]=useState<GoodsReceiptsResponse[]>([]);
+  const [goodsReceipt, setGoodsReceipt] = useState<GoodsReceiptsResponse[]>([]);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -105,6 +86,28 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
     items: [],
   });
+
+  const actions: Array<MenuAction> = useMemo(() => [
+    {
+      id: 1,
+      name: "In biên bản đầy đủ ",
+      icon: <PrinterOutlined />,
+      disabled: selectedRowKeys.length === 0
+    },
+    {
+      id: 2,
+      name: "In biên bản rút gọn ",
+      icon: <PrinterOutlined />,
+      disabled: selectedRowKeys.length === 0
+    },
+    {
+      id: 3,
+      name: "Xóa",
+      icon: <DeleteOutlined />,
+      color: (allowDeleteGoodsReceipt && selectedRowKeys.length !== 0) ? "#E24343" : "rgba(0,0,0,.25)",
+      disabled: !allowDeleteGoodsReceipt || selectedRowKeys.length === 0
+    },
+  ], [allowDeleteGoodsReceipt, selectedRowKeys.length]);
 
   const [modalDeleteComfirm, setModalDeleteComfirm] = useState(false);
 
@@ -130,26 +133,39 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           handlePrintPack(undefined, typePrint.simple);
           break;
         case 3:
-          if(!selectedRowKeys || selectedRowKeys.length ===0) break;
-          setModalDeleteComfirm(true);
+          if (!selectedRowKeys || selectedRowKeys.length === 0) break;
+          let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) => selectedRowKeys.some((single: number) => single.toString() === p.id.toString()));
+          let canDelete = true;
+          let idError = "";
+          selectedOrder.forEach(item => {
+            if (item.orders && item.orders?.length) {
+              canDelete = false;
+              idError += item.id + " "
+            }
+          });
+          if (canDelete) {
+            setModalDeleteComfirm(true);
+          } else {
+            showWarning(`Biên bản bàn giao ${idError}có đơn hàng cần giao`);
+          }
           break;
       }
     },
-    [handlePrintPack,selectedRowKeys]
+    [goodsReceipt, handlePrintPack, selectedRowKeys]
   );
 
   let delivery_services: Array<DeliveryServiceResponse> = [];
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
-	useEffect(() => {
-		dispatch(
-			DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-				// eslint-disable-next-line react-hooks/exhaustive-deps
-				delivery_services = response
-				setDeliveryServices(response)
-			})
-		);
-	}, [dispatch]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        delivery_services = response
+        setDeliveryServices(response)
+      })
+    );
+  }, [dispatch]);
 
   const handleAddPack = useCallback((item: any) => {
     history.push(
@@ -259,34 +275,28 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     return dataResult;
   };
 
-  const setLayoutDeleteAllGoodsReceipts=useMemo(()=>{
-    let selectedOrder:GoodsReceiptsResponse[]=goodsReceipt.filter((p)=>selectedRowKeys.some((single:number)=>single.toString()===p.id.toString()));
-    return(
+  const setLayoutDeleteAllGoodsReceipts = useMemo(() => {
+    let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) => selectedRowKeys.some((single: number) => single.toString() === p.id.toString()));
+    return (
       <React.Fragment>
         {selectedOrder.map((value: GoodsReceiptsResponse, index: number) => (
           <p style={{ lineHeight: "18px" }}>
             <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${value.id}`} key={index}>
-            {value.id}- {value.delivery_service_name}-{" "}
-                  {value.receipt_type_name}- {value.ecommerce_name}
+              {value.id}- {value.delivery_service_name}-{" "}
+              {value.receipt_type_name}- {value.ecommerce_name}
             </Link>{" "}
             sẽ được xóa</p>
         ))}
       </React.Fragment>
     )
-  },[goodsReceipt, selectedRowKeys])
+  }, [goodsReceipt, selectedRowKeys])
 
   const hanldRemoveGoodsReceiptOk = useCallback((id = undefined) => {
     let request: any = {
       ids: selectedRowKeys
     }
-    // if (id) {
-    //   request = {
-    //     ids: [id]
-    //   }
-    // }
-    
     dispatch(
-      deleteAllGoodsReceipts(request, (data:GoodsReceiptsResponse) => {
+      deleteAllGoodsReceipts(request, (data: GoodsReceiptsResponse) => {
         if (data) {
           setTableLoading(true);
           dispatch(
@@ -310,11 +320,14 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         }
       })
     );
-  },[dispatch, params, selectedRowKeys]);
+  }, [dispatch, params, selectedRowKeys]);
 
   const menu = (item: any) => {
+    // console.log('allowDeleteGoodsReceipt', allowDeleteGoodsReceipt);
     return (
-      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+      <Menu
+        className="yody-line-item-action-menu saleorders-product-dropdown"
+      >
         <Menu.Item key="1">
           <Button
             icon={<img style={{ marginRight: 12 }} alt="" src={IconPrint} />}
@@ -364,22 +377,26 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           </Button>
         </Menu.Item>
 
-        {/* <Menu.Item key="4">
-          <Button
-            icon={<DeleteOutlined />}
-            type="text"
-            className=""
-            style={{
-              color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
-            }}
-            disabled={!allowDeleteGoodsReceipt}
-            onClick={() => {
-              hanldRemoveGoodsReceiptOk(item.id_handover_record);
-            }}
-          >
-            Xoá
-          </Button>
-        </Menu.Item> */}
+        <Menu.Item key="4">
+          <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT]} passThrough>
+            {(isPassed: boolean) =>
+              <Button
+                icon={<DeleteOutlined />}
+                type="text"
+                className=""
+                style={{
+                  color: isPassed ? "#E24343" : "rgba(0,0,0,.25)",
+                }}
+                disabled={!isPassed}
+                onClick={() => {
+                  hanldRemoveGoodsReceiptOk(item.id_handover_record);
+                }}
+              >
+                Xoá
+              </Button>
+            }
+          </AuthWrapper>
+        </Menu.Item>
       </Menu>
     );
   };
@@ -393,9 +410,9 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       fixed: "left",
-      width:"120px",
+      width: "120px",
       render: (l: any, item: any, index: number) => {
-        
+
         const service_id = item.delivery_service_id;
         if (service_id === -1) {
           return (
@@ -416,11 +433,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                 {item.id_handover_record}
               </Link>
               <div className="shipment-details">
-                {service && 
+                {service &&
                   <img
                     src={service.logo ? service.logo : ""}
                     alt=""
-                    style={{ width: 100}}
+                    style={{ width: 100 }}
                   />
                 }
               </div>
@@ -443,13 +460,13 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "handover_record_type",
       visible: true,
       align: "center",
-      width:"160px",
+      width: "160px",
       render: (l: any, item: any, index: number) => {
-        
+
         return (
           <div>
-            <p style={{ marginBottom: 0}} >{item.handover_record_type}</p>
-            {item.ecommerce_id !== -1 && <p style={{ color: "#2A2A86", marginBottom: 0}}>({item.ecommerce_name})</p>}
+            <p style={{ marginBottom: 0 }} >{item.handover_record_type}</p>
+            {item.ecommerce_id !== -1 && <p style={{ color: "#2A2A86", marginBottom: 0 }}>({item.ecommerce_name})</p>}
           </div>
         );
       },
@@ -461,7 +478,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "product_quantity",
       visible: true,
       align: "center",
-      width:"80px",
+      width: "80px",
     },
 
     {
@@ -470,7 +487,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_quantity",
       visible: true,
       align: "center",
-      width:"80px",
+      width: "80px",
     },
 
     {
@@ -479,7 +496,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_send_quantity",
       visible: true,
       align: "center",
-      width:"100px",
+      width: "100px",
     },
 
     {
@@ -488,7 +505,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_transport",
       visible: true,
       align: "center",
-      width:"110px",
+      width: "110px",
     },
 
     {
@@ -497,7 +514,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_have_not_taken",
       visible: true,
       align: "center",
-      width:"80px",
+      width: "80px",
     },
 
     {
@@ -506,7 +523,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_moving_complete",
       visible: true,
       align: "center",
-      width:"110px",
+      width: "110px",
     },
 
     {
@@ -515,7 +532,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_success",
       visible: true,
       align: "center",
-      width:"110px",
+      width: "110px",
     },
 
     {
@@ -524,7 +541,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_complete",
       visible: true,
       align: "center",
-      width:"80px",
+      width: "80px",
     },
 
     {
@@ -533,7 +550,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "account_create",
       visible: true,
       align: "center",
-      width:"100px",
+      width: "100px",
     },
     {
       title: "",
@@ -543,42 +560,32 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       fixed: "right",
       className: "saleorder-product-card-action text-center",
       render: (l: any, item: any, index: number) => {
-        
+
         return (
-          <div
-            style={{
-              //display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
+          <Dropdown
+            overlayStyle={{ minWidth: "15rem" }}
+            overlay={() => menu(item)}
+          // getPopupContainer={(trigger) => trigger}
+          // trigger={["click"]}
+          // placement="bottomRight"
           >
-            <div
-              className="site-input-group-wrapper saleorder-input-group-wrapper"
-              style={{
-                borderRadius: 5,
-              }}
-            >
-              <Dropdown overlay={() => menu(item)} trigger={["click"]} placement="bottomRight">
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-              </Dropdown>
-            </div>
-          </div>
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              icon={<img src={threeDot} alt=""></img>}
+            />
+          </Dropdown>
         );
       },
     }
   ]);
 
-  let newColumns = columns
+  // let newColumns = columns
   const columnFinal = useMemo(
     () => {
-      return newColumns.filter((item: any) => item.visible === true)
+      return columns.filter((item: any) => item.visible === true)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [newColumns, allowDeleteGoodsReceipt]
+    [columns]
   );
 
   useEffect(() => {
@@ -650,13 +657,13 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         />
       )}
 
-        <ModalDeleteConfirm
-          onCancel={() => setModalDeleteComfirm(false)}
-          onOk={hanldRemoveGoodsReceiptOk}
-          title="Bạn chắc chắn xóa biên bản bàn giao?"
-          subTitle={setLayoutDeleteAllGoodsReceipts}
-          visible={modalDeleteComfirm}
-        />
+      <ModalDeleteConfirm
+        onCancel={() => setModalDeleteComfirm(false)}
+        onOk={hanldRemoveGoodsReceiptOk}
+        title="Bạn chắc chắn xóa biên bản bàn giao?"
+        subTitle={setLayoutDeleteAllGoodsReceipts}
+        visible={modalDeleteComfirm}
+      />
     </>
   );
 };

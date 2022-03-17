@@ -100,7 +100,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     else {
       showWarning("Vui lòng nhập mã đơn hàng");
     }
-  }, [dispatch, orderListResponse, setOrderListResponse,formSearchOrderRef]);
+  }, [dispatch, orderListResponse, setOrderListResponse, formSearchOrderRef]);
 
   const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLBodyElement) {
@@ -142,6 +142,12 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   }, [goodsReceiptsForm, handleAddOrder])
 
   useEffect(() => {
+    const searchTermElement: any = document.getElementById("search_term");
+
+    searchTermElement?.addEventListener("focus", (e: any) => {
+      searchTermElement.select();
+    });
+
     window.addEventListener("keypress", eventBarcodeOrder);
     return () => {
       window.removeEventListener("keypress", eventBarcodeOrder);
@@ -184,18 +190,22 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         ecommerce_name = changeName ? changeName : "Biên bản đơn tự tạo";
       }
 
-      let delivery_service_provider_id = listThirdPartyLogistics.find(
+      let delivery_service_name = listThirdPartyLogistics.find(
         (data) => data.id === value.delivery_service_provider_id
       )?.name;
       let receipt_type_name = listGoodsReceiptsType.find(
         (data) => data.id === value.receipt_type_id
       )?.name;
 
+      console.log(listThirdPartyLogistics)
       let param: any = {
         ...value,
         store_name: store_name,
+        ecommerce_id: value.channel_id,
         ecommerce_name: ecommerce_name,
-        delivery_service_provider_id: delivery_service_provider_id,
+        delivery_service_id: value.delivery_service_provider_id,
+        delivery_service_name: delivery_service_name,
+        delivery_service_type: "",
         receipt_type_name: receipt_type_name,
         codes: orderCode
       };

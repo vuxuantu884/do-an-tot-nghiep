@@ -70,7 +70,6 @@ function YDPageAdmin() {
   const [customerPhone, setCustomerPhone] = useState<string | null>("");
   const [customerDefaultPhone, setCustomerDefaultPhone] = useState<string>("");
   const [customerPhones, setCustomerPhones] = useState<Array<string>>([]);
-  const [districtId, setDistrictId] = React.useState<any>(null);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
 
   const [fbPageId] = React.useState<string | null>(queryString?.get("fbPageId"));
@@ -111,7 +110,6 @@ function YDPageAdmin() {
     if (value) {
       setCustomer(value);
       setVisibleCustomer(true);
-      setDistrictId(value.district_id);
       if (value.shipping_addresses?.length > 0) {
         const address = value.shipping_addresses.find((item: any) => item.default);
         setShippingAddress(address);
@@ -251,7 +249,7 @@ function YDPageAdmin() {
             setActiveTabKey={setActiveTabKey}
             setIsClearOrderTab={setIsClearOrderTab}
             setCustomerPhone={setCustomerPhone}
-            getCustomerByPhone={getCustomerWhenPhoneChange}
+            // getCustomerByPhone={getCustomerWhenPhoneChange}
             handleCustomerById={handleCustomerById}
             setShippingAddress={setShippingAddress}
             setBillingAddress={setBillingAddress}
@@ -259,8 +257,6 @@ function YDPageAdmin() {
             billingAddress={billingAddress}
             setVisibleCustomer={setVisibleCustomer}
             isVisibleCustomer={isVisibleCustomer}
-            districtId={districtId}
-            setDistrictId={setDistrictId}
           />
         </TabPane>
       </Tabs>

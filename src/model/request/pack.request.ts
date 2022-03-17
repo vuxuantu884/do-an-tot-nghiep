@@ -9,7 +9,11 @@ export interface GoodsReceiptsRequest extends BaseObject {
     ecommerce_name:string;
     receipt_type_id:number;
     receipt_type_name:string;
-    codes:[];
+    delivery_service_id:number;
+    delivery_service_name:string;
+    delivery_service_type:string;
+    codes:string[];
+    description:string;
 }
 
 export interface GoodsReceiptsDeleteRequest extends BaseObject{

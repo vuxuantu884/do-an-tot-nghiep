@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { StyledComponent } from './styles';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import CustomPagination from "component/table/CustomPagination";
@@ -18,6 +18,7 @@ import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
+import { generateQuery } from "../../../../../utils/AppUtils";
 
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
 const ActionPurchaseORderHistoryModal = lazy(() => import("screens/purchase-order/Sidebar/ActionHistory/Modal"))
@@ -44,13 +45,14 @@ const TabLogs: React.FC = () => {
   });
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [showLogPo, setShowLogPo] = useState(false);
+  const history = useHistory();
 
   const query = useQuery();
   let dataQuery: ProcumentLogQuery = {...getQueryParams(query), sort_column:"updatedDate",sort_type:"desc"};
   const [params, setPrams] = useState<ProcumentLogQuery>(dataQuery);
   const [actionId, setActionId] = useState<number>();
   const [visibleProcurement, setVisibleProcurement] = useState(false);
-  const [procumentCode, setProcumentCode] = useState("");  
+  const [procumentCode, setProcumentCode] = useState("");
   const [procumentInventory, setProcumentInventory] =
   useState<PurchaseProcument | null>(null);
   const [isDetail, setIsDetail] = useState(false);
@@ -59,6 +61,8 @@ const TabLogs: React.FC = () => {
   const onPageChange = (page: number, size?: number) => {
     let newPrams = {...params,page:page,limit: size};
     setPrams(newPrams);
+    let queryParam = generateQuery(newPrams);
+    history.push(`${UrlConfig.PROCUREMENT}/logs?${queryParam}`);
   };
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {

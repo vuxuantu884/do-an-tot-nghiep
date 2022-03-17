@@ -13,8 +13,7 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
-  PaymentMethodGetList,
+  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList,
   UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
@@ -47,7 +46,6 @@ import {
   SumCOD
 } from "utils/AppUtils";
 import {
-  DELIVERY_SERVICE_PROVIDER_CODE,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,

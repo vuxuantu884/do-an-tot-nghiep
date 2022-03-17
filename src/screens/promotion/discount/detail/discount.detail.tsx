@@ -18,12 +18,12 @@ import {
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
   getPriceRuleAction,
-  getPriceRuleVariantPaggingAction  
+  getPriceRuleVariantPaggingAction
 } from "../../../../domain/actions/promotion/discount/discount.action";
 import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
 import DiscountRuleInfo from "../components/discount-rule-info";
-import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index"; 
+import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index";
 import { DiscountStyled } from "../discount-style";
 import { PageResponse } from "model/base/base-metadata.response";
 
@@ -66,7 +66,7 @@ const PromotionDetailScreen: React.FC = () => {
   const isFirstLoadVariantList = useRef(true);
   const countLoadVariantList = useRef(0);
 
-  //phân quyền 
+  //phân quyền
   const [allowUpdatePromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.UPDATE],
   });
@@ -279,7 +279,7 @@ const PromotionDetailScreen: React.FC = () => {
                 className="card"
                 title={
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <span className="title-card">THÔNG TIN CÁ NHÂN</span>
+                    <span className="title-card">THÔNG TIN CHUNG</span>
                     {RenderStatus(dataDiscount)}
                   </div>
                 }
@@ -430,7 +430,7 @@ const PromotionDetailScreen: React.FC = () => {
                     <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>
                   </AuthWrapper>
                 )
-                } 
+                }
                 {allowUpdatePromoCode && RenderActionButton()}
               </Space>
             }

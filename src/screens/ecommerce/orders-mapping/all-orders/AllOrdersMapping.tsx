@@ -95,8 +95,17 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   });
 
   const convertDateTimeFormat = (dateTimeData: any) => {
-    const formatDateTime = "HH:mm:ss DD/MM/YYYY";
-    return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
+    // const formatDateTime = "HH:mm:ss DD/MM/YYYY";
+    const formatDateTime = "DD/MM/YYYY HH:mm:ss";
+    const timeCreate = ConvertUtcToLocalDate(dateTimeData, formatDateTime);
+    const dateCreate = timeCreate.split(" ")[0]
+    const hourCreate = timeCreate.split(" ")[1]
+    return (
+      <div>
+        <div>{dateCreate}</div>
+        <div>{hourCreate}</div>
+      </div>
+    )
   };
 
   const tableRowActionList = [
@@ -114,15 +123,15 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     if (name === "Chờ lấy hàng (đã xử lý)") {
       return (
         <div>
-          <div>Chờ lấy hàng</div>
-          <div>(đã xử lý)</div>
+          {/* <div>Chờ lấy hàng</div> */}
+          <div>Đã xử lý</div>
         </div>
       ) 
     } else if (name === "Chờ lấy hàng (chưa xử lý)") {
       return (
         <div>
-          <div>Chờ lấy hàng</div>
-          <div>(chưa xử lý)</div>
+          {/* <div>Chờ lấy hàng</div> */}
+          <div>Chưa xử lý</div>
         </div>
       ) 
     } else {
@@ -136,7 +145,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       title: "ID đơn (Sàn)",
       dataIndex: "ecommerce_order_code",
       key: "order_id",
-      width: "15%",
+      width: "16%",
       render: (item) => (
         <div>
           <span style={{ textAlign: "center"}}>{item}</span>
@@ -158,7 +167,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     {
       title: "ID đơn (Yody)",
       key: "core_order_code",
-      width: "10%x",
+      width: "12%",
       render: (item: any, row: any) => (
         <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
           <b>{item.core_order_code}</b>
@@ -192,13 +201,13 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         return (
           <div>
             {value === "connected" && (
-              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8 }} />
+              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
             )}
 
             {
               value !== "connected" && (
                 <Tooltip title={item.error_description}>
-                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8 }} />
+                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
                 </Tooltip>
                 
               )
@@ -217,13 +226,13 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         return (
           <div>
             {value === "connected" && (
-              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8 }} />
+              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
             )}
 
             {
               value !== "connected" && (
                 <Tooltip title={item.error_description}>
-                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8 }} />
+                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
                 </Tooltip>
               )
             }
@@ -259,7 +268,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       align: "center",
       width: "11%",
       render: (value: any, item: any, index: any) => (
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: "left" }}>
           <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
         </div>
         
