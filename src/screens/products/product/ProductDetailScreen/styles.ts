@@ -4,7 +4,7 @@ import { borderColor } from "utils/global-styles/variables";
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
   img {
-    max-width: 100%;
+    max-width: 70%;
   }
   .card {
     .card-container {
@@ -62,15 +62,18 @@ export const StyledComponent = styled.div`
     padding: 10px 0px;
     // border: 1px solid #d9d9d9;
     img {
-      max-width: 100%;
+      max-width: 70%;
     }
   }
   .data-content::-webkit-scrollbar {
     width: 1px;
     height: 8px;
   }
-  .modal-des .ql-align-center img, .modal-des img {
+  .modal-des .ql-align-center img {
     max-width: 100%;
+  }
+  .modal-des p img {
+    max-width: 70%;
   }
   .data-empty {
     color: red;
