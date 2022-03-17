@@ -369,6 +369,8 @@ ShippingServiceConfigDetailResponseModel[]
 		},
 		[deliveryServices]
 	);
+	
+	const sortedFulfillments = OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
 
 	const sortedFulfillments = OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
 

@@ -63,8 +63,11 @@ export const StyledComponent = styled.div`
     width: 1px;
     height: 8px;
   }
-  .modal-des .ql-align-center img{
-    max-width: 100% ;
+  .modal-des .ql-align-center img {
+    max-width: 100%;
+  }
+  .img {
+    max-width: 70%;
   }
   .data-empty {
     color: red;
@@ -179,5 +182,5 @@ export const StyledComponent = styled.div`
         display: block;
         border-color: #180973;
         margin:auto ;
-    } 
+    }
 `;

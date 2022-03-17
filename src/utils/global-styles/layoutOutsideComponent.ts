@@ -59,4 +59,8 @@ export const globalCssLayoutOutsideComponent = css`
   .modal-des .ql-align-center img{
     max-width: 100% ;
   }
+
+  .modal-des img {
+    max-width: 70% ;
+  }
 `;
