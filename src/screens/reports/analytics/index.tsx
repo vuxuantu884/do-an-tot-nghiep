@@ -3,6 +3,7 @@ import Color from "assets/css/export-variable.module.scss"
 import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 import REPORT_TEMPLATES, { REPORT_NAMES } from 'config/report-templates'
+import { REPORT_CUBES } from 'config/report-templates'
 import UrlConfig from 'config/url.config'
 import { FormFinishInfo } from 'rc-field-form/es/FormContext'
 import React, { useCallback, useEffect } from 'react'
@@ -32,12 +33,12 @@ function Analytics() {
 
 
     const fetchCustomAnalytics = useCallback(async () => {
-         
-        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService);
+         const cubes = REPORT_CUBES[matchPath]
+        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, {"cube.in": cubes});
         if (response) {
             setAnalyticList(response.analytics)
         }
-    }, [dispatch])
+    }, [dispatch, matchPath])
 
 
     const handleFormFinish = async (name: string, values: FormFinishInfo) => {

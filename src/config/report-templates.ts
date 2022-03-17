@@ -9,6 +9,12 @@ import UrlConfig from "./url.config";
 const TODAY = moment().format(DATE_FORMAT.YYYYMMDD);
 const START_OF_MONTH = moment().startOf("month").format(DATE_FORMAT.YYYYMMDD);
 
+export const REPORT_CUBES = {
+  [UrlConfig.ANALYTIC_SALES]: ["sales", "payments"],
+  [UrlConfig.ANALYTIC_FINACE]: ["costs"],
+  [UrlConfig.ANALYTIC_CUSTOMER]: ["sales", "payments"],
+}
+
 export const REPORT_NAMES = {
   [UrlConfig.ANALYTIC_SALES]: "Báo cáo bán hàng ",
   [UrlConfig.ANALYTIC_FINACE]: "Báo cáo tài chính ",
