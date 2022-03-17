@@ -154,8 +154,8 @@ function OrderList(props: PropTypes) {
   );
 
   const [columns, setColumns] = useState<Array<ICustomTableColumType<OrderModel>>>([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [selectedRowCodes, setSelectedRowCodes] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
+  const [selectedRowCodes, setSelectedRowCodes] = useState<string[]>([]);
   const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
 
   const actions: Array<MenuAction> = useMemo(() => [
@@ -179,14 +179,61 @@ function OrderList(props: PropTypes) {
     },
   ], [ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, selectedRow]);
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    setSelectedRow(selectedRow);
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
-    setSelectedRowKeys(selectedRowKeys);
+  const onSelectedChange = useCallback((selectedRows: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
+    let selectedRowCopy:OrderResponse[]=[...selectedRow];
+    let selectedRowKeysCopy:number[] = [...selectedRowKeys];
+    let selectedRowCodesCopy:string[]= [...selectedRowCodes];
 
-    const selectedRowCodes = selectedRow.map((row: any) => row.code);
-    setSelectedRowCodes(selectedRowCodes);
-  }, []);
+    if(selected===true){
+      changeRow?.forEach((row, index) => {
+        let indexItem = selectedRow.findIndex((p) => p.id === row.id)
+        if (indexItem === -1) {
+          selectedRowCopy.push(row);
+          selectedRowKeysCopy.push(row.id);
+          selectedRowCodesCopy.push(row.code);
+        }
+      })
+    }
+    else{
+      selectedRow.forEach((row, index)=>{
+        let indexItem = changeRow?.findIndex((p) => p.id === row.id);
+        if (indexItem !== -1) {
+          let i=selectedRowCopy.findIndex((p) => p.id === row.id);
+          selectedRowCopy.splice(i,1);
+        }
+      })
+
+      selectedRowKeys.forEach((row, index)=>{
+        let indexItemKey = changeRow?.findIndex((p) => p.id === row);
+        if (indexItemKey !== -1) {
+          let i=selectedRowKeysCopy.findIndex((p) => p === row);
+          selectedRowKeysCopy.splice(i,1);
+        }
+      })
+
+      selectedRowCodes.forEach((row, index)=>{
+        let indexItemCode = changeRow?.findIndex((p) => p.code === row);
+        if (indexItemCode !== -1) {
+          let i=selectedRowCodesCopy.findIndex((p) => p === row);
+          selectedRowCodesCopy.splice(i,1);
+        }
+      })
+    }
+
+    setSelectedRow(selectedRowCopy);
+    setSelectedRowKeys(selectedRowKeysCopy);
+    setSelectedRowCodes(selectedRowCodesCopy);
+
+    // setSelectedRow(selectedRow);
+
+    // const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    // setSelectedRowKeys(selectedRowKeys);
+
+    // const selectedRowCodes = selectedRow.map((row: any) => row.code);
+    // setSelectedRowCodes(selectedRowCodes);
+  }, [selectedRow, selectedRowCodes, selectedRowKeys]);
+
+  // console.log("selectedRowKeys",selectedRowKeys)
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -208,6 +255,9 @@ function OrderList(props: PropTypes) {
       } else {
 				history.push(`${location.pathname}?${queryParam}`);
       }
+      setSelectedRow([]);
+      setSelectedRowKeys([]);
+      setSelectedRowCodes([]);
     },
     [handleFetchData, history, location.pathname, params]
   );
@@ -460,8 +510,6 @@ function OrderList(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, handleFetchData, setSearchResult, location.search]);
 
-	
-
   return (
     <StyledComponent>
       <ContentContainer
@@ -547,6 +595,7 @@ function OrderList(props: PropTypes) {
 							onSelectedChange={onSelectedChange}
 							setShowSettingColumn={setShowSettingColumn}
 							deliveryServices={deliveryServices}
+              selectedRowKeys={selectedRowKeys}
 						/>
 						) : "Đang tải dữ liệu..."
           }
