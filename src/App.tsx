@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import MainRoute from "routes";
 import { GlobalStyle } from "utils/global-styles";
+import {ErrorBoundary} from "react-error-boundary";
+import {ErrorFallback} from "./component/ErrorFallback";
 
 function App() {
   const dispatch = useDispatch();
@@ -41,7 +43,9 @@ function App() {
   return (
     <>
       <BrowserRouter basename={BASE_NAME_ROUTER}>
-        <MainRoute />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <MainRoute />
+        </ErrorBoundary>
       </BrowserRouter>
       <GlobalStyle />
     </>
