@@ -23,16 +23,17 @@ import { WardResponse } from "model/content/ward.model";
 import {
   CustomerContactClass,
   CustomerModel,
-  CustomerShippingAddress,
+  CustomerShippingAddress, CustomerShippingAddressClass,
   YDpageCustomerRequest
 } from "model/request/customer.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import {BillingAddress, CustomerResponse} from "model/response/customer/customer.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {StyledComponent} from "./styles";
+import {VietNamId} from "utils/Constants";
 
 type CreateCustomerProps = {
   newCustomerInfo?: YDpageCustomerRequest;
@@ -44,6 +45,8 @@ type CreateCustomerProps = {
   keySearchCustomer: string;
   ShippingAddressChange: (items: any) => void;
   CustomerDeleteInfo: () => void;
+  setBillingAddress: (items: BillingAddress | null) => void;
+  setCustomer: (items: CustomerResponse | null) => void;
 };
 
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
@@ -56,7 +59,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     handleChangeCustomer,
     ShippingAddressChange,
     keySearchCustomer,
-    CustomerDeleteInfo
+    CustomerDeleteInfo,
+    setBillingAddress,
+    setCustomer,
   } = props;
 
   const dispatch = useDispatch();
@@ -143,10 +148,29 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     [dispatch]
   );
 
+  const handleClearArea = () => {
+    let value = customerForm.getFieldsValue();
+    value.district_id = null;
+    value.ward_id = null;
+    value.full_address = "";
+    customerForm.setFieldsValue(value);
+
+    handleChangeArea && handleChangeArea(null);
+  };
+
   const createCustomerCallback = useCallback(
     (result: CustomerResponse) => {
       if (result !== null && result !== undefined) {
         showSuccess("Thêm mới khách hàng thành công");
+
+        // update customer, shipping address, billing address
+        const shippingAddress = result.shipping_addresses.find((item: any) => item.default);
+        ShippingAddressChange(shippingAddress);
+
+        const billingAddress = result.billing_addresses.find(item => item.default) || null;
+        setBillingAddress(billingAddress);
+        setCustomer(result);
+
         if (!isVisibleShipping) {
           shippingFormRef.current?.validateFields();
 
@@ -237,31 +261,54 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       shippingFormRef,
       isVisibleShipping,
       ShippingAddressChange,
+      setBillingAddress,
     ]
   );
 
   const handleSubmit = useCallback(
     (values: any) => {
-      let area = areas.find((area: any) => area.id === values.district_id);
+      const area = areas.find((area: any) => area.id.toString() === values.district_id.toString());
+      const area_ward = wards.find((ward:any) => ward.id.toString() === values.ward_id.toString());
+
       values.full_name = values.full_name.trim();
 
-      let piece = {
+      let shipping_addresses: CustomerShippingAddress[] | null = [
+        {
+          ...new CustomerShippingAddressClass(),
+          is_default: true,
+          default: true,
+          name: values.full_name,
+          phone: values.phone,
+          country_id: VietNamId,
+          city_id: area ? area.city_id : null,
+          city: area?.city_name,
+          district_id: values.district_id,
+          district:area?.name,
+          ward_id: values.ward_id,
+          ward: area_ward?.name || "",
+          full_address: values.full_address,
+        }
+      ];
+
+      const customerParams = {
         full_name: values.full_name.trim(),
-        district_id: values.district_id,
         phone: values.phone,
+        city_id: area ? area.city_id : null,
+        city: area?.city_name,
+        district_id: values.district_id,
+        district: area?.name,
         ward_id: values.ward_id,
+        ward: area_ward?.name || "",
         card_number: values.card_number,
         full_address: values.full_address,
         gender: values.gender,
-        birthday: values.birthday
-          ? new Date(values.birthday).toUTCString()
-          : null,
+        birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
         customer_group_id: values.customer_group_id,
         wedding_date: values.wedding_date
           ? new Date(values.wedding_date).toUTCString()
           : null,
         status: "active",
-        city_id: area ? area.city_id : null,
+        country_id: VietNamId,
         contacts: [
           {
             ...CustomerContactClass,
@@ -271,43 +318,49 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             email: values.contact_email,
           },
         ],
+        shipping_addresses: shipping_addresses,
       };
+      
       dispatch(
         CustomerCreateAction(
-          { ...new CustomerModel(), ...piece },
+          { ...new CustomerModel(), ...customerParams },
           createCustomerCallback
         )
       );
     },
-    [dispatch, createCustomerCallback, areas]
+    [areas, wards, dispatch, createCustomerCallback]
   );
 
   const onOkPress = useCallback(() => {
     const value = customerForm.getFieldsValue();
-    if (value.phone === "") {
+    if (!value.full_name) {
+      showError("Vui lòng nhập tên khách hàng");
+    }
+
+    if (!value.phone) {
       showError("Vui lòng nhập Số điện thoại");
     }
 
-    if (value.ward_id === null) {
-      showError("Vui lòng chọn phường xã");
-    }
-
-    if (value.district_id === null) {
+    if (!value.district_id) {
       showError("Vui lòng chọn khu vực");
     }
 
-    if (value.full_address === null) {
+    if (!value.ward_id) {
+      showError("Vui lòng chọn phường xã");
+    }
+
+    if (!value.full_address) {
       showError("Vui lòng nhập địa chỉ giao hàng");
     }
 
     if (
-      value.phone === "" 
+      !value.phone
       &&
-      value.ward_id === null
+      !value.ward_id
       &&
-      value.district_id === null
+      !value.district_id
       &&
-      value.full_address === null
+      !value.full_address
     ) {
       showError("Vui lòng điền đầy đủ thông tin");
     }
@@ -434,6 +487,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   DefaultWard();
                   setVisibleBtnUpdate(true);
                 }}
+                onClear={handleClearArea}
                 optionFilterProp="children"
               >
                 {areas.map((area: any) => (
@@ -749,10 +803,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         )}
       </div>
 
-      {isVisibleShipping === false && (
+      {!isVisibleShipping && (
         <Row style={{ marginTop: 15 }}>
           <Col md={24} style={{ float: "right", marginTop: "-10px" }}>
-            {isVisibleBtnUpdate === true && (
+            {isVisibleBtnUpdate && (
               <Button
                 type="primary"
                 style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
