@@ -3,6 +3,9 @@ import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
+  img {
+    max-width: 100%;
+  }
   .card {
     .card-container {
       .left {
