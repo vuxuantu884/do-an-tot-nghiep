@@ -84,9 +84,7 @@ type OrdersCreatePermissionProps = {
   setCustomer: (items: CustomerResponse | null) => void;
   setShippingAddress: (items: ShippingAddress | null) => void;
   setBillingAddress: (items: BillingAddress | null) => void;
-  setDistrictId: (items: number | null) => void;
   setActiveTabKey: (items: string) => void;
-  getCustomerByPhone: (items: string) => void;
   setVisibleCustomer: (item: boolean) => void;
   setIsClearOrderTab: (item: boolean) => void;
   handleCustomerById: (item: number | null) => void;
@@ -103,7 +101,6 @@ type OrdersCreatePermissionProps = {
   billingAddress: BillingAddress | any;
   // setModalAction: (item: modalActionType) => void;
   // modalAction: modalActionType;
-  districtId: number | null;
 };
 
 const ordersCreatePermission = [YDpagePermission.orders_create];
@@ -125,8 +122,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
     billingAddress,
     isVisibleCustomer,
     setVisibleCustomer,
-    districtId,
-    setDistrictId,
     defaultStoreId,
     defaultSourceId,
   } = props;
@@ -1126,8 +1121,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       setVisibleCustomer={setVisibleCustomer}
                       modalAction={modalAction}
                       setModalAction={setModalAction}
-                      districtId={districtId}
-                      setDistrictId={setDistrictId}
                       setOrderSourceId={setOrderSourceId}
                       defaultSourceId={defaultSourceId}
                       form={form}
