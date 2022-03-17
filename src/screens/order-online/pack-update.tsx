@@ -37,15 +37,6 @@ type PackParam = {
   id: string;
 };
 
-const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "Xóa",
-    icon: <DeleteOutlined />,
-    color: "#E24343",
-  },
-];
-
 const PackUpdate: React.FC = () => {
   const dispatch = useDispatch();
   let {id} = useParams<PackParam>();
@@ -61,6 +52,16 @@ const PackUpdate: React.FC = () => {
   // const [orderList, setOrderList] = useState<OrderResponse[]>([]);
   const [selectedRowCode, setSelectedRowCode] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  const actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "Xóa",
+      icon: <DeleteOutlined />,
+      color: selectedRowKeys.length === 0 ? "rgba(0,0,0,.25)" : "#E24343",
+      disabled: selectedRowKeys.length === 0
+    },
+  ];
 
   useEffect(() => {
     if (PackId) {
