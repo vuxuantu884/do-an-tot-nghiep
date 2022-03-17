@@ -3,9 +3,6 @@ import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
-  img {
-    max-width: 70%;
-  }
   .card {
     .card-container {
       .left {
@@ -61,9 +58,6 @@ export const StyledComponent = styled.div`
     overflow: auto;
     padding: 10px 0px;
     // border: 1px solid #d9d9d9;
-    img {
-      max-width: 70%;
-    }
   }
   .data-content::-webkit-scrollbar {
     width: 1px;
@@ -72,7 +66,7 @@ export const StyledComponent = styled.div`
   .modal-des .ql-align-center img {
     max-width: 100%;
   }
-  .modal-des p img {
+  .img {
     max-width: 70%;
   }
   .data-empty {
@@ -188,5 +182,5 @@ export const StyledComponent = styled.div`
         display: block;
         border-color: #180973;
         margin:auto ;
-    } 
+    }
 `;
