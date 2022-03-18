@@ -40,6 +40,7 @@ import {
   getAmountPaymentRequest,
   getTotalAmount,
   getTotalAmountAfterDiscount,
+  isNullOrUndefined,
   scrollAndFocusToDomElement,
   totalAmount,
 } from "utils/AppUtils";
@@ -73,6 +74,7 @@ import { OrderConfigResponseModel } from "model/response/settings/order-settings
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { YDpageCustomerRequest } from "model/request/customer.request";
 import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "../../../domain/actions/loyalty/loyalty.action";
+import {modalActionType} from "model/modal/modal.model";
 
 let typeButton = "";
 
@@ -176,6 +178,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [isCheckSplitLine, setCheckSplitLine] = useState(false)
 
+  const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
@@ -270,12 +273,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
   }, [customer?.id, dispatch]);
 
   useEffect(() => {
-    if (!customer) {
-      if (newCustomerInfo?.full_name || newCustomerInfo?.phone) {
-        setVisibleCustomer(true);
-      } else {
-        setVisibleCustomer(false);
-      }
+    if (
+      isNullOrUndefined(customer) &&
+      newCustomerInfo &&
+      (newCustomerInfo.full_name || newCustomerInfo.phone)
+    ) {
+      setModalAction("create");
+      setVisibleCustomer(true);
+    } else {
+      setModalAction("edit");
+      setVisibleCustomer(false);
     }
   }, [customer, newCustomerInfo, setVisibleCustomer]);
 
@@ -1116,6 +1123,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       setBillingAddress={setBillingAddress}
                       isVisibleCustomer={isVisibleCustomer}
                       setVisibleCustomer={setVisibleCustomer}
+                      modalAction={modalAction}
+                      setModalAction={setModalAction}
                       setOrderSourceId={setOrderSourceId}
                       defaultSourceId={defaultSourceId}
                       form={form}

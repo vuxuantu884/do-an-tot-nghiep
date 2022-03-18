@@ -82,6 +82,8 @@ type CustomerCardProps = {
   updateOrder?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
+  setModalAction: (item: modalActionType) => void;
+  modalAction: modalActionType;
   setOrderSourceId?: (value: number) => void;
   defaultSourceId: number | null;
   form: FormInstance<any>;
@@ -117,6 +119,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setVisibleCustomer,
     isVisibleCustomer,
     shippingAddress,
+    setModalAction,
+    modalAction,
     setBillingAddress,
     setShippingAddress,
     setOrderSourceId,
@@ -126,6 +130,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
+  const [isShowSearchCustomer, setVisibleSearchCustomer] = useState(false);
   const [searchCustomer, setSearchCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
@@ -154,10 +159,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, []);
 
   const OkConfirmCustomerCreate = () => {
+    setModalAction("create");
     setVisibleCustomer(true);
+    setVisibleSearchCustomer(false);
   };
   const OkConfirmCustomerEdit = () => {
+    setModalAction("edit");
     setVisibleCustomer(true);
+    setVisibleSearchCustomer(false);
   };
 
   const ShowAddressModalAdd = () => {
@@ -300,6 +309,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setShippingAddress(null);
     setBillingAddress(null)
     setVisibleCustomer(false);
+    setVisibleSearchCustomer(true);
   };
 
   //#end region
@@ -519,7 +529,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       }
     >
       {/*Tìm kiếm khách hàng*/}
-      {!customer && !isVisibleCustomer && (
+      {(isShowSearchCustomer || (!customer && !isVisibleCustomer)) && (
         <div>
           <AutoComplete
             notFoundContent={
@@ -565,26 +575,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       )}
 
       {/*Tạo mới khách hàng*/}
-      {!customer && isVisibleCustomer && (
-        <div style={{ marginTop: "14px" }}>
-          <CreateCustomer
-            customerGroups={customerGroups}
-            areaList={areaList}
-            newCustomerInfo={newCustomerInfo}
-            wards={wards}
-            handleChangeArea={handleChangeArea}
-            handleChangeCustomer={handleChangeCustomer}
-            ShippingAddressChange={setShippingAddress}
-            keySearchCustomer={keySearchCustomer}
-            CustomerDeleteInfo={CustomerDeleteInfo}
-            setBillingAddress={setBillingAddress}
-            setCustomer={setCustomer}
-          />
-        </div>
+      {!isShowSearchCustomer && !customer && isVisibleCustomer && modalAction === "create" && (
+        <CreateCustomer
+          customerGroups={customerGroups}
+          areaList={areaList}
+          newCustomerInfo={newCustomerInfo}
+          wards={wards}
+          handleChangeArea={handleChangeArea}
+          handleChangeCustomer={handleChangeCustomer}
+          ShippingAddressChange={setShippingAddress}
+          keySearchCustomer={keySearchCustomer}
+          CustomerDeleteInfo={CustomerDeleteInfo}
+          setBillingAddress={setBillingAddress}
+          setCustomer={setCustomer}
+        />
       )}
 
       {/*Thông tin khách hàng*/}
-      {!!customer && (
+      {customer && (
         <div>
           <Row
             align="middle"
@@ -667,7 +675,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       )}
 
       {/*Cập nhật thông tin giao hàng*/}
-      {customer && isVisibleCustomer && (
+      {customer && (
         <UpdateCustomer
           customerGroups={customerGroups}
           areaList={areaList}
