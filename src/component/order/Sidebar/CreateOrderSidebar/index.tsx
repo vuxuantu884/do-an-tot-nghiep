@@ -40,7 +40,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 function CreateOrderSidebar(props: PropType): JSX.Element {
-  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, storeId} =
+  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, storeId, updateOrder} =
     props;
 
   const dispatch = useDispatch();
@@ -68,6 +68,9 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const [initMarketingAccountData, setInitMarketingAccountData] = useState<
     Array<AccountResponse>
   >([]);
+  const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
+  Array<AccountResponse>
+>([]);
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
 
@@ -159,6 +162,10 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 										setInitMarketingAccountData(result);
 										setMarketingAccountData(result);
 										break;
+                  case "coordinator_code":
+                    setInitCoordinatorAccountData(result);
+                    setCoordinatorAccountData(result);
+                    break;
 									default:
 										break;
 								}
@@ -245,18 +252,26 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             disabled = {isOrderFinishedOrCancel(orderDetail)}
           />
         </Form.Item>
-        {/* <Form.Item
-          label="Nhân viên điều phối"
-          name="coordinator_code"
-        >
-          <AccountCustomSearchSelect
-            placeholder="Tìm theo họ tên hoặc mã nhân viên"
-            initValue={initValueCoordinatorCode}
-            dataToSelect={coordinatorAccountData}
-            setDataToSelect={setCoordinatorAccountData}
-            initDataToSelect={initCoordinatorAccountData}
-          />
-        </Form.Item> */}
+        {updateOrder ? (
+          <Form.Item
+            label="Nhân viên điều phối"
+            name="coordinator_code"
+          >
+            <AccountCustomSearchSelect
+              placeholder="Tìm theo họ tên hoặc mã nhân viên"
+              initValue={initValueCoordinatorCode}
+              dataToSelect={coordinatorAccountData}
+              setDataToSelect={setCoordinatorAccountData}
+              initDataToSelect={initCoordinatorAccountData}
+            />
+          </Form.Item>
+        ) : (
+          <Form.Item
+            label="Nhân viên điều phối"
+            name="coordinator_code"
+            hidden
+          ></Form.Item>
+        )}
         <Form.Item
           label="Tham chiếu"
           name="reference_code"

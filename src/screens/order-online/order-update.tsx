@@ -2501,6 +2501,7 @@ ShippingServiceConfigDetailResponseModel[]
 										form={form}
 										storeId={storeId}
 										orderDetail={OrderDetail}
+										updateOrder
 									/>
 								</Col>
 							</Row>
