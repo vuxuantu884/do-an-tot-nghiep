@@ -50,6 +50,14 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
       (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
 
+  const renderOrderSourceName = () => {
+    let result = props.OrderDetail?.source;
+    if(!props.OrderDetail?.source && props.OrderDetail?.source_id === POS.source_id) {
+      result= POS.source_name
+    }
+    return result;
+  };
+
   return (
     <Card
       className="card-block card-block-customer"
@@ -68,12 +76,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
           >
             <span style={{ marginRight: "10px" }}>Nguồn:</span>
             <span className="text-error">
-              <span style={{ color: "red" }}>{() =>{
-                if(!props.OrderDetail?.source && props.OrderDetail?.source_id === POS.source_id) {
-                  return POS.source_name
-                }
-                return props.OrderDetail?.source;
-              }}</span>
+              <span style={{ color: "red" }}>
+                {renderOrderSourceName()}
+              </span>
             </span>
           </span>
         </div>
