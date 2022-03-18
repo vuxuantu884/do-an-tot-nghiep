@@ -113,7 +113,7 @@ function ActionHistory(props: PropType) {
                     <div className="singleActionHistory__info">
                       {singleActionHistory?.store && (
                         <h4 className="singleActionHistory__title">
-                          {singleActionHistory?.updated_name}
+                          {singleActionHistory?.updated_name === "admin" ? "Hệ thống" : singleActionHistory?.updated_name}
                         </h4>
                       )}
                       {singleActionHistory?.updated_date && (
