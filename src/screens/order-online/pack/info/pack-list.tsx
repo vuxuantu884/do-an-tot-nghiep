@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-import { OrderResponse } from "model/response/order/order.response";
+import { OrderResponse, PackFulFillmentResponse } from "model/response/order/order.response";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 
@@ -20,7 +20,7 @@ interface ResultPaging {
   result: any;
 }
 
-interface OrderResponseTable extends OrderResponse {
+interface OrderResponseTable extends PackFulFillmentResponse {
   key: number;
 }
 

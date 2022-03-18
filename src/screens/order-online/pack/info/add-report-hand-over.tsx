@@ -24,7 +24,7 @@ import moment from "moment";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
-import { OrderResponse } from "model/response/order/order.response";
+import { OrderResponse, PackFulFillmentResponse } from "model/response/order/order.response";
 import { ShipmentMethod } from "utils/Constants";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
@@ -68,7 +68,7 @@ const AddReportHandOver: React.FC = () => {
   const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
 
-  const orderPackSuccess: OrderResponse[] = useMemo(() => {
+  const orderPackSuccess: PackFulFillmentResponse[] = useMemo(() => {
     return !packModel ? [] : !packModel?.order ? [] : packModel.order;
   }, [packModel])
 
