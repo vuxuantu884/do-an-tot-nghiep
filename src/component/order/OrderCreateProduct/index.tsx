@@ -634,11 +634,11 @@ function OrderCreateProduct(props: PropType) {
 	}, [resultSearchVariant]);
 
 	const checkIfLineItemHasAutomaticDiscount = (lineItem: OrderLineItemRequest) => {
-		return lineItem.discount_items.some((discount) => discount.promotion_id);
+		return lineItem.discount_items.some((discount) => discount.promotion_id && discount?.amount > 0);
 	};
 
 	const checkIfOrderHasAutomaticDiscount = () => {
-		if (promotion && promotion.promotion_id) {
+		if (promotion && promotion.promotion_id && promotion?.amount && promotion?.amount > 0) {
 			return true;
 		}
 		return false;

@@ -178,7 +178,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       setRerender(false)
       switch (tag.key) {
         case 'store':
-          onFilter && onFilter({ ...params, store_ids: [] });
+          onFilter && onFilter({ ...params, stock_location_ids: [] });
           break;
         case 'source':
           onFilter && onFilter({ ...params, source_ids: [] });
@@ -265,7 +265,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
+      stock_location_ids: Array.isArray(params.stock_location_ids) ? params.stock_location_ids : [params.stock_location_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
       shipper_codes: Array.isArray(params.shipper_codes) ? params.shipper_codes : [params.shipper_codes],
@@ -455,8 +455,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     };
 
     let list = []
-    if (initialValues.store_ids.length) {
-      let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+    if (initialValues.stock_location_ids.length) {
+      let mappedStores = listStore?.filter((store) => initialValues.stock_location_ids?.some((single) => single === store.id.toString()))
       let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
       list.push({
         key: 'store',
@@ -648,7 +648,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-    [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.shipped_on_min, initialValues.shipped_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons, isPushingStatusFailed]
+    [initialValues.stock_location_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.shipped_on_min, initialValues.shipped_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons, isPushingStatusFailed]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -770,7 +770,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={20}>
               <Col span={12} xxl={8}>
                 <p>Kho cửa hàng</p>
-                <Item name="store_ids">
+                <Item name="stock_location_ids">
                   {/* <CustomSelect
                     mode="multiple"
                     showArrow allowClear

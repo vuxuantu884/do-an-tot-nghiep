@@ -11,7 +11,6 @@ import {
 import TextArea from "antd/es/input/TextArea"; 
 import {
   collectionDetailAction,
-  collectionUpdateAction,
   getProductsCollectionAction,
   updateProductsCollectionAction,
 } from 'domain/actions/product/collection.action';
@@ -55,6 +54,8 @@ import { formatCurrency } from 'utils/AppUtils';
 import _ from 'lodash';
 import { dangerColor } from 'utils/global-styles/variables';
 import CustomPagination from 'component/table/CustomPagination';
+import { callApiNative } from 'utils/ApiUtils';
+import { updateCollectionApi } from 'service/product/collection.service';
 
 type CollectionParam = {
   id: string;
@@ -105,7 +106,6 @@ const GroupUpdate: React.FC = () => {
   }, [resultSearch]);
 
   const onSuccess = useCallback((result: CollectionResponse) => {
-    setLoading(false);
     if (result) {
       setDetail(result);
       formRef.current?.setFieldsValue(result);
@@ -114,9 +114,13 @@ const GroupUpdate: React.FC = () => {
     }
   }, [history, formRef]);
   const onFinish = useCallback(
-    (values: CollectionUpdateRequest) => {
+    async (values: CollectionUpdateRequest) => {
       setLoading(true);
-      dispatch(collectionUpdateAction(idNumber, values, onSuccess));
+      const res = await callApiNative({isShowLoading:false},dispatch,updateCollectionApi,idNumber.toString(),values);
+      if (res) {
+        onSuccess(res);
+      } 
+      setLoading(false);
     },
     [dispatch, idNumber, onSuccess]
   ); 

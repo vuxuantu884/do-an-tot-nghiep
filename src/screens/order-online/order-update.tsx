@@ -1200,7 +1200,7 @@ ShippingServiceConfigDetailResponseModel[]
 
 	const checkIfOrderCanBeSplit = useMemo(() => {
 		// có tách đơn, có shipment trong fulfillments, trường hợp giao hàng sau vẫn có fulfillment mà ko có shipment
-		if (OrderDetail?.linked_order_code || (OrderDetail?.fulfillments && OrderDetail.fulfillments.find((single) => single.shipment))) {
+		if (OrderDetail?.linked_order_code || (OrderDetail?.fulfillments && OrderDetail.fulfillments.find((single) => single.shipment && !(single.status && [FulFillmentStatus.CANCELLED, FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING].includes(single.status))))) {
 			return false;
 		}
 		if (OrderDetail?.items.length === 1 && OrderDetail.items[0].quantity === 1) {
@@ -2501,6 +2501,7 @@ ShippingServiceConfigDetailResponseModel[]
 										form={form}
 										storeId={storeId}
 										orderDetail={OrderDetail}
+										updateOrder
 									/>
 								</Col>
 							</Row>

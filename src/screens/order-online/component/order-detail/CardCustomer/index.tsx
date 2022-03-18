@@ -471,40 +471,39 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       let result: SourceResponse[] = [];
       if(departmentIds.length > 0) {
         await getOrderSources(departmentIds).then(async (response) => {
-          let sortedSources =  response;
           result = response;
-          let id = OrderDetail?.source_id || initialForm?.source_id;
-          if(id && props.updateOrder ) {
-            sortedSources = response.filter(x =>x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase());
-            if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
-              const query:SourceSearchQuery = {
-                ids: [id],
-                active: true,
-              }
-              await getSourcesWithParamsService(query).then((responseSource) => {
-                if(isFetchApiSuccessful(responseSource)) {
-                  let items = responseSource.data.items;
-                  sortedSources = [...response, ...items]
-                  return sortedSources
-                } else {
-                  handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch)
-                }
-              })
-    
-            }
-            result = [...sortedSources];
-            return result;
-          } else {
-            result = sortedSources.filter((x) => {
-              return (
-                x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase() && x.active
-              )
-            });
-            return result;
-          }
         });
       }
-      return result;
+      let sortedSources =  result;
+      let id = OrderDetail?.source_id || initialForm?.source_id;
+      if(id && props.updateOrder ) {
+        let sortedSourcesResult = sortedSources.filter(x =>x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase());
+        if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
+          const query:SourceSearchQuery = {
+            ids: [id],
+            // active: true, // mở
+          }
+          await getSourcesWithParamsService(query).then((responseSource) => {
+            if(isFetchApiSuccessful(responseSource)) {
+              let items = responseSource.data.items;
+              sortedSources = [...sortedSourcesResult, ...items]
+              return sortedSources
+            } else {
+              handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch)
+            }
+          })
+
+        }
+        result = [...sortedSources];
+        return result;
+      } else {
+        result = sortedSources.filter((x) => {
+          return (
+            x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase() && x.active
+          )
+        });
+        return result;
+      }
     };
     const setDefaultOrderSource = async (sources: SourceResponse[]) => {
       let checkIfHasDefault = sources.find(source => source.default);
@@ -669,7 +668,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           onChange={(value) => {
             setOrderSourceId && setOrderSourceId(value);
           }}
-          disabled={isDisableSelectSource}
+          disabled={isDisableSelectSource && false} // mở update
         >
           {listSource.map((item, index) => (
             <CustomSelect.Option
