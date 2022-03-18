@@ -27,7 +27,6 @@ import {
   YDpageCustomerRequest
 } from "model/request/customer.request";
 import {BillingAddress, CustomerResponse} from "model/response/customer/customer.response";
-import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
@@ -607,7 +606,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 								style={{ width: "100%" }}
 								placeholder="Chọn ngày sinh"
 								format={"DD/MM/YYYY"}
-								defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
+								// defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
 								suffixIcon={
 									<CalendarOutlined
 										style={{ color: "#71767B", float: "left" }}
@@ -624,7 +623,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
       {/*Mặc định địa chỉ khách hàng là địa chỉ giao hàng: isVisibleShipping === true*/}
       <div className="send-order-box">
-        <Row gutter={12} style={{ marginTop: 15 }}>
+        <Row gutter={12}>
           <Col md={12} hidden>
             <Checkbox
               className={isVisibleShipping ? "checkbox-style send-order-box-default" : "checkbox-style"}
@@ -642,27 +641,29 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           {isVisibleShipping && (
             <Col md={24} style={{ float: "right", marginTop: "10px", width: "100%" }}>
               {isVisibleBtnUpdate && (
-                <Button
-                  type="primary"
-                  style={{ padding: "0 15px", fontWeight: 400, float: "right", height: "24px" }}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={() => {
-                    onOkPress();
-                  }}
-                >
-                  Thêm mới
-                </Button>
-              )}
+                <>
+                  <Button
+                    type="primary"
+                    style={{ padding: "0 15px", fontWeight: 400, float: "right", height: "24px" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    onClick={() => {
+                      onOkPress();
+                    }}
+                  >
+                    Thêm mới
+                  </Button>
 
-              <Button
-                style={{ padding: "0 15px", fontWeight: 400, float: "right", display: "none" }}
-                type="default"
-                onClick={() => {
-                  CustomerDeleteInfo();
-                }}
-              >
-                Hủy tạo mới khách hàng
-              </Button>
+                  <Button
+                    style={{ float: "right", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                    type="default"
+                    onClick={() => {
+                      CustomerDeleteInfo();
+                    }}
+                    >
+                    Hủy
+                  </Button>
+                </>
+              )}
             </Col>
           )}
         </Row>
