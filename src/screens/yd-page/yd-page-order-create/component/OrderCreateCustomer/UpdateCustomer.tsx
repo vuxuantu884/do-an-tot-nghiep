@@ -29,23 +29,23 @@ import {
   ShippingAddress
 } from "model/response/customer/customer.response";
 // import moment from "moment";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {StyledComponent} from "./styles";
 
 type UpdateCustomerProps = {
-  areas: any;
+  areaList: any;
   wards: any;
-  groups: any;
+  customerGroups: any;
   handleChangeArea: any;
   handleChangeCustomer: any;
   customer: any;
   shippingAddress: ShippingAddress | any;
   levelOrder?: number;
   setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
-  ShippingAddressChange: (items: any) => void;
+  setShippingAddress: (items: any) => void;
   ShowAddressModalEdit: () => void;
   showAddressModalDelete: () => void;
   ShowAddressModalAdd: () => void;
@@ -53,13 +53,13 @@ type UpdateCustomerProps = {
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const {
-    areas,
+    areaList,
     handleChangeCustomer,
     customer,
     shippingAddress,
     levelOrder = 0,
     setSingleShippingAddress,
-    ShippingAddressChange,
+    setShippingAddress,
     ShowAddressModalEdit,
     showAddressModalDelete,
     ShowAddressModalAdd,
@@ -83,10 +83,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   //const [shippingDistrictId, setShippingDistrictId] = React.useState<any>(null);
 
-  const handleShippingWards = useCallback(
-    (value: number) => {
-      if (value) {
-        dispatch(WardGetByDistrictAction(value, setShippingWards));
+  const getWardByDistrictId = useCallback(
+    (districtId: number) => {
+      if (districtId) {
+        dispatch(WardGetByDistrictAction(districtId, setShippingWards));
       }
     },
     [dispatch]
@@ -117,57 +117,25 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     setVisibleBtnUpdate(true)
   });
 
-  // const initialFormValueCustomer =
-  //   customer !== null
-  //     ? {
-  //         full_name: customer.full_name,
-  //         district_id: customer.district_id,
-  //         phone: customer.phone,
-  //         ward_id: customer.ward_id,
-  //         card_number: customer.card_number,
-  //         full_address: customer.full_address,
-  //         gender: customer.gender,
-  //         birthday: customer.birthday
-  //           ? moment(customer.birthday)
-  //           : null,
-  //         customer_group_id: customer.customer_group_id,
-  //       }
-  //     : {
-  //         full_name: "",
-  //         district_id: null,
-  //         phone: "",
-  //         ward_id: null,
-  //         card_number: null,
-  //         full_address: null,
-  //         gender: null,
-  //         birthday: null,
-  //         customer_group_id: null,
-  //       };
-      //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
-
-  const initialFormValueshippingAddress =
-    shippingAddress
-      ? {
-          card_number: customer.card_number,
-          name: shippingAddress?.name,
-          district_id: shippingAddress?.district_id,
-          country_id: shippingAddress?.country_id,
-          city_id: shippingAddress?.city_id,
-          phone: shippingAddress?.phone,
-          ward_id: shippingAddress?.ward_id,
-          full_address: shippingAddress?.full_address,
-        }
-      : {
-          card_number: customer.card_number,
-          name: customer.full_name,
-          district_id: customer.district_id,
-          country_id: customer.country_id,
-          phone: customer.phone,
-          ward_id: customer.ward_id,
-          full_address: customer.full_address,
-          gender: customer.gender,
-          
-        };
+  const initialFormValues = useMemo(() => {
+    if (shippingAddress) {
+      return {
+        name: shippingAddress?.name,
+        phone: shippingAddress?.phone,
+        district_id: shippingAddress?.district_id,
+        ward_id: shippingAddress?.ward_id,
+        full_address: shippingAddress?.full_address,
+      };
+    } else {
+      return {
+        name: customer.full_name,
+        phone: customer.phone,
+        district_id: customer.district_id,
+        ward_id: customer.ward_id,
+        full_address: customer.full_address,
+      };
+    }
+  }, [customer.district_id, customer.full_address, customer.full_name, customer.phone, customer.ward_id, shippingAddress]);
 
 
   useEffect(() => {
@@ -175,6 +143,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       dispatch(
         WardGetByDistrictAction(shippingAddress.district_id, setShippingWards)
       );
+    } else {
+      setShippingWards([]);
     }
   }, [dispatch, shippingAddress]);
 
@@ -184,10 +154,28 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   //   customerForm.setFieldsValue(value);
   // };
 
+  const handleSelectArea = (value: any) => {
+    let values = formRefAddress.current?.getFieldsValue();
+    values.ward_id = null;
+    shippingAddressForm.setFieldsValue(values);
+    getWardByDistrictId(value);
+    setVisibleBtnUpdate(true);
+  };
+
+  const handleClearArea = () => {
+    let value = shippingAddressForm.getFieldsValue();
+    value.district_id = null;
+    value.ward_id = null;
+    value.full_address = "";
+    shippingAddressForm.setFieldsValue(value);
+
+    setShippingWards([]);
+  };
+
   const handleSubmit = useCallback(
     (value: any) => {
       //let shippingAddress = customerItem.shipping_addresses.find((p:any) => p.is_default === true);
-      let area = areas.find((area: any) => area.id === value.district_id);
+      let area = areaList.find((area: any) => area.id === value.district_id);
       let param = {
         ...shippingAddress,
         name: value.name,
@@ -212,7 +200,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                               })
                           );
 
-                          //if(data!==null) ShippingAddressChange(data);
+                          //if(data!==null) setShippingAddress(data);
                           setVisibleBtnUpdate(false);
                           showSuccess("Cập nhật địa chỉ giao hàng thành công");
                       } else {
@@ -236,7 +224,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                               })
                           );
 
-                          //if(data!==null) ShippingAddressChange(data);
+                          //if(data!==null) setShippingAddress(data);
                           setVisibleBtnUpdate(false);
                           showSuccess("Thêm mới địa chỉ giao hàng thành công");
                       } else {
@@ -248,43 +236,43 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       }
 
     },
-    [dispatch, customer, areas, shippingAddress, handleChangeCustomer]
+    [dispatch, customer, areaList, shippingAddress, handleChangeCustomer]
   );
 
   const onOkPress = useCallback(() => {
     shippingAddressForm.submit();
   }, [shippingAddressForm]);
 
-  const handleCancelValueFormAddress = useCallback(() => {
-    if (shippingAddress) {
-      shippingAddressForm.setFieldsValue({
-        card_number: customer.card_number,
-        name: shippingAddress?.name,
-        district_id: shippingAddress?.district_id,
-        country_id: shippingAddress?.country_id,
-        city_id: shippingAddress?.city_id,
-        phone: shippingAddress?.phone,
-        ward_id: shippingAddress?.ward_id,
-        full_address: shippingAddress?.full_address,
-      })
-    }else {
-      shippingAddressForm.setFieldsValue({
-        card_number: customer.card_number,
-          name: customer.full_name,
-          district_id: customer.district_id,
-          country_id: customer.country_id,
-          phone: customer.phone,
-          ward_id: customer.ward_id,
-          full_address: customer.full_address,
-          gender: customer.gender,
-     })
+  const onCancelUpdateShippingAddress = useCallback(() => {
+    const districtValue = shippingAddressForm.getFieldValue("district_id");
+    if (initialFormValues.district_id?.toString() !== districtValue?.toString()) {
+      if (initialFormValues.district_id ) {
+        getWardByDistrictId(initialFormValues.district_id);
+      } else {
+        setShippingWards([]);
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shippingAddressForm])
+    shippingAddressForm.setFieldsValue(initialFormValues);
+  }, [getWardByDistrictId, initialFormValues, shippingAddressForm])
 
   useEffect(() => {
-    if (shippingAddress) shippingAddressForm.resetFields();
-  }, [shippingAddressForm, shippingAddress]);
+    shippingAddressForm.setFieldsValue(initialFormValues);
+  }, [shippingAddressForm, shippingAddress, initialFormValues]);
+
+
+  useEffect(() => {
+    if (customer) {
+      if (customer.shipping_addresses?.length > 0) {
+        const shippingAddressesDefault = customer.shipping_addresses.find((item: any) => item.default) || null;
+        setShippingAddress(shippingAddressesDefault);
+      } else {
+        setShippingAddress(null);
+      }
+    } else {
+      setShippingAddress(null);
+    }
+  }, [dispatch, customer, setShippingAddress]);
+  
 
   return (
     <StyledComponent>
@@ -317,12 +305,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               </Button>
           )}
       </Row>
+
       <Form
         layout="vertical"
         form={shippingAddressForm}
         ref={formRefAddress}
         onFinish={handleSubmit}
-        initialValues={initialFormValueshippingAddress}
+        initialValues={initialFormValues}
         name="shippingAddress_update"
         className="update-customer-ydpage"
       >
@@ -403,17 +392,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   </React.Fragment>
                 }
                 style={{ width: "100%" }}
-                onChange={(value: number) => {
-                  let values = formRefAddress.current?.getFieldsValue();
-                  values.ward_id = null;
-                  formRefAddress.current?.setFieldsValue(values);
-                  handleShippingWards(value);
-                  setVisibleBtnUpdate(true);
-                }}
+                onChange={handleSelectArea}
+                onClear={handleClearArea}
                 optionFilterProp="children"
                 disabled={disableInput}
               >
-                {areas.map((area: any) => (
+                {areaList.map((area: any) => (
                   <Select.Option key={area.id} value={area.id}>
                     {area.city_name + ` - ${area.name}`}
                   </Select.Option>
@@ -528,7 +512,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 											handleShippingEdit={ShowAddressModalEdit}
 											handleShippingDelete={showAddressModalDelete}
 											handleSingleShippingAddress={setSingleShippingAddress}
-											handleShippingAddress={ShippingAddressChange}
+											handleShippingAddress={setShippingAddress}
 											setVisibleChangeAddress={setVisibleModalChangeAddress}
 										/>
 									</Modal>
@@ -537,7 +521,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 <div className="page-filter-right" style={{ width: "30%" }}>
                   <Button
                     className="page-cancel-address"
-                    onClick={handleCancelValueFormAddress}
+                    onClick={onCancelUpdateShippingAddress}
                   >
                     Hủy
                   </Button>
@@ -695,8 +679,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       }
                       className="select-with-search"
                     >
-                      {groups &&
-                        groups.map((group: any) => (
+                      {customerGroups &&
+                        customerGroups.map((group: any) => (
                           <Select.Option key={group.id} value={group.id}>
                             {group.name}
                           </Select.Option>
@@ -732,7 +716,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       }}
                       optionFilterProp="children"
                     >
-                      {areas.map((area: any) => (
+                      {areaList.map((area: any) => (
                         <Select.Option key={area.id} value={area.id}>
                           {area.city_name + ` - ${area.name}`}
                         </Select.Option>
