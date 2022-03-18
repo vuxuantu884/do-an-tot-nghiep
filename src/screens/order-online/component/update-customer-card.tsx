@@ -12,6 +12,7 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { Link } from "react-router-dom";
+import { POS } from "utils/Constants";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -54,7 +55,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
       className="card-block card-block-customer"
       title={
         <div className="d-flex">
-          <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
+          <span className="title-card">THÔNG TIN KHÁCH HÀNG </span>
         </div>
       }
       extra={
@@ -67,7 +68,12 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
           >
             <span style={{ marginRight: "10px" }}>Nguồn:</span>
             <span className="text-error">
-              <span style={{ color: "red" }}>{props.OrderDetail?.source}</span>
+              <span style={{ color: "red" }}>{() =>{
+                if(!props.OrderDetail?.source && props.OrderDetail?.source_id === POS.source_id) {
+                  return POS.source_name
+                }
+                return props.OrderDetail?.source;
+              }}</span>
             </span>
           </span>
         </div>
