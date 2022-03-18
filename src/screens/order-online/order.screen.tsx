@@ -251,7 +251,7 @@ ShippingServiceConfigDetailResponseModel[]
 		account_code: userReducer.account?.code,
 		assignee_code: userReducer.account?.code || null,
 		marketer_code: null,
-		coordinator_code: null,
+		coordinator_code: userReducer.account?.code || null,
 		customer_id: null,
 		reference_code: "",
 		url: "",
