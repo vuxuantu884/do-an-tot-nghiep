@@ -64,8 +64,11 @@ import {
 } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import BaseResponse from "base/base.response";
-
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import { useHistory, useLocation } from "react-router";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
+import queryString from "query-string";
+
 
 const STATUS = {
   WAITING: "waiting",
@@ -119,7 +122,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
   const [exportProcessPercent, setExportProcessPercent] = useState<number>(0);
 
-  const [ecommerceIdSelected, setEcommerceIdSelected] = useState(null);
+  const [ecommerceIdSelected, setEcommerceIdSelected] = useState<number | null>(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
 
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
@@ -148,18 +151,14 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     []
   );
 
-  const [query, setQuery] = useState<ProductEcommerceQuery>({
-    page: 1,
-    limit: 30,
-    ecommerce_id: null,
-    shop_ids: [],
-    connect_status: null,
-    update_stock_status: null,
-    sku_or_name_core: null,
-    sku_or_name_ecommerce: null,
-    connected_date_from: null,
-    connected_date_to: null,
-  });
+  const [query, setQuery] = useState<ProductEcommerceQuery>(initialFormValues);
+
+  const history = useHistory();
+  const location = useLocation();
+
+  const queryParamsParsed: { [key: string]: string | (string | null)[] | null; } = queryString.parse(
+    location.search
+  );
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
@@ -169,7 +168,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   }, []);
 
   const getProductUpdated = useCallback(
-    (queryRequest: any) => {
+    (queryRequest: ProductEcommerceQuery) => {
       setIsLoading(true);
       dispatch(getProductEcommerceList(queryRequest, updateVariantData));
     },
@@ -441,19 +440,100 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       value.connected_date_from = connectionStartDate;
       value.connected_date_to = connectionEndDate;
 
-      query.ecommerce_id = value.ecommerce_id;
-      query.shop_ids = value.shop_ids;
-      query.connect_status = value.connect_status;
-      query.update_stock_status = value.update_stock_status;
-      query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
-      query.sku_or_name_core = value.sku_or_name_core;
-      query.connected_date_from = value.connected_date_from;
-      query.connected_date_to = value.connected_date_to;
+      let queryParam = generateQuery(value);
+      history.push(`${location.pathname}?${queryParam}`);
+    }
+  };
+
+  useEffect(() => {
+    let dataQuery: ProductEcommerceQuery = {
+      ...initialFormValues,
+      ...getQueryParamsFromQueryString(queryParamsParsed)
+    };
+    setFilterValueByQueryParam(dataQuery)
+    setQuery(dataQuery);
+    getProductUpdated(dataQuery);
+  }, [dispatch, location.search])
+
+  const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery)=> {
+    console.log(dataquery);
+    formAdvance.setFieldsValue(dataquery);
+    setEcommerceIdSelected(dataquery.ecommerce_id);
+    getEcommerceShop(dataquery.ecommerce_id);
+    if (dataquery.ecommerce_id === null){
+      removeEcommerce();
+    } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
+      formAdvance.setFieldsValue({ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id-1].ecommerce_id})
+      if (dataquery.shop_ids !== null){
+        formAdvance.setFieldsValue({shop_ids: dataquery.shop_ids})
+      }
+      
+    } else {
+      formAdvance.setFieldsValue({ecommerce_id: null})
+      removeEcommerce();
+    }
+    const connected_date_from = dataquery.connected_date_from;
+    const connected_date_to = dataquery.connected_date_to;
+    if (connected_date_from === null) {
+      setConnectionStartDate(null)
+    } else {
+      setConnectionStartDate(ConvertDateToUtc(connected_date_from));
+    }
+    
+    if (connected_date_to === null) {
+      setConnectionEndDate(null)
+    } else {
+      setConnectionEndDate(ConvertDateToUtc(connected_date_to));
     }
 
-    const querySearch: ProductEcommerceQuery = { ...query };
-    setQuery(querySearch);
-    getProductUpdated(querySearch);
+    if (connected_date_from !== null && connected_date_to!== null) {
+      const startDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
+      const endDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
+      const startDateValueYesterday = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
+      const endDateValueYesterday = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
+      const startDateValueThisWeek = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").add(7, "h")));
+      const endDateValueThisWeek = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week")));
+      const startDateValueLastWeek = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, "h")));
+      const endDateValueLastWeek = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks")));
+      const startDateValueThisMonth = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").add(7, "h")));
+      const endDateValueThisMonth = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month")));
+      const startDateValueLastMonth = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, "h")));
+      const endDateValueLastMonth = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month").subtract(1, "months")));
+
+      const date_from = ConvertUtcToDate(connected_date_from);
+      const date_to = ConvertUtcToDate(connected_date_to)
+
+      if (date_from === startDateValueToDay && date_to === endDateValueToDay){
+        setDateButtonSelected("today");
+      } else if (date_from === startDateValueYesterday && date_to === endDateValueYesterday) {
+        setDateButtonSelected("yesterday");
+      } else if (date_from === startDateValueThisWeek && date_to === endDateValueThisWeek) {
+        setDateButtonSelected("thisweek");
+      } else if (date_from === startDateValueLastWeek && date_to === endDateValueLastWeek) {
+        setDateButtonSelected("lastweek");
+      } else if (date_from === startDateValueThisMonth && date_to === endDateValueThisMonth) {
+        setDateButtonSelected("thismonth");
+      } else if (date_from === startDateValueLastMonth && date_to === endDateValueLastMonth) {
+        setDateButtonSelected("lastmonth");
+      }
+
+    } else {
+      setDateButtonSelected("");
+    }
+  }
+
+  const ConvertUtcToDate = (
+    date?: Date | string | number | null,
+    format?: string
+  ) => {
+    if (date != null) {
+      let localDate = moment.utc(date).toDate();
+      let dateFormat = moment(localDate).format(
+        format ? format : "DD/MM/YYYY"
+      );
+      return dateFormat;
+    }
+    return "";
   };
 
   const onPageChange = React.useCallback(
