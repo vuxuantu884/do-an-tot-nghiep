@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { FpageCustomerSearchQuery } from "model/query/customer.query";
 import {
   getCustomerDetailAction,
-  CustomerSearchByPhone,
+  CustomerSearchByPhone, CustomerGroups,
 } from "domain/actions/customer/customer.action";
 import {
   getYDPageCustomerInfo,
@@ -22,8 +22,10 @@ import {
 import { showError } from "utils/ToastUtils";
 import { YDpageCustomerRequest } from "model/request/customer.request";
 
+import {BillingAddress, ShippingAddress} from "model/request/order.request";
+import {DistrictGetByCountryAction} from "domain/actions/content/content.action";
+import {VietNamId} from "utils/Constants";
 import "screens/yd-page/index.scss";
-import {BillingAddress, ShippingAddress} from "../../model/request/order.request";
 
 const { TabPane } = Tabs;
 
@@ -55,7 +57,7 @@ function YDPageAdmin() {
   const [customer, setCustomer] = React.useState<CustomerResponse | null>(null);
   const [newCustomerInfo, setNewCustomerInfo] = useState<YDpageCustomerRequest>(initCustomerInfo);
   const [isClearOrderTab, setIsClearOrderTab] = useState<boolean>(false);
-  const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
+  const [fbCustomerId] = React.useState<string | null>("4202601893150398");
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [defaultSourceId] = React.useState<number | null>(
     queryString?.get("defaultSourceId") ? Number(queryString?.get("defaultSourceId")) : null
@@ -77,6 +79,20 @@ function YDPageAdmin() {
 
   const [isEditCustomer, setIsEditCustomer] = React.useState<boolean>(false);
 
+  // get customer group
+  const [customerGroups, setCustomerGroups] = React.useState<Array<any>>([]);
+
+  useEffect(() => {
+    dispatch(CustomerGroups(setCustomerGroups));
+  }, [dispatch]);
+  // end get customer group
+
+  // get area list
+  const [areaList, setAreaList] = React.useState<Array<any>>([]);
+
+  useEffect(() => {
+    dispatch(DistrictGetByCountryAction(VietNamId, setAreaList));
+  }, [dispatch]);
 
   useEffect(() => {
     const handleEvent = (event: any) => {
@@ -110,14 +126,6 @@ function YDPageAdmin() {
     if (value) {
       setCustomer(value);
       setVisibleCustomer(true);
-      if (value.shipping_addresses?.length > 0) {
-        const address = value.shipping_addresses.find((item: any) => item.default);
-        setShippingAddress(address);
-      }
-      if (value.billing_addresses) {
-        const billing = value.billing_addresses.find((item: any) => item.default);
-        setBillingAddress(billing);
-      }
     } else {
       setCustomer(null);
     }
@@ -128,6 +136,7 @@ function YDPageAdmin() {
       setCustomerPhone(phoneNumber);
       if (phoneNumber) {
         initQueryCustomer.phone = phoneNumber;
+        setVisibleCustomer(false);
         dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
       }
     },
@@ -194,6 +203,28 @@ function YDPageAdmin() {
     [fbCustomerId, dispatch]
   );
 
+  useEffect(() => {
+    if (customer) {
+      setVisibleCustomer(true);
+      if (customer.shipping_addresses?.length > 0) {
+        const shippingAddressesDefault = customer.shipping_addresses.find((item: any) => item.default) || null;
+        setShippingAddress(shippingAddressesDefault);
+      } else {
+        setShippingAddress(null);
+      }
+
+      if (customer.billing_addresses?.length > 0) {
+        const billingAddressDefault = customer.billing_addresses.find((item: any) => item.default) || null;
+        setBillingAddress(billingAddressDefault);
+      } else {
+        setBillingAddress(null);
+      }
+    } else {
+      setShippingAddress(null);
+      setBillingAddress(null);
+    }
+  }, [dispatch, customer]);
+
   //Render result search
   const handleOnchangeTabs = React.useCallback((value: string) => {
     setActiveTabKey(value);
@@ -219,8 +250,9 @@ function YDPageAdmin() {
       >
         <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}>
           <YDPageCustomer
+            customerGroups={customerGroups}
+            areaList={areaList}
             customer={customer}
-            setCustomer={setCustomer}
             isEditCustomer={isEditCustomer}
             setIsEditCustomer={setIsEditCustomer}
             newCustomerInfo={newCustomerInfo}
@@ -242,6 +274,8 @@ function YDPageAdmin() {
             fbPageId={fbPageId}
             defaultSourceId={defaultSourceId}
             defaultStoreId={defaultStoreId}
+            customerGroups={customerGroups}
+            areaList={areaList}
             customer={customer}
             newCustomerInfo={newCustomerInfo}
             userId={userId}

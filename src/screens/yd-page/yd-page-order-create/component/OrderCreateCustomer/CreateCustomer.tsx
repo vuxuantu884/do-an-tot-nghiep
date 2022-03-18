@@ -37,9 +37,9 @@ import {VietNamId} from "utils/Constants";
 
 type CreateCustomerProps = {
   newCustomerInfo?: YDpageCustomerRequest;
-  areas: any;
+  areaList: any;
   wards: any;
-  groups: any;
+  customerGroups: any;
   handleChangeArea: any;
   handleChangeCustomer: any;
   keySearchCustomer: string;
@@ -52,9 +52,9 @@ type CreateCustomerProps = {
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const {
     newCustomerInfo,
-    areas,
+    areaList,
     wards,
-    groups,
+    customerGroups,
     handleChangeArea,
     handleChangeCustomer,
     ShippingAddressChange,
@@ -171,12 +171,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         setBillingAddress(billingAddress);
         setCustomer(result);
 
+        // Mặc định: isVisibleShipping === true
         if (!isVisibleShipping) {
           shippingFormRef.current?.validateFields();
 
           let district_id =
             shippingFormRef.current?.getFieldValue("district_id");
-          let area = areas.find((area: any) => area.id === district_id);
+          let area = areaList.find((area: any) => area.id === district_id);
 
           let shippingAddress = {
             id: 0,
@@ -255,9 +256,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       }
     },
     [
+      setCustomer,
       dispatch,
       handleChangeCustomer,
-      areas,
+      areaList,
       shippingFormRef,
       isVisibleShipping,
       ShippingAddressChange,
@@ -267,7 +269,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
   const handleSubmit = useCallback(
     (values: any) => {
-      const area = areas.find((area: any) => area.id.toString() === values.district_id.toString());
+      const area = areaList.find((area: any) => area.id.toString() === values.district_id.toString());
       const area_ward = wards.find((ward:any) => ward.id.toString() === values.ward_id.toString());
 
       values.full_name = values.full_name.trim();
@@ -328,7 +330,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         )
       );
     },
-    [areas, wards, dispatch, createCustomerCallback]
+    [areaList, wards, dispatch, createCustomerCallback]
   );
 
   const onOkPress = useCallback(() => {
@@ -452,8 +454,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       setVisibleBtnUpdate(true);
                     }}
                   >
-                    {groups &&
-                      groups.map((group: any) => (
+                    {customerGroups &&
+                      customerGroups.map((group: any) => (
                         <Select.Option key={group.id} value={group.id}>
                           {group.name}
                         </Select.Option>
@@ -490,7 +492,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 onClear={handleClearArea}
                 optionFilterProp="children"
               >
-                {areas.map((area: any) => (
+                {areaList.map((area: any) => (
                   <Select.Option key={area.id} value={area.id}>
                     {area.city_name + ` - ${area.name}`}
                   </Select.Option>
@@ -619,9 +621,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 					</Col>
 				</Row>
       </Form>
+
+      {/*Mặc định địa chỉ khách hàng là địa chỉ giao hàng: isVisibleShipping === true*/}
       <div className="send-order-box">
         <Row gutter={12} style={{ marginTop: 15 }}>
-          <Col md={12}>
+          <Col md={12} hidden>
             <Checkbox
               className={isVisibleShipping ? "checkbox-style send-order-box-default" : "checkbox-style"}
               onChange={() => {
@@ -634,6 +638,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               Thông tin của khách hàng cũng là thông tin giao hàng
             </Checkbox>
           </Col>
+
           {isVisibleShipping && (
             <Col md={24} style={{ float: "right", marginTop: "10px", width: "100%" }}>
               {isVisibleBtnUpdate && (
@@ -739,7 +744,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     }}
                     optionFilterProp="children"
                   >
-                    {areas.map((area: any) => (
+                    {areaList.map((area: any) => (
                       <Select.Option key={area.id} value={area.id}>
                         {area.city_name + ` - ${area.name}`}
                       </Select.Option>
