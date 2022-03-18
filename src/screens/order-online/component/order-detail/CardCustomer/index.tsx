@@ -668,7 +668,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           onChange={(value) => {
             setOrderSourceId && setOrderSourceId(value);
           }}
-          disabled={isDisableSelectSource}
+          disabled={isDisableSelectSource && false} // mở update
         >
           {listSource.map((item, index) => (
             <CustomSelect.Option
