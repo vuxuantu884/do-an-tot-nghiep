@@ -25,12 +25,10 @@ import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import CustomSelect from "component/custom/select.custom";
 import {
-  DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import {
   getCustomerDetailAction,
-  CustomerGroups,
   CustomerSearch,
   DeleteShippingAddress,
 } from "domain/actions/customer/customer.action";
@@ -62,15 +60,16 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import UrlConfig from "config/url.config";
-import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
-import { formatCurrency } from "../../../../../utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { debounce } from "lodash";
 //#end region
 
 type CustomerCardProps = {
+  customerGroups: Array<any>;
+  areaList:  Array<any>;
   setCustomer: (items: CustomerResponse | null) => void;
   setShippingAddress: (items: ShippingAddress | null) => void;
   setBillingAddress: (items: BillingAddress | null) => void;
@@ -109,6 +108,8 @@ const initQueryCustomer: CustomerSearchQuery = {
 
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
   const {
+    customerGroups,
+    areaList,
     customer,
     newCustomerInfo,
     setCustomer,
@@ -129,17 +130,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
+  const [isShowSearchCustomer, setVisibleSearchCustomer] = useState(false);
   const [searchCustomer, setSearchCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
 
-  const [countryId] = React.useState<number>(233);
-  const [areas, setAreas] = React.useState<Array<any>>([]);
-
   const [districtId, setDistrictId] = React.useState<any>(null);
-
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [groups, setGroups] = React.useState<Array<any>>([]);
 
   const [modalActionShipping, setModalActionShipping] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -164,10 +161,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
     setVisibleCustomer(true);
+    setVisibleSearchCustomer(false);
   };
   const OkConfirmCustomerEdit = () => {
     setModalAction("edit");
     setVisibleCustomer(true);
+    setVisibleSearchCustomer(false);
   };
 
   const ShowAddressModalAdd = () => {
@@ -214,7 +213,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                     setCustomer(data[0]);
                     //set Shipping Address
                     if (data[0].shipping_addresses) {
-                      data[0].shipping_addresses.forEach((item, index2) => {
+                      data[0].shipping_addresses.forEach((item) => {
                         if (item.default) {
                           props.setShippingAddress(item);
                         }
@@ -223,7 +222,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
                     //set Billing Address
                     if (data[0].billing_addresses) {
-                      data[0].billing_addresses.forEach((item, index2) => {
+                      data[0].billing_addresses.forEach((item) => {
                         if (item.default) {
                           props.setBillingAddress(item);
                         }
@@ -295,7 +294,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
-    resultSearch.forEach((item: CustomerResponse, index: number) => {
+    resultSearch.forEach((item: CustomerResponse) => {
       options.push({
         label: CustomerRenderSearchResult(item),
         value: item.id ? item.id.toString() : "",
@@ -310,12 +309,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setShippingAddress(null);
     setBillingAddress(null)
     setVisibleCustomer(false);
+    setVisibleSearchCustomer(true);
   };
 
   //#end region
 
   const SearchCustomerSelect = useCallback(
-    (value, o) => {
+    (value) => {
       const customer: CustomerResponse | undefined = resultSearch?.find(item => item.id.toString() === value)
       if (customer) {
         OkConfirmCustomerEdit();
@@ -323,7 +323,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
         //set Shipping Address
         if (customer?.shipping_addresses) {
-          customer.shipping_addresses.forEach((item, index2) => {
+          customer.shipping_addresses.forEach((item) => {
             if (item.default) {
               props.setShippingAddress(item);
             }
@@ -334,7 +334,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
         //set Billing Address
         if (customer?.billing_addresses) {
-          customer.billing_addresses.forEach((item, index2) => {
+          customer.billing_addresses.forEach((item) => {
             if (item.default) {
               props.setBillingAddress(item);
             }
@@ -398,10 +398,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(DistrictGetByCountryAction(countryId, setAreas));
-  }, [dispatch, countryId]);
-
-  useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
     } else {
@@ -414,10 +410,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 			setDistrictId(newCustomerInfo?.district_id);
     }
   }, [newCustomerInfo]);
-
-  useEffect(() => {
-    dispatch(CustomerGroups(setGroups));
-  }, [dispatch]);
 
   useEffect(() => {
     if (customer) {
@@ -536,178 +528,173 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         </div>
       }
     >
-      {customer === null && !isVisibleCustomer && (
+      {/*Tìm kiếm khách hàng*/}
+      {(isShowSearchCustomer || (!customer && !isVisibleCustomer)) && (
         <div>
-          <div>
-            <AutoComplete
-              notFoundContent={
-                keySearchCustomer.length >= 3
-                  ? "Không tìm thấy khách hàng"
-                  : undefined
+          <AutoComplete
+            notFoundContent={
+              keySearchCustomer.length >= 3
+                ? "Không tìm thấy khách hàng"
+                : undefined
+            }
+            id="search_customer"
+            value={keySearchCustomer}
+            ref={autoCompleteRef}
+            onSelect={SearchCustomerSelect}
+            dropdownClassName="search-layout-customer dropdown-search-header"
+            dropdownMatchSelectWidth={456}
+            style={{ width: "100%" }}
+            onSearch={CustomerChangeSearch}
+            options={CustomerConvertResultSearch}
+            dropdownRender={(menu) => (
+              <div className="dropdown-custom">
+                <Button
+                  icon={<AiOutlinePlusCircle size={24} />}
+                  className="dropdown-custom-add-new"
+                  type="link"
+                  onClick={() => OkConfirmCustomerCreate()}
+                >
+                  Thêm mới khách hàng
+                </Button>
+                {menu}
+              </div>
+            )}
+          >
+            <Input
+              placeholder="Tìm hoặc thêm khách hàng... (F4)"
+              prefix={
+                searchCustomer ? (
+                  <LoadingOutlined style={{ color: "#2a2a86" }} />
+                ) : (
+                    <SearchOutlined style={{ color: "#ABB4BD" }} />
+                  )
               }
-              id="search_customer"
-              value={keySearchCustomer}
-              ref={autoCompleteRef}
-              onSelect={SearchCustomerSelect}
-              dropdownClassName="search-layout-customer dropdown-search-header"
-              dropdownMatchSelectWidth={456}
-              style={{ width: "100%" }}
-              onSearch={CustomerChangeSearch}
-              options={CustomerConvertResultSearch}
-              dropdownRender={(menu) => (
-                <div className="dropdown-custom">
-                  <Button
-                    icon={<AiOutlinePlusCircle size={24} />}
-                    className="dropdown-custom-add-new"
-                    type="link"
-                    onClick={() => OkConfirmCustomerCreate()}
-                  >
-                    Thêm mới khách hàng
-                  </Button>
-                  {menu}
-                </div>
-              )}
-            >
-              <Input
-                placeholder="Tìm hoặc thêm khách hàng... (F4)"
-                prefix={
-                  searchCustomer ? (
-                    <LoadingOutlined style={{ color: "#2a2a86" }} />
-                  ) : (
-                      <SearchOutlined style={{ color: "#ABB4BD" }} />
-                    )
-                }
-              />
-            </AutoComplete>
-          </div>
+            />
+          </AutoComplete>
         </div>
       )}
 
-      <div>
-        {customer !== null && (
-          <div>
-            <Row
-              align="middle"
-              justify="space-between"
-              className="row-customer-detail"
-              style={{ margin: "5px 0" }}>
-              <Col style={{ display: "flex", alignItems: "center" }}>
-                {levelOrder < 3 && (
-                  <CloseOutlined
-                    style={{ color: "red", fontSize: 20, marginRight: 10 }}
-                    onClick={CustomerDeleteInfo}
-                  />
-                )}
-                {/* <div className="fpage-order-avatar-customer">
-                  <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo" />
-                </div> */}
-                <Link
-                  target="_blank"
-                  to={`${UrlConfig.CUSTOMER}/${customer?.id}`}
-                  className="primary"
-                  style={{ fontSize: "16px", margin: "0 10px", fontWeight: 500 }}
-                >
-                  {customer?.full_name.toUpperCase()}
-                </Link>{" "}
+      {/*Tạo mới khách hàng*/}
+      {!isShowSearchCustomer && !customer && isVisibleCustomer && modalAction === "create" && (
+        <CreateCustomer
+          customerGroups={customerGroups}
+          areaList={areaList}
+          newCustomerInfo={newCustomerInfo}
+          wards={wards}
+          handleChangeArea={handleChangeArea}
+          handleChangeCustomer={handleChangeCustomer}
+          ShippingAddressChange={setShippingAddress}
+          keySearchCustomer={keySearchCustomer}
+          CustomerDeleteInfo={CustomerDeleteInfo}
+          setBillingAddress={setBillingAddress}
+          setCustomer={setCustomer}
+        />
+      )}
 
-              </Col>
-              <Col style={{ display: "flex", alignItems: "center" }}>
-                <span className="customer-detail-icon">
-                  <img src={callIcon} alt="" />
-                </span>
-                <span
-                  className="customer-detail-text text-body"
-                  style={{ marginRight: "10px", fontWeight: 500, fontSize: 16 }}
-                >
-                  {customer?.phone}
-                </span>
-              </Col>
-            </Row>
-            <Divider style={{ padding: 0, marginBottom: 6 }} />
-            <Row align="middle" justify="space-between">
-              <Col className="customer-detail-point">
-                <span className="customer-detail-icon">
-                  <img src={pointIcon} alt="" />
-                </span>
-                <span className="customer-detail-text">
-                  Tổng điểm:
-                  <Typography.Text
-                    type="success"
-                    style={{ color: "#FCAF17", marginLeft: "5px" }}
-                    strong
-                  >
-                    {loyaltyPoint?.point === undefined
-                      ? "0"
-                      : formatCurrency(loyaltyPoint.point || 0)}
-                  </Typography.Text>
-                </span>
-              </Col>
-              <Col>
-                <Tag className="orders-tag orders-tag-vip">
-                  <b>{!rankName ? "Không có hạng" : rankName}</b>
-                </Tag>
-              </Col>
-              <Col className="customer-detail-birthday">
-                <span className="customer-detail-icon">
-                  <img
-                    src={birthdayIcon}
-                    alt=""
-                    className="icon-customer-info"
-                  />
-                </span>
-                <span className="customer-detail-text">
-                  {customer?.birthday !== null
-                    ? customerBirthday
-                    : "Không xác định"}
-                </span>
-              </Col>
-            </Row>
-            <Divider
-              style={{ padding: 0, marginBottom: 6 }}
-            />
-          </div>
-        )}
-      </div>
-      {!customer && isVisibleCustomer && (
-          <div style={{ marginTop: "14px" }}>
-            {modalAction === CONSTANTS.MODAL_ACTION_TYPE.create && (
-              <CreateCustomer
-                newCustomerInfo={newCustomerInfo}
-                areas={areas}
-                wards={wards}
-                groups={groups}
-                handleChangeArea={handleChangeArea}
-                handleChangeCustomer={handleChangeCustomer}
-                ShippingAddressChange={props.setShippingAddress}
-                keySearchCustomer={keySearchCustomer}
-                CustomerDeleteInfo={CustomerDeleteInfo}
-                setBillingAddress={setBillingAddress}
-                setCustomer={setCustomer}
-              />
-            )}
-          </div>
-        )}
-
+      {/*Thông tin khách hàng*/}
       {customer && (
-            <div>
-            <UpdateCustomer
-                levelOrder={levelOrder}
-                areas={areas}
-                wards={wards}
-                groups={groups}
-                customer={customer}
-                shippingAddress={shippingAddress}
-                handleChangeArea={handleChangeArea}
-                handleChangeCustomer={handleChangeCustomer}
-                setSingleShippingAddress={setSingleShippingAddress}
-                ShippingAddressChange={props.setShippingAddress}
-                ShowAddressModalEdit={ShowAddressModalEdit}
-                showAddressModalDelete={showAddressModalDelete}
-                ShowAddressModalAdd={ShowAddressModalAdd}
-            />
-            </div>
-        )}
+        <div>
+          <Row
+            align="middle"
+            justify="space-between"
+            className="row-customer-detail"
+            style={{ margin: "5px 0" }}>
+            <Col style={{ display: "flex", alignItems: "center" }}>
+              {levelOrder < 3 && (
+                <CloseOutlined
+                  style={{ color: "red", fontSize: 20, marginRight: 10 }}
+                  onClick={CustomerDeleteInfo}
+                />
+              )}
+              {/* <div className="fpage-order-avatar-customer">
+                <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo" />
+              </div> */}
+              <Link
+                target="_blank"
+                to={`${UrlConfig.CUSTOMER}/${customer?.id}`}
+                className="primary"
+                style={{ fontSize: "16px", margin: "0 10px", fontWeight: 500 }}
+              >
+                {customer?.full_name.toUpperCase()}
+              </Link>{" "}
+
+            </Col>
+            <Col style={{ display: "flex", alignItems: "center" }}>
+              <span className="customer-detail-icon">
+                <img src={callIcon} alt="" />
+              </span>
+              <span
+                className="customer-detail-text text-body"
+                style={{ marginRight: "10px", fontWeight: 500, fontSize: 16 }}
+              >
+                {customer?.phone}
+              </span>
+            </Col>
+          </Row>
+          <Divider style={{ padding: 0, marginBottom: 6 }} />
+          <Row align="middle" justify="space-between">
+            <Col className="customer-detail-point">
+              <span className="customer-detail-icon">
+                <img src={pointIcon} alt="" />
+              </span>
+              <span className="customer-detail-text">
+                Tổng điểm:
+                <Typography.Text
+                  type="success"
+                  style={{ color: "#FCAF17", marginLeft: "5px" }}
+                  strong
+                >
+                  {loyaltyPoint?.point === undefined
+                    ? "0"
+                    : formatCurrency(loyaltyPoint.point || 0)}
+                </Typography.Text>
+              </span>
+            </Col>
+            <Col>
+              <Tag className="orders-tag orders-tag-vip">
+                <b>{!rankName ? "Không có hạng" : rankName}</b>
+              </Tag>
+            </Col>
+            <Col className="customer-detail-birthday">
+              <span className="customer-detail-icon">
+                <img
+                  src={birthdayIcon}
+                  alt=""
+                  className="icon-customer-info"
+                />
+              </span>
+              <span className="customer-detail-text">
+                {customer?.birthday !== null
+                  ? customerBirthday
+                  : "Không xác định"}
+              </span>
+            </Col>
+          </Row>
+          <Divider style={{ padding: 0, marginBottom: 6 }} />
+        </div>
+      )}
+
+      {/*Cập nhật thông tin giao hàng*/}
+      {customer && (
+        <UpdateCustomer
+          customerGroups={customerGroups}
+          areaList={areaList}
+          levelOrder={levelOrder}
+          wards={wards}
+          customer={customer}
+          shippingAddress={shippingAddress}
+          handleChangeArea={handleChangeArea}
+          handleChangeCustomer={handleChangeCustomer}
+          setSingleShippingAddress={setSingleShippingAddress}
+          setShippingAddress={setShippingAddress}
+          ShowAddressModalEdit={ShowAddressModalEdit}
+          showAddressModalDelete={showAddressModalDelete}
+          ShowAddressModalAdd={ShowAddressModalAdd}
+        />
+      )}
+
       <AddAddressModal
+        areaList={areaList}
         customer={customer}
 				newCustomerInfo={newCustomerInfo}
         handleChangeCustomer={handleChangeCustomer}

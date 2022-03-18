@@ -3,7 +3,6 @@ import {Form, Button, Card, Tag, Input, Select, DatePicker, Divider} from "antd"
 
 import {
   CreateCustomer,
-  CustomerGroups,
   UpdateCustomer,
 } from "domain/actions/customer/customer.action";
 import { useDispatch } from "react-redux";
@@ -23,6 +22,8 @@ const YDPageCustomerCreateUpdate = (props: any) => {
   const {
     allowCreateCustomer,
     allowUpdateCustomer,
+    customerGroups,
+    areaList,
     customer,
     newCustomerInfo,
     setNewCustomerInfo,
@@ -42,17 +43,6 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 
   const [status] = useState<string>("active");
   const [cityId, setCityId] = useState<any>(null);
-
-  // get customer group
-  const [customerGroups, setCustomerGroups] = React.useState<Array<any>>([]);
-
-  useEffect(() => {
-    dispatch(CustomerGroups(setCustomerGroups));
-    return () => {
-      setCustomerGroups([]);
-    }
-  }, [dispatch]);
-  // end get customer group
 
   // // Update new customer info
   const updateNewCustomerInfo = (fieldName: string, value: any) => {
@@ -351,6 +341,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 
           <YDpageCustomerAreaInfo
             form={form}
+            areaList={areaList}
             customer={customer}
             setCityId={setCityId}
             isDisable={isDisableForm()}

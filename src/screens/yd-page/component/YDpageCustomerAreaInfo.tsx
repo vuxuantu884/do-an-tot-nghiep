@@ -5,10 +5,8 @@ import {useDispatch} from "react-redux";
 import {WardResponse} from "model/content/ward.model";
 
 import {
-  DistrictGetByCountryAction,
   WardGetByDistrictAction
 } from "domain/actions/content/content.action";
-import { VietNamId } from "utils/Constants";
 
 import "screens/yd-page/yd-page-customer/customer.scss";
 import {StyledCustomerAreaInfo} from "screens/yd-page/StyledYDpageAdmin";
@@ -18,6 +16,7 @@ const { Option } = Select;
 const YDpageCustomerAreaInfo = (props: any) => {
   const {
     form,
+    areaList,
     customer,
     setCityId,
     isDisable,
@@ -28,16 +27,8 @@ const YDpageCustomerAreaInfo = (props: any) => {
 
   const dispatch = useDispatch();
 
-  const [areaList, setAreaList] = React.useState<Array<any>>([]);
   const [wardList, setWardList] = React.useState<Array<WardResponse>>([]);
   const [districtId, setDistrictId] = React.useState<any>(null);
-  
-  useEffect(() => {
-    dispatch(DistrictGetByCountryAction(VietNamId, setAreaList));
-    return () => {
-      setAreaList([]);
-    }
-  }, [dispatch]);
 
   useEffect(() => {
     if (customer?.district_id) {
