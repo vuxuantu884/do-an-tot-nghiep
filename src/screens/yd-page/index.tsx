@@ -57,7 +57,7 @@ function YDPageAdmin() {
   const [customer, setCustomer] = React.useState<CustomerResponse | null>(null);
   const [newCustomerInfo, setNewCustomerInfo] = useState<YDpageCustomerRequest>(initCustomerInfo);
   const [isClearOrderTab, setIsClearOrderTab] = useState<boolean>(false);
-  const [fbCustomerId] = React.useState<string | null>("4202601893150398");
+  const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [defaultSourceId] = React.useState<number | null>(
     queryString?.get("defaultSourceId") ? Number(queryString?.get("defaultSourceId")) : null
