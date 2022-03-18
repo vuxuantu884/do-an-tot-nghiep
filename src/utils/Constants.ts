@@ -265,6 +265,7 @@ export const POS = {
   source: "POS",
 	source_id: 1,
   source_code: "POS",
+  source_name: "POS",
 };
 
 export const SHOPEE = {
