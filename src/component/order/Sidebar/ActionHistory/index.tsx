@@ -70,15 +70,16 @@ function ActionHistory(props: PropType) {
   };
 
   const renderSingleSubStatus = (status_before?: string, status_after?: string) => {
+    const navigator = " -> ";
     let result = "";
-    if (status_before && status_after) {
-      result = `${status_before} -> ${status_after}`;
-    } else if (!status_before) {
-      result = `${status_after}`;
-    } else if (!status_after) {
-      result = `${status_before}`;
+    if (!status_before && !status_after) {
+      return "-"
+    } else {
+      const arr = [status_before, status_after];
+      const filterArr = arr.filter(single => single); // lọc khác null
+      result = filterArr.join(navigator);
+      return result;
     }
-    return result;
   };
 
   useEffect(() => {
