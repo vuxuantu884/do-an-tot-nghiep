@@ -1735,6 +1735,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 								style={{
 									float: "right",
 									padding: "0 25px",
+									marginLeft: "10px"
 								}}
 								onClick={ShowShipping}
 								loading={updateShipment}
