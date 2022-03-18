@@ -5,13 +5,12 @@ import {
 } from "domain/actions/app.action";
 import { profilePermissionAction } from "domain/actions/auth/permission.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import MainRoute from "routes";
 import { GlobalStyle } from "utils/global-styles";
-import {ErrorBoundary} from "react-error-boundary";
-import {ErrorFallback} from "./component/ErrorFallback";
+import SplashScreen from "./screens/splash.screen";
 
 function App() {
   const dispatch = useDispatch();
@@ -43,11 +42,11 @@ function App() {
   return (
     <>
       <BrowserRouter basename={BASE_NAME_ROUTER}>
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Suspense fallback={<SplashScreen />}>
           <MainRoute />
-        </ErrorBoundary>
+        </Suspense>
+        <GlobalStyle />
       </BrowserRouter>
-      <GlobalStyle />
     </>
   );
 }
