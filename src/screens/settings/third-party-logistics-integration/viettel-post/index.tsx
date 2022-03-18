@@ -139,6 +139,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
       username: form.getFieldValue("username"),
       password: form.getFieldValue("password"),
       status: DELIVER_SERVICE_STATUS.inactive,
+      token: form.getFieldValue("token"),
     };
     dispatch(
       updateDeliveryConfigurationAction(params, () => {

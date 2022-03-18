@@ -12,6 +12,7 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { Link } from "react-router-dom";
+import { POS } from "utils/Constants";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -49,12 +50,20 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
       (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
 
+  const renderOrderSourceName = () => {
+    let result = props.OrderDetail?.source;
+    if(!props.OrderDetail?.source && props.OrderDetail?.source_id === POS.source_id) {
+      result= POS.source_name
+    }
+    return result;
+  };
+
   return (
     <Card
       className="card-block card-block-customer"
       title={
         <div className="d-flex">
-          <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
+          <span className="title-card">THÔNG TIN KHÁCH HÀNG </span>
         </div>
       }
       extra={
@@ -67,7 +76,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
           >
             <span style={{ marginRight: "10px" }}>Nguồn:</span>
             <span className="text-error">
-              <span style={{ color: "red" }}>{props.OrderDetail?.source}</span>
+              <span style={{ color: "red" }}>
+                {renderOrderSourceName()}
+              </span>
             </span>
           </span>
         </div>

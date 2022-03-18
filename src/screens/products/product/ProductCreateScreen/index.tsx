@@ -920,6 +920,7 @@ const ProductCreateScreen: React.FC = () => {
                           </Option>
                         )}
                         placeholder="Chọn nhóm hàng"
+                        mode="multiple"
                         loading={collectionLoading}
                         fetchData={(query) => getCollections(query.condition || "", query.page || 1)}
                       />
