@@ -4,6 +4,8 @@ import NoPermission from "screens/no-permission.screen";
 import SplashScreen from "screens/splash.screen";
 import AuthWrapper from "./authorization/AuthWrapper";
 import Container from "./container";
+import {ErrorFallback} from "./ErrorFallback";
+import {ErrorBoundary} from "react-error-boundary";
 
 type AuthRouteProps = {
   path: string;
@@ -18,11 +20,13 @@ const AuthRoute: React.FC<AuthRouteProps> = (props: AuthRouteProps) => {
   return (
     <Route sensitive  path={path} exact={exact}>
       <Container title={title}>
-        <Suspense fallback={<SplashScreen />}>
-          <AuthWrapper acceptPermissions={permissions} passThrough>
-            {(allowed: boolean, isLoadingUserPermission: boolean ) => isLoadingUserPermission ? <SplashScreen/> : (allowed ? <Component /> : <NoPermission/>)}
-          </AuthWrapper>
-        </Suspense>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Suspense fallback={<SplashScreen />}>
+            <AuthWrapper acceptPermissions={permissions} passThrough>
+              {(allowed: boolean, isLoadingUserPermission: boolean ) => isLoadingUserPermission ? <SplashScreen/> : (allowed ? <Component /> : <NoPermission/>)}
+            </AuthWrapper>
+          </Suspense>
+        </ErrorBoundary>
       </Container>
     </Route>
   );
