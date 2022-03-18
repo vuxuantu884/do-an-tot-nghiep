@@ -206,11 +206,10 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
           <Col span={12}
            style={{padding: "0 10px 0 5px"}}
           >
-            <Form.Item
+          <Form.Item
             name="marketer_code"
             rules={[
               {
-                required: true,
                 message: "Vui lòng chọn nhân viên marketing",
               },
             ]}
