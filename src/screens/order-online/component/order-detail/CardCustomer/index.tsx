@@ -481,7 +481,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
           const query:SourceSearchQuery = {
             ids: [id],
-            active: true,
+            // active: true, // mở
           }
           await getSourcesWithParamsService(query).then((responseSource) => {
             if(isFetchApiSuccessful(responseSource)) {
