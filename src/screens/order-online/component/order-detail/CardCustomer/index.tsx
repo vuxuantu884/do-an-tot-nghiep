@@ -481,7 +481,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
           const query:SourceSearchQuery = {
             ids: [id],
-            active: true,
+            // active: true, // mở
           }
           await getSourcesWithParamsService(query).then((responseSource) => {
             if(isFetchApiSuccessful(responseSource)) {
@@ -668,7 +668,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           onChange={(value) => {
             setOrderSourceId && setOrderSourceId(value);
           }}
-          disabled={isDisableSelectSource}
+          disabled={isDisableSelectSource && false} // mở update
         >
           {listSource.map((item, index) => (
             <CustomSelect.Option

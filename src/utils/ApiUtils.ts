@@ -131,7 +131,11 @@ export const callApiNative = async <
         throw response.message;
 
       case HttpStatus.BAD_REQUEST:
-        throw response.errors;
+        if (response.errors && response.errors.length > 0) {
+          response.errors.forEach((e: string) => showError(e));
+          break
+        }
+        throw response.message;
 
       case HttpStatus.NOT_FOUND:
         throw response.message;
