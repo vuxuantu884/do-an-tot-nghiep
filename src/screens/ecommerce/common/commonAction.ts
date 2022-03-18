@@ -59,3 +59,8 @@ export const getEcommerceIdByChannelId = (channel_id: number) => {
   const ecommerce = ECOMMERCE_LIST.find(item => item.channel_id.toString() === channel_id.toString());
   return ecommerce?.ecommerce_id;
 };
+
+export const getEcommerceIdByChannelCode = (channel_code: string) => {
+  const ecommerce = ECOMMERCE_LIST.find(item => item.key === channel_code);
+  return ecommerce?.ecommerce_id;
+}
