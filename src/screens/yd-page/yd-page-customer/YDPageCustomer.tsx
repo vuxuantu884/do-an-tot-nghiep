@@ -14,8 +14,9 @@ const customersUpdatePermission = [YDpagePermission.customers_update];
 
 const YDPageCustomer = (props: any) => {
   const {
+    customerGroups,
+    areaList,
     customer,
-    setCustomer,
     isEditCustomer,
     setIsEditCustomer,
     newCustomerInfo,
@@ -28,8 +29,7 @@ const YDPageCustomer = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
-    customerGroups,
-		setCustomerDefaultPhone
+		setCustomerDefaultPhone,
   } = props;
 
   const [allowCreateCustomer] = useAuthorization({
@@ -70,8 +70,8 @@ const YDPageCustomer = (props: any) => {
                 allowCreateCustomer={allowCreateCustomer}
                 allowUpdateCustomer={allowUpdateCustomer}
                 customerGroups={customerGroups}
+                areaList={areaList}
                 customer={customer}
-                setCustomer={setCustomer}
                 newCustomerInfo={newCustomerInfo}
                 setNewCustomerInfo={setNewCustomerInfo}
                 getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}

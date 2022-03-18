@@ -2,7 +2,6 @@ import {Col, Input, Modal, Row, Select, Form} from "antd";
 //import arrowDownIcon from "assets/img/drow-down.svg";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import {
@@ -23,6 +22,7 @@ import {CountryResponse} from "model/content/country.model";
 import {modalActionType} from "model/modal/modal.model";
 
 type AddAddressModalProps = {
+  areaList: Array<any>;
   customer: CustomerResponse | null;
   handleChangeCustomer: any;
   formItem: any;
@@ -47,16 +47,22 @@ type FormValueType = {
 };
 
 const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalProps) => {
-  const {visible, onCancel, formItem, modalAction, customer, handleChangeCustomer, newCustomerInfo} =
-    props;
+  const {
+    visible,
+    onCancel,
+    formItem,
+    modalAction,
+    customer,
+    handleChangeCustomer,
+    newCustomerInfo,
+    areaList,
+  } = props;
 
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
-  const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [districtId, setDistrictId] = React.useState<any>(null);
-  const [countryId] = React.useState<number>(233);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
 
   const onOkPress = useCallback(() => {
@@ -104,10 +110,6 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
   }, [formItem]);
 
   React.useEffect(() => {
-    dispatch(DistrictGetByCountryAction(countryId, setAreas));
-  }, [dispatch, countryId]);
-
-  React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
     }
@@ -124,7 +126,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
       setDistrictId(districtId);
-      let area = areas.find((area) => area.id === districtId);
+      let area = areaList.find((area) => area.id === districtId);
       let value = form?.getFieldsValue();
       value.city_id = area.city_id;
       value.city = area.city_name;
@@ -286,7 +288,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
                 allowClear
                 optionFilterProp="children"
               >
-                {areas.map((area: any) => (
+                {areaList.map((area: any) => (
                   <Select.Option key={area.id} value={area.id}>
                     {area.city_name + ` - ${area.name}`}
                   </Select.Option>

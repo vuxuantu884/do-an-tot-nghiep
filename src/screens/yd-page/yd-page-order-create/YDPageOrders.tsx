@@ -15,7 +15,6 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
-import { modalActionType } from "model/modal/modal.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -41,7 +40,6 @@ import {
   getAmountPaymentRequest,
   getTotalAmount,
   getTotalAmountAfterDiscount,
-  isNullOrUndefined,
   scrollAndFocusToDomElement,
   totalAmount,
 } from "utils/AppUtils";
@@ -79,6 +77,8 @@ import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "../../../domai
 let typeButton = "";
 
 type OrdersCreatePermissionProps = {
+  customerGroups: Array<any>;
+  areaList:  Array<any>;
   customer: CustomerResponse | null;
   newCustomerInfo?: YDpageCustomerRequest;
   setCustomer: (items: CustomerResponse | null) => void;
@@ -99,14 +99,14 @@ type OrdersCreatePermissionProps = {
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
   billingAddress: BillingAddress | any;
-  // setModalAction: (item: modalActionType) => void;
-  // modalAction: modalActionType;
 };
 
 const ordersCreatePermission = [YDpagePermission.orders_create];
 
 export default function Order(props: OrdersCreatePermissionProps) {
   const {
+    customerGroups,
+    areaList,
     customer,
     newCustomerInfo,
     setCustomer,
@@ -176,7 +176,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [isCheckSplitLine, setCheckSplitLine] = useState(false)
 
-  const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
@@ -271,16 +270,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
   }, [customer?.id, dispatch]);
 
   useEffect(() => {
-    if (
-      isNullOrUndefined(customer) &&
-      newCustomerInfo &&
-      (newCustomerInfo.full_name || newCustomerInfo.phone)
-    ) {
-      setModalAction("create");
-      setVisibleCustomer(true);
-    } else {
-      setModalAction("edit");
-      setVisibleCustomer(false);
+    if (!customer) {
+      if (newCustomerInfo?.full_name || newCustomerInfo?.phone) {
+        setVisibleCustomer(true);
+      } else {
+        setVisibleCustomer(false);
+      }
     }
   }, [customer, newCustomerInfo, setVisibleCustomer]);
 
@@ -503,7 +498,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         _payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
         _payments[paymentCashIndex].return_amount = returnAmount;
       } else {
-        let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+        let newPaymentCash: OrderPaymentRequest | undefined;
         newPaymentCash = {
           code: PaymentMethodCode.CASH,
           payment_method_id:
@@ -1025,7 +1020,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   // }, [dispatch]);
 
   useEffect(() => {
-    if (items && items != null && items?.length > 0) {
+    if (items && items.length > 0) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
       dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
@@ -1109,6 +1104,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 <Row gutter={20} style={{ marginBottom: "70px" }}>
                   <Col span={24}>
                     <CardCustomer
+                      customerGroups={customerGroups}
+                      areaList={areaList}
                       customer={customer}
                       newCustomerInfo={newCustomerInfo}
                       setCustomer={setCustomer}
@@ -1119,8 +1116,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       setBillingAddress={setBillingAddress}
                       isVisibleCustomer={isVisibleCustomer}
                       setVisibleCustomer={setVisibleCustomer}
-                      modalAction={modalAction}
-                      setModalAction={setModalAction}
                       setOrderSourceId={setOrderSourceId}
                       defaultSourceId={defaultSourceId}
                       form={form}
