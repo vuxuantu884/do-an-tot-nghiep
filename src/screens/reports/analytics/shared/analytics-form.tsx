@@ -34,7 +34,8 @@ export const ReportifyFormFields = {
     reportType: "reportType",
     properties: "properties",
     column: "column",
-}
+    orderBy: "orderBy",
+};
 // const MAX_CHART_COLUMS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
 
@@ -267,6 +268,14 @@ function AnalyticsForm({ form, handleRQuery, mode }: Props) {
         })]);
     }
 
+    const handleChangeTimeGroup= (timeGroup:string)=>{
+        const where = form.getFieldValue(ReportifyFormFields.orderBy);
+        if(Array.isArray(where) && TIME_GROUP_BY.some((item)=>item.value===where[0][0])){
+            //reset orderBy khi chuyển nhóm thời gian.
+            form.setFieldsValue({ orderBy: []});
+        }
+        pushSubmitAction();
+    }
     return (
         <AnalyticsStyle>
             <Form onFinish={exportReportQuery} onFinishFailed={handleFinishFailed} form={form} name="report-form-base">
@@ -292,7 +301,7 @@ function AnalyticsForm({ form, handleRQuery, mode }: Props) {
                         </Form.Item> */}
                         {/* over or by */}
                         <Form.Item label="Nhóm theo" name={ReportifyFormFields.timeGroupBy} labelCol={{ span: 24 }} help={false}>
-                            <Select allowClear className='input-width' placeholder="Chọn thời gian nhóm theo" onChange={pushSubmitAction}>
+                            <Select allowClear className='input-width' placeholder="Chọn thời gian nhóm theo" onChange={handleChangeTimeGroup}>
                                 {(TIME_GROUP_BY).map(({ label, value }) => {
                                     return <Select.Option key={value} value={value}>{label}</Select.Option>
                                 })}
@@ -456,9 +465,9 @@ function AnalyticsForm({ form, handleRQuery, mode }: Props) {
                     </Table>}
                 </Card>
                 {/* Dùng để hứng form data và warning (khi các popup chưa đc render)*/}
-                <Form.Item hidden name={["orderBy"]} />
-                <Form.Item hidden name={["where"]} />
-                <Form.Item hidden name={["properties"]} />
+                <Form.Item hidden name={[ReportifyFormFields.orderBy]} />
+                <Form.Item hidden name={[ReportifyFormFields.where]} />
+                <Form.Item hidden name={[ReportifyFormFields.properties]} />
                 <Form.Item hidden name={[ReportifyFormFields.column]} rules={[{ required: true, message: "Vui lòng chọn loại thống kê" }]} />
             </Form>
         </AnalyticsStyle>
