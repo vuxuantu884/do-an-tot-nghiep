@@ -6,7 +6,7 @@ import {DeliveryServiceResponse, FeesResponse} from "model/response/order/order.
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
-import {handleCalculateShippingFeeApplyOrderSetting, replaceFormatString} from "utils/AppUtils";
+import {handleCalculateShippingFeeApplyOrderSetting, replaceFormatString, formatCurrency} from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 import {changeOrderThirdPLAction, DeliveryServicesGetList} from "domain/actions/order/order.action";
 import {useDispatch} from "react-redux";
@@ -100,7 +100,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             <Form.Item className="form-input-deliver">
               <NumberInput
                 style={{textAlign: "left"}}
-                // format={(a: string) => formatCurrency(a)}
+                format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="COD"
                 value={
@@ -120,7 +120,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             <Form.Item className="form-input-deliver">
               <NumberInput
                 style={{textAlign: "left"}}
-                // format={(a: string) => formatCurrency(a)}
+                format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="Phí ship báo khách"
                 className="formInputAmount"
@@ -160,11 +160,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                         <React.Fragment key={serviceFee.code}>
                           <tr>
                             <td style={{ width: "100px", padding: "5px", textAlign: "center" }}>
-                              {/*<img*/}
-                              {/*  className="logoHVC"*/}
-                              {/*  src={serviceFee.logo}*/}
-                              {/*  alt=""*/}
-                              {/*/>*/}
                               <strong>{serviceFee.name}</strong>
                             </td>
                             <td style={{ padding: 0 }}>

@@ -208,11 +208,6 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
           >
           <Form.Item
             name="marketer_code"
-            rules={[
-              {
-                message: "Vui lòng chọn nhân viên marketing",
-              },
-            ]}
             className={"staff-form-input"}
           >
            <AccountCustomSearchSelect
