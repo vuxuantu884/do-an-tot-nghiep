@@ -3,6 +3,7 @@ import { Steps } from "antd";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { POStatus } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import "./po-step.style.scss"
 
 const statusToStep = {
   [POStatus.DRAFT]: 0,
@@ -117,7 +118,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           {(status === "process" || status === "finish") && <CheckOutlined />}
         </div>
       )}
-      className="create-bill-step"
+      className="po-step"
       size="small"
       current={statusToStep[poStatus]}
     >

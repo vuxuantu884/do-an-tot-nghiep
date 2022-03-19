@@ -48,7 +48,7 @@ import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
 import POProductForm from "./component/po-product.form";
 import POReturnList from "./component/po-return-list";
-import POStep from "./component/po-step";
+import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
