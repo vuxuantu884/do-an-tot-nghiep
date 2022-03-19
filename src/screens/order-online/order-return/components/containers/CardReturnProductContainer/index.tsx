@@ -207,6 +207,9 @@ function CardReturnProductContainer(props: PropType) {
       listOrderProductsResult = listItemCanBeReturn.filter((single) => {
         return single.product
           .toLowerCase()
+          .includes(searchVariantInputValue.toLowerCase()) || 
+          single.sku
+          .toLowerCase()
           .includes(searchVariantInputValue.toLowerCase());
       });
     }
