@@ -457,7 +457,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   }, [dispatch, location.search])
 
   const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery)=> {
-    console.log(dataquery);
+    let checkEcommerceShop = Array.isArray(dataquery.shop_ids)
+    ? dataquery.shop_ids
+    : [dataquery.shop_ids];
+
     formAdvance.setFieldsValue(dataquery);
     setEcommerceIdSelected(dataquery.ecommerce_id);
     getEcommerceShop(dataquery.ecommerce_id);
@@ -466,7 +469,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
       formAdvance.setFieldsValue({ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id-1].ecommerce_id})
       if (dataquery.shop_ids !== null){
-        formAdvance.setFieldsValue({shop_ids: dataquery.shop_ids})
+        formAdvance.setFieldsValue({shop_ids: checkEcommerceShop.map(item => +item)})
       }
       
     } else {
