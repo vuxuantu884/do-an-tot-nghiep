@@ -24,7 +24,7 @@ import moment from "moment";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
-import { OrderResponse, PackFulFillmentResponse } from "model/response/order/order.response";
+import { PackFulFillmentResponse } from "model/response/order/order.response";
 import { ShipmentMethod } from "utils/Constants";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
