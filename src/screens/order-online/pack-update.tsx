@@ -399,7 +399,7 @@ const PackUpdate: React.FC = () => {
           },
         ]}
       >
-        <Card title="Thông tin biên bản bàn giao" className="pack-info-update-card">
+        <Card title="Thông tin biên bản bàn giao">
           <Row
             align="middle"
             justify="space-between"

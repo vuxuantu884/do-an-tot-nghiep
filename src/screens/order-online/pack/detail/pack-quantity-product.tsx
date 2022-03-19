@@ -6,7 +6,7 @@ import {
 } from "model/pack/pack.model";
 import React from "react";
 import {Link} from "react-router-dom";
-// import threeDot from "assets/icon/three-dot.svg";
+import { StyledComponent } from "../styles";
 import {
   DownOutlined,
   FileExcelOutlined,
@@ -149,26 +149,28 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
   );
 
   return (
-    <Card
-      title="Bảng tổng hợp số lượng sản phẩm"
-      className="pack-card"
-      extra={
-        <Space>
-          <Dropdown trigger={["click"]}  overlay={menuCardProductQuantity}>
-            <Button className="t1-btn">
-              Thao tác <DownOutlined />
-            </Button>
-          </Dropdown>
-        </Space>
-      }
-    >
-      <Table
-        dataSource={packProductQuantity}
-        columns={column}
-        //pagination={false}
-        className="row-padding t1-margin"
-      />
-    </Card>
+    <StyledComponent>
+      <Card
+        title="Bảng tổng hợp số lượng sản phẩm"
+        className="pack-card-products"
+        extra={
+          <Space>
+            <Dropdown trigger={["click"]}  overlay={menuCardProductQuantity}>
+              <Button className="t1-btn">
+                Thao tác <DownOutlined />
+              </Button>
+            </Dropdown>
+          </Space>
+        }
+      >
+        <Table
+          dataSource={packProductQuantity}
+          columns={column}
+          //pagination={false}
+          className="row-padding t1-margin"
+        />
+      </Card>
+    </StyledComponent>
   );
 };
 

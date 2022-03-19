@@ -5,6 +5,8 @@ import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 
 import { ICustomTableColumType } from "./CustomTable";
 import Undo from "assets/icon/undo.svg";
+import "./modal-setting-column.scss";
+
 
 const ReactDragListView = require("react-drag-listview/lib/index");
 
@@ -151,7 +153,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
             renderItem={(item, index) => (
               <List.Item
                 key={item.key}
-                className={"draggble"}
+                className={"draggble-setting-column"}
                 actions={[
                   <Button
                     onClick={() => {
@@ -189,3 +191,5 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
 };
 
 export default ModalSettingColumn;
+
+

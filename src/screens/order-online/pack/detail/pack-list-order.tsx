@@ -6,7 +6,7 @@ import { FulfillmentsItemModel, GoodsReceiptsOrderListModel } from "model/pack/p
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import search from "assets/img/search.svg";
-import { StyledComponent } from "../../index.screen.styles";
+import { StyledComponent } from "../styles";
 const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
@@ -167,7 +167,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   return (
     <StyledComponent>
-      <Card title="Danh sách đơn hàng trong biên bản" className="pack-card">
+      <Card title="Danh sách đơn hàng trong biên bản" className="pack-card-orders">
         <div className="order-filter">
           <div className="page-filter row-padding">
             <div className="page-filter-heading">
