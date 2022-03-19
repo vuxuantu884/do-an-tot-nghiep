@@ -586,7 +586,7 @@ const PODetailScreen: React.FC = () => {
           path: `${UrlConfig.PURCHASE_ORDERS}`,
         },
         {
-          name: `Đơn đặt hàng ${id}`,
+          name: `Đơn đặt hàng ${poData?.code || ""}`,
         },
       ]}
       extra={poData && <POStep poData={poData} />}
