@@ -503,3 +503,9 @@ export interface ChannelsResponse extends BaseObject{
   name:string;
   channel_type:ChannelTypeResponse;
 }
+
+export interface PackFulFillmentResponse extends FulFillmentResponse{
+  order_code:string;
+  customer:string;
+  customer_id:number;
+}

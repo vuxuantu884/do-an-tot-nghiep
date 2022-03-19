@@ -17,7 +17,8 @@ import {
   OrderResponse,
   OrderProductListModel,
   OrderLineItemResponse,
-  DeliveryServiceResponse
+  DeliveryServiceResponse,
+  PackFulFillmentResponse
 } from "model/response/order/order.response";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -29,6 +30,7 @@ import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { RegUtil } from "utils/RegUtils";
+import { FulFillmentStatus } from "utils/Constants";
 
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
@@ -47,8 +49,8 @@ const PackInfo: React.FC = () => {
 
   //useState
 
-  const [orderResponse, setOrderResponse] = useState<OrderResponse>();
-  // const [orderResponse, setOrderResponse] = useState<Array<any>>([]);
+  const [packFulFillmentResponse, setPackFulFillmentResponse] = useState<PackFulFillmentResponse>();
+  // const [packFulFillmentResponse, setPackFulFillmentResponse] = useState<Array<any>>([]);
   const [itemProductList, setItemProductList] = useState<OrderLineItemResponseExt[]>([]);
 
   const [disableStoreId, setDisableStoreId] = useState(false);
@@ -81,9 +83,9 @@ const PackInfo: React.FC = () => {
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
 
   const shipName =
-    listThirdPartyLogistics.length > 0 && orderResponse
+    listThirdPartyLogistics.length > 0 && packFulFillmentResponse
       ? listThirdPartyLogistics.find(
-        (x) => x.id === orderResponse?.shipment?.delivery_service_provider_id
+        (x) => x.id === packFulFillmentResponse?.shipment?.delivery_service_provider_id
       )?.name
       : "";
 
@@ -113,7 +115,7 @@ const PackInfo: React.FC = () => {
             if (barcode !== "" && event) {
               let { order_request } = formRef.current?.getFieldsValue();
 
-              if (order_request && orderResponse) {
+              if (order_request && packFulFillmentResponse) {
                 formRef.current?.setFieldsValue({ product_request: barcode });
                 ProductRequestElement.select();
                 btnFinishPackElement?.click();
@@ -124,19 +126,21 @@ const PackInfo: React.FC = () => {
         }
       }
     },
-    [formRef, ProductRequestElement, btnFinishPackElement, orderResponse]
+    [formRef, ProductRequestElement, btnFinishPackElement, packFulFillmentResponse]
   );
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
-      formRef.current?.validateFields(["store_request", "delivery_service_provider_id"]);
+      formRef.current?.validateFields(["store_request", "delivery_service_provider_id","order_request"]);
       let { store_request, delivery_service_provider_id } = formRef.current?.getFieldsValue();
-      if (value.trim() && store_request && delivery_service_provider_id) {
+      if (value) {
         dispatch(
-          getFulfillments(value.trim(), store_request, delivery_service_provider_id, (data: any) => {
+          getFulfillments(value.trim(), store_request, delivery_service_provider_id, (data: PackFulFillmentResponse[]) => {
             if (data && data.length !== 0) {
-
-              setOrderResponse(data[0]);
+              console.log(data)
+              let fMSuccess:PackFulFillmentResponse[]=data.filter((p)=>p.status!==FulFillmentStatus.CANCELLED&&p.status!==FulFillmentStatus.RETURNED&&p.status!==FulFillmentStatus.RETURNING)
+              console.log("fMSuccess",fMSuccess)
+              setPackFulFillmentResponse(fMSuccess[0]);
               setDisableStoreId(true);
               setDisableDeliveryProviderId(true);
               setDisableOrder(true);
@@ -183,7 +187,7 @@ const PackInfo: React.FC = () => {
     setDisableDeliveryProviderId(false)
     setDisableOrder(false);
 
-    setOrderResponse(undefined);
+    setPackFulFillmentResponse(undefined);
     setItemProductList([]);
 
     formRef.current?.setFieldsValue({
@@ -260,10 +264,10 @@ const PackInfo: React.FC = () => {
   }, [formRef, packModel]);
 
   useEffect(() => {
-    if (orderResponse) {
-      console.log("orderResponse", orderResponse);
+    if (packFulFillmentResponse) {
+      console.log("packFulFillmentResponse", packFulFillmentResponse);
       let item: OrderLineItemResponseExt[] = [];
-      orderResponse.items.forEach(function (i: OrderLineItemResponse) {
+      packFulFillmentResponse.items.forEach(function (i: OrderLineItemResponse) {
 
         let indexDuplicate = item.findIndex(p => p.variant_id === i.variant_id);
         if (indexDuplicate !== -1) {
@@ -278,12 +282,12 @@ const PackInfo: React.FC = () => {
       });
       setItemProductList(item);
     }
-  }, [orderResponse]);
+  }, [packFulFillmentResponse]);
 
   useEffect(() => {
     if (
       itemProductList &&
-      orderResponse &&
+      packFulFillmentResponse &&
       itemProductList.length !== 0
     ) {
       let indexPack = itemProductList.filter(
@@ -294,8 +298,8 @@ const PackInfo: React.FC = () => {
 
       if (indexPack === undefined || indexPack.length === 0) {
         let request = {
-          id: orderResponse.id,
-          code: orderResponse.code,
+          id: packFulFillmentResponse.id,
+          code: packFulFillmentResponse.code,
           items: itemProductList,
         };
 
@@ -307,7 +311,7 @@ const PackInfo: React.FC = () => {
             if (data) {
               btnClearPackElement?.click();
 
-              packData?.order?.push({ ...orderResponse });
+              packData?.order?.push({ ...packFulFillmentResponse });
               setPackModel(packData);
               setPackInfo(packData);
               showSuccess("Đóng gói đơn hàng thành công");
@@ -316,7 +320,7 @@ const PackInfo: React.FC = () => {
         );
       }
     }
-  }, [dispatch, itemProductList, orderResponse, btnClearPackElement, packModel, setPackModel, history]);
+  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history]);
 
   useEffect(() => {
     if (disableOrder) {
@@ -430,12 +434,12 @@ const PackInfo: React.FC = () => {
           <Form.Item
             label="Cửa hàng"
             name="store_request"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng chọn cửa hàng"
-              },
-            ]}
+            // rules={[
+            //   {
+            //     required: true,
+            //     message: "Vui lòng chọn cửa hàng"
+            //   },
+            // ]}
             style={{ width: "42%", paddingRight: "97px" }}
           >
             <Select
@@ -469,12 +473,12 @@ const PackInfo: React.FC = () => {
               <Form.Item
                 label="Hãng vận chuyển:"
                 name="delivery_service_provider_id"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn hãng vận chuyển"
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng chọn hãng vận chuyển"
+                //   },
+                // ]}
                 style={{ width: "220px", margin: 0 }}
               >
                 <Select
@@ -583,7 +587,7 @@ const PackInfo: React.FC = () => {
                   marginLeft: "5px",
                 }}
               >
-                {orderResponse?.code}
+                {packFulFillmentResponse?.code}
               </Typography.Text>
             </span>
           </div>
@@ -611,7 +615,7 @@ const PackInfo: React.FC = () => {
                   marginLeft: "5px",
                 }}
               >
-                {orderResponse?.customer}
+                {packFulFillmentResponse?.customer}
               </Typography.Text>
             </span>
           </div>

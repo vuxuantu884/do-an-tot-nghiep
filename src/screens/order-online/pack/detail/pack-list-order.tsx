@@ -1,4 +1,4 @@
-import { Button, Card, Table, Input, Form, FormInstance } from "antd";
+import { Button, Card, Space, Table, Input, Form, FormInstance } from "antd";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
@@ -6,7 +6,7 @@ import { FulfillmentsItemModel, GoodsReceiptsOrderListModel } from "model/pack/p
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import search from "assets/img/search.svg";
-import { StyledComponent } from "../styles";
+import { StyledComponent } from "../../index.screen.styles";
 const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
@@ -174,27 +174,28 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               <div className="page-filter-left">
                 <ActionButton menu={actions} onMenuClick={onMenuClick} />
               </div>
-              <div className="page-filter-right" style={{ width: "40%" }}>
-                <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}>
-                  <Item name="search_term" style={{ width: "calc(92% - 62px)" }}>
-                    <Input
-                      style={{ width: "100%" }}
-                      prefix={<img src={search} alt="" />}
-                      placeholder="Mã đơn hàng"
-                    />
-                  </Item>
+              <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}
+                className="page-filter-right"
+                style={{ width: "40%", flexWrap: "nowrap", justifyContent: " flex-end" }}
+              >
+                <Item name="search_term" style={{ width: "100%", marginRight:"10px" }}>
+                  <Input
+                    style={{ width: "100%" }}
+                    prefix={<img src={search} alt="" />}
+                    placeholder="Mã đơn hàng"
+                  />
+                </Item>
 
-                  <Item style={{ width: "62px", marginLeft: 16, marginRight: 0 }}>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      onClick={handleSearchOrder}
-                    >
-                      Lọc
-                    </Button>
-                  </Item>
-                </Form>
-              </div>
+                <Item style={{ width: "62px", marginRight: 0 }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={handleSearchOrder}
+                  >
+                    Lọc
+                  </Button>
+                </Item>
+              </Form>
             </div>
           </div>
         </div>

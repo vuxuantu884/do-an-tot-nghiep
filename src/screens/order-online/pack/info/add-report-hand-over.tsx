@@ -24,7 +24,7 @@ import moment from "moment";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
-import { OrderResponse } from "model/response/order/order.response";
+import { PackFulFillmentResponse } from "model/response/order/order.response";
 import { ShipmentMethod } from "utils/Constants";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
@@ -68,7 +68,7 @@ const AddReportHandOver: React.FC = () => {
   const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
 
-  const orderPackSuccess: OrderResponse[] = useMemo(() => {
+  const orderPackSuccess: PackFulFillmentResponse[] = useMemo(() => {
     return !packModel ? [] : !packModel?.order ? [] : packModel.order;
   }, [packModel])
 
@@ -168,7 +168,7 @@ const AddReportHandOver: React.FC = () => {
     let notSelectOrderPackSuccess = orderPackSuccess?.filter((p) => !isFulFillmentPack.some((single) => single === p.order_code));
     // console.log("selectOrderPackSuccess", selectOrderPackSuccess);
     // console.log("notSelectOrderPackSuccess", notSelectOrderPackSuccess);
-    if (!selectOrderPackSuccess || (selectOrderPackSuccess && selectOrderPackSuccess.length<=0)) {
+    if (!selectOrderPackSuccess || (selectOrderPackSuccess && selectOrderPackSuccess.length <= 0)) {
       showWarning("chưa chọn đơn hàng cần thêm vào biên bản");
       return;
     }
@@ -211,7 +211,7 @@ const AddReportHandOver: React.FC = () => {
         }
       )
     );
-  }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel,setIsFulFillmentPack]);
+  }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel, setIsFulFillmentPack]);
 
   useEffect(() => {
     const toDate = new Date();
@@ -238,6 +238,8 @@ const AddReportHandOver: React.FC = () => {
         (data: GoodsReceiptsResponse) => data.id === value
       );
       if (indexGoods !== -1) setGoodsReceipts(listGoodsReceipts[indexGoods]);
+      else
+        setGoodsReceipts(undefined);
     },
     [listGoodsReceipts]
   );
@@ -270,11 +272,12 @@ const AddReportHandOver: React.FC = () => {
                 }
                 return false;
               }}
+              value={goodsReceipts?.id}
               ref={goodsReceiptsRef}
             >
               {listGoodsReceipts.map((item, index) => (
                 <Select.Option key={index.toString()} value={item.id}>
-                  {+item.delivery_service_id === -1 ? `${item.id} - Tự giao hàng` : `${item.id} - ${item.delivery_service_name}`} - {" "}
+                  {+item.delivery_service_id === -1 ? `${item.id} - ${item.store_name} - Tự giao hàng` : `${item.id} - ${item.store_name} - ${item.delivery_service_name}`} - {" "}
                   {``}
                   {item.receipt_type_name}- {item.ecommerce_name}
                 </Select.Option>

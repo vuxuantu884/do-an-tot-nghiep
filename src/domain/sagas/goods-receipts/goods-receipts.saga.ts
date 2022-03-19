@@ -133,6 +133,7 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
         break;
     }
   } catch (e) {
+    console.log(e)
     showError("Có lỗi xảy ra, vui lòng thử lại");
   }
   finally{
