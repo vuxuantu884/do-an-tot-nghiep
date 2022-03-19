@@ -34,7 +34,7 @@ import {useHistory} from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import {ConvertFullAddress} from "utils/ConvertAddress";
 import CustomSelect from "component/custom/select.custom";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import {searchAccountPublicAction} from "domain/actions/account/account.action";
 import {AccountResponse} from "model/account/account.model";
 import NumberInput from "component/custom/number-input.custom";
 import _, {parseInt} from "lodash";
@@ -134,7 +134,7 @@ const CreateInventoryAdjustment: FC = () => {
 
   const getAccounts = useCallback((code: string, page: number) => {
     dispatch(
-      AccountSearchAction(
+      searchAccountPublicAction(
         { info: code, page: page, status: "active" },
         setDataAccounts
       )
@@ -205,7 +205,7 @@ const CreateInventoryAdjustment: FC = () => {
 
   // get store
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({}, setDataAccounts));
     dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
   }, [dispatch, auditType, setDataAccounts, query, form]);
 
