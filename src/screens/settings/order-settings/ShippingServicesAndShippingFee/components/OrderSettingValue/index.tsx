@@ -38,12 +38,12 @@ function OrderSettingValue(props: PropTypes) {
             return (
               <Form.Item
                 name={[index, "from_price"]}
-                rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
+                // rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
               >
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
-                  placeholder="0"
+                  default={0}
                   maxLength={15}
                   min={0}
                 />
@@ -58,7 +58,7 @@ function OrderSettingValue(props: PropTypes) {
             return (
               <Form.Item
                 name={[index, "to_price"]}
-                rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
+                rules={[{ required: true, message: "Vui lòng nhập giá trị lớn hơn 0!" }]}
               >
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
@@ -83,6 +83,7 @@ function OrderSettingValue(props: PropTypes) {
               >
                 <Select
                   showSearch
+                  allowClear
                   style={{ width: "100%" }}
                   placeholder="Chọn tỉnh/thành phố"
                   optionFilterProp="children"
@@ -115,12 +116,12 @@ function OrderSettingValue(props: PropTypes) {
             return (
               <Form.Item
                 name={[index, "transport_fee"]}
-                rules={[{ required: true, message: "Vui lòng nhập phí vận chuyển" }]}
+                // rules={[{ required: true, message: "Vui lòng nhập phí vận chuyển" }]}
               >
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
-                  placeholder="0"
+                  default={0}
                   maxLength={15}
                   min={0}
                 />
