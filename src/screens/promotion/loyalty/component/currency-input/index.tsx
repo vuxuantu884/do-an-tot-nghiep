@@ -26,7 +26,7 @@ const CurrencyInput = (props: IProp) => {
         onChange={(value) => props.onChange && props.onChange(value)}
         value={props.value}
         style={props.style}
-        max={999999999999999}
+        max={100}
       />
       {
         props.currency && props.currency.length > 1 ? (
