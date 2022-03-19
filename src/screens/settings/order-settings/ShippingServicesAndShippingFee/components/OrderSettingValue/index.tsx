@@ -58,7 +58,16 @@ function OrderSettingValue(props: PropTypes) {
             return (
               <Form.Item
                 name={[index, "to_price"]}
-                rules={[{ required: true, message: "Vui lòng nhập giá trị lớn hơn 0!" }]}
+                rules={[
+                  () => ({
+                    validator(_, value) {
+                      if (value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error('Vui lòng nhập giá trị lớn hơn 0!'));
+                    },
+                  }),
+                ]}
               >
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
