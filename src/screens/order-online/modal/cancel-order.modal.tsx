@@ -146,7 +146,7 @@ function CancelOrderModal (props: PropTypes)  {
               value={reasonSub}
               id="cancelOrderSelectSubReasonId"
             >
-              {reasonSubs.map((reasonSub: any) => (
+              {reasonSubs && reasonSubs.map((reasonSub: any) => (
                 <CustomSelect.Option key={reasonSub.id} value={reasonSub.id.toString()}>
                   {reasonSub.name}
                 </CustomSelect.Option>
