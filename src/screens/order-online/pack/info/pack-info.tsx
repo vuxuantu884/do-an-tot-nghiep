@@ -131,9 +131,9 @@ const PackInfo: React.FC = () => {
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
-      formRef.current?.validateFields(["store_request", "delivery_service_provider_id"]);
+      formRef.current?.validateFields(["store_request", "delivery_service_provider_id","order_request"]);
       let { store_request, delivery_service_provider_id } = formRef.current?.getFieldsValue();
-      if (value.trim() && store_request && delivery_service_provider_id) {
+      if (value) {
         dispatch(
           getFulfillments(value.trim(), store_request, delivery_service_provider_id, (data: PackFulFillmentResponse[]) => {
             if (data && data.length !== 0) {
@@ -434,12 +434,12 @@ const PackInfo: React.FC = () => {
           <Form.Item
             label="Cửa hàng"
             name="store_request"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng chọn cửa hàng"
-              },
-            ]}
+            // rules={[
+            //   {
+            //     required: true,
+            //     message: "Vui lòng chọn cửa hàng"
+            //   },
+            // ]}
             style={{ width: "42%", paddingRight: "97px" }}
           >
             <Select
@@ -473,12 +473,12 @@ const PackInfo: React.FC = () => {
               <Form.Item
                 label="Hãng vận chuyển:"
                 name="delivery_service_provider_id"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn hãng vận chuyển"
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng chọn hãng vận chuyển"
+                //   },
+                // ]}
                 style={{ width: "220px", margin: 0 }}
               >
                 <Select
