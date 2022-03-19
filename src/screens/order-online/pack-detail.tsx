@@ -139,7 +139,7 @@ const PackDetail: React.FC = () => {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
               itemFFM.items.forEach(function (itemProduct, index) {
                 ////
-                const productOnHand = data.variant.find(i => i.sku === itemProduct.sku)
+                const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
                 resultListProduct.push({
                   key: keyProduct++,
                   barcode: itemProduct.variant_barcode,
