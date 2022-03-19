@@ -359,9 +359,12 @@ const OrderDetail = (props: PropType) => {
 
   const handleCancelOrder = useCallback(
     (reason_id: string, sub_reason_id: string, reason: string) => {
+      if(!OrderDetail?.id) {
+        return;
+      }
       dispatch(
         cancelOrderRequest(
-          OrderId,
+          OrderDetail?.id,
           Number(reason_id),
           Number(sub_reason_id),
           reason,
@@ -370,7 +373,7 @@ const OrderDetail = (props: PropType) => {
         )
       );
     },
-    [OrderId, dispatch]
+    [OrderDetail?.id, dispatch]
   );
 
   const handleConfirmToEcommerce = () => {
