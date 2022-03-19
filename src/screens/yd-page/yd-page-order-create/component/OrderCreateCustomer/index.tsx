@@ -583,11 +583,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           wards={wards}
           handleChangeArea={handleChangeArea}
           handleChangeCustomer={handleChangeCustomer}
-          ShippingAddressChange={setShippingAddress}
+          setShippingAddress={setShippingAddress}
           keySearchCustomer={keySearchCustomer}
           CustomerDeleteInfo={CustomerDeleteInfo}
           setBillingAddress={setBillingAddress}
-          setCustomer={setCustomer}
         />
       )}
 
