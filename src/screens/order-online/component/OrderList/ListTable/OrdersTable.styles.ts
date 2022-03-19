@@ -220,6 +220,11 @@ export const StyledComponent = styled.div`
         }
       }
     }
-
+    .trackingCode {
+      word-break: break-all ;
+      span[role="img"] {
+        margin-right: 5px;
+      }
+    }
   }
 `;

@@ -70,14 +70,14 @@ function ActionHistory(props: PropType) {
   };
 
   const renderSingleSubStatus = (status_before?: string, status_after?: string) => {
-    const navigator = " -> ";
+    const separator = " -> ";
     let result = "";
     if (!status_before && !status_after) {
       return "-"
     } else {
       const arr = [status_before, status_after];
       const filterArr = arr.filter(single => single); // lọc khác null
-      result = filterArr.join(navigator);
+      result = filterArr.join(separator);
       return result;
     }
   };
