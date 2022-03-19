@@ -73,11 +73,11 @@ function LayoutEditAndDetail(props: PropType) {
                 city_id = provinceSelected.id;
               }
               return {
-                from_price: single.from_price,
-                to_price: single.to_price,
+                from_price: single.from_price || 0,
+                to_price: single.to_price || 0,
                 city_name: single.city_name,
                 city_id,
-                transport_fee: single.transport_fee,
+                transport_fee: single.transport_fee || 0,
               };
             }
           ),
