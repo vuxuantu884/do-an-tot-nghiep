@@ -42,6 +42,7 @@ import IconFacebook from "./images/facebook.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
+import { FileTextOutlined } from "@ant-design/icons";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -517,6 +518,15 @@ function OrdersTable(props: PropTypes) {
                               )}
                             </div>
                           </Tooltip>
+
+                          {sortedFulfillments[0]?.shipment?.tracking_code ? (
+                            <Tooltip title="Mã vận đơn">
+                              <div className="single trackingCode">
+                                <FileTextOutlined />
+                                {sortedFulfillments[0]?.shipment?.tracking_code}
+                              </div>
+                            </Tooltip>
+                          ) : null}
                         </React.Fragment>
                       )}
                     </React.Fragment>
