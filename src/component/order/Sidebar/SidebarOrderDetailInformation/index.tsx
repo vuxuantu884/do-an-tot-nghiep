@@ -58,7 +58,7 @@ function SidebarOrderDetailInformation(props: PropType) {
       result = returnedArr.map((single, index) => {
         return(
           <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_RETURN}/${single.id}`} target="_blank">
+            <Link to={`${UrlConfig.ORDERS_RETURN}/${single.id}`}>
               {single.code}
             </Link>
             {index < returnedArr.length - 1 && ", "}
