@@ -6,6 +6,8 @@ export const DATE_FORMAT = {
   HHmm_DDMMYYYY: "HH:mm DD/MM/YYYY",
   DDMM: "DD/MM",
 	fullDate: "DD/MM/YY HH:mm",
+  YYYYMMDD: "YYYY-MM-DD",
+  MMYYYY: "MM/YYYY",
 };
 
 export const ConvertUtcToLocalDate = (

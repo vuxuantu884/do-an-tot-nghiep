@@ -70,15 +70,16 @@ function ActionHistory(props: PropType) {
   };
 
   const renderSingleSubStatus = (status_before?: string, status_after?: string) => {
+    const separator = " -> ";
     let result = "";
-    if (status_before && status_after) {
-      result = `${status_before} -> ${status_after}`;
-    } else if (!status_before) {
-      result = `${status_after}`;
-    } else if (!status_after) {
-      result = `${status_before}`;
+    if (!status_before && !status_after) {
+      return "-"
+    } else {
+      const arr = [status_before, status_after];
+      const filterArr = arr.filter(single => single); // lọc khác null
+      result = filterArr.join(separator);
+      return result;
     }
-    return result;
   };
 
   useEffect(() => {
@@ -113,7 +114,7 @@ function ActionHistory(props: PropType) {
                     <div className="singleActionHistory__info">
                       {singleActionHistory?.store && (
                         <h4 className="singleActionHistory__title">
-                          {singleActionHistory?.updated_name}
+                          {singleActionHistory?.updated_name === "admin" ? "Hệ thống" : singleActionHistory?.updated_name}
                         </h4>
                       )}
                       {singleActionHistory?.updated_date && (

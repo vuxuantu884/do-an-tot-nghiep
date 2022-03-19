@@ -45,6 +45,11 @@ const UrlConfig = {
   DELIVERY_RECORDS:`/delivery-records`,
   BANK:`/bank`,
   BANK_ACCOUNT:`/bank-account`,
+  REPORTS:`/reports`,
+  ANALYTICS:`/analytics`,
+  ANALYTIC_SALES:`/analytics/sales`,
+  ANALYTIC_FINACE:`/analytics/finance`,
+  ANALYTIC_CUSTOMER:`/analytics/customers`,
 };
 
 export const ProductTabUrl = {

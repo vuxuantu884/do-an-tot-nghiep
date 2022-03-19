@@ -43,6 +43,7 @@ const PackInfo: React.FC = () => {
 
   //form
   const formRef = createRef<FormInstance>();
+  const idDonHangRef = createRef<Input>();
 
   //useState
 
@@ -139,6 +140,10 @@ const PackInfo: React.FC = () => {
               setDisableStoreId(true);
               setDisableDeliveryProviderId(true);
               setDisableOrder(true);
+              let a = document.getElementById("inputProduct");
+              setTimeout(() => {
+                a?.focus();
+              }, 200);
             } else {
               setDisableStoreId(false);
               setDisableDeliveryProviderId(false)
@@ -151,7 +156,7 @@ const PackInfo: React.FC = () => {
         OrderRequestElement?.select();
       }
     },
-    [dispatch, OrderRequestElement, formRef]
+    [formRef, dispatch, OrderRequestElement]
   );
 
   const onPressEnterProduct = useCallback(
@@ -238,7 +243,8 @@ const PackInfo: React.FC = () => {
   const onChangeDeliveryServiceId = useCallback((value?: number) => {
     setPackModel({ ...new PackModelDefaltValue(), ...packModel, delivery_service_provider_id: value });
     setPackInfo({ ...packModel, delivery_service_provider_id: value });
-  }, [packModel, setPackModel]);
+    idDonHangRef?.current?.focus();
+  }, [idDonHangRef, packModel, setPackModel]);
   ///function
 
   //useEffect
@@ -417,7 +423,6 @@ const PackInfo: React.FC = () => {
 
   const columns = [SttColumn, ProductColumn, QualtityOrderColumn, QualtityPickColumn];
   ///columns
-
   return (
     <React.Fragment>
       <Form layout="vertical" ref={formRef} className="yody-pack-row">
@@ -504,12 +509,12 @@ const PackInfo: React.FC = () => {
                 style={{ width: "calc(100% - 220px)" }}
               >
                 <Input
+                  ref={idDonHangRef}
                   placeholder="ID đơn hàng/Mã vận đơn"
                   addonAfter={<img src={barcodeIcon} alt="" />}
                   onPressEnter={(e: any) => {
                     onPressEnterOrder(e.target.value?.toUpperCase());
                   }}
-
                   disabled={disableOrder}
                   id="order_request"
                 />
@@ -529,6 +534,7 @@ const PackInfo: React.FC = () => {
                 name="product_request"
               >
                 <Input
+                  id="inputProduct"
                   style={{ width: "50%" }}
                   placeholder="Mã sản phẩm"
                   onPressEnter={(e: any) => {
