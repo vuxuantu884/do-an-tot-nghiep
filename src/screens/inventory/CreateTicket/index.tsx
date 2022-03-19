@@ -148,7 +148,6 @@ const CreateTicket: FC = () => {
   const getMe = useCallback(async ()=>{
     const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
     if (res && res.account_stores) {
-      console.log(res)
       setFromStores(res.account_stores);
     }
   },[dispatch]);
