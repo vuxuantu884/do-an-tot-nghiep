@@ -246,7 +246,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
       let queryParam = generateQuery({...params});
       history.push(`${UrlConfig.INVENTORY_TRANSFERS}/histories?${queryParam}`);
     },
-    [params]
+    [history, params]
   );
 
   const setSearchResult = useCallback(
