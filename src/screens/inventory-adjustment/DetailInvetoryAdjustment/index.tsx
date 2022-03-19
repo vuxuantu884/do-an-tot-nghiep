@@ -58,7 +58,6 @@ import {useReactToPrint} from "react-to-print";
 import {generateQuery} from "utils/AppUtils";
 import purify from "dompurify";
 import {AccountResponse} from "model/account/account.model";
-import {AccountSearchAction} from "domain/actions/account/account.action";
 import {StyledComponent} from "screens/products/product/component/RowDetail/style";
 import ModalConfirm from "component/modal/ModalConfirm";
 import {StoreResponse} from "model/core/store.model";
@@ -624,7 +623,7 @@ const DetailInvetoryAdjustment: FC = () => {
         );
       }
     },
-    [idNumber, form, onResultDataTable, dispatch]
+    [form, dispatch, idNumber, onResultDataTable, setDataAccounts]
   );
 
   const updateAdjustment = React.useMemo(() =>

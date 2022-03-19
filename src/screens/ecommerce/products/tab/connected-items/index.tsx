@@ -652,6 +652,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     setFilterValueByQueryParam(dataQuery)
     setQuery(dataQuery);
     getProductUpdated(dataQuery);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
 
   const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery)=> {

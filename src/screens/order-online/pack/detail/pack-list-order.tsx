@@ -1,13 +1,13 @@
-import {Button, Card, Space, Table, Input, Form, FormInstance} from "antd";
-import ActionButton, {MenuAction} from "component/table/ActionButton";
-import {ICustomTableColumType} from "component/table/CustomTable";
+import { Button, Card, Table, Input, Form, FormInstance } from "antd";
+import ActionButton, { MenuAction } from "component/table/ActionButton";
+import { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import {FulfillmentsItemModel, GoodsReceiptsOrderListModel} from "model/pack/pack.model";
-import React, {createRef, useCallback, useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import { FulfillmentsItemModel, GoodsReceiptsOrderListModel } from "model/pack/pack.model";
+import React, { createRef, useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import search from "assets/img/search.svg";
-import {StyledComponent} from "../../index.screen.styles";
-const {Item} = Form;
+import { StyledComponent } from "../../index.screen.styles";
+const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
   actions: Array<MenuAction>;
@@ -15,15 +15,15 @@ type PackListOrderProps = {
   onMenuClick: (item: number) => void;
 };
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
-  const {packOrderList, actions, handleSearchOrder, onMenuClick } = props;
+  const { packOrderList, actions, handleSearchOrder, onMenuClick } = props;
   const formSearchOrderRef = createRef<FormInstance>();
 
-  const [dataPackOrderList, setDataPackOrderList]= useState<GoodsReceiptsOrderListModel[]>([]);
+  const [dataPackOrderList, setDataPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
   const packOrderLists = useCallback(
-    (value:any) => {
-      let query=value.search_term.trim();
-      let newData:GoodsReceiptsOrderListModel[]= packOrderList.filter(function(el) {
+    (value: any) => {
+      let query = value.search_term.trim();
+      let newData: GoodsReceiptsOrderListModel[] = packOrderList.filter(function (el) {
         return el.order_code.toLowerCase().indexOf(query.toLowerCase()) !== -1
       })
       setDataPackOrderList(newData);
@@ -31,10 +31,10 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     [packOrderList],
   )
 
-  useEffect(()=>{
-    if(packOrderList)
+  useEffect(() => {
+    if (packOrderList)
       setDataPackOrderList(packOrderList);
-  },[packOrderList]);
+  }, [packOrderList]);
 
   const column: Array<ICustomTableColumType<GoodsReceiptsOrderListModel>> = [
     {
@@ -123,51 +123,6 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       align: "left",
       width: "25%",
     },
-    // {
-    //   title: "Sản phẩm",
-    //   dataIndex: "product_sku",
-    //   visible: true,
-    //   width: "15%",
-    //   render: (value: string, i: GoodsReceiptsOrderListModel) => {
-    //     return (
-    //       <React.Fragment>
-    //         <div style={{padding: "5px 0"}}>
-    //           <Link target="_blank" to={`${UrlConfig.ORDER}/${i.product_sku}`}>
-    //             {value}
-    //           </Link>
-    //           <div style={{fontSize: "0.86em"}}>{i.product_name}</div>
-    //         </div>
-    //       </React.Fragment>
-    //     );
-    //   },
-    // },
-    // {
-    //   title: "Khối lượng",
-    //   dataIndex: "net_weight",
-    //   visible: true,
-    //   width: "8%",
-    //   render: (value: number) => {
-    //     return <div>{value}</div>;
-    //   },
-    // },
-    // {
-    //   title: "Số lượng",
-    //   dataIndex: "total_quantity",
-    //   visible: true,
-    //   width: "8%",
-    //   render: (value: number) => {
-    //     return <div>{value}</div>;
-    //   },
-    // },
-    // {
-    //   title: "Giá",
-    //   dataIndex: "total_price",
-    //   visible: true,
-    //   width: "8%",
-    //   render: (value: number) => {
-    //     return <div>{value}</div>;
-    //   },
-    // },
     {
       title: "Phí thu khách",
       dataIndex: "postage",
@@ -219,35 +174,33 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               <div className="page-filter-left">
                 <ActionButton menu={actions} onMenuClick={onMenuClick} />
               </div>
-              <div className="page-filter-right" style={{width: "40%"}}>
-                <Space size={4}>
-                  <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}>
-                    <Item name="search_term" style={{width: "calc(92% - 62px)"}}>
-                      <Input
-                        style={{width: "100%"}}
-                        prefix={<img src={search} alt="" />}
-                        placeholder="Mã đơn hàng"
-                      />
-                    </Item>
+              <div className="page-filter-right" style={{ width: "40%" }}>
+                <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}>
+                  <Item name="search_term" style={{ width: "calc(92% - 62px)" }}>
+                    <Input
+                      style={{ width: "100%" }}
+                      prefix={<img src={search} alt="" />}
+                      placeholder="Mã đơn hàng"
+                    />
+                  </Item>
 
-                    <Item style={{width: "62px", marginLeft:16, marginRight:0}}>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        onClick={handleSearchOrder}
-                      >
-                        Lọc
-                      </Button>
-                    </Item>
-                  </Form>
-                </Space>
+                  <Item style={{ width: "62px", marginLeft: 16, marginRight: 0 }}>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      onClick={handleSearchOrder}
+                    >
+                      Lọc
+                    </Button>
+                  </Item>
+                </Form>
               </div>
             </div>
           </div>
         </div>
         <Table
           dataSource={dataPackOrderList}
-          scroll={{x: 1388}}
+          scroll={{ x: 1388 }}
           columns={column}
           //pagination={false}
           bordered

@@ -41,7 +41,6 @@ import IconStore from "./images/store.svg";
 import IconFacebook from "./images/facebook.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
 
 type PropTypes = {
   tableLoading: boolean;

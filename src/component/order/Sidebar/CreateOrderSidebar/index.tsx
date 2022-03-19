@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, isOrderFromPOS } from "utils/AppUtils";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
