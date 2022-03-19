@@ -25,7 +25,6 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import search from "assets/img/search.svg";
 import moment from "moment";
-import "assets/css/_pack.scss";
 import "./scss/index.screen.scss";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import { Link } from "react-router-dom";
@@ -108,12 +107,12 @@ const PackUpdate: React.FC = () => {
           key: index,
           order_id: itemOrder.id ? itemOrder.id : 0,
           order_code: itemOrder.code ? itemOrder.code : "",
-          customer_id: 1,
-          customer_name: itemOrder.customer ? itemOrder.customer : "",
-          customer_phone: itemOrder.customer_phone_number
-            ? itemOrder.customer_phone_number
-            : "api chua tra ra du lieu",
-          customer_address: "api chua tra ra du lieu",
+          customer_id: itemOrder.customer_id||0,
+          customer_name: itemOrder.shipping_address ? itemOrder.shipping_address.name : "",
+          customer_phone: itemOrder.shipping_address
+            ? itemOrder.shipping_address.phone
+            : "không có dữ liệu",
+          customer_address:  itemOrder.shipping_address ? itemOrder.shipping_address.full_address : "không có dữ liệu",
           product: product,
           ship_price: ship_price,
           total_price: total_price,
@@ -400,7 +399,7 @@ const PackUpdate: React.FC = () => {
           },
         ]}
       >
-        <Card title="Thông tin biên bản bàn giao" className="pack-info-update-card">
+        <Card title="Thông tin biên bản bàn giao">
           <Row
             align="middle"
             justify="space-between"

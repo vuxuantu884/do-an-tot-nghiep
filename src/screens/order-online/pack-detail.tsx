@@ -22,6 +22,7 @@ import { FulFillmentStatus } from "utils/Constants";
 import PackDetailInfo from "./pack/detail/pack-detail-info";
 import PackListOrder from "./pack/detail/pack-list-order";
 import PackQuantityProduct from "./pack/detail/pack-quantity-product";
+import './pack/styles.scss';
 
 type PackParam = {
   id: string;

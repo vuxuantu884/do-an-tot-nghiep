@@ -406,7 +406,7 @@ const InventoryTransferTab: React.FC = () => {
       let queryParam = generateQuery({...params});
       history.push(`${UrlConfig.INVENTORY_TRANSFERS}?${queryParam}`);
     },
-    [params]
+    [history, params]
   );
 
   const columnFinal = useMemo(

@@ -32,7 +32,7 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import moment from "moment";
-import POStep from "./component/po-step";
+import POStep from "./component/po-step/po-step";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import AuthWrapper from "component/authorization/AuthWrapper";

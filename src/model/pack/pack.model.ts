@@ -1,8 +1,8 @@
-import { OrderResponse } from 'model/response/order/order.response';
+import { PackFulFillmentResponse } from 'model/response/order/order.response';
 export interface PackModel{
   store_id?:number|null;
   delivery_service_provider_id?:number|null;
-  order:OrderResponse[];
+  order:PackFulFillmentResponse[];
 }
 export interface PackSearchQuery {
   page: number;

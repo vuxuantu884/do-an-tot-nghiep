@@ -1,6 +1,6 @@
 import React, { useState, useMemo, createRef, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
 import {
   Button,
@@ -70,6 +70,8 @@ import { HttpStatus } from "config/http-status.config";
 
 import ConcatenateByExcel from "./ConcatenateByExcel";
 import { EcommerceProductTabUrl } from "config/url.config";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
+import queryString from "query-string";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -90,7 +92,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const history = useHistory();
-
+  const location = useLocation();
   const {isReloadPage, handleMappingVariantJob} = props;
 
   const [allowProductsConnect] = useAuthorization({
@@ -124,7 +126,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [exportProductType, setExportProductType] = useState<string>("");
 
 
-  const [ecommerceIdSelected, setEcommerceIdSelected] = useState(null);
+  const [ecommerceIdSelected, setEcommerceIdSelected] = useState<number | null>(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
 
   let tempConnectItemList: any[] = [];
@@ -162,6 +164,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     connected_date_to: null,
     suggest: suggestVariants
   });
+
+  const queryParamsParsed: { [key: string]: string | (string | null)[] | null; } = queryString.parse(
+    location.search
+  );
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
@@ -659,21 +665,39 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   ]);
 
   const onSearch = (value: ProductEcommerceQuery) => {
-    if (value) {
-      query.ecommerce_id = value.ecommerce_id;
-      query.shop_ids = value.shop_ids;
-      query.connect_status = "waiting";
-      query.update_stock_status = value.update_stock_status;
-      query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
-      query.sku_or_name_core = value.sku_or_name_core;
-      query.connected_date_from = value.connected_date_from;
-      query.connected_date_to = value.connected_date_to;
-    }
-
-    const querySearch: ProductEcommerceQuery = { ...query };
-    setQuery(querySearch);
-    getProductUpdated(querySearch);
+    let queryParam = generateQuery(value);
+    history.push(`${location.pathname}?${queryParam}`);
   };
+
+  useEffect(() => {
+    let dataQuery: ProductEcommerceQuery = {
+      ...initialFormValues,
+      ...getQueryParamsFromQueryString(queryParamsParsed)
+    };
+    console.log(dataQuery)
+    setFilterValueByQueryParam(dataQuery)
+    setQuery(dataQuery);
+    getProductUpdated(dataQuery);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, location.search])
+
+  const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery)=> {
+    formAdvance.setFieldsValue(dataquery);
+    setEcommerceIdSelected(dataquery.ecommerce_id);
+    getEcommerceShop(dataquery.ecommerce_id);
+    if (dataquery.ecommerce_id === null){
+      removeEcommerce();
+    } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
+      formAdvance.setFieldsValue({ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id-1].ecommerce_id})
+      if (dataquery.shop_ids !== null){
+        formAdvance.setFieldsValue({shop_ids: dataquery.shop_ids})
+      }
+      
+    } else {
+      formAdvance.setFieldsValue({ecommerce_id: null})
+      removeEcommerce();
+    }
+  }
 
   const onPageChange = React.useCallback(
     (page, limit) => {

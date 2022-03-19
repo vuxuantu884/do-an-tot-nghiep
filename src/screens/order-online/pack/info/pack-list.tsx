@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-import { OrderResponse } from "model/response/order/order.response";
+import { OrderResponse, PackFulFillmentResponse } from "model/response/order/order.response";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 
@@ -20,7 +20,7 @@ interface ResultPaging {
   result: any;
 }
 
-interface OrderResponseTable extends OrderResponse {
+interface OrderResponseTable extends PackFulFillmentResponse {
   key: number;
 }
 
@@ -87,16 +87,6 @@ function PackList() {
 
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
-    // {
-    //   title: "STT",
-    //   dataIndex: "",
-    //   align: "center",
-    //   visible: true,
-    //   width: window.screen.width <= 1600 ? "7%" : "5%",
-    //   render: (value: any, row: any, index: number) => {
-    //     return <span>{index + 1}</span>;
-    //   },
-    // },
     {
       title: "Đơn hàng",
       dataIndex: "order_code",

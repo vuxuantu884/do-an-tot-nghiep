@@ -198,7 +198,7 @@ const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProp
           nếu cần.
         </p>
       </div>
-      <Row className="row-padding">
+      <Row className="row-padding" style={{alignItems:"center", marginBottom:"22px"}}>
         <Button>
           <VerticalAlignBottomOutlined /> Chọn file
         </Button>

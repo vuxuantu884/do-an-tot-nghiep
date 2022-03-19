@@ -8,4 +8,32 @@ export const StyledComponent = styled.div`
   .ant-form-item{
     margin-bottom: 6px !important;
   }
+  
+  .delivery-method-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .method {
+      flex-grow: 1;
+      padding: 5px;
+      min-width: 100px;
+      border-right: 1px solid #ddd;
+      border-left: 1px solid #ddd;
+    }
+    .method-th {
+      height: 56px;
+      text-align: center;
+    }
+    .cost {
+      text-align: right;
+      min-width: 80px;
+      padding: 5px;
+    }
+    .custom-table__has-border-bottom:not(:last-child) {
+      border-bottom: unset;
+    }
+  }
+  .delivery-method-item:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+  }
 `;

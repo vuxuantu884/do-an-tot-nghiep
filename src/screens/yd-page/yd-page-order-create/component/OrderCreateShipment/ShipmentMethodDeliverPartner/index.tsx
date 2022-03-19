@@ -149,8 +149,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 <thead className="ant-table-thead">
                   <tr>
                     <th style={{ padding: "5px", textAlign: "center"}}>Hãng vận chuyển</th>
-                    <th style={{ padding: "5px", textAlign: "center"}}>Dịch vụ chuyển phát</th>
-                    <th style={{ padding: "5px", textAlign: "center"}}>Cước phí</th>
+                    <th style={{ padding: 0}}>
+                      <div className="delivery-method-item" style={{height: "56px"}}>
+                        <div className="method method-th" style={{textAlign: "center"}}>Dịch vụ chuyển phát</div>
+                        <div className="cost method-th" style={{borderBottom: "unset", textAlign: "center"}}>Cước phí</div>
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="ant-table-tbody">
@@ -166,62 +170,54 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                               {serviceFee.fees.map(
                                 (fee: any) => {
                                   return (
-                                    <div
-                                      style={{ padding: "5px" }}
-                                      className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                    >
-                                      <label className="radio-container" style={{ marginLeft: "0 !important"}}>
-                                        <input
-                                          type="radio"
-                                          name="tt"
-                                          className="radio-delivery"
-                                          value={fee.transport_type}
-                                          checked={
-                                            thirdPL?.service ===
-                                            fee.transport_type
-                                          }
-                                          onChange={(e) => {
-                                            handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
-                                              fee.transport_type, form, setShippingFeeInformedToCustomer
-                                            );
-                                            const thirdPLResult = {
-                                              delivery_service_provider_id: serviceFee.id,
-                                              delivery_service_provider_code: serviceFee.code,
-                                              insurance_fee: fee.insurance_fee,
-                                              service: fee.transport_type,
-                                              shipping_fee_paid_to_three_pls: fee.total_fee,
-                                              delivery_service_provider_name: serviceFee.name,
-                                              delivery_transport_type: fee.transport_type_name,
+                                    <div className="delivery-method-item">
+                                      <div
+                                        style={{ padding: "5px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio method"
+                                      >
+                                        <label className="radio-container" style={{ marginLeft: "0 !important"}}>
+                                          <input
+                                            type="radio"
+                                            name="tt"
+                                            className="radio-delivery"
+                                            value={fee.transport_type}
+                                            checked={
+                                              thirdPL?.service ===
+                                              fee.transport_type
                                             }
-                                            setThirdPL(thirdPLResult);
-                                            dispatch(changeOrderThirdPLAction(thirdPLResult))
-                                          }}
-                                          disabled={
-                                            fee.total_fee === 0 || levelOrder > 3
-                                            // levelOrder > 3
-                                          }
-                                          style={{ marginLeft: "0 !important" }}
-                                        />
-                                        <span
-                                          className="checkmark"
-                                          style={fee.total_fee === 0 ? { backgroundColor: "#f0f0f0", border: 'none' } : {}}>
-                                        </span>
-                                        <span>{fee.transport_type_name}</span>
-                                      </label>
-                                    </div>
-                                  );
-                                }
-                              )}
-                            </td>
+                                            onChange={(e) => {
+                                              handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
+                                                fee.transport_type, form, setShippingFeeInformedToCustomer
+                                              );
+                                              const thirdPLResult = {
+                                                delivery_service_provider_id: serviceFee.id,
+                                                delivery_service_provider_code: serviceFee.code,
+                                                insurance_fee: fee.insurance_fee,
+                                                service: fee.transport_type,
+                                                shipping_fee_paid_to_three_pls: fee.total_fee,
+                                                delivery_service_provider_name: serviceFee.name,
+                                                delivery_transport_type: fee.transport_type_name,
+                                              }
+                                              setThirdPL(thirdPLResult);
+                                              dispatch(changeOrderThirdPLAction(thirdPLResult))
+                                            }}
+                                            disabled={
+                                              fee.total_fee === 0 || levelOrder > 3
+                                              // levelOrder > 3
+                                            }
+                                            style={{ marginLeft: "0 !important" }}
+                                          />
+                                          <span
+                                            className="checkmark"
+                                            style={fee.total_fee === 0 ? { backgroundColor: "#f0f0f0", border: 'none' } : {}}>
+                                          </span>
+                                          <span>{fee.transport_type_name}</span>
+                                        </label>
+                                      </div>
 
-                            <td style={{ padding: 0, textAlign: "right", width: "75px" }}>
-                              {serviceFee.fees?.map(
-                                (fee: any) => {
-                                  return (
-                                    <>
                                       <div
                                         style={{ padding: "5px", width: "75px" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio cost"
                                       >
                                         {/* {service.total_fee} */}
                                         <NumberFormat
@@ -231,7 +227,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           thousandSeparator={true}
                                         />
                                       </div>
-                                    </>
+                                    </div>
                                   );
                                 }
                               )}

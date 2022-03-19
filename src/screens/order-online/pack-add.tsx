@@ -18,7 +18,6 @@ import { haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./pack/add/add-order-bottombar";
 import AddOrderInReport from "./pack/add/add-order-in-report";
-import "assets/css/_pack.scss";
 import { StyledComponent } from "./pack/styles";
 
 var barcode = "";
@@ -108,9 +107,9 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         barcode += event.key;
       }
       else {
-        goodsReceiptsForm.validateFields(['store_id', 'delivery_service_provider_id', 'channel_id']);
-        const { store_id, delivery_service_provider_id, channel_id } = goodsReceiptsForm.getFieldsValue();
-        if (!store_id || !delivery_service_provider_id || !channel_id)
+        goodsReceiptsForm.validateFields(['store_id', 'delivery_service_provider_id', 'channel_id','receipt_type_id']);
+        const { store_id, delivery_service_provider_id, channel_id ,receipt_type_id} = goodsReceiptsForm.getFieldsValue();
+        if (!store_id || !delivery_service_provider_id || !channel_id|| !receipt_type_id)
           return;
         let param = {
           order_codes: barcode,
@@ -125,10 +124,9 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   }, [goodsReceiptsForm, handleAddOrder]);
 
   const handleAddOrdersCode = useCallback((order_codes: string) => {
-    console.log(order_codes)
-    goodsReceiptsForm.validateFields(['store_id', 'delivery_service_provider_id', 'channel_id']);
-    const { store_id, delivery_service_provider_id, channel_id } = goodsReceiptsForm.getFieldsValue();
-    if (!store_id || !delivery_service_provider_id || !channel_id)
+    goodsReceiptsForm.validateFields(['store_id', 'delivery_service_provider_id', 'channel_id','receipt_type_id']);
+    const { store_id, delivery_service_provider_id, channel_id,receipt_type_id } = goodsReceiptsForm.getFieldsValue();
+    if (!store_id || !delivery_service_provider_id || !channel_id || !receipt_type_id)
       return;
 
     let param = {
@@ -137,7 +135,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
       delivery_service_provider_id: delivery_service_provider_id,
       channel_id: channel_id
     }
-    console.log(param)
     handleAddOrder(param)
   }, [goodsReceiptsForm, handleAddOrder])
 
@@ -244,6 +241,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     }
   }
 
+  console.log("orderListResponse",orderListResponse)
+
   return (
     <AddReportHandOverContext.Provider value={addReportHandOverContextData}>
       <ContentContainer
@@ -284,6 +283,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                         message: "Vui lòng chọn cửa hàng",
                       },
                     ]}
+                    
                   >
                     <Select
                       className="select-with-search"
@@ -302,6 +302,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                         }
                         return false;
                       }}
+                      disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
                       {dataCanAccess.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
@@ -339,6 +340,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                         }
                         return false;
                       }}
+                      disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
                       {listThirdPartyLogistics.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
@@ -376,6 +378,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                         }
                         return false;
                       }}
+                      disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
                       {listGoodsReceiptsType.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
@@ -413,6 +416,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                         }
                         return false;
                       }}
+                      disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
                       <Select.Option key={-1} value={-1}>
                         Mặc định

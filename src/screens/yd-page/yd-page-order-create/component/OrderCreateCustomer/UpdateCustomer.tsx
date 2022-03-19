@@ -1,5 +1,5 @@
 import {
-  BarcodeOutlined,
+  // BarcodeOutlined,
   EnvironmentOutlined,
   PhoneOutlined,
   PlusOutlined,
@@ -8,7 +8,7 @@ import {
 import {
   Button, 
 	Col, 
-	Divider, 
+	// Divider,
 	Form, 
 	FormInstance, 
 	Input, 
@@ -72,7 +72,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   // const formRefCustomer = createRef<FormInstance>();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
+  // const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
   const [visibleModalChangeAddress, setVisibleModalChangeAddress] = useState(false)
@@ -94,28 +94,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   
   //properties
   const disableInput = levelOrder >= 4;
-
-  //element
-  const txtShippingAddressName = document.getElementById("shippingAddress_update_name");
-  const txtShippingAddressPhone = document.getElementById("shippingAddress_update_phone");
-  const txtShippingAddressCardNumber = document.getElementById("shippingAddress_update_card_number");
-  const txtShippingAddressFullAddress = document.getElementById("shippingAddress_update_full_address");
-  //event
-  txtShippingAddressName?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
-  });
-
-  txtShippingAddressPhone?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
-  });
-
-  txtShippingAddressCardNumber?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
-  });
-
-  txtShippingAddressFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
-  });
 
   const initialFormValues = useMemo(() => {
     if (shippingAddress) {
@@ -167,7 +145,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     value.district_id = null;
     value.ward_id = null;
     value.full_address = "";
-    shippingAddressForm.setFieldsValue(value);
+    shippingAddressForm.setFieldsValue({...value});
 
     setShippingWards([]);
   };
@@ -186,7 +164,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         full_address: value.full_address,
         is_default: true,
       };
-      if(shippingAddress){
+      if(shippingAddress && shippingAddress.id){
           dispatch(
               UpdateShippingAddress(
                   shippingAddress?.id,
@@ -240,6 +218,14 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   );
 
   const onOkPress = useCallback(() => {
+    const formValues = shippingAddressForm.getFieldsValue();
+    if (!formValues.district_id) {
+      showError("Vui lòng chọn khu vực!");
+    } else if (!formValues.ward_id) {
+      showError("Vui lòng chọn phường/xã!");
+    } else if (!formValues.full_address) {
+      showError("Vui lòng nhập địa chỉ chi tiết!");
+    }
     shippingAddressForm.submit();
   }, [shippingAddressForm]);
 
@@ -276,35 +262,36 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   return (
     <StyledComponent>
-      <Row style={{ margin: "10px 0px", display: "none", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="page-filter-left font-weight-500">ĐỊA CHỈ GIAO HÀNG</div>
-          {isVisibleBtnUpdate && shippingAddress && (
-              <Button
-                  type="primary"
-                  style={{ height: 24, padding: "0 10px", fontWeight: 400, float: "right" }}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={(e) => {
-                      e.stopPropagation();
-                      onOkPress();
-                  }}
-              >
-                  Cập nhật địa chỉ
-              </Button>
-          )}
-          {isVisibleBtnUpdate && !shippingAddress && (
-              <Button
-                  type="primary"
-                  style={{ height: 24, padding: "0 10px", fontWeight: 400, float: "right" }}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={(e) => {
-                      e.stopPropagation();
-                      onOkPress();
-                  }}
-              >
-                  Thêm mới địa chỉ
-              </Button>
-          )}
-      </Row>
+      {/*display: none*/}
+      {/*<Row style={{ margin: "10px 0px", display: "none", justifyContent: "space-between", alignItems: "center" }}>*/}
+      {/*  <div className="page-filter-left font-weight-500">ĐỊA CHỈ GIAO HÀNG</div>*/}
+      {/*    {isVisibleBtnUpdate && shippingAddress && (*/}
+      {/*        <Button*/}
+      {/*            type="primary"*/}
+      {/*            style={{ height: 24, padding: "0 10px", fontWeight: 400, float: "right" }}*/}
+      {/*            className="create-button-custom ant-btn-outline fixed-button"*/}
+      {/*            onClick={(e) => {*/}
+      {/*                e.stopPropagation();*/}
+      {/*                onOkPress();*/}
+      {/*            }}*/}
+      {/*        >*/}
+      {/*            Cập nhật địa chỉ*/}
+      {/*        </Button>*/}
+      {/*    )}*/}
+      {/*    {isVisibleBtnUpdate && !shippingAddress && (*/}
+      {/*        <Button*/}
+      {/*            type="primary"*/}
+      {/*            style={{ height: 24, padding: "0 10px", fontWeight: 400, float: "right" }}*/}
+      {/*            className="create-button-custom ant-btn-outline fixed-button"*/}
+      {/*            onClick={(e) => {*/}
+      {/*                e.stopPropagation();*/}
+      {/*                onOkPress();*/}
+      {/*            }}*/}
+      {/*        >*/}
+      {/*            Thêm mới địa chỉ*/}
+      {/*        </Button>*/}
+      {/*    )}*/}
+      {/*</Row>*/}
 
       <Form
         layout="vertical"
@@ -334,6 +321,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 placeholder="Nhập Tên khách hàng"
                 prefix={<UserOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
+                onChange={() => setVisibleBtnUpdate(true)}
               />
             </Form.Item>
           </Col>
@@ -355,21 +343,25 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 placeholder="Nhập số điện thoại"
                 prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
+                onChange={() => setVisibleBtnUpdate(true)}
               />
             </Form.Item>
           </Col>
-          <Col span={12} hidden>
-            <Form.Item
-              name="card_number"
-              style={customer ? { marginBottom: "0px" } : {}}
-            >
-              <Input
-                placeholder="Nhập mã thẻ"
-                prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
-                disabled={disableInput}
-              />
-            </Form.Item>
-          </Col>
+
+          {/*hidden*/}
+          {/*<Col span={12} hidden>*/}
+          {/*  <Form.Item*/}
+          {/*    name="card_number"*/}
+          {/*    style={customer ? { marginBottom: "0px" } : {}}*/}
+          {/*  >*/}
+          {/*    <Input*/}
+          {/*      placeholder="Nhập mã thẻ"*/}
+          {/*      prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}*/}
+          {/*      disabled={disableInput}*/}
+          {/*    />*/}
+          {/*  </Form.Item>*/}
+          {/*</Col>*/}
+
           <Col span={24}>
             <Form.Item
               name="district_id"
@@ -405,12 +397,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               </Select>
             </Form.Item>
           </Col>
-
-          <Form.Item label="city" name="city_id" hidden>
-            <Input />
-          </Form.Item>
-
-
 
           <Col span={24}>
             <Form.Item
@@ -449,17 +435,22 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             </Form.Item>
           </Col>
 
-    
-
           <Col span={24}>
             <Form.Item
               name="full_address"
               style={customer ? { marginBottom: "0px" } : {}}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập địa chỉ chi tiết",
+                },
+              ]}
             >
               <Input
                 placeholder="Địa chỉ"
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
+                onChange={() => setVisibleBtnUpdate(true)}
               />
             </Form.Item>
           </Col>
@@ -469,7 +460,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       {!disableInput && (
         <div>
           <div>
-            {!isVisibleCollapseCustomer && (
+            {/*{!isVisibleCollapseCustomer && (*/}
               <Row style={{ margin: 0, color: "#5656A1", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                 <div className="page-filter-left" style={{ width: "15%" }}>
 									<Button
@@ -517,76 +508,79 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 										/>
 									</Modal>
                 </div>
-        
-                <div className="page-filter-right" style={{ width: "30%" }}>
-                  <Button
-                    className="page-cancel-address"
-                    onClick={onCancelUpdateShippingAddress}
-                  >
-                    Hủy
-                  </Button>
-                  
-                  <Button
-                    type="primary"
-                    className="page-ok-save-address"
-                    onClick={() => onOkPress()}
-                  >
-                    Lưu
-                  </Button>
-                </div>
-              </Row>
-            )}
 
-            {isVisibleCollapseCustomer && (
-              <Divider
-                orientation="right"
-                style={{ color: "#5656A1", marginTop: 0 }}
-              >
-								<Button
-									type="link"
-									icon={<PlusOutlined />}
-									className="btn-style"
-									style={{ paddingRight: 0 }}
-									onClick={() => setVisibleModalChangeAddress(false)}
-								>
-									Thay đổi địa chỉ giao hàng
-								</Button>
-								<Modal
-									visible={visibleModalChangeAddress}
-									cancelText="Đóng"
-									onCancel={() => setVisibleModalChangeAddress(false)}
-								>
-									<Row
-										justify="space-between"
-										align="middle"
-										className="change-shipping-address-title"
-										style={{ width: "100%" }}
-									>
-										<div
-											style={{
-												color: "#4F687D",
-											}}
-										>
-											Thay đổi địa chỉ
-										</div>
-										<Button
-											type="link"
-											icon={<PlusOutlined />}
-											onClick={ShowAddressModalAdd}
-										>
-											Thêm địa chỉ mới
-										</Button>
-									</Row>
-									<CustomerShippingAddressOrder
-										customer={customer}
-										handleChangeCustomer={handleChangeCustomer}
-										handleShippingEdit={ShowAddressModalEdit}
-										handleShippingDelete={showAddressModalDelete}
-										handleSingleShippingAddress={setSingleShippingAddress}
-									/>
-								</Modal>
-              </Divider>
-            )}
+                {isVisibleBtnUpdate &&
+                  <div className="page-filter-right" style={{width: "30%"}}>
+                    <Button
+                      className="page-cancel-address"
+                      onClick={onCancelUpdateShippingAddress}
+                    >
+                      Hủy
+                    </Button>
+
+                    <Button
+                      type="primary"
+                      className="page-ok-save-address"
+                      onClick={() => onOkPress()}
+                    >
+                      Lưu địa chỉ giao hàng nè
+                    </Button>
+                  </div>
+                }
+              </Row>
+            {/*)}*/}
+
+            {/*isVisibleCollapseCustomer === false  => hidden*/}
+            {/*{isVisibleCollapseCustomer && (*/}
+            {/*  <Divider*/}
+            {/*    orientation="right"*/}
+            {/*    style={{ color: "#5656A1", marginTop: 0 }}*/}
+            {/*  >*/}
+						{/*		<Button*/}
+						{/*			type="link"*/}
+						{/*			icon={<PlusOutlined />}*/}
+						{/*			className="btn-style"*/}
+						{/*			style={{ paddingRight: 0 }}*/}
+						{/*			onClick={() => setVisibleModalChangeAddress(false)}*/}
+						{/*		>*/}
+						{/*			Thay đổi địa chỉ giao hàng*/}
+						{/*		</Button>*/}
+						{/*		<Modal*/}
+						{/*			visible={visibleModalChangeAddress}*/}
+						{/*			cancelText="Đóng"*/}
+						{/*			onCancel={() => setVisibleModalChangeAddress(false)}*/}
+						{/*		>*/}
+						{/*			<Row*/}
+						{/*				justify="space-between"*/}
+						{/*				align="middle"*/}
+						{/*				className="change-shipping-address-title"*/}
+						{/*				style={{ width: "100%" }}*/}
+						{/*			>*/}
+						{/*				<div*/}
+						{/*					style={{*/}
+						{/*						color: "#4F687D",*/}
+						{/*					}}*/}
+						{/*				>*/}
+						{/*					Thay đổi địa chỉ*/}
+						{/*				</div>*/}
+						{/*				<Button*/}
+						{/*					type="link"*/}
+						{/*					icon={<PlusOutlined />}*/}
+						{/*					onClick={ShowAddressModalAdd}*/}
+						{/*				>*/}
+						{/*					Thêm địa chỉ mới*/}
+						{/*				</Button>*/}
+						{/*			</Row>*/}
+						{/*			<CustomerShippingAddressOrder*/}
+						{/*				customer={customer}*/}
+						{/*				handleChangeCustomer={handleChangeCustomer}*/}
+						{/*				handleShippingEdit={ShowAddressModalEdit}*/}
+						{/*				handleShippingDelete={showAddressModalDelete}*/}
+						{/*				handleSingleShippingAddress={setSingleShippingAddress}*/}
+						{/*			/>*/}
+						{/*		</Modal>*/}
+            {/*  </Divider>*/}
+            {/*)}*/}
           </div>
           {/* {isVisibleCollapseCustomer && (
             

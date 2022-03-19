@@ -21,7 +21,7 @@ export function getQueryParams(params: URLSearchParams) {
   return paramObj;
 }
 
-export function getQueryParamsFromQueryString(params: { [key: string]: string | string[] | null; }) {
+export function getQueryParamsFromQueryString(params: { [key: string]: string | (string | null)[] | null; }) {
   let paramObj = {};
   for (var key of Object.keys(params)) {
     let value = params[key];

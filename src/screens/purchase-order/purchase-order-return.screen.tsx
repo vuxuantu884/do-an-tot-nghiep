@@ -11,7 +11,7 @@ import { DistrictResponse } from "model/content/district.model";
 import POSupplierForm from "./component/po-supplier-form";
 import POReturnProductForm from "./component/po-return-product.form";
 import POReturnPaymentForm from "./component/po-return-payment.form";
-import POStep from "./component/po-step";
+import POStep from "./component/po-step/po-step";
 import { POField } from "model/purchase-order/po-field";
 import { POUtils } from "utils/POUtils";
 import {
