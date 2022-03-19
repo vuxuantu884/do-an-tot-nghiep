@@ -87,16 +87,6 @@ function PackList() {
 
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
-    // {
-    //   title: "STT",
-    //   dataIndex: "",
-    //   align: "center",
-    //   visible: true,
-    //   width: window.screen.width <= 1600 ? "7%" : "5%",
-    //   render: (value: any, row: any, index: number) => {
-    //     return <span>{index + 1}</span>;
-    //   },
-    // },
     {
       title: "Đơn hàng",
       dataIndex: "order_code",

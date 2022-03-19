@@ -347,6 +347,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     formFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
     removeEcommerce();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formFilter, initQuery, onClearFilter]);
   // end handle filter action
 

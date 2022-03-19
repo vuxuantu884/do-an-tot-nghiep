@@ -84,4 +84,9 @@ export const StyledComponent = styled.div`
 			-webkit-box-orient: vertical;
 		}
   }
+  .pack-info-update-card {
+    .ant-card-body {
+      padding-bottom: 0;
+    }
+  }
 `;

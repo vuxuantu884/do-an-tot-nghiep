@@ -51,6 +51,23 @@ function SidebarOrderDetailInformation(props: PropType) {
       );
     }
   };
+  const renderReturnedOrder = () => {
+    let result = null;
+    if(OrderDetail?.order_returns && OrderDetail?.order_returns?.length > 0) {
+      const returnedArr = OrderDetail?.order_returns;
+      result = returnedArr.map((single, index) => {
+        return(
+          <React.Fragment>
+            <Link to={`${UrlConfig.ORDERS_RETURN}/${single.id}`} target="_blank">
+              {single.code}
+            </Link>
+            {index < returnedArr.length - 1 && ", "}
+          </React.Fragment>
+        )
+      })
+    }
+    return result;
+  };
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">
@@ -176,6 +193,16 @@ function SidebarOrderDetailInformation(props: PropType) {
             <Col span={14}>
               <span style={{fontWeight: 500, color: "rgb(226, 67, 67)"}} className="text-focus">
                 {OrderDetail?.sub_reason_name ? OrderDetail?.sub_reason_name : OrderDetail?.reason_name}
+              </span>
+            </Col>
+          </Row>
+        )}
+        {OrderDetail?.order_returns && OrderDetail?.order_returns?.length > 0 && (
+          <Row gutter={5}>
+            <Col span={10}>Mã đơn trả hàng:</Col>
+            <Col span={14}>
+              <span style={{fontWeight: 500, color: "rgb(226, 67, 67)"}} className="text-focus">
+                {renderReturnedOrder()}
               </span>
             </Col>
           </Row>

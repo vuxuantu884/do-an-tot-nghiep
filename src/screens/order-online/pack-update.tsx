@@ -25,7 +25,6 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import search from "assets/img/search.svg";
 import moment from "moment";
-import "assets/css/_pack.scss";
 import "./scss/index.screen.scss";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import { Link } from "react-router-dom";
@@ -400,7 +399,7 @@ const PackUpdate: React.FC = () => {
           },
         ]}
       >
-        <Card title="Thông tin biên bản bàn giao" className="pack-info-update-card">
+        <Card title="Thông tin biên bản bàn giao">
           <Row
             align="middle"
             justify="space-between"

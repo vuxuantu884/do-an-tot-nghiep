@@ -248,7 +248,7 @@ function OrderPayments(props: PropType): JSX.Element {
             placeholder="Chọn số tài khoản"
             value={selectedStoreBankAccount?.toString()}
             notFoundContent="Không tìm thấy số tài khoản của cửa hàng!"
-            disabled={!isExportBill}
+            disabled={!isExportBill && false}
           >
             {storeBankAccountNumbers.map((value, index) => (
               <Select.Option key={value.account_number} value={value.account_number} title={`${value.account_number} - ${value.bank_name}`}>

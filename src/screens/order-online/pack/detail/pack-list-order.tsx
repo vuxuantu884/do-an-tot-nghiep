@@ -123,51 +123,6 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       align: "left",
       width: "25%",
     },
-    // {
-    //   title: "Sản phẩm",
-    //   dataIndex: "product_sku",
-    //   visible: true,
-    //   width: "15%",
-    //   render: (value: string, i: GoodsReceiptsOrderListModel) => {
-    //     return (
-    //       <React.Fragment>
-    //         <div style={{padding: "5px 0"}}>
-    //           <Link target="_blank" to={`${UrlConfig.ORDER}/${i.product_sku}`}>
-    //             {value}
-    //           </Link>
-    //           <div style={{fontSize: "0.86em"}}>{i.product_name}</div>
-    //         </div>
-    //       </React.Fragment>
-    //     );
-    //   },
-    // },
-    // {
-    //   title: "Khối lượng",
-    //   dataIndex: "net_weight",
-    //   visible: true,
-    //   width: "8%",
-    //   render: (value: number) => {
-    //     return <div>{value}</div>;
-    //   },
-    // },
-    // {
-    //   title: "Số lượng",
-    //   dataIndex: "total_quantity",
-    //   visible: true,
-    //   width: "8%",
-    //   render: (value: number) => {
-    //     return <div>{value}</div>;
-    //   },
-    // },
-    // {
-    //   title: "Giá",
-    //   dataIndex: "total_price",
-    //   visible: true,
-    //   width: "8%",
-    //   render: (value: number) => {
-    //     return <div>{value}</div>;
-    //   },
-    // },
     {
       title: "Phí thu khách",
       dataIndex: "postage",
@@ -212,7 +167,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   return (
     <StyledComponent>
-      <Card title="Danh sách đơn hàng trong biên bản" className="pack-card">
+      <Card title="Danh sách đơn hàng trong biên bản" className="pack-card-orders">
         <div className="order-filter">
           <div className="page-filter row-padding">
             <div className="page-filter-heading">

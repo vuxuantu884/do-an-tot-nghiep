@@ -10,6 +10,16 @@ const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
+  .pack-card-orders {
+    .ant-card-body {
+      padding: 0 20px;
+    }
+  }
+  .pack-card-products {
+    .ant-card-body {
+      padding-bottom: 0;
+    }
+  }
   .bottomBar {
     position: fixed;
     text-align: right;

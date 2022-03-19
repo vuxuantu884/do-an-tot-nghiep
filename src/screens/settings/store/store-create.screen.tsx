@@ -143,27 +143,6 @@ const StoreCreateScreen: React.FC = () => {
     [history]
   );
 
-  // const checkDuplicateStoreName = (
-  //   rule: RuleObject,
-  //   value: StoreValue,
-  //   callback: (error?: string) => void
-  // ) => {
-  //   if (debounceSearchStoreNameRef.current) {
-  //     clearTimeout(debounceSearchStoreNameRef.current);
-  //   }
-  //
-  //   debounceSearchStoreNameRef.current = setTimeout(() => {
-  //     dispatch(
-  //       StoreValidateAction({name: value}, (data) => {
-  //         if (data instanceof Array) {
-  //           callback("Tên cửa hàng đã tồn tại");
-  //         } else {
-  //           callback();
-  //         }
-  //       })
-  //     );
-  //   }, 300);
-  // };
   const onFinish = useCallback(
     (values: StoreCreateRequest) => {
       setIsLoading(true);
@@ -255,11 +234,6 @@ const StoreCreateScreen: React.FC = () => {
                         pattern: RegUtil.STRINGUTF8,
                         message: "Tên cửa hàng không gồm kí tự đặc biệt",
                       },
-                      // {
-                      //   validator: (rule, value, callback) => {
-                      //     checkDuplicateStoreName(rule, value, callback);
-                      //   },
-                      // },
                     ]}
                     label="Tên cửa hàng"
                     name="name"

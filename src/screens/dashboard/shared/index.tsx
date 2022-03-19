@@ -2,19 +2,21 @@ import Top1SVG from "assets/icon/top-1-rank-income.svg";
 import { formatCurrency } from "utils/AppUtils";
 import { currencyAbbreviation } from "utils/DashboardUtils";
 import { ChartColor } from "../index.style";
+import {DashboardContainer} from "../index.style";
 
 export const CustomTooltip = (data: any) => {
     const { active, payload, label, labelName } = data;
 
-    active && console.log(data)
     if (active && payload && payload.length) {
         return (
+            <DashboardContainer>
             <div className="monthly-chart__tooltip">
                 <p className="tooltip-title">{label}</p>
                 {payload.map((item: any) => (
                     <span style={{ color: item?.color || "black" }}>{`${labelName[item.dataKey]} : ${formatCurrency(parseFloat(item.value).toFixed(2))}₫`}<br /></span>
                 ))}
             </div>
+            </DashboardContainer>
         );
     }
 

@@ -18,7 +18,6 @@ import { haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./pack/add/add-order-bottombar";
 import AddOrderInReport from "./pack/add/add-order-in-report";
-import "assets/css/_pack.scss";
 import { StyledComponent } from "./pack/styles";
 
 var barcode = "";
