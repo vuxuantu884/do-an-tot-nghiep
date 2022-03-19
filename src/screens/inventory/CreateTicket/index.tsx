@@ -148,6 +148,7 @@ const CreateTicket: FC = () => {
   const getMe = useCallback(async ()=>{
     const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
     if (res && res.account_stores) {
+      console.log(res)
       setFromStores(res.account_stores);
     }
   },[dispatch]);
@@ -262,7 +263,7 @@ const CreateTicket: FC = () => {
     setKeySearch("");
     barCode="";
     setResultSearch([]);
-    
+
     form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
   },[resultSearch, dataTable, form]);
 
@@ -550,14 +551,14 @@ const CreateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
-  
-  }, [dataTable]);   
 
-  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => { 
-    if (keyCode === "Enter" && code){ 
-      barCode ="";  
-      setKeySearch("");  
-      
+  }, [dataTable]);
+
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
+    if (keyCode === "Enter" && code){
+      barCode ="";
+      setKeySearch("");
+
       if (RegUtil.BARCODE_NUMBER.test(code)) {
         const storeId = form.getFieldValue("from_store_id");
         if (!storeId) {
@@ -565,27 +566,27 @@ const CreateTicket: FC = () => {
           return;
         }
         const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-        if (item && item.id) { 
+        if (item && item.id) {
           const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
-          if (variant && variant.items && variant.items.length > 0) {  
+          if (variant && variant.items && variant.items.length > 0) {
             item.available = variant.items[variant.items.length-1].available;
             item.on_hand = variant.items[variant.items.length-1].on_hand;
           }
-          onSelectProduct(item.id.toString(),item); 
+          onSelectProduct(item.id.toString(),item);
         }
       }
-    } 
+    }
     else{
       const txtSearchProductElement: any =
         document.getElementById("product_search_variant");
 
-      onSearchProduct(txtSearchProductElement?.value); 
-    } 
+      onSearchProduct(txtSearchProductElement?.value);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dispatch,onSelectProduct, onSearchProduct, form]);
-  
+
   const eventKeydown = useCallback(
-     (event: KeyboardEvent) => { 
+     (event: KeyboardEvent) => {
 
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
@@ -650,7 +651,7 @@ const CreateTicket: FC = () => {
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
               >
                 {record.sku}
               </Link>
