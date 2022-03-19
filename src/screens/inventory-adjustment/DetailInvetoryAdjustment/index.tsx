@@ -20,7 +20,7 @@ import {
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import {
-  InventoryAdjustmentDetailItem,
+  InventoryAdjustmentDetailItem, 
   LineItemAdjustment,
 } from "model/inventoryadjustment";
 import {Link} from "react-router-dom";
@@ -58,6 +58,7 @@ import {useReactToPrint} from "react-to-print";
 import {generateQuery} from "utils/AppUtils";
 import purify from "dompurify";
 import {AccountResponse} from "model/account/account.model";
+import {searchAccountPublicAction} from "domain/actions/account/account.action";
 import {StyledComponent} from "screens/products/product/component/RowDetail/style";
 import ModalConfirm from "component/modal/ModalConfirm";
 import {StoreResponse} from "model/core/store.model";
@@ -73,7 +74,6 @@ import useAuthorization from "hook/useAuthorization";
 import TextArea from "antd/es/input/TextArea";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
-import { searchAccountPublicApi } from "../../../service/accounts/account.service";
 
 const {TabPane} = Tabs;
 
@@ -115,7 +115,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const {id} = useParams<InventoryParams>();
   const idNumber = parseInt(id);
   const [keySearch, setKeySearch] = useState<string>("");
-  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false); 
   const [hasError, setHasError] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState("");
@@ -155,7 +155,7 @@ const DetailInvetoryAdjustment: FC = () => {
     TotalMiss: 0,
     TotalOnHand: 0,
     TotalRealOnHand: 0,
-  });
+  });  
 
   //phân quyền
   const [allowUpdate] = useAuthorization({
@@ -251,8 +251,8 @@ const DetailInvetoryAdjustment: FC = () => {
       if (result) {
         setDatalinesItem({...result});
         drawColumns(result?.items);
-        setHasError(false);
-        setTableLoading(false);
+        setHasError(false); 
+        setTableLoading(false); 
       }
     },
     [drawColumns]
@@ -266,7 +266,7 @@ const DetailInvetoryAdjustment: FC = () => {
       );
 
       if ( !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
-      ) {
+      ) { 
         const variantPrice =
         selectedItem &&
         selectedItem.variant_prices &&
@@ -305,14 +305,14 @@ const DetailInvetoryAdjustment: FC = () => {
   );
 
   const onPickManyProduct = useCallback(
-    (result: Array<VariantResponse>) => {
+    (result: Array<VariantResponse>) => { 
       const newResult = result?.map((item) => {
         const variantPrice =
         item &&
         item.variant_prices &&
         item.variant_prices[0] &&
         item.variant_prices[0].retail_price;
-
+        
         return {
           ...item,
           variant_id: item.id,
@@ -387,7 +387,7 @@ const DetailInvetoryAdjustment: FC = () => {
           } else {
             fileList.splice(index, 1);
             showError("Upload ảnh không thành công");
-          }
+          } 
           setFileList([...fileList]);
         })
       );
@@ -434,7 +434,7 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const onChangeFileUpdate = useCallback((info) => {
     setFileListUpdate(info.fileList);
-  }, []);
+  }, []); 
 
   const onPrintAction = () => {
     if (data) {
@@ -526,9 +526,9 @@ const DetailInvetoryAdjustment: FC = () => {
               min={0}
               maxLength={12}
               value={value}
-              onChange={(value) => {
+              onChange={(value) => { 
                 onChangeRealOnHand(row, value ?? 0);
-              }}
+              }} 
             />
           );
         } else {
@@ -590,8 +590,8 @@ const DetailInvetoryAdjustment: FC = () => {
           }
         </>
       }
-    }
-  ];
+    } 
+  ]; 
 
   const onResult = useCallback(
     (result) => {
@@ -605,13 +605,6 @@ const DetailInvetoryAdjustment: FC = () => {
         setHasError(false);
         setFormStoreData(data?.store);
         setData(data);
-
-        searchAccountPublicApi({ codes: data.audited_by }).then((res) => {
-          if (res.code === HttpStatus.SUCCESS) {
-            setDataAccounts(res.data);
-          }
-        });
-
         form.setFieldsValue(result);
 
         dispatch(
@@ -623,7 +616,7 @@ const DetailInvetoryAdjustment: FC = () => {
         );
       }
     },
-    [form, dispatch, idNumber, onResultDataTable, setDataAccounts]
+    [idNumber, form, onResultDataTable, dispatch]
   );
 
   const updateAdjustment = React.useMemo(() =>
@@ -632,8 +625,8 @@ const DetailInvetoryAdjustment: FC = () => {
                      note: form.getFieldValue('note'),
                      version: form.getFieldValue('version'),
                      line_items: dataLinesItem.items,
-                     attached_files: form.getFieldValue('attached_files')} as InventoryAdjustmentDetailItem;
-
+                     attached_files: form.getFieldValue('attached_files')} as InventoryAdjustmentDetailItem; 
+     
     if (data && dataUpdate) {
       dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, (res)=>{
         onResult(res);
@@ -642,7 +635,7 @@ const DetailInvetoryAdjustment: FC = () => {
     }
   }, 500),
   [dispatch, data, form, dataLinesItem,  onResult]
-)
+) 
 
 const onChangeNote = useCallback(
   (note: string) => {
@@ -650,7 +643,7 @@ const onChangeNote = useCallback(
     updateAdjustment();
   },
   [updateAdjustment]
-)
+)  
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -784,7 +777,7 @@ const onChangeNote = useCallback(
 
   const onChangeKeySearch = useCallback((code: string)=>{
     debounceSearchVariant(code);
-  },[debounceSearchVariant]);
+  },[debounceSearchVariant]); 
 
   const onExport = useCallback(() => {
     exportFile({
@@ -891,7 +884,7 @@ const onChangeNote = useCallback(
 
   const onDeleteItem = useCallback(
     (variantId: number) => {
-
+     
     },
     []
   );
@@ -912,6 +905,10 @@ const onChangeNote = useCallback(
   useEffect(() => {
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
   }, [idNumber, onResult, dispatch]);
+
+  useEffect(()=>{
+    dispatch(searchAccountPublicAction({}, setDataAccounts));
+  },[dispatch,setDataAccounts]);
 
   const debounceChangeRealOnHand = useMemo(()=>
   _.debounce((row: LineItemAdjustment, realOnHand: number)=>{
@@ -936,7 +933,7 @@ const onChangeNote = useCallback(
       if (!data || (data === undefined || !data.id)) {
         return null;
       }
-
+      
       dispatch(
         updateItemOnlineInventoryAction(data.id, row, (result: LineItemAdjustment) => {
           if (result) {
@@ -1082,7 +1079,7 @@ const onChangeNote = useCallback(
                             onChange={(e) => {
                               setKeySearch(e.target.value);
                               onChangeKeySearch(e.target.value);
-                            }}
+                            }} 
                             style={{marginLeft: 8}}
                             placeholder="Tìm kiếm sản phẩm trong phiếu"
                             addonAfter={
@@ -1097,10 +1094,10 @@ const onChangeNote = useCallback(
                       <CustomTable
                         isLoading={tableLoading}
                         tableLayout="fixed"
-                        style={{paddingTop: 20}}
+                        style={{paddingTop: 20}} 
                         columns={defaultColumns}
                         pagination={false}
-                        sticky={{offsetScroll: 5, offsetHeader: 55}}
+                        sticky={{offsetScroll: 5, offsetHeader: 55}} 
                         dataSource={dataLinesItem.items}
                         rowKey={(item: LineItemAdjustment) => item.id}
                       />
@@ -1151,7 +1148,7 @@ const onChangeNote = useCallback(
                     }
                   </Col>
                 </Card>
-                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
+                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}> 
                   <Row className="" gutter={5} style={{flexDirection: "column"}}>
                     <Form.Item
                       name={"note"}
@@ -1161,8 +1158,8 @@ const onChangeNote = useCallback(
                       rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                     >
                       <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
-                    </Form.Item>
-                  </Row>
+                    </Form.Item> 
+                  </Row>  
                   <Row
                     className="margin-top-10"
                     gutter={5}
@@ -1192,8 +1189,8 @@ const onChangeNote = useCallback(
                       colon={false}
                     >
                       {
-                       data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED &&
-                          <Upload
+                       data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && 
+                          <Upload 
                           beforeUpload={onBeforeUpload}
                           multiple={true}
                           fileList={fileListUpdate}
