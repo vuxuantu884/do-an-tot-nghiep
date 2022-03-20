@@ -53,7 +53,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     console.log(value)
     if (value.search_term && value.search_term.length > 0) {
       //formSearchOrderRef.current?.resetFields();
-      handleAddOrder(value.search_term);
+      handleAddOrder(value.search_term?.toUpperCase());
     }
     else {
       showWarning("Vui lòng nhập mã đơn hàng");
