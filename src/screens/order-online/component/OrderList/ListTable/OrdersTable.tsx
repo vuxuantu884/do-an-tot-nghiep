@@ -1,20 +1,22 @@
-import { Button, Col, Row, Tooltip } from "antd";
+import { Button, Col, Popover, Row, Tooltip, Collapse, Typography, Select } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { updateOrderPartial } from "domain/actions/order/order.action";
+import { getListSubStatusAction, getTrackingLogFulfillmentAction, setSubStatusAction, updateOrderPartial } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel } from "model/order/order.model";
+import { OrderExtraModel, OrderModel, OrderPaymentModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
+  OrderPaymentResponse,
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { ReactNode, useCallback, useEffect, useMemo } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { formatCurrency, isOrderFromPOS } from "utils/AppUtils";
+import { formatCurrency, getOrderTotalPaymentAmount, getTotalQuantity, isNormalTypeVariantItem, isOrderFromPOS, TrackingCode } from "utils/AppUtils";
 import {
   COD,
   FACEBOOK,
@@ -26,7 +28,7 @@ import {
   SHOPEE,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
@@ -39,10 +41,16 @@ import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import IconFacebook from "./images/facebook.svg";
+import IconTrackingCode from "./images/iconTrackingCode.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
 import { FileTextOutlined } from "@ant-design/icons";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
+import doubleArrow from "assets/icon/double_arrow.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
+
+import TrackingLog from "../../TrackingLog/TrackingLog";
+import { showLoading } from "domain/actions/loading.action";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -57,6 +65,8 @@ type PropTypes = {
   setShowSettingColumn: (value: boolean) => void;
   onFilterPhoneCustomer:(value:string)=>void;
 };
+
+type dataExtra = PageResponse<OrderExtraModel>;
 
 function OrdersTable(props: PropTypes) {
   const {
@@ -77,6 +87,22 @@ function OrdersTable(props: PropTypes) {
   const status_order = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status
   );
+
+  const type = {
+    trackingCode: "trackingCode",
+    subStatus: "subStatus",
+    setSubStatus: "setSubStatus",
+  }
+  const [selectedOrder, setSelectedOrder] =
+		useState<OrderModel|null>(null);
+
+    const [typeAPi, setTypeAPi] =
+		useState("");
+
+    // const [isVisiblePopup, setIsVisiblePopup] =
+		// useState(false);
+
+    // console.log('isVisiblePopup', isVisiblePopup)
 
   const paymentIcons = [
     {
@@ -183,13 +209,22 @@ function OrdersTable(props: PropTypes) {
     return html;
   };
 
+  const renderOrderTotalPayment = (payments:  OrderPaymentResponse[]) => {
+    return (
+      <div className="orderTotalPaymentAmount">
+        <Tooltip title="Tổng tiền thanh toán">
+        {getOrderTotalPaymentAmount(payments)}
+        </Tooltip>
+      </div>
+    )
+  };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
     let html = null;
     html = orderDetail.payments.map((payment) => {
-      if (!payment.amount) {
-        return null;
-      }
+      // if (!payment.amount) {
+      //   return null;
+      // }
       let selectedPayment = paymentIcons.find(
         (single) => single.payment_method_code === payment.payment_method_code
       );
@@ -216,6 +251,7 @@ function OrdersTable(props: PropTypes) {
     (orderDetail: OrderModel) => {
       return (
         <React.Fragment>
+          {renderOrderTotalPayment(orderDetail.payments)}
           {renderOrderPaymentMethods(orderDetail)}
           {/* {orderDetail.total_discount ? (
 						<Tooltip title="Chiết khấu đơn hàng">
@@ -253,6 +289,286 @@ function OrdersTable(props: PropTypes) {
     }
     return <React.Fragment>{result}</React.Fragment>;
   };
+  
+  const renderOrderTrackingLog =
+    (record: OrderExtraModel) => {
+      // let html: ReactNode= "aaaaaaaaaa";
+      // if(!trackingLogFulfillment) {
+      //   return html;
+      // }
+      if(!record?.fulfillments || !record.isShowTrackingLog) {
+        return;
+      }
+      const trackingLogFulfillment = record?.trackingLog;
+      const sortedFulfillments = sortFulfillments(record?.fulfillments);
+      const trackingCode = sortedFulfillments[0]?.shipment?.tracking_code;
+      if(!trackingCode) {
+        return " Không có mã vận đơn!";
+      }
+      if(!trackingLogFulfillment) {
+        return " Không có log tiến trình đơn hàng!";
+      }
+      let html = null;
+      console.log('trackingLogFulfillment333', trackingLogFulfillment)
+      if(trackingLogFulfillment) {
+        html = (
+          <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
+          // <Collapse ghost>
+          //   <Collapse.Panel
+          //     header={
+          //       <Row>
+          //         <Col style={{ display: "flex", width: "100%", alignItems: "center" }}>
+          //           <span
+          //             style={{
+          //               marginRight: "10px",
+          //               color: "#222222",
+          //             }}
+          //           >
+          //             Mã vận đơn:
+          //           </span>
+          //           <Typography.Link
+          //             className="text-field"
+          //             style={{
+          //               color: "#2A2A86",
+          //               fontWeight: 500,
+          //               fontSize: 16,
+          //             }}
+          //           >
+          //             {TrackingCode(record)}
+          //           </Typography.Link>
+          //           <div
+          //             style={{
+          //               width: 30,
+          //               padding: "0 4px",
+          //             }}
+          //           >
+          //             <img
+          //               onClick={(e) =>
+          //                 copyOrderID(
+          //                   e,
+          //                   TrackingCode(record)!
+          //                 )
+          //               }
+          //               src={copyFileBtn}
+          //               alt=""
+          //               style={{ width: 23 }}
+          //             />
+          //           </div>
+          //         </Col>
+          //         <Col>
+          //           <span
+          //             style={{
+          //               color: "#000000d9",
+          //               marginRight: 6,
+          //             }}
+          //           ></span>
+          //         </Col>
+          //       </Row>
+          //     }
+          //     key="1"
+          //     className="custom-css-collapse"
+          //   >
+          //     <Collapse
+          //       className="orders-timeline"
+          //       expandIcon={({ isActive }) => (
+          //         <img
+          //           src={doubleArrow}
+          //           alt=""
+          //           style={{
+          //             transform: isActive
+          //               ? "rotate(0deg)"
+          //               : "rotate(270deg)",
+          //             float: "right",
+          //           }}
+          //         />
+          //       )}
+          //       ghost
+          //       defaultActiveKey={["0"]}
+          //     >
+          //       {trackingLogFulfillment?.map((item, index) => (
+          //         <Collapse.Panel
+          //           className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 333" : ""} ${item.status === "failed" ? "hasError" : ""}`}
+          //           header={
+          //             <React.Fragment>
+          //               <b
+          //                 style={{
+          //                   paddingLeft: "14px",
+          //                   color: "#222222",
+          //                 }}
+          //               >
+          //                 {item.shipping_status ? item.shipping_status : item.partner_note}
+          //               </b>
+          //               <i
+          //                 className="icon-dot"
+          //                 style={{
+          //                   fontSize: "4px",
+          //                   margin: "10px 10px 10px 10px",
+          //                   color: "#737373",
+          //                   position: "relative",
+          //                   top: -2,
+          //                 }}
+          //               ></i>{" "}
+          //               <span style={{ color: "#737373" }}>
+          //                 {moment(item.created_date).format(
+          //                   "DD/MM/YYYY HH:mm"
+          //                 )}
+          //               </span>
+          //             </React.Fragment>
+          //           }
+          //           key={index}
+          //           showArrow={false}
+          //         ></Collapse.Panel>
+          //       ))}
+          //     </Collapse>
+          //   </Collapse.Panel>
+          // </Collapse>
+        )
+      }
+      // let html = trackingLogFulfillment?.map((item, index) => (
+      //   <Collapse ghost>
+      //       <Panel
+      //         header={
+      //           <Row>
+      //             <Col style={{ display: "flex", width: "100%", alignItems: "center" }}>
+      //               <span
+      //                 style={{
+      //                   marginRight: "10px",
+      //                   color: "#222222",
+      //                 }}
+      //               >
+      //                 Mã vận đơn:
+      //               </span>
+      //               <Link
+      //                 className="text-field"
+      //                 style={{
+      //                   color: "#2A2A86",
+      //                   fontWeight: 500,
+      //                   fontSize: 16,
+      //                 }}
+      //               >
+      //                 {TrackingCode(props.OrderDetail)}
+      //               </Link>
+      //               <div
+      //                 style={{
+      //                   width: 30,
+      //                   padding: "0 4px",
+      //                 }}
+      //               >
+      //                 <img
+      //                   onClick={(e) =>
+      //                     copyOrderID(
+      //                       e,
+      //                       TrackingCode(props.OrderDetail)!
+      //                     )
+      //                   }
+      //                   src={copyFileBtn}
+      //                   alt=""
+      //                   style={{ width: 23 }}
+      //                 />
+      //               </div>
+      //             </Col>
+      //             <Col>
+      //               <span
+      //                 style={{
+      //                   color: "#000000d9",
+      //                   marginRight: 6,
+      //                 }}
+      //               ></span>
+      //             </Col>
+      //           </Row>
+      //         }
+      //         key="1"
+      //         className="custom-css-collapse"
+      //       >
+      //         <Collapse
+      //           className="orders-timeline"
+      //           expandIcon={({ isActive }) => (
+      //             <img
+      //               src={doubleArrow}
+      //               alt=""
+      //               style={{
+      //                 transform: isActive
+      //                   ? "rotate(0deg)"
+      //                   : "rotate(270deg)",
+      //                 float: "right",
+      //               }}
+      //             />
+      //           )}
+      //           ghost
+      //           defaultActiveKey={["0"]}
+      //         >
+      //           {trackingLogFulfillment?.map((item, index) => (
+      //             <Panel
+      //               className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 333" : ""} ${item.status === "failed" ? "hasError" : ""}`}
+      //               header={
+      //                 <React.Fragment>
+      //                   <b
+      //                     style={{
+      //                       paddingLeft: "14px",
+      //                       color: "#222222",
+      //                     }}
+      //                   >
+      //                     {item.shipping_status ? item.shipping_status : item.partner_note}
+      //                   </b>
+      //                   <i
+      //                     className="icon-dot"
+      //                     style={{
+      //                       fontSize: "4px",
+      //                       margin: "10px 10px 10px 10px",
+      //                       color: "#737373",
+      //                       position: "relative",
+      //                       top: -2,
+      //                     }}
+      //                   ></i>{" "}
+      //                   <span style={{ color: "#737373" }}>
+      //                     {moment(item.created_date).format(
+      //                       "DD/MM/YYYY HH:mm"
+      //                     )}
+      //                   </span>
+      //                 </React.Fragment>
+      //               }
+      //               key={index}
+      //               showArrow={false}
+      //             ></Panel>
+      //           ))}
+      //         </Collapse>
+      //       </Panel>
+      //     </Collapse>
+      //   <Collapse.Panel
+      //     className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 222" : ""} ${item.status === "failed" ? "hasError" : ""}`}
+      //     header={
+      //       <React.Fragment>
+      //         <b
+      //           style={{
+      //             paddingLeft: "14px",
+      //             color: "#222222",
+      //           }}
+      //         >
+      //           {item.shipping_status ? item.shipping_status : item.partner_note}
+      //         </b>
+      //         <i
+      //           className="icon-dot"
+      //           style={{
+      //             fontSize: "4px",
+      //             margin: "10px 10px 10px 10px",
+      //             color: "#737373",
+      //             position: "relative",
+      //             top: -2,
+      //           }}
+      //         ></i>{" "}
+      //         <span style={{ color: "#737373" }}>
+      //           {moment(item.created_date).format(
+      //             "DD/MM/YYYY HH:mm"
+      //           )}
+      //         </span>
+      //       </React.Fragment>
+      //     }
+      //     key={index}
+      //     showArrow={false}
+      //   ></Collapse.Panel>
+      // ));
+      return html
+    }
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
     if(data.items.length === 0) {
@@ -279,11 +595,19 @@ function OrdersTable(props: PropTypes) {
                   </Link>
                 </Tooltip>
               </div>
+              <div style={{ fontSize: "0.86em", marginTop: 5 }}>
+                <Tooltip title="Nguồn">
+                  {i.source}
+                </Tooltip>
+              </div>
               {i.source && (
                 <div style={{ fontSize: "0.86em", marginTop: 5 }}>
-                  <Tooltip title="Nguồn đơn hàng">{i.source}</Tooltip>
+                  <Tooltip title="Nhân viên tạo đơn">{i.assignee}</Tooltip>
                 </div>
               )}
+              <div style={{ fontSize: "0.86em" }}>
+                Tổng SP: {getTotalQuantity(i.items)}
+              </div>
             </React.Fragment>
           );
         },
@@ -447,15 +771,18 @@ function OrdersTable(props: PropTypes) {
           return <React.Fragment>{renderOrderPayments(record)}</React.Fragment>;
         },
         visible: true,
-        align: "left",
+        align: "right",
         width: 120,
       },
       {
         title: "Vận chuyển",
         key: "shipment.type",
         className: "shipmentType",
-        render: (value: string, record: OrderModel) => {
-          const sortedFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id);
+        render: (value: string, record: OrderExtraModel) => {
+          if(!record?.fulfillments) {
+            return "";
+          }
+          const sortedFulfillments = sortFulfillments(record?.fulfillments);
           if (isOrderFromPOS(record)) {
             return (
               <React.Fragment>
@@ -522,10 +849,60 @@ function OrdersTable(props: PropTypes) {
                           {sortedFulfillments[0]?.shipment?.tracking_code ? (
                             <Tooltip title="Mã vận đơn">
                               <div className="single trackingCode">
-                                <FileTextOutlined />
                                 {sortedFulfillments[0]?.shipment?.tracking_code}
                               </div>
                             </Tooltip>
+                          ) : null}
+
+                          {sortedFulfillments[0].code ? (
+                            <div className="single">
+                            {/* <FileTextOutlined  color="red"
+                                      onClick={() => {
+                                        if(!sortedFulfillments[0].code) {
+                                          return;
+                                        }
+                                        setSelectedOrder(record)
+                                        dispatch(
+                                          getTrackingLogFulfillmentAction(
+                                            sortedFulfillments[0].code,
+                                            (data => {
+                                              setTrackingLogFulfillment(data)
+                                              setRerender((prev) => prev+1)
+                                            })
+                                          )
+                                        );
+                                      }} 
+                                    /> */}
+                              {true && (
+                                <Popover
+                                    placement="left"
+                                    content={renderOrderTrackingLog(record)} 
+                                    // visible={isVisiblePopup}
+                                    trigger="click"
+                                  >
+                                    <Tooltip title="Tiến trình giao hàng">
+                                      <img src={IconTrackingCode} alt="" className="trackingCodeImg" onClick={() => {
+                                          // if(!sortedFulfillments[0].code) {
+                                          //   return;
+                                          // }
+                                          console.log('record', record)
+                                          setTypeAPi(type.trackingCode)
+                                          setSelectedOrder(record)
+                                          // dispatch(
+                                          //   getTrackingLogFulfillmentAction(
+                                          //     sortedFulfillments[0].code,
+                                          //     (data => {
+                                          //       setTrackingLogFulfillment(data)
+                                                
+                                          //     })
+                                          //   )
+                                          // );
+                                        }}  />
+                                    </Tooltip>
+                                  </Popover>
+
+                              )}
+                            </div>
                           ) : null}
                         </React.Fragment>
                       )}
@@ -683,11 +1060,34 @@ function OrdersTable(props: PropTypes) {
         dataIndex: "status",
         key: "status",
         className: "orderStatus",
-        render: (value: string, record: OrderModel) => {
+        render: (value: string, record: OrderExtraModel) => {
           if (!record || !status_order) {
             return null;
           }
           const status = status_order.find((status) => status.value === record.status);
+          let recordStatuses = record?.statuses;
+          if(!recordStatuses) {
+            recordStatuses = [];
+          }
+          let selected = record.sub_status_code ? record.sub_status_code : "finished";
+          if(!recordStatuses.some((single) => single.code === selected)) {
+            recordStatuses.push({
+              name: record.sub_status,
+              code: record.sub_status_code,
+            })
+          }
+          let className = "";
+            switch (record.sub_status_code) {
+              case "shipped":
+                className = "shipped";
+                break;
+              case "order_return":
+                className = "order_return";
+                break;
+              default:
+                className = ""
+                break;
+            }
           return (
             <div className="orderStatus">
               <div className="inner">
@@ -695,7 +1095,54 @@ function OrdersTable(props: PropTypes) {
                   <div>
                     <strong>Xử lý đơn: </strong>
                   </div>
+
                   {record.sub_status ? record.sub_status : "-"}
+                  {record.sub_status_code ? (
+                    <Select
+                      style={{width: "100%"}}
+                      placeholder="Chọn trạng thái xử lý đơn"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
+                      notFoundContent="Không tìm thấy trạng thái xử lý đơn"
+                      value = {selected}
+                      onClick={() =>{
+                        setTypeAPi(type.subStatus)
+                        setSelectedOrder(record)
+                      }}
+                      className={className}
+                      onChange={(value) => {
+                        dispatch(
+                          setSubStatusAction(
+                            record.id,
+                            value,
+                            () => {
+                              const index = data.items?.findIndex(single => single.id === record.id);
+                              console.log('index', index)
+                              if(index > -1) {
+                                let dataResult:dataExtra = {...data};
+                                // selected = value;
+                                dataResult.items[index].sub_status_code = value;
+                                dataResult.items[index].sub_status = recordStatuses?.find(single => single.code === value)?.name;
+                                console.log('dataResult', dataResult)
+                                setData(dataResult)
+                              }
+                            }
+                          )
+                        );
+                      }}
+                    >
+                      {recordStatuses &&
+                        recordStatuses.map((single: any, index: number) => {
+                          return (
+                            <Select.Option value={single.code} key={index}>
+                              {single.name}
+                            </Select.Option>
+                          );
+                        })}
+                    </Select>
+                  ) : null}
                 </div>
                 <div className="single">
                   <div>
@@ -722,7 +1169,7 @@ function OrdersTable(props: PropTypes) {
                   {record.status === OrderStatus.FINISHED && (
                     <div
                       style={{
-                        color: "#27AE60",
+                        color: successColor,
                       }}>
                       {status?.name}
                     </div>
@@ -743,7 +1190,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: 120,
+        width: 170,
       },
       {
         title: "Tổng SLSP",
@@ -917,10 +1364,16 @@ function OrdersTable(props: PropTypes) {
     );
   };
 
-  const getTotalQuantity = () => {
+  const getTotalQuantityPerPage = () => {
     let result = 0;
     data.items.forEach((item) => {
-      result = result + item.total_quantity;
+      let eachItemQuantity = 0;
+      item.items.forEach(single => {
+        if(isNormalTypeVariantItem(single)) {
+          eachItemQuantity = eachItemQuantity + single.quantity;
+        }
+      })
+      result = result + eachItemQuantity;
     });
     return result;
   };
@@ -984,7 +1437,7 @@ function OrdersTable(props: PropTypes) {
                   <p className="text-field">TỔNG SỐ LƯỢNG SẢN PHẨM:</p>
                 </Col>
                 <Col span={14}>
-                  <b className="text-field">{formatCurrency(getTotalQuantity())}</b>
+                  <b className="text-field">{formatCurrency(getTotalQuantityPerPage())}</b>
                 </Col>
               </Row>
             </Col>
@@ -1047,6 +1500,116 @@ function OrdersTable(props: PropTypes) {
       setColumns(initColumns);
     }
   }, [columns, initColumns, setColumns]);
+
+  useEffect(() => {
+    if(!data?.items) {
+      return;
+    }
+    if(typeAPi === type.trackingCode) {
+      console.log('selectedOrder', selectedOrder)
+      if(selectedOrder && selectedOrder.fulfillments) {
+        const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments)
+        console.log('sortedFulfillments[0].code', sortedFulfillments[0].code)
+        if(!sortedFulfillments[0].code) {
+          return;
+        }
+        dispatch(
+          getTrackingLogFulfillmentAction(
+            sortedFulfillments[0].code,
+            (response => {
+              // setIsVisiblePopup(true)
+              const index = data.items?.findIndex(single => single.id === selectedOrder.id);
+              console.log('index', index)
+              if(index > -1) {
+                let dataResult:dataExtra = {...data};
+                dataResult.items[index].trackingLog = response;
+                dataResult.items[index].isShowTrackingLog = true;
+                console.log('dataResult', dataResult)
+                setData(dataResult)
+              }
+            })
+          )
+        );
+  
+      }
+
+    } else if (typeAPi === type.subStatus) {
+      if(selectedOrder) {
+        const orderId = selectedOrder.id;
+        const statusCode = selectedOrder.status;
+        if(!statusCode) {
+          return;
+        }
+        if (orderId) {
+          dispatch(
+            getListSubStatusAction(
+              statusCode,
+              (response) => {
+                const index = data.items?.findIndex(single => single.id === selectedOrder.id);
+                console.log('index', index)
+                if(index > -1) {
+                  let dataResult:dataExtra = {...data};
+                  dataResult.items[index].statuses = response.filter(status => status.code !== selectedOrder.sub_status_code).map((single => {
+                    return {
+                      name: single.sub_status,
+                      code: single.code,
+                    }
+                  }));
+                  console.log('dataResult', dataResult)
+                  setData(dataResult)
+                }
+                // setValueSubStatusCode(sub_status_code);
+                // handleUpdateSubStatus();
+                // setReload(true);
+                // setIsShowReason(false);
+                // setSubReasonRequireWarehouseChange(undefined);
+              },
+              // undefined,
+              // reasonId,
+              // subReasonRequireWarehouseChange,
+            )
+          );
+        }
+      }
+    } else if(typeAPi === type.setSubStatus) {
+      // if(selectedOrder) {
+      //   const orderId = selectedOrder.id;
+      //   const sub_status_code = selectedOrder.sub_status_code || "finished";
+      //   if (orderId) {
+      //     dispatch(
+      //       getListSubStatusAction(
+      //         sub_status_code,
+      //         (response) => {
+      //           const index = data.items?.findIndex(single => single.id === selectedOrder.id);
+      //           console.log('index', index)
+      //           if(index > -1) {
+      //             let dataResult:dataExtra = {...data};
+      //             dataResult.items[index].statuses = response.map((single => {
+      //               return {
+      //                 name: single.sub_status,
+      //                 code: single.code,
+      //               }
+      //             }));
+      //             console.log('dataResult', dataResult)
+      //             setData(dataResult)
+      //           }
+      //           // setValueSubStatusCode(sub_status_code);
+      //           // handleUpdateSubStatus();
+      //           // setReload(true);
+      //           // setIsShowReason(false);
+      //           // setSubReasonRequireWarehouseChange(undefined);
+      //         },
+      //         // undefined,
+      //         // reasonId,
+      //         // subReasonRequireWarehouseChange,
+      //       )
+      //     );
+      //   }
+      // }
+    }
+    //xóa data
+  }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi])
+  
 
   return (
     <StyledComponent>

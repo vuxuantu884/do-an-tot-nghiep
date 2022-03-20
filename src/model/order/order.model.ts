@@ -1,5 +1,5 @@
 import { BaseObject } from "model/base/base.response";
-import { BillingAddress, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress } from "model/response/order/order.response";
+import { BillingAddress, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 
 export interface OrderItemModel {
   product_id: number;
@@ -270,4 +270,14 @@ export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
   district:string,
   city:string,
   country:string
+}
+
+export interface OrderExtraModel extends OrderModel {
+  trackingLog?: Array<TrackingLogFulfillmentResponse> | null;
+  isShowTrackingLog?: boolean;
+  statuses?: {
+    name?: string;
+    code?: string;
+  }[];
+  subStatus?: string;
 }

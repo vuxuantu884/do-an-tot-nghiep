@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor} from "utils/global-styles/variables";
+import {borderColor, successColor} from "utils/global-styles/variables";
 export const nameQuantityWidth = 290;
 const quantityWidth = 50;
 const massWidth = 100;
@@ -135,6 +135,7 @@ export const StyledComponent = styled.div`
 		.amount {
 			position: relative;
 			top: 1px;
+      font-weight: 500;
 		}
 	}
 	.notes {
@@ -222,9 +223,28 @@ export const StyledComponent = styled.div`
     }
     .trackingCode {
       word-break: break-all ;
-      span[role="img"] {
-        margin-right: 5px;
+    }
+    .trackingCodeImg {
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .ant-select {
+      &.shipped {
+        .ant-select-selector {
+          color: #fff;
+          background: ${successColor} !important;
+        }
       }
+      &.order_return {
+        .ant-select-selector {
+          color: #fff;
+          background: #106227 !important;
+        }
+      }
+    }
+    .orderTotalPaymentAmount {
+      color: ${successColor};
+      font-weight: 500;
     }
   }
 `;
