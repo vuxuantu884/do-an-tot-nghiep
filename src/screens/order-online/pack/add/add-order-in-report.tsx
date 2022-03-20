@@ -71,7 +71,8 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           let orderListResponseCopy = [...orderListResponse];
           console.log("orderListResponseCopy1", orderListResponseCopy)
           isOrderPack.forEach((value) => {
-            let indexOrder = orderListResponseCopy.findIndex((p) => p.code);
+            console.log(value);
+            let indexOrder = orderListResponseCopy.findIndex((p) => p.code === value);
             if (indexOrder !== -1) orderListResponseCopy.splice(indexOrder, 1);
           })
           console.log("orderListResponseCopy2", orderListResponseCopy)
@@ -91,48 +92,53 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     if (orderListResponse.length > 0) {
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
       orderListResponse.forEach(function (order, index) {
-        let product: VariantModel[] = [];
-        let ship_price = 0;
-        let total_price = 0;
-        order.fulfillments.forEach(function (fulfillment) {
-          if (fulfillment.status === 'packed') {
-            ship_price =
-              ship_price +
-              (fulfillment?.shipment?.shipping_fee_informed_to_customer
-                ? fulfillment.shipment.shipping_fee_informed_to_customer
-                : 0);
-            total_price = total_price + (fulfillment.total ? fulfillment.total : 0);
+        let fulfillmentPacked = order.fulfillments.filter((value) => value.status === 'packed');
+        console.log('fulfillmentPacked', fulfillmentPacked)
+        if (fulfillmentPacked.length > 0) {
+          let product: VariantModel[] = [];
+          let ship_price = 0;
+          let total_price = 0;
+          fulfillmentPacked.forEach(function (fulfillment) {
+            if (fulfillment.status === 'packed') {
+              ship_price =
+                ship_price +
+                (fulfillment?.shipment?.shipping_fee_informed_to_customer
+                  ? fulfillment.shipment.shipping_fee_informed_to_customer
+                  : 0);
+              total_price = total_price + (fulfillment.total ? fulfillment.total : 0);
 
-            fulfillment.items.forEach(function (itemProduct) {
-              product.push({
-                sku: itemProduct.sku,
-                product_id: itemProduct.product_id,
-                product: itemProduct.product,
-                variant_id: itemProduct.variant_id,
-                variant: itemProduct.variant,
-                variant_barcode: itemProduct.variant_barcode,
-                quantity: itemProduct.quantity,
-                price: itemProduct.price
+              fulfillment.items.forEach(function (itemProduct) {
+                product.push({
+                  sku: itemProduct.sku,
+                  product_id: itemProduct.product_id,
+                  product: itemProduct.product,
+                  variant_id: itemProduct.variant_id,
+                  variant: itemProduct.variant,
+                  variant_barcode: itemProduct.variant_barcode,
+                  quantity: itemProduct.quantity,
+                  price: itemProduct.price
+                });
               });
-            });
-          }
+            }
 
-        });
+          });
 
-        let resultItem: GoodsReceiptsInfoOrderModel = {
-          key: index,
-          order_id: order.id ? order.id : 0,
-          order_code: order.code ? order.code : "",
-          customer_id: 1,
-          customer_name: order.customer ? order.customer : "",
-          customer_phone: "",
-          customer_address: "api chua tra ra du lieu",
-          product: product,
-          ship_price: ship_price,
-          total_price: total_price,
-        };
+          let resultItem: GoodsReceiptsInfoOrderModel = {
+            key: index,
+            order_id: order.id ? order.id : 0,
+            order_code: order.code ? order.code : "",
+            customer_id: 1,
+            customer_name: order.customer ? order.customer : "",
+            customer_phone: "",
+            customer_address: "api chua tra ra du lieu",
+            product: product,
+            ship_price: ship_price,
+            total_price: total_price,
+          };
 
-        result.push(resultItem);
+          result.push(resultItem);
+        }
+
       });
       setPackOrderProductList(result);
     }
