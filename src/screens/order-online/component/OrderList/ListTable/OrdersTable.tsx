@@ -1073,6 +1073,7 @@ function OrdersTable(props: PropTypes) {
         rowKey={(item: OrderModel) => item.id}
         className="order-list"
         footer={() => renderFooter()}
+        isShowPaginationAtHeader
       />
     </StyledComponent>
   );
