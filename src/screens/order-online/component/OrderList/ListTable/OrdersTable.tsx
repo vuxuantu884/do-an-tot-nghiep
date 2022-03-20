@@ -1,20 +1,34 @@
-import { Button, Col, Row, Tooltip } from "antd";
+import { Button, Col, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { updateOrderPartial } from "domain/actions/order/order.action";
+import {
+  getListSubStatusAction,
+  getTrackingLogFulfillmentAction,
+  setSubStatusAction,
+  updateOrderPartial,
+} from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel } from "model/order/order.model";
+import { OrderExtraModel, OrderModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
+  OrderPaymentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { ReactNode, useCallback, useEffect, useMemo } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { formatCurrency, isOrderFromPOS } from "utils/AppUtils";
+import {
+  copyTextToClipboard,
+  formatCurrency,
+  getOrderTotalPaymentAmount,
+  getTotalQuantity,
+  isNormalTypeVariantItem,
+  isOrderFromPOS,
+  sortFulfillments,
+} from "utils/AppUtils";
 import {
   COD,
   FACEBOOK,
@@ -25,11 +39,16 @@ import {
   ShipmentMethod,
   SHOPEE,
 } from "utils/Constants";
+import xCloseBtn from "assets/icon/X_close.svg";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
+import { showSuccess } from "utils/ToastUtils";
 import EditNote from "../../edit-note";
+import TrackingLog from "../../TrackingLog/TrackingLog";
+import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
+import IconTrackingCode from "./images/iconTrackingCode.svg";
 import iconWeight from "./images/iconWeight.svg";
 import IconPaymentBank from "./images/paymentBank.svg";
 import IconPaymentCard from "./images/paymentCard.svg";
@@ -38,25 +57,24 @@ import IconPaymentCash from "./images/paymentMoney.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
-import IconFacebook from "./images/facebook.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
-import { FileTextOutlined } from "@ant-design/icons";
 
 type PropTypes = {
   tableLoading: boolean;
   data: PageResponse<OrderModel>;
   columns: ICustomTableColumType<OrderModel>[];
   deliveryServices: DeliveryServiceResponse[];
-  selectedRowKeys:number[];
+  selectedRowKeys: number[];
   setColumns: (columns: ICustomTableColumType<OrderModel>[]) => void;
   setData: (data: PageResponse<OrderModel>) => void;
   onPageChange: (page: any, size: any) => void;
   onSelectedChange: (selectedRows: any[], selected?: boolean, changeRow?: any[]) => void;
   setShowSettingColumn: (value: boolean) => void;
-  onFilterPhoneCustomer:(value:string)=>void;
+  onFilterPhoneCustomer: (value: string) => void;
 };
+
+type dataExtra = PageResponse<OrderExtraModel>;
 
 function OrdersTable(props: PropTypes) {
   const {
@@ -70,13 +88,27 @@ function OrdersTable(props: PropTypes) {
     setShowSettingColumn,
     setColumns,
     setData,
-    onFilterPhoneCustomer
+    onFilterPhoneCustomer,
   } = props;
 
   const dispatch = useDispatch();
   const status_order = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status
   );
+
+  const type = {
+    trackingCode: "trackingCode",
+    subStatus: "subStatus",
+    setSubStatus: "setSubStatus",
+  };
+  const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
+
+  const [typeAPi, setTypeAPi] = useState("");
+
+  // const [isVisiblePopup, setIsVisiblePopup] =
+  // useState(false);
+
+  // console.log('isVisiblePopup', isVisiblePopup)
 
   const paymentIcons = [
     {
@@ -183,13 +215,22 @@ function OrdersTable(props: PropTypes) {
     return html;
   };
 
+  const renderOrderTotalPayment = (payments: OrderPaymentResponse[]) => {
+    return (
+      <div className="orderTotalPaymentAmount">
+        <Tooltip title="Tổng tiền thanh toán">
+          {formatCurrency(getOrderTotalPaymentAmount(payments))}
+        </Tooltip>
+      </div>
+    );
+  };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
     let html = null;
     html = orderDetail.payments.map((payment) => {
-      if (!payment.amount) {
-        return null;
-      }
+      // if (!payment.amount) {
+      //   return null;
+      // }
       let selectedPayment = paymentIcons.find(
         (single) => single.payment_method_code === payment.payment_method_code
       );
@@ -216,24 +257,8 @@ function OrdersTable(props: PropTypes) {
     (orderDetail: OrderModel) => {
       return (
         <React.Fragment>
+          {renderOrderTotalPayment(orderDetail.payments)}
           {renderOrderPaymentMethods(orderDetail)}
-          {/* {orderDetail.total_discount ? (
-						<Tooltip title="Chiết khấu đơn hàng">
-							<div className="totalDiscount" style={{ color: dangerColor }}>
-								<span>
-									{" "}
-									-
-									<NumberFormat
-										value={orderDetail.total_discount}
-										className="foo"
-										displayType={"text"}
-										thousandSeparator={true}
-									/>
-								</span>
-							</div>
-						</Tooltip>
-
-					) : null} */}
         </React.Fragment>
       );
     },
@@ -242,21 +267,103 @@ function OrdersTable(props: PropTypes) {
 
   const renderShippingAddress = (orderDetail: OrderModel) => {
     let result = "";
-		let shippingAddress = orderDetail?.shipping_address;
-		if(!shippingAddress) {
-			return "";
-		}
-    const addressArr = [shippingAddress.name, shippingAddress.phone, shippingAddress.full_address, shippingAddress.ward, shippingAddress.district, shippingAddress.city];
-    const addressArrResult = addressArr.filter(address => address);
-    if(addressArrResult.length > 0) {
-      result = addressArrResult.join(" -- ")
+    let shippingAddress = orderDetail?.shipping_address;
+    if (!shippingAddress) {
+      return "";
+    }
+    const addressArr = [
+      shippingAddress.name,
+      shippingAddress.phone,
+      shippingAddress.full_address,
+      shippingAddress.ward,
+      shippingAddress.district,
+      shippingAddress.city,
+    ];
+    const addressArrResult = addressArr.filter((address) => address);
+    if (addressArrResult.length > 0) {
+      result = addressArrResult.join(" -- ");
     }
     return <React.Fragment>{result}</React.Fragment>;
   };
 
+  const handleDelete = (index:number) => {
+
+  };
+
+  const renderTag = (record: OrderModel) => {
+    let html = null;
+    if (record?.tags) {
+      const tagsArr = record?.tags.split(",");
+      if (tagsArr.length > 0) {
+        html = tagsArr.map((tag, index) => (
+          <div key={index}>
+            <span className="textSmall">{tag}</span>
+            <img alt="" onClick={() => handleDelete(index)} src={xCloseBtn}></img>
+          </div>
+        ))
+      }
+    }
+    return html
+  };
+
+  const renderTrackingCode = (trackingCode?: string) => {
+    if (!trackingCode) {
+      return null;
+    }
+    let html: string | null = null;
+    let stringReverse = trackingCode.split("").reverse().join("");
+    const dot = ".";
+    const index = stringReverse.indexOf(dot);
+    console.log("index", index);
+    console.log("stringReverse", stringReverse);
+    if (index > 0) {
+      html = stringReverse.substring(0, index).split("").reverse().join("");
+    } else {
+      html = trackingCode;
+    }
+    return (
+      <span
+        onClick={(e) => {
+          if (html) {
+            copyTextToClipboard(e, html);
+            showSuccess("Đã copy mã vận đơn!");
+          }
+        }}>
+        {html}
+      </span>
+    );
+  };
+
+  const renderOrderTrackingLog = (record: OrderExtraModel) => {
+    // let html: ReactNode= "aaaaaaaaaa";
+    // if(!trackingLogFulfillment) {
+    //   return html;
+    // }
+    if (!record?.fulfillments || !record.isShowTrackingLog) {
+      return;
+    }
+    const trackingLogFulfillment = record?.trackingLog;
+    const sortedFulfillments = sortFulfillments(record?.fulfillments);
+    const trackingCode = sortedFulfillments[0]?.shipment?.tracking_code;
+    if (!trackingCode) {
+      return " Không có mã vận đơn!";
+    }
+    if (!trackingLogFulfillment) {
+      return " Không có log tiến trình đơn hàng!";
+    }
+    let html = null;
+    console.log("trackingLogFulfillment333", trackingLogFulfillment);
+    if (trackingLogFulfillment) {
+      html = (
+        <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
+      );
+    }
+    return html;
+  };
+
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
-    if(data.items.length === 0) {
-      return []
+    if (data.items.length === 0) {
+      return [];
     }
     return [
       {
@@ -269,34 +376,55 @@ function OrdersTable(props: PropTypes) {
               <Link target="_blank" to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
                 {value}
               </Link>
-              <div style={{ fontSize: "0.86em" }}>
-                {moment(i.created_date).format(DATE_FORMAT.fullDate)}
-              </div>
-              <div style={{ fontSize: "0.86em", marginTop: 5 }}>
+              <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
+              <div className="textSmall">
                 <Tooltip title="Cửa hàng">
                   <Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
                     {i.store}
                   </Link>
                 </Tooltip>
               </div>
+              <div className="textSmall single">
+                <Tooltip title="Nguồn">{i.source}</Tooltip>
+              </div>
               {i.source && (
-                <div style={{ fontSize: "0.86em", marginTop: 5 }}>
-                  <Tooltip title="Nguồn đơn hàng">{i.source}</Tooltip>
+                <div className="textSmall single">
+                  <Tooltip title="Nhân viên tạo đơn">{i.assignee}</Tooltip>
                 </div>
               )}
+              <div className="textSmall single">
+                <strong>Tổng SP: {getTotalQuantity(i.items)}</strong>
+              </div>
             </React.Fragment>
           );
         },
         visible: true,
         fixed: "left",
-        className: "custom-shadow-td",
-        width: 115,
+        className: "orderId custom-shadow-td",
+        width: 110,
       },
       {
         title: "Khách hàng",
         render: (record: OrderModel) => (
           <div className="customer custom-td">
-            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+            {record.customer_phone_number && (
+              <div style={{ color: "#2A2A86" }}>
+                <Button
+                  style={{ padding: "0px", fontWeight: 500 }}
+                  type="link"
+                  onClick={() =>
+                    onFilterPhoneCustomer(
+                      record.customer_phone_number ? record.customer_phone_number : ""
+                    )
+                  }>
+                  {record.customer_phone_number}
+                </Button>
+                {/* <Button  type="link" onClick={()=>{
+                    onFilterPhoneCustomer(record.customer_phone_number)
+                  }}>{record.customer_phone_number}</Button> */}
+              </div>
+            )}
+            <div className="name" style={{ color: "#2A2A86" }}>
               <Link
                 target="_blank"
                 to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
@@ -306,22 +434,17 @@ function OrdersTable(props: PropTypes) {
             </div>
             {/* <div className="p-b-3">{record.shipping_address.phone}</div>
 						<div className="p-b-3">{record.shipping_address.full_address}</div> */}
-            {record.customer_phone_number && (
-              <div className="p-b-3" style={{ color: "#2A2A86"}}>
-                 <Button style={{padding: "0px",fontWeight:500 }} type="link" onClick={()=> onFilterPhoneCustomer(record.customer_phone_number?record.customer_phone_number:"")}>
-                   {record.customer_phone_number}
-                  </Button>
-                {/* <Button  type="link" onClick={()=>{
-                  onFilterPhoneCustomer(record.customer_phone_number)
-                }}>{record.customer_phone_number}</Button> */}
+            <div className="textSmall">{renderShippingAddress(record)}</div>
+            {record?.tags?.length && record?.tags?.length > 0 ? (
+              <div className="customTags">
+                {renderTag(record)}
               </div>
-            )}
-            <div className="p-b-3">{renderShippingAddress(record)}</div>
+            ) : null}
           </div>
         ),
         key: "customer",
         visible: true,
-        width: 130,
+        width: 140,
       },
       {
         title: (
@@ -358,7 +481,7 @@ function OrdersTable(props: PropTypes) {
                           {item.sku}
                         </Link>
                         <br />
-                        <div className="productNameText" title={item.variant}>
+                        <div className="productNameText textSmall" title={item.variant}>
                           {item.variant}
                         </div>
                       </div>
@@ -437,7 +560,7 @@ function OrdersTable(props: PropTypes) {
         key: "customer.amount_money",
         visible: true,
         align: "right",
-        width: 100,
+        width: 90,
       },
       {
         title: "Thanh toán",
@@ -447,15 +570,18 @@ function OrdersTable(props: PropTypes) {
           return <React.Fragment>{renderOrderPayments(record)}</React.Fragment>;
         },
         visible: true,
-        align: "left",
-        width: 120,
+        align: "right",
+        width: 90,
       },
       {
         title: "Vận chuyển",
         key: "shipment.type",
         className: "shipmentType",
-        render: (value: string, record: OrderModel) => {
-          const sortedFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id);
+        render: (value: string, record: OrderExtraModel) => {
+          if (!record?.fulfillments) {
+            return "";
+          }
+          const sortedFulfillments = sortFulfillments(record?.fulfillments);
           if (isOrderFromPOS(record)) {
             return (
               <React.Fragment>
@@ -522,10 +648,75 @@ function OrdersTable(props: PropTypes) {
                           {sortedFulfillments[0]?.shipment?.tracking_code ? (
                             <Tooltip title="Mã vận đơn">
                               <div className="single trackingCode">
-                                <FileTextOutlined />
-                                {sortedFulfillments[0]?.shipment?.tracking_code}
+                                {/* <div
+                                  onClick={(e) => {
+                                    if (sortedFulfillments[0]?.shipment?.tracking_code) {
+                                      copyTextToClipboard(
+                                        e,
+                                        sortedFulfillments[0]?.shipment?.tracking_code
+                                      );
+                                      showSuccess("Đã copy mã vận đơn!")
+                                    }
+                                  }}>
+                                  {sortedFulfillments[0]?.shipment?.tracking_code}
+                                </div> */}
+                                {renderTrackingCode(sortedFulfillments[0]?.shipment?.tracking_code)}
                               </div>
                             </Tooltip>
+                          ) : null}
+
+                          {sortedFulfillments[0].code ? (
+                            <div className="single">
+                              {/* <FileTextOutlined  color="red"
+                                      onClick={() => {
+                                        if(!sortedFulfillments[0].code) {
+                                          return;
+                                        }
+                                        setSelectedOrder(record)
+                                        dispatch(
+                                          getTrackingLogFulfillmentAction(
+                                            sortedFulfillments[0].code,
+                                            (data => {
+                                              setTrackingLogFulfillment(data)
+                                              setRerender((prev) => prev+1)
+                                            })
+                                          )
+                                        );
+                                      }} 
+                                    /> */}
+                              {true && (
+                                <Popover
+                                  placement="left"
+                                  content={renderOrderTrackingLog(record)}
+                                  // visible={isVisiblePopup}
+                                  trigger="click">
+                                  <Tooltip title="Tiến trình giao hàng">
+                                    <img
+                                      src={IconTrackingCode}
+                                      alt=""
+                                      className="trackingCodeImg"
+                                      onClick={() => {
+                                        // if(!sortedFulfillments[0].code) {
+                                        //   return;
+                                        // }
+                                        console.log("record", record);
+                                        setTypeAPi(type.trackingCode);
+                                        setSelectedOrder(record);
+                                        // dispatch(
+                                        //   getTrackingLogFulfillmentAction(
+                                        //     sortedFulfillments[0].code,
+                                        //     (data => {
+                                        //       setTrackingLogFulfillment(data)
+
+                                        //     })
+                                        //   )
+                                        // );
+                                      }}
+                                    />
+                                  </Tooltip>
+                                </Popover>
+                              )}
+                            </div>
                           ) : null}
                         </React.Fragment>
                       )}
@@ -556,7 +747,8 @@ function OrdersTable(props: PropTypes) {
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
                             {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0
+                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
+                                0
                             )}
                           </span>
                         </div>
@@ -592,7 +784,8 @@ function OrdersTable(props: PropTypes) {
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
                             {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0
+                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
+                                0
                             )}
                           </span>
                         </div>
@@ -623,7 +816,8 @@ function OrdersTable(props: PropTypes) {
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
                             {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0
+                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
+                                0
                             )}
                           </span>
                         </div>
@@ -675,7 +869,7 @@ function OrdersTable(props: PropTypes) {
           return "";
         },
         visible: true,
-        width: 110,
+        width: 140,
         align: "left",
       },
       {
@@ -683,11 +877,23 @@ function OrdersTable(props: PropTypes) {
         dataIndex: "status",
         key: "status",
         className: "orderStatus",
-        render: (value: string, record: OrderModel) => {
+        render: (value: string, record: OrderExtraModel) => {
           if (!record || !status_order) {
             return null;
           }
           const status = status_order.find((status) => status.value === record.status);
+          let recordStatuses = record?.statuses;
+          if (!recordStatuses) {
+            recordStatuses = [];
+          }
+          let selected = record.sub_status_code ? record.sub_status_code : "finished";
+          if (!recordStatuses.some((single) => single.code === selected)) {
+            recordStatuses.push({
+              name: record.sub_status,
+              code: record.sub_status_code,
+            });
+          }
+          let className = record.sub_status_code || "";
           return (
             <div className="orderStatus">
               <div className="inner">
@@ -695,7 +901,53 @@ function OrdersTable(props: PropTypes) {
                   <div>
                     <strong>Xử lý đơn: </strong>
                   </div>
-                  {record.sub_status ? record.sub_status : "-"}
+
+                  {/* {record.sub_status ? record.sub_status : "-"} */}
+                  {record.sub_status_code ? (
+                    <Select
+                      style={{ width: "100%" }}
+                      placeholder="Chọn trạng thái xử lý đơn"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
+                      notFoundContent="Không tìm thấy trạng thái xử lý đơn"
+                      value={selected}
+                      onClick={() => {
+                        setTypeAPi(type.subStatus);
+                        setSelectedOrder(record);
+                      }}
+                      className={className}
+                      onChange={(value) => {
+                        dispatch(
+                          setSubStatusAction(record.id, value, () => {
+                            const index = data.items?.findIndex(
+                              (single) => single.id === record.id
+                            );
+                            console.log("index", index);
+                            if (index > -1) {
+                              let dataResult: dataExtra = { ...data };
+                              // selected = value;
+                              dataResult.items[index].sub_status_code = value;
+                              dataResult.items[index].sub_status = recordStatuses?.find(
+                                (single) => single.code === value
+                              )?.name;
+                              console.log("dataResult", dataResult);
+                              setData(dataResult);
+                            }
+                          })
+                        );
+                      }}>
+                      {recordStatuses &&
+                        recordStatuses.map((single: any, index: number) => {
+                          return (
+                            <Select.Option value={single.code} key={index}>
+                              {single.name}
+                            </Select.Option>
+                          );
+                        })}
+                    </Select>
+                  ) : "-"}
                 </div>
                 <div className="single">
                   <div>
@@ -722,7 +974,7 @@ function OrdersTable(props: PropTypes) {
                   {record.status === OrderStatus.FINISHED && (
                     <div
                       style={{
-                        color: "#27AE60",
+                        color: successColor,
                       }}>
                       {status?.name}
                     </div>
@@ -743,15 +995,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: 120,
-      },
-      {
-        title: "Tổng SLSP",
-        dataIndex: "total_quantity",
-        key: "total_quantity",
-        visible: true,
-        align: "center",
-        width: 80,
+        width: 145,
       },
       {
         title: "Ghi chú",
@@ -787,7 +1031,7 @@ function OrdersTable(props: PropTypes) {
         key: "note",
         visible: true,
         align: "left",
-        width: 150,
+        width: 170,
       },
       {
         title: "NV bán hàng",
@@ -819,16 +1063,14 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt_id",
         align: "center",
         render: (value, record: OrderModel) => {
-          if(value) {
+          if (value) {
             return (
-              (
-                <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
-                  {value}
-                </Link>
-              )
-            )
+              <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
+                {value}
+              </Link>
+            );
           } else {
-            return "-"
+            return "-";
           }
         },
         visible: true,
@@ -849,30 +1091,6 @@ function OrdersTable(props: PropTypes) {
         render: (value) => null,
         visible: true,
         width: 190,
-      },
-      {
-        title: "Tag",
-        dataIndex: "tags",
-        render: (values, record: OrderModel) => {
-          let result: React.ReactNode = null;
-          if (record?.tags) {
-            const listTags = record?.tags.split(",");
-            if (listTags && listTags.length > 0) {
-              result = (
-                <ul>
-                  {listTags.map((tag, index) => {
-                    return <li key={index}>{tag}</li>;
-                  })}
-                </ul>
-              );
-            }
-          }
-          return result;
-        },
-        key: "tags",
-        visible: true,
-        align: "left",
-        width: 120,
       },
       {
         title: "Mã tham chiếu",
@@ -898,7 +1116,7 @@ function OrdersTable(props: PropTypes) {
         width: 120,
       },
     ];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.items.length, deliveryServices, editNote, status_order]);
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
@@ -917,10 +1135,16 @@ function OrdersTable(props: PropTypes) {
     );
   };
 
-  const getTotalQuantity = () => {
+  const getTotalQuantityPerPage = () => {
     let result = 0;
     data.items.forEach((item) => {
-      result = result + item.total_quantity;
+      let eachItemQuantity = 0;
+      item.items.forEach((single) => {
+        if (isNormalTypeVariantItem(single)) {
+          eachItemQuantity = eachItemQuantity + single.quantity;
+        }
+      });
+      result = result + eachItemQuantity;
     });
     return result;
   };
@@ -961,7 +1185,7 @@ function OrdersTable(props: PropTypes) {
     return result;
   };
 
-	const getTotalShippingPay3PL = () => {
+  const getTotalShippingPay3PL = () => {
     let result = 0;
     data.items.forEach((item) => {
       const sortedFulfillments = item.fulfillments?.sort((a: any, b: any) => b.id - a.id);
@@ -974,7 +1198,7 @@ function OrdersTable(props: PropTypes) {
 
   const renderFooter = () => {
     let html: ReactNode = null;
-    if(data?.items.length > 0) {
+    if (data?.items.length > 0) {
       html = (
         <div className="tableFooter">
           <Row>
@@ -984,7 +1208,7 @@ function OrdersTable(props: PropTypes) {
                   <p className="text-field">TỔNG SỐ LƯỢNG SẢN PHẨM:</p>
                 </Col>
                 <Col span={14}>
-                  <b className="text-field">{formatCurrency(getTotalQuantity())}</b>
+                  <b className="text-field">{formatCurrency(getTotalQuantityPerPage())}</b>
                 </Col>
               </Row>
             </Col>
@@ -1019,7 +1243,11 @@ function OrdersTable(props: PropTypes) {
                   <div>
                     <b className="text-field hasIcon">
                       <Tooltip title="Tổng phí ship báo khách">
-                        <img src={iconShippingFeeInformedToCustomer} alt="" className="iconShippingFeeInformedToCustomer"/>
+                        <img
+                          src={iconShippingFeeInformedToCustomer}
+                          alt=""
+                          className="iconShippingFeeInformedToCustomer"
+                        />
                         {formatCurrency(getTotalShippingFeeInformedToCustomer())}
                       </Tooltip>
                     </b>
@@ -1048,6 +1276,67 @@ function OrdersTable(props: PropTypes) {
     }
   }, [columns, initColumns, setColumns]);
 
+  useEffect(() => {
+    if (!data?.items) {
+      return;
+    }
+    if (typeAPi === type.trackingCode) {
+      console.log("selectedOrder", selectedOrder);
+      if (selectedOrder && selectedOrder.fulfillments) {
+        const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments);
+        console.log("sortedFulfillments[0].code", sortedFulfillments[0].code);
+        if (!sortedFulfillments[0].code) {
+          return;
+        }
+        dispatch(
+          getTrackingLogFulfillmentAction(sortedFulfillments[0].code, (response) => {
+            // setIsVisiblePopup(true)
+            const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
+            console.log("index", index);
+            if (index > -1) {
+              let dataResult: dataExtra = { ...data };
+              dataResult.items[index].trackingLog = response;
+              dataResult.items[index].isShowTrackingLog = true;
+              console.log("dataResult", dataResult);
+              setData(dataResult);
+            }
+          })
+        );
+      }
+    } else if (typeAPi === type.subStatus) {
+      if (selectedOrder) {
+        const orderId = selectedOrder.id;
+        const statusCode = selectedOrder.status;
+        if (!statusCode) {
+          return;
+        }
+        if (orderId) {
+          dispatch(
+            getListSubStatusAction(statusCode, (response) => {
+              const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
+              console.log("index", index);
+              if (index > -1) {
+                let dataResult: dataExtra = { ...data };
+                dataResult.items[index].statuses = response
+                  .filter((status) => status.code !== selectedOrder.sub_status_code)
+                  .map((single) => {
+                    return {
+                      name: single.sub_status,
+                      code: single.code,
+                    };
+                  });
+                console.log("dataResult", dataResult);
+                setData(dataResult);
+              }
+            })
+          );
+        }
+      }
+    } else if (typeAPi === type.setSubStatus) {
+    }
+    //xóa data
+  }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
+
   return (
     <StyledComponent>
       <CustomTable
@@ -1065,7 +1354,9 @@ function OrdersTable(props: PropTypes) {
           onShowSizeChange: onPageChange,
         }}
         rowSelectionRenderCell={rowSelectionRenderCell}
-        onSelectedChange={(selectedRows: any[], selected?: boolean, changeRow?: any[]) => onSelectedChange(selectedRows, selected, changeRow)}
+        onSelectedChange={(selectedRows: any[], selected?: boolean, changeRow?: any[]) =>
+          onSelectedChange(selectedRows, selected, changeRow)
+        }
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}

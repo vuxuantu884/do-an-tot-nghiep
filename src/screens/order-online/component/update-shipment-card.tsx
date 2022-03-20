@@ -1434,7 +1434,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 																>
 																	{trackingLogFulfillment?.map((item, index) => (
 																		<Panel
-																			className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline" : ""} ${item.status === "failed" ? "hasError" : ""}`}
+																			className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 333" : ""} ${item.status === "failed" ? "hasError" : ""}`}
 																			header={
 																				<React.Fragment>
 																					<b

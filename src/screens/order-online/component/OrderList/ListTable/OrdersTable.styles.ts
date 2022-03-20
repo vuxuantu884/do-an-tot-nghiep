@@ -1,15 +1,16 @@
 import styled from "styled-components";
-import {borderColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 290;
-const quantityWidth = 50;
+import {borderColor, primaryColor, successColor} from "utils/global-styles/variables";
+export const nameQuantityWidth = 300;
+const quantityWidth = 45;
 const massWidth = 100;
-const priceWidth = 100;
+const priceWidth = 90;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`
   th {
-    text-align: center !important;
-		padding: 12px 5px !important;
+    /* text-align: center !important; */
+		padding-top: 12px !important;
+		padding-bottom: 12px !important;
 		justify-content: center !important;
 		.separator {
 			display: none;
@@ -125,9 +126,24 @@ export const StyledComponent = styled.div`
       -webkit-box-orient: vertical;
     }
   }
+  .textSmall {
+    font-size: 0.86em;
+    line-height: 1.25;
+  }
+  .orderId {
+    .single {
+      margin-top: 2px;
+    }
+  }
 	.orderSource {
 		margin-top: 9px;
 	}
+  .customer {
+    .ant-btn {
+      line-height: 15px;
+      height: 15px;
+    }
+  }
 	.singlePayment {
 		img {
 			margin-right: 5px;
@@ -135,6 +151,7 @@ export const StyledComponent = styled.div`
 		.amount {
 			position: relative;
 			top: 1px;
+      font-weight: 500;
 		}
 	}
 	.notes {
@@ -178,7 +195,7 @@ export const StyledComponent = styled.div`
 		}
 		.single {
 			&:not(:last-child) {
-				margin-bottom: 5px;
+				margin-bottom: 2px;
 			}
 			img {
 				max-width: 100%;
@@ -222,8 +239,257 @@ export const StyledComponent = styled.div`
     }
     .trackingCode {
       word-break: break-all ;
-      span[role="img"] {
-        margin-right: 5px;
+      cursor: pointer;
+    }
+    .trackingCodeImg {
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .ant-select {
+      margin-top: 5px;
+      &.coordinator_confirmed {
+        .ant-select-selector {
+          color: #fff;
+          background: #52D276 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.awaiting_coordinator_confirmation {
+        .ant-select-selector {
+          color: #fff;
+          background: #FCAF17 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.awaiting_saler_confirmation {
+        .ant-select-selector {
+          color: #fff;
+          background: #106227 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.first_call_attempt {
+        .ant-select-selector {
+          color: #fff;
+          background: #106227 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.second_call_attempt {
+        .ant-select-selector {
+          color: #fff;
+          background: #00897B !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.third_call_attempt {
+        .ant-select-selector {
+          color: #fff;
+          background: #E8770A !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.merchandise_packed {
+        .ant-select-selector {
+          color: #fff;
+          background: #E8770A !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.shipping {
+        .ant-select-selector {
+          color: #fff;
+          background: #00897B !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.awaiting_shipper {
+        .ant-select-selector {
+          color: #fff;
+          background: #106227 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.merchandise_picking {
+        .ant-select-selector {
+          color: #fff;
+          background: #C98D17 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.returned {
+        .ant-select-selector {
+          color: #fff;
+          background: #52D276 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.shipped {
+        .ant-select-selector {
+          color: #fff;
+          background: ${successColor} !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.order_return {
+        .ant-select-selector {
+          color: #fff;
+          background: #FCAF17 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.awaiting_coordinator_confirmation {
+        .ant-select-selector {
+          color: #fff;
+          background: #FCAF17 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.require_warehouse_change {
+        .ant-select-selector {
+          color: #fff;
+          background: #8D6E63 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.cancelled {
+        .ant-select-selector {
+          color: #fff;
+          background: #E24343 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+    }
+    .orderTotalPaymentAmount {
+      color: ${successColor};
+      font-weight: 500;
+    }
+    .ant-table-selection-column {
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+    }
+    .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+      height: 34px;
+      .ant-select-selection-item {
+        line-height: 34px;
+      }
+    }
+    .customTags {
+      display: flex;
+      flex-wrap: wrap;
+      input {
+        border: none;
+        outline: none;
+        color: #222222;
+        line-height: 1;
+        margin: 2px 0;
+        flex: 1;
+        &::-webkit-input-placeholder {
+          font-size: 14px;
+          color: #b4b4b4;
+        }
+      }
+      div {
+        display: flex;
+        background-color: ${primaryColor};
+        border-radius: 3px;
+        color: #fff;
+        margin: 2px;
+        padding: 4px 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        & > img {
+          display: block;
+          width: 14px;
+          cursor: pointer;
+          margin-left: 3px;
+        }
+        span {
+          display: block;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
   }
