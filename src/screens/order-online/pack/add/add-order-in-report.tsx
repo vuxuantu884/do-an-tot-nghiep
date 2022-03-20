@@ -18,14 +18,14 @@ type AddOrderInReportProps = {
   setOrderListResponse: (item: Array<OrderConcernGoodsReceiptsResponse>) => void;
   onMenuClick?: (index: number) => void;
   handleAddOrder: (code: string) => void;
-  formSearchOrderRef:any;
+  formSearchOrderRef: any;
 };
 const { Item } = Form;
 
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder ,formSearchOrderRef} = props;
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef } = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
@@ -51,7 +51,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
 
   const handSubmit = useCallback((value: any) => {
     console.log(value)
-    if (value.search_term && value.search_term.length>0) {
+    if (value.search_term && value.search_term.length > 0) {
       //formSearchOrderRef.current?.resetFields();
       handleAddOrder(value.search_term);
     }
@@ -69,12 +69,12 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             break;
           }
           let orderListResponseCopy = [...orderListResponse];
-          console.log("orderListResponseCopy1",orderListResponseCopy)
+          console.log("orderListResponseCopy1", orderListResponseCopy)
           isOrderPack.forEach((value) => {
             let indexOrder = orderListResponseCopy.findIndex((p) => p.code);
             if (indexOrder !== -1) orderListResponseCopy.splice(indexOrder, 1);
           })
-          console.log("orderListResponseCopy2",orderListResponseCopy)
+          console.log("orderListResponseCopy2", orderListResponseCopy)
           setOrderListResponse([...orderListResponseCopy]);
           setIsOrderPack([]);
           break;
@@ -82,7 +82,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           break;
       }
     },
-    [setOrderListResponse,setIsOrderPack, isOrderPack, orderListResponse]
+    [setOrderListResponse, setIsOrderPack, isOrderPack, orderListResponse]
   );
 
   console.log("isOrderPack", isOrderPack)
@@ -95,25 +95,28 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
         let ship_price = 0;
         let total_price = 0;
         order.fulfillments.forEach(function (fulfillment) {
-          ship_price =
-            ship_price +
-            (fulfillment?.shipment?.shipping_fee_informed_to_customer
-              ? fulfillment.shipment.shipping_fee_informed_to_customer
-              : 0);
-          total_price = total_price + (fulfillment.total ? fulfillment.total : 0);
+          if (fulfillment.status === 'packed') {
+            ship_price =
+              ship_price +
+              (fulfillment?.shipment?.shipping_fee_informed_to_customer
+                ? fulfillment.shipment.shipping_fee_informed_to_customer
+                : 0);
+            total_price = total_price + (fulfillment.total ? fulfillment.total : 0);
 
-          fulfillment.items.forEach(function (itemProduct) {
-            product.push({
-              sku: itemProduct.sku,
-              product_id: itemProduct.product_id,
-              product: itemProduct.product,
-              variant_id: itemProduct.variant_id,
-              variant: itemProduct.variant,
-              variant_barcode: itemProduct.variant_barcode,
-              quantity: itemProduct.quantity,
-              price: itemProduct.price
+            fulfillment.items.forEach(function (itemProduct) {
+              product.push({
+                sku: itemProduct.sku,
+                product_id: itemProduct.product_id,
+                product: itemProduct.product,
+                variant_id: itemProduct.variant_id,
+                variant: itemProduct.variant,
+                variant_barcode: itemProduct.variant_barcode,
+                quantity: itemProduct.quantity,
+                price: itemProduct.price
+              });
             });
-          });
+          }
+
         });
 
         let resultItem: GoodsReceiptsInfoOrderModel = {
