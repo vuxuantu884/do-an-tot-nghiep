@@ -45,7 +45,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { ErrorGHTK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "./Constants";
+import { ErrorGHTK, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
 import { RegUtil } from "./RegUtils";
@@ -651,6 +651,11 @@ export const Products = {
   },
 };
 
+export const isNormalTypeVariantItem = (lineItem: OrderLineItemResponse) => {
+  const type = [PRODUCT_TYPE.normal, PRODUCT_TYPE.combo]
+  return type.includes(lineItem.type);
+};
+
 export const getAmountPayment = (items: Array<OrderPaymentResponse|OrderPaymentRequest> | null) => {
   let value = 0;
   if (items !== null) {
@@ -713,6 +718,13 @@ export const getTotalAmountAfterDiscount = (
   return total;
 };
 
+export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>) => {
+  let total = 0;
+  payments.forEach((a) => {
+    total = total + a.amount;
+  });
+  return total;
+};
 
 export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) => {
 	return lineItem.amount - lineItem.discount_amount;
@@ -721,7 +733,7 @@ export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) =
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
   let total = 0;
   items.forEach((a) => {
-		if(a.type !== Type.GIFT) {
+		if(isNormalTypeVariantItem(a)) {
 			total = total + a.quantity
 		}
 	});
@@ -1654,4 +1666,14 @@ export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | unde
   return  orderDetail?.status === OrderStatus.FINISHED ||
    orderDetail?.status === OrderStatus.COMPLETED ||
    orderDetail?.status === OrderStatus.CANCELLED 
+};
+
+export const copyTextToClipboard = (e: any, data: string | null) => {
+  e.stopPropagation();
+  e.target.style.width = "26px";
+  const decWidth = setTimeout(() => {
+    e.target.style.width = "23px";
+  }, 100);
+  clearTimeout(decWidth);
+  navigator.clipboard.writeText(data ? data : "").then(() => {});
 };
