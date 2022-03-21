@@ -95,7 +95,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     if (props.storeID) {
       dispatch(inventoryGetVariantByStoreAction(query, onResultSuccess));
     } else {
-      dispatch(searchVariantsRequestAction(query, onResultSuccess));
+      dispatch(searchVariantsRequestAction({...query, sort_column: 'sku.keyword', sort_type: 'asc'}, onResultSuccess));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, onResultSuccess, query]);
