@@ -75,6 +75,7 @@ import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/invent
 import { YDpageCustomerRequest } from "model/request/customer.request";
 import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "../../../domain/actions/loyalty/loyalty.action";
 import {modalActionType} from "model/modal/modal.model";
+import _ from "lodash";
 
 let typeButton = "";
 
@@ -496,7 +497,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
     if (totalAmountCustomerNeedToPay < 0) {
       let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
-      let _payments = [...payments];
+      let _payments = _.cloneDeep(payments);
       let paymentCashIndex = _payments.findIndex(
         (payment) => payment.payment_method_code === PaymentMethodCode.CASH
       );

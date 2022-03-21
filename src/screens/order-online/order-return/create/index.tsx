@@ -86,6 +86,7 @@ import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardReturnProductContainer from "../components/containers/CardReturnProductContainer";
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
+import _ from "lodash";
 
 type PropType = {
   id?: string;
@@ -559,7 +560,7 @@ ShippingServiceConfigDetailResponseModel[]
      */
     if (totalAmountOrderAfterPayments < 0) {
       let returnAmount = Math.abs(totalAmountOrderAfterPayments);
-      let _payments = [...payments];
+      let _payments = _.cloneDeep(payments);
       let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
       if (paymentCashIndex > -1) {
         _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
