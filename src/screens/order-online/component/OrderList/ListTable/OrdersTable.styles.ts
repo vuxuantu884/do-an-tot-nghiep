@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 300;
-const quantityWidth = 25;
+export const nameQuantityWidth = 310;
+const quantityWidth = 50;
 const massWidth = 100;
-const priceWidth = 90;
-const nameWidth = nameQuantityWidth - quantityWidth - priceWidth + 20;
+const priceWidth = 110;
+const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`
   th {
@@ -28,6 +28,9 @@ export const StyledComponent = styled.div`
   .productNameQuantityPriceHeader {
     display: flex;
     justify-content: space-between;
+  }
+  .productNameQuantityPrice {
+    width: ${nameQuantityWidth}px;
   }
   .productNameWidth {
     width: ${nameWidth}px;
