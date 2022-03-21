@@ -399,6 +399,22 @@ const CreateTicket: FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (stores.length === 0 || fromStores?.length === 0) return;
+
+    if (fromStores?.length === 1) {
+      stores.forEach((element) => {
+        if (element.id === fromStores[0].store_id) {
+          form.setFieldsValue({
+            from_store_id: element.id
+          });
+          setFormStoreData(element);
+          onChangeFromStore(element.id);
+        }
+      });
+    }
+  }, [stores, fromStores, onChangeFromStore]);
+
   const onFinish = (data: StockTransferSubmit) => {
     let countError = 0;
     let arrError: Array<string> = [];

@@ -68,12 +68,14 @@ type InventoryFilterProps = {
   params: InventoryTransferLogSearchQuery;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
-  accounts: Array<AccountResponse>;
+  accounts: Array<AccountResponse> | undefined;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
   stores?: Array<Store>;
+  accountStoresSelected?: any;
+  setAccountStoresSelected?: (value: any) => void;
 };
 
 const { Item } = Form;
@@ -92,6 +94,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     onShowColumnSetting,
     stores,
     accounts,
+    accountStoresSelected,
+    setAccountStoresSelected
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -109,7 +113,21 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
   }, [filterFromParams]);
 
   useEffect(() => {
-    formSearchRef.current?.setFieldsValue(params);
+    if (!accountStoresSelected) {
+      formSearchRef.current?.setFieldsValue(params);
+      return;
+    }
+
+    if (accountStoresSelected === 'SECOND_SEARCH') return;
+
+    formSearchRef.current?.setFieldsValue({
+      ...params,
+      from_store_id: params.from_store_id ? params.from_store_id : String(accountStoresSelected.id)
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountStoresSelected])
+
+  useEffect(() => {
     formAdv.setFieldsValue(filterFromParams);
   }, [filterFromParams, formAdv, formSearchRef, params]);
 
@@ -199,9 +217,10 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
           : null,
       }
 
+      setAccountStoresSelected && setAccountStoresSelected('SECOND_SEARCH')
       onFilter && onFilter(valuesForm);
     },
-    [formAdv, onFilter]
+    [formAdv, onFilter, setAccountStoresSelected]
   );
 
   let filters = useMemo(() => {
