@@ -17,7 +17,7 @@ export const AppConfig = {
   BUSINESS_DEPARTMENT: null,
   FASHION_INDUSTRY: "fashion",
   CDN: process.env.REACT_APP_CDN,
-   
+
   PO_STORE_DEFAULT: 144,
   /**
    * @description: thời gian time out khi sử dụng typing request

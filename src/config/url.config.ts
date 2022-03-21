@@ -33,6 +33,9 @@ const UrlConfig = {
   YDPAGE: `/YDpage`,
   ECOMMERCE: "/ecommerce",
   ECOMMERCE_PRODUCTS: "/ecommerce-products",
+  WEB_APP: "/web-app",
+  WEB_APP_PRODUCTS: "/web-app-products",
+  WEB_APP_CONFIGS: "/web-app-configs",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
   PROCUREMENT: "/procurements",
@@ -93,6 +96,17 @@ export const EcommerceProductTabUrl = {
   TOTAL_ITEM: UrlConfig.ECOMMERCE_PRODUCTS + "/total-item",
   CONNECTED: UrlConfig.ECOMMERCE_PRODUCTS + "/connected-item",
   NOT_CONNECTED: UrlConfig.ECOMMERCE_PRODUCTS + "/not-connected-item",
+};
+
+export const WebAppProductTabUrl = {
+  TOTAL_ITEM: UrlConfig.WEB_APP_PRODUCTS + "/total-item",
+  CONNECTED: UrlConfig.WEB_APP_PRODUCTS + "/connected-item",
+  NOT_CONNECTED: UrlConfig.WEB_APP_PRODUCTS + "/not-connected-item",
+};
+
+export const WebAppConfigTabUrl = {
+  SHOP_LIST: UrlConfig.WEB_APP_CONFIGS + "/shop-list",
+  CONFIG_SHOP: UrlConfig.WEB_APP_CONFIGS + "/config-shop",
 };
 
 export const BASE_NAME_ROUTER = "/admin";

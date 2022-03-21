@@ -1,0 +1,21 @@
+// style for select shop option
+@import "assets/css/variable";
+
+.ant-select-item-option-content {
+  white-space: nowrap;
+}
+
+.orders-screen-custom-tags {
+  .ecommerce-tags-filter {
+    color: $white;
+    background-color: $primary-color;
+    border-radius: 6px;
+    &-close {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      padding-left: 4px;
+      cursor: pointer;
+    }
+  }
+}
