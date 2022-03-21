@@ -853,7 +853,8 @@ const OrderDetail = (props: PropType) => {
                                     //   return true;
                                     // }
                                     return (
-                                      payment.payment_method !== PaymentMethodCode.COD && payment.amount
+                                      payment.payment_method !== PaymentMethodCode.COD 
+                                      // && payment.amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (
