@@ -85,15 +85,11 @@ const AddMaterial: React.FC = () => {
                     pattern: RegUtil.NO_SPECICAL_CHARACTER,
                     message: "Mã chất liệu không chứa ký tự đặc biệt",
                   },
-                  {
-                    max: 5,
-                    message: "Mã danh mục không quá 5 kí tự",
-                  },
                 ]}
                 name="code"
                 label="Mã chất liệu:"
               >
-                <Input placeholder="Nhập mã chất liệu" maxLength={5} />
+                <Input placeholder="Nhập mã chất liệu" />
               </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>

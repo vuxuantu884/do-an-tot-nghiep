@@ -154,7 +154,7 @@ const UpdateMaterial: React.FC = () => {
                   labelAlign="right"
                   label="Mã chất liệu:"
                 >
-                  <Input placeholder="Nhập mã chất liệu" size="large" maxLength={5} />
+                  <Input placeholder="Nhập mã chất liệu" size="large" />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
