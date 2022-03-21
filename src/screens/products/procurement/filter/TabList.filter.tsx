@@ -192,7 +192,7 @@ function TabListFilter(props: ProcurementFilterProps) {
         delete newParams[ProcurementFilterAdvanceEnum.active]
         delete newParams[ProcurementFilterAdvanceEnum.stock_in]
         delete newParams[ProcurementFilterAdvanceEnum.expect_receipt]
-        await history.push(`${UrlConfig.PROCUREMENT}?${generateQuery(newParams)}`)
+        await history.push(`${history.location.pathname}?${generateQuery(newParams)}`)
       }
     })();
   }, [setSelectedStatuses, paramsArray, history, prevArray])
