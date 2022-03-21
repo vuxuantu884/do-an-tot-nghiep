@@ -236,10 +236,10 @@ function OrdersTable(props: PropTypes) {
       );
       return (
         <div className="singlePayment">
-          {payment.paid_amount < 0 ? (
+          {payment.amount < 0 ? (
             <Tooltip title="Hoàn tiền">
               <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">{formatCurrency(payment.paid_amount)}</span>
+              <span className="amount">{formatCurrency(payment.amount)}</span>
             </Tooltip>
           ) : (
             <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
@@ -286,10 +286,6 @@ function OrdersTable(props: PropTypes) {
     return <React.Fragment>{result}</React.Fragment>;
   };
 
-  const handleDelete = (index:number) => {
-
-  };
-
   const renderTag = (record: OrderModel) => {
     let html = null;
     if (record?.tags) {
@@ -298,7 +294,6 @@ function OrdersTable(props: PropTypes) {
         html = tagsArr.map((tag, index) => (
           <div key={index}>
             <span className="textSmall">{tag}</span>
-            <img alt="" onClick={() => handleDelete(index)} src={xCloseBtn}></img>
           </div>
         ))
       }

@@ -198,7 +198,7 @@ export const StyledComponent = styled.div`
 				margin-bottom: 2px;
 			}
 			img {
-				max-width: 100%;
+				max-width: 105px;
 				margin-right: 5px;
 				position: relative;
 				top: -2px;
