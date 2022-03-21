@@ -459,9 +459,16 @@ function OrdersTable(props: PropTypes) {
                 <span className="separator">, </span>
               </span>
             </span>
+            <span className="quantity quantityWidth">
+              <span>
+                Tồn
+                <span className="separator">, </span>
+              </span>
+            </span>
             <span className="price priceWidth">
               <span>Giá </span>
             </span>
+           
           </div>
         ),
         dataIndex: "items",
@@ -489,6 +496,13 @@ function OrdersTable(props: PropTypes) {
                     <div className="quantity quantityWidth">
                       <NumberFormat
                         value={item.quantity}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                    <div className="quantity quantityWidth">
+                      <NumberFormat style={item.available && item.available<0?{color:"#e24343"}:{color:"#27AE60"}}
+                        value={item.available}
                         displayType={"text"}
                         thousandSeparator={true}
                       />
