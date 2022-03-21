@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor, primaryColor, successColor} from "utils/global-styles/variables";
+import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
 export const nameQuantityWidth = 300;
 const quantityWidth = 25;
 const massWidth = 100;
@@ -153,6 +153,9 @@ export const StyledComponent = styled.div`
 			top: 1px;
       font-weight: 500;
 		}
+    &.ydPoint {
+      color: ${yellowColor};
+    }
 	}
 	.notes {
 		position: relative;

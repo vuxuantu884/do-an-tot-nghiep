@@ -235,7 +235,7 @@ function OrdersTable(props: PropTypes) {
         (single) => single.payment_method_code === payment.payment_method_code
       );
       return (
-        <div className="singlePayment">
+        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT? 'ydPoint' : null }`}>
           {payment.amount < 0 ? (
             <Tooltip title="Hoàn tiền">
               <img src={selectedPayment?.icon} alt="" />
