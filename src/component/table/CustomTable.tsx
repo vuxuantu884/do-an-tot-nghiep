@@ -13,6 +13,7 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   showColumnSetting?: boolean;
   isRowSelection?: boolean;
   selectedRowKey?: any[];
+  isShowPaginationAtHeader?: boolean;
   onChangeRowKey?: (rowKey: any[]) => void;
   rowSelectionRenderCell?: ((value: boolean, record: any, index: number, originNode: React.ReactNode) => React.ReactNode) | undefined
 }
@@ -63,6 +64,7 @@ const CustomTable = (props: ICustomTableProps) => {
     isLoading,
     isRowSelection,
     selectedRowKey,
+    isShowPaginationAtHeader,
     onChangeRowKey,
     rowSelectionRenderCell,
   } = props;
@@ -82,6 +84,7 @@ const CustomTable = (props: ICustomTableProps) => {
   );
   return (
     <div className="custom-table">
+      {isShowPaginationAtHeader && pagination && <CustomPagination pagination={pagination} />}
       <ANTTable
         {...props}
         rowSelection={

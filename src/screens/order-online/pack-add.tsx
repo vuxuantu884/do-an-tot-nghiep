@@ -78,20 +78,28 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         getOrderConcernGoodsReceipts(
           param,
           (data: OrderConcernGoodsReceiptsResponse[]) => {
+            let dataAdd: OrderConcernGoodsReceiptsResponse[] = [];
             if (data.length > 0) {
-              console.log(data);
               data.forEach(function (item, index) {
 
                 let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
                 if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
-
-                orderListResponse.push(item);
-                setOrderListResponse([...orderListResponse]);
-                formSearchOrderRef.current?.resetFields();
+                if(item.fulfillment_status === 'packed') {
+                  dataAdd.push(item);
+                }
               });
+
+              if(dataAdd.length === 0) {
+                showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
+              } else {
+                dataAdd.forEach((item) => orderListResponse.push(item));
+                setOrderListResponse([...orderListResponse]);
+              }
             } else {
               showError("Không tìm thấy đơn hàng");
             }
+            formSearchOrderRef.current?.resetFields();
+            
           }
         )
       );
