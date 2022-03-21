@@ -24,10 +24,6 @@ export const getCustomerListAction = (query: CustomerSearchQuery, setData: (data
     return BaseAction(CustomerType.CUSTOMER_LIST, { query, setData });
 }
 
-export const CustomerGroupList = (query: CustomerSearchQuery, setData: (data: any) => void) => {
-    return BaseAction(CustomerType.CUSTOMER_LIST, { query, setData });
-}
-
 export const actionAddCustomerGroup = (
     item: CustomerGroupModel,
     handleData: () => void
@@ -85,6 +81,16 @@ export const actionAddCustomerGroup = (
 
 export const getCustomerDetailAction = (id: number|null, setData: (data: CustomerResponse) => void) => {
     return BaseAction(CustomerType.CUSTOMER_DETAIL, { id, setData });
+}
+
+// get customer's order history
+export const getCustomerOrderHistoryAction = (queryParams: any, callback: (data: any) => void) => {
+  return BaseAction(CustomerType.CUSTOMER_ORDER_HISTORY, { queryParams, callback });
+}
+
+// get customer's order return history
+export const getCustomerOrderReturnHistoryAction = (customer_id: number | null, callback: (data: any) => void) => {
+  return BaseAction(CustomerType.CUSTOMER_ORDER_RETURN_HISTORY, { customer_id, callback });
 }
 
 export const CustomerGroups = (setData: (data: any) => void) => {

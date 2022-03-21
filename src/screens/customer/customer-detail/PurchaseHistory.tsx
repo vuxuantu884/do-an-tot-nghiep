@@ -1,27 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Tooltip } from "antd";
-import { HiChevronDoubleDown, HiChevronDoubleRight } from "react-icons/hi";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
-import { OrderModel } from "model/order/order.model";
+import React, {useCallback, useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Tooltip} from "antd";
+import {HiChevronDoubleDown, HiChevronDoubleRight} from "react-icons/hi";
+import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
+import {OrderModel} from "model/order/order.model";
 import NumberFormat from "react-number-format";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import UrlConfig from "config/url.config";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { formatCurrency, isNullOrUndefined } from "utils/AppUtils";
-import { PageResponse } from "model/base/base-metadata.response";
+import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
+import {formatCurrency, isNullOrUndefined} from "utils/AppUtils";
+import {PageResponse} from "model/base/base-metadata.response";
 import moment from "moment";
-import {
-  DeliveryServiceResponse,
-  OrderLineItemResponse,
-} from "model/response/order/order.response";
-import { dangerColor, primaryColor } from "utils/global-styles/variables";
-import {
-  nameQuantityWidth,
-  StyledPurchaseHistory,
-} from "screens/customer/customer-detail/customerDetailStyled";
+import {DeliveryServiceResponse, OrderLineItemResponse,} from "model/response/order/order.response";
+import {dangerColor, primaryColor} from "utils/global-styles/variables";
+import {nameQuantityWidth, StyledPurchaseHistory,} from "screens/customer/customer-detail/customerDetailStyled";
 import EditNote from "screens/order-online/component/edit-note";
 import {
   COD,
@@ -32,14 +24,10 @@ import {
   POS,
   ShipmentMethod,
 } from "utils/Constants";
-import {
-  DeliveryServicesGetList,
-  GetListOrderCustomerAction,
-  getReturnsAction,
-  updateOrderPartial,
-} from "domain/actions/order/order.action";
+import {DeliveryServicesGetList, updateOrderPartial,} from "domain/actions/order/order.action";
 
-import iconShippingFeeInformedToCustomer from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
+import iconShippingFeeInformedToCustomer
+  from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeePay3PL.svg";
 import iconWeight from "screens/order-online/component/OrderList/ListTable/images/iconWeight.svg";
 import IconPaymentBank from "screens/order-online/component/OrderList/ListTable/images/paymentBank.svg";
@@ -48,7 +36,11 @@ import IconPaymentCod from "screens/order-online/component/OrderList/ListTable/i
 import IconPaymentCash from "screens/order-online/component/OrderList/ListTable/images/paymentMoney.svg";
 import IconPaymentPoint from "screens/order-online/component/OrderList/ListTable/images/paymentPoint.svg";
 import IconStore from "screens/order-online/component/OrderList/ListTable/images/store.svg";
-import { ReturnModel } from "model/order/return.model";
+import {ReturnModel} from "model/order/return.model";
+import {
+  getCustomerOrderHistoryAction,
+  getCustomerOrderReturnHistoryAction
+} from "../../../domain/actions/customer/customer.action";
 
 type PurchaseHistoryProps = {
   customerId: number;
@@ -176,19 +168,18 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
   useEffect(() => {
     if (customerId) {
-      const orderReturnedParams: any = { customer_ids: [customerId] };
       setTableLoading(true);
-      dispatch(getReturnsAction(orderReturnedParams, updateOrderReturnedList));
+      dispatch(getCustomerOrderReturnHistoryAction(customerId, updateOrderReturnedList));
     }
   }, [customerId, dispatch, updateOrderReturnedList]);
   // end get order returned
 
   // handle get purchase history
   const [tableLoading, setTableLoading] = useState<boolean>(false);
-  const [queryParams, setQueryParams] = useState<any>({
+  const [orderHistoryQueryParams, setOrderHistoryQueryParams] = useState<any>({
     limit: 10,
     page: 1,
-    customer_ids: null,
+    customer_id: null,
   });
 
   const [orderHistoryData, setOrderHistoryData] = useState<
@@ -204,11 +195,11 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
   const onPageChange = useCallback(
     (page, limit) => {
-      queryParams.page = page;
-      queryParams.limit = limit;
-      setQueryParams({ ...queryParams });
+      orderHistoryQueryParams.page = page;
+      orderHistoryQueryParams.limit = limit;
+      setOrderHistoryQueryParams({ ...orderHistoryQueryParams });
     },
-    [queryParams, setQueryParams]
+    [orderHistoryQueryParams, setOrderHistoryQueryParams]
   );
 
   const updateOrderHistoryData = useCallback(
@@ -223,19 +214,18 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
   useEffect(() => {
     if (customerId) {
-      queryParams.customer_ids = [customerId];
+      orderHistoryQueryParams.customer_id = [customerId];
       setTableLoading(true);
-      dispatch(GetListOrderCustomerAction(queryParams, updateOrderHistoryData));
+      dispatch(getCustomerOrderHistoryAction(orderHistoryQueryParams, updateOrderHistoryData));
     }
-  }, [customerId, dispatch, queryParams, updateOrderHistoryData]);
+  }, [customerId, dispatch, orderHistoryQueryParams, updateOrderHistoryData]);
 
   const orderHistoryList = useCallback(() => {
     const newOrderHistoryList = orderHistoryData?.items.map((order) => {
       const order_return = orderReturnedList.filter(
         (orderReturn) => orderReturn.order_id.toString() === order.id.toString()
       );
-      const newOrder = { ...order, order_return: order_return };
-      return newOrder;
+      return {...order, order_return: order_return};
     });
 
     return newOrderHistoryList;
