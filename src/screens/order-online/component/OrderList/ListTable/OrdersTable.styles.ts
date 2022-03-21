@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 310;
+export const nameQuantityWidth = 300;
 const quantityWidth = 50;
 const massWidth = 100;
 const priceWidth = 110;
@@ -9,12 +9,16 @@ const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 export const StyledComponent = styled.div`
   th {
     /* text-align: center !important; */
-		padding-top: 12px !important;
-		padding-bottom: 12px !important;
+		padding: 12px 10px !important;
 		justify-content: center !important;
 		.separator {
 			display: none;
 		}
+  }
+  .productNameQuantityPriceHeader {
+    > span {
+      padding: 12px 10px !important;
+    }
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantityPrice,
@@ -33,7 +37,7 @@ export const StyledComponent = styled.div`
     width: ${nameQuantityWidth}px;
   }
   .productNameWidth {
-    width: ${nameWidth}px;
+    width: ${nameWidth + 32}px ;
   }
   .quantityWidth {
     width: ${quantityWidth}px;
