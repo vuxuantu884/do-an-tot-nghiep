@@ -533,15 +533,17 @@ function* updateDeliveryConfigurationSaga(action: YodyAction) {
 }
 
 function* getListSubStatusSaga(action: YodyAction) {
-  let { status, handleData } = action.payload;
+  let { status, handleData, handleError } = action.payload;
   try {
     let response: BaseResponse<any> = yield call(getOrderSubStatusService, status);
     if (isFetchApiSuccessful(response)) {
       handleData(response.data);
     } else {
+      handleError();
       yield put(fetchApiErrorAction(response, "Danh sách trạng thái phụ đơn hàng"));
     }
   } catch (error) {
+    handleError();
     showError("Có lỗi khi lấy danh sách trạng thái phụ đơn hàng! Vui lòng thử lại sau!");
   }
 }

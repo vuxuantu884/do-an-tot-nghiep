@@ -1,6 +1,7 @@
 import { Button, Col, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getListSubStatusAction,
   getTrackingLogFulfillmentAction,
@@ -25,8 +26,10 @@ import {
   formatCurrency,
   getOrderTotalPaymentAmount,
   getTotalQuantity,
+  getValidateChangeOrderSubStatus,
   isNormalTypeVariantItem,
   isOrderFromPOS,
+  isOrderFromSaleChannel,
   sortFulfillments,
 } from "utils/AppUtils";
 import {
@@ -41,7 +44,8 @@ import {
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
-import { showSuccess } from "utils/ToastUtils";
+import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
 import IconFacebook from "./images/facebook.svg";
@@ -887,7 +891,7 @@ function OrdersTable(props: PropTypes) {
               code: record.sub_status_code,
             });
           }
-          let className = record.sub_status_code || "";
+          let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
           return (
             <div className="orderStatus">
               <div className="inner">
@@ -913,12 +917,19 @@ function OrdersTable(props: PropTypes) {
                       }}
                       className={className}
                       onChange={(value) => {
+                        if(selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
+                          return;
+                        }
+                        let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
+                        if(!isChange) {
+                          return;
+                        }
                         dispatch(
                           setSubStatusAction(record.id, value, () => {
                             const index = data.items?.findIndex(
                               (single) => single.id === record.id
                             );
-                            console.log("index", index);
                             if (index > -1) {
                               let dataResult: dataExtra = { ...data };
                               // selected = value;
@@ -926,7 +937,6 @@ function OrdersTable(props: PropTypes) {
                               dataResult.items[index].sub_status = recordStatuses?.find(
                                 (single) => single.code === value
                               )?.name;
-                              console.log("dataResult", dataResult);
                               setData(dataResult);
                             }
                           })
@@ -1305,8 +1315,35 @@ function OrdersTable(props: PropTypes) {
           return;
         }
         if (orderId) {
+          const listFulfillmentMapSubStatus = {
+            packed: {
+              fulfillmentStatus: "packed",
+              subStatus: "packed",
+            },
+            finalized: {
+              fulfillmentStatus: ORDER_SUB_STATUS.shipping,
+              subStatus: ORDER_SUB_STATUS.shipping,
+            },
+          };
+          let resultStatus = statusCode;
+          if (statusCode) {
+            if (statusCode === OrderStatus.FINALIZED && selectedOrder?.fulfillments &&  selectedOrder?.fulfillments?.length > 0) {
+              const sortedFulfillments = sortFulfillments(selectedOrder?.fulfillments);
+              switch (sortedFulfillments[0].status) {
+                case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
+                  resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
+                  break;
+                case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
+                  resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
+                  break;
+                default:
+                  break;
+              }
+            }
+          }
+          dispatch(showLoading())
           dispatch(
-            getListSubStatusAction(statusCode, (response) => {
+            getListSubStatusAction(resultStatus, (response) => {
               const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
               console.log("index", index);
               if (index > -1) {
@@ -1321,8 +1358,11 @@ function OrdersTable(props: PropTypes) {
                   });
                 console.log("dataResult", dataResult);
                 setData(dataResult);
+                dispatch(hideLoading())
               }
-            })
+            },
+            () => dispatch(hideLoading())
+            )
           );
         }
       }

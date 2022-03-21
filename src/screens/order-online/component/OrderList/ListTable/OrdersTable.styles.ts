@@ -391,6 +391,18 @@ export const StyledComponent = styled.div`
           color: #fff;
         }
       }
+      &.fourHour_delivery {
+        .ant-select-selector {
+          color: #fff;
+          background: ${primaryColor} !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
       &.shipped {
         .ant-select-selector {
           color: #fff;
@@ -407,6 +419,18 @@ export const StyledComponent = styled.div`
         .ant-select-selector {
           color: #fff;
           background: #FCAF17 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.returning {
+        .ant-select-selector {
+          color: #fff;
+          background: #E8770A  !important;
         }
         .ant-select-arrow {
           color: #fff;

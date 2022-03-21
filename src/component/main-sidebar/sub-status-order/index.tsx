@@ -9,7 +9,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
-import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, isOrderFromSaleChannel, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { showError, showWarning } from "utils/ToastUtils";
 
@@ -213,6 +213,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const handleChange = (sub_status_code: string) => {
     if (!orderId) {
       return;
+    }
+    if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
+      changeSubStatusCode(sub_status_code);
+      return;
+    }
+    if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
+      return true;
     }
     let isChange = true;
     switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
