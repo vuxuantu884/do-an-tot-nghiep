@@ -266,9 +266,10 @@ export const updateDeliveryConfigurationAction = (params: any, handleData: (data
 
 export const getListSubStatusAction = (
   status: string,
-  handleData: (data: Array<OrderSubStatusResponse>) => void
+  handleData: (data: Array<OrderSubStatusResponse>) => void,
+  handleError?: () => void,
 ) => {
-  return BaseAction(OrderType.GET_LIST_SUB_STATUS, { status, handleData });
+  return BaseAction(OrderType.GET_LIST_SUB_STATUS, { status, handleData, handleError });
 };
 
 export const setSubStatusAction = (
