@@ -26,6 +26,23 @@ export const getDetailCustomer = (id: number): Promise<BaseResponse<CustomerResp
   return BaseAxios.get(link);
 };
 
+// get custommer's order history
+export const getCustomerOrderHistoryApi = (queryParams: any): Promise<BaseResponse<any>> => {
+  const query = {
+    limit: queryParams.limit,
+    page: queryParams.page,
+  }
+  const params = generateQuery(query);
+  const link = `${ApiConfig.CUSTOMER}/customers/${queryParams.customer_id}/order-histories?${params}`;
+  return BaseAxios.get(link);
+};
+
+// get custommer's order return history
+export const getCustomerOrderReturnHistoryApi = (customer_id: number): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.CUSTOMER}/customers/${customer_id}/order-return-histories`;
+  return BaseAxios.get(link);
+};
+
 export const getCustomerTypes = (): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.CUSTOMER}/customer-types`;
   return BaseAxios.get(link);
