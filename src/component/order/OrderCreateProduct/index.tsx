@@ -855,10 +855,11 @@ function OrderCreateProduct(props: PropType) {
 						handleCardItems={onDiscountItem}
 						// disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
 						disabled={
-							levelOrder > 3 ||
-							checkIfLineItemHasAutomaticDiscount(l) ||
+							levelOrder > 3 
+							// ||
+							// checkIfLineItemHasAutomaticDiscount(l) ||
 							// couponInputText !== "" ||
-							checkIfOrderHasAutomaticDiscount()
+							// checkIfOrderHasAutomaticDiscount()
 						}
 					/>
 				</div>

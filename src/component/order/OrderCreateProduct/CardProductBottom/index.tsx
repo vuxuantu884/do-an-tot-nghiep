@@ -80,7 +80,8 @@ function CardProductBottom(props: PropType) {
 
 					<Row className="paymentRow" justify="space-between" align="middle">
 						<Space align="center">
-							{setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
+							{/* ko disable chiết khấu tổng */}
+							{(setPromotion && !isDisableOrderDiscount && items && items.length > 0) || true ? (
 								<Typography.Link
 									className="font-weight-400"
 									onClick={showDiscountModal}
