@@ -107,6 +107,7 @@ import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
+import { strForSearch } from "utils/StringUtils";
 
 type PropType = {
 	storeId: number | null;
@@ -228,7 +229,7 @@ function OrderCreateProduct(props: PropType) {
 		setShippingFeeInformedToCustomer,
 		countFinishingUpdateCustomer,
 	} = props;
-	
+
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
 
   const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
@@ -855,7 +856,7 @@ function OrderCreateProduct(props: PropType) {
 						handleCardItems={onDiscountItem}
 						// disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
 						disabled={
-							levelOrder > 3 
+							levelOrder > 3
 							// ||
 							// checkIfLineItemHasAutomaticDiscount(l) ||
 							// couponInputText !== "" ||
@@ -1207,7 +1208,7 @@ function OrderCreateProduct(props: PropType) {
 		}
 		return null;
 	};
-	
+
 
 	const isOrderHasDiscountLineItems = (responseData:ApplyCouponResponseModel) => {
 		let result = false;
@@ -1369,7 +1370,7 @@ function OrderCreateProduct(props: PropType) {
 					}
 					showSuccess("Cập nhật chiết khấu tự động thành công!");
 				} else {
-					
+
 					form.setFieldsValue({
 						note: ""
 					})
@@ -1386,7 +1387,7 @@ function OrderCreateProduct(props: PropType) {
     }).finally (()=>{
       setIsCalculateDiscount(false);
     });
-		
+
 	};
 
 	const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
@@ -1794,7 +1795,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const fillCustomNote = (items: OrderLineItemRequest[]) => {
 		if(items.some(item => {
-			return (item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason) 
+			return (item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason)
 		})) {
 			let discountTitleArr: string[] = [];
 			items.forEach(item => {
@@ -1882,7 +1883,7 @@ function OrderCreateProduct(props: PropType) {
 			else{
 				newData=listStores;
 			}
-			
+
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
 			if (storeId && userReducer.account) {
 				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
@@ -2205,12 +2206,11 @@ function OrderCreateProduct(props: PropType) {
 									}
 									dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
 								}}
-								filterOption={(input, option) => {
-									if (option) {
-										return (
-											option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-										);
+								filterOption={(input: String, option: any) => {
+									if (option.props.value) {
+										return strForSearch(option.props.children).includes(strForSearch(input));
 									}
+
 									return false;
 								}}
 								disabled={levelOrder > 3}
