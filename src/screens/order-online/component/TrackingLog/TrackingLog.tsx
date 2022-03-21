@@ -4,7 +4,7 @@ import doubleArrow from "assets/icon/double_arrow.svg";
 import { TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React from "react";
-import { TrackingCode } from "utils/AppUtils";
+import { copyTextToClipboard } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./TrackingLog.styles";
 
@@ -15,17 +15,6 @@ type PropTypes = {
 
 function TrackingLog(props: PropTypes): JSX.Element {
   const { trackingLogFulfillment, trackingCode } = props;
-  // copy button
-  const copyOrderID = (e: any, data: string | null) => {
-    e.stopPropagation();
-    e.target.style.width = "26px";
-    const decWidth = setTimeout(() => {
-      e.target.style.width = "23px";
-    }, 100);
-    clearTimeout(decWidth);
-    navigator.clipboard.writeText(data ? data : "").then(() => {});
-    showSuccess("Đã copy mã vận đơn!")
-  };
 
   return (
     <StyledComponent>
@@ -57,7 +46,10 @@ function TrackingLog(props: PropTypes): JSX.Element {
                   }}>
                     <Tooltip title="Click để copy">
                       <img
-                        onClick={(e) => copyOrderID(e, trackingCode)}
+                        onClick={(e) => {
+                          copyTextToClipboard(e, trackingCode);
+                          showSuccess("Đã copy mã vận đơn!")
+                        }}
                         src={copyFileBtn}
                         alt=""
                         style={{ width: 23 }}
