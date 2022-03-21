@@ -223,7 +223,7 @@ const ListMaterial: React.FC = () => {
               <Item name="info" className="input-search">
                 <Input
                   prefix={<img src={search} alt="" />}
-                  placeholder="Tên/Mã/ID nhân viên"
+                  placeholder="Tên/Mã/ID chất liệu"
                 />
               </Item>
               <Item name="component">
