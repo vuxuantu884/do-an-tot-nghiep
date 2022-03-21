@@ -95,7 +95,7 @@ const CustomTable = (props: ICustomTableProps) => {
                 onSelect: onSelect,
                 onSelectAll: onSelectAll,
                 onChange: onChangeRowKey,
-                columnWidth: 60,
+                columnWidth: 50,
                 renderCell: rowSelectionRenderCell,
               }
             : undefined

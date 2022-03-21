@@ -516,7 +516,7 @@ const ShipmentDetail: React.FC = () => {
             >
               {trackingLogFulfillment?.map((item, index) => (
                 <Collapse.Panel
-                  className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline" : ""} ${item.status === "failed" ? "hasError" : ""}`}
+                  className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 222" : ""} ${item.status === "failed" ? "hasError" : ""}`}
                   header={
                     <React.Fragment>
                       <b
