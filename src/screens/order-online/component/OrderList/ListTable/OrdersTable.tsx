@@ -56,7 +56,7 @@ import IconPaymentCash from "./images/paymentMoney.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
-// import IconWebsite from "./images/website.svg";
+// import IconWebsite from "./images/website.svg"; 
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
 type PropTypes = {
