@@ -75,24 +75,24 @@ function OrderPayments(props: PropType): JSX.Element {
 
   const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
     let paymentsResult = [...payments]
-    let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
-    if(bankPaymentIndex > -1) {
-      if(selectedStoreBankAccount) {
-        let abc = storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount);
-        if(abc) {
-          paymentsResult[bankPaymentIndex].bank_account_id = abc.id;
-          paymentsResult[bankPaymentIndex].bank_account_number = abc.account_number;
-          paymentsResult[bankPaymentIndex].bank_account_holder = abc.account_holder;
+    // let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
+    // if(bankPaymentIndex > -1) {
+    //   if(selectedStoreBankAccount) {
+    //     let abc = storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount);
+    //     if(abc) {
+    //       paymentsResult[bankPaymentIndex].bank_account_id = abc.id;
+    //       paymentsResult[bankPaymentIndex].bank_account_number = abc.account_number;
+    //       paymentsResult[bankPaymentIndex].bank_account_holder = abc.account_holder;
 
-        }
-      } else {
-        paymentsResult[bankPaymentIndex].paid_amount = 0;
-        paymentsResult[bankPaymentIndex].amount = 0;
-        paymentsResult[bankPaymentIndex].return_amount = 0;
-      }
-    }
+    //     }
+    //   } else {
+    //     paymentsResult[bankPaymentIndex].paid_amount = 0;
+    //     paymentsResult[bankPaymentIndex].amount = 0;
+    //     paymentsResult[bankPaymentIndex].return_amount = 0;
+    //   }
+    // }
     setPayments(paymentsResult);
-  }, [selectedStoreBankAccount, setPayments, storeBankAccountNumbers]);
+  }, [setPayments]);
 
   /**
    * tổng số tiền đã trả
@@ -227,7 +227,11 @@ function OrderPayments(props: PropType): JSX.Element {
             onChange={(e: any) =>
               handleTransferReference(index, e.target.value)
             }
-            disabled={levelOrder > 2 || storeBankAccountNumbers.length === 0}
+            disabled={
+              levelOrder > 2 
+              // || 
+              // storeBankAccountNumbers.length === 0
+            }
           />
         </div>
         <div style={{marginTop: 12}} title={`${selectedStoreBankNumber?.account_number} - ${selectedStoreBankNumber?.bank_name}`}>
@@ -428,7 +432,7 @@ function OrderPayments(props: PropType): JSX.Element {
                     <NumberInput
                       min={0}
                       value={method.paid_amount}
-                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2 || (method.payment_method_code === PaymentMethodCode.BANK_TRANSFER && storeBankAccountNumbers.length === 0)}
+                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2 || (method.payment_method_code === PaymentMethodCode.BANK_TRANSFER && storeBankAccountNumbers.length === 0 && false)}
                       className="yody-payment-input hide-number-handle"
                       //placeholder="Nhập tiền mặt"
                       style={{
@@ -452,7 +456,7 @@ function OrderPayments(props: PropType): JSX.Element {
                       onClick={() => {
                         fillInputMoney(method.payment_method_code)
                       }}
-                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2 || (method.payment_method_code === PaymentMethodCode.BANK_TRANSFER && storeBankAccountNumbers.length === 0)}
+                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2 || (method.payment_method_code === PaymentMethodCode.BANK_TRANSFER && storeBankAccountNumbers.length === 0 && false)}
                     ></Button>
                   </Input.Group>
                   {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? renderExportBill() : null }

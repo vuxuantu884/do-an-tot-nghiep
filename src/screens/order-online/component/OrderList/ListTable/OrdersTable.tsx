@@ -39,7 +39,6 @@ import {
   ShipmentMethod,
   SHOPEE,
 } from "utils/Constants";
-import xCloseBtn from "assets/icon/X_close.svg";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
@@ -235,11 +234,11 @@ function OrdersTable(props: PropTypes) {
         (single) => single.payment_method_code === payment.payment_method_code
       );
       return (
-        <div className="singlePayment">
-          {payment.paid_amount < 0 ? (
+        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT? 'ydPoint' : null }`}>
+          {payment.amount < 0 ? (
             <Tooltip title="Hoàn tiền">
               <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">{formatCurrency(payment.paid_amount)}</span>
+              <span className="amount">{formatCurrency(payment.amount)}</span>
             </Tooltip>
           ) : (
             <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
@@ -286,10 +285,6 @@ function OrdersTable(props: PropTypes) {
     return <React.Fragment>{result}</React.Fragment>;
   };
 
-  const handleDelete = (index:number) => {
-
-  };
-
   const renderTag = (record: OrderModel) => {
     let html = null;
     if (record?.tags) {
@@ -298,7 +293,6 @@ function OrdersTable(props: PropTypes) {
         html = tagsArr.map((tag, index) => (
           <div key={index}>
             <span className="textSmall">{tag}</span>
-            <img alt="" onClick={() => handleDelete(index)} src={xCloseBtn}></img>
           </div>
         ))
       }
@@ -585,7 +579,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "right",
-        width: 90,
+        width: 120,
       },
       {
         title: "Vận chuyển",
@@ -1349,6 +1343,7 @@ function OrdersTable(props: PropTypes) {
     } else if (typeAPi === type.setSubStatus) {
     }
     //xóa data
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
 
   return (
@@ -1378,6 +1373,7 @@ function OrdersTable(props: PropTypes) {
         rowKey={(item: OrderModel) => item.id}
         className="order-list"
         footer={() => renderFooter()}
+        isShowPaginationAtHeader
       />
     </StyledComponent>
   );

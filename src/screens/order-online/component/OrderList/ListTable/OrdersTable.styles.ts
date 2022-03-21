@@ -1,20 +1,24 @@
 import styled from "styled-components";
-import {borderColor, primaryColor, successColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 300;
-const quantityWidth = 45;
+import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
+export const nameQuantityWidth = 310;
+const quantityWidth = 50;
 const massWidth = 100;
-const priceWidth = 90;
+const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`
   th {
     /* text-align: center !important; */
-		padding-top: 12px !important;
-		padding-bottom: 12px !important;
+		padding: 12px 10px !important;
 		justify-content: center !important;
 		.separator {
 			display: none;
 		}
+  }
+  .productNameQuantityPriceHeader {
+    > span {
+      padding: 12px 10px !important;
+    }
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantityPrice,
@@ -29,8 +33,11 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
   }
+  .productNameQuantityPrice {
+    width: ${nameQuantityWidth}px;
+  }
   .productNameWidth {
-    width: ${nameWidth}px;
+    width: ${nameWidth + 32}px ;
   }
   .quantityWidth {
     width: ${quantityWidth}px;
@@ -153,6 +160,9 @@ export const StyledComponent = styled.div`
 			top: 1px;
       font-weight: 500;
 		}
+    &.ydPoint {
+      color: ${yellowColor};
+    }
 	}
 	.notes {
 		position: relative;
@@ -198,7 +208,7 @@ export const StyledComponent = styled.div`
 				margin-bottom: 2px;
 			}
 			img {
-				max-width: 100%;
+				max-width: 105px;
 				margin-right: 5px;
 				position: relative;
 				top: -2px;
@@ -239,6 +249,8 @@ export const StyledComponent = styled.div`
     }
     .trackingCode {
       word-break: break-all ;
+      color: ${primaryColor};
+      font-weight: 500;
       cursor: pointer;
     }
     .trackingCodeImg {

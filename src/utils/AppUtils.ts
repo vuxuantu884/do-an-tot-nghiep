@@ -1336,7 +1336,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 export const reCalculatePaymentReturn = (payments: OrderPaymentRequest[], totalAmountCustomerNeedToPay: number, listPaymentMethod: PaymentMethodResponse[]) => {
   if (totalAmountCustomerNeedToPay < 0) {
     let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
-    let _payments = [...payments];
+    let _payments = _.cloneDeep(payments);
     let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
     if (paymentCashIndex > -1) {
       _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
