@@ -364,7 +364,7 @@ const StoreListScreen: React.FC = () => {
         if (!data) return;
 
         const newData = { ...data };
-        if (newData.items.length === 0) return;
+        if (newData.items.length === 0) return data;
 
         newData.items.forEach((i: any) => {
           if (i.parent_id === -1) i.departmentParentName = i.name;
