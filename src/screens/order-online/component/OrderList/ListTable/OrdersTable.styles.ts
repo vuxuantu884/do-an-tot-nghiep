@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 300;
+export const nameQuantityWidth = 310;
 const quantityWidth = 50;
 const massWidth = 100;
-const priceWidth = 110;
+const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`
@@ -40,7 +40,7 @@ export const StyledComponent = styled.div`
     width: ${nameWidth + 32}px ;
   }
   .quantityWidth {
-    /* width: ${quantityWidth}px; */
+    width: ${quantityWidth}px;
     text-align: center;
   }
   .massWidth {
