@@ -14,6 +14,7 @@ import { ChannelsResponse, DeliveryServiceResponse } from "model/response/order/
 import { GoodsReceiptsAddOrderRequest, GoodsReceiptsResponse, GoodsReceiptsTypeResponse, OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./pack/add/add-order-bottombar";
@@ -23,6 +24,7 @@ import { StyledComponent } from "./pack/styles";
 var barcode = "";
 // }
 const AddReportHandOver: React.FC<any> = (props: any) => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const [goodsReceiptsForm] = Form.useForm();
   const formSearchOrderRef = createRef<FormInstance>();
@@ -220,19 +222,12 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           if (value) {
             showSuccess("Thêm biên bản bàn giao thành công");
             console.log(value.id)
-            window.location.href = `${UrlConfig.DELIVERY_RECORDS}/${value.id}`
+            history.push(`${UrlConfig.DELIVERY_RECORDS}/${value.id}`);
           }
         })
       );
     },
-    [
-      dispatch,
-      listGoodsReceiptsType,
-      listStores,
-      listThirdPartyLogistics,
-      listChannels,
-      orderListResponse
-    ]
+    [orderListResponse, listStores, listThirdPartyLogistics, listGoodsReceiptsType, dispatch, listChannels, history]
   );
 
   const onOkPress = useCallback(() => {
