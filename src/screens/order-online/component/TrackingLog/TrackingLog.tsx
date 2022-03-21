@@ -18,7 +18,7 @@ function TrackingLog(props: PropTypes): JSX.Element {
 
   return (
     <StyledComponent>
-      <Collapse ghost>
+      <Collapse ghost defaultActiveKey={['1']}>
         <Collapse.Panel
           header={
             <Row>
