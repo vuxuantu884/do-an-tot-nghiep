@@ -400,7 +400,7 @@ const CreateTicket: FC = () => {
   };
 
   useEffect(() => {
-    if (stores.length === 0 || fromStores?.length === 0) return;
+    if (stores.length === 0) return;
 
     if (fromStores?.length === 1) {
       stores.forEach((element) => {
@@ -413,6 +413,17 @@ const CreateTicket: FC = () => {
         }
       });
     }
+
+    if (fromStores?.length === 0) {
+      const newStore = stores.map((i) => {
+        return {
+          store_id: i.id,
+          store: i.name,
+        }
+      });
+      setFromStores(newStore);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stores, fromStores, onChangeFromStore]);
 
   const onFinish = (data: StockTransferSubmit) => {
