@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import {borderColor, primaryColor, successColor} from "utils/global-styles/variables";
 export const nameQuantityWidth = 300;
-const quantityWidth = 45;
+const quantityWidth = 25;
 const massWidth = 100;
 const priceWidth = 90;
-const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
+const nameWidth = nameQuantityWidth - quantityWidth - priceWidth + 20;
 
 export const StyledComponent = styled.div`
   th {
@@ -33,7 +33,7 @@ export const StyledComponent = styled.div`
     width: ${nameWidth}px;
   }
   .quantityWidth {
-    width: ${quantityWidth}px;
+    /* width: ${quantityWidth}px; */
     text-align: center;
   }
   .massWidth {
@@ -239,6 +239,8 @@ export const StyledComponent = styled.div`
     }
     .trackingCode {
       word-break: break-all ;
+      color: ${primaryColor};
+      font-weight: 500;
       cursor: pointer;
     }
     .trackingCodeImg {
