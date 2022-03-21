@@ -41,12 +41,12 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
   const handleChangeReturnQuantity = (
-    value: number,
+    value: number | null,
     item: PurchaseOrderLineReturnItem,
     index: number
   ) => {
-    item.quantity_return = value;
-    item.amount_tax_refunds = item.quantity_return * item.price * item.tax_rate / 100;
+    item.quantity_return = value || 0;
+    item.amount_tax_refunds = Number(item.quantity_return) * item.price * item.tax_rate / 100;
     let valueIndex = currentLineReturn.findIndex(
       (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
     );
@@ -243,7 +243,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                     // checked={allChecked}
                     onChange={(e) => fillAllLineReturn(e.target.checked)}
                   >
-                    Trả toàn bộ sản phẩm
+                    Trả toàn bộ sản phẩmss
                   </Checkbox>
                   <Form.Item
                     style={{ padding: 0 }}
@@ -399,7 +399,6 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                       value={currentValue}
                                       default={0}
                                       onChange={(inputValue) => {
-                                        if (inputValue === null) return;
                                         handleChangeReturnQuantity(
                                           inputValue,
                                           item,
