@@ -1152,9 +1152,9 @@ const DetailTicket: FC = () => {
                     <RowDetail
                       title="Ngày nhận"
                       value={
-                        data.pending_date
+                        data.receive_date
                           ? ConvertUtcToLocalDate(
-                              data.pending_date,
+                              data.receive_date,
                               "DD/MM/YYYY"
                             )
                           : " ---"
