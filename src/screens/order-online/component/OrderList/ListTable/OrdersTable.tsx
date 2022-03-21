@@ -511,7 +511,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: nameQuantityWidth,
+        width: nameQuantityWidth - 20,
       },
       // {
       //   title: "Kho cửa hàng",
@@ -566,7 +566,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "right",
-        width: 90,
+        width: 120,
       },
       {
         title: "Vận chuyển",
