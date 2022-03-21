@@ -523,7 +523,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       className="page-ok-save-address"
                       onClick={() => onOkPress()}
                     >
-                      Lưu địa chỉ giao hàng nè
+                      Lưu địa chỉ
                     </Button>
                   </div>
                 }
