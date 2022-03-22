@@ -320,14 +320,15 @@ function OrderList(props: PropTypes) {
               })
             );
             window.open(printPreviewUrlExport);
-            changeMultiOrderStatus(ids, "shipping").then(response => {
-              if(isFetchApiSuccessful(response)) {
-              } else {
-                handleFetchApiError(response, "Chuyển trạng thái nhiều đơn hàng", dispatch)
-              }
-            }).finally(()=>{
-              dispatch(hideLoading());
-            })
+            // không chuyển trạng thái nữa
+            // changeMultiOrderStatus(ids, "shipping").then(response => {
+            //   if(isFetchApiSuccessful(response)) {
+            //   } else {
+            //     handleFetchApiError(response, "Chuyển trạng thái nhiều đơn hàng", dispatch)
+            //   }
+            // }).finally(()=>{
+            //   dispatch(hideLoading());
+            // })
             break;
           }
 
