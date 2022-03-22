@@ -25,6 +25,16 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const history = useHistory();
   const {location} = history;
 
+  const prefixTitle = () => {
+    if (window.location.host.startsWith("dev") || window.location.host.startsWith("localhost")) {
+      return "DEV - ";
+    } else if (window.location.host.startsWith("uat")) {
+      return "UAT - ";
+    } else {
+      return "";
+    }
+  }
+
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -52,7 +62,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   return (
     <Layout>
       <Helmet>
-        <title>{title}</title>
+        <title>{prefixTitle() + title}</title>
       </Helmet>
       <LoadingScreen />
       <HeaderContainer account={account} onCollapse={onCollapsed} />

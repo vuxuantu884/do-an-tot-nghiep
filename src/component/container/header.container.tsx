@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutAction } from "domain/actions/auth/auth.action";
 import { StyledComponent } from "./header.container.styles";
 import { RootReducerType } from "../../model/reducers/RootReducerType";
+import logoDev from "assets/img/yody-logo-dev.svg";
+import logoUat from "assets/img/yody-logo-uat.svg";
 
 type HeaderContainerProps = {
   onCollapse: () => void;
@@ -22,10 +24,21 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
     (state: RootReducerType) => state.userReducer.account?.user_id
   );
   const dispatch = useDispatch();
+
+  const Logo = () => {
+    if (window.location.host.startsWith("dev") || window.location.host.startsWith("localhost")) {
+      return <img src={logoDev} alt="logo-mt-dev" />;
+    } else if (window.location.host.startsWith("uat")) {
+      return <img src={logoUat} alt="logo-mt-uat" />;
+    } else {
+      return <img src={logo} alt="logo-mt-prod" />;
+    }
+  };
+
   const userMenu = (
     <Menu>
       <Menu.Item key="info">
-      <Link to={`${UrlConfig.ACCOUNTS}/me`}>
+        <Link to={`${UrlConfig.ACCOUNTS}/me`}>
           <span>Thông tin tài khoản</span>
         </Link>
       </Menu.Item>
@@ -46,7 +59,9 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
       <Layout.Header>
         <div className="ant-layout-header-left">
           <Link to={UrlConfig.HOME}>
-            <img src={logo} alt="" />
+            <div className="logo-header">
+            <Logo/>
+            </div>
           </Link>
           <div className="header-right">
             <Button
