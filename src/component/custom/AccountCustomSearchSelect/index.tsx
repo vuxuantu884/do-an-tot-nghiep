@@ -7,6 +7,7 @@ import React, {
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import CustomSelect from "../select.custom";
 
 type PropType = {
   placeholder: string;
@@ -74,7 +75,7 @@ function AccountCustomSearchSelect(props: PropType) {
 	}, [initDataToSelect, setDataToSelect])
 
   return (
-		<Select
+		<CustomSelect
 			loading={isLoading}
 			showSearch
 			showArrow
@@ -92,7 +93,7 @@ function AccountCustomSearchSelect(props: PropType) {
 						{`${account.code} - ${account.full_name}`}
 					</Select.Option>
 				))}
-		</Select>
+		</CustomSelect>
   );
 }
 
