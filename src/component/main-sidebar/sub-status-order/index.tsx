@@ -47,7 +47,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     fulfillments,
     subStatusCode,
     handleUpdateSubStatus,
-    setReload,
     OrderDetailAllFulfillment,
   } = props;
   const dispatch = useDispatch();
@@ -104,7 +103,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           () => {
             setValueSubStatusCode(sub_status_code);
             handleUpdateSubStatus();
-            setReload(true);
+            // setReload(true);
             setIsShowReason(false);
             setSubReasonRequireWarehouseChange(undefined);
           },
