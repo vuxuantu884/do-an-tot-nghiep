@@ -548,3 +548,19 @@ label {
   color: #2A2A86;
   font-weight: 500;
 }
+
+.ant-layout {
+	&.showHeader {
+		.ant-layout-sider {
+			transition: 0.3s;
+			padding-top: 60px;
+		}
+	}
+	&.hideHeader {
+		.ant-layout-content,
+		.ant-layout-sider {
+			transition: 0.3s;
+			padding-top: 0;
+		}
+	}
+}
