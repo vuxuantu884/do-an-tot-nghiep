@@ -311,7 +311,7 @@ function OrderList(props: PropTypes) {
           break;
         case ACTION_ID.printStockExport:
           {
-            dispatch(showLoading());
+            // dispatch(showLoading());
             const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
             let ids: number[] = [];
             selectedRow.forEach((row) =>
