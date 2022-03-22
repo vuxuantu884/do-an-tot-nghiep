@@ -21,6 +21,7 @@ import {
   Row,
   Select,
 } from "antd";
+import CustomSelect from "component/custom/select.custom";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   CustomerCreateAction,
@@ -261,7 +262,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 },
               ]}
             >
-              <Select
+              <CustomSelect
                 className="select-with-search"
                 showSearch
                 allowClear
@@ -284,7 +285,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     {area.city_name + ` - ${area.name}`}
                   </Select.Option>
                 ))}
-              </Select>
+              </CustomSelect>
             </Form.Item>
           </Col>
           <Form.Item label="city" name="city_id" hidden>

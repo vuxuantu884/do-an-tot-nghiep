@@ -1,4 +1,5 @@
 import { Card, Form, FormInstance, Select } from "antd";
+import CustomSelect from "component/custom/select.custom";
 import { OrderReasonModel } from "model/response/order/order.response";
 import React, { useCallback } from "react";
 import { StyledComponent } from "./styles";
@@ -109,15 +110,12 @@ function OrderReturnReason(props: PropType): React.ReactElement {
           name="sub_reason_id"
           rules={[{required: true, message: "Vui lòng chọn lý do đổi trả hàng!"}]}
         >
-          <Select
+          <CustomSelect
             showSearch
             style={{width: "100%"}}
             placeholder="Chọn lý do đổi trả hàng"
             allowClear
             optionFilterProp="children"
-            filterOption={(input, option) =>
-              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
             notFoundContent="Không tìm thấy lý do đổi trả hàng"
             onChange={(value) => onChangeReasonID(value)}
           >
@@ -129,7 +127,7 @@ function OrderReturnReason(props: PropType): React.ReactElement {
                   </Select.Option>
                 );
               })}
-          </Select>
+          </CustomSelect>
         </Form.Item>
         {renderSubReason()}
       </Card>
