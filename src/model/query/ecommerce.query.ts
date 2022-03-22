@@ -31,6 +31,7 @@ export interface ExitProgressDownloadEcommerceQuery {
 }
 
 export interface GetOrdersMappingQuery extends BaseQuery {
+  ecommerce_id: number | null
   ecommerce_order_code: string | null;
   core_order_code: string | null;
   connected_status: string | null;

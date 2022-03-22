@@ -35,7 +35,7 @@ import 'component/filter/order.filter.scss'
 type AllOrdersMappingFilterProps = {
   params: GetOrdersMappingQuery;
   selectedRowKeys?: Array<any> | undefined;
-  shopList: Array<any>;
+  // shopList: Array<any>;
   initQuery: GetOrdersMappingQuery;
   isLoading: boolean;
   onClearFilter?: () => void;
@@ -77,7 +77,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     isLoading,
     onClearFilter,
     onFilter,
-    shopList,
+    // shopList,
     handleDownloadSelectedOrders,
   } = props;
 
@@ -85,14 +85,14 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
-  const [ecommerceIdSelected, setEcommerceIdSelected] = useState(null);
+  const [ecommerceIdSelected, setEcommerceIdSelected] = useState<any>(null);
   const [isEcommerceSelected, setIsEcommerceSelected] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    setEcommerceShopList(shopList || []);
-  }, [shopList]);
+  // useEffect(() => {
+  //   setEcommerceShopList(shopList || []);
+  // }, [shopList]);
 
   let initialValues = useMemo(() => {
     return {
@@ -127,6 +127,20 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   const [createdDateTo, setCreatedDateTo] = useState<any>(
     initialValues.created_date_to
   );
+
+  const ConvertUtcToDate = (
+    date?: Date | string | number | null,
+    format?: string
+  ) => {
+    if (date != null) {
+      let localDate = moment.utc(date).toDate();
+      let dateFormat = moment(localDate).format(
+        format ? format : "DD/MM/YYYY"
+      );
+      return dateFormat;
+    }
+    return "";
+  };
 
   const clickOptionDate = useCallback(
     (type, value) => {
@@ -216,7 +230,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
         const findStatus = ecommerceShopList?.find(
-          (item) => item.id === shopId
+          (item) => +item.id === +shopId
         );
         shopNameList = findStatus
           ? shopNameList + findStatus.name + "; "
@@ -366,15 +380,17 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   //handle select ecommerce
   const handleSelectEcommerce = (ecommerceId: any) => {
-    if (ecommerceId !== ecommerceIdSelected) {
+    if (ecommerceId !== null && ecommerceId !== ecommerceIdSelected) {
       formFilter?.setFieldsValue({
         shop_ids: []
       });
 
-      setEcommerceIdSelected(ecommerceId);
-      getEcommerceShop(ecommerceId);
+      setEcommerceIdSelected(ecommerceId)
+      setIsEcommerceSelected(true);
+      onFilter && onFilter({...params, shop_ids: [], ecommerce_id: ecommerceId});
+
     }
-  };
+  }
 
   const getEcommerceShop = (ecommerceId: any) => {
     setIsEcommerceSelected(false);
@@ -388,7 +404,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   // get ecommerce shop list
   const updateEcommerceShopList = useCallback((result) => {
-    setIsEcommerceSelected(true);
     const shopList: any[] = [];
     if (result && result.length > 0) {
       result.forEach((item: any) => {
@@ -411,7 +426,78 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     formFilter?.setFieldsValue({ shop_ids: [] });
   };
 
+  //handle query params filter
+  const onCheckDateFilterParam = useCallback((date_from: any, date_to: any, setDate: any) => {
+    const todayFrom = ConvertUtcToDate(ConvertDateToUtc(moment()));
+    const todayTo = ConvertUtcToDate(ConvertDateToUtc(moment()));
+    const yesterdayFrom = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
+    const yesterdayTo = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
+    const thisWeekFrom = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").add(7, "h")));
+    const thisWeekTo = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week")));
+    const lastWeekFrom = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, "h")));
+    const lastWeekTo = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks")));
+    const thisMonthFrom = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").add(7, "h")));
+    const thisMonthTo = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month")));
+    const lastMonthFrom = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, "h")));
+    const lastMonthTo = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month").subtract(1, "months")));
 
+    const date_from_convert = ConvertUtcToDate(date_from);
+    const date_to_convert = ConvertUtcToDate(date_to)
+    
+    if (date_from_convert === todayFrom && date_to_convert === todayTo) {
+      setDate("today");
+    }else if (date_from_convert === yesterdayFrom && date_to_convert === yesterdayTo) {
+      setDate("yesterday");
+    }else if (date_from_convert === thisWeekFrom && date_to_convert === thisWeekTo) {
+      setDate("thisweek");
+    }else if (date_from_convert === lastWeekFrom && date_to_convert === lastWeekTo) {
+      setDate("lastweek");
+    }else if(date_from_convert === thisMonthFrom && date_to_convert === thisMonthTo) {
+      setDate("thismonth");
+    }else if (date_from_convert === lastMonthFrom && date_to_convert === lastMonthTo) {
+      setDate("lastmonth");
+    }else {
+      setDate("")
+    }
+  }, [])
+
+
+  useEffect(() => {
+    let checkEcommerceShop = Array.isArray(params.shop_ids)
+    ? params.shop_ids
+    : [params.shop_ids];
+
+    formFilter.setFieldsValue({
+      ecommerce_order_code: params.ecommerce_order_code,
+      core_order_code: params.core_order_code,
+      shop_ids: checkEcommerceShop.map(item => +item),
+      ecommerce_id: params.ecommerce_id,
+      connected_status: params.connected_status,
+      created_date_from: params.created_date_from,
+      created_date_to: params.created_date_to,
+      ecommerce_order_statuses: params.ecommerce_order_statuses,
+      page: params.page
+    })
+
+    onCheckDateFilterParam(params.created_date_from, params.created_date_to, setCreatedDateClick)
+
+    if (params.ecommerce_id !== null) {
+      getEcommerceShop(params.ecommerce_id)
+    }
+
+
+    if (params.created_date_from === null) {
+      setCreatedDateFrom(null);
+      setCreatedDateTo(null);
+    }else {
+      setCreatedDateFrom(params.created_date_from);
+      setCreatedDateTo(params.created_date_to);
+    }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formFilter, params]);
+
+  
   return (
     <AllOrdersMappingFilterStyled>
       <div className="order-filter">
@@ -440,7 +526,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
               onSelect={(value) => handleSelectEcommerce(value)}
               onClear={removeEcommerce}>
               {ECOMMERCE_LIST?.map((item: any) => (
-                <Select.Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                <Select.Option key={item.ecommerce_id} value={item.ecommerce_id.toString()}>
                   <div>
                     <img
                       src={item.icon}
@@ -459,7 +545,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             name="shop_ids"
           >
 
-            {isEcommerceSelected ?
+            {params.ecommerce_id !== null ?
               <TreeSelect
                 placeholder="Chọn gian hàng"
                 treeDefaultExpandAll
@@ -513,6 +599,11 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
               placeholder="ID đơn hàng (Sàn)"
               onBlur={(e) => {
                 formFilter?.setFieldsValue({
+                  ecommerce_order_code: e.target.value.trim(),
+                });
+              }}
+              onPressEnter={(e: any) => {
+                formFilter.setFieldsValue({
                   ecommerce_order_code: e.target.value.trim(),
                 });
               }}

@@ -6,7 +6,6 @@ import { EcommerceProductPermission } from "config/permissions/ecommerce.permiss
 import UrlConfig from "config/url.config";
 import {
   getOrderMappingListAction,
-  getShopEcommerceList,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
@@ -15,7 +14,7 @@ import { OrderModel } from "model/order/order.model";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
@@ -26,10 +25,15 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import checkIcon from "assets/icon/CheckIcon.svg"
 import stopIcon from "assets/icon/Stop.svg"
 import "./AllOrdersMapping.scss"
+import { generateQuery } from "utils/AppUtils";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
+import queryString from "query-string";
+
 
 const initQuery: GetOrdersMappingQuery = {
   page: 1,
   limit: 30,
+  ecommerce_id: null,
   ecommerce_order_code: null,
   core_order_code: null,
   connected_status: null,
@@ -67,16 +71,25 @@ type AllOrdersMappingProps = {
 const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   props: AllOrdersMappingProps
 ) => {
+  const history = useHistory()
+  const location = useLocation()
   const dispatch = useDispatch();
   const { isReloadPage,setRowDataFilter, handleDownloadSelectedOrders, handleSingleDownloadOrder } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useState<Array<AccountResponse>>();
   const [params, setPrams] = useState<GetOrdersMappingQuery>(initQuery);
-  const [allShopList, setAllShopList] = useState<Array<any>>([]);
+  // const [allShopList, setAllShopList] = useState<Array<any>>([]);
   const productsUpdateStockPermission = [
     EcommerceProductPermission.products_update_stock,
   ];
+
+  const queryParamsParsed: any = queryString.parse(
+    location.search
+  );
+
+
+  const [pageQuery, setPageQuery] = useState(1);
 
   const [allowProductsUpdateStock] = useAuthorization({
     acceptPermissions: productsUpdateStockPermission,
@@ -289,25 +302,34 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
 
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
+      setPageQuery(page)
+      let newPrams = { ...params, page, limit: size };
+      let queryParam = generateQuery(newPrams);
+			history.push(`${location.pathname}?${queryParam}`);
       setPrams({ ...params });
       window.scrollTo(0, 0);
     },
-    [params]
+    [history, location.pathname, params]
   );
 
   const onFilter = useCallback(
     (values) => {
-      const filterParams = { ...params, ...values, page: 1 };
-      setPrams(filterParams);
+      const filterParams = { ...params, ...values, page: pageQuery };
+      let currentParam = generateQuery(params);
+      let queryParam = generateQuery(filterParams);
+      if (currentParam !== queryParam) {
+				history.push(`${location.pathname}?${queryParam}`);
+      }
     },
-    [params]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [history, location.pathname, pageQuery, params]
   );
 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
-  }, []);
+    let queryParam = generateQuery(initQuery);
+    history.push(`${location.pathname}?${queryParam}`);
+  }, [history, location.pathname]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
@@ -319,7 +341,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     []
   );
 
-  const getOrderMappingList = useCallback(() => {
+  const getOrderMappingList = useCallback((params) => {
     setIsLoading(true);
     dispatch(
       getOrderMappingListAction(params, (result) => {
@@ -327,42 +349,64 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         setSearchResult(result);
       })
     );
-  }, [dispatch, params, setSearchResult]);
+  }, [dispatch, setSearchResult]);
 
   useEffect(() => {
-    getOrderMappingList();
-  }, [getOrderMappingList]);
+    getOrderMappingList(params)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    params.page,
+    params.limit,
+    params.ecommerce_id,
+    params.shop_ids,
+    params.ecommerce_order_code,
+    params.core_order_code,
+    params.created_date_from,
+    params.created_date_to,
+    params.ecommerce_order_statuses,
+    params.connected_status,
+  ]);
 
-  // reload page
-  useEffect(() => {
-    if (isReloadPage) {
-      getOrderMappingList();
-    }
-  }, [getOrderMappingList, isReloadPage]);
-  // end
+  // // reload page
+  // useEffect(() => {
+  //   if (isReloadPage) {
+  //     getOrderMappingList(params);
+  //   }
+  // }, [getOrderMappingList, isReloadPage, params]);
+  // //end
 
   // handle get all shop list
-  const updateAllShopList = useCallback((result) => {
-    const shopList: any[] = [];
-    if (result && result.length > 0) {
-      result.forEach((item: any) => {
-        shopList.push({
-          id: item.id,
-          name: item.name,
-          isSelected: false,
-          ecommerce: item.ecommerce,
-        });
-      });
-    }
+  // const updateAllShopList = useCallback((result) => {
+  //   const shopList: any[] = [];
+  //   if (result && result.length > 0) {
+  //     result.forEach((item: any) => {
+  //       shopList.push({
+  //         id: item.id,
+  //         name: item.name,
+  //         isSelected: false,
+  //         ecommerce: item.ecommerce,
+  //       });
+  //     });
+  //   }
 
-    setAllShopList(shopList);
-  }, []);
+  //   setAllShopList(shopList);
+  // }, []);
 
+
+  // useEffect(() => {
+  //   dispatch(getShopEcommerceList({}, updateAllShopList));
+  // }, [dispatch, updateAllShopList]);
+  // // end
 
   useEffect(() => {
-    dispatch(getShopEcommerceList({}, updateAllShopList));
-  }, [dispatch, updateAllShopList]);
-  // end
+    let dataQuery: GetOrdersMappingQuery = {
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setPrams(dataQuery);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch,setSearchResult, location.search]);
+
 
   return (
     <AllOrdersMappingStyled>
@@ -374,7 +418,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
           initQuery={initQuery}
           onClearFilter={onClearFilter}
           onFilter={onFilter}
-          shopList={allShopList}
+          // shopList={allShopList}
           setRowDataFilter={setRowDataFilter}
           handleDownloadSelectedOrders={handleDownloadSelectedOrders}
         />
