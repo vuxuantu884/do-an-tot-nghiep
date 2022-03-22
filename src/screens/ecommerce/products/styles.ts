@@ -60,8 +60,12 @@ export const StyledUpdateProductDataModal = styled.div`
 export const StyledProductFilter = styled.div`
   .filter {
     overflow-x: auto;
+    margin-bottom: 5px;
     .ant-form {
       display: flex;
+      .ant-form-item {
+        margin-bottom: 5px;
+      }
     }
   }
 
@@ -126,7 +130,14 @@ export const StyledProductFilter = styled.div`
       }
     }
   }
+  .order-filter-tags .tag {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding: 5px 10px;
+    border-radius: 50px;
+  }
 `;
+
 
 export const StyledProductLink = styled.div`
   a {
