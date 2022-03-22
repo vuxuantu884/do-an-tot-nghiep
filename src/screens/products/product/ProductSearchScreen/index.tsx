@@ -8,14 +8,15 @@ import RenderTabBar from "component/table/StickyTabBar";
 import {ProductPermission} from "config/permissions/product.permission";
 import UrlConfig, {ProductTabUrl} from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {Link, useHistory, useRouteMatch} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import TabHistoryInfo from "../tab/TabHistoryInfo";
-import TabHistoryPrice from "../tab/TabHistoryPrice";
-import TabProduct from "../tab/TabProduct";
-import TabProductWrapper from "../tab/TabProductWrapper";
 const {TabPane} = Tabs;
+
+const TabProduct = React.lazy(() => import("../tab/TabProduct"));
+const TabProductWrapper = React.lazy(() => import("../tab/TabProductWrapper"));
+const TabHistoryInfo = React.lazy(() => import("../tab/TabHistoryInfo"));
+const TabHistoryPrice = React.lazy(() => import("../tab/TabHistoryPrice"));
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -27,7 +28,7 @@ const ListProductScreen: React.FC = () => {
   const [canReadProducts] = useAuthorization({
     acceptPermissions: [ProductPermission.read],
   });
-  const [activeTab, setActiveTab] = useState<string>(ProductTabUrl.VARIANTS);
+  const [activeTab, setActiveTab] = useState<string | "">("");
   const history = useHistory();
   let match = useRouteMatch();
   const {path} = match;
@@ -98,8 +99,7 @@ const ListProductScreen: React.FC = () => {
       isShow: canReadHistories,
     },
   ];
-  const tabs = defaultTabs.filter((tab) => tab.isShow); 
-
+  const tabs = useMemo(() => defaultTabs.filter((tab) => tab.isShow),[defaultTabs]);
   return (
     <ContentContainer
       title="Quản lý sản phẩm"
@@ -149,6 +149,7 @@ const ListProductScreen: React.FC = () => {
           style={{overflow: "initial"}}
           activeKey={activeTab}
           onChange={(active) => {
+            setActiveTab(active);
             history.replace(active);
           }}
           renderTabBar={RenderTabBar}
@@ -157,7 +158,7 @@ const ListProductScreen: React.FC = () => {
             if (tab.isShow) {
               return (
                 <TabPane tab={tab.name} key={tab.key}>
-                  {tab.component}
+                  {activeTab === tab.key && tab.component}
                 </TabPane>
               );
             } else {
@@ -165,7 +166,7 @@ const ListProductScreen: React.FC = () => {
             }
           })}
         </Tabs>
-      </Card> 
+      </Card>
     </ContentContainer>
   );
 };

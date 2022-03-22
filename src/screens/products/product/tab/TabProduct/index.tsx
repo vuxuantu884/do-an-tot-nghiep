@@ -48,7 +48,7 @@ import ExportProduct from "../../component/ExportProduct";
 import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
-import { StyledComponent } from "../style"; 
+import { StyledComponent } from "../style";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -141,7 +141,7 @@ const TabProduct: React.FC<any> = (props) => {
       let queryParam = generateQuery(params);
       history.push(`${UrlConfig.VARIANTS}${history.location.hash}?${queryParam}`);
     },
-    [history,params] 
+    [history,params]
   );
 
   const onFilter = useCallback((values) => {
@@ -368,8 +368,8 @@ const TabProduct: React.FC<any> = (props) => {
           <div>
              {
               (record?.product?.designer) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.designer_code}`}> 
-                  {record?.product?.designer} 
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.designer_code}`}>
+                  {record?.product?.designer}
                 </Link>  :"---"
             }
           </div>
@@ -386,8 +386,8 @@ const TabProduct: React.FC<any> = (props) => {
           <div>
              {
               (record?.product?.merchandiser) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.merchandiser_code}`}> 
-                  {record?.product?.merchandiser} 
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.merchandiser_code}`}>
+                  {record?.product?.merchandiser}
                 </Link>  :"---"
             }
           </div>
@@ -436,8 +436,8 @@ const TabProduct: React.FC<any> = (props) => {
       }
       return false;
     });
-  }, [canPrintBarcode, canDeleteVariants, canUpdateProduct, actionsDefault]); 
-  
+  }, [canPrintBarcode, canDeleteVariants, canUpdateProduct, actionsDefault]);
+
     const onCancelProgressModal = () => {
       setExportCodeList([]);
       setIsVisibleProgressModal(false);
@@ -469,13 +469,13 @@ const TabProduct: React.FC<any> = (props) => {
 
       if (typeExport === TYPE_EXPORT.all) {
         conditions ={...params}
-      } 
+      }
 
       if (typeExport === TYPE_EXPORT.page) {
         conditions ={
           ...conditions,
           variant_ids: data.items.map(e=>e.id)}
-      } 
+      }
 
       if (selected && selected.length > 0) {
         variant_ids = selected.map(e=>e.id);
