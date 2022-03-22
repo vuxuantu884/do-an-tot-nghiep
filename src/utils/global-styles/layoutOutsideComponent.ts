@@ -63,4 +63,38 @@ export const globalCssLayoutOutsideComponent = css`
   .modal-des img {
     max-width: 70% ;
   }
+  .order-filter-drawer {
+    .button-option-1 {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      .ant-btn {
+        width: 48%;
+        height: 36px;
+        margin-right: 5px;
+      }
+    }
+    .button-option-2 {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      .ant-btn {
+        width: 30%;
+        padding: 0px 5px;
+        height: 36px;
+        line-height: 34px;
+      }
+    }
+    .active {
+      color: #ffffff;
+      border-color: rgba(42, 42, 134, 0.1);
+      background-color: #2a2a86;
+    }
+    .deactive {
+      color: #2a2a86;
+      border-color: rgba(42, 42, 134, 0.05);
+      background-color: rgba(42, 42, 134, 0.05);
+    }
+
+  }
 `;

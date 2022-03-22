@@ -25,6 +25,7 @@ import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -2181,7 +2182,7 @@ function OrderCreateProduct(props: PropType) {
 								},
 							]}
 						>
-							<Select
+							<CustomSelect
 								className="select-with-search"
 								showSearch
 								allowClear
@@ -2206,13 +2207,6 @@ function OrderCreateProduct(props: PropType) {
 									}
 									dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
 								}}
-								filterOption={(input: String, option: any) => {
-									if (option.props.value) {
-										return strForSearch(option.props.children).includes(strForSearch(input));
-									}
-
-									return false;
-								}}
 								disabled={levelOrder > 3}
 							>
 								{dataCanAccess.map((item, index) => (
@@ -2220,7 +2214,7 @@ function OrderCreateProduct(props: PropType) {
 										{item.name}
 									</Select.Option>
 								))}
-							</Select>
+							</CustomSelect>
 						</Form.Item>
 					</Col>
 					<Col md={16}>

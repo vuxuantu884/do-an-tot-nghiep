@@ -407,16 +407,15 @@ function OrdersTable(props: PropTypes) {
           <div className="customer custom-td">
             {record.customer_phone_number && (
               <div style={{ color: "#2A2A86" }}>
-                <Button
-                  style={{ padding: "0px", fontWeight: 500 }}
-                  type="link"
+                <div
+                  style={{ padding: "0px", fontWeight: 500, cursor: "pointer" }}
                   onClick={() =>
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : ""
                     )
                   }>
                   {record.customer_phone_number}
-                </Button>
+                </div>
                 {/* <Button  type="link" onClick={()=>{
                     onFilterPhoneCustomer(record.customer_phone_number)
                   }}>{record.customer_phone_number}</Button> */}

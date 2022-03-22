@@ -1,4 +1,5 @@
 import { Card, Form, Select } from "antd";
+import CustomSelect from "component/custom/select.custom";
 import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order/order.action";
 import {
 	FulFillmentResponse,
@@ -47,7 +48,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     fulfillments,
     subStatusCode,
     handleUpdateSubStatus,
-    setReload,
     OrderDetailAllFulfillment,
   } = props;
   const dispatch = useDispatch();
@@ -104,7 +104,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           () => {
             setValueSubStatusCode(sub_status_code);
             handleUpdateSubStatus();
-            setReload(true);
+            // setReload(true);
             setIsShowReason(false);
             setSubReasonRequireWarehouseChange(undefined);
           },
@@ -323,14 +323,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 
   return (
     <Card title="Xử lý đơn hàng">
-      <Select
+      <CustomSelect
         showSearch
         style={{ width: "100%" }}
         placeholder="Chọn trạng thái phụ"
         optionFilterProp="children"
-        filterOption={(input, option) =>
-          option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-        }
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
@@ -344,7 +341,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
               </Select.Option>
             );
           })}
-      </Select>
+      </CustomSelect>
       {isShowReason ? (
         <div style={{ marginTop: 15 }}>
           <Form.Item
