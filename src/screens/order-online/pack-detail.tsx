@@ -138,25 +138,27 @@ const PackDetail: React.FC = () => {
 
           data.orders?.forEach(function (itemOrder) {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
-              itemFFM.items.forEach(function (itemProduct, index) {
-                ////
-                const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
-                resultListProduct.push({
-                  key: keyProduct++,
-                  barcode: itemProduct.variant_barcode,
-                  product_id: itemProduct.product_id,
-                  product_sku: itemProduct.sku,
-                  product_name: itemProduct.product,
-                  variant_id: itemProduct.variant_id,
-                  // inventory: itemProduct.available ? itemProduct.available : 0,
-                  price: itemProduct.price,
-                  total_quantity: itemProduct.quantity,
-                  total_incomplate: 0,
-                  on_hand: productOnHand? productOnHand.on_hand : undefined,
-                });
+              if (itemFFM.status === 'packed') {
+                itemFFM.items.forEach(function (itemProduct, index) {
+                  ////
+                  const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
+                  resultListProduct.push({
+                    key: keyProduct++,
+                    barcode: itemProduct.variant_barcode,
+                    product_id: itemProduct.product_id,
+                    product_sku: itemProduct.sku,
+                    product_name: itemProduct.product,
+                    variant_id: itemProduct.variant_id,
+                    // inventory: itemProduct.available ? itemProduct.available : 0,
+                    price: itemProduct.price,
+                    total_quantity: itemProduct.quantity,
+                    total_incomplate: 0,
+                    on_hand: productOnHand? productOnHand.on_hand : undefined,
+                  });
 
-                ///
-              });
+                  ///
+                });
+              }
             });
           });
 
@@ -171,14 +173,15 @@ const PackDetail: React.FC = () => {
             let findStatus: any = "";
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-            if (itemOrder.fulfillments && itemOrder.fulfillments.length) {
-              const status = itemOrder.fulfillments[0].status;
+            const ffms = itemOrder.fulfillments?.filter(ffm => ffm.status === 'packed');
+            if (ffms && ffms.length) {
+              const status = ffms[0].status;
               
               findStatus = listStatusTagWithoutReturn.find(stt => stt.status === status);
             }
             const statusName = findStatus ? findStatus.name : "";
             const statusColor = findStatus ? findStatus.color : "";
-            itemOrder.fulfillments?.forEach(function (itemFFM) {
+            ffms?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
               total_price += itemFFM.total ? itemFFM.total : 0;
