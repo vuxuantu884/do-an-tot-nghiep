@@ -17,7 +17,6 @@ import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { CompareObject } from "utils/CompareObject";
-import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 
 type MaterialPamram = {
@@ -144,10 +143,6 @@ const UpdateMaterial: React.FC = () => {
                       whitespace: true,
                       required: true,
                       message: "Vui lòng nhập mã chất liệu",
-                    },
-                    {
-                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                      message: "Mã chất liệu không chứa ký tự đặc biệt",
                     },
                   ]}
                   name="code"
