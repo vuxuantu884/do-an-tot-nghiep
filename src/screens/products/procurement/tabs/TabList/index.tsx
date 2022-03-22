@@ -33,7 +33,9 @@ import {
 import {
   ConvertDateToUtc,
   ConvertUtcToLocalDate,
-  DATE_FORMAT, getStartOfDayCommon,
+  DATE_FORMAT,
+  getEndOfDayCommon,
+  getStartOfDayCommon,
 } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import {getQueryParams, useQuery} from "utils/useQuery";
@@ -595,11 +597,11 @@ const TabList: React.FC = () => {
     const newParams = {
       ...paramsrUrl,
       expect_receipt_from: paramsrUrl.expect_receipt_from && getStartOfDayCommon(paramsrUrl.expect_receipt_from)?.format(),
-      expect_receipt_to: paramsrUrl.expect_receipt_to && getStartOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
+      expect_receipt_to: paramsrUrl.expect_receipt_to && getEndOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
       stock_in_from: paramsrUrl.stock_in_from && getStartOfDayCommon(paramsrUrl.stock_in_from)?.format(),
-      stock_in_to: paramsrUrl.stock_in_to && getStartOfDayCommon(paramsrUrl.stock_in_to)?.format(),
+      stock_in_to: paramsrUrl.stock_in_to && getEndOfDayCommon(paramsrUrl.stock_in_to)?.format(),
       active_from: paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
-      active_to: paramsrUrl.active_to && getStartOfDayCommon(paramsrUrl.active_to)?.format(),
+      active_to: paramsrUrl.active_to && getEndOfDayCommon(paramsrUrl.active_to)?.format(),
     }
     dispatch(
       POSearchProcurement(newParams, (result) => {
