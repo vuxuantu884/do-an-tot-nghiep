@@ -49,4 +49,8 @@ export const StyledComponent = styled.div`
 			}
 		}
 	}
+  .logo-header img {
+    width: 80px;
+    height: auto;
+  }
 `;
