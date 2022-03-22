@@ -122,10 +122,6 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                 style={{marginBottom: 19}}
                 rules={[
                   {required: true, message: "Cần nhập mã giảm giá"},
-                  {
-                    pattern: RegUtil.BOTH_NUMBER_AND_STRING,
-                    message: "Không đúng định dạng CHỮ HOA và SỐ",
-                  },
                   () => ({
                     validator(rule, value) {
                       return new Promise((resolve, reject) => {
@@ -174,10 +170,6 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                             style={{marginBottom: 19}}
                             rules={[
                               {required: true, message: "Cần nhập mã giảm giá"},
-                              {
-                                pattern: RegUtil.BOTH_NUMBER_AND_STRING,
-                                message: "Không đúng định dạng CHỮ HOA và SỐ",
-                              },
                               ({getFieldValue}) => ({
                                 // validator(rule, value, callback) {
                                 //   return new Promise((resolve, reject) => {
@@ -285,8 +277,8 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                       () => ({
                         validator(rule, value) {
                           if (!value) return Promise.resolve();
-                          if (Number(value) < 6)
-                            return Promise.reject(new Error("Số ký tự phải lớn hơn 6"));
+                          if (Number(value) < 4)
+                            return Promise.reject(new Error("Số ký tự phải lớn hơn 4"));
                           if (Number(value) > 20)
                             return Promise.reject(new Error("Số ký tự phải nhỏ hơn 20"));
                           return Promise.resolve();
@@ -295,10 +287,10 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                     ]}
                   >
                     <NumberInput
-                      placeholder="VD: 6"
+                      placeholder="VD: 4"
                       style={{textAlign: "left"}}
                       max={20}
-                      min={6}
+                      min={4}
                     />
                   </Form.Item>
                 </Col>
