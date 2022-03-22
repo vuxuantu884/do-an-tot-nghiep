@@ -8,7 +8,10 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { StyledComponent } from './styles';
 import { Link, useHistory } from "react-router-dom";
 import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
-import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay, getStartOfDay } from "utils/DateUtils";
+import {
+  ConvertUtcToLocalDate,
+  DATE_FORMAT,
+} from "utils/DateUtils";
 import CustomPagination from "component/table/CustomPagination";
 import TabLogFilter from "../../filter/TabLog.filter";
 import { ProcumentLogQuery, PurchaseOrder } from "model/purchase-order/purchase-order.model";
@@ -18,7 +21,7 @@ import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { generateQuery } from "../../../../../utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
 const ActionPurchaseORderHistoryModal = lazy(() => import("screens/purchase-order/Sidebar/ActionHistory/Modal"))
@@ -201,20 +204,25 @@ const TabLogs: React.FC = () => {
   const onFilter = useCallback(
     (values) => {
       if (values.created_date_from) {
-        values.created_date_from = getStartOfDay(values.created_date_from);
+        values.created_date_from = moment(values.created_date_from).startOf("day").utc(true);
       }
       if (values.created_date_to) {
-        values.created_date_to = getEndOfDay(values.created_date_to);
+        values.created_date_to = moment(values.created_date_to).endOf("day").utc(true);
       }
-      let newPrams = {...params, ...values};
+      if (values.condition) {
+        values.condition = values.condition.trim();
+      }
+      let newPrams = {...params, ...values, page: 1,limit: 30};
       setPrams(newPrams);
+      let queryParam = generateQuery(newPrams);
+      history.push(`${UrlConfig.PROCUREMENT}/logs?${queryParam}`);
     },
-    [params]
+    [history, params]
   );
 
   useEffect(()=>{
     getProcumentLogs(params);
-  },[getProcumentLogs,params]);
+  },[getProcumentLogs, params]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
@@ -223,6 +231,7 @@ const TabLogs: React.FC = () => {
   return (
     <StyledComponent>
       <TabLogFilter
+        params={params}
         onFilter={onFilter}
         onClickOpen={() => setShowSettingColumn(true)}
       />

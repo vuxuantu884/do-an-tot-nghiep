@@ -10,6 +10,7 @@ import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
 export interface SelectContentProps extends SelectProps<any> {
+  merchandiser?: string;
   fixedQuery?: any;
   isFilter?: boolean | false;
   [name: string]: any;
@@ -58,6 +59,13 @@ function SelectSearch(contentProps: SelectContentProps) {
     );
   };
 
+  useEffect(() => {
+    if(contentProps.defaultValue) {
+      const user: any =  { code: contentProps?.defaultValue, full_name: contentProps?.merchandiser }
+      setData({...data, items: [user, ...data.items]})
+    }
+  }, [contentProps.defaultValue])
+
   /**
    * Option cho trang 1
    */
@@ -76,7 +84,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       if(findUser) {
         items = response?.items
       } else {
-        items = [...response?.items, currentUser]
+        items = [currentUser, ...response?.items]
       }
       setDefaultOptons(items);
       setData({ ...response, items });

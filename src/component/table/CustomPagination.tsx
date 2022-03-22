@@ -120,6 +120,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                         pagination.current === 1 &&
                         "ant-pagination-disabled"
                     )}
+                    disabled={pagination?.current === 1}
                     type="button"
                   >
                     <LeftOutlined style={{ marginRight: 5 }} />
@@ -143,6 +144,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                         pagination.current === totalPage &&
                         "ant-pagination-disabled"
                     )}
+                    disabled={pagination?.current === totalPage}
                     type="button"
                   >
                     Trang cuối

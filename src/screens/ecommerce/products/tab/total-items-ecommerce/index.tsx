@@ -16,6 +16,7 @@ import {
   Space,
   Progress,
   TreeSelect,
+  Tag,
 } from "antd";
 import { DownOutlined, SearchOutlined, SettingOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -435,6 +436,151 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     ),
   ]);
 
+  let initialValues = useMemo(() => {
+    return {
+      ...query,
+      shop_ids: Array.isArray(query.shop_ids)
+        ? query.shop_ids
+        : [query.shop_ids],
+    };
+  }, [query]);
+
+  let filters = useMemo(() => {
+    let list = [];
+
+    if (initialValues.ecommerce_id !== null) {
+      list.push({
+        key: "ecommerce_id",
+        name: "Gian hàng",
+        value: ECOMMERCE_LIST[initialValues.ecommerce_id - 1].title ,
+      });
+    }
+
+    if (initialValues.shop_ids.length) {
+      let shopNameList = "";
+      initialValues.shop_ids.forEach((shopId: any) => {
+        const findStatus = ecommerceShopList?.find(
+          (item) => +item.id === +shopId
+        );
+        shopNameList = findStatus
+          ? shopNameList + findStatus.name + "; "
+          : shopNameList;
+      });
+      list.push({
+        key: "shop_ids",
+        name: "Gian hàng",
+        value: shopNameList,
+      });
+    }
+
+    if (initialValues.sku_or_name_ecommerce) {
+      list.push({
+        key: "sku_or_name_ecommerce",
+        name: "Sku, tên sản phẩm sàn",
+        value: initialValues.sku_or_name_ecommerce
+      });
+    }
+
+    if (initialValues.sku_or_name_core) {
+      list.push({
+        key: "sku_or_name_core",
+        name: "Sku, tên sản phẩm Yody",
+        value: initialValues.sku_or_name_core
+      });
+    }
+
+    if (initialValues.connect_status) {
+      list.push({
+        key: "connect_status",
+        name: "Trạng thái ghép nối",
+        value: initialValues.connect_status === "connected" ? "Thành công": "Chưa ghép nối"
+      });
+    }
+
+    if (initialValues.update_stock_status) {
+      let value_update_stock_status = ""; 
+      switch (initialValues.update_stock_status) {
+        case "done":
+          value_update_stock_status = "Thành công";
+          break;
+        case "in_progress":
+          value_update_stock_status = "Đang xử lý"
+          break;
+        case "error":
+          value_update_stock_status = "Thất bại"
+          break;
+      }
+      list.push({
+        key: "update_stock_status",
+        name: "Trạng thái đồng bộ tồn kho",
+        value: value_update_stock_status
+      });
+    }
+
+    if (initialValues.connected_date_from || initialValues.connected_date_to) {
+      let textOrderCreateDate =
+        (initialValues.connected_date_from
+          ? ConvertUtcToLocalDate(initialValues.connected_date_from, "DD/MM/YYYY")
+          : "??") +
+        " ~ " +
+        (initialValues.connected_date_to
+          ? ConvertUtcToLocalDate(initialValues.connected_date_to, "DD/MM/YYYY")
+          : "??");
+      list.push({
+        key: "created_date",
+        name: "Ngày tạo đơn",
+        value: textOrderCreateDate,
+      });
+    }
+    
+    return list;
+  }, [
+    initialValues.shop_ids,
+    // initialValues.connected_status,
+    // initialValues.created_date_from,
+    // initialValues.created_date_to,
+    // initialValues.ecommerce_order_statuses,
+    ecommerceShopList,
+  ]);
+
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      let dataQuery :any = {}
+      switch (tag.key) {
+        case "shop_ids":
+          dataQuery = {
+            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...{[tag.key]: []}
+          };
+          break;
+        case "created_date":
+          dataQuery = {
+            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...{connected_date_from: null, connected_date_to: null}
+          };
+          break;
+        case "ecommerce_id":
+          dataQuery = {
+            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...{[tag.key]: [], shop_ids: []}
+          };
+          break;
+        default:
+          dataQuery = {
+            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...{[tag.key]: null}
+          };
+          break;
+      }
+      
+      let queryParam = generateQuery(dataQuery);
+      history.push(`${location.pathname}?${queryParam}`);
+      
+    },
+    [query, formAdvance]
+  );
+
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
       value.connected_date_from = connectionStartDate;
@@ -457,7 +603,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   }, [dispatch, location.search])
 
   const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery)=> {
-    console.log(dataquery);
+    let checkEcommerceShop = Array.isArray(dataquery.shop_ids)
+    ? dataquery.shop_ids
+    : [dataquery.shop_ids];
+
     formAdvance.setFieldsValue(dataquery);
     setEcommerceIdSelected(dataquery.ecommerce_id);
     getEcommerceShop(dataquery.ecommerce_id);
@@ -466,7 +615,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
       formAdvance.setFieldsValue({ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id-1].ecommerce_id})
       if (dataquery.shop_ids !== null){
-        formAdvance.setFieldsValue({shop_ids: dataquery.shop_ids})
+        formAdvance.setFieldsValue({shop_ids: checkEcommerceShop.map(item => +item)})
       }
       
     } else {
@@ -984,6 +1133,14 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
                 </Button>
               </Form.Item>
             </Form>
+            <div className="order-filter-tags">
+              {filters && filters.map((filter: any, index:any) => {
+                return (
+                  <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+                )
+              })}
+            </div>
+
           </div>
         </StyledProductFilter>
 

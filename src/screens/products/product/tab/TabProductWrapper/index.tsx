@@ -98,9 +98,7 @@ const TabProductWrapper: React.FC = () => {
     ];
   },[selected]);
 
-  let dataQuery: ProductWrapperSearchQuery = {
-    ...getQueryParams(query),
-  };
+  const dataQuery = useMemo(() => getQueryParams(query), [query]);
 
   const [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 
@@ -237,7 +235,6 @@ const TabProductWrapper: React.FC = () => {
       visible: false,
     },
   ]);
-
   const [canDeleteParentProduct] = useAuthorization({
     acceptPermissions: [ProductPermission.delete],
   });

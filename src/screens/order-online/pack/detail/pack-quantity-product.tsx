@@ -167,7 +167,6 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
           dataSource={packProductQuantity}
           columns={column}
           //pagination={false}
-          className="row-padding t1-margin"
         />
       </Card>
     </StyledComponent>

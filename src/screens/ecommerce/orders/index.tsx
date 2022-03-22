@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
 import { Button, Card, Divider } from "antd";
@@ -8,7 +8,7 @@ import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-desig
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
 import {
@@ -79,6 +79,7 @@ import EditNote from "screens/order-online/component/edit-note";
 import {getEcommerceIdByChannelId} from "screens/ecommerce/common/commonAction";
 import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
 import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
+import queryString from "query-string";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -141,6 +142,13 @@ const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 const EcommerceOrders: React.FC = () => {
   const query = useQuery();
   const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation()
+
+  const queryParamsParsed: any = queryString.parse(
+    location.search
+);
+
 
   const [allowOrdersView] = useAuthorization({
     acceptPermissions: ordersViewPermission,
@@ -184,6 +192,8 @@ const EcommerceOrders: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+
+  const [pageQuery, setPageQuery] = useState(1);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -721,25 +731,33 @@ const EcommerceOrders: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
-      setPrams({ ...params });
-      window.scrollTo(0, 0);
+      setPageQuery(page)
+      let newPrams = { ...params, page, limit: size };
+      let queryParam = generateQuery(newPrams);
+			history.push(`${location.pathname}?${queryParam}`);
+      setPrams(newPrams)
     },
-    [params]
+    [history, location.pathname, params]
   );
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
-      setPrams(newPrams);
+      let newPrams = { ...params, ...values, page: pageQuery };
+      let currentParam = generateQuery(params);
+      let queryParam = generateQuery(newPrams);
+      if (currentParam !== queryParam) {
+				history.push(`${location.pathname}?${queryParam}`);
+        
+      }
     },
-    [params]
+    [history, location.pathname, pageQuery, params]
   );
 
   const onClearFilter = useCallback(() => {
-    setPrams(initQuery);
-  }, []);
+    setPrams(initQuery)
+    let queryParam = generateQuery(initQuery);
+    history.push(`${location.pathname}?${queryParam}`);
+  }, [history, location.pathname]);
 
 
   // handle process modal
@@ -1186,6 +1204,17 @@ const EcommerceOrders: React.FC = () => {
       return message
     }
   }
+
+  useEffect(() => {
+    let dataQuery: EcommerceOrderSearchQuery = {
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setPrams(dataQuery);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch,setSearchResult, location.search]);
+
+
   return (
     <StyledComponent>
       <ContentContainer

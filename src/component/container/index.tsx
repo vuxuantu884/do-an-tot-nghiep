@@ -1,5 +1,5 @@
 import {Layout} from "antd";
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Redirect, useHistory} from "react-router";
 import LoadingScreen from "screens/loading.screen";
 import SidebarContainer from "./side-bar.container";
@@ -44,9 +44,13 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   );
   const {isLogin, isLoad: isLoadUser, account} = userReducer;
   const {isLoad} = bootstrapReducer;
+	
+  const [isShowHeader, setIsShowHeader] = useState<boolean>(false);
+
   const onCollapsed = useCallback(() => {
     dispatch(saveSettingAction({collapse: !collapsed}));
   }, [collapsed, dispatch]);
+
   useEffect(() => {
     if (!isLoad && isLogin) {
       dispatch(getBootstrapAction());
@@ -59,14 +63,20 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   if (!isLoad) {
     return <SplashScreen />;
   }
+
   return (
     <Layout>
       <Helmet>
         <title>{prefixTitle() + title}</title>
       </Helmet>
       <LoadingScreen />
-      <HeaderContainer account={account} onCollapse={onCollapsed} />
-      <Layout>
+      <HeaderContainer 
+				account={account} 
+				onCollapse={onCollapsed} 
+				isShowHeader={isShowHeader}
+				setIsShowHeader={(value: boolean) => setIsShowHeader(value)}
+			/>
+      <Layout className={isShowHeader ? 'showHeader' : 'hideHeader'}>
         <SidebarContainer collapsed={collapsed} path={location.pathname} />
         <Layout.Content className={classNames("container", collapsed && "collapsed")}>
           {children}

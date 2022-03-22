@@ -152,7 +152,7 @@ const Customer = () => {
       render: (value: string, item: any) => (
         <Link to={`/customers/${item.id}`}>{value}</Link>
       ),
-      width: 150,
+      width: 90,
     },
     {
       title: "Tên khách hàng",
@@ -167,7 +167,7 @@ const Customer = () => {
       title: "SĐT",
       dataIndex: "phone",
       visible: true,
-      width: 150,
+      width: 90,
     },
     {
       title: "Giới tính",
@@ -179,7 +179,7 @@ const Customer = () => {
         </div>
       ),
       visible: true,
-      width: 100,
+      width: 60,
     },
     {
       title: "Nhóm khách hàng",
@@ -209,13 +209,13 @@ const Customer = () => {
       title: "Hạng thẻ",
       dataIndex: "customer_level",
       visible: true,
-      width: 150,
+      width: 100,
     },
     {
       title: "Ngày sinh",
       dataIndex: "birthday",
       visible: true,
-      width: 150,
+      width: 80,
       render: (value: string) => (
         <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
       ),
@@ -224,7 +224,7 @@ const Customer = () => {
       title: "Ngày cưới",
       dataIndex: "wedding_date",
       visible: true,
-      width: 150,
+      width: 80,
       render: (value: string) => (
         <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
       ),

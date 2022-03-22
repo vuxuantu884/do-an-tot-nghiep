@@ -1,17 +1,18 @@
 import { MenuAction } from "component/table/ActionButton";
-import { getListLogInventoryTransferAction, inventoryGetSenderStoreAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import {
+  getListLogInventoryTransferAction,
+} from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryListLogFilters from "../../Components/FIlter/InventoryListLogFilter";
-import { InventoryTransferTabWrapper } from "../HistoryInventoryTransfer/styles";
+import { InventoryTransferTabWrapper } from "./styles";
 import { InventoryTransferLog, InventoryTransferLogSearchQuery, Store } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { AccountResponse } from "model/account/account.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
@@ -104,13 +105,18 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const HistoryInventoryTransferTab: React.FC = () => {
+type HistoryInventoryTransferTabProps = {
+  accountStores?: Array<AccountStoreResponse>,
+  stores?: Array<Store>,
+  accounts?: Array<AccountResponse>,
+};
 
+const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = (props: HistoryInventoryTransferTabProps) => {
+  const { accountStores, accounts, stores } = props;
+  const [accountStoresSelected, setAccountStoresSelected] = useState<AccountStoreResponse | null>(null);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
-  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [tableLoading, setTableLoading] = useState(true);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   let dataQuery: InventoryTransferLogSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -127,16 +133,6 @@ const HistoryInventoryTransferTab: React.FC = () => {
     },
     items: [],
   });
-
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
 
   const [columns, setColumn] = useState<Array<any>>([
     {
@@ -170,7 +166,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
       dataIndex: "updated_by",
       visible: true,
       align: "center",
-      render: (value: string, item: InventoryTransferLog, index: number) => {
+      render: (value: string, item: InventoryTransferLog) => {
         return (
           <>
           <div>
@@ -284,22 +280,32 @@ const HistoryInventoryTransferTab: React.FC = () => {
     [columns]
   );
 
-  //get store
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-    setTableLoading(false);
-    dispatch(
-      inventoryGetSenderStoreAction(
-        { status: "active", simple: true },
-        setStores
-      )
-    );
-  }, [dispatch, setDataAccounts]);
+    if (stores?.length === 0 || (Array.isArray(accountStores) && accountStores?.length === 0)) return;
+    if (accountStores?.length === 1) {
+      stores?.forEach((element) => {
+        if (element.id === accountStores[0].store_id) {
+          const newParams = {
+            ...params,
+            from_store_id: params.from_store_id ? params.from_store_id : element.id,
+          };
+          setAccountStoresSelected(element);
+          dispatch(getListLogInventoryTransferAction(newParams, setSearchResult));
+        }
+      });
 
-  //get list
-  useEffect(() => {
+      return;
+    }
+
     dispatch(getListLogInventoryTransferAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountStores, dispatch, setSearchResult, stores]);
+
+  useEffect(() => {
+    if (accountStoresSelected !== 'SECOND_SEARCH') return;
+    dispatch(getListLogInventoryTransferAction(params, setSearchResult));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, setSearchResult, params]);
 
   return (
     <InventoryTransferTabWrapper>
@@ -312,6 +318,8 @@ const HistoryInventoryTransferTab: React.FC = () => {
         onMenuClick={() => {}}
         onFilter={onFilter}
         onClearFilter={() => onClearFilter()}
+        accountStoresSelected={accountStoresSelected}
+        setAccountStoresSelected={(value => setAccountStoresSelected(value))}
       />
       <CustomTable
         isRowSelection

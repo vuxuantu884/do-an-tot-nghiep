@@ -2,7 +2,7 @@ import {Button, Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 import HistoryInventoryTransferTab from "./ListTicketTab/HistoryInventoryTransfer";
 import InventoryTransferTab from "./ListTicketTab/InventoryTransfer";
@@ -10,13 +10,25 @@ import { ListTicketStylesWrapper } from "./Styles";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 import importIcon from "assets/icon/import.svg";
+import { AccountResponse, AccountStoreResponse } from "../../../model/account/account.model";
+import { callApiNative } from "../../../utils/ApiUtils";
+import { getAccountDetail } from "../../../service/accounts/account.service";
+import { useDispatch } from "react-redux";
+import { AccountSearchAction } from "../../../domain/actions/account/account.action";
+import { inventoryGetSenderStoreAction } from "../../../domain/actions/inventory/stock-transfer/stock-transfer.action";
+import { Store } from "../../../model/inventory/transfer";
+import { PageResponse } from "../../../model/base/base-metadata.response";
 
 const { TabPane } = Tabs;
 
 const InventoryListScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>(InventoryTransferTabUrl.LIST);
+  const [accountStores, setAccountStore] = useState<Array<AccountStoreResponse>>([]);
+  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const history = useHistory();
   const {path} = useRouteMatch();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     let redirectUrl = path;
@@ -29,6 +41,37 @@ const InventoryListScreen: React.FC = () => {
         }
     }
   }, [history, path]);
+
+  const getMe = useCallback(async ()=>{
+    const res = await callApiNative({isShowLoading: false}, dispatch, getAccountDetail);
+    if (res && res.account_stores) {
+      setAccountStore(res.account_stores);
+    }
+  },[dispatch]);
+
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
+
+  useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(
+      inventoryGetSenderStoreAction(
+        { status: "active", simple: true },
+        setStores
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
+  useEffect(() => {
+    getMe().then();
+  }, [getMe]);
 
   return (
     <ListTicketStylesWrapper>
@@ -75,10 +118,18 @@ const InventoryListScreen: React.FC = () => {
             onChange={(active) => history.replace(active)}
           >
             <TabPane tab="Danh sách phiếu" key={InventoryTransferTabUrl.LIST}>
-              <InventoryTransferTab />
+              <InventoryTransferTab
+                stores={stores}
+                accounts={accounts}
+                accountStores={accountStores}
+              />
             </TabPane>
             <TabPane tab="Lịch sử phiếu" key={InventoryTransferTabUrl.HISTORIES}>
-              <HistoryInventoryTransferTab />
+              <HistoryInventoryTransferTab
+                stores={stores}
+                accounts={accounts}
+                accountStores={accountStores}
+              />
             </TabPane>
           </Tabs>
         </Card>
