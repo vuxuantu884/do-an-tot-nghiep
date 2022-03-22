@@ -317,7 +317,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             );
             let procurements: Array<PurchaseProcurementViewDraft> = getFieldValue(
               POField.procurements
-            );
+            ) || [];
             let receive_status: string = getFieldValue(POField.receive_status);
             if (!status) {
               return null;

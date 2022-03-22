@@ -4,11 +4,12 @@ import HashTag from "component/custom/hashtag";
 import RowDetail from "component/custom/RowDetail";
 import { POField } from "model/purchase-order/po-field";
 import React, {Fragment, useEffect} from "react";
-import { POStatus } from "utils/Constants";
+import {PO_FORM_TEMPORARY, POStatus} from "utils/Constants";
 import {useSelector} from "react-redux";
 import {RootReducerType} from "../../../model/reducers/RootReducerType";
 import {useFetchMerchans} from "../../../hook/useFetchMerchans";
 import BaseSelectMerchans from "../../../component/base/BaseSelect/BaseSelectMerchans";
+import {useLocalStorage} from "react-use";
 
 type POInfoFormProps = {
   isEdit: boolean;
@@ -20,6 +21,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail } = props;
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {fetchMerchans, merchans, isLoadingMerchans, setMerchans} = useFetchMerchans()
+  const [value] = useLocalStorage<any>(PO_FORM_TEMPORARY);
 
   useEffect(() => {
     if(merchans.items.length) {
@@ -34,7 +36,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
           ]})
       }
     }
-    props.formMain?.setFieldsValue({ [POField.merchandiser_code]: userReducer.account?.code })
+    props.formMain?.setFieldsValue({ [POField.merchandiser_code]: value?.merchandiser_code || userReducer.account?.code })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(merchans)])
 

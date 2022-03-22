@@ -40,7 +40,7 @@ import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from "
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
-import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
+import {PO_FORM_TEMPORARY, POStatus, ProcumentStatus, VietNamId} from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoForm from "./component/po-info.form";
@@ -52,13 +52,15 @@ import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
+import {PurchaseOrderLineItem} from "../../model/purchase-order/purchase-item.model";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
 const ModalExport = lazy(() => import("./modal/ModalExport"))
 
 const ActionMenu = {
   EXPORT: 1,
-  DELETE: 2
+  DELETE: 2,
+  COPY: 3,
 }
 
 type PurchaseOrderParam = {
@@ -254,6 +256,41 @@ const PODetailScreen: React.FC = () => {
         case ActionMenu.EXPORT:
           setShowExportModal(true);
           break;
+        case ActionMenu.COPY:
+          const queryParams = formMain.getFieldsValue(true);
+          queryParams.procurements = [
+            {
+              fake_id: new Date().getTime(),
+              reference: "",
+              store_id: null,
+              expect_receipt_date: "",
+              procurement_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {return {sku: item.sku, quantity: item.quantity}}),
+              status: ProcumentStatus.DRAFT,
+              status_po: POStatus.DRAFTPO,
+              note: "",
+              actived_date: "",
+              actived_by: "",
+              stock_in_date: "",
+              stock_in_by: "",
+            },
+          ]
+          localStorage.setItem(
+            PO_FORM_TEMPORARY,
+            JSON.stringify({
+              ...queryParams,
+              return_orders: null,
+              code: null,
+              status_name: null,
+              payments: [],
+              status: POStatus.DRAFT,
+              receive_status: ProcumentStatus.DRAFT,
+              activated_date: null,
+              completed_stock_date: null,
+              cancelled_date: null,
+              completed_date: null,
+            }))
+          history.push(`${UrlConfig.PURCHASE_ORDERS}/create`)
+          break;
       }
     },
     [setConfirmDelete]
@@ -277,10 +314,16 @@ const PODetailScreen: React.FC = () => {
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
   const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
   const menu: Array<MenuAction> = useMemo(() => {
-    let menuActions = [{
-      id: ActionMenu.EXPORT,
-      name: "Xuất file NPL",
-    }];
+    let menuActions = [
+      {
+        id: ActionMenu.EXPORT,
+        name: "Xuất file NPL",
+      },
+      {
+        id: ActionMenu.COPY,
+        name: "Sao chép đơn đặt hàng",
+      }
+    ];
     if (!poData) return [];
     let poStatus = poData.status;
     if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO)
