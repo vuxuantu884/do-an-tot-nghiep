@@ -226,6 +226,19 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   let filters = useMemo(() => {
     let list = [];
 
+    if (initialValues?.ecommerce_id) {
+      let ecommerceFilterText = "";
+      const ecommerceSelected = ECOMMERCE_LIST?.find(ecommerce => ecommerce.ecommerce_id?.toString() === params.ecommerce_id?.toString());
+      ecommerceFilterText = ecommerceSelected ? ecommerceFilterText + 
+      ecommerceSelected.key.slice(0,1).toUpperCase().concat(ecommerceSelected.key.slice(1)) + "; " 
+      : ecommerceFilterText;
+      list.push({
+      key: 'ecommerce_id',
+      name: 'Sàn',
+      value: ecommerceFilterText
+      })
+      }
+
     if (initialValues.shop_ids.length) {
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
@@ -242,6 +255,23 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         value: shopNameList,
       });
     }
+
+    if (initialValues.ecommerce_order_code) {
+      list.push({
+      key: 'ecommerce_order_code',
+      name: 'ID đơn hàng sàn',
+      value: initialValues.ecommerce_order_code,
+      })
+      }
+    
+      if (initialValues.core_order_code) {
+        list.push({
+        key: 'core_order_code',
+        name: 'ID đơn hàng',
+        value: initialValues.core_order_code,
+      })
+    }
+
 
     if (initialValues.connected_status) {
       const connectStatus = CONNECTED_STATUS.find(
@@ -289,12 +319,15 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
     return list;
   }, [
+    initialValues?.ecommerce_id,
     initialValues.shop_ids,
+    initialValues.ecommerce_order_code,
+    initialValues.core_order_code,
     initialValues.connected_status,
     initialValues.created_date_from,
     initialValues.created_date_to,
     initialValues.ecommerce_order_statuses,
-    ecommerceShopList,
+    params.ecommerce_id, ecommerceShopList,
   ]);
 
   // close tag filter
@@ -302,14 +335,30 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     (e, tag) => {
       e.preventDefault();
       switch (tag.key) {
+        case "ecommerce_id":
+          onFilter && onFilter({ ...params, ecommerce_id: "", shop_ids: [] });
+          formFilter?.setFieldsValue({ ecommerce_id: null, shop_ids: [] });
+          setIsEcommerceSelected(false);
+          setEcommerceIdSelected(null);
+        break;
         case "shop_ids":
           onFilter && onFilter({ ...params, shop_ids: [] });
           formFilter?.setFieldsValue({ shop_ids: [] });
-          break;
+        break;
+
+        case "ecommerce_order_code":
+          onFilter && onFilter({ ...params, ecommerce_order_code: "" });
+          formFilter?.setFieldsValue({ ecommerce_order_code: "" });
+        break;
+	
+        case "core_order_code":
+          onFilter && onFilter({ ...params, core_order_code: "" });
+          formFilter?.setFieldsValue({ core_order_code: "" });
+        break;
         case "connected_status":
           onFilter && onFilter({ ...params, connected_status: null });
           formFilter?.setFieldsValue({ connected_status: null });
-          break;
+        break;
         case "created_date":
           setCreatedDateClick("");
           setCreatedDateFrom(null);
