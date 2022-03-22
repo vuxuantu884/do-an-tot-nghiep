@@ -1,4 +1,5 @@
-import { Button, Col, Popover, Row, Select, Tooltip } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
+import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -9,6 +10,8 @@ import {
   updateOrderPartial,
 } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
 import { OrderExtraModel, OrderModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -21,12 +24,15 @@ import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "rea
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { inventoryGetApi } from "service/inventory";
 import {
   copyTextToClipboard,
   formatCurrency,
   getOrderTotalPaymentAmount,
   getTotalQuantity,
   getValidateChangeOrderSubStatus,
+  handleFetchApiError,
+  isFetchApiSuccessful,
   isNormalTypeVariantItem,
   isOrderFromPOS,
   isOrderFromSaleChannel,
@@ -60,6 +66,7 @@ import IconPaymentCash from "./images/paymentMoney.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
+import InventoryTable from "./InventoryTable";
 // import IconWebsite from "./images/website.svg"; 
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
@@ -69,6 +76,7 @@ type PropTypes = {
   columns: ICustomTableColumType<OrderModel>[];
   deliveryServices: DeliveryServiceResponse[];
   selectedRowKeys: number[];
+  listStore: Array<StoreResponse> | undefined;
   setColumns: (columns: ICustomTableColumType<OrderModel>[]) => void;
   setData: (data: PageResponse<OrderModel>) => void;
   onPageChange: (page: any, size: any) => void;
@@ -86,6 +94,7 @@ function OrdersTable(props: PropTypes) {
     columns,
     deliveryServices,
     selectedRowKeys,
+    listStore,
     onPageChange,
     onSelectedChange,
     setShowSettingColumn,
@@ -238,7 +247,7 @@ function OrdersTable(props: PropTypes) {
         (single) => single.payment_method_code === payment.payment_method_code
       );
       return (
-        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT? 'ydPoint' : null }`}>
+        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`}>
           {payment.amount < 0 ? (
             <Tooltip title="Hoàn tiền">
               <img src={selectedPayment?.icon} alt="" />
@@ -457,16 +466,10 @@ function OrdersTable(props: PropTypes) {
                 <span className="separator">, </span>
               </span>
             </span>
-            <span className="quantity quantityWidth">
-              <span>
-                Tồn
-                <span className="separator">, </span>
-              </span>
-            </span>
             <span className="price priceWidth">
               <span>Giá </span>
             </span>
-           
+
           </div>
         ),
         dataIndex: "items",
@@ -494,13 +497,6 @@ function OrdersTable(props: PropTypes) {
                     <div className="quantity quantityWidth">
                       <NumberFormat
                         value={item.quantity}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
-                    </div>
-                    <div className="quantity quantityWidth">
-                      <NumberFormat style={item.available && item.available<0?{color:"#e24343"}:{color:"#27AE60"}}
-                        value={item.available}
                         displayType={"text"}
                         thousandSeparator={true}
                       />
@@ -641,7 +637,7 @@ function OrdersTable(props: PropTypes) {
                                 {formatCurrency(
                                   sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
                                     ? sortedFulfillments[0]?.shipment
-                                        .shipping_fee_informed_to_customer || 0
+                                      .shipping_fee_informed_to_customer || 0
                                     : 0
                                 )}
                               </span>
@@ -760,7 +756,7 @@ function OrdersTable(props: PropTypes) {
                           <span>
                             {formatCurrency(
                               sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                                0
+                              0
                             )}
                           </span>
                         </div>
@@ -797,7 +793,7 @@ function OrdersTable(props: PropTypes) {
                           <span>
                             {formatCurrency(
                               sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                                0
+                              0
                             )}
                           </span>
                         </div>
@@ -829,7 +825,7 @@ function OrdersTable(props: PropTypes) {
                           <span>
                             {formatCurrency(
                               sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                                0
+                              0
                             )}
                           </span>
                         </div>
@@ -905,7 +901,7 @@ function OrdersTable(props: PropTypes) {
               code: record.sub_status_code,
             });
           }
-          let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
+          let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery ? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
           return (
             <div className="orderStatus">
               <div className="inner">
@@ -931,12 +927,12 @@ function OrdersTable(props: PropTypes) {
                       }}
                       className={className}
                       onChange={(value) => {
-                        if(selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                        if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
                           return;
                         }
                         let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
-                        if(!isChange) {
+                        if (!isChange) {
                           return;
                         }
                         dispatch(
@@ -1029,7 +1025,7 @@ function OrdersTable(props: PropTypes) {
                   onOk={(newNote) => {
                     editNote(newNote, "customer_note", record.id);
                   }}
-                  // isDisable={record.status === OrderStatus.FINISHED}
+                // isDisable={record.status === OrderStatus.FINISHED}
                 />
               </div>
               <div className="single">
@@ -1040,7 +1036,7 @@ function OrdersTable(props: PropTypes) {
                   onOk={(newNote) => {
                     editNote(newNote, "note", record.id);
                   }}
-                  // isDisable={record.status === OrderStatus.FINISHED}
+                // isDisable={record.status === OrderStatus.FINISHED}
                 />
               </div>
             </div>
@@ -1139,6 +1135,39 @@ function OrdersTable(props: PropTypes) {
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
+  const [inventoryData, setInventoryData] = useState<AllInventoryProductInStore[]>([]);
+  const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
+
+  const onSearchInventory = useCallback((value: string) => {
+    let _item: StoreResponse[] | any = listStore?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
+    setStoreInventory(_item);
+  }, [listStore]);
+
+  const handleInventoryData = useCallback((
+    variantIds: number[],
+  ) => {
+    if (listStore) setStoreInventory([...listStore]);
+    let inventoryQuery: InventoryVariantListQuery = {
+      is_detail: true,
+      variant_ids: variantIds,
+      store_ids: listStore?.map((p) => p.id)
+    }
+
+    inventoryGetApi(inventoryQuery).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        console.log(response)
+
+        setInventoryData(response.data);
+
+      } else {
+        handleFetchApiError(response, "Danh sách tồn kho", dispatch)
+      }
+    })
+      .catch((e) => {
+        console.log(e)
+      })
+  }, [dispatch, listStore]);
+
   const rowSelectionRenderCell = (
     checked: boolean,
     record: OrderModel,
@@ -1149,6 +1178,37 @@ function OrdersTable(props: PropTypes) {
       <React.Fragment>
         {originNode}
         <div className="orderSource">{renderOrderSource(record)}</div>
+        <Tooltip title="Kiểm tra tồn kho">
+          <Popover
+            placement="right"
+            overlayStyle={{ zIndex: 1000 }}
+            title={
+              <Row
+                justify="space-between"
+                align="middle"
+                //className="change-shipping-address-title"
+                style={{ width: "100%" }}
+              >
+                <Input.Search
+                  placeholder="Tìm kiếm kho"
+                  allowClear
+                 onSearch={onSearchInventory}
+                />
+              </Row>
+            }
+            content={<InventoryTable
+              inventoryData={inventoryData}
+              storeId={record.store_id || 0}
+              items={record.items}
+              listStore={storeInventory}
+            />
+            }
+            trigger="click"
+            onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
+          >
+            <Button type="link" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ top: -7 }}></Button>
+          </Popover>
+        </Tooltip>
       </React.Fragment>
     );
   };
@@ -1341,7 +1401,7 @@ function OrdersTable(props: PropTypes) {
           };
           let resultStatus = statusCode;
           if (statusCode) {
-            if (statusCode === OrderStatus.FINALIZED && selectedOrder?.fulfillments &&  selectedOrder?.fulfillments?.length > 0) {
+            if (statusCode === OrderStatus.FINALIZED && selectedOrder?.fulfillments && selectedOrder?.fulfillments?.length > 0) {
               const sortedFulfillments = sortFulfillments(selectedOrder?.fulfillments);
               switch (sortedFulfillments[0].status) {
                 case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
@@ -1375,7 +1435,7 @@ function OrdersTable(props: PropTypes) {
                 dispatch(hideLoading())
               }
             },
-            () => dispatch(hideLoading())
+              () => dispatch(hideLoading())
             )
           );
         }
@@ -1383,7 +1443,7 @@ function OrdersTable(props: PropTypes) {
     } else if (typeAPi === type.setSubStatus) {
     }
     //xóa data
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
 
   return (

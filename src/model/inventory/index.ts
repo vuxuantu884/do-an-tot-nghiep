@@ -111,3 +111,11 @@ export interface AllInventoryProductInStore {
   transferring: number,
   shipping: any,
 }
+
+export interface InventoryModel {
+  store_id: number;
+  store_name: string;
+  available: number;
+  committed: number;
+  in_coming: number;
+}

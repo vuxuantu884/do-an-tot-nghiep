@@ -14,7 +14,6 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { inventoryGetListAction } from "domain/actions/inventory/inventory.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   DeliveryServicesGetList,
@@ -26,7 +25,7 @@ import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/or
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
+import { InventoryVariantListQuery } from "model/inventory";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
@@ -655,6 +654,7 @@ function OrderList(props: PropTypes) {
               deliveryServices={deliveryServices}
               selectedRowKeys={selectedRowKeys}
               onFilterPhoneCustomer={onFilterPhoneCustomer}
+              listStore={listStore}
             />
           ) : "Đang tải dữ liệu..."
           }
