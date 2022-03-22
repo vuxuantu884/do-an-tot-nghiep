@@ -141,10 +141,10 @@ function TabListFilter(props: ProcurementFilterProps) {
           if(isArray(item.valueId)) {
             const filterStore = allStore?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
             if(filterStore)
-            return {...item, valueName: filterStore?.map((item: any) => item.department).toString()}
+            return {...item, valueName: filterStore?.map((item: any) => item.name).toString()}
           }
           const findStore= allStore?.find(store => +store.id === +item.valueId)
-          return {...item, valueName: findStore?.department}
+          return {...item, valueName: findStore?.name}
         case ProcurementFilterAdvanceEnum.status:
           let statuses: any = [];
           if(isArray(item.valueId)) {
