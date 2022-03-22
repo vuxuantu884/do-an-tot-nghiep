@@ -9,7 +9,7 @@ import { PriceRule } from "model/promotion/price-rules.model";
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { FiCheckCircle, RiDeleteBin2Fill } from "react-icons/all";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import ContentContainer from "../../../component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "../../../component/table/CustomTable";
@@ -26,6 +26,7 @@ import { DiscountStyled } from "./discount-style";
 import "./discount-style.ts";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import { generateQuery } from "../../../utils/AppUtils";
 
 const DiscountPage = () => {
 
@@ -44,6 +45,7 @@ const DiscountPage = () => {
   };
   const dispatch = useDispatch();
   const query = useQuery();
+  const history = useHistory();
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [discounts, setDiscounts] = useState<PageResponse<PriceRule>>({
@@ -122,7 +124,7 @@ const DiscountPage = () => {
 
   const handleActivatePriceRule = (idNumber: number) => {
     setTableLoading(true);
-     
+
     dispatch(
       bulkEnablePriceRulesAction(
         { ids: [idNumber] },
@@ -236,7 +238,10 @@ const DiscountPage = () => {
   ];
 
   const onPageChange = (page: number, limit?: number) => {
-    setParams({ ...params, page, limit });
+    const newParams = { ...params, page, limit };
+    setParams(newParams);
+    let queryParam = generateQuery(newParams);
+    history.push(`${UrlConfig.PROMOTION}/discounts?${queryParam}`);
   };
 
   const onFilter = (values: DiscountSearchQuery | Object) => {
@@ -326,7 +331,7 @@ const DiscountPage = () => {
             pageSize: discounts?.metadata.limit || 0,
             total: discounts?.metadata.total || 0,
             current: discounts?.metadata.page,
-            showSizeChanger: true, 
+            showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
@@ -336,7 +341,7 @@ const DiscountPage = () => {
         />
 
       </Card>
-      </DiscountStyled> 
+      </DiscountStyled>
     </ContentContainer>
 
 
