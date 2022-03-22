@@ -20,4 +20,8 @@ export const StyledComponent = styled.div`
       border: none;
     }
   }
+  .logo-header img {
+    width: 80px;
+    height: auto;
+  }
 `;
