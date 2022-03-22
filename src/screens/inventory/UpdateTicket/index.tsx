@@ -611,9 +611,8 @@ const UpdateTicket: FC = () => {
   },[CopyId, createCallback, dataTable, dispatch, initDataForm, stateImport, stores]);
 
   const checkError = (index: number) => {
-    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
+    const dataLineItems = dataTable;
     const thisInput = document.getElementById(`item-quantity-${index}`);
-
     if (dataLineItems[index].transfer_quantity === 0) {
       showError("Số lượng phải lớn hơn 0");
       if (thisInput) thisInput.style.borderColor = "red";
