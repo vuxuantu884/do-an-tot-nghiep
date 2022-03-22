@@ -169,7 +169,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     <StyledComponent>
       <Card title="Danh sách đơn hàng trong biên bản" className="pack-card-orders">
         <div className="order-filter">
-          <div className="page-filter row-padding">
+          <div className="page-filter">
             <div className="page-filter-heading">
               <div className="page-filter-left">
                 <ActionButton menu={actions} onMenuClick={onMenuClick} />
@@ -205,7 +205,6 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           columns={column}
           //pagination={false}
           bordered
-          className="row-padding"
         />
       </Card>
     </StyledComponent>

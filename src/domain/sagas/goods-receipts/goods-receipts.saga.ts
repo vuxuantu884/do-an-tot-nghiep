@@ -129,7 +129,11 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e: any) => showError(e));
+        if (response.errors && response.errors.length) {
+          response.errors.forEach((e: any) => showError(e));
+        } else {
+          showError(response.message)
+        }
         break;
     }
   } catch (e) {
