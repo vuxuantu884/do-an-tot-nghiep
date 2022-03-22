@@ -26,6 +26,8 @@ import {
   deleteNote,
   getCustomersSo,
   importCustomerService,
+  getCustomerOrderHistoryApi,
+  getCustomerOrderReturnHistoryApi,
 } from "service/customer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import {showError} from "utils/ToastUtils";
@@ -152,6 +154,44 @@ function* CustomerDetail(action: YodyAction) {
   } catch (error) {
     // showError("Có lỗi vui lòng thử lại sau");
   }
+}
+
+// get customer's order history
+function* getCustomerOrderHistorySaga(action: YodyAction) {
+  const { queryParams, callback } = action.payload;
+  try {
+    const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderHistoryApi, queryParams );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {}
+}
+
+// get customer's order history
+function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
+  const { customer_id, callback } = action.payload;
+  try {
+    const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderReturnHistoryApi, customer_id );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {}
 }
 
 function* CustomerGroups(action: YodyAction) {
@@ -605,6 +645,8 @@ export default function* customerSagas() {
 
   yield takeLatest(CustomerType.CUSTOMER_SEARCH_BY_PHONE, getCustomerByPhone);
   yield takeLatest(CustomerType.CUSTOMER_DETAIL, CustomerDetail);
+  yield takeLatest(CustomerType.CUSTOMER_ORDER_HISTORY, getCustomerOrderHistorySaga);
+  yield takeLatest(CustomerType.CUSTOMER_ORDER_RETURN_HISTORY, getCustomerOrderReturnHistorySaga);
   yield takeLatest(CustomerType.CREATE_CUSTOMER, CreateCustomer);
   yield takeLatest(CustomerType.UPDATE_CUSTOMER, UpdateCustomer);
   yield takeLatest(CustomerType.CUSTOMER_GROUPS, CustomerGroups);

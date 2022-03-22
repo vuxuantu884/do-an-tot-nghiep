@@ -4,10 +4,9 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { createMaterialAction } from "domain/actions/product/material.action";
 import { MaterialCreateRequest } from "model/product/material.model";
-import { createRef, useCallback } from "react";
+import { createRef, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
-import { RegUtil } from "utils/RegUtils";
 
 let initialRequest: MaterialCreateRequest = {
   code: "",
@@ -23,7 +22,9 @@ const AddMaterial: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
+  const [loading, setLoading] = useState<boolean>(false);
   const onSuccess = useCallback(() => {
+    setLoading(false);
     history.push(UrlConfig.MATERIALS);
   }, [history]);
   const onFinish = useCallback(
@@ -38,7 +39,7 @@ const AddMaterial: React.FC = () => {
         defect: values.defect.trim(),
         preserve: values.preserve.trim(),
       };
-
+      setLoading(true);
       dispatch(createMaterialAction(newValue, onSuccess));
     },
     [dispatch, onSuccess]
@@ -80,10 +81,6 @@ const AddMaterial: React.FC = () => {
                     whitespace: true,
                     required: true,
                     message: "Vui lòng nhập mã chất liệu",
-                  },
-                  {
-                    pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                    message: "Mã chất liệu không chứa ký tự đặc biệt",
                   },
                 ]}
                 name="code"
@@ -187,7 +184,7 @@ const AddMaterial: React.FC = () => {
           back={"Quay lại danh sách"}
           rightComponent={
             <Space>
-              <Button htmlType="submit" type="primary">
+              <Button loading={loading} htmlType="submit" type="primary">
                 Tạo chất liệu
               </Button>
             </Space>

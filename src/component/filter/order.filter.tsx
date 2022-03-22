@@ -1048,14 +1048,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										optionFilterProp="children"
 										getPopupContainer={trigger => trigger.parentNode}
 										maxTagCount='responsive'
-										onSearch={(value) => {
-											if(value.length > 0) {
-												let result =initSubStatus.filter(single => single.sub_status.toLowerCase().includes(value.toLowerCase()))
-												setListOrderProcessingStatus && setListOrderProcessingStatus(result);
-											} else {
-												setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus);
-											}
-										}}
 										onBlur={() => setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus)}
 									>
 										{subStatus?.map((item: any) => (
@@ -1341,22 +1333,23 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 								</Item>
 							</Col>
 							<Col span={8} xxl={8}>
-                <p>Đơn tự giao hàng</p>
-                <div className="button-option-1">
-									{serviceListVariables.map(single=> (
-										<Button
-											key={single.value}
-											onClick={() => handleSelectServices(single.value)}
-											className={services.includes(single.value) ? 'active' : 'deactive'}
-										>
-											{single.title}
-										</Button>
-									))}
-                </div>
+								<Item label="Đơn tự giao hàng">
+									<div className="button-option-1">
+										{serviceListVariables.map(single=> (
+											<Button
+												key={single.value}
+												onClick={() => handleSelectServices(single.value)}
+												className={services.includes(single.value) ? 'active' : 'deactive'}
+											>
+												{single.title}
+											</Button>
+										))}
+									</div>
+								</Item>
               </Col>
 							<Col span={8} xxl={8}>
 								<p>Tổng tiền</p>
-								<div className="date-range">
+								<div className="date-range" style={{display: "flex", alignItems: "center"}}>
 									<Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
 										<InputNumber
 											className="price_min"
@@ -1364,10 +1357,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 											placeholder="Từ"
 											min="0"
 											max="100000000"
+											style={{width: "100%"}}
 										/>
 									</Item>
 
-									<div className="swap-right-icon"><SwapRightOutlined /></div>
+									<div className="swap-right-icon" style={{width: "10%", textAlign: "center"}}><SwapRightOutlined /></div>
 									<Item name="price_max" style={{ width: '45%', marginBottom: 0 }}>
 										<InputNumber
 											className="site-input-right price_max"
@@ -1375,6 +1369,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 											placeholder="Đến"
 											min="0"
 											max="1000000000"
+											style={{width: "100%"}}
 										/>
 									</Item>
 								</div>

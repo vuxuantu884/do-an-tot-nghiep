@@ -1,5 +1,6 @@
 import { Col, Form, Input, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
+import CustomSelect from "component/custom/select.custom";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -80,14 +81,11 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
                 : undefined
             }
           >
-            <Select
+            <CustomSelect
               placeholder="Chọn mẫu in"
               allowClear
               showSearch
               optionFilterProp="children"
-              filterOption={(input, option) =>
-                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
               disabled={!isCanEditFormHeader}
             >
               {sprintConfigure.listPrinterTypes &&
@@ -98,7 +96,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
                     </Select.Option>
                   );
                 })}
-            </Select>
+            </CustomSelect>
           </Form.Item>
         </Col>
         <Col span={5}>
@@ -116,14 +114,11 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
                 : undefined
             }
           >
-            <Select
+            <CustomSelect
               placeholder="Chọn chi nhánh áp dụng:"
               allowClear
               showSearch
               optionFilterProp="children"
-              filterOption={(input, option) =>
-                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
               disabled={!isCanEditFormHeader}
             >
               <Select.Option value={store_id_allShops}>
@@ -138,7 +133,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
                     </Select.Option>
                   );
                 })}
-            </Select>
+            </CustomSelect>
           </Form.Item>
         </Col>
         <Col span={5}>
@@ -151,9 +146,10 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
                 : undefined
             }
           >
-            <Select
+            <CustomSelect
               placeholder="Chọn khổ in"
               allowClear
+              showSearch
               disabled={!isCanEditFormHeader}
             >
               {sprintConfigure.listPrinterSizes &&
@@ -164,7 +160,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
                     </Select.Option>
                   );
                 })}
-            </Select>
+            </CustomSelect>
           </Form.Item>
         </Col>
         <Col span={4} className="columnActive">

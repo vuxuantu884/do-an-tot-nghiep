@@ -4,21 +4,22 @@ import { CreateOrderReturnContext } from "contexts/order-return/create-order-ret
 import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
 import { OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import {
-	OrderLineItemResponse,
-	OrderResponse,
-	ReturnProductModel
+  OrderLineItemResponse,
+  OrderResponse,
+  ReturnProductModel,
 } from "model/response/order/order.response";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
-	formatCurrency,
-	getLineAmountAfterLineDiscount,
-	getLineItemDiscountAmount,
-	getLineItemDiscountRate,
-	getLineItemDiscountValue,
-	getProductDiscountPerOrder,
-	getProductDiscountPerProduct
+  formatCurrency,
+  getLineAmountAfterLineDiscount,
+  getLineItemDiscountAmount,
+  getLineItemDiscountRate,
+  getLineItemDiscountValue,
+  getProductDiscountPerOrder,
+  getProductDiscountPerProduct,
 } from "utils/AppUtils";
+import { fullTextSearch } from "utils/StringUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
 type PropType = {
@@ -29,7 +30,7 @@ type PropType = {
 };
 
 function CardReturnProductContainer(props: PropType) {
-  const {handleCanReturn, isDetailPage, orderId} = props;
+  const { handleCanReturn, isDetailPage, orderId } = props;
 
   const dispatch = useDispatch();
 
@@ -46,8 +47,7 @@ function CardReturnProductContainer(props: PropType) {
   const setListReturnProducts = createOrderReturnContext?.return.setListReturnProducts;
   const setTotalAmountReturnProducts =
     createOrderReturnContext?.return.setTotalAmountReturnProducts;
-  const totalAmountReturnProducts =
-    createOrderReturnContext?.return.totalAmountReturnProducts;
+  const totalAmountReturnProducts = createOrderReturnContext?.return.totalAmountReturnProducts;
   const moneyRefund = createOrderReturnContext?.return.moneyRefund;
   const setMoneyRefund = createOrderReturnContext?.return.setMoneyRefund;
   const OrderDetail = createOrderReturnContext?.orderDetail;
@@ -94,10 +94,7 @@ function CardReturnProductContainer(props: PropType) {
     }
     if (
       result.some((single) => {
-        return (
-          single.maxQuantityCanBeReturned &&
-          single.quantity < single.maxQuantityCanBeReturned
-        );
+        return single.maxQuantityCanBeReturned && single.quantity < single.maxQuantityCanBeReturned;
       })
     ) {
       setIsCheckReturnAll(false);
@@ -126,14 +123,12 @@ function CardReturnProductContainer(props: PropType) {
       return;
     }
     if (e.target.checked) {
-      const resultReturnProducts: ReturnProductModel[] = listItemCanBeReturn.map(
-        (single) => {
-          return {
-            ...single,
-            maxQuantityCanBeReturned: single.quantity,
-          };
-        }
-      );
+      const resultReturnProducts: ReturnProductModel[] = listItemCanBeReturn.map((single) => {
+        return {
+          ...single,
+          maxQuantityCanBeReturned: single.quantity,
+        };
+      });
       if (setListReturnProducts) {
         setListReturnProducts(resultReturnProducts);
       }
@@ -157,38 +152,34 @@ function CardReturnProductContainer(props: PropType) {
   const renderSearchVariant = (item: OrderLineItemResponse) => {
     let avatar = item.variant_image;
     return (
-      <div
-        className="row-search w-100"
-        style={{padding: "3px 20px", alignItems: "center"}}
-      >
-        <div className="rs-left w-100" style={{width: "100%"}}>
-          <div style={{marginTop: 10}}>
+      <div className="row-search w-100" style={{ padding: "3px 20px", alignItems: "center" }}>
+        <div className="rs-left w-100" style={{ width: "100%" }}>
+          <div style={{ marginTop: 10 }}>
             <img
               src={avatar === "" ? imgDefault : avatar}
               alt="anh"
               placeholder={imgDefault}
-              style={{width: "40px", height: "40px", borderRadius: 5}}
+              style={{ width: "40px", height: "40px", borderRadius: 5 }}
             />
           </div>
           <div className="rs-info w-100">
-            <span style={{color: "#37394D"}} className="text">
+            <span style={{ color: "#37394D" }} className="text">
               {item.product}
             </span>
-            <span style={{color: "#95A1AC"}} className="text p-4">
+            <span style={{ color: "#95A1AC" }} className="text p-4">
               {item.sku}
             </span>
           </div>
         </div>
         <div className="rs-right">
-          <span style={{color: "#222222"}} className="text t-right">
+          <span style={{ color: "#222222" }} className="text t-right">
             {formatCurrency(item.price)}
             <span
               style={{
                 color: "#737373",
                 textDecoration: "underline",
                 textDecorationColor: "#737373",
-              }}
-            >
+              }}>
               đ
             </span>
           </span>
@@ -205,12 +196,10 @@ function CardReturnProductContainer(props: PropType) {
     let listOrderProductsResult = listItemCanBeReturn;
     if (searchVariantInputValue) {
       listOrderProductsResult = listItemCanBeReturn.filter((single) => {
-        return single.product
-          .toLowerCase()
-          .includes(searchVariantInputValue.toLowerCase()) || 
-          single.sku
-          .toLowerCase()
-          .includes(searchVariantInputValue.toLowerCase());
+        return (
+          fullTextSearch(searchVariantInputValue, single.product) ||
+          fullTextSearch(searchVariantInputValue, single.sku)
+        );
       });
     }
     listOrderProductsResult.forEach((item: OrderLineItemResponse, index: number) => {
@@ -236,15 +225,15 @@ function CardReturnProductContainer(props: PropType) {
       value === null ? "0" : value.toString().replace(".", "")
     );
     if (value) {
-			resultListReturnProducts[index].amount = resultListReturnProducts[index].price * value;
-      resultListReturnProducts[index].discount_items = listReturnProducts[
-        index
-      ].discount_items.map((discount) => {
-        return {
-          ...discount,
-          amount: value * discount.value,
-        };
-      });
+      resultListReturnProducts[index].amount = resultListReturnProducts[index].price * value;
+      resultListReturnProducts[index].discount_items = listReturnProducts[index].discount_items.map(
+        (discount) => {
+          return {
+            ...discount,
+            amount: value * discount.value,
+          };
+        }
+      );
       resultListReturnProducts[index].discount_value = getLineItemDiscountValue(
         resultListReturnProducts[index]
       );
@@ -262,10 +251,7 @@ function CardReturnProductContainer(props: PropType) {
     }
     if (
       resultListReturnProducts.some((single) => {
-        return (
-          single.maxQuantityCanBeReturned &&
-          single.quantity < single.maxQuantityCanBeReturned
-        );
+        return single.maxQuantityCanBeReturned && single.quantity < single.maxQuantityCanBeReturned;
       })
     ) {
       setIsCheckReturnAll(false);
@@ -362,40 +348,37 @@ function CardReturnProductContainer(props: PropType) {
     const refund_money = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
     if (isUsingPoint) {
       if (OrderDetail?.customer_id && orderId && refund_money > 0) {
-        const listReturnProductsResult = listReturnProducts.filter(item => {
-          return item.quantity > 0
+        const listReturnProductsResult = listReturnProducts.filter((item) => {
+          return item.quantity > 0;
         });
-        const returnItems = listReturnProductsResult.map(item => {
-          const {maxQuantityCanBeReturned, ...rest} = item;
+        const returnItems = listReturnProductsResult.map((item) => {
+          const { maxQuantityCanBeReturned, ...rest } = item;
           return rest;
         });
         const returnItemsNow: OrderResponse[] = [
           {
             ...OrderDetail,
-            items: returnItems
-          }
-        ]
-        let return_items = [...returnItemsNow]
-        if(OrderDetail.order_returns) {
-          return_items= [...returnItemsNow, ...OrderDetail.order_returns]
+            items: returnItems,
+          },
+        ];
+        let return_items = [...returnItemsNow];
+        if (OrderDetail.order_returns) {
+          return_items = [...returnItemsNow, ...OrderDetail.order_returns];
         }
         let params: OrderReturnCalculateRefundRequestModel = {
           customerId: OrderDetail.customer_id,
           items: OrderDetail.items,
           orderId,
           refund_money,
-          return_items
-        }
+          return_items,
+        };
         dispatch(
-          actionGetOrderReturnCalculateRefund(
-            params,
-            (response) => {
-              setPointRefund(response.point_refund);
-              if (setMoneyRefund) {
-                setMoneyRefund(response.money_refund);
-              }
+          actionGetOrderReturnCalculateRefund(params, (response) => {
+            setPointRefund(response.point_refund);
+            if (setMoneyRefund) {
+              setMoneyRefund(response.money_refund);
             }
-          )
+          })
         );
       } else {
         setPointRefund(0);
@@ -404,7 +387,17 @@ function CardReturnProductContainer(props: PropType) {
         }
       }
     }
-  }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setMoneyRefund]);
+  }, [
+    OrderDetail,
+    OrderDetail?.customer_id,
+    OrderDetail?.items,
+    OrderDetail?.payments,
+    dispatch,
+    getTotalPrice,
+    listReturnProducts,
+    orderId,
+    setMoneyRefund,
+  ]);
 
   useEffect(() => {
     if (!listReturnProducts) {

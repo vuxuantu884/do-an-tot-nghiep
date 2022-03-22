@@ -45,12 +45,14 @@ import { SourceResponse } from "model/response/order/source.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { ErrorGHTK, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, ShipmentMethod } from "./Constants";
+import { ErrorGHTK, FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
 import { RegUtil } from "./RegUtils";
 import {BaseFilterTag} from "../model/base/base-filter-tag";
 import { showError, showSuccess } from "./ToastUtils";
+import { OrderModel } from "model/order/order.model";
+import { ORDER_SUB_STATUS } from "./OrderSubStatusUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -1676,4 +1678,110 @@ export const copyTextToClipboard = (e: any, data: string | null) => {
   }, 100);
   clearTimeout(decWidth);
   navigator.clipboard.writeText(data ? data : "").then(() => {});
+};
+
+export const isOrderFromSaleChannel = (orderDetail: OrderResponse | null | undefined) => {
+  if(!orderDetail || !orderDetail?.channel_id) {
+    return false;
+  }
+  const SALE_CHANNEL_SOURCE = [SHOPEE.channel_id, TIKI.channel_id, LAZADA.channel_id, SENDO.channel_id];
+  return SALE_CHANNEL_SOURCE.includes(orderDetail?.channel_id);
+};
+
+const handleIfOrderStatusWithPartner = (sub_status_code: string) => {
+  let isChange = true;
+  switch (sub_status_code) {
+    case ORDER_SUB_STATUS.require_warehouse_change: {
+      isChange = false;
+      break;
+    }
+    default:
+      break;
+  }
+  return isChange;
+};
+
+const handleIfOrderStatusPickAtStore = (sub_status_code: string) => {
+  let isChange = true;
+  return isChange;
+  // changeSubStatusCode(sub_status_code);
+};
+
+const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: FulFillmentResponse[]) => {
+  let isChange = true;
+  switch (sub_status_code) {
+    case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
+      const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
+      if (
+        !sortedFulfillments[0]?.shipment ||
+        (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status))
+      ) {
+        isChange = true;
+      } else {
+        isChange = false;
+        showError("Bạn chưa hủy đơn giao hàng!");
+      }
+      break;
+    }
+    case ORDER_SUB_STATUS.coordinator_confirmed: {
+      const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
+      if (
+        (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status)) ||
+        !sortedFulfillments[0]?.shipment
+      ) {
+        isChange = false;
+        showError("Chưa có hình thức vận chuyển!");
+      } else {
+        isChange = true;
+      }
+      break;
+    }
+    case ORDER_SUB_STATUS.fourHour_delivery: {
+      if (sortedFulfillments[0]?.shipment?.service !== SHIPPING_TYPE.DELIVERY_4H) {
+        isChange = false;
+        console.log('333333333')
+        showError("Chưa chọn giao hàng 4h!");
+      } else {
+        isChange = true;
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  return isChange;
+};
+
+export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, sub_status_code: string) => {
+  if(isOrderFromSaleChannel(orderDetail)) {
+    return true;
+  }
+  if(!orderDetail) {
+    return false;
+  }
+  let isChange = true;
+  const returnStatus = [
+    FulFillmentStatus.RETURNED,
+    FulFillmentStatus.CANCELLED,
+    FulFillmentStatus.RETURNING,
+  ];
+  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !returnStatus.includes(single.status)) : [];
+  switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
+    // giao hàng hvc, tự giao hàng
+    case ShipmentMethod.EXTERNAL_SERVICE:
+    case ShipmentMethod.EMPLOYEE:
+      isChange = handleIfOrderStatusWithPartner(sub_status_code);
+      break;
+    // nhận tại cửa hàng
+    case ShipmentMethod.PICK_AT_STORE:
+      isChange = handleIfOrderStatusPickAtStore(sub_status_code);
+      break;
+    default:
+      break;
+  }
+  console.log('isChange', isChange)
+  if (isChange) {
+    isChange = handleIfOrderStatusOther(sub_status_code, sortedFulfillments);
+  }
+  return isChange
 };

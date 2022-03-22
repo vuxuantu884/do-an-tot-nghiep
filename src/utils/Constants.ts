@@ -273,6 +273,21 @@ export const SHOPEE = {
   channel_code: "Shopee"
 };
 
+export const TIKI = {
+	channel_id: 17,
+  channel_code: "tiki"
+};
+
+export const LAZADA = {
+	channel_id: 15,
+  channel_code: "lazada"
+};
+
+export const SENDO = {
+	channel_id: 16,
+  channel_code: "sendo"
+};
+
 export const FACEBOOK = {
 	channel_id: 2,
   channel_code: "FB"

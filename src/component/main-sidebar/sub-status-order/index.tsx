@@ -1,4 +1,5 @@
 import { Card, Form, Select } from "antd";
+import CustomSelect from "component/custom/select.custom";
 import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order/order.action";
 import {
 	FulFillmentResponse,
@@ -9,7 +10,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
-import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, isOrderFromSaleChannel, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { showError, showWarning } from "utils/ToastUtils";
 
@@ -214,6 +215,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     if (!orderId) {
       return;
     }
+    if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
+      changeSubStatusCode(sub_status_code);
+      return;
+    }
+    if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
+      return true;
+    }
     let isChange = true;
     switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
       // giao hàng hvc, tự giao hàng
@@ -316,14 +324,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 
   return (
     <Card title="Xử lý đơn hàng">
-      <Select
+      <CustomSelect
         showSearch
         style={{ width: "100%" }}
         placeholder="Chọn trạng thái phụ"
         optionFilterProp="children"
-        filterOption={(input, option) =>
-          option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-        }
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
@@ -337,7 +342,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
               </Select.Option>
             );
           })}
-      </Select>
+      </CustomSelect>
       {isShowReason ? (
         <div style={{ marginTop: 15 }}>
           <Form.Item

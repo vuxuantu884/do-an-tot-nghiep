@@ -1,4 +1,5 @@
 import { Button, Card, Checkbox, Col, Form, Input, Row, Select } from "antd";
+import CustomSelect from "component/custom/select.custom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
@@ -328,7 +329,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                 <label htmlFor="">Shop ID</label>
               </div>
               <div className="sectionSelectShop">
-                <Select
+                <CustomSelect
                   placeholder="Chọn hoặc tìm kiếm cửa hàng"
                   allowClear
                   showSearch
@@ -338,9 +339,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                     setInputShopIdValue(value);
                   }}
                   className="selectShopId"
-                  filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
                 >
                   {listShops &&
                     listShops.map((singleShop) => {
@@ -350,7 +348,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                         </Select.Option>
                       );
                     })}
-                </Select>
+                </CustomSelect>
                 <div>
                   <Input
                     placeholder="Nhập Shop ID"
