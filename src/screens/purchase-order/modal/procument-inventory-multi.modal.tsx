@@ -18,7 +18,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { useDispatch } from "react-redux";
 import { getProcurementsMerge } from "service/purchase-order/purchase-procument.service";
 
-type ProducmentInventoryModalProps = { 
+type ProcumentInventoryModalProps = { 
   visible: boolean;
   poData?: PurchaseOrder | undefined;
   onCancel: () => void;
@@ -28,8 +28,8 @@ type ProducmentInventoryModalProps = {
   title: ReactNode
 };
 
-const ProducmentInventoryMultiModal: React.FC<ProducmentInventoryModalProps> = (
-  props: ProducmentInventoryModalProps
+const ProducmentInventoryMultiModal: React.FC<ProcumentInventoryModalProps> = (
+  props: ProcumentInventoryModalProps
 ) => {
   const {
     visible,  

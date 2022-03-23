@@ -92,6 +92,9 @@ const TabList: React.FC = () => {
     },
     items: [],
   });
+  const [purchaseOrderItem, setPurchaseOrderItem] = useState<PurchaseOrder>(
+    {} as PurchaseOrder
+  );
 
   const actions: Array<MenuAction> = useMemo(()=>{
     return [
@@ -550,6 +553,7 @@ const TabList: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {
+    setPurchaseOrderItem(record.purchase_order);
     const { status = "", expect_store_id = 144, code } = record;
     switch (status) {
       case ProcumentStatus.DRAFT:
@@ -719,6 +723,7 @@ const TabList: React.FC = () => {
               loadDetail={loadDetail}
               isEdit={false}
               items={[]}
+              poData={purchaseOrderItem}
               stores={listStore}
               now={now}
               visible={visibleConfirm}

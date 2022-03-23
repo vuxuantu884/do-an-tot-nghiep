@@ -29,7 +29,7 @@ import useAuthorization from "hook/useAuthorization";
 import { StyledComponent } from "../../products/procurement/tabs/TabList/styles";
 import BaseTagStatus from "../../../component/base/BaseTagStatus";
 
-type ProducmentInventoryModalProps = {
+type ProcumentInventoryModalProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
   visible: boolean;
   isEdit: boolean;
@@ -47,8 +47,8 @@ type ProducmentInventoryModalProps = {
   procumentCode: string;
 };
 
-const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
-  props: ProducmentInventoryModalProps
+const ProcumentInventoryModal: React.FC<ProcumentInventoryModalProps> = (
+  props: ProcumentInventoryModalProps
 ) => {
   const {
     visible,
@@ -66,7 +66,6 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     isEdit,
     isDetail
   } = props;
-
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
   const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(item);
@@ -117,7 +116,6 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         procumentCode={procumentCode}
         now={now}
         stores={stores}
-        poData={poData}
         defaultStore={defaultStore}
         visible={visible}
         cancelText="Hủy"
@@ -336,7 +334,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
           okText= "Xác nhận"
           templateUrl={AppConfig.PROCUMENT_IMPORT_TEMPLATE_URL}
           forder="stock-transfer"
-          customParams={{conditions: `${poData?.id},${item?.id}`,
+          customParams={{conditions: poData?.id ? `${poData?.id},${item?.id}` : `${item?.id}`,
                 type: "IMPORT_PROCUREMENT"}}
       />
     </>
@@ -344,4 +342,4 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
   } else return <Fragment />;
 };
 
-export default ProducmentInventoryModal;
+export default ProcumentInventoryModal;
