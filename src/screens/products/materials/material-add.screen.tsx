@@ -114,51 +114,39 @@ const AddMaterial: React.FC = () => {
               <Form.Item
                 name="component"
                 label="Thành phần:"
-                rules={[{ max: 50, message: "Thành phần không quá 50 kí tự" }]}
+                rules={[{ max: 255, message: "Thành phần không quá 255 kí tự" }]}
               >
-                <Input maxLength={50} placeholder="Nhập thành phần" />
+                <Input maxLength={255} placeholder="Nhập thành phần" />
               </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    max: 150,
-                    message: "Thông tin bảo quản không quá 150 kí tự",
-                  },
-                ]}
+              <Form.Item 
                 name="preserve"
                 label="Thông tin bảo quản:"
               >
-                <Input maxLength={150} placeholder="Thông tin bảo quản" />
+                <Input placeholder="Thông tin bảo quản" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
-                rules={[{ max: 150, message: "Ưu điểm không quá 150 kí tự" }]}
                 name="advantages"
                 label="Ưu điểm:"
               >
                 <Input.TextArea
                   autoSize={{ minRows: 3, maxRows: 5 }}
-                  maxLength={150}
                   placeholder="Ưu điểm"
                 />
               </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
-                rules={[
-                  { max: 150, message: "Nhược điểm không quá 150 kí tự" },
-                ]}
                 name="defect"
                 label="Nhược điểm:"
               >
                 <Input.TextArea
                   autoSize={{ minRows: 3, maxRows: 5 }}
-                  maxLength={150}
                   placeholder="Nhược điểm"
                 />
               </Form.Item>
@@ -167,13 +155,13 @@ const AddMaterial: React.FC = () => {
           <Row gutter={50}>
             <Col span={24} lg={16}>
               <Form.Item
-                rules={[{ max: 250, message: "Ghi chú không quá 150 kí tự" }]}
+                rules={[{ max: 255, message: "Ghi chú không quá 255 kí tự" }]}
                 name="description"
                 label="Ghi chú:"
               >
                 <Input.TextArea
                   autoSize={{ minRows: 3, maxRows: 5 }}
-                  maxLength={250}
+                  maxLength={255}
                   placeholder="Nhập ghi chú"
                 />
               </Form.Item>
