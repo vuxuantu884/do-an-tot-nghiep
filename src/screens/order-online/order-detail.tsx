@@ -1158,7 +1158,7 @@ const OrderDetail = (props: PropType) => {
               <SubStatusOrder
                 subStatusCode={subStatusCode}
                 status={OrderDetail?.status}
-                orderId={OrderId}
+                orderId={OrderDetail?.id}
                 fulfillments={OrderDetail?.fulfillments}
                 handleUpdateSubStatus={handleUpdateSubStatus}
                 setReload={setReload}
