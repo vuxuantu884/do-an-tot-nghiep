@@ -118,53 +118,12 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 
   const handleIfOrderStatusWithPartner = (sub_status_code: string) => {
     let isChange = true;
-    switch (sub_status_code) {
-      // backend đã xử lý khi chưa có biên bản bàn giao
-      // case ORDER_SUB_STATUS.awaiting_shipper: {
-      //   if (!OrderDetailAllFulfillment?.code) {
-      //     return isChange;
-      //   }
-      //   const query = {
-      //     order_codes: OrderDetailAllFulfillment?.code,
-      //   };
-      //   getGoodsReceiptsSerchService(query).then((response) => {
-      //     if (isFetchApiSuccessful(response)) {
-      //       if (response.data?.items?.length > 0) {
-      //         isChange = true;
-      //       } else {
-      //         isChange = false;
-      //         showError("Đơn hàng chưa có trong biên bản bàn giao!");
-      //       }
-      //     }
-      //   });
-      //   break;
-      // }
-
-      // case ORDER_SUB_STATUS.require_warehouse_change: {
-      //   if (subReasonRequireWarehouseChange) {
-      //     isChange = true;
-      //   } else {
-      //     isChange = false;
-      //     setIsShowReason(true);
-      //     showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
-      //     setTimeout(() => {
-      //       const element = document.getElementById("requireWarehouseChangeId");
-      //       element?.focus();
-      //     }, 500);
-      //     setValueSubStatusCode(sub_status_code);
-      //   }
-      //   break;
-      // }
-      default:
-        break;
-    }
     return isChange;
   };
 
   const handleIfOrderStatusPickAtStore = (sub_status_code: string) => {
     let isChange = true;
     return isChange;
-    // changeSubStatusCode(sub_status_code);
   };
 
   const handleIfOrderStatusOther = (sub_status_code: string) => {
@@ -211,12 +170,28 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     return isChange;
   };
 
+  // xử lý khi đổi kho hàng
+  const handleIfRequireWareHouseChange = (sub_status_code: string) => {
+    setIsShowReason(true);
+    showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
+    setTimeout(() => {
+      const element = document.getElementById("requireWarehouseChangeId");
+      element?.focus();
+    }, 500);
+    setValueSubStatusCode(sub_status_code);
+    return;
+  };
+
   const handleChange = (sub_status_code: string) => {
     if (!orderId) {
       return;
     }
     if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
-      changeSubStatusCode(sub_status_code);
+      if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
+        handleIfRequireWareHouseChange(sub_status_code)
+      } else {
+        changeSubStatusCode(sub_status_code);
+      }
       return;
     }
     if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
@@ -238,14 +213,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     }
     if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
       isChange = false;
-      setIsShowReason(true);
-      showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
-      setTimeout(() => {
-        const element = document.getElementById("requireWarehouseChangeId");
-        element?.focus();
-      }, 500);
-      setValueSubStatusCode(sub_status_code);
-      return;
+      handleIfRequireWareHouseChange(sub_status_code);
     }
     if (isChange) {
       isChange = handleIfOrderStatusOther(sub_status_code);
