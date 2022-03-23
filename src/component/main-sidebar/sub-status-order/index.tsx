@@ -140,21 +140,21 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       //   break;
       // }
 
-      case ORDER_SUB_STATUS.require_warehouse_change: {
-        if (subReasonRequireWarehouseChange) {
-          isChange = true;
-        } else {
-          isChange = false;
-          setIsShowReason(true);
-          showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
-          setTimeout(() => {
-            const element = document.getElementById("requireWarehouseChangeId");
-            element?.focus();
-          }, 500);
-          setValueSubStatusCode(sub_status_code);
-        }
-        break;
-      }
+      // case ORDER_SUB_STATUS.require_warehouse_change: {
+      //   if (subReasonRequireWarehouseChange) {
+      //     isChange = true;
+      //   } else {
+      //     isChange = false;
+      //     setIsShowReason(true);
+      //     showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
+      //     setTimeout(() => {
+      //       const element = document.getElementById("requireWarehouseChangeId");
+      //       element?.focus();
+      //     }, 500);
+      //     setValueSubStatusCode(sub_status_code);
+      //   }
+      //   break;
+      // }
       default:
         break;
     }
