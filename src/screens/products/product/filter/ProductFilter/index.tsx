@@ -2,24 +2,19 @@ import { FilterOutlined } from "@ant-design/icons";
 import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 import search from "assets/img/search.svg";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import ColorSearchSelect from "component/custom/select-search/color-select";
 import SizeSearchSelect from "component/custom/select-search/size-search";
-import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
 import CustomSelectOne from "component/filter/component/select-one.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
-import { AppConfig } from "config/app.config";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getColorAction } from "domain/actions/product/color.action";
 import { sizeSearchAction } from "domain/actions/product/size.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CountryResponse } from "model/content/country.model";
@@ -38,6 +33,10 @@ import { useDispatch } from "react-redux";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { StyledComponent } from "./style";
+import BaseSelect from "../../../../../component/base/BaseSelect/BaseSelect";
+import BaseSelectMerchans from "../../../../../component/base/BaseSelect/BaseSelectMerchans";
+import {useFetchMerchans} from "../../../../../hook/useFetchMerchans";
+import useEffectOnce from "react-use/lib/useEffectOnce";
 
 type ProductFilterProps = {
   params: any;
@@ -51,6 +50,7 @@ type ProductFilterProps = {
 };
 
 const {Item} = Form;
+const {Option} = Select;
 
 function tagRender(props: any) {
   const { label, closable, onClose } = props;
@@ -85,6 +85,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     actions,
     onMenuClick,
   } = props;
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
 
   const [allowReadSuppiers]= useAuthorization({acceptPermissions: [SuppliersPermissions.READ]});
 
@@ -118,20 +119,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     metadata: { limit: 20, page: 1, total: 0 }
   });
 
-  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-
-  const [designers, setDesigner] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-
   const getSuppliers = useCallback((key: string, page: number) => {
     if(allowReadSuppiers){
       dispatch(SupplierSearchAction({ ids: key, page: page }, (data: PageResponse<SupplierResponse>) => {
@@ -148,58 +135,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     }));
     }
   }, [dispatch, allowReadSuppiers]);
-
-  const setDataDesigners = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) return;
-      setDesigner((designer) => {
-        return {
-          ...designer,
-          items: [
-            ...designer.items,
-            ...data.items
-          ],
-          metadata: data.metadata,
-        }
-      });
-    },
-    []
-  );
-
-  const setDataWins = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) return;
-      setWins((wins) => {
-        return {
-          ...wins,
-          items: [
-            ...wins.items,
-            ...data.items
-          ],
-          metadata: data.metadata,
-        }
-      });
-    },
-    []
-  );
-
-  const getDesigners = useCallback((code: string, page: number) => {
-    dispatch(
-      searchAccountPublicAction(
-        { codes: code, page: page },
-        setDataDesigners
-      )
-    );
-  }, [dispatch, setDataDesigners]);
-
-  const getWins = useCallback((code: string, page: number) => {
-    dispatch(
-      searchAccountPublicAction(
-        { codes: code, page: page },
-        setDataWins
-      )
-    );
-  }, [dispatch, setDataWins]);
 
   useEffect(() => {
     const {
@@ -225,8 +160,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
       suppliers: suppliers ? Array.isArray(suppliers) ? suppliers.map((i: string) => Number(i)) : [Number(suppliers)] : [],
     };
 
-    if (designers && designers !== '') getDesigners(designers, 1);
-    if (merchandisers && merchandisers !== '') getWins(merchandisers, 1);
     if (suppliers && suppliers !== '') getSuppliers(suppliers, 1);
     setTimeout(() => {
       if (sizes && sizes !== '') getSizes(sizes, 1);
@@ -356,16 +289,14 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     );
   },[dispatch, setDataSizes]);
 
-  useEffect(()=> {
+  useEffectOnce(()=> {
     getColors('', 1, false, true);
     getColors('', 1, true, false);
     getSizes('', 1);
-    getWins('', 1);
-    getDesigners('', 1);
     setTimeout(() => {
       getSuppliers('', 1);
     }, 0);
-  },[getColors, getSizes, getSuppliers, getWins, getDesigners]);
+  })
 
   return (
     <StyledComponent>
@@ -398,8 +329,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
           listStatus={listStatus}
           resetField={resetField}
           listBrands={listBrands}
-          wins={wins}
-          designers={designers}
+          wins={merchans}
+          designers={merchans}
           colors={colors}
           lstSize={lstSize}
           mainColors={mainColors}
@@ -431,42 +362,29 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                 switch (key) {
                   case SearchVariantField.made_ins:
                     component = (
-                      <CustomSelect
-                        showSearch
-                        optionFilterProp="children"
-                        showArrow
-                        placeholder="Chọn xuất xứ"
-                        mode="multiple"
-                        allowClear
-                        tagRender={tagRender}
-                        notFoundContent="Không tìm thấy kết quả"
-                        maxTagCount="responsive"
-                      >
-                        {listCountries?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={String(item.id)}>
+                      <BaseSelect
+                        data={listCountries}
+                        renderItem={(item) => (
+                          <Option key={item.id} value={String(item.id)}>
                             {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
+                          </Option>
+                        )}
+                        mode="multiple"
+                        tagRender={tagRender}
+                        placeholder="Chọn xuất xứ"
+                        showSearch
+                        showArrow
+                      />
                     );
                     break;
                   case SearchVariantField.designers:
                     component = (
-                      <AccountSearchPaging
-                        mode="multiple"
-                        placeholder="Chọn thiết kế"
-                        fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                      />
+                      <BaseSelectMerchans {...{merchans, fetchMerchans, isLoadingMerchans}} mode={"multiple"} placeholder="Chọn thiết kế"/>
                     );
                     break;
                   case SearchVariantField.merchandisers:
                     component = (
-                      <AccountSearchPaging
-                        mode="multiple"
-                        placeholder="Chọn merchandiser"
-                        fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT],
-                          status: "active" }}
-                      />
+                      <BaseSelectMerchans {...{merchans, fetchMerchans, isLoadingMerchans}} mode={"multiple"} placeholder="Chọn merchandiser"/>
                     );
                     break;
                   case SearchVariantField.created_date:
@@ -550,7 +468,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                       </Select>
                     );
                 }
-                
+
                 return (
                   <>
                   {component ? <Col span={12} key={key}>

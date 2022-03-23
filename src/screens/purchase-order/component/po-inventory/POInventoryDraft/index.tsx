@@ -198,7 +198,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
               POField.line_items
             );
             let procument_items: Array<PurchaseProcurementViewDraft> =
-              getFieldValue(POField.procurements);
+              getFieldValue(POField.procurements) || [];
             let columns: Array<
               ICustomTableColumType<PurchaseProcurementViewDraft>
             > = [];

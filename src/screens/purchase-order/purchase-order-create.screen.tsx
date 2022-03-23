@@ -8,8 +8,9 @@ import POInfoForm from "./component/po-info.form";
 import { useDispatch } from "react-redux";
 import React, { useCallback, useEffect, useState } from "react";
 import { AppConfig } from "config/app.config";
-import { useHistory } from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import {
+  PO_FORM_TEMPORARY,
   POStatus,
   ProcumentStatus,
   VietNamId,
@@ -37,55 +38,59 @@ import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import {useLocalStorage} from "react-use";
+
+let initPurchaseOrder = {
+  line_items: [],
+  policy_price_code: AppConfig.import_price,
+  untaxed_amount: 0,
+  trade_discount_rate: null,
+  trade_discount_value: null,
+  trade_discount_amount: 0,
+  designer_code: null,
+  payments: [],
+  procurements: [
+    {
+      fake_id: new Date().getTime(),
+      reference: "",
+      store_id: null,
+      expect_receipt_date: "",
+      procurement_items: [],
+      status: ProcumentStatus.DRAFT,
+      status_po: POStatus.DRAFTPO,
+      note: "",
+      actived_date: "",
+      actived_by: "",
+      stock_in_date: "",
+      stock_in_by: "",
+    },
+  ],
+  payment_discount_rate: null,
+  payment_discount_value: null,
+  payment_discount_amount: 0,
+  total_cost_line: 0,
+  total: 0,
+  cost_lines: [],
+  tax_lines: [],
+  supplier_id: 0,
+  expect_import_date: ConvertDateToUtc(moment()),
+  order_date: null,
+  status: POStatus.DRAFT,
+  receive_status: ProcumentStatus.DRAFT,
+  activated_date: null,
+  completed_stock_date: null,
+  cancelled_date: null,
+  completed_date: null,
+};
 
 const POCreateScreen: React.FC = () => {
   let now = moment();
-  let initPurchaseOrder = {
-    line_items: [],
-    policy_price_code: AppConfig.import_price,
-    untaxed_amount: 0,
-    trade_discount_rate: null,
-    trade_discount_value: null,
-    trade_discount_amount: 0,
-    designer_code: null,
-    payments: [],
-    procurements: [
-      {
-        fake_id: new Date().getTime(),
-        reference: "",
-        store_id: null,
-        expect_receipt_date: "",
-        procurement_items: [],
-        status: ProcumentStatus.DRAFT,
-        status_po: POStatus.DRAFTPO,
-        note: "",
-        actived_date: "",
-        actived_by: "",
-        stock_in_date: "",
-        stock_in_by: "",
-      },
-    ],
-    payment_discount_rate: null,
-    payment_discount_value: null,
-    payment_discount_amount: 0,
-    total_cost_line: 0,
-    total: 0,
-    cost_lines: [],
-    tax_lines: [],
-    supplier_id: 0,
-    expect_import_date: ConvertDateToUtc(moment()),
-    order_date: null,
-    status: POStatus.DRAFT,
-    receive_status: ProcumentStatus.DRAFT,
-    activated_date: null,
-    completed_stock_date: null,
-    cancelled_date: null,
-    completed_date: null,
-  };
-
   const dispatch = useDispatch();
   const history = useHistory();
   const [formMain] = Form.useForm();
+
+  const [value, _, remove] = useLocalStorage<typeof initPurchaseOrder>(PO_FORM_TEMPORARY);
+  const [formInitial, setFormInitial] = useState(value || initPurchaseOrder)
 
   const [statusAction, setStatusAction] = useState<string>("");
   const [listPaymentConditions, setListPaymentConditions] = useState<
@@ -96,6 +101,12 @@ const POCreateScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [loadingDraftButton, setLoadingDraftButton] = useState(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
+
+  useEffect(() => {
+    if(value) {
+      setFormInitial(value)
+    }
+  }, [value])
 
   const createCallback = useCallback(
     (result: PurchaseOrder) => {
@@ -163,6 +174,7 @@ const POCreateScreen: React.FC = () => {
   const createPurchaseOrder = (status: string) => {
     setStatusAction(status);
     formMain.submit();
+    remove()
   }
 
   useEffect(() => {
@@ -170,6 +182,8 @@ const POCreateScreen: React.FC = () => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
+
+    return () => remove()
   }, [dispatch]);
 
   return (
@@ -187,13 +201,13 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={<POStep poData={initPurchaseOrder} />}
+      extra={<POStep poData={formInitial} />}
     >
       <Form
         form={formMain}
         onFinishFailed={onFinishFailed}
         onFinish={onFinish}
-        initialValues={initPurchaseOrder}
+        initialValues={formInitial}
         layout="vertical"
       >
         <Form.Item name={POField.status} noStyle hidden>
@@ -242,7 +256,7 @@ const POCreateScreen: React.FC = () => {
         <BottomBarContainer
           back={false}
           leftComponent={
-            <POStep poData={initPurchaseOrder} />
+            <POStep poData={formInitial} />
           }
           rightComponent={
             <React.Fragment>

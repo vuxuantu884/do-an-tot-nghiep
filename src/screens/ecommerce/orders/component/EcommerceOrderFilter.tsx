@@ -35,10 +35,11 @@ import { StyledOrderFilter } from "screens/ecommerce/orders/orderStyles";
 import 'component/filter/order.filter.scss'
 
 import search from "assets/img/search.svg";
-import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
+import { ECOMMERCE_LIST, getEcommerceIcon, getEcommerceIdByChannelCode } from "screens/ecommerce/common/commonAction";
 import TreeStore from "component/tree-node/tree-store";
 import "screens/ecommerce/orders/ecommerce-order.scss"
 import CustomSelectTags from "component/custom/custom-select-tag";
+import moment from "moment";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -145,7 +146,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   ], []);
 
   const formRef = createRef<FormInstance>();
-  const formSearchRef = createRef<FormInstance>();
+  const [form] = Form.useForm()
   const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string }[]>([]);
 
   const dispatch = useDispatch();
@@ -164,8 +165,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 	);
 
   const onFilterClick = useCallback(() => {
+    form.submit();
     formRef.current?.submit();
-  }, [formRef]);
+  }, [form, formRef]);
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -264,10 +266,14 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   useEffect(() => {
     if (params.variant_ids.length) {
+      let variant_ids = Array.isArray(params.variant_ids)
+        ? params.variant_ids
+        : [params.variant_ids];
+
       (async () => {
         let variants: any = [];
         await Promise.all(
-          params.variant_ids.map(async (variant_id) => {
+          variant_ids.map(async (variant_id) => {
             try {
               const result = await getVariantApi(variant_id)
 
@@ -313,7 +319,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   const handleSelectEcommerce = (key: any) => {
     if (key !== ecommerceKeySelected) {
-      formSearchRef?.current?.setFieldsValue({
+      form?.setFieldsValue({
         ecommerce_shop_ids: []
       });
 
@@ -322,7 +328,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       );
 
       setEcommerceKeySelected(key)
-      getEcommerceShopList(ecommerceSelected?.ecommerce_id);
+      // getEcommerceShopList(ecommerceSelected?.ecommerce_id);
 
       // filter order by channel
       onFilter && onFilter({...params, ecommerce_shop_ids: [], channel_codes: ecommerceSelected?.key});
@@ -332,12 +338,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const handleRemoveEcommerce = useCallback(() => {
     setEcommerceKeySelected("");
     setIsEcommerceSelected(false);
-    formSearchRef?.current?.setFieldsValue({
+    form?.setFieldsValue({
       channel_codes: [],
       ecommerce_shop_ids: []
     });
     onFilter && onFilter({...params, ecommerce_shop_ids: [], channel_codes: []});
-  }, [formSearchRef, onFilter, params]);
+  }, [form, onFilter, params]);
   // end handle Select Ecommerce
 
   // handle action dropdown
@@ -723,7 +729,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           handleRemoveEcommerce();
           break;
         case 'ecommerce_shop_ids':
-          formSearchRef?.current?.setFieldsValue({
+          form?.setFieldsValue({
             ecommerce_shop_ids: []
           });
           onFilter && onFilter({...params, ecommerce_shop_ids: []});
@@ -804,13 +810,13 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           setTags([]);
           break;
         case 'reference_code':
-          formSearchRef?.current?.setFieldsValue({
+          form?.setFieldsValue({
             reference_code: "",
           });
           onFilter && onFilter({...params, reference_code: ""});
           break;
         case 'search_term':
-          formSearchRef?.current?.setFieldsValue({
+          form?.setFieldsValue({
             search_term: "",
           });
           onFilter && onFilter({...params, search_term: ""});
@@ -818,9 +824,104 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         default: break
       }
     },
-    [formSearchRef, handleRemoveEcommerce, onFilter, params]
+    [form, handleRemoveEcommerce, onFilter, params]
   );
   // end handle tag filter
+
+  //handle query params filter
+  const onCheckDateFilterParam = (date_from: any, date_to: any, setDate: any) => {
+      const todayFrom = moment().startOf('day').format('DD-MM-YYYY')
+      const todayTo = moment().endOf('day').format('DD-MM-YYYY')
+
+      const yesterdayFrom = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+      const yesterdayTo = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+
+      const thisWeekFrom = moment().startOf('week').format('DD-MM-YYYY')
+      const thisWeekTo = moment().endOf('week').format('DD-MM-YYYY')
+
+      const lastWeekFrom = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+      const lastWeekTo = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+
+      const thisMonthFrom = moment().startOf('month').format('DD-MM-YYYY')
+      const thisMonthTo = moment().endOf('month').format('DD-MM-YYYY')
+
+      const lastMonthFrom = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+      const lastMonthTo = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+
+      
+      if (date_from === todayFrom && date_to === todayTo) {
+        setDate("today");
+      }else if (date_from === yesterdayFrom && date_to === yesterdayTo) {
+        setDate("yesterday");
+      }else if (date_from === thisWeekFrom && date_to === thisWeekTo) {
+        setDate("thisweek");
+      }else if (date_from === lastWeekFrom && date_to === lastWeekTo) {
+        setDate("lastweek");
+      }else if(date_from === thisMonthFrom && date_to === thisMonthTo) {
+        setDate("thismonth");
+      }else if (date_from === lastMonthFrom && date_to === lastMonthTo) {
+        setDate("lastmonth");
+      }else {
+        setDate("")
+      }
+  }
+
+  useEffect(() => {
+    let checkEcommerceShop = Array.isArray(params.ecommerce_shop_ids)
+      ? params.ecommerce_shop_ids
+      : [params.ecommerce_shop_ids];
+
+    form.setFieldsValue({
+      channel_codes: params.channel_codes,
+      ecommerce_shop_ids: checkEcommerceShop.map(item => +item),
+      search_term: params.search_term,
+      reference_code: params.reference_code,
+      sub_status_code: params.sub_status_code
+    });
+
+    formRef?.current?.setFieldsValue({
+      store_ids: params.store_ids,
+      source_ids: params.source_ids,
+      variant_ids: params.variant_ids,
+      issued_on_min: params.issued_on_min,
+      issued_on_max: params.issued_on_max,
+      finalized_on_min: params.finalized_on_min,
+      finalized_on_max: params.finalized_on_max,
+      completed_on_min: params.completed_on_min,
+      completed_on_max: params.completed_on_max,
+      cancelled_on_min: params.cancelled_on_min,
+      cancelled_on_max: params.cancelled_on_max,
+      order_status: params.order_status,
+      fulfillment_status: params.fulfillment_status,
+      return_status: params.return_status,
+      assignee_codes: params.assignee_codes,
+      delivery_provider_ids: params.delivery_provider_ids,
+      note: params.note,
+      customer_note: params.customer_note,
+      tags: params.tags,
+    })
+
+    onCheckDateFilterParam(params.issued_on_min, params.issued_on_max, setIssuedClick)
+    onCheckDateFilterParam(params.finalized_on_min, params.finalized_on_max, setFinalizedClick)
+    onCheckDateFilterParam(params.completed_on_min, params.completed_on_max, setCompletedClick)
+    onCheckDateFilterParam(params.cancelled_on_min, params.cancelled_on_max, setCancelledClick)
+
+    if(!params.tags.length) {
+      setTags([]);
+    }else {
+      let tagsArr : any[] = []
+      const tagsFilter = Array.isArray(params.tags)
+      ? params.tags
+      : [params.tags];
+      tagsFilter.length > 0 && tagsFilter.map(item => tagsArr.push(item))
+      setTags(tagsArr);
+    }
+    
+    if (params.channel_codes !== undefined) {
+      getEcommerceShopList(getEcommerceIdByChannelCode(params.channel_codes as any))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, params]);
 
 
   return (
@@ -828,7 +929,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       <div className="order-filter">
         <Form
           onFinish={onFinish}
-          ref={formSearchRef}
+          form={form}
           initialValues={initialValues}
         >
           <Form.Item className="action-dropdown">
@@ -925,12 +1026,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               prefix={<img src={search} alt="" />}
               placeholder="ID đơn hàng (sàn)"
               onBlur={(e) => {
-                formSearchRef?.current?.setFieldsValue({
+                form?.setFieldsValue({
                   reference_code: e.target.value.trim(),
                 });
               }}
               onPressEnter={(e: any) => {
-                formSearchRef?.current?.setFieldsValue({
+                form?.setFieldsValue({
                   reference_code: e.target.value.trim(),
                 });
               }}
@@ -943,7 +1044,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               prefix={<img src={search} alt="" />}
               placeholder="ID đơn hàng, SĐT KH"
               onBlur={(e) => {
-                formSearchRef?.current?.setFieldsValue({
+                form?.setFieldsValue({
                   search_term: e.target.value.trim(),
                 });
               }}

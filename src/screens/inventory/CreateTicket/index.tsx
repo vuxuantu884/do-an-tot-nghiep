@@ -399,6 +399,33 @@ const CreateTicket: FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (stores.length === 0) return;
+
+    if (fromStores?.length === 1) {
+      stores.forEach((element) => {
+        if (element.id === fromStores[0].store_id) {
+          form.setFieldsValue({
+            from_store_id: element.id
+          });
+          setFormStoreData(element);
+          onChangeFromStore(element.id);
+        }
+      });
+    }
+
+    if (fromStores?.length === 0) {
+      const newStore = stores.map((i) => {
+        return {
+          store_id: i.id,
+          store: i.name,
+        }
+      });
+      setFromStores(newStore);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stores, fromStores, onChangeFromStore]);
+
   const onFinish = (data: StockTransferSubmit) => {
     let countError = 0;
     let arrError: Array<string> = [];

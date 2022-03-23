@@ -57,18 +57,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const { formMain, isEdit } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearch, setLoadingSearch] = useState(false);
-  // const product_units = useSelector(
-  //   (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
-  // );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [listPrice, setListPrice] = useState<Array<Number>>([]);
   const [listVat, setListVat] = useState<Array<Number>>([]);
   const [priceValue, setPriceValue] = useState(0);
   const [vatValue, setVatValue] = useState(0);
-  // const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
-  // const [splitLine, setSplitLine] = useState<boolean>(false);
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  // const [costLines, setCostLines] = useState<Array<CostLine>>([]);
   const [isPressed] = useKeyboardJs('f3');
 
   const renderResult = useMemo(() => {
@@ -625,7 +619,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   )} */}
 
                   <span>Chính sách giá:</span>
-                  {!isEdit && status === POStatus.DRAFT ? (
+                  {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
+                  {!isEdit && (!status || status === POStatus.DRAFT) ? (
                     <Form.Item
                       name={POField.policy_price_code}
                       style={{ margin: "0px" }}
@@ -668,8 +663,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             {({ getFieldValue }) => {
               let status = getFieldValue("status");
               return (
-                !isEdit &&
-                status === POStatus.DRAFT && (
+                !isEdit && (!status || status === POStatus.DRAFT) && (
                   <Input.Group className="display-flex">
                     <CustomAutoComplete
                       loading={loadingSearch}
@@ -721,7 +715,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 : [];
               let status = getFieldValue(POField.status);
 
-              return !isEdit && status === POStatus.DRAFT ? (
+              return !isEdit && (!status || status === POStatus.DRAFT) ? (
                 <Table
                   className="product-table"
                   locale={{

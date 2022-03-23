@@ -385,7 +385,7 @@ const CustomerGeneralInfo = (props: any) => {
             form={form}
             message="Vui lòng nhập địa chỉ"
             placeholder="Nhập địa chỉ chi tiết"
-            maxLength={500}
+            maxLength={255}
             isRequired={false}
             className="right-item"
           />

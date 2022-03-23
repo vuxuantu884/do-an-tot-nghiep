@@ -1,3 +1,4 @@
+import React, {useEffect, useState} from "react";
 import { Layout, Button, Badge, Avatar, Dropdown, Menu, Space } from "antd";
 import logo from "assets/img/logo.svg";
 import UrlConfig from "config/url.config";
@@ -5,14 +6,19 @@ import { Link } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { AccountResponse } from "model/account/account.model";
 import { RiNotification2Line, RiArrowDropDownLine } from "react-icons/ri";
+import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutAction } from "domain/actions/auth/auth.action";
 import { StyledComponent } from "./header.container.styles";
 import { RootReducerType } from "../../model/reducers/RootReducerType";
+import logoDev from "assets/img/yody-logo-dev.svg";
+import logoUat from "assets/img/yody-logo-uat.svg";
 
 type HeaderContainerProps = {
   onCollapse: () => void;
   account?: AccountResponse | null;
+	isShowHeader: boolean;
+	setIsShowHeader: (value: boolean) => void;
 };
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (
@@ -22,10 +28,29 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
     (state: RootReducerType) => state.userReducer.account?.user_id
   );
   const dispatch = useDispatch();
+  const [isShowBtnDD, setIsShowBtnDD] = useState<boolean>(true);
+
+  useEffect(() => {
+    if(window.location.pathname.indexOf('YDpage') < 0) {
+			setIsShowBtnDD(false)
+			props.setIsShowHeader(true)
+		}
+  }, [props]);
+
+  const Logo = () => {
+    if (window.location.host.startsWith("dev") || window.location.host.startsWith("localhost")) {
+      return <img src={logoDev} alt="logo-mt-dev" />;
+    } else if (window.location.host.startsWith("uat")) {
+      return <img src={logoUat} alt="logo-mt-uat" />;
+    } else {
+      return <img src={logo} alt="logo-mt-prod" />;
+    }
+  };
+
   const userMenu = (
     <Menu>
       <Menu.Item key="info">
-      <Link to={`${UrlConfig.ACCOUNTS}/me`}>
+        <Link to={`${UrlConfig.ACCOUNTS}/me`}>
           <span>Thông tin tài khoản</span>
         </Link>
       </Menu.Item>
@@ -41,12 +66,15 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
       </Menu.Item>
     </Menu>
   );
+
   return (
     <StyledComponent>
-      <Layout.Header>
+      <Layout.Header className={props.isShowHeader ? 'show' : 'hide'}>
         <div className="ant-layout-header-left">
           <Link to={UrlConfig.HOME}>
-            <img src={logo} alt="" />
+            <div className="logo-header">
+            <Logo/>
+            </div>
           </Link>
           <div className="header-right">
             <Button
@@ -81,6 +109,17 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
             </Dropdown>
           </Space>
         </div>
+				{isShowBtnDD && 
+					<div className="drop-down-button">
+						<Button
+							onClick={() => props.setIsShowHeader(!props.isShowHeader)}
+							className="button-menu-collapse"
+							icon={
+								props.isShowHeader ? <AiOutlineCaretUp color={"black"} size={20} /> : <AiOutlineCaretDown color={"black"} size={20} />
+							}
+						/>
+					</div>
+				}
       </Layout.Header>
     </StyledComponent>
   );
