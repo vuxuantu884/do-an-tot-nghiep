@@ -186,17 +186,8 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                   {data?.map((item, index) => (
                     <tr key={index}>
                       <th className="condition" key={index}>
-                        {/* <Checkbox
-                                  defaultChecked={false}
-                                  onChange={(e) => onChangePreventIndex(e.target.checked, index)}
-                                /> {data.name} */}
                         <Radio value={item.id}>{item.name}</Radio>
                       </th>
-                      {/* {Object.keys(item.data).map((key: any) => (
-                        <td className="condition" key={key}>
-                          {item.data[key]}
-                        </td>
-                      ))} */}
 
                       {columnsItem?.map((_itemi, index) => (
                         <td className="condition" key={_itemi.variant_id}>
