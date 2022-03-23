@@ -59,7 +59,7 @@ const EditNote: React.FC<EditNoteProps> = (
 				{title && (
 					<strong>{title}</strong>
 				)}
-				<span>{note}</span>
+				<span className="noteText">{note}</span>
 
 			</span>
     </div>

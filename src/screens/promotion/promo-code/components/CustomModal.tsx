@@ -257,13 +257,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                   <Form.Item
                     name="prefix"
                     label="Tiền tố:"
-                    normalize={(value) => nonAccentVietnamese(value)}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập tiền tố",
-                      },
-                    ]}
+                    normalize={(value) => nonAccentVietnamese(value)}                    
                   >
                     <Input placeholder="VD: YODY" maxLength={10} />
                   </Form.Item>
@@ -299,7 +293,6 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                     name="suffix"
                     label="Hậu tố:"
                     normalize={(value) => nonAccentVietnamese(value)}
-                    rules={[{required: true, message: "Vui lòng nhập hậu tố"}]}
                   >
                     <Input placeholder="VD: SALE" maxLength={10} />
                   </Form.Item>
