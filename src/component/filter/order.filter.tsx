@@ -377,7 +377,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
 			assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
 			account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
-			channel_codes: Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes],
+			channel_codes:params.channel_codes? Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes]:[],
 			coordinator_codes: Array.isArray(params.coordinator_codes) ? params.coordinator_codes : [params.coordinator_codes],
 			marketer_codes: Array.isArray(params.marketer_codes) ? params.marketer_codes : [params.marketer_codes],
 			delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
