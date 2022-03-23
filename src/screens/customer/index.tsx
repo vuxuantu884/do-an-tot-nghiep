@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { Card, Button, Modal, Radio, Space, Progress } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -48,6 +48,7 @@ import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
+import { getQueryParams, useQuery } from "../../utils/useQuery";
 // import { getListSourceRequest } from "domain/actions/product/source.action";
 // import { SourceResponse } from "model/response/order/source.response";
 
@@ -57,6 +58,8 @@ const exportCustomerPermission = [CustomerListPermission.customers_export];
 
 const Customer = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
+  const query = useQuery();
 
   const [allowCreateCustomer] = useAuthorization({
     acceptPermissions: createCustomerPermission,
@@ -125,6 +128,7 @@ const Customer = () => {
       from_wedding_date: null,
       to_wedding_date: null,
       customer_level_id: undefined,
+      ...getQueryParams(query),
     }),
     []
   );
@@ -291,11 +295,14 @@ const Customer = () => {
     setSelectedCustomerIds(selectedRowIds);
   }, []);
 
-  const onPageChange = React.useCallback(
+  const onPageChange = useCallback(
     (page, limit) => {
-      setParams({ ...params, page, limit });
+      const newParams = { ...params, page, limit };
+      setParams(newParams);
+      let queryParam = generateQuery(newParams);
+      history.push(`${UrlConfig.CUSTOMER}?${queryParam}`);
     },
-    [params]
+    [history, params]
   );
 
   const columnFinal = React.useMemo(
@@ -455,7 +462,7 @@ const Customer = () => {
     return () => clearInterval(getFileInterval);
   }, [checkExportFile, exportProgress, exportCodeList]);
   // end handle export file
-  
+
   // handle import file
   const [isVisibleImportModal, setIsVisibleImportModal] = useState(false);
 
@@ -467,7 +474,7 @@ const Customer = () => {
     setIsVisibleImportModal(false);
     reloadPage();
   }
-  
+
   const onCancelImportCustomerFile = () => {
     setIsVisibleImportModal(false);
   }
@@ -559,7 +566,7 @@ const Customer = () => {
           }
         </AuthWrapper>
 
-        
+
         {/* Import customer file */}
         {isVisibleImportModal &&
           <ImportCustomerFile
