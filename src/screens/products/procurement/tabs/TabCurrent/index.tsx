@@ -6,6 +6,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import { StyledComponent } from "./styles";
 import {
   ConfirmPoProcumentAction,
   PoProcumentDeleteAction,
@@ -32,6 +33,12 @@ import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
+import { Link } from "react-router-dom";
+import UrlConfig from "../../../../../config/url.config";
+import TabCurrentFilter from "../../filter/TabCurrent.filter";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { useHistory } from "react-router";
+import { generateQuery } from "../../../../../utils/AppUtils";
 
 const ACTIONS_INDEX = {
   CONFIRM_MULTI: 1,
@@ -39,6 +46,7 @@ const ACTIONS_INDEX = {
 
 const TabCurrent: React.FC = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<PageResponse<PurchaseProcument>>({
     metadata: {
@@ -76,30 +84,40 @@ const TabCurrent: React.FC = () => {
    },[]);
 
   const today = new Date();
-  const [params, setParams] = useState<ProcurementQuery>({
-    is_cancel: false,
-    status: ProcumentStatus.NOT_RECEIVED,
-    expect_receipt_from: getStartOfDay(today),
-    expect_receipt_to: getEndOfDay(today),
-  });
+  const [params, setParams] = useState<ProcurementQuery>({});
   const search = useCallback(() => {
+    const search = new URLSearchParams(history.location.search);
+    const newParams = {
+      ...params,
+      is_cancel: false,
+      status: ProcumentStatus.NOT_RECEIVED,
+      expect_receipt_from: getStartOfDay(today),
+      expect_receipt_to: getEndOfDay(today),
+      ...getQueryParams(search),
+    }
     setLoading(true);
     dispatch(
-      POSearchProcurement(params, (result) => {
+      POSearchProcurement(newParams, (result) => {
         setLoading(false);
         if (result) {
           setData(result);
         }
       })
     );
-  }, [dispatch, params]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, history.location.search, params]);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       setParams({ ...params });
+      console.log(params)
+      history.replace(
+        `${UrlConfig.PROCUREMENT}/today?${generateQuery(params)}`
+      );
     },
-    [params]
+    [history, params]
   );
 
   const onDetail = useCallback((result: PurchaseOrder | null) => {
@@ -131,7 +149,7 @@ const TabCurrent: React.FC = () => {
     [dispatch, search]
   );
 
-  const confirmResult = useCallback((result: PurchaseProcument | null)=>{
+  const confirmResult = useCallback(() => {
     setShowLoadingBeforeShowModal(-1);
     setIsLoadingReceive(false);
     setIsVisibleReceiveModal(false);
@@ -219,12 +237,42 @@ const TabCurrent: React.FC = () => {
       {
         title: <ActionComponent/>,
         dataIndex: "code",
-        render: (value, record, index) => value,
+        render: (value) => value,
+      },
+      {
+        title: "Mã đơn đặt hàng",
+        dataIndex: "purchase_order",
+        fixed: "left",
+        width: 150,
+        visible: true,
+        render: (value) => {
+          return (
+            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${value.id}`}>
+              {value.code}
+            </Link>
+          );
+        },
+      },
+      {
+        title: "Nhà cung cấp",
+        dataIndex: "purchase_order",
+        visible: true,
+        render: (value, row) => {
+          return (
+            <Link
+              to={`${UrlConfig.SUPPLIERS}/${row.purchase_order.supplier_id}`}
+              className="link-underline"
+              target="_blank"
+            >
+              {value?.supplier}
+            </Link>
+          )
+        }
       },
       {
         title: "Kho nhận hàng dự kiến",
         dataIndex: "store",
-        render: (value, record, index) => value,
+        render: (value) => value,
       },
       {
         title: "Hành động",
@@ -303,53 +351,61 @@ const TabCurrent: React.FC = () => {
   }, [selected, defaultColumns]);
 
   useEffect(() => {
+    console.log(history.location.search)
     search();
-  }, [search]);
+  }, [search, history.location.search]);
+
+  const query = useQuery();
+  let paramsUrl: any = useMemo(() => {
+    return {...getQueryParams(query)}
+  }, [query]);
 
   return (
-    <div className="margin-top-20">
-      <CustomTable
-        isRowSelection
-        selectedRowKey={selected.map(e=>e.id)}
-        isLoading={loading}
-        dataSource={data.items}
-        sticky={{ offsetScroll: 5, offsetHeader: 109 }}
-        columns={columns}
-        rowKey={(item) => item.id}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-      />
+    <StyledComponent>
+      <div className="margin-top-20">
+        <TabCurrentFilter paramsUrl={paramsUrl} />
+        <CustomTable
+          isRowSelection
+          selectedRowKey={selected.map(e=>e.id)}
+          isLoading={loading}
+          dataSource={data.items}
+          sticky={{ offsetScroll: 5, offsetHeader: 109 }}
+          columns={columns}
+          rowKey={(item) => item.id}
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+        />
 
-      <ProcumentInventoryModal
-        loadDetail={loadDetail}
-        isEdit={false}
-        items={purchaseOrderItem.line_items}
-        stores={[] as Array<StoreResponse>}
-        procumentCode={''}
-        poData={purchaseOrderItem}
-        now={moment(purchaseOrderItem.created_date)}
-        visible={isVisibleReceiveModal && showLoadingBeforeShowModal === -1}
-        item={selectedProcurement}
-        onOk={(value: PurchaseProcument) => {
-          onReciveProcument(purchaseOrderItem.id, value);
-        }}
-        onDelete={() => onDeleteProcument(purchaseOrderItem.id, selectedProcurement.id)}
-        loading={isLoadingReceive}
-        defaultStore={-1}
-        onCancel={() => {
-          setIsVisibleReceiveModal(false);
-        }}
-      />
+        <ProcumentInventoryModal
+          loadDetail={loadDetail}
+          isEdit={false}
+          items={purchaseOrderItem.line_items}
+          stores={[] as Array<StoreResponse>}
+          procumentCode={''}
+          poData={purchaseOrderItem}
+          now={moment(purchaseOrderItem.created_date)}
+          visible={isVisibleReceiveModal && showLoadingBeforeShowModal === -1}
+          item={selectedProcurement}
+          onOk={(value: PurchaseProcument) => {
+            onReciveProcument(purchaseOrderItem.id, value);
+          }}
+          onDelete={() => onDeleteProcument(purchaseOrderItem.id, selectedProcurement.id)}
+          loading={isLoadingReceive}
+          defaultStore={-1}
+          onCancel={() => {
+            setIsVisibleReceiveModal(false);
+          }}
+        />
 
-      {/* Xác nhận nhập */}
-      <ProducmentInventoryMultiModal
+        {/* Xác nhận nhập */}
+        <ProducmentInventoryMultiModal
           title={`Xác nhận nhập kho ${listProcurement?.map(e=> e.code).toString()}`}
           visible={showConfirm}
           listProcurement={listProcurement}
@@ -362,21 +418,22 @@ const TabCurrent: React.FC = () => {
           }}
         />
 
-          <ModalConfirm
-              onCancel={(()=>{
-                setShowWarConfirm(false);
-              })}
-              onOk={()=>{
-                setSelected([]);
-                setShowWarConfirm(false);
-              }}
-              okText="Chọn lại"
-              cancelText="Hủy"
-              title={`Nhận hàng từ nhiều phiếu nhập kho`}
-              subTitle={contentWarning}
-              visible={showWarConfirm}
-            />
-    </div>
+        <ModalConfirm
+          onCancel={(()=>{
+            setShowWarConfirm(false);
+          })}
+          onOk={()=>{
+            setSelected([]);
+            setShowWarConfirm(false);
+          }}
+          okText="Chọn lại"
+          cancelText="Hủy"
+          title={`Nhận hàng từ nhiều phiếu nhập kho`}
+          subTitle={contentWarning}
+          visible={showWarConfirm}
+        />
+      </div>
+    </StyledComponent>
   );
 };
 
