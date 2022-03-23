@@ -151,6 +151,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
             const element = document.getElementById("requireWarehouseChangeId");
             element?.focus();
           }, 500);
+          setValueSubStatusCode(sub_status_code);
         }
         break;
       }
@@ -237,6 +238,12 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     }
     if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
       isChange = false;
+      setIsShowReason(true);
+      showWarning("Vui lòng chọn lý do đổi kho hàng chi tiết!");
+      setTimeout(() => {
+        const element = document.getElementById("requireWarehouseChangeId");
+        element?.focus();
+      }, 500);
       setValueSubStatusCode(sub_status_code);
       return;
     }
