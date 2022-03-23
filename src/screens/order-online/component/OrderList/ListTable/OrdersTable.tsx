@@ -1251,6 +1251,20 @@ function OrdersTable(props: PropTypes) {
     return result;
   };
 
+  const getTotalPaymentNotIncludePoint = () => {
+    let result = 0;
+    data.items.forEach((item) => {
+      let paymentItem = 0;
+      item.payments.forEach((single) => {
+        if(single.payment_method_code !== PaymentMethodCode.POINT) {
+          paymentItem = paymentItem + single.amount;
+        }
+      });
+      result = result + paymentItem;
+    });
+    return result;
+  };
+
   const getTotalShippingFeeInformedToCustomer = () => {
     let result = 0;
     data.items.forEach((item) => {
@@ -1307,6 +1321,18 @@ function OrdersTable(props: PropTypes) {
                 <Col span={14}>
                   <div>
                     <b className="text-field">{formatCurrency(getTotalPayment())}</b>
+                  </div>
+                </Col>
+              </Row>
+            </Col>
+            <Col md={12}>
+              <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">TỔNG TIỀN THANH TOÁN (KHÔNG TÍNH DÙNG ĐIỂM):</p>
+                </Col>
+                <Col span={14}>
+                  <div>
+                    <b className="text-field">{formatCurrency(getTotalPaymentNotIncludePoint())}</b>
                   </div>
                 </Col>
               </Row>
