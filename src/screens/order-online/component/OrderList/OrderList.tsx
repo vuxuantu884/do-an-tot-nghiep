@@ -25,6 +25,7 @@ import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/or
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
+import { InventoryVariantListQuery } from "model/inventory";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
@@ -41,6 +42,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
+import { inventoryGetApi } from "service/inventory";
 import { changeMultiOrderStatus, changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
@@ -59,7 +61,7 @@ type PropTypes = {
       path?: string;
     }[];
   };
-	isHideTab?: boolean;
+  isHideTab?: boolean;
 };
 
 function OrderList(props: PropTypes) {
@@ -80,8 +82,8 @@ function OrderList(props: PropTypes) {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { location, initQuery, pageTitle, isHideTab=false } = props;
-  const queryParamsParsed:any = queryString.parse(
+  const { location, initQuery, pageTitle, isHideTab = false } = props;
+  const queryParamsParsed: any = queryString.parse(
     location.search
   );
 
@@ -108,7 +110,7 @@ function OrderList(props: PropTypes) {
   const [deliveryServices, setDeliveryServices] = useState<
     Array<DeliveryServiceResponse>
   >([]);
-  
+
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -132,10 +134,10 @@ function OrderList(props: PropTypes) {
       return new Promise<void>((resolve, reject) => {
         setTableLoading(true);
         setIsFilter(true);
-        dispatch(getListOrderAction(params, setSearchResult, ()=> {
-					setTableLoading(false);
-        	setIsFilter(false);
-				}));
+        dispatch(getListOrderAction(params, setSearchResult, () => {
+          setTableLoading(false);
+          setIsFilter(false);
+        }));
         resolve();
       });
     },
@@ -180,11 +182,11 @@ function OrderList(props: PropTypes) {
   ], [ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, selectedRow]);
 
   const onSelectedChange = useCallback((selectedRows: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
-    let selectedRowCopy:OrderResponse[]=[...selectedRow];
-    let selectedRowKeysCopy:number[] = [...selectedRowKeys];
-    let selectedRowCodesCopy:string[]= [...selectedRowCodes];
+    let selectedRowCopy: OrderResponse[] = [...selectedRow];
+    let selectedRowKeysCopy: number[] = [...selectedRowKeys];
+    let selectedRowCodesCopy: string[] = [...selectedRowCodes];
 
-    if(selected===true){
+    if (selected === true) {
       changeRow?.forEach((row, index) => {
         let indexItem = selectedRow.findIndex((p) => p.id === row.id)
         if (indexItem === -1) {
@@ -194,28 +196,28 @@ function OrderList(props: PropTypes) {
         }
       })
     }
-    else{
-      selectedRow.forEach((row, index)=>{
+    else {
+      selectedRow.forEach((row, index) => {
         let indexItem = changeRow?.findIndex((p) => p.id === row.id);
         if (indexItem !== -1) {
-          let i=selectedRowCopy.findIndex((p) => p.id === row.id);
-          selectedRowCopy.splice(i,1);
+          let i = selectedRowCopy.findIndex((p) => p.id === row.id);
+          selectedRowCopy.splice(i, 1);
         }
       })
 
-      selectedRowKeys.forEach((row, index)=>{
+      selectedRowKeys.forEach((row, index) => {
         let indexItemKey = changeRow?.findIndex((p) => p.id === row);
         if (indexItemKey !== -1) {
-          let i=selectedRowKeysCopy.findIndex((p) => p === row);
-          selectedRowKeysCopy.splice(i,1);
+          let i = selectedRowKeysCopy.findIndex((p) => p === row);
+          selectedRowKeysCopy.splice(i, 1);
         }
       })
 
-      selectedRowCodes.forEach((row, index)=>{
+      selectedRowCodes.forEach((row, index) => {
         let indexItemCode = changeRow?.findIndex((p) => p.code === row);
         if (indexItemCode !== -1) {
-          let i=selectedRowCodesCopy.findIndex((p) => p === row);
-          selectedRowCodesCopy.splice(i,1);
+          let i = selectedRowCodesCopy.findIndex((p) => p === row);
+          selectedRowCodesCopy.splice(i, 1);
         }
       })
     }
@@ -253,7 +255,7 @@ function OrderList(props: PropTypes) {
       if (currentParam === queryParam) {
         handleFetchData(newPrams);
       } else {
-				history.push(`${location.pathname}?${queryParam}`);
+        history.push(`${location.pathname}?${queryParam}`);
       }
       setSelectedRow([]);
       setSelectedRowKeys([]);
@@ -264,15 +266,15 @@ function OrderList(props: PropTypes) {
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-		history.push(`${location.pathname}?${queryParam}`);
+    history.push(`${location.pathname}?${queryParam}`);
   }, [history, initQuery, location.pathname]);
 
-  const onFilterPhoneCustomer= useCallback((phone:string) => {
-    let paramCopy= {...params, search_term:phone};
+  const onFilterPhoneCustomer = useCallback((phone: string) => {
+    let paramCopy = { ...params, search_term: phone };
     setPrams(paramCopy);
     let queryParam = generateQuery(paramCopy);
-		history.push(`${location.pathname}?${queryParam}`);
-  }, [history, location.pathname,params]);
+    history.push(`${location.pathname}?${queryParam}`);
+  }, [history, location.pathname, params]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -374,7 +376,7 @@ function OrderList(props: PropTypes) {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
 
-	useEffect(() => {
+  useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -440,7 +442,7 @@ function OrderList(props: PropTypes) {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(Math.round(response.data.num_of_record/response.data.total * 10000) / 100);
+          setExportProgress(Math.round(response.data.num_of_record / response.data.total * 10000) / 100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -452,11 +454,11 @@ function OrderList(props: PropTypes) {
             setListExportFile(newListExportFile);
           }
           if (response.data && response.data.status === "ERROR") {
-						setStatusExport(4)
-					}
-				} else {
-					setStatusExport(4)
-				}
+            setStatusExport(4)
+          }
+        } else {
+          setStatusExport(4)
+        }
       });
     });
   }, [listExportFile]);
@@ -477,12 +479,12 @@ function OrderList(props: PropTypes) {
   };
 
   useEffect(() => {
-    dispatch(searchAccountPublicAction({limit: 30}, setDataAccounts));
+    dispatch(searchAccountPublicAction({ limit: 30 }, setDataAccounts));
     dispatch(ExternalShipperGetListAction((response) => {
-			if(response) {
-				setShippers(response)
-			}
-		}));
+      if (response) {
+        setShippers(response)
+      }
+    }));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
@@ -507,12 +509,12 @@ function OrderList(props: PropTypes) {
   }, [dispatch]);
 
   useEffect(() => {
-    
+
     let dataQuery: OrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
     };
-    
+
     setPrams(dataQuery);
     handleFetchData(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -587,26 +589,27 @@ function OrderList(props: PropTypes) {
             initSubStatus={initListOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
-						isHideTab= {isHideTab}
-						setListSource= {setListSource}
-						setListOrderProcessingStatus= {setListOrderProcessingStatus}
+            isHideTab={isHideTab}
+            setListSource={setListSource}
+            setListOrderProcessingStatus={setListOrderProcessingStatus}
           />
-          
-					{ deliveryServices.length > 0 ? (
-						<OrdersTable
-							tableLoading={tableLoading}
-							data={data}
-							columns={columns}
-							setColumns={setColumns}
-							setData={setData}
-							onPageChange={onPageChange}
-							onSelectedChange={onSelectedChange}
-							setShowSettingColumn={setShowSettingColumn}
-							deliveryServices={deliveryServices}
+
+          {deliveryServices.length > 0 ? (
+            <OrdersTable
+              tableLoading={tableLoading}
+              data={data}
+              columns={columns}
+              setColumns={setColumns}
+              setData={setData}
+              onPageChange={onPageChange}
+              onSelectedChange={onSelectedChange}
+              setShowSettingColumn={setShowSettingColumn}
+              deliveryServices={deliveryServices}
               selectedRowKeys={selectedRowKeys}
               onFilterPhoneCustomer={onFilterPhoneCustomer}
-						/>
-						) : "Đang tải dữ liệu..."
+              listStore={listStore}
+            />
+          ) : "Đang tải dữ liệu..."
           }
         </Card>
 

@@ -97,3 +97,25 @@ export interface AllInventoryQuery extends BaseQuery {
   info?: string,
   store_ids?: number|Array<number>|null, 
 }
+
+export interface AllInventoryProductInStore {
+  store_id: number,
+  variant_id: number,
+  on_hand: number,
+  available: number,
+  committed: number,
+  in_coming: number,
+  on_way: number,
+  on_hold: number,
+  defect: number,
+  transferring: number,
+  shipping: any,
+}
+
+export interface InventoryModel {
+  store_id: number;
+  store_name: string;
+  available: number;
+  committed: number;
+  in_coming: number;
+}

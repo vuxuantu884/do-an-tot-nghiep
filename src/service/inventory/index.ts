@@ -2,6 +2,7 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import {
+  AllInventoryProductInStore,
   AllInventoryResponse,
   HistoryInventoryQuery,
   HistoryInventoryResponse,
@@ -15,7 +16,7 @@ import { generateQuery } from "utils/AppUtils";
 
 const inventoryGetApi = (
   query: InventoryQuery
-): Promise<BaseResponse<AllInventoryResponse>> => {
+): Promise<BaseResponse<AllInventoryProductInStore[]>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.INVENTORY}/inventories?${params}`;
   return BaseAxios.get(link);
