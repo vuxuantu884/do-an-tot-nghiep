@@ -82,7 +82,7 @@ export const StyledComponent = styled.div`
     }
   }
   .order-filter-tags {
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
     .tag {
       padding: 10px 10px;
       margin-bottom: 15px;
@@ -99,6 +99,14 @@ export const StyledComponent = styled.div`
       &:hover {
         text-decoration: underline;
       }
+    }
+    span[role="img"] {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+    .expandText {
+      color: ${primaryColor};
+      cursor: pointer;
     }
   }
 
