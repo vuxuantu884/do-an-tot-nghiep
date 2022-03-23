@@ -182,22 +182,23 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   }, [dispatch, updateVariantData]);
 
   const handleSuggestItem = () => {
-    if (query.suggest) {
+    if (window.localStorage.getItem("suggest")) {
       window.localStorage.setItem("suggest", "");
-      const queryVariant = {...query, suggest: ""};
-      setQuery(queryVariant);
     } else {
       window.localStorage.setItem("suggest", "suggested");
-      const queryVariant = {...query, suggest : "suggested"};
-      setQuery(queryVariant);
     }
-    window.location.reload();
+    let dataQuery: ProductEcommerceQuery = {
+      ...initialFormValues,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+      suggest: window.localStorage.getItem("suggest")
+    };
+    getProductUpdated(dataQuery);
   }
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    getProductUpdated(query);
-  }, [getProductUpdated, query, isReloadPage]);
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  //   getProductUpdated(query);
+  // }, [getProductUpdated, query, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -672,12 +673,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   useEffect(() => {
     let dataQuery: ProductEcommerceQuery = {
       ...initialFormValues,
-      ...getQueryParamsFromQueryString(queryParamsParsed)
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+      suggest: window.localStorage.getItem("suggest")
     };
-    console.log(dataQuery)
     setFilterValueByQueryParam(dataQuery)
     setQuery(dataQuery);
     getProductUpdated(dataQuery);
+    window.scrollTo(0, 0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
 
@@ -1025,6 +1027,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsVisibleConcatenateByExcelModal(false);
   }
 
+  const setTitleSuggest = () => {
+    return window.localStorage.getItem("suggest") ? "Bỏ gợi ý ghép nối" : "Gợi ý ghép nối"
+  }
+
   const actionList = (
     <Menu>
       {allowProductsDelete &&
@@ -1040,7 +1046,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         <span>Xuất excel sản phẩm</span>
       </Menu.Item>
       <Menu.Item key="4" onClick={handleSuggestItem}>
-        <span>Gợi ý ghép nối</span>
+        <span>{setTitleSuggest()}</span>
       </Menu.Item>
       <Menu.Item key="5" onClick={handleConcatenateByExcel}>
         <span>Ghép nối bằng excel</span>
