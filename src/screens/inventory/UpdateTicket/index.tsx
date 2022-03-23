@@ -72,12 +72,12 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { AccountStoreResponse } from "model/account/account.model";
 import { callApiNative } from "utils/ApiUtils";
-import { getStoreApi, inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
+import { getStoreApi } from "service/inventory/transfer/index.service";
 import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
-import { getVariantByBarcode } from "service/product/variant.service";
 import { strForSearch } from "utils/StringUtils";
+import { searchVariantsApi } from "service/product/product.service";
 
 const { Option } = Select;
 
@@ -706,15 +706,10 @@ const UpdateTicket: FC = () => {
           showError("Vui lòng chọn kho gửi");
           return;
         }
-        const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-        if (item && item.id) {
-         const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],storeId ?? null);
-         if (variant && variant.items && variant.items.length > 0) {
-           item.available = variant.items[variant.items.length-1].available;
-           item.on_hand = variant.items[variant.items.length-1].on_hand;
-         }
-         onSelectProduct(item.id.toString(),item);
-        }
+        let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
+        if (res && res.items && res.items.length > 0) {
+          onSelectProduct(res.items[0].id.toString(),res.items[0]);
+        } 
       }
     }
     else{
