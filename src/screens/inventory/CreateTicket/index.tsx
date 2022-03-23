@@ -424,7 +424,7 @@ const CreateTicket: FC = () => {
       setFromStores(newStore);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stores, fromStores, onChangeFromStore]);
+  }, [stores, fromStores]);
 
   const onFinish = (data: StockTransferSubmit) => {
     let countError = 0;
@@ -594,7 +594,7 @@ const CreateTicket: FC = () => {
         let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
         if (res && res.items && res.items.length > 0) {
           onSelectProduct(res.items[0].id.toString(),res.items[0]);
-        } 
+        }
       }
     }
     else{
