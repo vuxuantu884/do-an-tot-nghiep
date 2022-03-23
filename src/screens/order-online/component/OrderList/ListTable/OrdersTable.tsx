@@ -51,6 +51,7 @@ import {
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
+import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
@@ -1138,7 +1139,7 @@ function OrdersTable(props: PropTypes) {
   const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
 
   const onSearchInventory = useCallback((value: string) => {
-    let _item: StoreResponse[] | any = listStore?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
+    let _item: StoreResponse[] | any = listStore?.filter(x => fullTextSearch(value.toLowerCase().trim(),x.name.toLowerCase())===true);
     setStoreInventory(_item);
   }, [listStore]);
 
@@ -1180,12 +1181,11 @@ function OrdersTable(props: PropTypes) {
         <Tooltip title="Kiểm tra tồn kho">
           <Popover
             placement="right"
-            overlayStyle={{ zIndex: 1000 }}
+            overlayStyle={{ zIndex: 1000, top:"150px" }}
             title={
               <Row
                 justify="space-between"
                 align="middle"
-                //className="change-shipping-address-title"
                 style={{ width: "100%" }}
               >
                 <Input.Search

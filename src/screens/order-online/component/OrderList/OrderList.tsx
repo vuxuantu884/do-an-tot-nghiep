@@ -121,61 +121,14 @@ function OrderList(props: PropTypes) {
     items: [],
   });
 
-  const setInventoryResult = useCallback((result: PageResponse<OrderModel>) => {
-    let orderCopy = [...result.items];
-    let productItem: number[] = [];
-    let storeItem: number[] = []
-    orderCopy.map(
-      (p) => p.items.map(
-        (p1) => (productItem.some((x)=>x===p1.variant_id)!==true&&(
-          productItem.push(p1.variant_id)
-        ))
-      )
-    );
-    orderCopy.map((p) => (
-      p.store_id &&(
-        storeItem.some(x=>x===p.store_id)!==true&&(
-          storeItem.push(p.store_id)
-        )
-      )
-    ));
-
-    let inventoryQuery: InventoryVariantListQuery = {
-      is_detail: true,
-      variant_ids: productItem,
-      store_ids: storeItem
-    }
-
-    inventoryGetApi(inventoryQuery).then((response) => {
-      if (isFetchApiSuccessful(response)) {
-        console.log(response)
-        //let orderCopy1 = [...result.items];
-        result.items.forEach((itemOrder,index)=>{
-          itemOrder.items.forEach((itemProduct,indexP)=>{
-            let i=response.data.findIndex((x)=>x.store_id===itemOrder.store_id && x.variant_id===itemProduct.variant_id);
-            itemProduct.available=response.data[i].available;
-            
-          });
-        });
-        setData(result);
-        console.log("orderCopy1",result)
-      } else {
-        handleFetchApiError(response, "Danh sách tồn kho", dispatch)
-      }
-    })
-      .catch((e) => {
-        console.log(e)
-      })
-
-  }, [dispatch])
   const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
     setTableLoading(false);
     setIsFilter(false);
     if (!!result) {
       
-      setInventoryResult(result)
+      setData(result);
     }
-  }, [setInventoryResult]);
+  }, []);
 
   const fetchData = useCallback(
     (params) => {
