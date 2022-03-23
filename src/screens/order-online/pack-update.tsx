@@ -82,25 +82,27 @@ const PackUpdate: React.FC = () => {
         let total_price = 0;
 
         itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-          ship_price =
-            ship_price +
-            (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
-              ? itemFulfillment.shipment.shipping_fee_informed_to_customer
-              : 0);
-          total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
+          if (itemFulfillment.status === 'packed') {
+            ship_price =
+              ship_price +
+              (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
+                ? itemFulfillment.shipment.shipping_fee_informed_to_customer
+                : 0);
+            total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
 
-          itemFulfillment.items.forEach(function (itemProduct) {
-            product.push({
-              sku: itemProduct.sku,
-              product_id: itemProduct.product_id,
-              product: itemProduct.product,
-              variant_id: itemProduct.variant_id,
-              variant: itemProduct.variant,
-              variant_barcode: itemProduct.variant_barcode,
-              quantity: itemProduct.quantity,
-              price: itemProduct.price
+            itemFulfillment.items.forEach(function (itemProduct) {
+              product.push({
+                sku: itemProduct.sku,
+                product_id: itemProduct.product_id,
+                product: itemProduct.product,
+                variant_id: itemProduct.variant_id,
+                variant: itemProduct.variant,
+                variant_barcode: itemProduct.variant_barcode,
+                quantity: itemProduct.quantity,
+                price: itemProduct.price
+              });
             });
-          });
+          }
         });
 
         let resultItem: GoodsReceiptsInfoOrderModel = {
