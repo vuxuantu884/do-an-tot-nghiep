@@ -125,7 +125,6 @@ function OrderList(props: PropTypes) {
     setTableLoading(false);
     setIsFilter(false);
     if (!!result) {
-      
       setData(result);
     }
   }, []);
