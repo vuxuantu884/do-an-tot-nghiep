@@ -14,10 +14,10 @@ import { AccountResponse, AccountStoreResponse } from "../../../model/account/ac
 import { callApiNative } from "../../../utils/ApiUtils";
 import { getAccountDetail } from "../../../service/accounts/account.service";
 import { useDispatch } from "react-redux";
-import { AccountSearchAction } from "../../../domain/actions/account/account.action";
+import { searchAccountPublicAction } from "../../../domain/actions/account/account.action";
 import { inventoryGetSenderStoreAction } from "../../../domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { Store } from "../../../model/inventory/transfer";
-import { PageResponse } from "../../../model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 
 const { TabPane } = Tabs;
 
@@ -60,7 +60,7 @@ const InventoryListScreen: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({}, setDataAccounts));
     dispatch(
       inventoryGetSenderStoreAction(
         { status: "active", simple: true },
