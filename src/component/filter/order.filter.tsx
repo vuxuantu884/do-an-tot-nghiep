@@ -73,7 +73,7 @@ type ListFilterTagTypes = {
 const { Item } = Form;
 
 const isShortenFilterTag = true;
-const numberTagShorten = 3;
+const numberTagShorten = 2;
 
 async function searchVariants(input: any) {
   try {

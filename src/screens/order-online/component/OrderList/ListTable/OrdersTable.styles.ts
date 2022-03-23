@@ -133,6 +133,7 @@ export const StyledComponent = styled.div`
       -webkit-box-orient: vertical;
     }
   }
+  .orderNotes span span.noteText,
   .textSmall {
     font-size: 0.86em;
     line-height: 1.25;
