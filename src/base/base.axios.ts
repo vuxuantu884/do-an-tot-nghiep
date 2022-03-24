@@ -21,13 +21,13 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       return request;
     },
     function (error) {
-      !AppConfig.production && console.error(error);
+    AppConfig.runMode === "development" && console.error(error);
     }
   );
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
-      !AppConfig.production && console.log(response.data);
+      AppConfig.runMode === "development" && console.log(response.data);
       switch (response.data.code) {
         case HttpStatus.FORBIDDEN:
           showError("Bạn không đủ quyền truy cập, vui lòng liên hệ với IT để được cấp quyền.");
@@ -49,5 +49,11 @@ export function getAxiosBase(config: AxiosRequestConfig) {
   return BaseAxios;
 }
 
-const BaseAxios = getAxiosBase({ baseURL: AppConfig.baseUrl });
+/**
+ * Get axios instance
+ * Tại môi trường local: dùng proxy để access api => không cần baseURL của api, chỉ cần prefix /unicorn
+ * Tại môi trường production: DÙNG baseURL của api để access api
+ */
+const devMode = AppConfig.runMode === "development";
+const BaseAxios = getAxiosBase({ baseURL: devMode ? "/unicorn" : AppConfig.baseApi + "/unicorn" });
 export default BaseAxios;
