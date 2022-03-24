@@ -171,6 +171,7 @@ export default function Order() {
 	const [modalAction, setModalAction] = useState<modalActionType>("edit");
 
 	const queryParams = useQuery();
+	const customerParam=queryParams.get("customer") || null;
 	const actionParam = queryParams.get("action") || null;
 	const cloneIdParam = queryParams.get("cloneId") || null;
 	const typeParam = queryParams.get("type") || null;
@@ -703,6 +704,12 @@ ShippingServiceConfigDetailResponseModel[]
 		);
 	}, [dispatch]);
 
+	useEffect(()=>{
+		if(customerParam){
+			console.log("customerParam",customerParam)
+			dispatch(getCustomerDetailAction(+customerParam,setCustomer))
+		}
+	},[customerParam, dispatch])
 	useEffect(() => {
 		const fetchData = async () => {
 			if (isCloneOrder && cloneIdParam) {
