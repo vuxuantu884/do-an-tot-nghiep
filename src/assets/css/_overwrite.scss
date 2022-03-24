@@ -46,8 +46,8 @@
             &-right {
                 display: flex;
                 width: calc(100% - 240px);
-                padding: 0 34px;
-                justify-content: flex-end;
+                padding:0 34px 0 20px;
+                justify-content: space-between;
                 align-items: center;
                 .layout-user {
                     height: 44px;
