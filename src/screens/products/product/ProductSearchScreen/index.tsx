@@ -11,6 +11,7 @@ import useAuthorization from "hook/useAuthorization";
 import React, {useEffect, useMemo, useState} from "react";
 import {Link, useHistory, useRouteMatch} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
+import { StyledComponent } from "../tab/style";
 const {TabPane} = Tabs;
 
 const TabProduct = React.lazy(() => import("../tab/TabProduct"));
@@ -144,6 +145,7 @@ const ListProductScreen: React.FC = () => {
         </Row>
       }
     >
+      <StyledComponent> 
       <Card className="card-tab">
         <Tabs
           style={{overflow: "initial"}}
@@ -157,7 +159,7 @@ const ListProductScreen: React.FC = () => {
           {tabs.map((tab) => {
             if (tab.isShow) {
               return (
-                <TabPane tab={tab.name} key={tab.key}>
+                <TabPane tab={<Link to={`${tab.key}`}>{tab.name}</Link>} key={tab.key}>
                   {activeTab === tab.key && tab.component}
                 </TabPane>
               );
@@ -167,6 +169,7 @@ const ListProductScreen: React.FC = () => {
           })}
         </Tabs>
       </Card>
+      </StyledComponent>
     </ContentContainer>
   );
 };
