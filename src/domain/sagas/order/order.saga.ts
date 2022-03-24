@@ -14,6 +14,7 @@ import {
   FeesResponse,
   OrderConfig,
   OrderResponse,
+  OrderSubStatusResponse,
   StoreCustomResponse,
   // OrderSubStatusResponse,
   TrackingLogFulfillmentResponse,
@@ -535,9 +536,9 @@ function* updateDeliveryConfigurationSaga(action: YodyAction) {
 function* getListSubStatusSaga(action: YodyAction) {
   let { status, handleData, handleError } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(getOrderSubStatusService, status);
+    let response: BaseResponse<PageResponse<Array<OrderSubStatusResponse>>> = yield call(getOrderSubStatusService, status);
     if (isFetchApiSuccessful(response)) {
-      handleData(response.data);
+      handleData(response.data.items);
     } else {
       handleError();
       yield put(fetchApiErrorAction(response, "Danh sách trạng thái phụ đơn hàng"));
@@ -550,14 +551,12 @@ function* getListSubStatusSaga(action: YodyAction) {
 
 function* setSubStatusSaga(action: YodyAction) {
   let { order_id, statusCode, handleData, handleError, reason_id, sub_reason_id } = action.payload;
-  const actionText = action.payload.action;
   yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
       setSubStatusService,
       order_id,
       statusCode,
-      actionText,
       reason_id,
       sub_reason_id,
     );

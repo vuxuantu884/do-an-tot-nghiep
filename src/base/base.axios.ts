@@ -31,12 +31,12 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       switch (response.data.code) {
         case HttpStatus.FORBIDDEN:
           showError("Bạn không đủ quyền truy cập, vui lòng liên hệ với IT để được cấp quyền.");
-          return;
+          return response;
         case HttpStatus.BAD_GATEWAY:
           showError(
             "Hệ thống đang gián đoạn, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời."
           );
-          return;
+          return response;
         default:
           break;
       }

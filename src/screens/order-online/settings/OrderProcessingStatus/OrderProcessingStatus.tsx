@@ -22,9 +22,9 @@ import {useCallback, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory, useLocation} from "react-router-dom";
 import {generateQuery} from "utils/AppUtils";
-import {StyledComponent} from "./styles";
+import {StyledComponent} from "./OrderProcessingStatus.styles";
 
-const SettingOrderProcessingStatus: React.FC = () => {
+function SettingOrderProcessingStatus() {
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       dataIndex: "code",
       visible: true,
       className: "columnTitle",
-      width: "25%",
+      width: "20%",
       render: (value, row, index) => {
         if (value) {
           return (
@@ -71,7 +71,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       dataIndex: "sub_status",
       visible: true,
       className: "columnTitle",
-      width: "25%",
+      width: "20%",
       render: (value, row, index) => {
         if (value) {
           return (
@@ -90,7 +90,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Trạng thái đơn hàng",
       dataIndex: "status",
       visible: true,
-      width: "25%",
+      width: "15%",
       render: (value, row, index) => {
         const result = LIST_STATUS?.find((singleStatus) => {
           return singleStatus.value === value;
@@ -102,10 +102,22 @@ const SettingOrderProcessingStatus: React.FC = () => {
       },
     },
     {
+      title: "Thứ tự",
+      dataIndex: "display_order",
+      visible: true,
+      width: "10%",
+      align: "center",
+      defaultSortOrder: 'ascend',
+      sorter: (a, b) => {
+        return a.display_order - b.display_order
+      }, 
+      sortDirections:['ascend', 'descend', 'ascend'],
+    },
+    {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
-      width: "25%",
+      width: "20%",
       render: (value, row, index) => {
         return (
           <span className="text" title={value} style={{color: "#666666"}}>
@@ -136,7 +148,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",
-    sort_column: "updated_date",
+    sort_column: "display_order",
   });
   const onPageChange = useCallback(
     (page, size) => {
