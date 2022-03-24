@@ -49,11 +49,5 @@ export function getAxiosBase(config: AxiosRequestConfig) {
   return BaseAxios;
 }
 
-/**
- * Get axios instance
- * Tại môi trường local: dùng proxy để access api => không cần baseURL của api, chỉ cần prefix /unicorn
- * Tại môi trường production: DÙNG baseURL của api để access api
- */
-const devMode = AppConfig.runMode === "development";
-const BaseAxios = getAxiosBase({ baseURL: devMode ? "/unicorn" : AppConfig.baseApi + "/unicorn" });
+const BaseAxios = getAxiosBase({ baseURL: AppConfig.baseUrl });
 export default BaseAxios;
