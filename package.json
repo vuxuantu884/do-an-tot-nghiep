@@ -5,6 +5,7 @@
   "homepage": "/admin",
   "dependencies": {
     "@ant-design/icons": "^4.6.2",
+    "@craco/craco": "^6.4.3",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -60,15 +61,15 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "start:uat": "env-cmd -f .env.uat react-scripts start",
-    "start:production": "env-cmd -f .env.production react-scripts start",
-    "build": "react-scripts build",
-    "build:testing": "dotenv -e .env.development react-scripts build",
-    "build:uat": "dotenv -e .env.uat react-scripts build",
-    "build:production": "dotenv -e .env.production react-scripts build",
-    "build:accountant": "dotenv -e .env.accountant react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "start:uat": "env-cmd -f .env.uat craco start",
+    "start:production": "env-cmd -f .env.production craco start",
+    "build": "craco build",
+    "build:testing": "dotenv -e .env.development craco build",
+    "build:uat": "dotenv -e .env.uat craco build",
+    "build:production": "dotenv -e .env.production craco build",
+    "build:accountant": "dotenv -e .env.accountant craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
