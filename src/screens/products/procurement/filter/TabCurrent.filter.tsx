@@ -3,9 +3,6 @@ import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import UrlConfig from "config/url.config";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
-import { StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -21,6 +18,8 @@ import {
 import isEqual from "lodash/isEqual";
 import { isArray } from "lodash";
 import BaseFilterResult from "component/base/BaseFilterResult";
+import { callApiNative } from "../../../../utils/ApiUtils";
+import { supplierGetApi } from "../../../../service/core/supplier.service";
 const { Item } = Form;
 
 function TabCurrentFilter(props: ProcurementFilterProps) {
@@ -30,22 +29,13 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
   const history = useHistory();
   const dispatch = useDispatch();
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
-  const [allStore, setAllStore] = useState<Array<StoreResponse>>();
-  const {array: selectedStatuses, set: setSelectedStatuses} = useArray([])
   const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
 
   const [formBase] = useForm();
-  const [formAdvanced] = useForm();
   const onBaseFinish = (data: any) => {
     let queryParam = generateQuery({ ...paramsUrl, ...data });
     history.replace(`${UrlConfig.PROCUREMENT}/today?${queryParam}`);
   };
-
-  useEffect(() => {
-    dispatch(SupplierGetAllAction((suppliers) => setAllSupplier(suppliers)))
-    dispatch(getListStoresSimpleAction((stores) =>  setAllStore(stores)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     const {...rest} = paramsUrl;
@@ -57,7 +47,7 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
           if(isArray(item.valueId)) {
             const filterSupplier = allSupplier?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
             if(filterSupplier)
-              return {...item, valueName: filterSupplier?.map((item: any) => item.pic).toString()}
+              return {...item, valueName: filterSupplier?.map((item: any) => item.name).toString()}
           }
           const findSupplier = allSupplier?.find(supplier => +supplier.id === +item.valueId)
           return {...item, valueName: findSupplier?.name}
@@ -69,7 +59,7 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
     })
     setParamsArray(transformParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[paramsUrl, JSON.stringify(allStore), JSON.stringify(allSupplier)])
+  },[paramsUrl, JSON.stringify(allSupplier)])
 
   const onRemoveStatus = useCallback((index: number) => {
     remove(index)
@@ -83,22 +73,27 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
         await history.push(`${history.location.pathname}?${generateQuery(newParams)}`)
       }
     })();
-  }, [setSelectedStatuses, paramsArray, history, prevArray])
+  }, [paramsArray, history, prevArray])
+
+  const getSupplierByCode = async (ids: string) => {
+    const res = await callApiNative({isShowLoading: false}, dispatch, supplierGetApi, {
+      ids,
+    });
+    if (res) setAllSupplier(res.items);
+  }
 
   useEffect(() => {
     formBase.setFieldsValue({
       [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers?.toString()?.split(',').map((x: string) => parseInt(x)),
       [ProcurementFilterBasicEnum.content]: paramsUrl.content,
-    })
-  }, [formAdvanced, paramsUrl, formBase]);
-
-  useEffect(() => {
-    setSelectedStatuses(selectedStatuses)
-    formAdvanced.setFieldsValue({
-      ...formAdvanced.getFieldsValue(),
-      status: selectedStatuses
     });
-  }, [setSelectedStatuses, selectedStatuses, formAdvanced])
+
+    if (paramsUrl.suppliers) {
+      getSupplierByCode(paramsUrl.suppliers).then();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paramsUrl, formBase]);
 
   return (
     <Form.Provider>
