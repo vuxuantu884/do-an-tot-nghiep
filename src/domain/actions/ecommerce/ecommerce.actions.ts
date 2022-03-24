@@ -1,8 +1,9 @@
-import {EcommerceRequest} from "model/request/ecommerce.request";
+import { EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
+import { EcommerceRequest } from "model/request/ecommerce.request";
 import BaseAction from "base/base.action";
-import {EcommerceType} from "domain/types/ecommerce.type";
-import {EcommerceResponse} from "model/response/ecommerce/ecommerce.response";
-import {YDPageCustomerResponse} from "model/response/ecommerce/fpage.response";
+import { EcommerceType } from "domain/types/ecommerce.type";
+import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
 import {
   ProductEcommerceQuery,
   PostProductEcommerceQuery,
@@ -10,8 +11,8 @@ import {
   GetOrdersMappingQuery,
   RequestSyncStockQuery,
 } from "model/query/ecommerce.query";
-import {PageResponse} from "model/base/base-metadata.response";
-import {EcommerceStoreAddress} from "../../../model/ecommerce/ecommerce.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { EcommerceStoreAddress } from "model/ecommerce/ecommerce.model";
 
 export const addFpagePhone = (
   userId: string,
@@ -67,10 +68,8 @@ export const ecommerceConfigCreateAction = (
   });
 };
 
-export const ecommerceConfigGetAction = (
-  setData: (data: Array<EcommerceResponse>) => void
-) => {
-  return BaseAction(EcommerceType.GET_ECOMMERCE_CONFIG_REQUEST, {setData});
+export const ecommerceConfigGetAction = (setData: (data: Array<EcommerceResponse>) => void) => {
+  return BaseAction(EcommerceType.GET_ECOMMERCE_CONFIG_REQUEST, { setData });
 };
 
 export const ecommerceConfigGetByIdAction = (
@@ -95,10 +94,7 @@ export const ecommerceConfigUpdateAction = (
   });
 };
 
-export const ecommerceConfigDeleteAction = (
-  id: number,
-  setData: (result: boolean) => void
-) => {
+export const ecommerceConfigDeleteAction = (id: number, setData: (result: boolean) => void) => {
   return BaseAction(EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST, {
     id,
     setData,
@@ -106,10 +102,7 @@ export const ecommerceConfigDeleteAction = (
 };
 // connect to ecommerce
 
-export const ecommerceConnectAction = (
-  ecommerceId: number,
-  setData: (result: any) => void
-) => {
+export const ecommerceConnectAction = (ecommerceId: number, setData: (result: any) => void) => {
   return BaseAction(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, {
     ecommerceId,
     setData,
@@ -130,26 +123,26 @@ export const getProductEcommerceList = (
   query: ProductEcommerceQuery,
   setData: (data: any) => void
 ) => {
-  return BaseAction(EcommerceType.GET_ECOMMERCE_VARIANTS_REQUEST, {query, setData});
+  return BaseAction(EcommerceType.GET_ECOMMERCE_VARIANTS_REQUEST, { query, setData });
 };
 
 export const getShopEcommerceList = (query: any, setData: (data: any) => void) => {
-  return BaseAction(EcommerceType.GET_ECOMMERCE_SHOP_REQUEST, {query, setData});
+  return BaseAction(EcommerceType.GET_ECOMMERCE_SHOP_REQUEST, { query, setData });
 };
 
 export const postProductEcommerceList = (
   query: PostProductEcommerceQuery,
   setData: (data: any) => void
 ) => {
-  return BaseAction(EcommerceType.POST_ECOMMERCE_VARIANTS_REQUEST, {query, setData});
+  return BaseAction(EcommerceType.POST_ECOMMERCE_VARIANTS_REQUEST, { query, setData });
 };
 
 export const deleteEcommerceItem = (ids: any, setData: (data: any) => void) => {
-  return BaseAction(EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST, {ids, setData});
+  return BaseAction(EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST, { ids, setData });
 };
 
 export const disconnectEcommerceItem = (ids: any, setData: (data: any) => void) => {
-  return BaseAction(EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST, {ids, setData});
+  return BaseAction(EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST, { ids, setData });
 };
 
 export const postSyncStockEcommerceProduct = (
@@ -162,10 +155,7 @@ export const postSyncStockEcommerceProduct = (
   });
 };
 
-export const syncStockEcommerceProduct = (
-  query: any,
-  setData: (data: any) => void
-) => {
+export const syncStockEcommerceProduct = (query: any, setData: (data: any) => void) => {
   return BaseAction(EcommerceType.SYNC_STOCK_ECOMMERCE_ITEM_REQUEST, {
     query,
     setData,
@@ -173,11 +163,11 @@ export const syncStockEcommerceProduct = (
 };
 
 export const getCategoryList = (query: any, setData: (data: any) => void) => {
-  return BaseAction(EcommerceType.GET_ECOMMERCE_CATEGORY_REQUEST, {query, setData});
+  return BaseAction(EcommerceType.GET_ECOMMERCE_CATEGORY_REQUEST, { query, setData });
 };
 
 export const putConnectEcommerceItem = (query: any, setData: (data: any) => void) => {
-  return BaseAction(EcommerceType.PUT_CONNECT_ECOMMERCE_ITEM_REQUEST, {query, setData});
+  return BaseAction(EcommerceType.PUT_CONNECT_ECOMMERCE_ITEM_REQUEST, { query, setData });
 };
 
 //ecommerce order actions
@@ -185,7 +175,7 @@ export const postEcommerceOrderAction = (
   query: PostEcommerceOrderQuery,
   setData: (data: any) => void
 ) => {
-  return BaseAction(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, {query, setData});
+  return BaseAction(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, { query, setData });
 };
 
 //get orders mapping list thai todo, need update api
@@ -205,31 +195,28 @@ export const exitProgressDownloadEcommerceAction = (
   callback: (response: PageResponse<any> | false) => void
 ) => {
   const query = {
-    processId: processId
-  }
+    processId: processId,
+  };
   return BaseAction(EcommerceType.EXIT_PROGRESS_DOWNLOAD_ECOMMERCE, {
     query,
-    callback
+    callback,
   });
 };
 
 export const getEcommerceStoreAddress = (
-    query: any,
-    callback: (data: Array<EcommerceStoreAddress>) => void
+  query: any,
+  callback: (data: Array<EcommerceStoreAddress>) => void
 ) => {
   return BaseAction(EcommerceType.GET_ECOMMERCE_STORE_ADDRESS, {
     query,
-    callback
+    callback,
   });
 };
 
-export const createEcommerceLogistic = (
-    request: any,
-    callback: (data: any) => void
-) => {
+export const createEcommerceLogistic = (request: any, callback: (data: any) => void) => {
   return BaseAction(EcommerceType.CREATE_ECOMMERCE_LOGISTIC, {
     request,
-    callback
+    callback,
   });
 };
 
@@ -258,5 +245,15 @@ export const exitEcommerceJobsAction = (
   return BaseAction(EcommerceType.EXIT_ECOMMERCE_JOBS, {
     query,
     callback
+  });
+};
+
+export const changeEcommerceOrderStatus = (
+  ecommerceOrderStatusRequest: EcommerceOrderStatusRequest,
+  callback: (data: any) => void
+) => {
+  return BaseAction(EcommerceType.CHANGE_ECOMMERCE_ORDER_STATUS, {
+    ecommerceOrderStatusRequest,
+    callback,
   });
 };

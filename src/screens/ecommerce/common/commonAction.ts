@@ -3,8 +3,14 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 
-
 export const ECOMMERCE_CHANNEL = ["shopee", "lazada", "tiki", "sendo"];
+
+export enum EcommerceChannelId {
+  SHOPEE = 3,
+  LAZADA = 15,
+  SENDO = 16,
+  TIKI = 17,
+}
 
 export const ECOMMERCE_ICON: any = {
   shopee: shopeeIcon,
@@ -46,12 +52,14 @@ export const ECOMMERCE_LIST = [
 ];
 
 export const getEcommerceIcon = (ecommerce_key: string) => {
-  const ecommerce = ECOMMERCE_LIST.find(item => item.key.toLowerCase() === ecommerce_key?.toLowerCase());
+  const ecommerce = ECOMMERCE_LIST.find(
+    (item) => item.key.toLowerCase() === ecommerce_key?.toLowerCase()
+  );
   return ecommerce?.icon;
 };
 
 export const getIconByEcommerceId = (ecommerce_id: number) => {
-  const ecommerce = ECOMMERCE_LIST.find(item => item.ecommerce_id === ecommerce_id);
+  const ecommerce = ECOMMERCE_LIST.find((item) => item.ecommerce_id === ecommerce_id);
   return ecommerce?.icon;
 };
 

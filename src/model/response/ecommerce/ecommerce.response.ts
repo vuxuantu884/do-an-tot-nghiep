@@ -1,8 +1,21 @@
 import { BaseObject } from "model/base/base.response";
 
+export enum ChangeOrderStatusErrorLineType {
+  SUCCESS = "SUCCESS",
+  ERROR = "ERROR",
+}
+export interface ChangeOrderStatusErrorLine {
+  order_sn: string;
+  error_message: string;
+  type: ChangeOrderStatusErrorLineType;
+}
+export interface EcommerceChangeOrderStatusReponse {
+  success_list: Array<string>;
+  error_list: Array<ChangeOrderStatusErrorLine>;
+}
 export interface EcommerceShopInventoryDto {
-store: String; //
-store_id: Number; 
+  store: String; //
+  store_id: Number;
 }
 
 export interface EcommerceResponse extends BaseObject {
@@ -10,7 +23,7 @@ export interface EcommerceResponse extends BaseObject {
   ecommerce: String; //tên sàn
   ecommerce_id: Number; //id sàn
   ecommerce_shop: String; //tên sàn
-  email: String;  //email shop
+  email: String; //email shop
   store_id: Number; // id cửa hàng
   store: String; // tên cửa hàng
   assign_account_code: String; // mã người phụ trách /vd: YD23123
