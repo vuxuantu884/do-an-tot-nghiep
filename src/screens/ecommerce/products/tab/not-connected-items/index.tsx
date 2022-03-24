@@ -1291,6 +1291,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
           rowKey={(data) => data.id}
         />
 

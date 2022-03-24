@@ -1096,6 +1096,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
           rowKey={(data) => data.id}
         />
       </Card>

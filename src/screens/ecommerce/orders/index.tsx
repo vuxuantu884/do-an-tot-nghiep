@@ -1353,6 +1353,7 @@ const EcommerceOrders: React.FC = () => {
                 onSelectedChange={onSelectTableRow}
                 dataSource={data.items}
                 columns={columnFinal}
+                isShowPaginationAtHeader
                 rowKey={(item: OrderModel) => item.id}
                 className="ecommerce-order-list"
               />
