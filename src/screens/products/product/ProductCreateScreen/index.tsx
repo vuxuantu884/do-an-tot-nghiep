@@ -69,7 +69,7 @@ import {
   Products,
   replaceFormatString,
 } from "utils/AppUtils";
-import { VietNamId } from "utils/Constants";
+import { DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -102,8 +102,8 @@ const initialRequest: ProductRequestView = {
   weight: null,
   weight_unit: null,
   tags: "",
-  unit: null,
   brand: null,
+  unit: null,
   content: null,
   description: "",
   designer_code: null,
@@ -172,6 +172,7 @@ const ProductCreateScreen: React.FC = () => {
         ? lengthUnitList[0].value
         : null,
     product_type: "normal",
+    brand: DEFAULT_COMPANY.company.toLocaleLowerCase()
   };
   //end init
 
@@ -895,7 +896,7 @@ const ProductCreateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item name="brand" label="Thương hiệu">
-                      <BaseSelect
+                      <BaseSelect 
                         data={brandList}
                         renderItem={(item) => (
                           <Option
@@ -1156,7 +1157,7 @@ const ProductCreateScreen: React.FC = () => {
               </Card>
             </Col>
             <Col span={24} md={6}>
-              <Card className="card" title="Ảnh">
+              <Card className="card" title="Ảnh" hidden>
                 <div className="a-container">
                   {productAvatar === null ? (
                     <div className="bpa" onClick={onPickAvatar}>
