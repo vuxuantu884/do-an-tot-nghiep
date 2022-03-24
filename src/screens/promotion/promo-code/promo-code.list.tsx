@@ -18,6 +18,7 @@ import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { PROMOTION_CDN } from "config/cdn/promotion.cdn";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -603,7 +604,7 @@ const ListCode = () => {
                   <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
                   <p>
                     - Tải file mẫu{" "}
-                    <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
+                    <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
                   </p>
                   <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
                   <p>

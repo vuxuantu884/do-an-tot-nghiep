@@ -2,23 +2,24 @@ import { CheckCircleOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/
 import { Button, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
+import { PROMOTION_CDN } from "config/cdn/promotion.cdn";
+import { HttpStatus } from "config/http-status.config";
 import _ from "lodash";
-import { PriceRuleMethod, EntilementFormModel, VariantEntitlementsFileImport, ProductEntitlements } from "model/promotion/price-rules.model";
+import { VariantResponse } from "model/product/product.model";
+import { EntilementFormModel, PriceRuleMethod, ProductEntitlements, VariantEntitlementsFileImport } from "model/promotion/price-rules.model";
 import React, { useContext, useRef, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
 import { parseSelectVariantToTableData, shareDiscountImportedProduct } from "utils/PromotionUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
+import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import { DiscountUnitType, newEntitlements } from "../../constants";
+import { ImportFileDiscountStyled } from "../discount-style";
 import { DiscountContext } from "./discount-provider";
 import FixedAndQuantityGroup from "./fixed-quantity-group";
-import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
-import { VariantResponse } from "model/product/product.model";
-import { HttpStatus } from "config/http-status.config";
-import { showSuccess, showWarning } from "utils/ToastUtils";
-import { ImportFileDiscountStyled} from "../discount-style";
 
 type UploadStatus = "error" | "success" | "done" | "uploading" | "removed" | undefined;
 enum EnumUploadStatus {
@@ -263,7 +264,7 @@ const GroupDiscountList = (props: Props) => {
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
               <p>
-                - Tải file mẫu <a href={discountMethod === PriceRuleMethod.FIXED_PRICE.toString() ? AppConfig.PROMOTION_FIXED_PRICE_TEMPLATE_URL : AppConfig.PROMOTION_QUANTITY_TEMPLATE_URL}>tại đây</a>
+                - Tải file mẫu <a href={discountMethod === PriceRuleMethod.FIXED_PRICE.toString() ? PROMOTION_CDN.PROMOTION_FIXED_PRICE_TEMPLATE_URL : PROMOTION_CDN.PROMOTION_QUANTITY_TEMPLATE_URL}>tại đây</a>
               </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 1500 bản ghi</p>
               <p>
