@@ -10,6 +10,7 @@ import VoucherIcon from "assets/img/voucher.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import { PROMOTION_CDN } from "config/cdn/promotion.cdn";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -653,7 +654,7 @@ const PromotionDetailScreen: React.FC = () => {
                           Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần
                           mềm
                         </p>
-                        <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}>Tải file mẫu</a>
+                        <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}>Tải file mẫu</a>
                       </div>
                     </Col>
                   </Row>
@@ -791,7 +792,7 @@ const PromotionDetailScreen: React.FC = () => {
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
               <p>
                 - Tải file mẫu{" "}
-                <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
+                <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
               </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
               <p>
