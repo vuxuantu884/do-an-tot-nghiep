@@ -214,9 +214,9 @@ const AddReportHandOver: React.FC = () => {
   }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel, setIsFulFillmentPack]);
 
   useEffect(() => {
-    const toDate = moment(new Date()).format("yyyy-MM-dd");
-    // Trừ đi 1 ngày
-    const fromDate =  moment(new Date().setDate(-1)).format("yyyy-MM-dd");
+    
+    const fromDate =  moment().startOf("days");
+    const toDate = moment().endOf("days");
 
     initQueryGoodsReceipts.limit = 1000;
     initQueryGoodsReceipts.page = 1;
