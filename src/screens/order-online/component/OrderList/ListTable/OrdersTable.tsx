@@ -401,7 +401,7 @@ function OrdersTable(props: PropTypes) {
               </div>
               {i.source && (
                 <div className="textSmall single">
-                  <Tooltip title="Nhân viên tạo đơn">{i.assignee_code}-{i.assignee}</Tooltip>
+                  <Tooltip title="Nhân viên bán hàng">{i.assignee}</Tooltip>
                 </div>
               )}
               <div className="textSmall single">
