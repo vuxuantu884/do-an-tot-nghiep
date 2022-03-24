@@ -49,7 +49,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { departmentDetailApi } from "service/accounts/department.service";
@@ -139,6 +139,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 
   const dispatch = useDispatch();
+  const history = useHistory();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   // const [isVisibleBilling, setVisibleBilling] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(true);
@@ -372,6 +373,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setKeySearchCustomer("");
     if(setShippingAddressesSecondPhone)
       setShippingAddressesSecondPhone("");
+    history.push(`${UrlConfig.ORDER}/create`);
   };
 
   //#end region

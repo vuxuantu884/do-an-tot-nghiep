@@ -530,4 +530,11 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .poppver-to-fast {
+    .btn-to-fast {
+      padding: "0px"; 
+      display:"block"; 
+      height:"24px";
+    }
+  }
 `;

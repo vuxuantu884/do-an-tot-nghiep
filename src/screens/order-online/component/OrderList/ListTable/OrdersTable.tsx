@@ -1,7 +1,7 @@
-import { EyeOutlined } from "@ant-design/icons";
+import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getListSubStatusAction,
@@ -23,7 +23,7 @@ import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import {
   copyTextToClipboard,
@@ -68,8 +68,11 @@ import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import InventoryTable from "./InventoryTable";
+import search from "assets/img/search.svg";
 // import IconWebsite from "./images/website.svg"; 
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
+import { display } from "html2canvas/dist/types/css/property-descriptors/display";
+// import 'assets/css/_sale-order.scss';
 
 type PropTypes = {
   tableLoading: boolean;
@@ -105,6 +108,7 @@ function OrdersTable(props: PropTypes) {
   } = props;
 
   const dispatch = useDispatch();
+  // const history = useHistory();
   const status_order = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status
   );
@@ -416,7 +420,7 @@ function OrdersTable(props: PropTypes) {
         render: (record: OrderModel) => (
           <div className="customer custom-td">
             {record.customer_phone_number && (
-              <div style={{ color: "#2A2A86" }}>
+              <div style={{ color: "#2A2A86" ,display:"flex" }}>
                 <div
                   style={{ padding: "0px", fontWeight: 500, cursor: "pointer" }}
                   onClick={() =>
@@ -425,7 +429,61 @@ function OrdersTable(props: PropTypes) {
                     )
                   }>
                   {record.customer_phone_number}
+                 
                 </div>
+                <Popover placement="bottomLeft" content={
+                  <div className="poppver-to-fast">
+                    <Button 
+                      className="btn-to-fast" 
+                      style={{padding: "0px", display:"block", height:"30px"}} 
+                      type="link" 
+                      icon={<img src={search} alt="" style={{paddingRight:"18px"}}/> }
+                      onClick={() =>
+                        onFilterPhoneCustomer(
+                          record.customer_phone_number ? record.customer_phone_number : ""
+                        )
+                      }
+                    >
+                      Lọc đơn của khách
+                    </Button>
+                    <Button className="btn-to-fast"
+                      style={{padding: "0px", display:"block", height:"30px"}}
+                      type="link"
+                       icon={<EyeOutlined style={{paddingRight:"10px"}} /> } 
+                      onClick={()=>{
+                        let pathname = `${BASE_NAME_ROUTER}${UrlConfig.CUSTOMER}/${record.customer_id}`;
+                        window.open(pathname,"_blank");
+                      }}
+                    >
+                      Thông tin khách hàng
+                    </Button>
+                    <Button
+                     className="btn-to-fast" 
+                     style={{padding: "0px", display:"block", height:"30px"}} 
+                     type="link" 
+                     icon={<PlusOutlined style={{paddingRight:"10px"}}/> } 
+                     onClick={()=>{
+                       let pathname = `${BASE_NAME_ROUTER}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+                       window.open(pathname,"_blank");
+                    }}
+                    >
+                      Tạo đơn cho khách
+                    </Button>
+                    <Button 
+                      className="btn-to-fast" 
+                      style={{padding: "0px", display:"block", height:"30px"}} 
+                      type="link" 
+                      icon={<PhoneOutlined style={{paddingRight:"10px"}}/>} 
+                      onClick={()=>{
+                        window.location.href=`tel:${record.customer_phone_number}`;
+                      }}
+                    >
+                      Gọi điện cho khách
+                    </Button>
+                  </div>
+                } trigger="click">
+                  <Button type="link" style={{ width: "25px", padding: "0px", paddingTop:2}} icon={<DownOutlined style={{fontSize:"12px"}}/>}></Button>
+                </Popover>
                 {/* <Button  type="link" onClick={()=>{
                     onFilterPhoneCustomer(record.customer_phone_number)
                   }}>{record.customer_phone_number}</Button> */}
@@ -438,6 +496,7 @@ function OrdersTable(props: PropTypes) {
                 className="primary">
                 {record.customer}
               </Link>{" "}
+
             </div>
             {/* <div className="p-b-3">{record.shipping_address.phone}</div>
 						<div className="p-b-3">{record.shipping_address.full_address}</div> */}
@@ -1139,7 +1198,7 @@ function OrdersTable(props: PropTypes) {
   const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
 
   const onSearchInventory = useCallback((value: string) => {
-    let _item: StoreResponse[] | any = listStore?.filter(x => fullTextSearch(value.toLowerCase().trim(),x.name.toLowerCase())===true);
+    let _item: StoreResponse[] | any = listStore?.filter(x => fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()) === true);
     setStoreInventory(_item);
   }, [listStore]);
 
@@ -1181,7 +1240,7 @@ function OrdersTable(props: PropTypes) {
         <Tooltip title="Kiểm tra tồn kho">
           <Popover
             placement="right"
-            overlayStyle={{ zIndex: 1000, top:"150px" }}
+            overlayStyle={{ zIndex: 1000, top: "150px" }}
             title={
               <Row
                 justify="space-between"
@@ -1191,7 +1250,7 @@ function OrdersTable(props: PropTypes) {
                 <Input.Search
                   placeholder="Tìm kiếm kho"
                   allowClear
-                 onSearch={onSearchInventory}
+                  onSearch={onSearchInventory}
                 />
               </Row>
             }
@@ -1256,7 +1315,7 @@ function OrdersTable(props: PropTypes) {
     data.items.forEach((item) => {
       let paymentItem = 0;
       item.payments.forEach((single) => {
-        if(single.payment_method_code !== PaymentMethodCode.POINT) {
+        if (single.payment_method_code !== PaymentMethodCode.POINT) {
           paymentItem = paymentItem + single.amount;
         }
       });
