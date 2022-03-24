@@ -13,6 +13,9 @@ import { StyledComponent } from "./header.container.styles";
 import { RootReducerType } from "../../model/reducers/RootReducerType";
 import logoDev from "assets/img/yody-logo-dev.svg";
 import logoUat from "assets/img/yody-logo-uat.svg";
+import devEnvMarkup from "assets/img/dev-env-markup.png";
+import uatEnvMarkup from "assets/img/uat-env-markup.png";
+import { AppConfig } from "config/app.config";
 
 type HeaderContainerProps = {
   onCollapse: () => void;
@@ -38,12 +41,22 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
   }, [props]);
 
   const Logo = () => {
-    if (window.location.host.startsWith("dev") || window.location.host.startsWith("localhost")) {
+    if (AppConfig.ENV === "DEV") {
       return <img src={logoDev} alt="logo-mt-dev" />;
-    } else if (window.location.host.startsWith("uat")) {
+    } else if (AppConfig.ENV === "UAT") {
       return <img src={logoUat} alt="logo-mt-uat" />;
     } else {
       return <img src={logo} alt="logo-mt-prod" />;
+    }
+  };
+
+  const DevAndUatMarkup = () => {
+    if (AppConfig.ENV === "DEV") {
+      return <img src={devEnvMarkup} alt="logo-dev" />;
+    } else if (AppConfig.ENV === "UAT") {
+      return <img src={uatEnvMarkup} alt="logo-uat" />;
+    } else {
+      return <></>;
     }
   };
 
@@ -85,6 +98,9 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
           </div>
         </div>
         <div className="ant-layout-header-right">
+          <div className="markup-env">
+            <DevAndUatMarkup/>
+          </div>
           <Space size={15}>
             <Badge count={0} className="buttonNotifyWrapper">
               <Button

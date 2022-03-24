@@ -293,27 +293,31 @@ export const getTrackingLogFulFillmentError = (
  */
 export const getOrderSubStatusService = (
   status: string
-): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/status/${status}/subStatus`);
+): Promise<BaseResponse<PageResponse<SourceResponse[]>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/sub_status?status=${status}&sort_type=desc&sort_column=display_order
+  `);
 };
 
 export const setSubStatusService = (
   order_id: number,
   statusCode: string,
-  action: string,
-  reason_id?: number,
-  sub_reason_id?: number,
+  // action: string,
+  reason_id?: number|null,
+  sub_reason_id?: number|null,
 ): Promise<BaseResponse<SourceResponse>> => {
-  const query = {
-    action,
-  };
-  const queryParams = generateQuery({
+  if(!reason_id) {
+    reason_id= null;
+  }
+  if(!sub_reason_id) {
+    sub_reason_id= null;
+  }
+  const queryParams = {
     reason_id,
     sub_reason_id
-  })
+  }
   return BaseAxios.put(
-    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusCode}?${queryParams}`,
-   query 
+    `${ApiConfig.ORDER}/orders/${order_id}/sub_status/${statusCode}`,
+    queryParams 
   );
 };
 

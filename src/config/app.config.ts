@@ -1,8 +1,9 @@
 export const AppConfig = {
+  ENV: process.env.REACT_APP_ENVIRONMENT, // DEV,UAT,PROD
+  runMode: process.env.NODE_ENV, // development (npm start), production (npm run build), test (npm run test)
   baseUrl: process.env.REACT_APP_BASE_URL || "http://localhost:3004",
   baseApi: process.env.REACT_APP_BASE_API,
   timeOut: process.env.REACT_APP_TIME_OUT ? parseInt(process.env.REACT_APP_TIME_OUT) : 20000,
-  production: process.env.REACT_APP_PRODUCTION,
   ydPageUrl: process.env.REACT_APP_YDPAGE_URL,
   currency: "VNĐ",
   price_type: "retail_price",
@@ -32,10 +33,8 @@ export const AppConfig = {
   LOGISTIC_GATEWAY_SERVICE: process.env.REACT_APP_LOGISTIC_GATEWAY_SERVICE,
   INVENTORY_ADJUSTMENT_SERVICE: process.env.REACT_APP_INVENTORY_ADJUSTMENT_SERVICE,
   PROMOTION_SERVICE: process.env.REACT_APP_PROMOTION_SERVICE,
-  PROMOTION_FIXED_PRICE_TEMPLATE_URL: `${process.env.REACT_APP_CDN}${process.env.REACT_APP_PROMOTION_FIXED_PRICE_TEMPLATE_URL}`,
-  PROMOTION_QUANTITY_TEMPLATE_URL: `${process.env.REACT_APP_CDN}${process.env.REACT_APP_PROMOTION_QUANTITY_TEMPLATE_URL}`,
-  DISCOUNT_CODES_TEMPLATE_URL:
-    process.env.REACT_APP_PROMOTIONS_DISCOUNT_CODES_TEMPLATE_URL,
+  CDN: process.env.REACT_APP_CDN,
+   
   PO_STORE_DEFAULT: 144,
   /**
    * @description: thời gian time out khi sử dụng typing request

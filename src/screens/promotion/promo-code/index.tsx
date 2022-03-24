@@ -20,7 +20,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { PriceRule } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
@@ -28,6 +28,7 @@ import { ACTIONS_PROMO } from "../constants";
 import DatePromotionColumn from "../shared/date-column";
 import actionColumn from "./actions/action.column";
 import "./promo-code.scss";
+import { generateQuery } from "../../../utils/AppUtils";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -51,6 +52,7 @@ const PromotionCode = () => {
     items: [],
   });
   const [form] = Form.useForm();
+  const history = useHistory();
 
   const [params, setParams] = useState<any>(dataQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
@@ -89,9 +91,12 @@ const PromotionCode = () => {
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setParams({ ...params, page, limit });
+      const newParams = { ...params, page, limit };
+      setParams(newParams);
+      let queryParam = generateQuery(newParams);
+      history.push(`${UrlConfig.PROMOTION}/issues?${queryParam}`);
     },
-    [params]
+    [history, params]
   );
 
   const onFilter = useCallback(
@@ -127,7 +132,7 @@ const PromotionCode = () => {
       visible: true,
       fixed: "left",
       width: "12%",
-      render: (value: any, item: any, index: number) => (
+      render: (value: any, item: any) => (
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${item.id}`}
           style={{ color: "#2A2A86", fontWeight: 500 }}

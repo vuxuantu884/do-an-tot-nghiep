@@ -12,6 +12,7 @@ import SplashScreen from "screens/splash.screen";
 import UrlConfig from "config/url.config";
 import HeaderContainer from "./header.container";
 import {Helmet} from "react-helmet";
+import { AppConfig } from "config/app.config";
 
 type ContainerProps = {
   title: string;
@@ -26,9 +27,9 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const {location} = history;
 
   const prefixTitle = () => {
-    if (window.location.host.startsWith("dev") || window.location.host.startsWith("localhost")) {
+    if (AppConfig.ENV === "DEV") {
       return "DEV - ";
-    } else if (window.location.host.startsWith("uat")) {
+    } else if (AppConfig.ENV === "UAT") {
       return "UAT - ";
     } else {
       return "";

@@ -836,7 +836,17 @@ ShippingServiceConfigDetailResponseModel[]
 							}
 							if (response.payments && response.payments?.length > 0) {
 								setPaymentMethod(PaymentMethodOption.PREPAYMENT);
-								new_payments = mergePaymentData(response.payments);
+								// clone có tiền thừa thì xóa
+								new_payments = mergePaymentData(response.payments.map(payment => {
+									if(payment.return_amount) {
+										return {
+											...payment,
+											amount: payment.paid_amount,
+											return_amount: 0,
+										} 
+									}
+									return {...payment};
+								}));
 								setPayments(new_payments);
 							}
 

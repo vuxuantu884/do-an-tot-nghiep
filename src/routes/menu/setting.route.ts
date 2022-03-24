@@ -60,7 +60,7 @@ const StoreDetailScreen = React.lazy(() => import("screens/settings/store/store-
 
 // fulfillment: quản lý đơn hàng
 const SettingFulfillmentScreen = React.lazy(
-  () => import("screens/order-online/settings/order-processing-status")
+  () => import("screens/order-online/settings/OrderProcessingStatus/OrderProcessingStatus")
 );
 
 // order sources: quản lý nguồn đơn hàng

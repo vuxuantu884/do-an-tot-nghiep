@@ -18,6 +18,7 @@ import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { PROMOTION_CDN } from "config/cdn/promotion.cdn";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -45,6 +46,8 @@ import { ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE } from "../constants";
 import ActionColumn from "./actions/promo.action.column";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
+import { generateQuery } from "../../../utils/AppUtils";
+import { useHistory } from "react-router-dom";
 const { Item } = Form;
 const { Option } = Select;
 
@@ -92,6 +95,7 @@ const ListCode = () => {
     },
     items: [],
   });
+  const history = useHistory();
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [promoValue, setPromoValue] = useState<any>();
@@ -103,7 +107,7 @@ const ListCode = () => {
     "error" | "success" | "done" | "uploading" | "removed"
   >();
 
-  //phân quyền  
+  //phân quyền
   const [allowCreatePromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CREATE],
   });
@@ -119,9 +123,12 @@ const ListCode = () => {
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setParams({ ...params, page, limit });
+      const newParams = { ...params, page, limit };
+      setParams(newParams);
+      let queryParam = generateQuery(newParams);
+      history.push(`${UrlConfig.PROMOTION}/issues/codes/${id}?${queryParam}`);
     },
-    [params]
+    [history, id, params]
   );
 
   const onFilter = useCallback(
@@ -351,10 +358,10 @@ const ListCode = () => {
     dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
   }, [dispatch, onSetPromoListData, priceRuleId, params]);
 
- 
 
-  return ( 
-      
+
+  return (
+
         <ContentContainer
           title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ''}`}
           breadcrumb={[
@@ -456,7 +463,7 @@ const ListCode = () => {
                 dataSource={promoCodeList.items}
                 columns={columns}
                 rowKey={(item: any) => item.id}
-                
+
               />
             </div>
           </Card>
@@ -603,7 +610,7 @@ const ListCode = () => {
                   <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
                   <p>
                     - Tải file mẫu{" "}
-                    <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
+                    <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
                   </p>
                   <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
                   <p>
@@ -787,8 +794,8 @@ const ListCode = () => {
             visible={isShowDeleteModal}
           />
         </ContentContainer>
-      
-    
+
+
   );
 };
 

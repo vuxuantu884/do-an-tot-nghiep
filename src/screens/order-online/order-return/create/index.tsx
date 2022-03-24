@@ -694,7 +694,8 @@ ShippingServiceConfigDetailResponseModel[]
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
-          valuesResult.channel_id = ADMIN_ORDER.channel_id;
+          // valuesResult.channel_id = ADMIN_ORDER.channel_id;
+          valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {

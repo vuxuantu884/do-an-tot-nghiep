@@ -17,6 +17,7 @@ import {
   Space,
   Progress,
   TreeSelect,
+  Tag,
 } from "antd";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 
@@ -182,22 +183,24 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   }, [dispatch, updateVariantData]);
 
   const handleSuggestItem = () => {
-    if (query.suggest) {
+    if (window.localStorage.getItem("suggest")) {
       window.localStorage.setItem("suggest", "");
-      const queryVariant = {...query, suggest: ""};
-      setQuery(queryVariant);
     } else {
       window.localStorage.setItem("suggest", "suggested");
-      const queryVariant = {...query, suggest : "suggested"};
-      setQuery(queryVariant);
     }
+    let dataQuery: ProductEcommerceQuery = {
+      ...initialFormValues,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+      suggest: window.localStorage.getItem("suggest")
+    };
+    getProductUpdated(dataQuery);
     window.location.reload();
   }
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    getProductUpdated(query);
-  }, [getProductUpdated, query, isReloadPage]);
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  //   getProductUpdated(query);
+  // }, [getProductUpdated, query, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -664,20 +667,114 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     ),
   ]);
 
+  let initialValues = useMemo(() => {
+    return {
+      ...query,
+      shop_ids: Array.isArray(query.shop_ids)
+        ? query.shop_ids
+        : [query.shop_ids],
+    };
+  }, [query]);
+
+  let filters = useMemo(() => {
+    let list = [];
+
+    if (initialValues.ecommerce_id !== null) {
+      list.push({
+        key: "ecommerce_id",
+        name: "Sàn",
+        value: ECOMMERCE_LIST[initialValues.ecommerce_id - 1].title ,
+      });
+    }
+
+    if (initialValues.shop_ids.length) {
+      let shopNameList = "";
+      initialValues.shop_ids.forEach((shopId: any) => {
+        const findStatus = ecommerceShopList?.find(
+          (item) => +item.id === +shopId
+        );
+        shopNameList = findStatus
+          ? shopNameList + findStatus.name + "; "
+          : shopNameList;
+      });
+      list.push({
+        key: "shop_ids",
+        name: "Gian hàng",
+        value: shopNameList,
+      });
+    }
+
+    if (initialValues.sku_or_name_ecommerce) {
+      list.push({
+        key: "sku_or_name_ecommerce",
+        name: "Sku, tên sản phẩm sàn",
+        value: initialValues.sku_or_name_ecommerce
+      });
+    }
+
+    return list;
+  }, [
+    initialValues.shop_ids,
+    // initialValues.connected_status,
+    // initialValues.created_date_from,
+    // initialValues.created_date_to,
+    // initialValues.ecommerce_order_statuses,
+    ecommerceShopList,
+  ]);
+
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      let dataQuery :any = {}
+      switch (tag.key) {
+        case "shop_ids":
+          dataQuery = {
+            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...{[tag.key]: []}
+          };
+          break;
+        case "ecommerce_id":
+          dataQuery = {
+            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...{[tag.key]: [], shop_ids: []}
+          };
+          break;
+        default:
+          dataQuery = {
+            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...{[tag.key]: null}
+          };
+          break;
+      }
+      
+      let queryParam = generateQuery(dataQuery);
+      history.push(`${location.pathname}?${queryParam}`);
+      
+    },
+    [query, formAdvance]
+  );
+
+
   const onSearch = (value: ProductEcommerceQuery) => {
-    let queryParam = generateQuery(value);
+    const dataQuery: ProductEcommerceQuery = {
+      ...initialFormValues,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+      ...value
+    }
+    let queryParam = generateQuery(dataQuery);
     history.push(`${location.pathname}?${queryParam}`);
   };
 
   useEffect(() => {
     let dataQuery: ProductEcommerceQuery = {
       ...initialFormValues,
-      ...getQueryParamsFromQueryString(queryParamsParsed)
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+      suggest: window.localStorage.getItem("suggest")
     };
-    console.log(dataQuery)
     setFilterValueByQueryParam(dataQuery)
     setQuery(dataQuery);
     getProductUpdated(dataQuery);
+    window.scrollTo(0, 0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
 
@@ -704,10 +801,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
   const onPageChange = React.useCallback(
     (page, limit) => {
-      query.page = page;
-      query.limit = limit;
-      setQuery({ ...query, page, limit });
-      window.scrollTo(0, 0);
+      const dataQuery: ProductEcommerceQuery = {
+        ...initialFormValues,
+        ...getQueryParamsFromQueryString(queryParamsParsed),
+        page: page,
+        limit: limit,
+      }
+      let queryParam = generateQuery(dataQuery);
+      history.push(`${location.pathname}?${queryParam}`);
     },
     [query]
   );
@@ -1025,6 +1126,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsVisibleConcatenateByExcelModal(false);
   }
 
+  const setTitleSuggest = () => {
+    return window.localStorage.getItem("suggest") ? "Bỏ gợi ý ghép nối" : "Gợi ý ghép nối"
+  }
+
   const actionList = (
     <Menu>
       {allowProductsDelete &&
@@ -1040,7 +1145,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         <span>Xuất excel sản phẩm</span>
       </Menu.Item>
       <Menu.Item key="4" onClick={handleSuggestItem}>
-        <span>Gợi ý ghép nối</span>
+        <span>{setTitleSuggest()}</span>
       </Menu.Item>
       <Menu.Item key="5" onClick={handleConcatenateByExcel}>
         <span>Ghép nối bằng excel</span>
@@ -1158,6 +1263,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                 </Button>
               </div>
             </Form>
+            <div className="order-filter-tags">
+              {filters && filters.map((filter: any, index:any) => {
+                return (
+                  <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+                )
+              })}
+            </div>
+
           </div>
         </StyledProductFilter>
 
@@ -1324,3 +1437,4 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 };
 
 export default NotConnectedItems;
+
