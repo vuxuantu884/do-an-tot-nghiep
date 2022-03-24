@@ -1,5 +1,4 @@
 import { FormInstance } from "antd";
-import BaseResponse from "base/base.response";
 import { FilterConfig } from "model/other";
 
 export type modalActionType = "create" | "edit" | "delete" | "onlyedit";

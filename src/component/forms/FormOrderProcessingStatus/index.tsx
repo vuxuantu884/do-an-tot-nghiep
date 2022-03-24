@@ -14,6 +14,7 @@ type FormValueType = {
   status?: string;
   active?: boolean;
   note?: string;
+  display_order?: string;
 };
 
 const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
@@ -31,6 +32,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           status: formItem?.status,
           active: formItem?.active,
           note: formItem?.note,
+          display_order: formItem?.display_order,
         }
       : {
           company_id: CONSTANTS.DEFAULT_COMPANY.company_id,
@@ -40,6 +42,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           status: undefined,
           active: false,
           note: "",
+          display_order: undefined,
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -100,6 +103,22 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
               <Input
                 placeholder="Nhập code trạng thái"
                 style={{ width: "100%" }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="display_order"
+              label="Thứ tự hiển thị ưu tiên"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng điền thứ tự hiển thị ưu tiên!",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Nhập thứ tự hiển thị ưu tiên"
+                style={{ width: "100%" }}
+                type="number"
               />
             </Form.Item>
             <Form.Item
