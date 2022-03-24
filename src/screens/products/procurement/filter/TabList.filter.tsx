@@ -33,6 +33,8 @@ import isEqual from "lodash/isEqual";
 import { isArray } from "lodash";
 import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
 import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
+import { callApiNative } from "../../../../utils/ApiUtils";
+import { supplierGetApi } from "../../../../service/core/supplier.service";
 
 const { Item } = Form;
 
@@ -197,6 +199,13 @@ function TabListFilter(props: ProcurementFilterProps) {
     })();
   }, [setSelectedStatuses, paramsArray, history, prevArray])
 
+  const getSupplierByCode = async (ids: string) => {
+    const res = await callApiNative({isShowLoading: false}, dispatch, supplierGetApi, {
+      ids,
+    });
+    if (res) setAllSupplier(res.items);
+  }
+
   useEffect(() => {
     const filters = convertParams(paramsUrl);
     formBase.setFieldsValue({
@@ -214,6 +223,10 @@ function TabListFilter(props: ProcurementFilterProps) {
       expect_receipt_from: filters.expect_receipt_from,
       expect_receipt_to: filters.expect_receipt_to,
     });
+    if (paramsUrl.suppliers) {
+      getSupplierByCode(paramsUrl.suppliers).then();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formAdvanced, paramsUrl, formBase]);
 
   useEffect(() => {
