@@ -406,6 +406,7 @@ function OrderSources(props: PropTypes) {
       sort_column: "updated_date",
       name: queryParamsParsed.name,
       department_ids: queryParamsParsed.department_ids,
+      extend_default: true
     };
     setQueryParams(currentParams);
     fetchData(currentParams);

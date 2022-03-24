@@ -1,3 +1,4 @@
+import { EcommerceOrderStatusRequest } from "./../../model/request/ecommerce.request";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -8,10 +9,13 @@ import {
   RequestSyncStockQuery,
 } from "model/query/ecommerce.query";
 import { EcommerceRequest } from "model/request/ecommerce.request";
-import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import {
+  EcommerceResponse,
+  EcommerceChangeOrderStatusReponse,
+} from "model/response/ecommerce/ecommerce.response";
 import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
 import { generateQuery } from "utils/AppUtils";
-import {EcommerceCreateLogistic} from "../../model/ecommerce/ecommerce.model";
+import { EcommerceCreateLogistic } from "../../model/ecommerce/ecommerce.model";
 
 const addFpagePhone = (
   userId: string,
@@ -34,9 +38,7 @@ const setFpageDefaultPhone = (
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/defaultPhone/${phone}`;
   return BaseAxios.post(link);
 };
-const getFpageCustomer = (
-  userId: string
-): Promise<BaseResponse<YDPageCustomerResponse>> => {
+const getFpageCustomer = (userId: string): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}`;
   return BaseAxios.get(link);
 };
@@ -61,31 +63,23 @@ const ecommerceGetApi = (): Promise<BaseResponse<EcommerceResponse>> => {
   return BaseAxios.get(link);
 };
 
-const ecommerceGetByIdApi = (
-  id: number
-): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceGetByIdApi = (id: number): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.get(link);
 };
 
-const ecommerceDeleteApi = (
-  id: number
-): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceDeleteApi = (id: number): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.delete(link);
 };
 // end
 // config sync connect screen
-const ecommerceConnectSyncApi = (
-  ecommerceId: number
-): Promise<BaseResponse<String>> => {
+const ecommerceConnectSyncApi = (ecommerceId: number): Promise<BaseResponse<String>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/connect/${ecommerceId}`;
   return BaseAxios.get(link);
 };
 
-const ecommerceGetConfigInfoApi = (
-  params: any
-): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceGetConfigInfoApi = (params: any): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/info?${params}`;
   return BaseAxios.get(link);
 };
@@ -127,9 +121,7 @@ const ecommercePostSyncStockItemApi = (
   return BaseAxios.post(link, requestBody);
 };
 
-const ecommerceSyncStockItemApi = (
-  requestBody: any
-): Promise<BaseResponse<any>> => {
+const ecommerceSyncStockItemApi = (requestBody: any): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ECOMMERCE}/orders/retry-download`;
   return BaseAxios.post(link, requestBody);
 };
@@ -154,9 +146,7 @@ const postEcommerceOrderApi = (
 };
 
 //get progress download ecommerce orders
-const getProgressDownloadEcommerceApi = (
-  process_id: any
-): Promise<BaseResponse<any>> => {
+const getProgressDownloadEcommerceApi = (process_id: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.ECOMMERCE}/orders/download-process/${process_id}`;
   return BaseAxios.get(requestUrl);
 };
@@ -176,30 +166,36 @@ const getOrderMappingListApi = (query: any) => {
   return BaseAxios.get(link);
 };
 
-const getEcommerceStoreAddressApi = (query : any) => {
+const getEcommerceStoreAddressApi = (query: any) => {
   let params = generateQuery(query);
   let link = `${ApiConfig.ECOMMERCE}/logistic/store-address?${params}`;
   return BaseAxios.get(link);
-}
+};
 
-const createEcommerceLogisticApi = (requestBody : EcommerceCreateLogistic) => {
+const createEcommerceLogisticApi = (requestBody: EcommerceCreateLogistic) => {
   let link = `${ApiConfig.ECOMMERCE}/logistic/shipping-order`;
   return BaseAxios.post(link, requestBody);
-}
-
+};
 
 export const importConcatenateByExcelService = (formData: FormData) => {
   return BaseAxios.post(`${ApiConfig.ECOMMERCE}/import-export/variants-import`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });
-}
+};
 
 // get ecommerce jobs api
 export const getEcommerceJobsApi = (
   process_id: any
 ): Promise<BaseResponse<any>> => {
-const requestUrl = `${ApiConfig.ECOMMERCE}/jobs/${process_id}`;
-return BaseAxios.get(requestUrl);
+  const requestUrl = `${ApiConfig.ECOMMERCE}/jobs/${process_id}`;
+  return BaseAxios.get(requestUrl);
+};
+
+const changeEcommerceOrderStatusService = (
+  ecommerceOrderStatusRequest: EcommerceOrderStatusRequest
+): Promise<BaseResponse<EcommerceChangeOrderStatusReponse>> | null => {
+  let link = `${ApiConfig.ECOMMERCE}/order-status`;
+  return BaseAxios.post(link, ecommerceOrderStatusRequest);
 };
 
 //exit ecommerce jobs api
@@ -244,5 +240,6 @@ export {
   setFpageDefaultPhone,
   getOrderMappingListApi,
   getEcommerceStoreAddressApi,
-  createEcommerceLogisticApi
+  createEcommerceLogisticApi,
+  changeEcommerceOrderStatusService,
 };

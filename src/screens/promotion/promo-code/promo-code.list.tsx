@@ -46,6 +46,8 @@ import { ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE } from "../constants";
 import ActionColumn from "./actions/promo.action.column";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
+import { generateQuery } from "../../../utils/AppUtils";
+import { useHistory } from "react-router-dom";
 const { Item } = Form;
 const { Option } = Select;
 
@@ -93,6 +95,7 @@ const ListCode = () => {
     },
     items: [],
   });
+  const history = useHistory();
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [promoValue, setPromoValue] = useState<any>();
@@ -104,7 +107,7 @@ const ListCode = () => {
     "error" | "success" | "done" | "uploading" | "removed"
   >();
 
-  //phân quyền  
+  //phân quyền
   const [allowCreatePromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CREATE],
   });
@@ -120,9 +123,12 @@ const ListCode = () => {
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setParams({ ...params, page, limit });
+      const newParams = { ...params, page, limit };
+      setParams(newParams);
+      let queryParam = generateQuery(newParams);
+      history.push(`${UrlConfig.PROMOTION}/issues/codes/${id}?${queryParam}`);
     },
-    [params]
+    [history, id, params]
   );
 
   const onFilter = useCallback(
@@ -352,10 +358,10 @@ const ListCode = () => {
     dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
   }, [dispatch, onSetPromoListData, priceRuleId, params]);
 
- 
 
-  return ( 
-      
+
+  return (
+
         <ContentContainer
           title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ''}`}
           breadcrumb={[
@@ -457,7 +463,7 @@ const ListCode = () => {
                 dataSource={promoCodeList.items}
                 columns={columns}
                 rowKey={(item: any) => item.id}
-                
+
               />
             </div>
           </Card>
@@ -788,8 +794,8 @@ const ListCode = () => {
             visible={isShowDeleteModal}
           />
         </ContentContainer>
-      
-    
+
+
   );
 };
 

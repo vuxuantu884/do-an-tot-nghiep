@@ -21,13 +21,13 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       return request;
     },
     function (error) {
-      !AppConfig.production && console.error(error);
+    AppConfig.runMode === "development" && console.error(error);
     }
   );
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
-      !AppConfig.production && console.log(response.data);
+      AppConfig.runMode === "development" && console.log(response.data);
       switch (response.data.code) {
         case HttpStatus.FORBIDDEN:
           showError("Bạn không đủ quyền truy cập, vui lòng liên hệ với IT để được cấp quyền.");

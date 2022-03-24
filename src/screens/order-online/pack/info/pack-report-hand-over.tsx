@@ -135,6 +135,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         case 3:
           if (!selectedRowKeys || selectedRowKeys.length === 0) break;
           let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) => selectedRowKeys.some((single: number) => single.toString() === p.id.toString()));
+          console.log('selectedOrder', selectedOrder);
+          
           let canDelete = true;
           let idError = "";
           selectedOrder.forEach(item => {
@@ -226,28 +228,40 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           order_send_quantity +
           (itemOrder.fulfillments?.length ? itemOrder.fulfillments?.length : 0);
 
-        //
-        itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-          product_quantity =
-            product_quantity +
-            (itemFulfillment.total_quantity !== null
-              ? itemFulfillment.total_quantity
-              : 0);
+        // itemOrder.fulfillments?.forEach(function (itemFulfillment) {
+        //   product_quantity =
+        //     product_quantity +
+        //     (itemFulfillment.total_quantity !== null
+        //       ? itemFulfillment.total_quantity
+        //       : 0);
 
-          if (itemFulfillment.status === FulFillmentStatus.SHIPPING)
-            order_transport = order_transport + 1;
+        //   if (itemFulfillment.status === FulFillmentStatus.SHIPPING)
+        //     order_transport = order_transport + 1;
 
-          if (itemFulfillment.status === FulFillmentStatus.UNSHIPPED)
-            order_have_not_taken = order_have_not_taken + 1;
-          if (itemFulfillment.status === FulFillmentStatus.CANCELLED)
-            order_cancel = order_cancel + 1;
-          if (itemFulfillment.status === FulFillmentStatus.RETURNING)
-            order_moving_complete = order_moving_complete + 1;
-          if (itemFulfillment.status === FulFillmentStatus.SHIPPED)
-            order_success = order_success + 1;
-          if (itemFulfillment.status === FulFillmentStatus.RETURNED)
-            order_complete = order_complete + 1;
-        });
+        //   if (itemFulfillment.status === FulFillmentStatus.UNSHIPPED)
+        //     order_have_not_taken = order_have_not_taken + 1;
+        //   if (itemFulfillment.status === FulFillmentStatus.CANCELLED)
+        //     order_cancel = order_cancel + 1;
+        //   if (itemFulfillment.status === FulFillmentStatus.RETURNING)
+        //     order_moving_complete = order_moving_complete + 1;
+        //   if (itemFulfillment.status === FulFillmentStatus.SHIPPED)
+        //     order_success = order_success + 1;
+        //   if (itemFulfillment.status === FulFillmentStatus.RETURNED)
+        //     order_complete = order_complete + 1;
+        // });
+        if (itemOrder.fulfillment_status === FulFillmentStatus.SHIPPING)
+          order_transport = order_transport + 1;
+
+        if (itemOrder.fulfillment_status === FulFillmentStatus.UNSHIPPED)
+          order_have_not_taken = order_have_not_taken + 1;
+        if (itemOrder.fulfillment_status === FulFillmentStatus.CANCELLED)
+          order_cancel = order_cancel + 1;
+        if (itemOrder.status === FulFillmentStatus.RETURNING)
+          order_moving_complete = order_moving_complete + 1;
+        if (itemOrder.status === FulFillmentStatus.SHIPPED)
+          order_success = order_success + 1;
+        if (itemOrder.status === FulFillmentStatus.RETURNED)
+          order_complete = order_complete + 1;
       });
 
       let _result = {
@@ -258,7 +272,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         handover_record_type: item.receipt_type_name, //loại biên bản
         product_quantity: product_quantity, // sl sản phẩm
         order_quantity: order_quantity, //SL đơn
-        order_send_quantity: order_send_quantity, //Số đơn gửi hvc
+        order_send_quantity: order_quantity, //Số đơn gửi hvc
         order_transport: order_transport, //Đơn đang chuyển
         order_have_not_taken: order_have_not_taken, //Đơn chưa lấy
         order_cancel: order_cancel, //đơn hủy
@@ -295,6 +309,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     let request: any = {
       ids: id ? [id] : selectedRowKeys
     }
+    console.log('id', [id], selectedRowKeys);
+    
     dispatch(
       deleteAllGoodsReceipts(request, (data: GoodsReceiptsResponse) => {
         if (data) {
@@ -659,7 +675,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
       <ModalDeleteConfirm
         onCancel={() => setModalDeleteComfirm(false)}
-        onOk={hanldRemoveGoodsReceiptOk}
+        onOk={() => hanldRemoveGoodsReceiptOk()}
         title="Bạn chắc chắn xóa biên bản bàn giao?"
         subTitle={setLayoutDeleteAllGoodsReceipts}
         visible={modalDeleteComfirm}

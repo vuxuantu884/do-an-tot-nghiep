@@ -16,6 +16,7 @@ import {
   EcommerceOrderSearchQuery,
 } from "model/order/order.model";
 import { AccountResponse } from "model/account/account.model";
+import { EcommerceId, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 
 import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -35,6 +36,7 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
 import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
+import EcommerceChangeOrderStatusModal from "screens/ecommerce/orders/component/EcommerceChangeOrderStatusModal";
 import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
 
 import { updateOrderPartial } from "domain/actions/order/order.action";
@@ -64,6 +66,7 @@ import {
   exitEcommerceJobsAction,
   exitProgressDownloadEcommerceAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
+import { changeEcommerceOrderStatus } from "domain/actions/ecommerce/ecommerce.actions";
 import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { getEcommerceJobsApi, getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
@@ -80,6 +83,8 @@ import {getEcommerceIdByChannelId} from "screens/ecommerce/common/commonAction";
 import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
 import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
 import queryString from "query-string";
+import { EcommerceOrderList, EcommerceOrderStatus } from "model/request/ecommerce.request";
+import { EcommerceChangeOrderStatusReponse, ChangeOrderStatusErrorLine, ChangeOrderStatusErrorLineType } from "model/response/ecommerce/ecommerce.response";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -132,8 +137,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   reference_code: null,
 };
 
-
-const ALL_CHANNEL = ["Shopee","lazada","sendo","tiki"];
+const ALL_CHANNEL = ["Shopee", "lazada", "sendo", "tiki"];
 
 const ordersViewPermission = [EcommerceOrderPermission.orders_read];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
@@ -407,13 +411,13 @@ const EcommerceOrders: React.FC = () => {
             <div><strong>{record.ecommerce_shop_name}</strong></div>
           </div>
         ) : (
-          <div className="customer custom-td">
-            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {record.customer}
+            <div className="customer custom-td">
+              <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+                {record.customer}
+              </div>
+              <div className="p-b-3">{record.customer_phone_number}</div>
             </div>
-            <div className="p-b-3">{record.customer_phone_number}</div>
-          </div>
-        ),
+          ),
     },
     {
       title: (
@@ -747,7 +751,7 @@ const EcommerceOrders: React.FC = () => {
       let queryParam = generateQuery(newPrams);
       if (currentParam !== queryParam) {
 				history.push(`${location.pathname}?${queryParam}`);
-        
+
       }
     },
     [history, location.pathname, pageQuery, params]
@@ -898,6 +902,53 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [])
 
+  // handle action button
+  const changeLazadaOrderStatus = useCallback((status: EcommerceOrderStatus) => {
+    let ecommerceOrderStatusRequest: EcommerceOrderStatusRequest = {
+      status: status,
+      ecommerce_id: EcommerceId.LAZADA,
+      items: []
+    };
+    if (selectedRowKeys?.length > 0) {
+      let order_list: Array<EcommerceOrderList> = [];
+      selectedRowKeys.forEach(idSelected => {
+        const orderMatched = data?.items.find(i => i.id === idSelected)
+        if (orderMatched) {
+          const orderRequest: EcommerceOrderList = {
+            "order_sn": orderMatched.reference_code,
+            "shop_id": orderMatched.ecommerce_shop_id
+          };
+          order_list.push(orderRequest)
+        }
+      })
+      ecommerceOrderStatusRequest.items = order_list;
+      dispatch(changeEcommerceOrderStatus(ecommerceOrderStatusRequest, (data: EcommerceChangeOrderStatusReponse) => {
+        if (data === null) {
+          showError("Có lỗi xảy ra khi chuyển trạng thái sàn");
+        } else {
+          let statusList: Array<ChangeOrderStatusErrorLine> = [],
+            sortedStatusList: Array<ChangeOrderStatusErrorLine> = [];
+          data.success_list.forEach(orderSn => statusList.push({
+            order_sn: orderSn,
+            error_message: "Thành công",
+            type: ChangeOrderStatusErrorLineType.SUCCESS
+          }));
+          data.error_list.forEach((error: ChangeOrderStatusErrorLine) => {
+            statusList.push({ ...error, type: ChangeOrderStatusErrorLineType.ERROR });
+          });
+          order_list.forEach((order: EcommerceOrderList) => {
+            let statusItem: ChangeOrderStatusErrorLine | undefined = statusList.find(item => item.order_sn === order.order_sn);
+            if (statusItem) {
+              sortedStatusList.push(statusItem);
+            }
+          })
+          setChangeOrderStatusList(sortedStatusList);
+          setIsVisibleChangeOrderStatusModal(status);
+        }
+      }))
+    }
+  }, [selectedRowKeys, data?.items, dispatch])
+
   const handlePrintEcommerceDeliveryNote = useCallback(() => {
     if (selectedRowKeys?.length > 0) {
       let order_list: any = [];
@@ -1008,15 +1059,15 @@ const EcommerceOrders: React.FC = () => {
       id: "lazada_create_package",
       name: "Tạo gói hàng Lazada",
       icon: <PrinterOutlined />,
-      disabled: !data.items.length || true,
-      onClick: () => {}
+      disabled: !data.items.length || !selectedRowKeys?.length,
+      onClick: () => { changeLazadaOrderStatus(EcommerceOrderStatus.PACKED) }
     },
     {
       id: "lazada_notify_ready_to_deliver",
       name: "Báo Lazada sẵn sàng giao",
       icon: <PrinterOutlined />,
-      disabled: !data.items.length || true,
-      onClick: () => {}
+      disabled: !data.items.length || !selectedRowKeys?.length,
+      onClick: () => { changeLazadaOrderStatus(EcommerceOrderStatus.READY_TO_SHIP) }
     }
   ];
   // end handle action button
@@ -1057,7 +1108,7 @@ const EcommerceOrders: React.FC = () => {
 
         setIsDownloading(true);
       }
-      
+
     }
   };
 
@@ -1100,16 +1151,18 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [allowOrdersView, dispatch, setDataAccounts]);
 
-    
+
   // handle progress download orders
   const [isVisibleConflictModal, setIsVisibleConflictModal] = useState<boolean>(false);
   const [isVisibleProgressDownloadOrdersModal, setIsVisibleProgressDownloadOrdersModal] = useState<boolean>(false);
   const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] = useState<boolean>(false);
+  const [isVisibleChangeOrderStatusModal, setIsVisibleChangeOrderStatusModal] = useState<EcommerceOrderStatus | null>(null);
+  const [changeOrderStatusList, setChangeOrderStatusList] = useState<Array<ChangeOrderStatusErrorLine>>([]);
   const [processId, setProcessId] = useState(null);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
-  
+
 
   const resetProgress = () => {
     setProcessId(null);
@@ -1138,6 +1191,16 @@ const EcommerceOrders: React.FC = () => {
     setIsVisibleExitDownloadOrdersModal(false);
   }
 
+  const onCloseChangeOrderStatusModal = () => {
+    setIsVisibleChangeOrderStatusModal(null);
+  };
+
+  useEffect(() => {
+    if (isVisibleChangeOrderStatusModal === null) {
+      setChangeOrderStatusList([]);
+    }
+  }, [isVisibleChangeOrderStatusModal])
+
   const onOkExitDownloadOrdersModal = () => {
     resetProgress();
     dispatch(
@@ -1165,9 +1228,9 @@ const EcommerceOrders: React.FC = () => {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
-            if (!processData.api_error){
+            if (!processData.api_error) {
               showSuccess("Tải đơn hàng thành công!");
-            }else {
+            } else {
               resetProgress();
               setIsVisibleProgressDownloadOrdersModal(false);
               showError(processData.api_error);
@@ -1187,18 +1250,18 @@ const EcommerceOrders: React.FC = () => {
     }
 
     getProgress();
-    
+
     const getFileInterval = setInterval(getProgress, 3000);
     return () => clearInterval(getFileInterval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProgress,  ]);
-// end progress download orders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProgress,]);
+  // end progress download orders
 
   window.onbeforeunload = (e) => {
-    if (processId){
+    if (processId) {
       const message = "Quá trình sẽ vẫn tiếp tục nếu bạn rời khỏi trang?"
       e = e || window.event;
-      if (e){
+      if (e) {
         e.returnValue = message;
       }
       return message
@@ -1351,6 +1414,16 @@ const EcommerceOrders: React.FC = () => {
             visible={isVisibleExitDownloadOrdersModal}
             onCancel={onCancelExitDownloadOrdersModal}
             onOk={onOkExitDownloadOrdersModal}
+          />
+        }
+
+        {
+          isVisibleChangeOrderStatusModal &&
+          <EcommerceChangeOrderStatusModal
+            visible={isVisibleChangeOrderStatusModal}
+            onOk={onCloseChangeOrderStatusModal}
+            onCancel={onCloseChangeOrderStatusModal}
+            statusList={changeOrderStatusList}
           />
         }
 

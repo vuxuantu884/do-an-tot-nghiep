@@ -82,6 +82,11 @@ export const StyledModalFooter = styled.div`
   }
 `;
 
+export const StyledModalFooterSingle = styled.div`
+  display: flex;
+  justify-content: end;
+`;
+
 export const StyledProgressDownloadModal = styled.div`
   .progress-body {
     width: 80%;
