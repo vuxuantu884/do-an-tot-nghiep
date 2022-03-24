@@ -214,16 +214,16 @@ const AddReportHandOver: React.FC = () => {
   }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel, setIsFulFillmentPack]);
 
   useEffect(() => {
-    const toDate = new Date();
-    // Trừ đi 1 ngày
-    const fromDate = new Date().setDate(toDate.getDate() - 1);
+    
+    const fromDate =  moment().startOf("days");
+    const toDate = moment().endOf("days");
 
     initQueryGoodsReceipts.limit = 1000;
     initQueryGoodsReceipts.page = 1;
-    initQueryGoodsReceipts.sort_type = "desc";
-    initQueryGoodsReceipts.sort_column = "updated_date";
-    initQueryGoodsReceipts.from_date = moment(fromDate).format("DD-MM-YYYY");
-    initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
+    //initQueryGoodsReceipts.sort_type = "desc";
+    //initQueryGoodsReceipts.sort_column = "updated_date";
+    initQueryGoodsReceipts.from_date = moment(fromDate,"yyyy-MM-dd'T'HH:mm:ss'Z'");
+    initQueryGoodsReceipts.to_date = moment(toDate,"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     dispatch(
       getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
