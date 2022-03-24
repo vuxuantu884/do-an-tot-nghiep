@@ -1,7 +1,7 @@
 import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getListSubStatusAction,
@@ -108,7 +108,7 @@ function OrdersTable(props: PropTypes) {
   } = props;
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  // const history = useHistory();
   const status_order = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status
   );
@@ -416,7 +416,7 @@ function OrdersTable(props: PropTypes) {
         width: 110,
       },
       {
-        title: "Khách hàng sss",
+        title: "Khách hàng",
         render: (record: OrderModel) => (
           <div className="customer custom-td">
             {record.customer_phone_number && (
@@ -451,7 +451,7 @@ function OrdersTable(props: PropTypes) {
                       type="link"
                        icon={<EyeOutlined style={{paddingRight:"10px"}} /> } 
                       onClick={()=>{
-                        let pathname = `${UrlConfig.CUSTOMER}/${record.customer_id}`;
+                        let pathname = `${BASE_NAME_ROUTER}${UrlConfig.CUSTOMER}/${record.customer_id}`;
                         window.open(pathname,"_blank");
                       }}
                     >
@@ -463,7 +463,7 @@ function OrdersTable(props: PropTypes) {
                      type="link" 
                      icon={<PlusOutlined style={{paddingRight:"10px"}}/> } 
                      onClick={()=>{
-                       let pathname = `${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+                       let pathname = `${BASE_NAME_ROUTER}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
                        window.open(pathname,"_blank");
                     }}
                     >
