@@ -270,7 +270,7 @@ function OrderList(props: PropTypes) {
   }, [history, initQuery, location.pathname]);
 
   const onFilterPhoneCustomer = useCallback((phone: string) => {
-    let paramCopy = { ...params, search_term: phone };
+    let paramCopy = { ...params, search_term: phone, page: 1  };
     setPrams(paramCopy);
     let queryParam = generateQuery(paramCopy);
     history.push(`${location.pathname}?${queryParam}`);
