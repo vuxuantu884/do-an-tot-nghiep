@@ -49,8 +49,14 @@ export const StyledComponent = styled.div`
 			}
 		}
 	}
-  .logo-header img {
+.logo-header img {
     width: 80px;
     height: auto;
+  }
+
+  .markup-env {
+	img {
+		height:30px;
+	}
   }
 `;
