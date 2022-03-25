@@ -1,4 +1,4 @@
-import { Button, Card, Row, Space } from "antd";
+import { Button, Card, Radio, Row, Space } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -36,6 +36,7 @@ import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import moment from "moment";
+import { StyledComponent } from "./return.screen.styles";
 
 const initQuery: ReturnSearchQuery = {
   page: 1,
@@ -57,6 +58,7 @@ const initQuery: ReturnSearchQuery = {
   is_received: [],
   account_codes: [],
   reason_ids: [],
+  is_online: null,
 };
 
 const ListOrderScreen: React.FC = () => {
@@ -405,6 +407,13 @@ const ListOrderScreen: React.FC = () => {
       setAccounts(data.items);
     };
 
+  const onChangeOrderOptions = useCallback(
+    (e) => {
+      onFilter && onFilter({ ...params, is_online: e.target.value });
+    },
+    [onFilter, params]
+  );
+
   useEffect(() => {
     setTableLoading(true);
     dispatch(getReturnsAction(params, setSearchResult));
@@ -418,106 +427,115 @@ const ListOrderScreen: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <ContentContainer
-      title="Danh sách đơn trả hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Danh sách đơn trả hàng",
-        },
-      ]}
-      extra={
-        <Row>
-          <Space>
-            <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
-              {(isPassed: boolean) => 
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                // onClick={onExport}
-                onClick={() => {
-                  setShowExportModal(true);
-                }}
-                disabled={!isPassed}
-              >
-                Xuất file
-              </Button>}
-            </AuthWrapper>
-          </Space>
-        </Row>
-      }
-    >
-      <Card className="return-card">
-        <ReturnFilter
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          isLoading={isFilter}
-          params={params}
-          listSource={listSource}
-          listStore={listStore}
-          accounts={accounts}
-          reasons={reasons}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          onClearFilter={() => onClearFilter()}
-        />
-        <CustomTable
-          isRowSelection
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          scroll={{ x: 1600 * columnFinal.length/(columns.length ? columns.length : 1)}}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          onSelectedChange={(selectedRows) =>
-            onSelectedChange(selectedRows)
-          }
-          // expandable={{
-          //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
-          // }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: ReturnModel) => item.id}
-          className="order-list"
-        />
-      </Card>
+    <StyledComponent>
+      <ContentContainer
+        title="Danh sách đơn trả hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Danh sách đơn trả hàng",
+          },
+        ]}
+        extra={
+          <Row>
+            <Space>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  // onClick={onExport}
+                  onClick={() => {
+                    setShowExportModal(true);
+                  }}
+                  disabled={!isPassed}
+                >
+                  Xuất file
+                </Button>}
+              </AuthWrapper>
+            </Space>
+          </Row>
+        }
+      >
+        <Card className="return-card">
+          <div className="order-options">
+            <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={params.is_online}>
+              <Radio.Button value={null}>Tất cả đơn trả hàng</Radio.Button>
+              <Radio.Button value="true">Trả hàng online</Radio.Button>
+              <Radio.Button value="false">Trả hàng offline</Radio.Button>
+            </Radio.Group>
+          </div>
+          <ReturnFilter
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            isLoading={isFilter}
+            params={params}
+            listSource={listSource}
+            listStore={listStore}
+            accounts={accounts}
+            reasons={reasons}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            onClearFilter={() => onClearFilter()}
+          />
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 1600 * columnFinal.length/(columns.length ? columns.length : 1)}}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onSelectedChange={(selectedRows) =>
+              onSelectedChange(selectedRows)
+            }
+            // expandable={{
+            //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
+            // }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: ReturnModel) => item.id}
+            className="order-list"
+          />
+        </Card>
 
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
-      {showExportModal && <ExportModal
-          visible={showExportModal}
-          onCancel={() => {
-            setShowExportModal(false)
-            setExportProgress(0)
-            setStatusExport(1)
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
           }}
-          onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
-          type="returns"
-          total={data.metadata.total}
-          exportProgress={exportProgress}
-          statusExport={statusExport}
-          selected={selectedRowCodes.length ? true : false}
-        />}
-    </ContentContainer>
+          data={columns}
+        />
+        {showExportModal && <ExportModal
+            visible={showExportModal}
+            onCancel={() => {
+              setShowExportModal(false)
+              setExportProgress(0)
+              setStatusExport(1)
+            }}
+            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+            type="returns"
+            total={data.metadata.total}
+            exportProgress={exportProgress}
+            statusExport={statusExport}
+            selected={selectedRowCodes.length ? true : false}
+          />}
+      </ContentContainer>
+    </StyledComponent>
   );
 };
 
