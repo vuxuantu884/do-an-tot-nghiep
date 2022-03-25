@@ -1256,7 +1256,6 @@ function OrdersTable(props: PropTypes) {
   // - Do total đã trừ chiết khấu nên Doanh thu = total - điểm
   const getTotalRevenue = () => {
     let result = 0;
-    let doanhSo = 0;
     data.items.forEach((item) => {
       let returnAmount = 0;
       item.payments.forEach((single) => {
@@ -1264,17 +1263,14 @@ function OrdersTable(props: PropTypes) {
           returnAmount = returnAmount + single.amount;
         }
       });
-      doanhSo = doanhSo + item.total - returnAmount;
-    });
-    let pointAmount = 0;
-    data.items.forEach((item) => {
+      let pointAmount = 0;
       item.payments.forEach((single) => {
         if(single.payment_method_code === PaymentMethodCode.POINT) {
           pointAmount = pointAmount + single.amount;
         }
       });
+      result = result + (item.total - returnAmount - pointAmount)
     });
-    result = doanhSo - pointAmount;
     return result;
   };
 
