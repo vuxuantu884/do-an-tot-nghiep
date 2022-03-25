@@ -1251,32 +1251,30 @@ function OrdersTable(props: PropTypes) {
     return result;
   };
 
-  // tổng doanh thu: tiền thu - tiền chi(phí ship trả hvc)
+  // - Doanh số = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng.
+  // - Doanh thu = Doanh số - Chiết khấu - Sử dụng điểm. 
+  // - Do total đã trừ chiết khấu nên Doanh thu = total - điểm
   const getTotalRevenue = () => {
     let result = 0;
-    let inCome = 0;
+    let doanhSo = 0;
     data.items.forEach((item) => {
-      let paymentItem = 0;
+      let returnAmount = 0;
       item.payments.forEach((single) => {
-        if(single.payment_method_code !== PaymentMethodCode.POINT && single.payment_method !== "Hàng đổi") {
-          paymentItem = paymentItem + single.amount;
+        if(single.payment_method === "Hàng đổi") {
+          returnAmount = returnAmount + single.amount;
         }
       });
-      inCome = inCome + paymentItem;
+      doanhSo = doanhSo + item.total - returnAmount;
     });
-    let outCome = 0;
+    let pointAmount = 0;
     data.items.forEach((item) => {
-      let paymentItem = 0;
-      // tiền thu: payment ngoại trừ hàng đổi và tiêu điểm
       item.payments.forEach((single) => {
-        if(single.payment_method_code !== PaymentMethodCode.POINT && single.payment_method !== "Hàng đổi") {
-          paymentItem = paymentItem + single.amount;
+        if(single.payment_method_code === PaymentMethodCode.POINT) {
+          pointAmount = pointAmount + single.amount;
         }
       });
-      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
-      outCome = outCome + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
     });
-    result = inCome - outCome;
+    result = doanhSo - pointAmount;
     return result;
   };
 
