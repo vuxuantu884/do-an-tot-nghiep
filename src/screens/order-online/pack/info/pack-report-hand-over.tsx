@@ -695,7 +695,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       {showSettingColumn && (
         <ModalSettingColumn
           visible={showSettingColumn}
-          isSetDefaultColumn={true}
+          isSetDefaultColumn={false}
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
             setShowSettingColumn(false);
