@@ -47,6 +47,7 @@ export interface ReturnSearchQuery {
   is_received: [];
   account_codes: [];
   reason_ids: [];
+  is_online?: boolean|null;
 }
 
 export interface ReturnCalculateRefundModel {
