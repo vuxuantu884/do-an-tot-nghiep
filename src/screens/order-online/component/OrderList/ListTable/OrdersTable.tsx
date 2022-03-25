@@ -1253,18 +1253,16 @@ function OrdersTable(props: PropTypes) {
 
   // - Doanh số = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng.
   // - Doanh thu = Doanh số - Chiết khấu - Sử dụng điểm. 
-  // - Do total đã trừ chiết khấu nên Doanh thu = total - điểm
+  // - Do total đã trừ chiết khấu nên Doanh thu = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng - Sử dụng điểm
   const getTotalRevenue = () => {
     let result = 0;
     data.items.forEach((item) => {
       let returnAmount = 0;
+      let pointAmount = 0;
       item.payments.forEach((single) => {
         if(single.payment_method === "Hàng đổi") {
           returnAmount = returnAmount + single.amount;
         }
-      });
-      let pointAmount = 0;
-      item.payments.forEach((single) => {
         if(single.payment_method_code === PaymentMethodCode.POINT) {
           pointAmount = pointAmount + single.amount;
         }
