@@ -97,7 +97,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const query = useQuery();
   const [accountStoresSelected, setAccountStoresSelected] = useState<AccountStoreResponse | null>(null);
 
-  const [tableLoading, setTableLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
   const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
@@ -500,9 +500,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }, []);
 
   //get list
-  useEffect(() => {
-    if (stores?.length === 0 || (Array.isArray(accountStores) && accountStores?.length === 0)) return;
-    if (accountStores?.length === 1) {
+  useEffect(() => {    
+    if (stores?.length === 0) return;
+    if (Array.isArray(accountStores) && accountStores?.length === 1) {
       stores?.forEach((element) => {
         if (element.id === accountStores[0].store_id) {
           const newParams = {
@@ -510,13 +510,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
             from_store_id: params.from_store_id ? params.from_store_id : element.id,
           };
           setAccountStoresSelected(element);
+          setTableLoading(true);
           dispatch(getListInventoryTransferAction(newParams, setSearchResult));
         }
       });
 
       return;
     }
-
+    setTableLoading(true);
     dispatch(getListInventoryTransferAction(params, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountStores, dispatch, setSearchResult, stores]);
