@@ -25,7 +25,6 @@ import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/or
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { InventoryVariantListQuery } from "model/inventory";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
@@ -42,8 +41,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
-import { inventoryGetApi } from "service/inventory";
-import { changeMultiOrderStatus, changeOrderStatusToPickedService } from "service/order/order.service";
+import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";

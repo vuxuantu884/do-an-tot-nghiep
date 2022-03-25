@@ -14,7 +14,6 @@ import UrlConfig from "config/url.config";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { getFulfillments, getFulfillmentsPack } from "domain/actions/order/order.action";
 import {
-  OrderResponse,
   OrderProductListModel,
   OrderLineItemResponse,
   DeliveryServiceResponse,

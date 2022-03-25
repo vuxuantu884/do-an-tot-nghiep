@@ -23,7 +23,7 @@ import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import {
   copyTextToClipboard,
@@ -71,7 +71,7 @@ import InventoryTable from "./InventoryTable";
 import search from "assets/img/search.svg";
 // import IconWebsite from "./images/website.svg"; 
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-import { display } from "html2canvas/dist/types/css/property-descriptors/display";
+// import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
 
 type PropTypes = {

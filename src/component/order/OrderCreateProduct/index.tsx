@@ -108,7 +108,6 @@ import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
-import { strForSearch } from "utils/StringUtils";
 
 type PropType = {
 	storeId: number | null;
@@ -639,12 +638,12 @@ function OrderCreateProduct(props: PropType) {
 		return lineItem.discount_items.some((discount) => discount.promotion_id && discount?.amount > 0);
 	};
 
-	const checkIfOrderHasAutomaticDiscount = () => {
-		if (promotion && promotion.promotion_id && promotion?.amount && promotion?.amount > 0) {
-			return true;
-		}
-		return false;
-	};
+	// const checkIfOrderHasAutomaticDiscount = () => {
+	// 	if (promotion && promotion.promotion_id && promotion?.amount && promotion?.amount > 0) {
+	// 		return true;
+	// 	}
+	// 	return false;
+	// };
 
 	const ProductColumn = {
 		title: () => (

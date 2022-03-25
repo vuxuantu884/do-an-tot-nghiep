@@ -177,9 +177,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   );
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    getProductUpdated(query);
-  }, [getProductUpdated, query, isReloadPage]);
+    if (isReloadPage) {
+      window.scrollTo(0, 0);
+      getProductUpdated(query);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProductUpdated, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -534,6 +537,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     }
     
     return list;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     initialValues.shop_ids,
     // initialValues.connected_status,
@@ -550,25 +554,25 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       switch (tag.key) {
         case "shop_ids":
           dataQuery = {
-            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...getQueryParamsFromQueryString(queryParamsParsed),
             ...{[tag.key]: []}
           };
           break;
         case "created_date":
           dataQuery = {
-            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...getQueryParamsFromQueryString(queryParamsParsed),
             ...{connected_date_from: null, connected_date_to: null}
           };
           break;
         case "ecommerce_id":
           dataQuery = {
-            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...getQueryParamsFromQueryString(queryParamsParsed),
             ...{[tag.key]: [], shop_ids: []}
           };
           break;
         default:
           dataQuery = {
-            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...getQueryParamsFromQueryString(queryParamsParsed),
             ...{[tag.key]: null}
           };
           break;
@@ -578,6 +582,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       history.push(`${location.pathname}?${queryParam}`);
       
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, formAdvance]
   );
 

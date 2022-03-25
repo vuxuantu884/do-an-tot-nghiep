@@ -74,6 +74,7 @@ const ListProductScreen: React.FC = () => {
     }
   }, [path, canReadHistories, canReadVariants, canReadProducts, history]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultTabs = [
     {
       name: "Danh sách sản phẩm",

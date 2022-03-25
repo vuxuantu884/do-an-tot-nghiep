@@ -89,7 +89,7 @@ const POCreateScreen: React.FC = () => {
   const history = useHistory();
   const [formMain] = Form.useForm();
 
-  const [value, _, remove] = useLocalStorage<typeof initPurchaseOrder>(PO_FORM_TEMPORARY);
+  const [value, , remove] = useLocalStorage<typeof initPurchaseOrder>(PO_FORM_TEMPORARY);
   const [formInitial, setFormInitial] = useState(value || initPurchaseOrder)
 
   const [statusAction, setStatusAction] = useState<string>("");
@@ -184,7 +184,7 @@ const POCreateScreen: React.FC = () => {
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
 
     return () => remove()
-  }, [dispatch]);
+  }, [dispatch, remove]);
 
   return (
     <ContentContainer
