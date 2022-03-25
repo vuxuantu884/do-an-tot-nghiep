@@ -294,7 +294,7 @@ export const getTrackingLogFulFillmentError = (
 export const getOrderSubStatusService = (
   status: string
 ): Promise<BaseResponse<PageResponse<SourceResponse[]>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/sub_status?status=${status}&sort_type=desc&sort_column=display_order
+  return BaseAxios.get(`${ApiConfig.ORDER}/sub_status?status=${status}&sort_type=asc&sort_column=display_order
   `);
 };
 

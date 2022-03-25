@@ -326,8 +326,6 @@ function OrdersTable(props: PropTypes) {
     let stringReverse = trackingCode.split("").reverse().join("");
     const dot = ".";
     const index = stringReverse.indexOf(dot);
-    console.log("index", index);
-    console.log("stringReverse", stringReverse);
     if (index > 0) {
       html = stringReverse.substring(0, index).split("").reverse().join("");
     } else {
@@ -364,7 +362,6 @@ function OrdersTable(props: PropTypes) {
       return " Không có log tiến trình đơn hàng!";
     }
     let html = null;
-    console.log("trackingLogFulfillment333", trackingLogFulfillment);
     if (trackingLogFulfillment) {
       html = (
         <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
@@ -401,7 +398,7 @@ function OrdersTable(props: PropTypes) {
               </div>
               {i.source && (
                 <div className="textSmall single">
-                  <Tooltip title="Nhân viên tạo đơn">{i.assignee_code}-{i.assignee}</Tooltip>
+                  <Tooltip title="Nhân viên bán hàng">{i.assignee}</Tooltip>
                 </div>
               )}
               <div className="textSmall single">
@@ -766,7 +763,6 @@ function OrdersTable(props: PropTypes) {
                                         // if(!sortedFulfillments[0].code) {
                                         //   return;
                                         // }
-                                        console.log("record", record);
                                         setTypeAPi(type.trackingCode);
                                         setSelectedOrder(record);
                                         // dispatch(
@@ -1443,10 +1439,8 @@ function OrdersTable(props: PropTypes) {
       return;
     }
     if (typeAPi === type.trackingCode) {
-      console.log("selectedOrder", selectedOrder);
       if (selectedOrder && selectedOrder.fulfillments) {
         const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments);
-        console.log("sortedFulfillments[0].code", sortedFulfillments[0].code);
         if (!sortedFulfillments[0].code) {
           return;
         }
@@ -1454,12 +1448,10 @@ function OrdersTable(props: PropTypes) {
           getTrackingLogFulfillmentAction(sortedFulfillments[0].code, (response) => {
             // setIsVisiblePopup(true)
             const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
-            console.log("index", index);
             if (index > -1) {
               let dataResult: dataExtra = { ...data };
               dataResult.items[index].trackingLog = response;
               dataResult.items[index].isShowTrackingLog = true;
-              console.log("dataResult", dataResult);
               setData(dataResult);
             }
           })
@@ -1503,18 +1495,15 @@ function OrdersTable(props: PropTypes) {
           dispatch(
             getListSubStatusAction(resultStatus, (response) => {
               const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
-              console.log("index", index);
               if (index > -1) {
                 let dataResult: dataExtra = { ...data };
                 dataResult.items[index].statuses = response
-                  .filter((status) => status.code !== selectedOrder.sub_status_code)
                   .map((single) => {
                     return {
                       name: single.sub_status,
                       code: single.code,
                     };
                   });
-                console.log("dataResult", dataResult);
                 setData(dataResult);
                 dispatch(hideLoading())
               }
