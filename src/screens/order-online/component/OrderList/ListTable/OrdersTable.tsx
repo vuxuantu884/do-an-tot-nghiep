@@ -1306,12 +1306,12 @@ function OrdersTable(props: PropTypes) {
     return result;
   };
 
-  const getTotalPaymentNotIncludePoint = () => {
+  const getTotalPaymentNotIncludePointAndReturn = () => {
     let result = 0;
     data.items.forEach((item) => {
       let paymentItem = 0;
       item.payments.forEach((single) => {
-        if (single.payment_method_code !== PaymentMethodCode.POINT) {
+        if(single.payment_method_code !== PaymentMethodCode.POINT && single.payment_method !== "Hàng đổi") {
           paymentItem = paymentItem + single.amount;
         }
       });
@@ -1383,11 +1383,11 @@ function OrdersTable(props: PropTypes) {
             <Col md={12}>
               <Row gutter={30}>
                 <Col span={10}>
-                  <p className="text-field">TỔNG TIỀN THANH TOÁN (KHÔNG TÍNH DÙNG ĐIỂM):</p>
+                  <p className="text-field">TỔNG TIỀN THANH TOÁN (KHÔNG TÍNH DÙNG ĐIỂM VÀ ĐỔI):</p>
                 </Col>
                 <Col span={14}>
                   <div>
-                    <b className="text-field">{formatCurrency(getTotalPaymentNotIncludePoint())}</b>
+                    <b className="text-field">{formatCurrency(getTotalPaymentNotIncludePointAndReturn())}</b>
                   </div>
                 </Col>
               </Row>
