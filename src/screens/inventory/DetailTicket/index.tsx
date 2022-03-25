@@ -29,14 +29,19 @@ import {
   receivedInventoryTransferAction,
   getFeesAction,
   cancelShipmentInventoryTransferAction,
-  exportInventoryAction,
+  exportInventoryAction, createInventoryTransferShipmentAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, ShipmentItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
 import InventoryShipment, { deliveryService } from "../common/ChosesShipment";
-import { findAvatar, handleDelayActionWhenInsertTextInSearchInput, SumWeightInventory } from "utils/AppUtils";
+import {
+  findAvatar,
+  handleDelayActionWhenInsertTextInSearchInput,
+  SumWeightInventory,
+  SumWeightLineItems,
+} from "utils/AppUtils";
 import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
@@ -63,6 +68,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
+import moment from "moment";
 export interface InventoryParams {
   id: string;
 }
@@ -150,7 +156,33 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
-        setDataShipment(result.shipment);
+        if (result.shipment) {
+          setDataShipment(result.shipment);
+        } else {
+          let dataShipment: any = {};
+          const deliveryTime = moment(new Date()).utc().format();
+
+          dataShipment.delivery_service_id = 1;
+          dataShipment.delivery_service_code = "yody";
+          dataShipment.delivery_service_name = "yody";
+          dataShipment.delivery_service_logo = "";
+          dataShipment.store_id = result?.from_store_id;
+          dataShipment.transport_type = 'yody';
+          dataShipment.transport_type_name = "Tự giao hàng";
+          dataShipment.cod = 0;
+          dataShipment.weight = SumWeightLineItems(result?.line_items);
+          dataShipment.weight_unit = "g";
+          dataShipment.total_fee = 0;
+          dataShipment.note_to_shipper = "";
+          dataShipment.shipping_requirement = "";
+          dataShipment.who_paid = "";
+          dataShipment.expected_delivery_time = deliveryTime;
+          dataShipment.office_time = true;
+
+          dispatch(createInventoryTransferShipmentAction(result.id, dataShipment, () => {
+            onReload()
+          }));
+        }
         setIsVisibleInventoryShipment(false);
       }
     },
@@ -192,7 +224,7 @@ const DetailTicket: FC = () => {
     }
   },[dispatch,setResultSearch, data]);
 
-  let textTag = '';
+  let textTag: string;
   let classTag = '';
   switch (data?.status) {
     case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
@@ -439,7 +471,7 @@ const DetailTicket: FC = () => {
    [handleSearchProduct]
  );
 
-  const onSelect = useCallback((o,v)=>{
+  const onSelect = useCallback((o)=>{
     onSelectProduct(o);
   },[onSelectProduct])
 
@@ -475,7 +507,7 @@ const DetailTicket: FC = () => {
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -541,7 +573,7 @@ const DetailTicket: FC = () => {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_image",
-      render: (value: string, record: any) => {
+      render: (value: string) => {
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
