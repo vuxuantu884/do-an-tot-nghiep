@@ -147,7 +147,7 @@ function SettingOrderProcessingStatus() {
   const [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
-    sort_type: "desc",
+    sort_type: "asc",
     sort_column: "display_order",
   });
   const onPageChange = useCallback(
