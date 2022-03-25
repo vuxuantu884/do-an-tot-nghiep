@@ -63,7 +63,7 @@ const ACTION_ID = {
 
 type DuplicateParam = {
   customer_phone: string;
-  store_id:string;
+  store_id: string;
 };
 
 const actions: Array<MenuAction> = [
@@ -130,9 +130,10 @@ const initQuery: DuplicateOrderDetailQuery = {
   district: "",
   city: "",
   country: "",
-  services:[],
-  coordinator_codes:[],
-  marketer_codes:[]
+  services: [],
+  coordinator_codes: [],
+  marketer_codes: [],
+  channel_codes:[]
 };
 
 const OrderDuplicate: React.FC = () => {
@@ -641,6 +642,16 @@ const OrderDuplicate: React.FC = () => {
       dataIndex: "reference_code",
       key: "reference_code",
       visible: true,
+      render: (value, items, index) => {
+        return (
+          <Link
+            target="_blank"
+            to={`${UrlConfig.ORDER}/${items.reference_code}`}
+          >
+            {value}
+          </Link>
+        )
+      }
     },
     {
       title: "Tổng SL",
@@ -699,7 +710,7 @@ const OrderDuplicate: React.FC = () => {
     items: [],
   }
 
-	const bootstrapReducer = useSelector(
+  const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
 
@@ -746,7 +757,7 @@ const OrderDuplicate: React.FC = () => {
       setPrams({ ...params });
       history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`);
     },
-    [history, params, customer_phone,store_id]
+    [history, params, customer_phone, store_id]
   );
 
   const onFilter = useCallback(
@@ -849,7 +860,7 @@ const OrderDuplicate: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(Math.round(response.data.num_of_record/response.data.total * 10000) / 100);
+          setExportProgress(Math.round(response.data.num_of_record / response.data.total * 10000) / 100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -1013,7 +1024,7 @@ const OrderDuplicate: React.FC = () => {
   }, [data]);
 
   useEffect(() => {
-    dispatch(searchAccountPublicAction({limit: 30}, setDataAccounts));
+    dispatch(searchAccountPublicAction({ limit: 30 }, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(PaymentMethodGetList(
