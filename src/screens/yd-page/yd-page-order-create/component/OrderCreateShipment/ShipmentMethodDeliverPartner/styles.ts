@@ -22,7 +22,9 @@ export const StyledComponent = styled.div`
     }
     .method-th {
       height: 56px;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .cost {
       text-align: right;
