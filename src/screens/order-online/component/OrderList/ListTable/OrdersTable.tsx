@@ -1306,8 +1306,10 @@ function OrdersTable(props: PropTypes) {
     return result;
   };
 
-  const getTotalPaymentNotIncludePointAndReturn = () => {
+  // tổng doanh thu: tiền thu - tiền chi(phí ship trả hvc)
+  const getTotalRevenue = () => {
     let result = 0;
+    let inCome = 0;
     data.items.forEach((item) => {
       let paymentItem = 0;
       item.payments.forEach((single) => {
@@ -1315,16 +1317,29 @@ function OrdersTable(props: PropTypes) {
           paymentItem = paymentItem + single.amount;
         }
       });
-      result = result + paymentItem;
+      inCome = inCome + paymentItem;
     });
+    let outCome = 0;
+    data.items.forEach((item) => {
+      let paymentItem = 0;
+      // tiền thu: payment ngoại trừ hàng đổi và tiêu điểm
+      item.payments.forEach((single) => {
+        if(single.payment_method_code !== PaymentMethodCode.POINT && single.payment_method !== "Hàng đổi") {
+          paymentItem = paymentItem + single.amount;
+        }
+      });
+      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
+      outCome = outCome + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
+    });
+    result = inCome - outCome;
     return result;
   };
 
   const getTotalShippingFeeInformedToCustomer = () => {
     let result = 0;
     data.items.forEach((item) => {
-      const sortedFulfillments = item.fulfillments?.sort((a: any, b: any) => b.id - a.id);
-      if (sortedFulfillments && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
+      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
+      if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0);
       }
     });
@@ -1334,8 +1349,8 @@ function OrdersTable(props: PropTypes) {
   const getTotalShippingPay3PL = () => {
     let result = 0;
     data.items.forEach((item) => {
-      const sortedFulfillments = item.fulfillments?.sort((a: any, b: any) => b.id - a.id);
-      if (sortedFulfillments && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
+      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
+      if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
       }
     });
@@ -1383,11 +1398,11 @@ function OrdersTable(props: PropTypes) {
             <Col md={12}>
               <Row gutter={30}>
                 <Col span={10}>
-                  <p className="text-field">TỔNG TIỀN THANH TOÁN (KHÔNG TÍNH DÙNG ĐIỂM VÀ ĐỔI):</p>
+                  <p className="text-field">TỔNG DOANH THU:</p>
                 </Col>
                 <Col span={14}>
                   <div>
-                    <b className="text-field">{formatCurrency(getTotalPaymentNotIncludePointAndReturn())}</b>
+                    <b className="text-field">{formatCurrency(getTotalRevenue())}</b>
                   </div>
                 </Col>
               </Row>
