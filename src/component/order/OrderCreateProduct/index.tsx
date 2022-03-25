@@ -1904,6 +1904,14 @@ function OrderCreateProduct(props: PropType) {
 		return newData;
 	}, [listStores, setStoreId, storeId, userReducer.account]);
 
+	useEffect(() => {
+		if(isCreateReturn && dataCanAccess[0]?.id) {
+			setStoreId(dataCanAccess[0].id);
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dataCanAccess, isCreateReturn])
+	
+
 	const onUpdateData = useCallback(
 		(items: Array<OrderLineItemRequest>) => {
 			let data = [...items];
