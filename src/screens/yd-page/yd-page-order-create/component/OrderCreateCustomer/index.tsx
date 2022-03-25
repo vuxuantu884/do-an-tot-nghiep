@@ -495,6 +495,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           >
             <CustomSelect
               style={{ width: "100%", borderRadius: "6px" }}
+              allowClear
               showArrow
               showSearch
               placeholder="Nguồn đơn hàng"
