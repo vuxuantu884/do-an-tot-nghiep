@@ -895,8 +895,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   }
 
   const okExportExcelProduct = () => {
+    const checkShopId = query.shop_ids
+    const convertOneElementToArr = Array.isArray(checkShopId) ? checkShopId : [checkShopId]
     const RequestExportExcel: RequestExportExcelQuery = {
       ...query,
+      shop_ids: convertOneElementToArr,
       category_id: null,
       core_variant_id: null,
       variant_ids: exportProductType === EXPORT_PRODUCT_OPTION.SELECTED ? idsItemSelected : [],
