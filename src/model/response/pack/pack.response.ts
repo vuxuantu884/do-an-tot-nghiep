@@ -27,6 +27,7 @@ export interface GoodsReceiptsResponse extends BaseObject{
     orders:Array<OrderResponse> | null;
     delivery_service_type:string;
     variant: Array<any>;
+    total_quantity?: number;
 }
 
 export interface  GoodsReceiptsSearchResponse extends BaseObject{

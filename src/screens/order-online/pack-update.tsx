@@ -82,7 +82,8 @@ const PackUpdate: React.FC = () => {
         let total_price = 0;
 
         itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-          if (itemFulfillment.status === 'packed') {
+          if (itemFulfillment.status !== 'returned' && itemFulfillment.status !== 'returning'
+          && itemFulfillment.status !== 'cancelled' && itemFulfillment.status !== 'splitted') {
             ship_price =
               ship_price +
               (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
