@@ -387,7 +387,7 @@ function OrderCreateShipment(props: PropType) {
         <div
           className="saleorder_shipment_method_content"
           style={
-            shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ? { marginTop: 15 } : undefined
+            shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ? { marginTop: 10 } : undefined
           }>
           {/*--- Chuyển hãng vận chuyển ----*/}
           {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
