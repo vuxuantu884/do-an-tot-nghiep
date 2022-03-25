@@ -24,9 +24,17 @@ export interface GoodsReceiptsResponse extends BaseObject{
     receipt_type_name:string;
     delivery_service_id:number;
     delivery_service_name:string;
-    orders:Array<OrderResponse> | null;
+    orders:Array<GoodsReceiptsOrder> | null;
     delivery_service_type:string;
     variant: Array<any>;
+}
+
+export interface GoodsReceiptsOrder extends OrderResponse{
+    code: string;
+    fulfillment_status: string;
+    goods_receipt_id: number;
+    id: number;
+    total_quantity: number|null;
 }
 
 export interface  GoodsReceiptsSearchResponse extends BaseObject{
