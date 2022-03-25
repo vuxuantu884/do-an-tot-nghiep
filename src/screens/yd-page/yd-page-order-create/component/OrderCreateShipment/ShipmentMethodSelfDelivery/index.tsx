@@ -156,7 +156,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
       <div className="yd-page-self-delivery-shipment">
         <Row className="options">
           <Checkbox value={is4h} checked={is4h}  onChange={onChange} className="shipment4h">Đơn giao 4H</Checkbox>
-          <Radio.Group value={typeDelivery} onChange={onChangeType}>
+          <Radio.Group value={typeDelivery} onChange={onChangeType} className="delivery-type">
             <Radio value="employee">NV YODY</Radio>
             <Radio value="external_shipper">Đối tác khác</Radio>
           </Radio.Group>
@@ -255,7 +255,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
           <Col span={12} style={{padding: "0 5px 0 10px"}}>
             <Form.Item
               name="shipping_fee_paid_to_three_pls"
-              label="Phí ship trả đối tác giao hàng"
+              label="Phí ship trả đối tác"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}

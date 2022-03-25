@@ -84,9 +84,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   return (
     <StyledComponent>
-      <div className="shipmentMethod__deliverPartner" style={{ marginTop: 20 }}>
+      <div className="shipmentMethod__deliverPartner">
         {addressError && (
-          <div style={{ margin: "0 0 10px 0", color: "#ff4d4f" }}>{addressError}</div>
+          <div style={{ color: "#ff4d4f" }}>{addressError}</div>
         )}
         {levelOrder > 3 && (
           <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
@@ -97,7 +97,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           <Col span={12}
            style={{padding: "0 5px 0 10px"}}
           >
-            <Form.Item className="form-input-deliver">
+            <Form.Item
+              className="form-input-deliver"
+              label="Tiền thu hộ:"
+            >
               <NumberInput
                 style={{textAlign: "left"}}
                 format={(a: string) => formatCurrency(a)}
@@ -117,7 +120,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           <Col span={12}
            style={{padding: "0 10px 0 5px"}}
           >
-            <Form.Item className="form-input-deliver">
+            <Form.Item
+              className="form-input-deliver"
+              label="Phí ship báo khách:"
+            >
               <NumberInput
                 style={{textAlign: "left"}}
                 format={(a: string) => formatCurrency(a)}
@@ -148,9 +154,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
               >
                 <thead className="ant-table-thead">
                   <tr>
-                    <th style={{ padding: "5px", textAlign: "center"}}>Hãng vận chuyển</th>
+                    <th style={{ padding: "5px", textAlign: "center"}}>Tên HVC</th>
                     <th style={{ padding: 0}}>
-                      <div className="delivery-method-item" style={{height: "56px"}}>
+                      <div className="delivery-method-item">
                         <div className="method method-th" style={{textAlign: "center"}}>Dịch vụ chuyển phát</div>
                         <div className="cost method-th" style={{borderBottom: "unset", textAlign: "center"}}>Cước phí</div>
                       </div>
@@ -163,8 +169,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                       return (
                         <React.Fragment key={serviceFee.code}>
                           <tr>
-                            <td style={{ width: "100px", padding: "5px", textAlign: "center" }}>
-                              <strong>{serviceFee.name}</strong>
+                            <td style={{ width: "100px", padding: "5px", textAlign: "center", textTransform: "uppercase" }}>
+                              <strong>{serviceFee.code}</strong>
                             </td>
                             <td style={{ padding: 0 }}>
                               {serviceFee.fees.map(

@@ -9,6 +9,15 @@ export const StyledComponent = styled.div`
     .ant-form-item {
       margin-bottom: 8px;
     }
+    .ant-select-selector {
+      height: 32px;
+    }
+    .ant-input {
+      height: 32px;
+    }
+    .ant-select-selector .ant-select-selection-placeholder {
+      line-height: 32px;
+    }
     .options {
       display: flex;
       justify-content: space-between;
@@ -16,6 +25,12 @@ export const StyledComponent = styled.div`
     .shipment4h {
       color: red;
       font-weight: bold;
+      width: 120px;
+    }
+    .delivery-type {
+      flex-grow: 1;
+      display: flex;
+      justify-content: space-evenly;
     }
   }
   

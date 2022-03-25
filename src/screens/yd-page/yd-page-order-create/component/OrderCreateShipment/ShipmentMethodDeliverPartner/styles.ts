@@ -1,6 +1,11 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
+  .shipmentMethod__deliverPartner {
+    .ant-input {
+      height: 32px;
+    }
+  }
   .logoHVC {
     height: 41px;
     width: 184px;
@@ -21,7 +26,6 @@ export const StyledComponent = styled.div`
       border-left: 1px solid #ddd;
     }
     .method-th {
-      height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;

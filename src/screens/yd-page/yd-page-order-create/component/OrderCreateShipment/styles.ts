@@ -30,6 +30,9 @@ export const StyledComponent = styled.div`
         margin-bottom: 0;
       }
     }
+    .ant-select-selector .ant-select-selection-item {
+      line-height: 32px;
+    }
   }
   .formInputAmount {
     color: #222;
