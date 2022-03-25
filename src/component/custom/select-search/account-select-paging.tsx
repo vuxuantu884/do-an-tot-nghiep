@@ -64,6 +64,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       const user: any =  { code: contentProps?.defaultValue, full_name: contentProps?.merchandiser }
       setData({...data, items: [user, ...data.items]})
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentProps.defaultValue])
 
   /**

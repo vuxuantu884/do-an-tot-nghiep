@@ -1,5 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Divider, FormInstance, Select } from "antd";
+import { Button, FormInstance, Select } from "antd";
 import _ from "lodash";
 import { AnalyticDataQuery, AnalyticProperties } from "model/report/analytics.model";
 import React, { useContext, useMemo, useState } from "react";

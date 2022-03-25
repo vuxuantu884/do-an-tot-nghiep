@@ -7,7 +7,6 @@ import { useCallback, useEffect, useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
 import { checkPromoCode } from "service/promotion/promo-code/promo-code.service";
 import { callApiNative } from "utils/ApiUtils";
-import { RegUtil } from "utils/RegUtils";
 import "./../promo-code.scss";
 
 type ModalProps = {

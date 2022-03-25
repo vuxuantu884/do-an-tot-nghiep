@@ -367,13 +367,14 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     params.connected_status,
   ]);
 
-  // // reload page
-  // useEffect(() => {
-  //   if (isReloadPage) {
-  //     getOrderMappingList(params);
-  //   }
-  // }, [getOrderMappingList, isReloadPage, params]);
-  // //end
+  // reload page
+  useEffect(() => {
+    if (isReloadPage) {
+      getOrderMappingList(params);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getOrderMappingList, isReloadPage]);
+  //end
 
   // handle get all shop list
   // const updateAllShopList = useCallback((result) => {

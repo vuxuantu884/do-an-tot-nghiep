@@ -94,7 +94,7 @@ const OrderDetail = (props: PropType) => {
   if (!id && props.id) {
     id = props.id;
   }
-  let OrderId = parseInt(id);
+  // let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
   const isEcommerceOrder = useRef(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
@@ -490,6 +490,7 @@ const OrderDetail = (props: PropType) => {
           break;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [OrderDetail?.id, handleEcommerceStoreAddress, history, id]
   );
 

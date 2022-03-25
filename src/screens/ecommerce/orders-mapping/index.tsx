@@ -85,7 +85,6 @@ const OrdersMapping: React.FC = () => {
     }
   };
 
-
   const reloadPage = () => {
     setIsReloadPage(true);
   };

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { borderColor, dangerColor, greenColor } from "utils/global-styles/variables";
+import { dangerColor, greenColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .ant-collapse-header {

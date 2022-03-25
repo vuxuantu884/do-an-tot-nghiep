@@ -293,6 +293,7 @@ const PODetailScreen: React.FC = () => {
           break;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {

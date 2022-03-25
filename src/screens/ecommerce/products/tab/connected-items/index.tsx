@@ -187,9 +187,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   );
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    getProductUpdated(query);
-  }, [getProductUpdated, query, isReloadPage]);
+    if (isReloadPage) {
+      window.scrollTo(0, 0);
+      getProductUpdated(query);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProductUpdated, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);
