@@ -16,6 +16,7 @@ const initialState = {
     isExportBill: false,
   },
   shippingServiceConfig: [],
+  isLoadingDiscount: false,
 };
 
 const orderReducer = (state = initialState, action: YodyAction) => {
@@ -92,6 +93,12 @@ const orderReducer = (state = initialState, action: YodyAction) => {
           ...state.orderDetail,
           thirdPL: payload.thirdPL
         }
+      };
+
+    case OrderType.CHANGE_IS_LOADING_DISCOUNT:
+      return {
+        ...state,
+        isLoadingDiscount: payload.isLoadingDiscount,
       };
 
     default:

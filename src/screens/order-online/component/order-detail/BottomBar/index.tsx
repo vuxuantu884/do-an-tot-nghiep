@@ -9,6 +9,8 @@ import { StyledComponent } from "./styles";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
+import { useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -50,6 +52,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     updateCancelClick,
     onConfirmOrder,
   } = props;
+
+  const isLoadingDiscount = useSelector(
+    (state: RootReducerType) => state.orderReducer.isLoadingDiscount
+  );
 
   const acceptPermissionsUpdate = useCallback(() => {
     switch (stepsStatusValue) {
@@ -105,23 +111,23 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     ghost
                     onClick={showSaveAndConfirmModal}
                     loading={isSaveDraft}
-                    disabled={creating}
+                    disabled={creating || isLoadingDiscount}
                   >
                     Lưu nháp
                   </Button>
                   <Button
                     style={{ padding: "0 25px", fontWeight: 400 }}
                     type="primary"
-                    className="create-button-custom"
+                    className="create-button-custom 345"
                     id="save-and-confirm"
                     onClick={() => {
                       handleTypeButton(OrderStatus.FINALIZED);
                       formRef.current?.submit();
                     }}
                     loading={creating}
-                    disabled={isSaveDraft}
+                    disabled={isSaveDraft || isLoadingDiscount}
                   >
-                    Lưu và Xác nhận
+                    Lưu và Xác nhận 
                   </Button>
                 </div>
               </Col>
@@ -150,6 +156,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                       handleTypeButton(OrderStatus.FINALIZED);
                       formRef.current?.submit();
                     }}
+                    disabled={isLoadingDiscount}
                     loading={updatingConfirm}
                   >
                     Cập nhật và xác nhận
@@ -165,7 +172,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           formRef.current?.submit();
                         }}
                         loading={updating}
-                        disabled={!isPassed}
+                        disabled={!isPassed || isLoadingDiscount}
                       >
                         Cập nhật đơn hàng
                     </Button>}
@@ -268,6 +275,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
 										// orderDetail?.status === OrderStatus.COMPLETED ||
                     // stepsStatusValue === OrderStatus.CANCELLED ||
                     !isPassed
+                    || isLoadingDiscount
                   }
                 >
                   Sửa đơn hàng

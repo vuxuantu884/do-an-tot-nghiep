@@ -34,7 +34,7 @@ import {
 	StoreGetListAction,
 	StoreSearchListAction
 } from "domain/actions/core/store.action";
-import { changeOrderLineItemsAction, setIsShouldSetDefaultStoreBankAccountAction, splitOrderAction } from "domain/actions/order/order.action";
+import { changeIsLoadingDiscountAction, changeOrderLineItemsAction, setIsShouldSetDefaultStoreBankAccountAction, splitOrderAction } from "domain/actions/order/order.action";
 import {
 	SearchBarCode,
 	searchVariantsOrderRequestAction
@@ -126,6 +126,7 @@ type PropType = {
 	totalAmountOrder: number;
 	updateOrder?: boolean;
 	isSplitOrder?: boolean;
+	isCreateReturn?: boolean;
 	orderDetail?: OrderResponse | null;
 	customer?: CustomerResponse | null;
 	loyaltyPoint: LoyaltyPoint | null;
@@ -229,6 +230,7 @@ function OrderCreateProduct(props: PropType) {
 		setPromotion,
 		setShippingFeeInformedToCustomer,
 		countFinishingUpdateCustomer,
+		isCreateReturn,
 	} = props;
 
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
@@ -263,7 +265,7 @@ function OrderCreateProduct(props: PropType) {
 	const [isShowProductSearch, setIsShowProductSearch] = useState(true);
 	const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
 	const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
-	const [isCalculateDiscount, setIsCalculateDiscount] = useState(false);
+	const [isLoadingDiscount, setIsLoadingDiscount] = useState(false);
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
 	//tách đơn
@@ -489,7 +491,6 @@ function OrderCreateProduct(props: PropType) {
 		_items: OrderLineItemRequest[],
 		isShouldAutomaticDiscount = true
 	) => {
-		console.log('_items', _items)
 		// delay khi thay đổi số lượng
 		//nếu có chiết khấu tự động
 		if (isAutomaticDiscount) {
@@ -551,7 +552,6 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
-		console.log('_items', _items)
 		handleDelayCalculateWhenChangeOrderInput(lineItemDiscountInputTimeoutRef, _items, false);
 	};
 
@@ -826,7 +826,8 @@ function OrderCreateProduct(props: PropType) {
 							checkIfLineItemHasAutomaticDiscount(l) ||
 							couponInputText !== "" ||
 							promotion !== null ||
-							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin)
+							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin) || 
+							isLoadingDiscount
 						}
 					/>
 				</div>
@@ -844,7 +845,6 @@ function OrderCreateProduct(props: PropType) {
 		width: "20%",
 		className: "yody-table-discount text-right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
-			console.log('l', l)
 			return (
 				<div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup">
 					<DiscountGroup
@@ -862,6 +862,7 @@ function OrderCreateProduct(props: PropType) {
 							// checkIfLineItemHasAutomaticDiscount(l) ||
 							// couponInputText !== "" ||
 							// checkIfOrderHasAutomaticDiscount()
+							|| isLoadingDiscount
 						}
 					/>
 				</div>
@@ -1296,7 +1297,8 @@ function OrderCreateProduct(props: PropType) {
 			return;
 		}
 		console.log('items', items)
-		setIsCalculateDiscount(true);
+		setIsLoadingDiscount(true);
+		dispatch(changeIsLoadingDiscountAction(true));
 		removeCoupon()
 		// handleRemoveAllAutomaticDiscount();
 		let params: DiscountRequestModel = {
@@ -1386,7 +1388,8 @@ function OrderCreateProduct(props: PropType) {
       console.log('error', error)
       showError("Cập nhật chiết khấu tự động thất bại!");
     }).finally (()=>{
-      setIsCalculateDiscount(false);
+      setIsLoadingDiscount(false);
+			dispatch(changeIsLoadingDiscountAction(false));
     });
 
 	};
@@ -1453,8 +1456,6 @@ function OrderCreateProduct(props: PropType) {
 								let couponType = applyDiscountResponse.value_type;
 								let listDiscountItem: any[] = [];
 								let totalAmount = getTotalAmountAfterDiscount(_items);
-								console.log('totalAmount', totalAmount)
-								console.log('_items222222222222', _items)
 								response.data.line_items.forEach((single) => {
 									if (listDiscountItem.some((a) => a.variant_id === single.variant_id)) {
 										return;
@@ -1826,7 +1827,6 @@ function OrderCreateProduct(props: PropType) {
 		_items: Array<OrderLineItemRequest>,
 		_promotion?: OrderDiscountRequest | null,
 	) => {
-		console.log('_promotion', _promotion)
 		if (_promotion === undefined) {
 			if (promotion) {
 				let _value = 0;
@@ -1897,12 +1897,12 @@ function OrderCreateProduct(props: PropType) {
 		}
 		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
 		if (newData && newData[0]?.id) {
-			if (!storeId) {
+			if (!storeId || isCreateReturn) {
 				setStoreId(newData[0].id);
 			}
 		}
 		return newData;
-	}, [listStores, setStoreId, storeId, userReducer.account]);
+	}, [listStores, setStoreId, storeId, userReducer.account, isCreateReturn]);
 
 	const onUpdateData = useCallback(
 		(items: Array<OrderLineItemRequest>) => {
@@ -2103,7 +2103,7 @@ function OrderCreateProduct(props: PropType) {
 						</Form.Item>
 						<Form.Item name="automatic_discount" valuePropName="checked">
 							<Checkbox
-								disabled={levelOrder > 3 || isCalculateDiscount || typeof(promotion?.discount_code) === "string"}
+								disabled={levelOrder > 3 || isLoadingDiscount || typeof(promotion?.discount_code) === "string"}
 								value={isAutomaticDiscount}
 								onChange={(e) => {
 									if (e.target.checked) {

@@ -1188,6 +1188,7 @@ ShippingServiceConfigDetailResponseModel[]
                     customer={customer}
                     loyaltyPoint={loyaltyPoint}
                     countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
+                    isCreateReturn
                   />
                 )}
                 {!isExchange && (
