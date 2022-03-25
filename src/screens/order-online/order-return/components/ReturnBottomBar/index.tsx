@@ -1,5 +1,7 @@
 import { Button } from "antd";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import React from "react";
+import { useSelector } from "react-redux";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -23,6 +25,10 @@ function ReturnBottomBar(props: PropType) {
     setIsStepExchange,
 		handleIsStepExchange
   } = props;
+
+  const isLoadingDiscount = useSelector(
+    (state: RootReducerType) => state.orderReducer.isLoadingDiscount
+  );
 
   const renderReturnButtons = () => {
     return (
@@ -80,6 +86,7 @@ function ReturnBottomBar(props: PropType) {
             onClick={() => {
               onReturnAndExchange();
             }}
+            disabled={isLoadingDiscount}
           >
             Trả và đổi hàng
           </Button>

@@ -602,3 +602,14 @@ export const changeOrderThirdPLAction = (
     }
   }
 };
+
+export const changeIsLoadingDiscountAction = (
+  isLoadingDiscount: boolean
+) => {
+  return {
+    type: OrderType.CHANGE_IS_LOADING_DISCOUNT,
+    payload: {
+      isLoadingDiscount,
+    }
+  }
+};
