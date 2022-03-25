@@ -392,15 +392,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
-          delivery_service_provider_type: "Shipper",
+          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
+          service: thirdPL.service,
           shipper_code: value.shipper_code,
           shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
             getAmountPaymentRequest(payments) -
-            (promotion?.value || 0),
+            (promotion?.value || 0)
         };
 
       case ShipmentMethodOption.PICK_AT_STORE:
