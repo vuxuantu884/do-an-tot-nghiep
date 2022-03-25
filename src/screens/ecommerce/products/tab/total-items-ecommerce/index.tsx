@@ -1161,6 +1161,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
           rowKey={(data) => data.id}
         />
       </Card>
