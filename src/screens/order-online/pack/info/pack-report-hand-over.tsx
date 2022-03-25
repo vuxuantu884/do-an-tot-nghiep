@@ -31,6 +31,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
+import moment from "moment";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -605,9 +606,40 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   );
 
   useEffect(() => {
+    const convertFromStringToDate = (pDate: any, fomat:string) => {
+      let date: any = null;
+
+      if (pDate) {
+        if (!moment(pDate).isValid()) {
+          let dd = pDate.split("-")[0].padStart(2, "0");
+          let mm = pDate.split("-")[1].padStart(2, "0");
+          let yyyy = pDate.split("-")[2].split(" ")[0];
+          // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
+          // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
+          // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
+    
+          mm = (parseInt(mm) - 1).toString(); // January is 0
+          dd = (parseInt(dd) + 1).toString();
+
+          date = moment(new Date(yyyy, mm, dd), fomat);
+        }
+        else
+          date = moment(pDate, fomat);
+      }
+
+      return date;
+    }
     setTableLoading(true);
+    let from_date: any = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    let to_date: any =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+    let query = {
+      ...params,
+      from_date: from_date,
+      to_date: to_date
+    }
     dispatch(
-      getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
+      getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
         let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
         /////
         setData({
