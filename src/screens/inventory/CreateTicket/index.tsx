@@ -34,7 +34,8 @@ import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
 import {
-  creatInventoryTransferAction,
+  createInventoryTransferShipmentAction,
+  creatInventoryTransferAction, getDetailInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
@@ -54,7 +55,7 @@ import ProductItem from "../../purchase-order/component/product-item";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { UploadFile } from "antd/es/upload/interface";
-import { findAvatar, handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
+import { findAvatar, handleDelayActionWhenInsertTextInSearchInput, SumWeightLineItems } from "utils/AppUtils";
 import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -70,6 +71,7 @@ import { RegUtil } from "utils/RegUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
+import moment from "moment";
 
 const { Option } = Select;
 
@@ -352,8 +354,32 @@ const CreateTicket: FC = () => {
       // setLoadingSaveButton(false);
       if (result) {
         setIsLoading(false);
-        showSuccess("Thêm mới dữ liệu thành công");
-        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
+        let dataShipmentTemp: any = {};
+        const deliveryTime = moment(new Date()).utc().format();
+
+        dataShipmentTemp.delivery_service_id = 1;
+        dataShipmentTemp.delivery_service_code = "yody";
+        dataShipmentTemp.delivery_service_name = "yody";
+        dataShipmentTemp.delivery_service_logo = "";
+        dataShipmentTemp.store_id = result?.from_store_id;
+        dataShipmentTemp.transport_type = 'yody';
+        dataShipmentTemp.transport_type_name = "Tự giao hàng";
+        dataShipmentTemp.cod = 0;
+        dataShipmentTemp.weight = SumWeightLineItems(result?.line_items);
+        dataShipmentTemp.weight_unit = "g";
+        dataShipmentTemp.total_fee = 0;
+        dataShipmentTemp.note_to_shipper = "";
+        dataShipmentTemp.shipping_requirement = "";
+        dataShipmentTemp.who_paid = "";
+        dataShipmentTemp.expected_delivery_time = deliveryTime;
+        dataShipmentTemp.office_time = true;
+
+        dispatch(createInventoryTransferShipmentAction(result.id, dataShipmentTemp, () => {
+          dispatch(getDetailInventoryTransferAction(result.id, () => {
+            showSuccess("Thêm mới dữ liệu thành công");
+            history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
+          }));
+        }));
       } else {
         setIsLoading(false);
       }
