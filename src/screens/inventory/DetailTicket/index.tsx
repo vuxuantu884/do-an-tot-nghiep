@@ -156,33 +156,7 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
-        if (result.shipment) {
-          setDataShipment(result.shipment);
-        } else {
-          let dataShipment: any = {};
-          const deliveryTime = moment(new Date()).utc().format();
-
-          dataShipment.delivery_service_id = 1;
-          dataShipment.delivery_service_code = "yody";
-          dataShipment.delivery_service_name = "yody";
-          dataShipment.delivery_service_logo = "";
-          dataShipment.store_id = result?.from_store_id;
-          dataShipment.transport_type = 'yody';
-          dataShipment.transport_type_name = "Tự giao hàng";
-          dataShipment.cod = 0;
-          dataShipment.weight = SumWeightLineItems(result?.line_items);
-          dataShipment.weight_unit = "g";
-          dataShipment.total_fee = 0;
-          dataShipment.note_to_shipper = "";
-          dataShipment.shipping_requirement = "";
-          dataShipment.who_paid = "";
-          dataShipment.expected_delivery_time = deliveryTime;
-          dataShipment.office_time = true;
-
-          dispatch(createInventoryTransferShipmentAction(result.id, dataShipment, () => {
-            onReload()
-          }));
-        }
+        setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
       }
     },
@@ -1121,7 +1095,7 @@ const DetailTicket: FC = () => {
                           >
                             <Button
                               type="default"
-                              onClick={() =>setIsVisibleModalWarning(true)}
+                              onClick={() => setIsVisibleModalWarning(true)}
                             >
                               Hủy giao hàng
                             </Button>
