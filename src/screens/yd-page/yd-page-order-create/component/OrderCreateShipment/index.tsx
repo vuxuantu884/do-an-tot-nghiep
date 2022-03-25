@@ -12,13 +12,15 @@ import {
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
-import { ShipperGetListAction } from "domain/actions/account/account.action";
+import IconSelfDelivery from "assets/icon/self_shipping.svg";
+import IconWallClock from "assets/icon/wall_clock.svg";
+import { ExternalShipperGetListAction } from "domain/actions/account/account.action";
 import { getFeesAction } from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
-import { AccountResponse } from "model/account/account.model";
+import { DeliverPartnerResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -122,11 +124,15 @@ function OrderCreateShipment(props: PropType) {
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
-  const [listShippers, setListShippers] = useState<Array<AccountResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
   >([]);
+  const [listExternalShippers, setListExternalShippers] = useState<Array<DeliverPartnerResponse> | null>(null);
+
+  useEffect(() => {
+    dispatch(ExternalShipperGetListAction(setListExternalShippers));
+  }, [dispatch]);
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
@@ -151,25 +157,25 @@ function OrderCreateShipment(props: PropType) {
 
   const shipmentButton: Array<ShipmentButtonType> = [
     {
-      name: "Chuyển hãng Vận Chuyển",
+      name: "Hãng VC",
       value: 1,
       icon: IconDelivery,
     },
-    // {
-    //   name: "Tự giao hàng",
-    //   value: 2,
-    //   icon: IconSelfDelivery,
-    // },
+    {
+      name: "Tự giao hàng",
+      value: 2,
+      icon: IconSelfDelivery,
+    },
     {
       name: "Nhận tại CH",
       value: 3,
       icon: IconShoppingBag,
     },
-    // {
-    //   name: "Giao hàng sau",
-    //   value: 4,
-    //   icon: IconWallClock,
-    // },
+    {
+      name: "GH sau",
+      value: 4,
+      icon: IconWallClock,
+    },
   ];
 
   const renderShipmentTabHeader = () => {
@@ -275,10 +281,6 @@ function OrderCreateShipment(props: PropType) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer, dispatch, items, storeDetail]);
-
-  useEffect(() => {
-    dispatch(ShipperGetListAction(setListShippers));
-  }, [dispatch]);
 
   useEffect(() => {
     // dispatch(DeliveryServicesGetList(setDeliveryServices));
@@ -412,10 +414,15 @@ function OrderCreateShipment(props: PropType) {
               levelOrder={levelOrder}
               setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
               isCancelValidateDelivery={isCancelValidateDelivery}
-              listShippers={listShippers}
+              storeId={storeDetail?.id}
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+              thirdPL={thirdPL}
+              setThirdPL={setThirdPL}
+              listExternalShippers={listExternalShippers}
+              form={form}
             />
           )}
+
           {/*--- Nhận tại cửa hàng ----*/}
           {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
             <ShipmentMethodReceiveAtStore
