@@ -1897,12 +1897,12 @@ function OrderCreateProduct(props: PropType) {
 		}
 		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
 		if (newData && newData[0]?.id) {
-			if (!storeId || isCreateReturn) {
+			if (!storeId) {
 				setStoreId(newData[0].id);
 			}
 		}
 		return newData;
-	}, [listStores, setStoreId, storeId, userReducer.account, isCreateReturn]);
+	}, [listStores, setStoreId, storeId, userReducer.account]);
 
 	const onUpdateData = useCallback(
 		(items: Array<OrderLineItemRequest>) => {
