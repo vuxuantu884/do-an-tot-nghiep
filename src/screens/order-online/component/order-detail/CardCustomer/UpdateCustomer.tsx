@@ -422,7 +422,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       if (value.length === 0) {
                         return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
                       }
-                      if (!RegUtil.PHONE.test(value)) {
+                      if (!RegUtil.PHONE.test(value.trim())) {
                         return Promise.reject(new Error("Số điện thoại sai định dạng!"));
                       }
                       return Promise.resolve();
