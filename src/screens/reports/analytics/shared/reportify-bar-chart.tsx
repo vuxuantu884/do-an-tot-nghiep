@@ -1,4 +1,5 @@
 import Color from "assets/css/export-variable.module.scss";
+import { FIELD_FORMAT } from "model/report/analytics.model";
 import React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { DashboardContainer } from "screens/dashboard/index.style";
@@ -10,18 +11,21 @@ const { primary, secondary } = Color;
 type Props = {
     data: any,
     leftLegendName?: string,
-    rightLegendName?: string
+    rightLegendName?: string,
+    chartColumnNumber: number,
+    leftTickFormat?: string,
+    rightTickFormat?: string,
 }
 
 function ReportifyBarChart(props: Props) {
-    const { data, leftLegendName, rightLegendName } = props;
+    const { data, leftLegendName, rightLegendName, chartColumnNumber, leftTickFormat, rightTickFormat } = props;
     return (
         <div>
             <ResponsiveContainer width="100%" height={300}>
             <BarChart
                 data={data}
                 margin={{
-                    top: 20,
+                    top: 15,
                     right: 0,
                     left: 0,
                     bottom: 15,
@@ -31,13 +35,13 @@ function ReportifyBarChart(props: Props) {
                 barSize={50}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                    dataKey={(value) => value[0]}
-                    angle={15}
+                    dataKey={(value) => value.map((item: string) => {
+                        return item || '-';
+                    })[0]}
                     textAnchor="end"
                     dx={30}
-                    interval={0}
+                    interval="preserveStartEnd"
                     dy={15}
-                    minTickGap={-200}
                     tickLine={false}
                     fontSize={12}
                 />
@@ -48,8 +52,9 @@ function ReportifyBarChart(props: Props) {
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(value) => {
-                        return value > 0 ? currencyAbbreviation(value) : "";
+                        return currencyAbbreviation(value, leftTickFormat ? leftTickFormat : undefined);
                     }}
+                    allowDecimals={false}
                 />
                 <YAxis
                     yAxisId="right"
@@ -58,16 +63,21 @@ function ReportifyBarChart(props: Props) {
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(value) => {
-                        return value > 0 ? currencyAbbreviation(value) : "";
+                        return currencyAbbreviation(value, rightTickFormat ? rightTickFormat : undefined);
                     }}
+                    allowDecimals={false}
                 />
                 <Tooltip content={<TooltipContent />} />
-                {leftLegendName && rightLegendName && (
+                {(leftLegendName || rightLegendName) && (
                     <>
-                        <Legend />
+                        <Legend wrapperStyle={{
+                            paddingTop: "15px"
+                        }} />
                     </>)}
-                <Bar yAxisId="left" dataKey={(value) => value[1]} fill={primary} name={leftLegendName} />
-                <Bar yAxisId="right" dataKey={(value) => value[2]} fill={secondary} name={rightLegendName} />
+                { chartColumnNumber > 1 && (
+                    <Bar yAxisId="left" dataKey={(value) => value[value.length-2]} fill={primary} name={leftLegendName} unit={leftTickFormat} />
+                )}
+                <Bar yAxisId={chartColumnNumber > 1 ? "right" : "left"} dataKey={(value) => value[value.length-1]} fill={chartColumnNumber > 1 ? secondary : primary} name={rightLegendName} unit={rightTickFormat} />
             </BarChart>
         </ResponsiveContainer>
         </div>
@@ -85,7 +95,7 @@ function TooltipContent(data: any) {
                     {payload.map((item: any, index:number) => (
                         <span style={{ color: item?.color || "black" }} key={index}>
                             {`${typeof item.name === "string" ? (item.name + ": ") : ""}`}
-                            {`${formatCurrency(parseFloat(item.value).toFixed(2))}₫`}<br />
+                            {item.unit === FIELD_FORMAT.Price ? `${formatCurrency(parseFloat(item.value).toFixed(2))}₫` : item.value}<br />
                         </span>
                     ))}
                 </div>

@@ -24,6 +24,20 @@ export enum TIME {
   HOUR = 'hour',
 }
 
+export enum FIELD_FORMAT {
+  StringFormat = "string",
+  Price = "price",
+  NumberFormat = "number",
+  Timestamp = "timestamp"
+}
+
+export enum AnalyticCube {
+  Sales = 'sales',
+  Payments = 'payments',
+  Costs = 'costs',
+  All = 'all'
+}
+
 export declare type ArrayString = Array<string>;
 export declare type ArrayAny = Array<any>;
 export declare type AnalyticConditions = Array<ArrayString>;
@@ -85,6 +99,7 @@ export interface AnalyticTemplateData {
   alias: string[];
   iconImg: any;
   type: string;
+  chartColumnSelected: string[];
 }
 
 export interface AnalyticCustomizeTemplateForCreate {
@@ -97,4 +112,29 @@ export interface AnalyticCustomize {
   name: string;
   query: string;
   cube: string;
+}
+
+export interface AnalyticChartInfo {
+  showChart: boolean;
+  message: string;
+}
+
+export interface AnnotationItem {
+  annotation: string;
+  desc: string;
+  key: string;
+}
+
+export interface AnnotationData {
+  data: AnnotationItem[];
+  documentLink: string;
+  alias: string;
+  cube: AnalyticCube;
+}
+
+export interface AnalyticTemplateGroup {
+  [key: string]: {
+    cube: AnalyticCube;
+    name: string;
+  }[]
 }

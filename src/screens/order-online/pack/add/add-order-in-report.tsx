@@ -93,15 +93,15 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
       orderListResponse.forEach(function (order, index) {
         let fulfillmentPacked = order.fulfillments.filter((ffm) =>
-        ffm.status !== 'returned' && ffm.status !== 'returning'
-        && ffm.status !== 'cancelled' && ffm.status !== 'splitted');
+          ffm.status !== 'returned' && ffm.status !== 'returning'
+          && ffm.status !== 'cancelled' && ffm.status !== 'splitted');
         // console.log('fulfillmentPacked', fulfillmentPacked)
         if (fulfillmentPacked.length > 0) {
           let product: VariantModel[] = [];
           let ship_price = 0;
           let total_price = 0;
           fulfillmentPacked.forEach(function (fulfillment) {
-            // if (fulfillment.status === 'packed') {
+            //if (fulfillment.status === 'packed') {
               ship_price =
                 ship_price +
                 (fulfillment?.shipment?.shipping_fee_informed_to_customer
@@ -121,7 +121,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                   price: itemProduct.price
                 });
               });
-            // }
+            //}
 
           });
 

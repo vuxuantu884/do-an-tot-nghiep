@@ -214,7 +214,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
     let dataResult: Array<GoodsReceiptsSearhModel> = [];
     data.items.forEach((item: GoodsReceiptsResponse, index: number) => {
-      // let product_quantity = 0;
+      //let product_quantity = 0;
       let order_quantity = item.orders?.length ? item.orders?.length : 0;
       let order_send_quantity = 0;
       let order_transport = 0;
@@ -228,7 +228,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         order_send_quantity =
           order_send_quantity +
           (itemOrder.fulfillments?.length ? itemOrder.fulfillments?.length : 0);
-        product_quantity += itemOrder.total_quantity||0;
+        //product_quantity += itemOrder.total_quantity||0;
         // itemOrder.fulfillments?.forEach(function (itemFulfillment) {
         //   product_quantity =
         //     product_quantity +
@@ -617,7 +617,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
           // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
           // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
-    
+
           mm = (parseInt(mm) - 1).toString(); // January is 0
           dd = (parseInt(dd) + 1).toString();
 

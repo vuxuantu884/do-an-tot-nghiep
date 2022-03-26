@@ -495,9 +495,13 @@ function OrderList(props: PropTypes) {
         setListPaymentMethod(data);
       })
     );
+    const params=  {
+      sort_type: "asc",
+      sort_column: "display_order",
+    }
     dispatch(
       actionFetchListOrderProcessingStatus(
-        {},
+        params,
         (data: OrderProcessingStatusResponseModel) => {
           setListOrderProcessingStatus(data.items);
           setInitListOrderProcessingStatus(data.items);

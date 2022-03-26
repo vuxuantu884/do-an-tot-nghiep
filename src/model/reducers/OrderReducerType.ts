@@ -19,4 +19,5 @@ export interface OrderReducerType {
     thirdPL: thirdPLModel | null;
     isExportBill: boolean,
   },
+  isLoadingDiscount: boolean;
 }

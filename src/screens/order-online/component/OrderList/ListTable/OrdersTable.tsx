@@ -448,7 +448,7 @@ function OrdersTable(props: PropTypes) {
                       type="link"
                        icon={<EyeOutlined style={{paddingRight:"10px"}} /> } 
                       onClick={()=>{
-                        let pathname = `${BASE_NAME_ROUTER}${UrlConfig.CUSTOMER}/${record.customer_id}`;
+                        let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
                         window.open(pathname,"_blank");
                       }}
                     >
@@ -460,7 +460,7 @@ function OrdersTable(props: PropTypes) {
                      type="link" 
                      icon={<PlusOutlined style={{paddingRight:"10px"}}/> } 
                      onClick={()=>{
-                       let pathname = `${BASE_NAME_ROUTER}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+                       let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
                        window.open(pathname,"_blank");
                     }}
                     >
@@ -1306,16 +1306,23 @@ function OrdersTable(props: PropTypes) {
     return result;
   };
 
-  const getTotalPaymentNotIncludePoint = () => {
+  // - Doanh số = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng.
+  // - Doanh thu = Doanh số - Chiết khấu - Sử dụng điểm. 
+  // - Do total đã trừ chiết khấu nên Doanh thu = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng - Sử dụng điểm
+  const getTotalRevenue = () => {
     let result = 0;
     data.items.forEach((item) => {
-      let paymentItem = 0;
+      let returnAmount = 0;
+      let pointAmount = 0;
       item.payments.forEach((single) => {
-        if (single.payment_method_code !== PaymentMethodCode.POINT) {
-          paymentItem = paymentItem + single.amount;
+        if(single.payment_method === "Hàng đổi") {
+          returnAmount = returnAmount + single.amount;
+        }
+        if(single.payment_method_code === PaymentMethodCode.POINT) {
+          pointAmount = pointAmount + single.amount;
         }
       });
-      result = result + paymentItem;
+      result = result + (item.total - returnAmount - pointAmount)
     });
     return result;
   };
@@ -1323,8 +1330,8 @@ function OrdersTable(props: PropTypes) {
   const getTotalShippingFeeInformedToCustomer = () => {
     let result = 0;
     data.items.forEach((item) => {
-      const sortedFulfillments = item.fulfillments?.sort((a: any, b: any) => b.id - a.id);
-      if (sortedFulfillments && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
+      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
+      if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0);
       }
     });
@@ -1334,8 +1341,8 @@ function OrdersTable(props: PropTypes) {
   const getTotalShippingPay3PL = () => {
     let result = 0;
     data.items.forEach((item) => {
-      const sortedFulfillments = item.fulfillments?.sort((a: any, b: any) => b.id - a.id);
-      if (sortedFulfillments && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
+      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
+      if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
       }
     });
@@ -1383,11 +1390,11 @@ function OrdersTable(props: PropTypes) {
             <Col md={12}>
               <Row gutter={30}>
                 <Col span={10}>
-                  <p className="text-field">TỔNG TIỀN THANH TOÁN (KHÔNG TÍNH DÙNG ĐIỂM):</p>
+                  <p className="text-field">TỔNG DOANH THU:</p>
                 </Col>
                 <Col span={14}>
                   <div>
-                    <b className="text-field">{formatCurrency(getTotalPaymentNotIncludePoint())}</b>
+                    <b className="text-field">{formatCurrency(getTotalRevenue())}</b>
                   </div>
                 </Col>
               </Row>

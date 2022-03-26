@@ -87,7 +87,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                 let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
                 if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
                 if(item.fulfillment_status !== 'returned' && item.fulfillment_status !== 'returning'
-                  && item.fulfillment_status !== 'cancelled' && item.fulfillment_status !== 'splitted') {
+                && item.fulfillment_status !== 'cancelled' && item.fulfillment_status !== 'splitted') {
                   dataAdd.push(item);
                 }
               });

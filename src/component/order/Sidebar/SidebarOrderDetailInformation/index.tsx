@@ -83,7 +83,7 @@ function SidebarOrderDetailInformation(props: PropType) {
         </Row>
 				{OrderDetail?.order_return_origin?.order_id && (
 					<Row className="rowDetail" gutter={5}>
-						<Col span={10}>Mã đơn đổi hàng:</Col>
+						<Col span={10}>Mã đơn gốc:</Col>
 						<Col span={14}>
 							<span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
 								{OrderDetail?.order_return_origin?.order_id ? (

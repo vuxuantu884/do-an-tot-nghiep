@@ -1,4 +1,4 @@
-import { Button, Card, Form, List, Table } from 'antd'
+import { Button, Card, Form, Table } from 'antd'
 import Color from "assets/css/export-variable.module.scss"
 import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
@@ -17,6 +17,7 @@ import { showError, showSuccess } from 'utils/ToastUtils'
 import { ListAnalyticsStyle } from './index.style'
 import ModalCreateReport from './shared/create-report-modal'
 import ModalFormAnalyticsInfo from './shared/form-analytics-info-modal'
+import ListAnalyticsBlock from './shared/list-analytics-block'
 
 function Analytics() {
     const [form] = Form.useForm()
@@ -25,6 +26,7 @@ function Analytics() {
     const { path: matchPath } = useRouteMatch();
 
     const [analyticList, setAnalyticList] = React.useState<Array<any>>()
+    const [isLoadingAnalyticList, setIsLoadingAnalyticList] = React.useState(false)
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
     const [isModalCreateVisible, setIsModalCreateVisible] = React.useState<boolean>(false)
     const [isConfirmDeleteVisible, setIsConfirmDeleteVisible] = React.useState<boolean>(false)
@@ -33,11 +35,13 @@ function Analytics() {
 
 
     const fetchCustomAnalytics = useCallback(async () => {
-         const cubes = REPORT_CUBES[matchPath]
-        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, {"cube.in": cubes});
+        setIsLoadingAnalyticList(true)
+        const cubes = REPORT_CUBES[matchPath]
+        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, { "cube.in": cubes });
         if (response) {
             setAnalyticList(response.analytics)
         }
+        setIsLoadingAnalyticList(false)
     }, [dispatch, matchPath])
 
 
@@ -49,7 +53,7 @@ function Analytics() {
             if (response) {
                 fetchCustomAnalytics();
             } else {
-                showError("Cập nhật tên báo cáo không thành công")
+                showError("Cập nhật tên báo cáo không thành công");
             }
         }
     }
@@ -94,7 +98,7 @@ function Analytics() {
     useEffect(() => {
         fetchCustomAnalytics();
     }, [dispatch, fetchCustomAnalytics]);
-    
+
     return (
         <ContentContainer
             title={REPORT_NAMES[matchPath]}
@@ -103,33 +107,28 @@ function Analytics() {
         >
             <Form.Provider onFormFinish={handleFormFinish}>
                 <ListAnalyticsStyle>
+                    {
+                        [UrlConfig.ANALYTIC_SALES].includes(matchPath) && (
+                            <div>
+                                <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
+                                    return item.alias.includes(matchPath) && item.cube === 'sales'
+                                })} title="Báo cáo mẫu - Báo cáo bán hàng"></ListAnalyticsBlock>
+                                <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
+                                    return item.alias.includes(matchPath) && item.cube === 'payments'
+                                })} title="Báo cáo mẫu - Báo cáo thanh toán"></ListAnalyticsBlock>
+                            </div>
+                        )
+                    }
 
-
-                    <Card title="Danh sách báo cáo mẫu" className='template-report'>
-                        <List grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
-
-                            dataSource={REPORT_TEMPLATES.filter(item => {
+                    {
+                        [UrlConfig.ANALYTIC_FINACE, UrlConfig.ANALYTIC_CUSTOMER].includes(matchPath) && (
+                            <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
                                 return item.alias.includes(matchPath)
-                            })}
+                            })} title="Báo cáo mẫu"></ListAnalyticsBlock>
+                        )
+                    }
 
-                            renderItem={(item, index) => {
-                                return (
-                                    <Link to={`${matchPath}/${item.id}`} key={index}>
-                                    <List.Item className="pointer">
-                                        <div className={`template-report__card `}>
-                                            <div className='template-report__icon '>
-                                                <img src={require(`assets/icon/analytic/${item.iconImg}`).default} alt={item.name} /></div>
-                                            <div className='template-report__type'> {item.type} </div>
-                                            <div className='template-report__name'> {item.name.toUpperCase()} </div>
-                                        </div>
-                                    </List.Item>
-                                    </Link>
-                                )
-                            }}
-                        />
-                    </Card>
-
-                    <Card title="Danh sách báo cáo tuỳ chỉnh" className='card-custom-report'
+                    <Card title="Báo cáo tuỳ chỉnh" className='card-custom-report'
                         extra={<Button type='primary' onClick={() => setIsModalCreateVisible(true)}>
                             Tạo báo cáo tuỳ chỉnh
                         </Button>
@@ -138,7 +137,7 @@ function Analytics() {
                         <Table dataSource={analyticList}
                             rowKey={(record: any) => record.id}
                             rowClassName="ana-list__item"
-                            loading={!analyticList}
+                            loading={isLoadingAnalyticList}
                             columns={[
                                 {
                                     title: 'Tên báo cáo',

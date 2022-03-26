@@ -183,7 +183,7 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
                                             checked={isCheckedAggretes || isIndeterminateAggretes}
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <b onClick={(e) => e.stopPropagation()}>{_.capitalize("Thông kê")}<span style={{ color: "red" }}> *</span></b>
+                                            <b onClick={(e) => e.stopPropagation()}>{_.capitalize("Thống kê")}<span style={{ color: "red" }}> *</span></b>
                                         </Checkbox>
                                         <IconCheckboxCollapse checked={activePanel.includes(ReportifyFormFields.column)} />
 

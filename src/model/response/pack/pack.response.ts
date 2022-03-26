@@ -37,7 +37,6 @@ export interface GoodsReceiptsOrder extends OrderResponse{
     id: number;
     total_quantity: number|null;
 }
-
 export interface  GoodsReceiptsSearchResponse extends BaseObject{
     store_id:number;
     store_name:string;

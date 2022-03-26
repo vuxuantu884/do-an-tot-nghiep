@@ -55,7 +55,6 @@ const typePrint={
   detail:"detail"
 }
 
-
 interface GoodReceiptPrint{
   good_receipt_id:number;
   html_content:string;
@@ -150,7 +149,7 @@ const PackDetail: React.FC = () => {
             const ffms = itemOrder.fulfillments?.filter(ffm =>
               ffm.status !== 'returned' && ffm.status !== 'returning'
               && ffm.status !== 'cancelled' && ffm.status !== 'splitted');
-            
+
             ffms?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
@@ -197,6 +196,7 @@ const PackDetail: React.FC = () => {
       setError(true);
     }
   }, [dispatch, PackId]);
+
 
   const handleDownLoad = () => { };
   const handleDeleteFile = () => { };

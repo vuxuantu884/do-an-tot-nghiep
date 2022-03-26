@@ -11,18 +11,21 @@ function ActiveFilters({ filters, action }: Props) {
     return (
         <div>
             {
-                filters.map((filter, index) => {
-                    const { title, value, field } = filter;
+                filters.map((filter) => {
+                    const field = filter[0];
+                    const { value, title } = filter[1];
                     const { YEAR, MONTH, DAY, HOUR } = TIME;
-                    return <Tag
-                        onClose={() => {
-                            action(filter)
-                        }}
-                        key={field}
-                        className="fade margin-bottom-20"
-                        closable
-                        closeIcon={[YEAR, MONTH, DAY, HOUR].includes(field) ? <BackwardOutlined /> : <CloseOutlined />}
-                    >{title}: {value}</Tag>
+                    return value.map((valueItem: string) => {
+                        return <Tag
+                            onClose={() => {
+                                action({ field, title, value: valueItem })
+                            }}
+                            key={`${field}${valueItem}`}
+                            className="fade margin-bottom-20"
+                            closable
+                            closeIcon={[YEAR, MONTH, DAY, HOUR].includes(field) ? <BackwardOutlined /> : <CloseOutlined />}
+                        >{title}: {valueItem}</Tag>
+                    })
                 })
             }
         </div>
