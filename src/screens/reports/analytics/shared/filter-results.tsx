@@ -1,12 +1,12 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Divider, FormInstance, Select } from "antd";
+import { Button, FormInstance, Select } from "antd";
 import _ from "lodash";
 import { AnalyticDataQuery, AnalyticProperties } from "model/report/analytics.model";
 import React, { useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { executeAnalyticsQueryService } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
-import { transformDateRangeToString } from "utils/ReportUtils";
+import { getTranslatePropertyKey, transformDateRangeToString } from "utils/ReportUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import FilterAdvancedDrawer from "../../../../component/filter/filter-advanced-drawer";
 import FilterAdvancedItem from "../../../../component/filter/filter-advanced-item";
@@ -28,7 +28,7 @@ type Props = {
 function FilterResults({ properties, form }: Props) {
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
-  const { cubeRef, metadata } = useContext(AnalyticsContext)
+  const { cubeRef, metadata, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
   const [optionList, setOptionList] = useState<any[]>([]);
   const [loadingInputs, setLoadingInputs] = useState<number[]>([]);
 
@@ -77,10 +77,26 @@ function FilterResults({ properties, form }: Props) {
   };
 
   const handleClearFilter = () => {
-    form.setFieldsValue({ [ReportifyFormFields.where]: {} });
+    form.setFieldsValue({ [ReportifyFormFields.where]: undefined });
   };
 
   const handleSubmit=()=>{
+    const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
+    if (Object.keys(fieldWhereValue).length) {
+      Object.keys(fieldWhereValue).forEach((key: string) => {
+        const value = fieldWhereValue[key];
+        if (value && Array.isArray(value)) {
+          if (value.length === 1 && value[0] === '') {
+            setActiveFilters(activeFilters.set(key, {value: ['Tất cả'], title: metadata ? getTranslatePropertyKey(metadata, key) : key}));
+          } else {
+            setActiveFilters(activeFilters.set(key, {value: fieldWhereValue[key], title: metadata ? getTranslatePropertyKey(metadata, key) : key}));
+          }
+        } else {
+          activeFilters.delete(key);
+          setActiveFilters(activeFilters);
+        }
+      })
+    }
     form.submit();
     handleCancel();
   }
@@ -144,15 +160,15 @@ function FilterResults({ properties, form }: Props) {
       <FilterAdvancedDrawer width={"400px"} visible={visible} onClose={handleCancel} onSubmit={handleSubmit} onClearFilter={handleClearFilter}>
         <FilterResultStyle>
         <div className="ant-form ant-form-vertical">
-          {propertiesFilter.map((propertyGroup) =>
-            <>
+          {propertiesFilter.map((propertyGroup, index) =>
+            <React.Fragment key={index}>
               <div className="divider-filter">
                 <span className="divider-filter__name">
                   {propertyGroup.groupName}
                 </span>
               </div>
               <FilterAdvancedList data={propertyGroup.groupLabel} renderItem={renderFormItem} />
-            </>
+            </React.Fragment>
 
           )}
         </div>

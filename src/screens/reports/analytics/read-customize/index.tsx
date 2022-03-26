@@ -7,7 +7,6 @@ import { AnalyticCustomize, SUBMIT_MODE } from 'model/report/analytics.model'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
-import { FaTrashAlt } from 'react-icons/fa'
 import { useDispatch } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, updateAnalyticsCustomService } from 'service/report/analytics.service'
@@ -17,7 +16,6 @@ import { showError, showSuccess } from 'utils/ToastUtils'
 import AnalyticsForm, { ReportifyFormFields, TIME_GROUP_BY } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
 import ModalFormAnalyticsInfo from '../shared/form-analytics-info-modal'
-import Color from "assets/css/export-variable.module.scss"
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 
 function CreateAnalytics() {
