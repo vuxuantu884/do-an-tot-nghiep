@@ -382,13 +382,13 @@ function OrdersTable(props: PropTypes) {
         render: (value: string, i: OrderModel) => {
           return (
             <React.Fragment>
-              <Link target="_blank" to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
+              <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
                 {value}
               </Link>
               <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
               <div className="textSmall">
                 <Tooltip title="Cửa hàng">
-                  <Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
+                  <Link to={`${UrlConfig.STORE}/${i?.store_id}`}>
                     {i.store}
                   </Link>
                 </Tooltip>
@@ -420,10 +420,14 @@ function OrdersTable(props: PropTypes) {
               <div style={{ color: "#2A2A86" ,display:"flex" }}>
                 <div
                   style={{ padding: "0px", fontWeight: 500, cursor: "pointer" }}
-                  onClick={() =>
+                  onClick={(e) => {
+                    navigator.clipboard.writeText(record.customer_phone_number ? record.customer_phone_number : "").then(() => {
+                      showSuccess("Đã copy số điện thoại!")
+                    })
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : ""
-                    )
+                    );
+                  }
                   }>
                   {record.customer_phone_number}
                  
@@ -540,7 +544,6 @@ function OrdersTable(props: PropTypes) {
                     <div className="product productNameWidth 2">
                       <div className="inner">
                         <Link
-                          target="_blank"
                           to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
                           {item.sku}
                         </Link>
@@ -832,7 +835,7 @@ function OrdersTable(props: PropTypes) {
                     <React.Fragment>
                       <div className="single">
                         Nhận tại {" - "}
-                        <Link target="_blank" to={`${UrlConfig.STORE}/${record?.store_id}`}>
+                        <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
                           {record.store}
                         </Link>
                       </div>
@@ -1105,7 +1108,7 @@ function OrdersTable(props: PropTypes) {
       {
         title: "NV bán hàng",
         render: (value, record: OrderModel) => (
-          <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
+          <Link to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
             {`${record.assignee_code} - ${record.assignee}`}
           </Link>
         ),
@@ -1117,7 +1120,7 @@ function OrdersTable(props: PropTypes) {
       {
         title: "NV tạo đơn",
         render: (value, record: OrderModel) => (
-          <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
+          <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
             {`${record.account_code} - ${record.account}`}
           </Link>
         ),
@@ -1134,7 +1137,7 @@ function OrdersTable(props: PropTypes) {
         render: (value, record: OrderModel) => {
           if (value) {
             return (
-              <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
+              <Link to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
                 {value}
               </Link>
             );

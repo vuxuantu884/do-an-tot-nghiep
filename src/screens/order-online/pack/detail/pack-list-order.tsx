@@ -149,6 +149,9 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       visible: true,
       width: "10%",
       align: "center",
+      render: (item: any) => {
+        return <div>{item.status}</div>;
+      },
     },
     {
       title: "Ghi chú",
