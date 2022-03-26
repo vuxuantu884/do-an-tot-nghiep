@@ -10,6 +10,13 @@ type Props = {
     setMetadata: (metadata: AnalyticMetadata) => void;
     setDataQuery: (dataQuery: AnalyticDataQuery) => void;
     cubeRef: React.MutableRefObject<string>; 
+    chartDataQuery?: AnalyticDataQuery;
+    setChartDataQuery: (chartDataQuery: AnalyticDataQuery) => void;
+    chartColumnSelected?: string[],
+    setChartColumnSelected: (chartColumnSelected: string[]) => void;
+    activeFilters: Map<string, any>,
+    setActiveFilters: (activeFilters: Map<string, any>) => void;
+
 }
 
 export const AnalyticsContext = React.createContext<Props>({} as Props)
@@ -17,6 +24,9 @@ export const AnalyticsContext = React.createContext<Props>({} as Props)
 function AnalyticsProvider(props: { children: ReactNode }) {
     const [metadata, setMetadata] = useState<AnalyticMetadata>()
     const [dataQuery, setDataQuery] = useState<AnalyticDataQuery>();
+    const [chartDataQuery, setChartDataQuery] = useState<AnalyticDataQuery>();
+    const [chartColumnSelected, setChartColumnSelected] = useState<string[]>();
+    const [activeFilters, setActiveFilters] = useState<Map<string, any>>(new Map<string, any>());
     const cubeRef = React.useRef<string>('');
     return (
         <AnalyticsContext.Provider
@@ -26,7 +36,13 @@ function AnalyticsProvider(props: { children: ReactNode }) {
                 setMetadata,
                 dataQuery,
                 setDataQuery,
-                cubeRef, 
+                cubeRef,
+                chartDataQuery,
+                setChartDataQuery,
+                chartColumnSelected,
+                setChartColumnSelected,
+                activeFilters,
+                setActiveFilters
             }}
         />
     )
