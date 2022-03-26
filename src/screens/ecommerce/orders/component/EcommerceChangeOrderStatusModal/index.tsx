@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, Modal } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { StyledModalFooterSingle } from "screens/ecommerce/common/commonStyle";

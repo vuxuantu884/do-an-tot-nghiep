@@ -29,14 +29,19 @@ import {
   receivedInventoryTransferAction,
   getFeesAction,
   cancelShipmentInventoryTransferAction,
-  exportInventoryAction,
+  exportInventoryAction, createInventoryTransferShipmentAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, ShipmentItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
 import InventoryShipment, { deliveryService } from "../common/ChosesShipment";
-import { findAvatar, handleDelayActionWhenInsertTextInSearchInput, SumWeightInventory } from "utils/AppUtils";
+import {
+  findAvatar,
+  handleDelayActionWhenInsertTextInSearchInput,
+  SumWeightInventory,
+  SumWeightLineItems,
+} from "utils/AppUtils";
 import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
@@ -63,6 +68,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
+import moment from "moment";
 export interface InventoryParams {
   id: string;
 }
@@ -192,7 +198,7 @@ const DetailTicket: FC = () => {
     }
   },[dispatch,setResultSearch, data]);
 
-  let textTag = '';
+  let textTag: string;
   let classTag = '';
   switch (data?.status) {
     case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
@@ -439,7 +445,7 @@ const DetailTicket: FC = () => {
    [handleSearchProduct]
  );
 
-  const onSelect = useCallback((o,v)=>{
+  const onSelect = useCallback((o)=>{
     onSelectProduct(o);
   },[onSelectProduct])
 
@@ -475,7 +481,7 @@ const DetailTicket: FC = () => {
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -541,7 +547,7 @@ const DetailTicket: FC = () => {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_image",
-      render: (value: string, record: any) => {
+      render: (value: string) => {
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
@@ -1089,7 +1095,7 @@ const DetailTicket: FC = () => {
                           >
                             <Button
                               type="default"
-                              onClick={() =>setIsVisibleModalWarning(true)}
+                              onClick={() => setIsVisibleModalWarning(true)}
                             >
                               Hủy giao hàng
                             </Button>

@@ -1,5 +1,5 @@
 import {Card, Col, Row} from "antd";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import {OrderResponse} from "model/response/order/order.response";
 import React from "react";
 import {Link} from "react-router-dom";
@@ -183,7 +183,8 @@ function SidebarOrderDetailInformation(props: PropType) {
             {OrderDetail?.url ? (
               <a href={OrderDetail?.url} target="_blank" rel="noreferrer">{OrderDetail?.reference_code}</a>
             ) : (
-              <span className="text-focus">{OrderDetail?.reference_code}</span>
+              <a href={`${BASE_NAME_ROUTER}${UrlConfig.ORDER}/${OrderDetail?.reference_code}`} target="_blank" rel="noreferrer">{OrderDetail?.reference_code}</a>
+              // <span className="text-focus">{OrderDetail?.reference_code} ss</span>
             )}
           </Col>
         </Row>

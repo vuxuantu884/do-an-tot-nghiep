@@ -18,6 +18,7 @@ import {
   Tooltip,
   Progress,
   TreeSelect,
+  Tag,
 } from "antd";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -67,7 +68,7 @@ import { exportFileProduct, getFileProduct } from "service/other/export.service"
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import {fullTextSearch} from "utils/StringUtils";
+import { fullTextSearch } from "utils/StringUtils";
 import SyncProductModal from "./SyncProductModal";
 import { EcommerceProductTabUrl } from "config/url.config";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
@@ -94,7 +95,7 @@ const EXPORT_PRODUCT_OPTION = {
 }
 
 const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
-  const {isReloadPage, handleSyncStockJob} = props;
+  const { isReloadPage, handleSyncStockJob } = props;
   const history = useHistory();
   const location = useLocation();
   const [formAdvance] = Form.useForm();
@@ -187,9 +188,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   );
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    getProductUpdated(query);
-  }, [getProductUpdated, query, isReloadPage]);
+    if (isReloadPage) {
+      window.scrollTo(0, 0);
+      getProductUpdated(query);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProductUpdated, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -377,7 +381,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     }
 
     if (exportProductType === EXPORT_PRODUCT_OPTION.FILTERED) {
-      const queryParam = {...query};
+      const queryParam = { ...query };
       delete queryParam.page;
       delete queryParam.limit;
       const generateQueryParam = generateQuery(queryParam);
@@ -431,9 +435,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         }
       });
     })
-    .catch(() => {
-      showError("Có lỗi xảy ra, vui lòng thử lại sau");
-    });
+      .catch(() => {
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
   }, [exportProcessId]);
 
   useEffect(() => {
@@ -489,7 +493,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         return (
           <img
             src={item.ecommerce_image_url}
-            style={{height: "40px"}}
+            style={{ height: "40px" }}
             alt=""
           />
         );
@@ -634,12 +638,157 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     ),
   ]);
 
+  let initialValues = useMemo(() => {
+    return {
+      ...query,
+      shop_ids: Array.isArray(query.shop_ids)
+        ? query.shop_ids
+        : [query.shop_ids],
+    };
+  }, [query]);
+
+  let filters = useMemo(() => {
+    let list = [];
+
+    if (initialValues.ecommerce_id !== null) {
+      list.push({
+        key: "ecommerce_id",
+        name: "Sàn",
+        value: ECOMMERCE_LIST[initialValues.ecommerce_id - 1].title,
+      });
+    }
+
+    if (initialValues.shop_ids.length) {
+      let shopNameList = "";
+      initialValues.shop_ids.forEach((shopId: any) => {
+        const findStatus = ecommerceShopList?.find(
+          (item) => +item.id === +shopId
+        );
+        shopNameList = findStatus
+          ? shopNameList + findStatus.name + "; "
+          : shopNameList;
+      });
+      list.push({
+        key: "shop_ids",
+        name: "Gian hàng",
+        value: shopNameList,
+      });
+    }
+
+    if (initialValues.sku_or_name_ecommerce) {
+      list.push({
+        key: "sku_or_name_ecommerce",
+        name: "Sku, tên sản phẩm sàn",
+        value: initialValues.sku_or_name_ecommerce
+      });
+    }
+
+    if (initialValues.sku_or_name_core) {
+      list.push({
+        key: "sku_or_name_core",
+        name: "Sku, tên sản phẩm Yody",
+        value: initialValues.sku_or_name_core
+      });
+    }
+
+    if (initialValues.update_stock_status) {
+      let value_update_stock_status = "";
+      switch (initialValues.update_stock_status) {
+        case "done":
+          value_update_stock_status = "Thành công";
+          break;
+        case "in_progress":
+          value_update_stock_status = "Đang xử lý"
+          break;
+        case "error":
+          value_update_stock_status = "Thất bại"
+          break;
+      }
+      list.push({
+        key: "update_stock_status",
+        name: "Trạng thái đồng bộ tồn kho",
+        value: value_update_stock_status
+      });
+    }
+
+    if (initialValues.connected_date_from || initialValues.connected_date_to) {
+      let textOrderCreateDate =
+        (initialValues.connected_date_from
+          ? ConvertUtcToLocalDate(initialValues.connected_date_from, "DD/MM/YYYY")
+          : "??") +
+        " ~ " +
+        (initialValues.connected_date_to
+          ? ConvertUtcToLocalDate(initialValues.connected_date_to, "DD/MM/YYYY")
+          : "??");
+      list.push({
+        key: "created_date",
+        name: "Ngày tạo đơn",
+        value: textOrderCreateDate,
+      });
+    }
+
+    return list;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    initialValues.shop_ids,
+    // initialValues.connected_status,
+    // initialValues.created_date_from,
+    // initialValues.created_date_to,
+    // initialValues.ecommerce_order_statuses,
+    ecommerceShopList,
+  ]);
+
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      let dataQuery: any = {}
+      switch (tag.key) {
+        case "shop_ids":
+          dataQuery = {
+            ...getQueryParamsFromQueryString(queryParamsParsed),
+            ...{ [tag.key]: [] }
+          };
+          break;
+        case "created_date":
+          dataQuery = {
+            ...getQueryParamsFromQueryString(queryParamsParsed),
+            ...{ connected_date_from: null, connected_date_to: null }
+          };
+          break;
+        case "ecommerce_id":
+          dataQuery = {
+            ...getQueryParamsFromQueryString(queryParamsParsed),
+            ...{ [tag.key]: [], shop_ids: [] }
+          };
+          break;
+        default:
+          dataQuery = {
+            ...getQueryParamsFromQueryString(queryParamsParsed),
+            ...{ [tag.key]: null }
+          };
+          break;
+      }
+
+      let queryParam = generateQuery(dataQuery);
+      history.push(`${location.pathname}?${queryParam}`);
+
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [query, formAdvance]
+  );
+
+
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
       value.connected_date_from = connectionStartDate;
       value.connected_date_to = connectionEndDate;
 
-      let queryParam = generateQuery(value);
+      const dataQuery: ProductEcommerceQuery = {
+        ...initialFormValues,
+        ...getQueryParamsFromQueryString(queryParamsParsed),
+        ...value
+      }
+      let queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
     }
   };
@@ -652,26 +801,27 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     setFilterValueByQueryParam(dataQuery)
     setQuery(dataQuery);
     getProductUpdated(dataQuery);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    window.scrollTo(0, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
 
-  const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery)=> {
+  const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery) => {
     let checkEcommerceShop = Array.isArray(dataquery.shop_ids)
-    ? dataquery.shop_ids
-    : [dataquery.shop_ids];
+      ? dataquery.shop_ids
+      : [dataquery.shop_ids];
     formAdvance.setFieldsValue(dataquery);
     setEcommerceIdSelected(dataquery.ecommerce_id);
     getEcommerceShop(dataquery.ecommerce_id);
-    if (dataquery.ecommerce_id === null){
+    if (dataquery.ecommerce_id === null) {
       removeEcommerce();
     } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
-      formAdvance.setFieldsValue({ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id-1].ecommerce_id})
-      if (dataquery.shop_ids !== null){
-        formAdvance.setFieldsValue({shop_ids: checkEcommerceShop.map(item => +item)})
+      formAdvance.setFieldsValue({ ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id })
+      if (dataquery.shop_ids !== null) {
+        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => +item) })
       }
-      
+
     } else {
-      formAdvance.setFieldsValue({ecommerce_id: null})
+      formAdvance.setFieldsValue({ ecommerce_id: null })
       removeEcommerce();
     }
     const connected_date_from = dataquery.connected_date_from;
@@ -681,14 +831,14 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     } else {
       setConnectionStartDate(ConvertDateToUtc(connected_date_from));
     }
-    
+
     if (connected_date_to === null) {
       setConnectionEndDate(null)
     } else {
       setConnectionEndDate(ConvertDateToUtc(connected_date_to));
     }
 
-    if (connected_date_from !== null && connected_date_to!== null) {
+    if (connected_date_from !== null && connected_date_to !== null) {
       const startDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
       const endDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
       const startDateValueYesterday = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
@@ -705,7 +855,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       const date_from = ConvertUtcToDate(connected_date_from);
       const date_to = ConvertUtcToDate(connected_date_to)
 
-      if (date_from === startDateValueToDay && date_to === endDateValueToDay){
+      if (date_from === startDateValueToDay && date_to === endDateValueToDay) {
         setDateButtonSelected("today");
       } else if (date_from === startDateValueYesterday && date_to === endDateValueYesterday) {
         setDateButtonSelected("yesterday");
@@ -741,13 +891,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
   const onPageChange = React.useCallback(
     (page, limit) => {
-      query.page = page;
-      query.limit = limit;
-      setQuery({ ...query, page, limit });
-      getProductUpdated({ ...query });
-      window.scrollTo(0, 0);
+      const dataQuery: ProductEcommerceQuery = {
+        ...initialFormValues,
+        ...getQueryParamsFromQueryString(queryParamsParsed),
+        page: page,
+        limit: limit,
+      }
+      let queryParam = generateQuery(dataQuery);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [query, getProductUpdated]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [query]
   );
 
   //handle select ecommerce
@@ -1025,13 +1179,13 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                         value={shopItem.id}
                         title={
                           <span>
-                      <img
-                        src={getEcommerceIcon(shopItem.ecommerce)}
-                        alt={shopItem.id}
-                        style={{ marginRight: "5px", height: "16px" }}
-                      />
+                            <img
+                              src={getEcommerceIcon(shopItem.ecommerce)}
+                              alt={shopItem.id}
+                              style={{ marginRight: "5px", height: "16px" }}
+                            />
                             {shopItem.name}
-                    </span>
+                          </span>
                         }
                       />
                     ))}
@@ -1076,6 +1230,13 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 </Button>
               </Form.Item>
             </Form>
+            <div className="order-filter-tags">
+              {filters && filters.map((filter: any, index: any) => {
+                return (
+                  <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+                )
+              })}
+            </div>
           </div>
         </StyledProductFilter>
 
@@ -1096,6 +1257,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
           rowKey={(data) => data.id}
         />
       </Card>

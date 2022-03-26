@@ -617,7 +617,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
           // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
           // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
-    
+
           mm = (parseInt(mm) - 1).toString(); // January is 0
           dd = (parseInt(dd) + 1).toString();
 

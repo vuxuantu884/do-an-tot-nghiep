@@ -387,6 +387,14 @@ const EcommerceOrders: React.FC = () => {
           <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
           <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
           <div>({data.reference_code})</div>
+          <div>
+            {
+              data?.fulfillments.length > 0 
+              && data?.fulfillments[0].shipment !== null
+              && data?.fulfillments[0].shipment.tracking_code !== null 
+              && `(${data?.fulfillments[0].shipment.tracking_code})`
+            }
+          </div>
         </div>
       ),
     },
@@ -508,24 +516,42 @@ const EcommerceOrders: React.FC = () => {
     },
     {
       title: "TT Xử lý",
-      dataIndex: "sub_status",
-      key: "sub_status",
+      dataIndex: "",
+      key: "",
       visible: true,
-      width: 130,
+      width: 145,
       align: "center",
-      render: (sub_status: string) => {
+      render: (item: any) => {
         return (
           <div
             style={{
-              background: "rgba(42, 42, 134, 0.1)",
-              borderRadius: "100px",
-              color: "#2A2A86",
+              borderRadius: "2px",
+              color: "#fff",
               width: "fit-content",
               padding: "5px 10px",
               margin: "0 auto",
             }}
+            className={
+              item.sub_status_code === "coordinator_confirmed" 
+              ? "confirmed-status" 
+              : item.sub_status_code === "awaiting_saler_confirmation"
+              ? "waiting-status" 
+              : item.sub_status === "Hết Hàng" 
+              ? "out-product-status" 
+              : item.sub_status_code === "cancelled" 
+              ? "cancel-order-status" 
+              : item.sub_status_code === "merchandise_picking" 
+              ? "picking-status"
+              : item.sub_status_code === "awaiting_shipper"
+              ? "collect-status" 
+              : item.sub_status_code === "shipping" 
+              ? "delivery-status" 
+              : item.sub_status_code === "require_warehouse_change" 
+              ? "change-warehouse-status" 
+              : "rest-status"
+          }
           >
-            {sub_status}
+           {item.sub_status}
           </div>
         );
       },
@@ -539,7 +565,7 @@ const EcommerceOrders: React.FC = () => {
             <div className="single">
               <EditNote
                 note={record.customer_note}
-                title="Khách hàng: "
+                title="KH:"
                 color={primaryColor}
                 onOk={(newNote) => {
                   editNote(newNote, "customer_note", record.id);
@@ -551,7 +577,7 @@ const EcommerceOrders: React.FC = () => {
             <div className="single">
               <EditNote
                 note={record.note}
-                title="Nội bộ: "
+                title="NB:"
                 color={primaryColor}
                 onOk={(newNote) => {
                   editNote(newNote, "note", record.id);
@@ -1353,6 +1379,7 @@ const EcommerceOrders: React.FC = () => {
                 onSelectedChange={onSelectTableRow}
                 dataSource={data.items}
                 columns={columnFinal}
+                isShowPaginationAtHeader
                 rowKey={(item: OrderModel) => item.id}
                 className="ecommerce-order-list"
               />

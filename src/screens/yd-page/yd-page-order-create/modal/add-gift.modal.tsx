@@ -288,6 +288,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   }, [onOk]);
   return (
     <Modal
+      centered
       title="Chọn quà tặng"
       width={700}
       onCancel={onCancel}

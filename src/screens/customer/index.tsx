@@ -130,6 +130,7 @@ const Customer = () => {
       customer_level_id: undefined,
       ...getQueryParams(query),
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

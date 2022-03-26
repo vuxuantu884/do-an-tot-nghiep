@@ -1,4 +1,4 @@
-import { Card, Col, Form, FormInstance, Input, Row } from "antd";
+import { Card, Col, Form, FormInstance, Input, Modal, Row, Table, Tooltip } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { Type } from "config/type.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -28,6 +28,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  OrderLineItemResponse,
   // DeliveryServiceResponse,
   OrderResponse,
   StoreCustomResponse,
@@ -37,6 +38,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmount,
   getTotalAmountAfterDiscount,
@@ -76,6 +78,10 @@ import { YDpageCustomerRequest } from "model/request/customer.request";
 import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "../../../domain/actions/loyalty/loyalty.action";
 import {modalActionType} from "model/modal/modal.model";
 import _ from "lodash";
+import './styles.scss'
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import UrlConfig from "config/url.config";
+import { Link } from "react-router-dom";
 
 let typeButton = "";
 
@@ -170,6 +176,13 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
+  const status_order = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.order_status
+  );
+
+  const [listNewOrder, setListNewOrder] = useState<any>();
+
+
   // const [shippingServiceConfig, setShippingServiceConfig] = useState<
   //   ShippingServiceConfigDetailResponseModel[]
   // >([]);
@@ -178,6 +191,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   const [isCheckSplitLine, setCheckSplitLine] = useState(false)
+
+  const [isShowOrderModal, setIsShowOrderModal] = useState(false);
 
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const queryParams = useQuery();
@@ -451,14 +466,13 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setListNewOrder(value)
       setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
-        showSuccess("Đơn được lưu và duyệt thành công");
         handleCustomerById(customer && customer.id);
-        setActiveTabKey("1");
-        // setIsClearOrderTab(true)
-        handleRefreshInfoOrderSuccess()
+        setIsShowOrderModal(true)
+        showSuccess("Đơn được lưu và duyệt thành công");
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
@@ -1079,6 +1093,183 @@ export default function Order(props: OrdersCreatePermissionProps) {
     return totalAmountOrder - totalAmountPayment;
   }, [totalAmountOrder, totalAmountPayment]);
 
+
+  //handle create info order
+  const getFulfillmentShippingAddress = (OrderDetail: OrderResponse | null) => {
+    let result = "";
+    let shippingAddress = OrderDetail?.shipping_address;
+    if(!shippingAddress) {
+      return "";
+    }
+    const addressArr = [
+      shippingAddress.name,
+      shippingAddress.phone,
+      shippingAddress.full_address,
+      shippingAddress.ward,
+      shippingAddress.district,
+      shippingAddress.city
+    ];
+    const addressArrResult = addressArr.filter(address => address);
+    if(addressArrResult.length > 0) {
+      result = addressArrResult.join(" - ")
+    }
+    return result;
+  };
+
+
+  const getNewOrderDetail = () => {
+    if (listNewOrder !== undefined) {
+      const status = status_order?.find((status) => status.value === listNewOrder.status);
+      return [
+        {
+          name: "Mã đơn hàng",
+          value:  
+            <Link target="_blank" to={`${UrlConfig.ORDER}/${listNewOrder.id}`}>
+              {listNewOrder.code}
+            </Link>,
+          key: "Mã đơn hàng"
+        },
+        {
+          name: "Trạng thái:",
+          value: status?.name,
+          key: "status",
+        },
+        {
+          name: "Ngày giao hàng:",
+          value: ConvertUtcToLocalDate(listNewOrder.fulfillments[0]?.shipment?.expected_received_date, DATE_FORMAT.DDMMYYY),
+          key: "finished_on",
+        },
+        {
+          name: "Nhân viên lên đơn:",
+          value: 
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${listNewOrder.account_code}`}>
+                  {`${listNewOrder.account_code} - ${listNewOrder.account}`}
+              </Link>,
+          key: "staff-order",
+        },
+        {
+          name: "Nhân viên Marketing:",
+          value: <span>
+                  {listNewOrder.marketer_code 
+                    && listNewOrder.marketer 
+                    ? `${listNewOrder.marketer_code} - ${listNewOrder.marketer}` 
+                    : "_-_"
+                  }
+                 </span>,
+          key: "marketing",
+        },
+        {
+          name: "Người mua:",
+          value: 
+              <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${listNewOrder.customer_id}`}>
+                  {`${listNewOrder.customer} - ${listNewOrder.customer_phone_number}`}
+              </Link>,
+          key: "order-buy",
+        },
+        {
+          name: "Địa chỉ:",
+          value: getFulfillmentShippingAddress(listNewOrder),
+          key: "full_address",
+        },
+      ];
+    }else {
+      return []
+    }
+  };
+
+  const ProductColumn = {
+    title: () => (
+      <div style={{ textAlign: "center" }}>Sản phẩm</div>
+    ),
+    render: (data: OrderLineItemResponse) => {
+      return (
+        <div
+          style={{
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${data.product_id}/variants/${data.variant_id}`}
+            >
+              {data.sku}
+            </Link>
+          </div>
+
+          <div
+            style={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            <Tooltip title={data.variant} placement="topLeft">
+              <span>{data.variant}</span>
+            </Tooltip>
+          </div>
+        </div>
+      );
+    },
+  };
+
+  const PriceColumnt = {
+    title: () => (
+      <div style={{ color: "#222222", textAlign: "center" }}>Đơn giá</div>
+    ),
+    width: "76px",
+    align: "right",
+    render: (data: OrderLineItemResponse) => {
+      return <div>{formatCurrency(data.price)}</div>;
+    },
+  };
+
+  const AmountColumnt = {
+    title: () => (
+      <div style={{ textAlign: "center" }}>SL</div>
+    ),
+    align: "right",
+    width: "40px",
+    render: (data: OrderLineItemResponse) => {
+      return <div>{data.quantity}</div>;
+    },
+  };
+
+  const TotalPriceColumn = {
+    title: () => (
+      <div style={{ textAlign: "center" }}>Tổng tiền</div>
+    ),
+    align: "right",
+    width: "80px",
+    render: (data: OrderLineItemResponse) => {
+      return (
+        <div>
+          {formatCurrency(data.price * data.quantity)}
+        </div>
+      );
+    },
+  };
+
+
+  const columns = [
+    ProductColumn,
+    PriceColumnt,
+    AmountColumnt,
+    TotalPriceColumn,
+  ];
+
+  const handleCreatOrder = () => {
+    setIsShowOrderModal(false)
+    handleRefreshInfoOrderSuccess()
+    setActiveTabKey("1");
+  }
+
+  const handleCancelOrder = () => {
+    setIsShowOrderModal(false);
+  }
+
   return (
     <div className="yd-page-order" style={{ marginTop: 30 }}>
       <AuthWrapper acceptPermissions={ordersCreatePermission} passThrough>
@@ -1231,6 +1422,89 @@ export default function Order(props: OrdersCreatePermissionProps) {
         text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
         icon={WarningIcon}
       />
+
+       <Modal
+        title="Đơn hàng đã được tạo thành công"
+        visible={isShowOrderModal}
+        okText="Thoát"
+        onOk={handleCreatOrder}
+        onCancel={handleCancelOrder}
+        cancelButtonProps={{ style: { display: 'none' } }}
+      >
+        	<Row
+            justify="space-between"
+            align="middle"
+            className="order-info"
+            style={{ width: "100%" }}
+          >
+            {getNewOrderDetail()?.map(order => (
+              <div key={order.key} className="order-info-customer">
+                <span className="order-info-customer-title">{order.name !== "Mã đơn hàng" && order.name}</span>
+                <span className={order.name !== "Mã đơn hàng"  ? "order-info-customer-content" : ""}>{order.value ? order.value : "_-_"}</span>
+              </div>
+            ))}
+          </Row>
+
+          <Table
+            bordered
+            className="create-order-table"
+            rowKey={(record) => record.id}
+            columns={columns}
+            dataSource={listNewOrder?.items}
+            tableLayout="fixed"
+            pagination={false}
+          />
+
+         <Row gutter={24} style={{ padding: "12px 12px 4px 12px", alignItems: "center" }}>
+            <Col span={10} style={{ padding: "0" }}>
+              <b>Phí ship báo khách:</b>
+            </Col>
+            <Col
+            span={14}
+            style={{
+              textAlign: "right",
+              fontWeight: 500,
+              fontSize: "16px",
+              padding: "0",
+            }}>
+            <span className="t-result-blue">{shippingFeeInformedToCustomer}</span>
+          </Col>
+         </Row>
+
+         <Row gutter={24} style={{ padding: "0 12px", alignItems: "center" }}>
+            <Col span={10} style={{ padding: "0" }}>
+              <b>Khách cần trả:</b>
+            </Col>
+            <Col
+            span={14}
+            style={{
+              color: "#2a2a86",
+              textAlign: "right",
+              fontWeight: 500,
+              fontSize: "16px",
+              padding: "0",
+            }}>
+            <span className="t-result-blue">{formatCurrency(totalAmountOrder)}</span>
+          </Col>
+         </Row>
+
+         <Row gutter={24} style={{ padding: "0 12px", alignItems: "center" }}>
+            <Col span={10} style={{ padding: "0" }}>
+              <b>COD:</b>
+            </Col>
+            <Col
+            span={14}
+            style={{
+              textAlign: "right",
+              fontWeight: 500,
+              fontSize: "16px",
+              padding: "0",
+            }}>
+            <span className="t-result-blue">{shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0}</span>
+          </Col>
+         </Row>
+
+      </Modal>
     </div>
   );
 }

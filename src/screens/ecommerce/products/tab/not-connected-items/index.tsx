@@ -197,10 +197,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     window.location.reload();
   }
 
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-  //   getProductUpdated(query);
-  // }, [getProductUpdated, query, isReloadPage]);
+  useEffect(() => {
+    if (isReloadPage) {
+      window.scrollTo(0, 0);
+      getProductUpdated(query);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProductUpdated, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -713,6 +716,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     }
 
     return list;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     initialValues.shop_ids,
     // initialValues.connected_status,
@@ -729,19 +733,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       switch (tag.key) {
         case "shop_ids":
           dataQuery = {
-            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...getQueryParamsFromQueryString(queryParamsParsed),
             ...{[tag.key]: []}
           };
           break;
         case "ecommerce_id":
           dataQuery = {
-            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...getQueryParamsFromQueryString(queryParamsParsed),
             ...{[tag.key]: [], shop_ids: []}
           };
           break;
         default:
           dataQuery = {
-            ... getQueryParamsFromQueryString(queryParamsParsed),
+            ...getQueryParamsFromQueryString(queryParamsParsed),
             ...{[tag.key]: null}
           };
           break;
@@ -751,6 +755,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       history.push(`${location.pathname}?${queryParam}`);
       
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, formAdvance]
   );
 
@@ -810,9 +815,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       let queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [query]
   );
-
   // get ecommerce shop list
   const updateEcommerceShopList = React.useCallback((result) => {
     const shopList: any[] = [];
@@ -1291,6 +1296,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
           rowKey={(data) => data.id}
         />
 

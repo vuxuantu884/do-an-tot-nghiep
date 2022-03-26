@@ -2,11 +2,12 @@ import {Form, FormItemProps, Select} from "antd";
 import {FormInstance} from "antd/es/form/Form";
 import _, {debounce} from "lodash";
 import { SupplierResponse, SupplierQuery } from "model/core/supplier.model";
-import React, {ReactElement, useCallback, useEffect} from "react";
+import React, { ReactElement, useCallback, useEffect, useMemo } from "react";
 import {useDispatch} from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import { supplierGetApi } from "service/core/supplier.service";
 import CustomSelect from "component/custom/select.custom";
+import { getQueryParams, useQuery } from "../../../utils/useQuery";
 
 const {Option} = Select;
 interface Props extends FormItemProps {
@@ -66,9 +67,14 @@ function SupplierSelect({
 
         const res = await callApiNative({isShowLoading: false}, dispatch,supplierGetApi,query);
         if (res) {
-          setLstSupplier({
-            items: res.items,
-            isLoading: false,
+          setLstSupplier((lstSupplier) => {
+            return {
+              items: [
+                ...res.items,
+                ...lstSupplier.items
+              ],
+              isLoading: false,
+            }
           });
         }
       }
@@ -78,6 +84,37 @@ function SupplierSelect({
   const onSearchSupplier = debounce((key: string) => {
     handleChangeSupplierSearch(key);
   }, 300);
+
+  const query = useQuery();
+  let paramsUrl: any = useMemo(() => {
+    return {...getQueryParams(query)}
+  }, [query]);
+
+  const getSupplierByCode = async (ids: string) => {
+    const res = await callApiNative({isShowLoading: false}, dispatch, supplierGetApi, {
+      ids,
+    });
+    if (res) {
+      setLstSupplier((lstSupplier) => {
+        return {
+          items: [
+            ...res.items,
+            ...lstSupplier.items
+          ],
+          isLoading: false,
+        }
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (paramsUrl.suppliers) {
+      getSupplierByCode(paramsUrl.suppliers).then();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   useEffect(() => {
     let value = defaultValue;

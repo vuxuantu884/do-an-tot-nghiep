@@ -60,8 +60,8 @@ export interface GoodsReceiptsSearhModel{
   id_handover_record:number;
   store_name:string;
   handover_record_type:string;//loại biên bản
-  total_quantity:number// sl sản phẩm
-  order_quantity:number;//SL đơn 
+  total_quantity:number;// sl sản phẩm
+  order_quantity:number;//SL đơn
   order_send_quantity:number;//Số đơn gửi hvc                                                                                                          
   order_transport:number;//Đơn đang chuyển
   order_have_not_taken:number;//Đơn chưa lấy

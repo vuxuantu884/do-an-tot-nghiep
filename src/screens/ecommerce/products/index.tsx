@@ -219,14 +219,16 @@ const Products: React.FC = () => {
   };
 
   const redirectToTotalProducts = () => {
+    if (activeTab === EcommerceProductTabUrl.TOTAL_ITEM) {
     setIsReloadPage(true);
+    } else {
     handleOnchangeTab(EcommerceProductTabUrl.TOTAL_ITEM);
+    }
   };
 
   const handleOnchangeTab = (active: any) => {
     history.push(active);
   }
-
 
 
   return (

@@ -95,6 +95,43 @@ export const StyledComponent = styled.div`
       }
     }
   }
+
+  .confirmed-status {
+    background-color: #52D276;
+  }
+
+  .waiting-status {
+    background-color: #106227;
+  }
+
+  .out-product-status {
+    background-color: #324148;
+  }
+
+  .cancel-order-status {
+    background-color: #E24343;
+  }
+
+  .picking-status {
+    background-color: #C98D17;
+  }
+
+  .collect-status {
+    background-color: #FCAF17;
+  }
+
+  .delivery-status {
+    background-color: #00897B;
+  }
+
+  .change-warehouse-status {
+    background-color: #8D6E63;
+  }
+
+  .rest-status {
+    background-color: #2a2a86;
+  }
+
 `;
 
 export const StyledOrderFilter = styled.div`

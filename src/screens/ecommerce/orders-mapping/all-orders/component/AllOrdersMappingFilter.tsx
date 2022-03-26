@@ -86,7 +86,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [ecommerceIdSelected, setEcommerceIdSelected] = useState<any>(null);
-  const [isEcommerceSelected, setIsEcommerceSelected] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
@@ -338,7 +337,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         case "ecommerce_id":
           onFilter && onFilter({ ...params, ecommerce_id: "", shop_ids: [] });
           formFilter?.setFieldsValue({ ecommerce_id: null, shop_ids: [] });
-          setIsEcommerceSelected(false);
           setEcommerceIdSelected(null);
         break;
         case "shop_ids":
@@ -435,14 +433,12 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       });
 
       setEcommerceIdSelected(ecommerceId)
-      setIsEcommerceSelected(true);
       onFilter && onFilter({...params, shop_ids: [], ecommerce_id: ecommerceId});
 
     }
   }
 
   const getEcommerceShop = (ecommerceId: any) => {
-    setIsEcommerceSelected(false);
     dispatch(
       getShopEcommerceList(
         { ecommerce_id: ecommerceId },
@@ -470,7 +466,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   const removeEcommerce = () => {
     formFilter.setFieldsValue({ecommerce_id: null,})
-    setIsEcommerceSelected(false);
     setEcommerceIdSelected(null);
     formFilter?.setFieldsValue({ shop_ids: [] });
   };

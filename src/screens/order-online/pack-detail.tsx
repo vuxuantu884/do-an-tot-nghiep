@@ -18,7 +18,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { useReactToPrint } from "react-to-print";
-//import { FulFillmentStatus } from "utils/Constants";
 import PackDetailInfo from "./pack/detail/pack-detail-info";
 import PackListOrder from "./pack/detail/pack-list-order";
 import PackQuantityProduct from "./pack/detail/pack-quantity-product";
@@ -150,7 +149,7 @@ const PackDetail: React.FC = () => {
             const ffms = itemOrder.fulfillments?.filter(ffm =>
               ffm.status !== 'returned' && ffm.status !== 'returning'
               && ffm.status !== 'cancelled' && ffm.status !== 'splitted');
-            
+
             ffms?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
