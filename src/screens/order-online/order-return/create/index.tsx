@@ -1221,7 +1221,7 @@ ShippingServiceConfigDetailResponseModel[]
                   />
                 )}
                 {isExchange && isStepExchange && (
-                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 2">
+                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                     <OrderCreateShipment
                       shipmentMethod={isOrderFromPOS(OrderDetail) ? ShipmentMethodOption.PICK_AT_STORE : shipmentMethod}
                       orderPrice={orderAmount}
@@ -1447,7 +1447,10 @@ ShippingServiceConfigDetailResponseModel[]
     //isOrderFromPOS(OrderDetail) &&
     if (isStepExchange) {
       if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
-        setIsShowSelectOrderSources(true)
+        setIsShowSelectOrderSources(true);
+        form.setFieldsValue({
+          source_id: OrderDetail?.source_id
+        })
       } else {
         setIsShowSelectOrderSources(false);
         form.setFieldsValue({
