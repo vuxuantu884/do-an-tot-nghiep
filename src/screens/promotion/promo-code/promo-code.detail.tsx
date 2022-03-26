@@ -1,3 +1,6 @@
+/**
+ * @deprecated : component này cần refactor
+ */
 import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
@@ -15,6 +18,7 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
+  addPriceRules,
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction, getPriceRuleAction, getVariantsAction
 } from "domain/actions/promotion/discount/discount.action";
@@ -31,7 +35,7 @@ import { RiUpload2Line } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { Link } from "react-router-dom";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import CustomTable from "../../../component/table/CustomTable";
 import { AppConfig } from "../../../config/app.config";
@@ -129,7 +133,7 @@ const PromotionDetailScreen: React.FC = () => {
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [loadingClone, setLoadingClone] = useState(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
@@ -370,6 +374,27 @@ const PromotionDetailScreen: React.FC = () => {
     [dispatch, idNumber, dataQuery, checkIsHasPromo]
   );
 
+  /**
+   * Clone KM
+   */
+  const handleClone = () => {
+    /**
+     * Đoạn này chạy thử là hiểu logic
+     */
+    setLoadingClone(true);
+    const match = /.+\(([0-9]+)\)$/.exec(`${data?.title}`);
+    const clonedTitle = match ? `${data?.title?.substring(0, data?.title?.length - match[1].length - 3)} (${parseInt(match[1], 10) + 1})` : `${data?.title?.trimRight()} (2)`;
+    dispatch(addPriceRules({ ...data, discount_codes: [], title: clonedTitle } as PriceRule, (response) => {
+      if (response) {
+        showSuccess("Nhân bản thành công");
+        history.push(response.id + "");
+      }else{
+        showError("Nhân bản thất bại");
+      }
+      setLoadingClone(false);
+    }
+    ));
+  }
   const renderStatus = (data: PriceRule) => {
     const status = promoStatuses.find((status) => status.code === data.state);
     return <span style={status?.style}>{status?.value}</span>;
@@ -687,16 +712,16 @@ const PromotionDetailScreen: React.FC = () => {
                   ) : (
                     ""
                   )} */}
-                      {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD &&
-                  <>
-                    <DiscountRuleInfo dataDiscount={data} />
-                    <CustomTable
-                      columns={columnDiscountByRule}
-                      dataSource={data.rule?.conditions}
-                      pagination={false}
-                      rowKey="id"
-                    />
-                  </>}
+                  {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD &&
+                    <>
+                      <DiscountRuleInfo dataDiscount={data} />
+                      <CustomTable
+                        columns={columnDiscountByRule}
+                        dataSource={data.rule?.conditions}
+                        pagination={false}
+                        rowKey="id"
+                      />
+                    </>}
                 </Space>
               </Card>
             </Col>
@@ -708,6 +733,7 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại danh sách đợt phát hành"
         rightComponent={
           <Space>
+            <Button onClick={handleClone} loading={loadingClone}>Nhân bản</Button>
             {data?.state !== 'CANCELLED' && <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}><Button onClick={onEdit}>Sửa</Button></AuthWrapper>}
             {allowCancelPromoCode ? renderActionButton() : null}
           </Space>
