@@ -228,7 +228,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         order_send_quantity =
           order_send_quantity +
           (itemOrder.fulfillments?.length ? itemOrder.fulfillments?.length : 0);
-
+        product_quantity += itemOrder.total_quantity||0;
         // itemOrder.fulfillments?.forEach(function (itemFulfillment) {
         //   product_quantity =
         //     product_quantity +
