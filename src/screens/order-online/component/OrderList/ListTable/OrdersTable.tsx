@@ -381,13 +381,13 @@ function OrdersTable(props: PropTypes) {
         render: (value: string, i: OrderModel) => {
           return (
             <React.Fragment>
-              <Link target="_blank" to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
+              <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
                 {value}
               </Link>
               <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
               <div className="textSmall">
                 <Tooltip title="Cửa hàng">
-                  <Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
+                  <Link to={`${UrlConfig.STORE}/${i?.store_id}`}>
                     {i.store}
                   </Link>
                 </Tooltip>
@@ -419,10 +419,14 @@ function OrdersTable(props: PropTypes) {
               <div style={{ color: "#2A2A86" }}>
                 <div
                   style={{ padding: "0px", fontWeight: 500, cursor: "pointer" }}
-                  onClick={() =>
+                  onClick={(e) => {
+                    navigator.clipboard.writeText(record.customer_phone_number ? record.customer_phone_number : "").then(() => {
+                      showSuccess("Đã copy số điện thoại!")
+                    })
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : ""
-                    )
+                    );
+                  }
                   }>
                   {record.customer_phone_number}
                 </div>
