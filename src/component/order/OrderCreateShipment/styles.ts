@@ -42,6 +42,10 @@ export const StyledComponent = styled.div`
     &:hover {
       border: 1px solid ${primaryColor};
     }
+    &.disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
     img {
       margin-right: 8px;
       width: 18px;

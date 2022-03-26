@@ -1221,9 +1221,9 @@ ShippingServiceConfigDetailResponseModel[]
                   />
                 )}
                 {isExchange && isStepExchange && (
-                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 2">
                     <OrderCreateShipment
-                      shipmentMethod={shipmentMethod}
+                      shipmentMethod={isOrderFromPOS(OrderDetail) ? ShipmentMethodOption.PICK_AT_STORE : shipmentMethod}
                       orderPrice={orderAmount}
                       storeDetail={storeDetail}
                       customer={customer}
@@ -1237,6 +1237,7 @@ ShippingServiceConfigDetailResponseModel[]
                       form={form}
 											shippingServiceConfig={shippingServiceConfig}
 											orderConfig={orderConfig}
+                      isOrderReturnFromPOS = {isOrderFromPOS(OrderDetail)}
                     />
                   </Card>
                 )}
@@ -1464,6 +1465,13 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, listExchangeProducts?.length]);
+
+  useEffect(() => {
+    if(isOrderFromPOS(OrderDetail)) {
+      setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE)
+    }
+  }, [OrderDetail])
+  
 
 
   return (
