@@ -1221,7 +1221,7 @@ ShippingServiceConfigDetailResponseModel[]
                   />
                 )}
                 {isExchange && isStepExchange && (
-                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 2">
+                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                     <OrderCreateShipment
                       shipmentMethod={isOrderFromPOS(OrderDetail) ? ShipmentMethodOption.PICK_AT_STORE : shipmentMethod}
                       orderPrice={orderAmount}
