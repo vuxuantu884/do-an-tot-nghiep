@@ -150,7 +150,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       width: "10%",
       align: "center",
       render: (item: any) => {
-        return <div style={{ color: item.status_color }}>{item.status}</div>;
+        return <div>{item.status}</div>;
       },
     },
     {
