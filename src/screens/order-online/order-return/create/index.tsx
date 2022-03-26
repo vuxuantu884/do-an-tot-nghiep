@@ -1447,7 +1447,10 @@ ShippingServiceConfigDetailResponseModel[]
     //isOrderFromPOS(OrderDetail) &&
     if (isStepExchange) {
       if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
-        setIsShowSelectOrderSources(true)
+        setIsShowSelectOrderSources(true);
+        form.setFieldsValue({
+          source_id: OrderDetail?.source_id
+        })
       } else {
         setIsShowSelectOrderSources(false);
         form.setFieldsValue({
