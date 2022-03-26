@@ -24,11 +24,19 @@ export interface GoodsReceiptsResponse extends BaseObject{
     receipt_type_name:string;
     delivery_service_id:number;
     delivery_service_name:string;
-    orders:Array<OrderResponse> | null;
+    orders:Array<GoodsReceiptsOrder> | null;
     delivery_service_type:string;
     variant: Array<any>;
+    total_quantity?: number;
 }
 
+export interface GoodsReceiptsOrder extends OrderResponse{
+    code: string;
+    fulfillment_status: string;
+    goods_receipt_id: number;
+    id: number;
+    total_quantity: number|null;
+}
 export interface  GoodsReceiptsSearchResponse extends BaseObject{
     store_id:number;
     store_name:string;

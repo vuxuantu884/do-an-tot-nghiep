@@ -60,7 +60,7 @@ export interface GoodsReceiptsSearhModel{
   id_handover_record:number;
   store_name:string;
   handover_record_type:string;//loại biên bản
-  product_quantity:number;// sl sản phẩm
+  total_quantity:number// sl sản phẩm
   order_quantity:number;//SL đơn 
   order_send_quantity:number;//Số đơn gửi hvc                                                                                                          
   order_transport:number;//Đơn đang chuyển
@@ -113,8 +113,7 @@ export interface GoodsReceiptsOrderListModel{
   total_price:number;
   postage:number;
   card_number:number;
-  status:string;
-  status_color?: string;
+  sub_status?: string;
   note:string|null;
   items:Array<FulfillmentsItemModel>;
 }

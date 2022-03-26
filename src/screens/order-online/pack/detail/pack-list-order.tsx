@@ -1,4 +1,4 @@
-import { Button, Card, Space, Table, Input, Form, FormInstance } from "antd";
+import { Button, Card, Table, Input, Form, FormInstance } from "antd";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
@@ -145,7 +145,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Trạng thái",
-      // dataIndex: "status",
+      dataIndex: "sub_status",
       visible: true,
       width: "10%",
       align: "center",

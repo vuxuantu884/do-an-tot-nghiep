@@ -26,6 +26,8 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
 import { ShipmentMethod } from "utils/Constants";
+import UrlConfig from "config/url.config";
+import { useHistory } from "react-router-dom";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 5,
@@ -44,6 +46,7 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
 
 const AddReportHandOver: React.FC = () => {
   const dispatch = useDispatch();
+  const history= useHistory();
 
   //useState
   const [visibleModal, setVisibleModal] = useState(false);
@@ -123,16 +126,15 @@ const AddReportHandOver: React.FC = () => {
 
             setGoodsReceipts(value);
 
-            const toDate = new Date();
-            // Trừ đi 1 ngày
-            const fromDate = new Date().setDate(toDate.getDate() - 1);
+            const fromDate = moment().startOf("days");
+            const toDate = moment().endOf("days");
 
             initQueryGoodsReceipts.limit = 1000;
             initQueryGoodsReceipts.page = 1;
-            initQueryGoodsReceipts.sort_type = "desc";
-            initQueryGoodsReceipts.sort_column = "updated_date";
-            initQueryGoodsReceipts.from_date = moment(fromDate).format("DD-MM-YYYY");
-            initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
+            //initQueryGoodsReceipts.sort_type = "desc";
+            //initQueryGoodsReceipts.sort_column = "updated_date";
+            initQueryGoodsReceipts.from_date = moment(fromDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+            initQueryGoodsReceipts.to_date = moment(toDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
 
             dispatch(
               getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -201,12 +203,15 @@ const AddReportHandOver: React.FC = () => {
               ...packModel,
               order: [...notSelectOrderPackSuccess]
             }
-            console.log("packData", packData);
+            //console.log("packData", packData);
 
             setPackModel(packData);
             setPackInfo(packData);
             setIsFulFillmentPack([]);
             showSuccess("Thêm đơn hàng vào biên bản bàn giao thành công");
+            let pathname = `${process.env.PUBLIC_URL}${UrlConfig.DELIVERY_RECORDS}/${value.id}`;
+            window.open(pathname,"_blank");
+            //history.push(`${UrlConfig.DELIVERY_RECORDS}/${value.id}`)
           }
         }
       )
@@ -214,16 +219,16 @@ const AddReportHandOver: React.FC = () => {
   }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel, setIsFulFillmentPack]);
 
   useEffect(() => {
-    
-    const fromDate =  moment().startOf("days");
+
+    const fromDate = moment().startOf("days");
     const toDate = moment().endOf("days");
 
     initQueryGoodsReceipts.limit = 1000;
     initQueryGoodsReceipts.page = 1;
     //initQueryGoodsReceipts.sort_type = "desc";
     //initQueryGoodsReceipts.sort_column = "updated_date";
-    initQueryGoodsReceipts.from_date = moment(fromDate,"yyyy-MM-dd'T'HH:mm:ss'Z'");
-    initQueryGoodsReceipts.to_date = moment(toDate,"yyyy-MM-dd'T'HH:mm:ss'Z'");
+    initQueryGoodsReceipts.from_date = moment(fromDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    initQueryGoodsReceipts.to_date = moment(toDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     dispatch(
       getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {

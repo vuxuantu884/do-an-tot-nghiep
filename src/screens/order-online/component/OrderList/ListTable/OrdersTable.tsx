@@ -448,7 +448,7 @@ function OrdersTable(props: PropTypes) {
                       type="link"
                        icon={<EyeOutlined style={{paddingRight:"10px"}} /> } 
                       onClick={()=>{
-                        let pathname = `${BASE_NAME_ROUTER}${UrlConfig.CUSTOMER}/${record.customer_id}`;
+                        let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
                         window.open(pathname,"_blank");
                       }}
                     >
@@ -460,7 +460,7 @@ function OrdersTable(props: PropTypes) {
                      type="link" 
                      icon={<PlusOutlined style={{paddingRight:"10px"}}/> } 
                      onClick={()=>{
-                       let pathname = `${BASE_NAME_ROUTER}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+                       let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
                        window.open(pathname,"_blank");
                     }}
                     >

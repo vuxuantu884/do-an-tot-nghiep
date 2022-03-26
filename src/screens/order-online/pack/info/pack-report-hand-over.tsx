@@ -31,6 +31,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
+import moment from "moment";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -213,7 +214,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
     let dataResult: Array<GoodsReceiptsSearhModel> = [];
     data.items.forEach((item: GoodsReceiptsResponse, index: number) => {
-      let product_quantity = 0;
+      //let product_quantity = 0;
       let order_quantity = item.orders?.length ? item.orders?.length : 0;
       let order_send_quantity = 0;
       let order_transport = 0;
@@ -227,7 +228,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         order_send_quantity =
           order_send_quantity +
           (itemOrder.fulfillments?.length ? itemOrder.fulfillments?.length : 0);
-
+        //product_quantity += itemOrder.total_quantity||0;
         // itemOrder.fulfillments?.forEach(function (itemFulfillment) {
         //   product_quantity =
         //     product_quantity +
@@ -270,7 +271,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         id_handover_record: item.id,
         store_name: item.store_name,
         handover_record_type: item.receipt_type_name, //loại biên bản
-        product_quantity: product_quantity, // sl sản phẩm
+        total_quantity: item.total_quantity ? item.total_quantity : 0, // sl sản phẩm
         order_quantity: order_quantity, //SL đơn
         order_send_quantity: order_quantity, //Số đơn gửi hvc
         order_transport: order_transport, //Đơn đang chuyển
@@ -490,8 +491,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
     {
       title: "SL SP",
-      dataIndex: "product_quantity",
-      key: "product_quantity",
+      dataIndex: "total_quantity",
+      key: "total_quantity",
       visible: true,
       align: "center",
       width: "80px",
@@ -605,9 +606,40 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   );
 
   useEffect(() => {
+    const convertFromStringToDate = (pDate: any, fomat:string) => {
+      let date: any = null;
+
+      if (pDate) {
+        if (!moment(pDate).isValid()) {
+          let dd = pDate.split("-")[0].padStart(2, "0");
+          let mm = pDate.split("-")[1].padStart(2, "0");
+          let yyyy = pDate.split("-")[2].split(" ")[0];
+          // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
+          // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
+          // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
+    
+          mm = (parseInt(mm) - 1).toString(); // January is 0
+          dd = (parseInt(dd) + 1).toString();
+
+          date = moment(new Date(yyyy, mm, dd), fomat);
+        }
+        else
+          date = moment(pDate, fomat);
+      }
+
+      return date;
+    }
     setTableLoading(true);
+    let from_date: any = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    let to_date: any =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+    let query = {
+      ...params,
+      from_date: from_date,
+      to_date: to_date
+    }
     dispatch(
-      getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
+      getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
         let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
         /////
         setData({
@@ -663,7 +695,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       {showSettingColumn && (
         <ModalSettingColumn
           visible={showSettingColumn}
-          isSetDefaultColumn={true}
+          isSetDefaultColumn={false}
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
             setShowSettingColumn(false);
