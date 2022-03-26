@@ -204,7 +204,7 @@ const YDPageCustomerView = (props: any) => {
                 backgroundColor: `${statusTag?.background}`,
               }}
             >
-              {statusTag?.name}
+              {row.sub_status}
             </Tag>
           </div>
         );

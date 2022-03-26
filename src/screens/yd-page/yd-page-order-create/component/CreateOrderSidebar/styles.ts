@@ -13,13 +13,14 @@ export const StyledComponent = styled.div`
   .ant-form-item {
     margin-bottom: 15px;
   }
+
   .ant-card-head {
-    padding: 0 !important;
+    padding: 20px;
     border-bottom: none;
   }
 
   .ant-card-body {
-    padding: 12px 20px;
+    padding: 0 20px 20px 20px;
   }
 
   .staff-form-input {
