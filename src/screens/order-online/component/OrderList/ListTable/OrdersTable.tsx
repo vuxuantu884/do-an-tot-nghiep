@@ -488,7 +488,6 @@ function OrdersTable(props: PropTypes) {
                     <div className="product productNameWidth 2">
                       <div className="inner">
                         <Link
-                          target="_blank"
                           to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
                           {item.sku}
                         </Link>
@@ -781,7 +780,7 @@ function OrdersTable(props: PropTypes) {
                     <React.Fragment>
                       <div className="single">
                         Nhận tại {" - "}
-                        <Link target="_blank" to={`${UrlConfig.STORE}/${record?.store_id}`}>
+                        <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
                           {record.store}
                         </Link>
                       </div>
@@ -1054,7 +1053,7 @@ function OrdersTable(props: PropTypes) {
       {
         title: "NV bán hàng",
         render: (value, record: OrderModel) => (
-          <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
+          <Link to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
             {`${record.assignee_code} - ${record.assignee}`}
           </Link>
         ),
@@ -1066,7 +1065,7 @@ function OrdersTable(props: PropTypes) {
       {
         title: "NV tạo đơn",
         render: (value, record: OrderModel) => (
-          <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
+          <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
             {`${record.account_code} - ${record.account}`}
           </Link>
         ),
@@ -1083,7 +1082,7 @@ function OrdersTable(props: PropTypes) {
         render: (value, record: OrderModel) => {
           if (value) {
             return (
-              <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
+              <Link to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
                 {value}
               </Link>
             );
