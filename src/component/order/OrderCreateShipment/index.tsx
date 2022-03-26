@@ -42,6 +42,7 @@ type ShipmentButtonType = {
   name: string | null;
   value: number;
   icon: string | undefined;
+  isDisabled?: boolean;
 };
 
 type PropType = {
@@ -62,6 +63,7 @@ type PropType = {
   setThirdPL: (thirdPl: thirdPLModel) => void;
   handleCreateShipment?: () => void;
   creating?: boolean;
+  isOrderReturnFromPOS?: boolean;
   handleCancelCreateShipment?: () => void;
   ecommerceShipment? : EcommerceDeliveryResponse | null;
   isEcommerceOrder?: boolean;
@@ -128,6 +130,7 @@ function OrderCreateShipment(props: PropType) {
     ecommerceShipment,
     isEcommerceOrder,
     OrderDetail,
+    isOrderReturnFromPOS,
   } = props;
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
@@ -162,21 +165,25 @@ function OrderCreateShipment(props: PropType) {
       name: "Chuyển hãng vận chuyển",
       value: 1,
       icon: IconDelivery,
+      isDisabled: isOrderReturnFromPOS,
     },
     {
       name: "Tự giao hàng",
       value: 2,
       icon: IconSelfDelivery,
+      isDisabled: isOrderReturnFromPOS,
     },
     {
       name: "Nhận tại cửa hàng",
       value: 3,
       icon: IconShoppingBag,
+      isDisabled: false,
     },
     {
       name: "Giao hàng sau",
       value: 4,
       icon: IconWallClock,
+      isDisabled: isOrderReturnFromPOS,
     },
   ];
 
@@ -187,10 +194,10 @@ function OrderCreateShipment(props: PropType) {
           <div key={button.value}>
             {shipmentMethod !== button.value ? (
               <div
-                className="saleorder_shipment_button 2"
+                className={`saleorder_shipment_button 2 ${button.isDisabled ? "disabled" : null}`}
                 key={button.value}
                 style={isOrderFinishedOrCancel(OrderDetail) ? {pointerEvents: "none"} : undefined}
-                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
+                onClick={() => levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value)}
               >
                 <img src={button.icon} alt="icon"></img>
                 <span>{button.name}</span>
