@@ -1,7 +1,7 @@
 import { ExportOutlined } from '@ant-design/icons';
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
-import { DETAIL_LINKS } from 'config/report-templates';
+import { DETAIL_LINKS } from 'config/report/report-templates';
 import _ from 'lodash';
 import { AnalyticChartInfo, AnalyticConditions, AnalyticQuery, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
 import moment from 'moment';
@@ -119,6 +119,16 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             return [key, operator, ...values]
         })
 
+        let isOrderBy = false;
+        if (orderBy?.length) {
+          const orderByArr = orderBy.reduce((res: string[], item: string[]) => {
+            return [...res, item[0]];
+          }, []);
+          if ([...(values[ReportifyFormFields.column] || []), ...show].findIndex(item => orderByArr.includes(item)) !== -1) {
+            isOrderBy = true;
+          }
+        }
+
         const parms: AnalyticQuery = {
             columns: columns,
             rows: show,
@@ -126,9 +136,8 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             from: ranges?.from,
             to: ranges?.to,
             conditions: whereParams,
-            orderBy: orderBy,
+            orderBy: isOrderBy ? orderBy : [],
         } as AnalyticQuery;
-
 
         const params = generateRQuery(parms)
         if (mode !== SUBMIT_MODE.GET_DATA) {
@@ -519,12 +528,10 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                           {metadata ? getTranslatePropertyKey(metadata, field) : field}
                         </Tooltip>
                       }
-                      // Đoạn này dùng để request data từ server để sắp xếp cột- hiện tại đang sắp xếp trên client
-                      // còn thiếu set defaultSortOrder khi load data từ server
-
                       sorter={(a, b) => {
                         return 0;
                       }}
+                      sortOrder={form.getFieldValue(ReportifyFormFields.orderBy) && form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field) ? (form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field)[1]?.toLowerCase() === 'desc' ? 'descend' : 'ascend') : undefined}
                       key={index}
                       fixed={
                         index === 0 && format !== "price" && format !== "number"
