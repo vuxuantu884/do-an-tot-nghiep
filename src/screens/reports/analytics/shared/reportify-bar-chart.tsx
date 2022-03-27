@@ -67,7 +67,7 @@ function ReportifyBarChart(props: Props) {
                     }}
                     allowDecimals={false}
                 />
-                <Tooltip content={<TooltipContent />} />
+                <Tooltip content={<TooltipContent />} cursor={{fill: 'rgba(243, 243, 247, 0.6)'}} />
                 {(leftLegendName || rightLegendName) && (
                     <>
                         <Legend wrapperStyle={{

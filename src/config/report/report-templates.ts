@@ -6,7 +6,7 @@ import {
 } from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
-import UrlConfig from "./url.config";
+import UrlConfig from "../url.config";
 
 const TODAY = moment().format(DATE_FORMAT.YYYYMMDD);
 const START_OF_MONTH = moment().startOf("month").format(DATE_FORMAT.YYYYMMDD);
@@ -28,10 +28,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 1,
     type: "Báo cáo bán hàng",
     name: "theo nhân viên",
-    query: `SHOW orders, gross_sales,returns, net_sales, taxes,shipping,total_sales, average_order_value  
+    query: `SHOW orders, gross_sales,returns, net_sales, shipping,total_sales, average_order_value  
     BY staff_name
     FROM sales 
-    SINCE ${TODAY} UNTIL ${TODAY} 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_SALES],
     cube: "sales",
@@ -42,10 +42,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 1,
     type: "Báo cáo lợi nhuận",
     name: "theo nhân viên",
-    query: `SHOW orders, gross_sales,returns, net_sales, taxes,shipping,total_sales,gross_profit, average_order_value  
+    query: `SHOW orders, gross_sales,returns, net_sales, shipping,total_sales,gross_profit, average_order_value  
     BY staff_name
     FROM costs 
-    SINCE ${TODAY} UNTIL ${TODAY} 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_FINACE],
     cube: "costs",
@@ -55,10 +55,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo cửa hàng",
-    query: `SHOW orders, gross_sales, returns, net_sales,taxes,shipping,total_sales, average_order_value  
+    query: `SHOW net_sales, average_order_value
     BY pos_location_name  
     FROM sales  
-    SINCE ${TODAY} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
+    WHERE channel_provider_name IN ('POS')
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_SALES],
     cube: "sales",
     iconImg: "cua-hang.svg",
@@ -68,10 +69,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo cửa hàng",
-    query: `SHOW orders, gross_sales, returns, net_sales,taxes,shipping,total_sales,gross_profit, average_order_value  
+    query: `SHOW gross_profit  
     BY pos_location_name  
     FROM costs  
-    SINCE ${TODAY} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
+    WHERE channel_provider_name IN ('POS') 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_FINACE],
     cube: "costs",
     iconImg: "cua-hang.svg",
@@ -81,10 +83,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo nguồn bán hàng",
-    query: `SHOW orders,gross_sales,returns,taxes,shipping,total_sales,net_sales, average_order_value  
+    query: `SHOW net_sales, average_order_value  
     BY source_name
     FROM sales 
-    SINCE ${TODAY} UNTIL ${TODAY} 
+    WHERE channel_provider_name IN ('web','Shopee','Facebook','Admin','Lazada') 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
     cube: "sales",
     alias: [UrlConfig.ANALYTIC_SALES],
@@ -95,10 +98,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo nguồn bán hàng",
-    query: `SHOW orders,gross_sales,returns,taxes,shipping,total_sales,net_sales,gross_profit, average_order_value  
+    query: `SHOW gross_profit  
     BY source_name
     FROM costs 
-    SINCE ${TODAY} UNTIL ${TODAY} 
+    WHERE channel_provider_name IN ('web','Shopee','Lazada','Facebook','Admin') 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
     cube: "costs",
     alias: [UrlConfig.ANALYTIC_FINACE],
@@ -109,10 +113,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo sản phẩm",
-    query: `SHOW orders,gross_sales,returns,taxes,shipping,total_sales,net_sales, average_order_value  
+    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales, average_order_value  
     BY variant_sku
     FROM sales 
-    SINCE ${TODAY} UNTIL ${TODAY} 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
     cube: "sales",
     alias: [UrlConfig.ANALYTIC_SALES],
@@ -123,10 +127,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo sản phẩm",
-    query: `SHOW orders,gross_sales,returns,taxes,shipping,total_sales,net_sales,gross_profit, average_order_value  
+    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales,gross_profit, average_order_value  
     BY variant_sku
     FROM costs 
-    SINCE ${TODAY} UNTIL ${TODAY} 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
     cube: "costs",
     alias: [UrlConfig.ANALYTIC_FINACE],
@@ -137,7 +141,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo thời gian",
-    query: `SHOW orders,gross_sales,returns, net_sales,taxes,shipping,total_sales, average_order_value  
+    query: `SHOW orders,gross_sales,returns, net_sales,shipping,total_sales, average_order_value  
     BY day 
     FROM sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
@@ -151,7 +155,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo thời gian",
-    query: `SHOW orders,gross_sales,returns, net_sales,taxes,shipping,total_sales,gross_profit, average_order_value  
+    query: `SHOW orders,gross_sales,returns, net_sales,shipping,total_sales,gross_profit, average_order_value  
     BY day 
     FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
@@ -165,7 +169,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo khách hàng",
-    query: `SHOW orders,gross_sales,returns,taxes,shipping,total_sales,net_sales, average_order_value  
+    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales, average_order_value  
     BY customer_name
     FROM sales SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
@@ -178,7 +182,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo khách hàng",
-    query: `SHOW orders,gross_sales,returns,taxes,shipping,total_sales,net_sales,gross_profit, average_order_value  
+    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales,gross_profit, average_order_value  
     BY customer_name
     FROM costs SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
@@ -221,7 +225,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo thanh toán",
     name: "theo nhân viên",
-    query: `SHOW cash_payments, transfer_payments, cod_payments, point_payments, unknown_payments, payments, card_payments, qr_pay_payments 
+    query: `SHOW payments, cash_payments, transfer_payments, cod_payments, point_payments, card_payments, qr_pay_payments, unknown_payments  
     BY staff_name 
     FROM payments 
     SINCE ${TODAY}  UNTIL ${TODAY} 
@@ -235,7 +239,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo thanh toán",
     name: " theo cửa hàng",
-    query: `SHOW  cash_payments, transfer_payments, cod_payments, point_payments, unknown_payments, payments, card_payments, qr_pay_payments 
+    query: `SHOW  payments, cash_payments, transfer_payments, cod_payments, point_payments, card_payments, qr_pay_payments, unknown_payments 
     BY pos_location_name
     FROM payments 
     SINCE ${TODAY}  UNTIL ${TODAY} 
@@ -263,11 +267,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo thanh toán",
     name: " theo thời gian",
-    query: `SHOW payments 
-    BY day ,customer_name,payment_method_name,order_code,pos_location_name,staff_name 
+    query: `SHOW payments, cash_payments, transfer_payments, cod_payments, point_payments, card_payments, qr_pay_payments, unknown_payments 
+    BY hour 
     FROM payments  
-    SINCE ${START_OF_MONTH}  UNTIL ${TODAY}  
-    ORDER BY day DESC `,
+    SINCE ${TODAY}  UNTIL ${TODAY}  
+    ORDER BY hour DESC `,
     cube: "payments",
     alias: [UrlConfig.ANALYTIC_SALES],
     iconImg: "thoi-gian-thanh-toan.svg",
@@ -278,7 +282,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   //   type: "Báo cáo thanh toán",
   //   name: "theo ngân hàng",
   //   query: `SHOW payments BY bank_name FROM payments 
-  //   SINCE ${START_OF_MONTH} UNTIL ${TODAY}
+  //   SINCE ${TODAY} UNTIL ${TODAY}
   //   ORDER BY payments DESC `,
   //   cube: "payments",
   //   alias: [UrlConfig.ANALYTIC_SALES],
@@ -293,7 +297,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     query: `SHOW payments, cash_payments, transfer_payments, cod_payments, point_payments, card_payments, qr_pay_payments, unknown_payments 
     BY customer_group
     FROM payments 
-    SINCE ${TODAY}  UNTIL ${TODAY} 
+    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
     ORDER BY payments desc `,
     cube: "payments",
     iconImg: "thanh-toan-nhom kh.png",
@@ -304,10 +308,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo nhóm khách hàng",
-    query: `SHOW  orders,gross_sales, returns, net_sales,taxes,shipping,total_sales, average_order_value  
+    query: `SHOW  orders,gross_sales, returns, net_sales,shipping,total_sales, average_order_value  
     BY customer_group 
     FROM sales 
-    SINCE ${TODAY}  UNTIL ${TODAY} 
+    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
     ORDER BY net_sales desc `,
     cube: "sales",
     iconImg: "ban-hang-nhom kh.png",
@@ -318,10 +322,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo nhóm khách hàng",
-    query: `SHOW  orders,gross_sales, returns, net_sales,taxes,shipping,total_sales,gross_profit, average_order_value  
+    query: `SHOW  orders,gross_sales, returns, net_sales,shipping,total_sales,gross_profit, average_order_value  
     BY customer_group 
     FROM costs 
-    SINCE ${TODAY}  UNTIL ${TODAY} 
+    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
     ORDER BY net_sales desc `,
     cube: "costs",
     iconImg: "ban-hang-nhom kh.png",
@@ -332,10 +336,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo địa chỉ khách hàng",
-    query: `SHOW  orders,gross_sales, returns, net_sales,taxes,shipping,total_sales, average_order_value  
+    query: `SHOW  net_sales, average_order_value  
       BY shipping_city  
       FROM sales 
-      SINCE ${TODAY}  UNTIL ${TODAY} 
+      WHERE channel_provider_name IN ('Admin','Facebook','Lazada','Shopee','web') 
+      SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
       ORDER BY net_sales desc `,
     cube: "sales",
     iconImg: "dia-chi-kh.png",
@@ -346,10 +351,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo địa chỉ khách hàng",
-    query: `SHOW  orders,gross_sales, returns, net_sales,taxes,shipping,total_sales,gross_profit, average_order_value  
+    query: `SHOW  gross_profit  
       BY shipping_city  
       FROM costs 
-      SINCE ${TODAY}  UNTIL ${TODAY} 
+      WHERE channel_provider_name IN ('Admin','Facebook','Lazada','Shopee','web') 
+      SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
       ORDER BY net_sales desc `,
     cube: "costs",
     iconImg: "dia-chi-kh.png",

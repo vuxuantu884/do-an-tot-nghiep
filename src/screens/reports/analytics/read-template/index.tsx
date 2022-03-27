@@ -3,18 +3,18 @@ import { Button, Form } from 'antd'
 import exportIcon from "assets/icon/export.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
-import REPORT_TEMPLATES from "config/report-templates"
+import REPORT_TEMPLATES, { REPORT_NAMES } from "config/report/report-templates"
 import { AnnotationDataList } from 'config/report/annotation-data'
 import UrlConfig from 'config/url.config'
 import _ from 'lodash'
-import { AnalyticConditions, AnalyticDataQuery, AnalyticQuery, AnalyticTemplateData, AnalyticChartInfo, SUBMIT_MODE, FIELD_FORMAT, AnnotationData, AnalyticCube } from 'model/report/analytics.model'
+import { AnalyticConditions, AnalyticDataQuery, AnalyticQuery, AnalyticTemplateData, AnalyticChartInfo, SUBMIT_MODE, FIELD_FORMAT, AnnotationData } from 'model/report/analytics.model'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory, useParams, useRouteMatch } from 'react-router-dom'
 import { executeAnalyticsQueryService, getAnalyticsMetadataService, saveAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import AnalyticsForm, { ReportifyFormFields, TIME_GROUP_BY } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
@@ -38,9 +38,9 @@ function UpdateAnalytics() {
 
 
 
-    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
     const CURRENT_REPORT_TEMPLATE: AnalyticTemplateData = REPORT_TEMPLATES.find((item) => item.id === templateId) || {} as AnalyticTemplateData;
-    const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => matchPath.includes(item.alias) && item.cube === CURRENT_REPORT_TEMPLATE.cube);
+    const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cube === CURRENT_REPORT_TEMPLATE.cube);
 
     cubeRef.current = CURRENT_REPORT_TEMPLATE.cube;
 
@@ -131,8 +131,6 @@ function UpdateAnalytics() {
         const fetchMetadata = async () => {
             const response = await callApiNative({ isShowError: true }, dispatch, getAnalyticsMetadataService, { q: CURRENT_REPORT_TEMPLATE.query });
             if (response) {
-                const { taxes, ...others } = response.aggregates;
-                response.aggregates = others;
                 setMetadata(response);
             }
         }
@@ -151,7 +149,7 @@ function UpdateAnalytics() {
                 setChartColumnSelected(CURRENT_REPORT_TEMPLATE.chartColumnSelected);
                 //queryObject: data lấy từ api
 
-                const { columns, rows, cube, conditions, from, to } = response.query;
+                const { columns, rows, cube, conditions, from, to, orderBy } = response.query;
                 const timeGroup = checkArrayHasAnyValue(rows || [], TIME_GROUP_BY.map(item => item.value));
 
                 const propertiesValue = getPropertiesValue(rows || []);
@@ -161,12 +159,30 @@ function UpdateAnalytics() {
                 form.setFieldsValue({
                     [ReportifyFormFields.column]: columns.map((item: any) => item.field),
                     [ReportifyFormFields.properties]: propertiesValue,
-                    [ReportifyFormFields.timeRange]: matchPath.includes(UrlConfig.ANALYTIC_SALES) && CURRENT_REPORT_TEMPLATE.cube === AnalyticCube.Sales ? [moment().startOf("month"), moment()] : [moment(from), moment(to)],
+                    [ReportifyFormFields.timeRange]: [moment(from), moment(to)],
                     [ReportifyFormFields.reportType]: cube,
                     [ReportifyFormFields.timeGroupBy]: timeGroup,
                     [ReportifyFormFields.where]: whereValue,
-                    [ReportifyFormFields.chartFilter]: CURRENT_REPORT_TEMPLATE.chartColumnSelected
+                    [ReportifyFormFields.chartFilter]: CURRENT_REPORT_TEMPLATE.chartColumnSelected,
+                    [ReportifyFormFields.orderBy]: orderBy,
                 })
+
+                const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
+                if (Object.keys(fieldWhereValue).length) {
+                    Object.keys(fieldWhereValue).forEach((key: string) => {
+                        const value = fieldWhereValue[key];
+                        if (value && Array.isArray(value)) {
+                            if (value.length === 1 && value[0] === '') {
+                                setActiveFilters(activeFilters.set(key, { value: ['Tất cả'], title: metadata ? getTranslatePropertyKey(metadata, key) : key }));
+                            } else {
+                                setActiveFilters(activeFilters.set(key, { value: fieldWhereValue[key], title: metadata ? getTranslatePropertyKey(metadata, key) : key }));
+                            }
+                        } else {
+                            activeFilters.delete(key);
+                            setActiveFilters(activeFilters);
+                        }
+                    })
+                }
             }
         }
         if (CURRENT_REPORT_TEMPLATE.query && metadata) {
@@ -174,7 +190,7 @@ function UpdateAnalytics() {
         }
 
 
-    }, [form, getPropertiesValue, getConditionsFormServerToForm, CURRENT_REPORT_TEMPLATE.query, metadata, dispatch, setDataQuery, setMetadata, CURRENT_REPORT_TEMPLATE.chartColumnSelected, setChartColumnSelected, CURRENT_REPORT_TEMPLATE.cube, matchPath])
+    }, [form, getPropertiesValue, getConditionsFormServerToForm, CURRENT_REPORT_TEMPLATE.query, metadata, dispatch, setDataQuery, setMetadata, CURRENT_REPORT_TEMPLATE.chartColumnSelected, setChartColumnSelected, setActiveFilters, activeFilters])
 
     // Load chart data
     useEffect(() => {
@@ -196,14 +212,14 @@ function UpdateAnalytics() {
             setChartInfo({
                 showChart: true,
                 message: ''
-            })         
+            })
             if (dataQuery && chartColumnSelected?.length) {
                 const { conditions } = dataQuery.query;
                 let mapperConditions;
                 if (conditions?.length) {
                     mapperConditions = conditions.map(condition => {
                         if (condition.findIndex(item => item === 'IN') !== -1) {
-                            condition = [...condition.slice(0,2), ...condition.slice(2).join("").split(",").map((item: string) => `'${item}'`).join(",")]
+                            condition = [...condition.slice(0, 2), ...condition.slice(2).join("").split(",").map((item: string) => `'${item}'`).join(",")]
                         }
                         return condition;
                     })
@@ -231,7 +247,7 @@ function UpdateAnalytics() {
                         response.result.data.forEach((item: any) => item[timestampIdx] = formatReportTime(item[timestampIdx], columns[timestampIdx].field))
                     }
                     setChartDataQuery(response);
-                    form.setFieldsValue({chartFilter: chartColumnSelected})
+                    form.setFieldsValue({ chartFilter: chartColumnSelected })
                 }
             }
         }
@@ -249,11 +265,11 @@ function UpdateAnalytics() {
             isError={_.isEmpty(CURRENT_REPORT_TEMPLATE)}
             breadcrumb={[
                 {
-                    name: "Danh sách báo cáo",
+                    name: `Danh sách ${REPORT_NAMES[matchPath.replace("/:id", "")].toLocaleLowerCase()}`,
                     path: matchPath.replace("/:id", ""),
                 },
                 {
-                    name: "Báo cáo mẫu",
+                    name: `${CURRENT_REPORT_TEMPLATE.type} ${CURRENT_REPORT_TEMPLATE.name}`,
 
                 }
 
