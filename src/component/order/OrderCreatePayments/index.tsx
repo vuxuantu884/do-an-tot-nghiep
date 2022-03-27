@@ -2,7 +2,6 @@ import {Col, Collapse, Divider, Form, Radio, Row, Space} from "antd";
 import Calculate from "assets/icon/caculate.svg";
 import OrderPayments from "component/order/OrderPayments";
 import {OrderPaymentRequest} from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
 import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -27,7 +26,6 @@ type PropTypes = {
   setPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   orderDetail?: OrderResponse | null;
-  customer: CustomerResponse | null;
 };
 
 /**
@@ -65,7 +63,6 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
     setPayments,
     setPaymentMethod,
     orderDetail,
-    customer,
   } = props;
 
   const changePaymentMethod = (value: number) => {
@@ -75,7 +72,7 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
       setPayments([]);
     }
   };
-console.log('payments', payments)
+
   /**
    * tổng số tiền đã trả
    */
@@ -207,7 +204,6 @@ console.log('payments', payments)
                       levelOrder={levelOrder}
                       loyaltyRate={loyaltyRate}
                       listPaymentMethod={listPaymentMethod}
-                      customer={customer}
                     />
                   </Row>
                 </div>

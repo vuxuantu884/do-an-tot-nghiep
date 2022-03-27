@@ -5,7 +5,6 @@ import OrderPayments from "component/order/OrderPayments";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { UpdatePaymentAction } from "domain/actions/order/order.action";
 import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -36,7 +35,6 @@ type PropType = {
   // setTotalPaid: (value: number) => void;
   reload?: () => void;
   disabledActions?: (type: string) => void;
-  customer: CustomerResponse | null;
 };
 
 function UpdatePaymentCard(props: PropType) {
@@ -49,7 +47,6 @@ function UpdatePaymentCard(props: PropType) {
     paymentMethod,
     shipmentMethod,
     isDisablePostPayment,
-    customer
   } = props;
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
@@ -168,7 +165,6 @@ function UpdatePaymentCard(props: PropType) {
           loyaltyRate={loyaltyRate}
           listPaymentMethod={listPaymentMethods}
           isDisablePostPayment={isDisablePostPayment}
-          customer = {customer}
         />
 				{renderButtons()}
       </div>
@@ -224,7 +220,6 @@ function UpdatePaymentCard(props: PropType) {
 					totalAmountOrder={amount}
 					loyaltyRate={loyaltyRate}
 					listPaymentMethod={listPaymentMethods}
-          customer = {customer}
 				/>
 				{renderButtons()}
       </div>
