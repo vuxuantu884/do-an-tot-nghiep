@@ -1266,6 +1266,7 @@ ShippingServiceConfigDetailResponseModel[]
 												loyaltyRate={loyaltyRate}
 												isDisablePostPayment={isDisablePostPayment}
 												listPaymentMethod={listPaymentMethod}
+												customer={customer}
 											/>
 										</Card>
 

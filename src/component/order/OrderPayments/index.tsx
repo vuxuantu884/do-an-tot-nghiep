@@ -8,6 +8,7 @@ import YdCoin from "component/icon/YdCoin";
 import { changeSelectedStoreBankAccountAction, setIsExportBillAction } from "domain/actions/order/order.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderPaymentRequest } from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -24,6 +25,7 @@ type PropType = {
   loyaltyRate?: LoyaltyRateResponse | null;
   listPaymentMethod: PaymentMethodResponse[];
   setPayments: (value: Array<OrderPaymentRequest>) => void;
+  customer: CustomerResponse | null;
 };
 
 /**
@@ -47,6 +49,7 @@ function OrderPayments(props: PropType): JSX.Element {
     loyaltyRate,
     listPaymentMethod,
     setPayments,
+    customer,
   } = props;
 
   const dispatch = useDispatch();
@@ -133,7 +136,7 @@ function OrderPayments(props: PropType): JSX.Element {
         payment_method: paymentMaster.name,
         reference: "",
         source: "",
-        customer_id: 1,
+        customer_id: customer?.id || 1,
         note: "",
         type: "",
       });
