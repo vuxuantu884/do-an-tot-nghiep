@@ -1006,7 +1006,6 @@ const OrderDetail = (props: PropType) => {
                                     listPaymentMethods={listPaymentMethods}
                                     form={form}
                                     isDisablePostPayment={isDisablePostPayment}
-                                    customer = {customerDetail}
                                   />
                                 )}
                               </Panel>
@@ -1144,7 +1143,6 @@ const OrderDetail = (props: PropType) => {
                     disabledActions={disabledActions}
                     listPaymentMethods={listPaymentMethods}
                     form={form}
-                    customer={customerDetail}
                   />
                 )}
 

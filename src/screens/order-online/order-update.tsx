@@ -1761,7 +1761,6 @@ ShippingServiceConfigDetailResponseModel[]
 													isDisablePostPayment={isDisablePostPayment}
 													listPaymentMethod={listPaymentMethod}
 													orderDetail={OrderDetail}
-													customer={customer}
 												/>
 											</Card>
 										)}
