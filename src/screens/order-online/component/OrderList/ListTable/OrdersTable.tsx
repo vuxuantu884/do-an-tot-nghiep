@@ -1,7 +1,7 @@
 import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getListSubStatusAction,
