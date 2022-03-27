@@ -371,6 +371,7 @@ function CardReturnProductContainer(props: PropType) {
           const { maxQuantityCanBeReturned, ...rest } = item;
           return rest;
         });
+        console.log('returnItems', returnItems)
         const returnItemsNow: OrderResponse[] = [
           {
             ...OrderDetail,
@@ -388,14 +389,17 @@ function CardReturnProductContainer(props: PropType) {
           refund_money,
           return_items,
         };
-        dispatch(
-          actionGetOrderReturnCalculateRefund(params, (response) => {
-            setPointRefund(response.point_refund);
-            if (setMoneyRefund) {
-              setMoneyRefund(response.money_refund);
-            }
-          })
-        );
+        setTimeout(() => {
+          dispatch(
+            actionGetOrderReturnCalculateRefund(params, (response) => {
+              setPointRefund(response.point_refund);
+              if (setMoneyRefund) {
+                setMoneyRefund(response.money_refund);
+              }
+            })
+          );
+          
+        }, 500);
       } else {
         setPointRefund(0);
         if (setMoneyRefund) {

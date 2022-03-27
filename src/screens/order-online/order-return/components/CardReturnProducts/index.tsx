@@ -358,7 +358,6 @@ function CardReturnProducts(props: PropType) {
           className="w-100"
           tableLayout="fixed"
           pagination={false}
-          scroll={{y: 300}}
           sticky
         />
         <Row className="boxPayment" gutter={24}>
