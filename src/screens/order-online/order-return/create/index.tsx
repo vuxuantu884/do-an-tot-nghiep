@@ -1365,6 +1365,24 @@ ShippingServiceConfigDetailResponseModel[]
       PaymentMethodGetList((response) => {
         let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
+        let cash = response.find(single => single.code === PaymentMethodCode.CASH);
+        if(cash) {
+          setPayments([{
+            amount: 0,
+            customer_id: customer?.id || null,
+            name: cash.name,
+            note: "",
+            paid_amount: 0,
+            payment_method: "Tiền mặt",
+            payment_method_code: PaymentMethodCode.CASH,
+            payment_method_id: cash.id,
+            reference: "",
+            return_amount: 0,
+            source: "",
+            status: "paid",
+            type: "",
+          }])
+        }
       })
     );
     /**
@@ -1375,7 +1393,7 @@ ShippingServiceConfigDetailResponseModel[]
         setOrderConfig(data);
       })
     );
-  }, [dispatch]);
+  }, [customer?.id, dispatch]);
 
   /**
    * orderSettings
@@ -1408,18 +1426,16 @@ ShippingServiceConfigDetailResponseModel[]
       ShipmentMethodOption.DELIVER_LATER,
     ]
     //isOrderFromPOS(OrderDetail) &&
-    if (isStepExchange) {
-      if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
-        setIsShowSelectOrderSources(true);
-        form.setFieldsValue({
-          source_id: OrderDetail?.source_id
-        })
-      } else {
-        setIsShowSelectOrderSources(false);
-        form.setFieldsValue({
-          source_id: undefined
-        })
-      }
+    if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
+      setIsShowSelectOrderSources(true);
+      form.setFieldsValue({
+        source_id: OrderDetail?.source_id
+      })
+    } else {
+      setIsShowSelectOrderSources(false);
+      form.setFieldsValue({
+        source_id: undefined
+      })
     }
   }, [OrderDetail, OrderDetail?.source_id, form, isStepExchange, shipmentMethod])
 
@@ -1445,7 +1461,6 @@ ShippingServiceConfigDetailResponseModel[]
       setIsExchange(false)
     }
   }, [listExchangeProducts.length])
-  
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
