@@ -2,6 +2,7 @@ import { Card, Radio, Space } from "antd";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { OrderPaymentRequest } from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useEffect, useState } from "react";
@@ -15,7 +16,6 @@ type PropType = {
 	totalAmountOrder: number;
   totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
-  isStepExchange: boolean;
   isDisablePostPayment: boolean;
   returnMoneyType?: string;
 	returnOrderInformation: {
@@ -26,6 +26,7 @@ type PropType = {
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   setReturnMoneyType?: (value: string) => void;
   setPaymentMethod: (value: number) => void;
+  customer: CustomerResponse | null;
 };
 
 /**
@@ -37,7 +38,6 @@ function CardReturnMoneyPageCreate(props: PropType) {
     listPaymentMethods,
     payments,
     totalAmountCustomerNeedToPay,
-    isStepExchange,
     returnMoneyType,
 		totalAmountOrder,
 		isDisablePostPayment,
@@ -47,6 +47,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
     setPayments,
     setReturnMoneyType,
     setPaymentMethod,
+    customer,
   } = props;
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
@@ -100,6 +101,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
           loyaltyRate={loyaltyRate}
           isDisablePostPayment={isDisablePostPayment}
           listPaymentMethod={listPaymentMethods}
+          customer={customer}
         />
       </>
     );

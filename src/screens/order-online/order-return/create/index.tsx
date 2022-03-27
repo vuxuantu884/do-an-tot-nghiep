@@ -13,37 +13,35 @@ import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/invent
 import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
-	actionCreateOrderExchange,
-	actionCreateOrderReturn,
-	actionGetOrderReturnReasons
+  actionCreateOrderExchange,
+  actionCreateOrderReturn,
+  actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
 import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-	BillingAddress,
-	ExchangeRequest,
-	FulFillmentRequest,
-	OrderDiscountRequest,
-	OrderLineItemRequest,
-	OrderPaymentRequest,
-	OrderRequest,
-	ReturnRequest,
-	ShipmentRequest
+  BillingAddress,
+  ExchangeRequest,
+  FulFillmentRequest,
+  OrderDiscountRequest,
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+  OrderRequest,
+  ReturnRequest,
+  ShipmentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-	OrderLineItemResponse,
-	OrderResponse,
-	OrderReasonModel,
-	ReturnProductModel,
-	ShippingAddress,
-	StoreCustomResponse
+  OrderLineItemResponse, OrderReasonModel, OrderResponse, ReturnProductModel,
+  ShippingAddress,
+  StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
@@ -54,26 +52,26 @@ import CustomerCard from "screens/order-online/component/order-detail/CardCustom
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 
-	getAmountPayment,
-	getAmountPaymentRequest,
-	getListItemsCanReturn,
-	getTotalAmountAfterDiscount,
-	getTotalOrderDiscount,
-	handleFetchApiError,
-	isFetchApiSuccessful,
-	isOrderFromPOS,
-	scrollAndFocusToDomElement,
-	totalAmount
+  getAmountPayment,
+  getAmountPaymentRequest,
+  getListItemsCanReturn,
+  getTotalAmountAfterDiscount,
+  getTotalOrderDiscount,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isOrderFromPOS,
+  scrollAndFocusToDomElement,
+  totalAmount
 } from "utils/AppUtils";
 import {
-	ADMIN_ORDER,
-	DEFAULT_COMPANY,
-	FulFillmentStatus,
-	OrderStatus,
-	PaymentMethodCode,
-	PaymentMethodOption, POS, ShipmentMethod,
-	ShipmentMethodOption,
-	TaxTreatment
+  ADMIN_ORDER,
+  DEFAULT_COMPANY,
+  FulFillmentStatus,
+  OrderStatus,
+  PaymentMethodCode,
+  PaymentMethodOption, POS, ShipmentMethod,
+  ShipmentMethodOption,
+  TaxTreatment
 } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
@@ -81,12 +79,10 @@ import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageCreate from "../components/CardReturnMoney/CardReturnMoneyPageCreate";
 import CardReturnMoneyPageCreateReturn from "../components/CardReturnMoney/CardReturnMoneyPageCreate/CardReturnMoneyPageCreateReturn";
-import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardReturnProductContainer from "../components/containers/CardReturnProductContainer";
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
-import _ from "lodash";
 
 type PropType = {
   id?: string;
@@ -1174,7 +1170,6 @@ ShippingServiceConfigDetailResponseModel[]
                     totalAmountOrder={totalAmountOrder}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     isExchange={isExchange}
-                    isStepExchange={isStepExchange}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
                     returnOrderInformation={{
@@ -1184,6 +1179,7 @@ ShippingServiceConfigDetailResponseModel[]
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                     isDisablePostPayment={isDisablePostPayment}
+                    customer={customer}
                   />
                 )}
                 {isExchange && (
@@ -1365,6 +1361,24 @@ ShippingServiceConfigDetailResponseModel[]
       PaymentMethodGetList((response) => {
         let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
+        let cash = response.find(single => single.code === PaymentMethodCode.CASH);
+        if(cash) {
+          setPayments([{
+            amount: 0,
+            customer_id: customer?.id || null,
+            name: cash.name,
+            note: "",
+            paid_amount: 0,
+            payment_method: "Tiền mặt",
+            payment_method_code: PaymentMethodCode.CASH,
+            payment_method_id: cash.id,
+            reference: "",
+            return_amount: 0,
+            source: "",
+            status: "paid",
+            type: "",
+          }])
+        }
       })
     );
     /**
@@ -1375,7 +1389,7 @@ ShippingServiceConfigDetailResponseModel[]
         setOrderConfig(data);
       })
     );
-  }, [dispatch]);
+  }, [customer?.id, dispatch]);
 
   /**
    * orderSettings
@@ -1408,18 +1422,16 @@ ShippingServiceConfigDetailResponseModel[]
       ShipmentMethodOption.DELIVER_LATER,
     ]
     //isOrderFromPOS(OrderDetail) &&
-    if (isStepExchange) {
-      if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
-        setIsShowSelectOrderSources(true);
-        form.setFieldsValue({
-          source_id: OrderDetail?.source_id
-        })
-      } else {
-        setIsShowSelectOrderSources(false);
-        form.setFieldsValue({
-          source_id: undefined
-        })
-      }
+    if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
+      setIsShowSelectOrderSources(true);
+      form.setFieldsValue({
+        source_id: OrderDetail?.source_id
+      })
+    } else {
+      setIsShowSelectOrderSources(false);
+      form.setFieldsValue({
+        source_id: undefined
+      })
     }
   }, [OrderDetail, OrderDetail?.source_id, form, isStepExchange, shipmentMethod])
 
@@ -1445,7 +1457,6 @@ ShippingServiceConfigDetailResponseModel[]
       setIsExchange(false)
     }
   }, [listExchangeProducts.length])
-  
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

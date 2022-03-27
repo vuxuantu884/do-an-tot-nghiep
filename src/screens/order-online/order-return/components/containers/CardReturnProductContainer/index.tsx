@@ -380,7 +380,7 @@ function CardReturnProductContainer(props: PropType) {
         ];
         let return_items = [...returnItemsNow];
         if (OrderDetail.order_returns) {
-          return_items = [...returnItemsNow, ...OrderDetail.order_returns];
+          return_items = [...OrderDetail.order_returns, ...returnItemsNow];
         }
         let params: OrderReturnCalculateRefundRequestModel = {
           customerId: OrderDetail.customer_id,
