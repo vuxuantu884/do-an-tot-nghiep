@@ -39,7 +39,7 @@ function CardReturnProductContainer(props: PropType) {
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
 
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
-  const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
+  const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
   const [pointRefund, setPointRefund] = useState(0);
 
   const listReturnProducts = createOrderReturnContext?.return.listReturnProducts;
@@ -54,8 +54,11 @@ function CardReturnProductContainer(props: PropType) {
   // const listOrderProducts = OrderDetail?.items;
   const isStepExchange = createOrderReturnContext?.isStepExchange;
   const isExchange = createOrderReturnContext?.isExchange;
+  console.log('createOrderReturnContext', createOrderReturnContext)
 
   const onSelectSearchedVariant = (value: string) => {
+    console.log('value', value)
+    console.log('listReturnProducts', listReturnProducts)
     if (!listItemCanBeReturn) {
       return;
     }
@@ -63,7 +66,7 @@ function CardReturnProductContainer(props: PropType) {
       return;
     }
     const selectedVariant = listItemCanBeReturn.find((single) => {
-      return single.id === +value;
+      return single.variant_id === +value;
     });
     if (!selectedVariant) return;
     let selectedVariantWithMaxQuantity: ReturnProductModel = {
@@ -71,7 +74,7 @@ function CardReturnProductContainer(props: PropType) {
       maxQuantityCanBeReturned: selectedVariant.quantity,
     };
     let indexSelectedVariant = listReturnProducts.findIndex((single) => {
-      return single.id === selectedVariantWithMaxQuantity.id;
+      return single.variant_id === selectedVariantWithMaxQuantity.variant_id;
     });
     let result = [...listReturnProducts];
     if (indexSelectedVariant === -1) {
@@ -149,6 +152,19 @@ function CardReturnProductContainer(props: PropType) {
     setIsCheckReturnAll(e.target.checked);
   };
 
+
+  useEffect(() => {
+    if (!listReturnProducts) {
+      return;
+    }
+    if(listReturnProducts.some(single => single.maxQuantityCanBeReturned > single.quantity) || listReturnProducts.length !== listItemCanBeReturn?.length) {
+      setIsCheckReturnAll(false)
+    } else {
+      setIsCheckReturnAll(true)
+    }
+  }, [listItemCanBeReturn?.length, listReturnProducts])
+  
+
   const renderSearchVariant = (item: OrderLineItemResponse) => {
     let avatar = item.variant_image;
     return (
@@ -205,7 +221,7 @@ function CardReturnProductContainer(props: PropType) {
     listOrderProductsResult.forEach((item: OrderLineItemResponse, index: number) => {
       options.push({
         label: renderSearchVariant(item),
-        value: item.id ? item.id.toString() : "",
+        value: item.variant_id ? item.variant_id.toString() : "",
       });
     });
 
@@ -355,6 +371,7 @@ function CardReturnProductContainer(props: PropType) {
           const { maxQuantityCanBeReturned, ...rest } = item;
           return rest;
         });
+        console.log('returnItems', returnItems)
         const returnItemsNow: OrderResponse[] = [
           {
             ...OrderDetail,
@@ -372,14 +389,17 @@ function CardReturnProductContainer(props: PropType) {
           refund_money,
           return_items,
         };
-        dispatch(
-          actionGetOrderReturnCalculateRefund(params, (response) => {
-            setPointRefund(response.point_refund);
-            if (setMoneyRefund) {
-              setMoneyRefund(response.money_refund);
-            }
-          })
-        );
+        setTimeout(() => {
+          dispatch(
+            actionGetOrderReturnCalculateRefund(params, (response) => {
+              setPointRefund(response.point_refund);
+              if (setMoneyRefund) {
+                setMoneyRefund(response.money_refund);
+              }
+            })
+          );
+          
+        }, 500);
       } else {
         setPointRefund(0);
         if (setMoneyRefund) {
@@ -444,6 +464,7 @@ function CardReturnProductContainer(props: PropType) {
       searchVariantInputValue={searchVariantInputValue}
       totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={isShowProductSearch()}
+      setListReturnProducts={setListReturnProducts}
     />
   );
 }
