@@ -27,7 +27,7 @@ import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
 import { ShipmentMethod } from "utils/Constants";
 import UrlConfig from "config/url.config";
-import { useHistory } from "react-router-dom";
+// import { useHistory } from "react-router-dom";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 5,
@@ -46,7 +46,7 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
 
 const AddReportHandOver: React.FC = () => {
   const dispatch = useDispatch();
-  const history= useHistory();
+  // const history= useHistory();
 
   //useState
   const [visibleModal, setVisibleModal] = useState(false);

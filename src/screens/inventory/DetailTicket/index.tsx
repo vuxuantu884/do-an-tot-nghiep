@@ -29,7 +29,8 @@ import {
   receivedInventoryTransferAction,
   getFeesAction,
   cancelShipmentInventoryTransferAction,
-  exportInventoryAction, createInventoryTransferShipmentAction,
+  exportInventoryAction,
+  // createInventoryTransferShipmentAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, ShipmentItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -40,7 +41,7 @@ import {
   findAvatar,
   handleDelayActionWhenInsertTextInSearchInput,
   SumWeightInventory,
-  SumWeightLineItems,
+  // SumWeightLineItems,
 } from "utils/AppUtils";
 import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
@@ -68,7 +69,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
-import moment from "moment";
+// import moment from "moment";
 export interface InventoryParams {
   id: string;
 }
