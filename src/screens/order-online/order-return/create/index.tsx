@@ -113,7 +113,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
-  
+  console.log('isStepExchange', isStepExchange)
   const [inventoryResponse, setInventoryResponse] =
   useState<Array<InventoryResponse> | null>(null);
 
@@ -481,10 +481,11 @@ ShippingServiceConfigDetailResponseModel[]
     }
   };
 
+  const checkIfHasReturnProduct = listReturnProducts.some((single) => {
+    return single.quantity > 0;
+  });
+
   const onReturn = () => {
-    let checkIfHasReturnProduct = listReturnProducts.some((single) => {
-      return single.quantity > 0;
-    });
     if (!storeReturn) {
       showError("Vui lòng chọn cửa hàng để trả!");
       return;
@@ -508,38 +509,6 @@ ShippingServiceConfigDetailResponseModel[]
       .catch((error) => {
         const element: any = document.getElementById(error.errorFields[0].name.join(""));
         scrollAndFocusToDomElement(element);
-      });
-  };
-
-  const handleIsStepExchange = (value: boolean) => {
-    form
-      .validateFields()
-      .then(() => {
-        let checkIfHasReturnProduct = listReturnProducts.some((single) => {
-          return single.quantity > 0;
-        });
-        if (!checkIfHasReturnProduct) {
-          showError("Vui lòng chọn ít nhất 1 sản phẩmm");
-          const element: any = document.getElementById("search_product");
-          scrollAndFocusToDomElement(element);
-          return;
-        } else {
-          if (isReceivedReturnProducts) {
-            setIsStepExchange(value);
-            setTimeout(() => {
-              const element: any = document.getElementById("store_id");
-              scrollAndFocusToDomElement(element);
-            }, 500);
-          } else {
-            setIsVisibleModalWarning(true);
-          }
-        }
-      })
-      .catch((error) => {
-        const element: any = document.getElementById(error.errorFields[0].name.join(""));
-        element?.focus();
-        const offsetY = element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-        window.scrollTo({ top: offsetY, behavior: "smooth" });
       });
   };
 
@@ -605,6 +574,12 @@ ShippingServiceConfigDetailResponseModel[]
         let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
           return single.quantity > 0;
         });
+        if (!checkIfHasReturnProduct) {
+          showError("Vui lòng chọn ít nhất 1 sản phẩm!");
+          const element: any = document.getElementById("search_product");
+          scrollAndFocusToDomElement(element);
+          return;
+        }
         if (!storeReturn) {
           showError("Vui lòng chọn cửa hàng để trả!");
           return;
@@ -1145,52 +1120,43 @@ ShippingServiceConfigDetailResponseModel[]
                     isAutoDefaultOrderSource= {false}
                   />
                 )}
-
-
-                <CardReturnOrder
-                  isDetailPage={false}
-                  isExchange={isExchange}
-                  handleIsExchange={setIsExchange}
-                  isStepExchange={isStepExchange}
-                />
+                
                 <CardReturnProductContainer
                   discountRate={discountRate}
                   isDetailPage={false}
                   orderId={orderId}
                 />
-                {isExchange && isStepExchange && (
-                  <OrderCreateProduct
-                    orderAmount={orderAmount}
-                    totalAmountOrder={totalAmountOrder}
-                    changeInfo={onChangeInfoProduct}
-                    setStoreId={(value) => {
-                      setStoreId(value);
-                      form.setFieldsValue({ store_id: value });
-                    }}
-                    storeId={storeId}
-                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-                    setItemGift={setItemGift}
-                    form={form}
-                    items={listExchangeProducts}
-                    setItems={setListExchangeProducts}
-                    inventoryResponse={inventoryResponse}
-                    setInventoryResponse={setInventoryResponse}
-                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                    returnOrderInformation={{
-                      totalAmountReturn: totalAmountReturnProducts,
-                      totalAmountExchangePlusShippingFee
-                    }}
-                    orderConfig={orderConfig}
-                    coupon={coupon}
-                    setCoupon={setCoupon}
-                    promotion={promotion}
-                    setPromotion={setPromotion}
-                    customer={customer}
-                    loyaltyPoint={loyaltyPoint}
-                    countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
-                    isCreateReturn
-                  />
-                )}
+                <OrderCreateProduct
+                  orderAmount={orderAmount}
+                  totalAmountOrder={totalAmountOrder}
+                  changeInfo={onChangeInfoProduct}
+                  setStoreId={(value) => {
+                    setStoreId(value);
+                    form.setFieldsValue({ store_id: value });
+                  }}
+                  storeId={storeId}
+                  shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+                  setItemGift={setItemGift}
+                  form={form}
+                  items={listExchangeProducts}
+                  setItems={setListExchangeProducts}
+                  inventoryResponse={inventoryResponse}
+                  setInventoryResponse={setInventoryResponse}
+                  totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                  returnOrderInformation={{
+                    totalAmountReturn: totalAmountReturnProducts,
+                    totalAmountExchangePlusShippingFee
+                  }}
+                  orderConfig={orderConfig}
+                  coupon={coupon}
+                  setCoupon={setCoupon}
+                  promotion={promotion}
+                  setPromotion={setPromotion}
+                  customer={customer}
+                  loyaltyPoint={loyaltyPoint}
+                  countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
+                  isCreateReturn
+                />
                 {!isExchange && (
                   <CardReturnMoneyPageCreateReturn
                     listPaymentMethods={listPaymentMethods}
@@ -1262,9 +1228,6 @@ ShippingServiceConfigDetailResponseModel[]
           onCancel={() => handleCancel()}
           isCanExchange={isCanExchange}
           isExchange={isExchange}
-          isStepExchange={isStepExchange}
-          setIsStepExchange={setIsStepExchange}
-          handleIsStepExchange={handleIsStepExchange}
         />
         <ModalConfirm
           onCancel={() => {
@@ -1475,7 +1438,14 @@ ShippingServiceConfigDetailResponseModel[]
     }
   }, [OrderDetail])
   
-
+  useEffect(() => {
+    if(listExchangeProducts.length > 0) {
+      setIsExchange(true)
+    } else {
+      setIsExchange(false)
+    }
+  }, [listExchangeProducts.length])
+  
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
