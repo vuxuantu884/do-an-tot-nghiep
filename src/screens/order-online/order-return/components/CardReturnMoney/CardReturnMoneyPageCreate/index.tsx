@@ -106,19 +106,10 @@ function CardReturnMoneyPageCreate(props: PropType) {
   };
 
   const renderIfIsExchange = () => {
-    if (!isStepExchange) {
-      return (
-        <div>
-          Đối với các đơn trả hàng để đổi hàng, bạn vui lòng thực hiện hoàn tiền/thanh
-          toán trên đơn đổi hàng.
-        </div>
-      );
+    if (isReturnMoneyToCustomer) {
+      return <div>{renderWhenReturnMoneyToCustomer()}</div>;
     } else {
-      if (isReturnMoneyToCustomer) {
-        return <div>{renderWhenReturnMoneyToCustomer()}</div>;
-      } else {
-        return <div>{renderWhenReturnCustomerNeedToPay()}</div>;
-      }
+      return <div>{renderWhenReturnCustomerNeedToPay()}</div>;
     }
   };
 
