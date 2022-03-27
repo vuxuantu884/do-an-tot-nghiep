@@ -1186,7 +1186,7 @@ ShippingServiceConfigDetailResponseModel[]
                     isDisablePostPayment={isDisablePostPayment}
                   />
                 )}
-                {isExchange && isStepExchange && (
+                {isExchange && (
                   <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                     <OrderCreateShipment
                       shipmentMethod={isOrderFromPOS(OrderDetail) ? ShipmentMethodOption.PICK_AT_STORE : shipmentMethod}
