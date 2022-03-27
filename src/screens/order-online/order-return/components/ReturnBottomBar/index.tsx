@@ -46,7 +46,7 @@ function ReturnBottomBar(props: PropType) {
     );
   };
 
-  const renderExchangeButtons = () => {
+  const renderExchangeButtons = () => { 
     return (
       <React.Fragment>
         <Button
