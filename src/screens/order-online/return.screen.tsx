@@ -59,6 +59,8 @@ const initQuery: ReturnSearchQuery = {
   account_codes: [],
   reason_ids: [],
   is_online: null,
+  source_ids: [],
+  channel_codes: []
 };
 
 const ListOrderScreen: React.FC = () => {
