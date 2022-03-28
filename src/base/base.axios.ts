@@ -28,21 +28,46 @@ export function getAxiosBase(config: AxiosRequestConfig) {
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
       AppConfig.runMode === "development" && console.log(response.data);
+
+      /**
+       * Record api 401 để check lỗi tự đăng xuất
+       */
+      if (response.status === HttpStatus.UNAUTHORIZED) {
+        console.warn("headers", response.config);
+      }
+
+      /**
+       * Thông báo lỗi
+       */
       switch (response.data.code) {
         case HttpStatus.FORBIDDEN:
           showError("Bạn không đủ quyền truy cập, vui lòng liên hệ với IT để được cấp quyền.");
-          return response;
+          break
         case HttpStatus.BAD_GATEWAY:
           showError(
             "Hệ thống đang gián đoạn, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời."
           );
-          return response;
+          break
         default:
           break;
       }
+
+      /**
+       * response
+       */
+      if (response.data.code === HttpStatus.SUCCESS) {
       return response.data;
+      } else {
+        return response;
+      }
     },
     function (error) {
+      /**
+      * Record api 401 để check lỗi tự đăng xuất
+      */
+      if (error.response?.status === 401) {
+        console.warn("error", error);
+      }
       return Promise.reject(error);
     }
   );
