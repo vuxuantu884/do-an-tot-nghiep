@@ -1184,7 +1184,6 @@ ShippingServiceConfigDetailResponseModel[]
                     totalAmountOrder={totalAmountOrder}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     isExchange={isExchange}
-                    isStepExchange={isStepExchange}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
                     returnOrderInformation={{

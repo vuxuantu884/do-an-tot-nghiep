@@ -15,7 +15,6 @@ type PropType = {
 	totalAmountOrder: number;
   totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
-  isStepExchange: boolean;
   isDisablePostPayment: boolean;
   returnMoneyType?: string;
 	returnOrderInformation: {
@@ -37,7 +36,6 @@ function CardReturnMoneyPageCreate(props: PropType) {
     listPaymentMethods,
     payments,
     totalAmountCustomerNeedToPay,
-    isStepExchange,
     returnMoneyType,
 		totalAmountOrder,
 		isDisablePostPayment,

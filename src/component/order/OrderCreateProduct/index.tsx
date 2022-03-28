@@ -18,7 +18,6 @@ import {
 	Tooltip
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
-import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
@@ -1370,7 +1369,6 @@ function OrderCreateProduct(props: PropType) {
 							note: ``
 						})
 					}
-					showSuccess("Cập nhật chiết khấu tự động thành công!");
 				} else {
 
 					form.setFieldsValue({
