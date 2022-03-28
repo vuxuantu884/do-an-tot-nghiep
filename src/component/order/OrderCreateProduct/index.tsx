@@ -2303,21 +2303,7 @@ function OrderCreateProduct(props: PropType) {
 					locale={{
 						emptyText: (
 							<div className="sale_order_empty_product">
-								<img src={emptyProduct} alt="empty product"></img>
-								<p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-								<Button
-									type="text"
-									className="font-weight-500"
-									style={{
-										background: "rgba(42,42,134,0.05)",
-									}}
-									onClick={() => {
-										autoCompleteRef.current?.focus();
-									}}
-									disabled={levelOrder > 3}
-								>
-									Thêm sản phẩm ngay (F3)
-								</Button>
+								Đơn hàng của bạn chưa có sản phẩm nào!
 							</div>
 						),
 					}}

@@ -1189,58 +1189,6 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         width: 120,
       },
-      {
-        title: "Thao tác",
-        key: "thao_tac",
-        align: "center",
-        render: (value, record: OrderModel) => {
-          const menu = (
-            <Menu>
-              <Menu.Item key="1">
-                <Link
-                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
-                >
-                  <Button
-                    icon={<img alt="" style={{ marginRight: 8 }} src={iconUndo} />}
-                    type="text"
-                    className=""
-                    style={{
-                      paddingLeft: 24,
-                      background: "transparent",
-                      border: "none",
-                    }}
-                  >
-                    Đổi trả hàng
-                  </Button>
-                </Link>
-              </Menu.Item>
-            </Menu>
-          );
-          return (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "0 4px",
-              }}
-            >
-              <div className="action-group">
-                <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-                  <Button
-                    type="text"
-                    icon={<img src={threeDot} alt=""></img>}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  ></Button>
-                </Dropdown>
-              </div>
-            </div>
-          );
-        },
-        visible: true,
-        width: 100,
-      },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.items.length, deliveryServices, editNote, status_order]);
@@ -1279,6 +1227,40 @@ function OrdersTable(props: PropTypes) {
         console.log(e)
       })
   }, [dispatch, listStore]);
+
+  const renderActionButton = (record: OrderModel) => {
+    const menu = (
+      <Menu>
+        <Menu.Item key="1">
+          <Link
+            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
+          >
+            <Button
+              icon={<img alt="" style={{ marginRight: 8 }} src={iconUndo} />}
+              type="text"
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
+            >
+              Đổi trả hàng
+            </Button>
+          </Link>
+        </Menu.Item>
+      </Menu>
+    );
+    return (
+      <div className="action-group">
+        <Dropdown overlay={menu} trigger={["click"]} placement="bottomLeft">
+          <div style={{cursor: "pointer"}}>
+            <img src={threeDot} alt=""></img>
+          </div>
+        </Dropdown>
+      </div>
+    );
+  };
 
   const rowSelectionRenderCell = (
     checked: boolean,
@@ -1320,6 +1302,7 @@ function OrdersTable(props: PropTypes) {
             <Button type="link" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ top: -7 }}></Button>
           </Popover>
         </Tooltip>
+        {renderActionButton(record)}
       </React.Fragment>
     );
   };
