@@ -18,7 +18,6 @@ import {
 	Tooltip
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
-import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
@@ -1370,7 +1369,6 @@ function OrderCreateProduct(props: PropType) {
 							note: ``
 						})
 					}
-					showSuccess("Cập nhật chiết khấu tự động thành công!");
 				} else {
 
 					form.setFieldsValue({
@@ -2303,21 +2301,7 @@ function OrderCreateProduct(props: PropType) {
 					locale={{
 						emptyText: (
 							<div className="sale_order_empty_product">
-								<img src={emptyProduct} alt="empty product"></img>
-								<p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-								<Button
-									type="text"
-									className="font-weight-500"
-									style={{
-										background: "rgba(42,42,134,0.05)",
-									}}
-									onClick={() => {
-										autoCompleteRef.current?.focus();
-									}}
-									disabled={levelOrder > 3}
-								>
-									Thêm sản phẩm ngay (F3)
-								</Button>
+								Đơn hàng của bạn chưa có sản phẩm nào!
 							</div>
 						),
 					}}

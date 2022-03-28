@@ -569,7 +569,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       setListSource(result);
     };
     fetchData()
-  }, [OrderDetail?.source_id, dispatch, form, initDefaultOrderSourceId, initialForm, isAutoDefaultOrderSource, props.updateOrder, userReducer.account?.account_jobs]);
+    // bỏ initial form
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [OrderDetail?.source_id, dispatch, form, initDefaultOrderSourceId, isAutoDefaultOrderSource, props.updateOrder, userReducer.account?.account_jobs]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));

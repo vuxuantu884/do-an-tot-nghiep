@@ -9,7 +9,7 @@ export const StyledComponent = styled.div`
   }
   .productSearchInput {
     width: 100%;
-    margin-bottom: 35px;
+    margin-bottom: 15px;
   }
   .ant-select-item {
     height: auto;
