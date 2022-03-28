@@ -1229,36 +1229,14 @@ function OrdersTable(props: PropTypes) {
   }, [dispatch, listStore]);
 
   const renderActionButton = (record: OrderModel) => {
-    const menu = (
-      <Menu>
-        <Menu.Item key="1">
-          <Link
-            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
-          >
-            <Button
-              icon={<img alt="" style={{ marginRight: 8 }} src={iconUndo} />}
-              type="text"
-              className=""
-              style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
-              }}
-            >
-              Đổi trả hàng
-            </Button>
-          </Link>
-        </Menu.Item>
-      </Menu>
-    );
     return (
-      <div className="action-group">
-        <Dropdown overlay={menu} trigger={["click"]} placement="bottomLeft">
-          <div style={{cursor: "pointer"}}>
-            <img src={threeDot} alt=""></img>
-          </div>
-        </Dropdown>
-      </div>
+      <Tooltip title="Đổi trả hàng">
+        <Link
+        to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
+        >
+          <img alt="" src={iconUndo} />
+        </Link>
+      </Tooltip>
     );
   };
 
