@@ -1,4 +1,4 @@
-import { Col, Form, Input, Modal, Row, Select, Checkbox, Button, Tabs, ButtonProps } from "antd";
+import { Col, Form, Input, Modal, Row, Select, Checkbox, Button, Tabs, ButtonProps, Typography } from "antd";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -54,9 +54,14 @@ export type ProcumentModalProps = {
   item?: PurchaseProcument | null;
   isConfirmModal?: boolean;
   children(
-    onQuantityChange: (quantity: any, index: number) => void,
+    onQuantityChange: (quantity: any, index: any, bulkQuantity?: any) => void,
     onRemove: (index: number) => void,
-    line_items: Array<PurchaseProcumentLineItem>
+    line_items: Array<PurchaseProcumentLineItem>,
+    typeBulk: string,
+    setTypeBulk: (bulkType: string) => void,
+    bulkQuantity: number,
+    setBulkQuantity: (bulkQuantity: number) => void,
+    setQuantityToZero: (quantity: number) => void,
   ): ReactNode;
   okButtonProps?: ButtonProps
 };
@@ -90,6 +95,8 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   const [data, setData] = useState<Array<PurchaseProcumentLineItem>>([]);
   const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
   const [titleTabModal, setTitleTabModal] = useState<ReactNode>(title);
+  const [typeBulk, setTypeBulk] = useState<string>('percentage')
+  const [bulkQuantity, setBulkQuantity] = useState(0)
   const allProcurementItems = useMemo(() => {
     let newLineItem: Array<PurchaseOrderLineItem> = [];
     items.forEach((item) => {
@@ -119,6 +126,20 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   }, [items, visible, type]);
 
   const [activeTab, setActiveTab] = useState<string>(PurchaseOrderTabUrl.INVENTORY);
+
+  const setAllFieldQuantity = useCallback((quantity) => {
+    let procurement_items: Array<PurchaseProcumentLineItem> =
+      form.getFieldValue(POProcumentField.procurement_items);
+    if (type === "inventory")
+      procurement_items.map(item => item.real_quantity = quantity)
+    else procurement_items.map(item => item.quantity = quantity)
+    form.setFieldsValue({ procurement_items: [...procurement_items] });
+  }, [form, type])
+
+  useEffect(() => {
+    setAllFieldQuantity(0)
+  }, [setAllFieldQuantity, typeBulk])
+
 
   const onSearch = useCallback(
     (value: string) => {
@@ -211,15 +232,25 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     [onOk, type]
   );
   const onQuantityChange = useCallback(
-    (quantity, index: number) => {
+    (quantity, index: any, bulkQuantity: number) => {
       let procurement_items: Array<PurchaseProcumentLineItem> =
         form.getFieldValue(POProcumentField.procurement_items);
-      if (type === "inventory")
-        procurement_items[index].real_quantity = quantity;
-      else procurement_items[index].quantity = quantity;
+      if (quantity !== undefined && index !== undefined) {
+        if (type === "inventory")
+          procurement_items[index].real_quantity = quantity;
+        else procurement_items[index].quantity = quantity;
+      } else if (bulkQuantity) {
+        if (typeBulk === 'quantity') {
+          setAllFieldQuantity(bulkQuantity)
+        } else {
+          if (type === "inventory")
+            procurement_items.map(item => item.real_quantity = Math.round((bulkQuantity * item.ordered_quantity) / 100));
+          else procurement_items.map(item => item.quantity = Math.round((bulkQuantity * item.ordered_quantity) / 100))
+        }
+      }
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
-    [form, type]
+    [form, setAllFieldQuantity, type, typeBulk]
   );
 
   const onRemove = useCallback(
@@ -403,6 +434,20 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                     onFinish={onFinish}
                     layout="vertical"
                   >
+                    {!isConfirmModal && (
+                      <Fragment>
+                        <Row gutter={50} style={{marginTop: 5, marginBottom: 10}}>
+                          <Col span={24} md={12}>
+                            Đơn đặt hàng: <Typography.Text strong>{poData?.code}</Typography.Text>
+                          </Col>
+                          <Col span={24} md={12}>
+                            Nhà cung cấp:  <Typography.Text strong>{poData?.supplier}</Typography.Text>
+                          </Col>
+                        </Row>
+
+                      </Fragment>
+                    )}
+
                     <Row gutter={50}>
                       <Form.Item hidden noStyle name={POProcumentField.id}>
                         <Input />
@@ -543,16 +588,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                             );
                             checked = procurement_items.length === allProcurementItems.length;
                             return (
-                              <div className="select-all-checkbox">
-                                <Checkbox
-                                  checked={checked}
-                                  onChange={(e) => {
-                                    fillAll(e.target.checked);
-                                  }}
-                                >
-                                  Chọn tất cả sản phẩm
-                                </Checkbox>
-                              </div>
+                              <>
+                                <div className="select-all-checkbox">
+                                  <Checkbox
+                                    checked={checked}
+                                    onChange={(e) => {
+                                      fillAll(e.target.checked);
+                                    }}
+                                  >
+                                    Chọn tất cả sản phẩm
+                                  </Checkbox>
+                                </div>
+                              </>
                             );
                           }}
                         </Form.Item>
@@ -573,7 +620,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                             ? getFieldValue(POProcumentField.procurement_items)
                             : [];
                           if (props.children) {
-                            return props.children(onQuantityChange, onRemove, procurement_items);
+                            return props.children(onQuantityChange, onRemove, procurement_items, typeBulk, setTypeBulk, bulkQuantity, setBulkQuantity, setAllFieldQuantity);
                           }
                         }}
                       </Form.Item>
@@ -791,7 +838,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                             : [];
 
                           if (props.children) {
-                            return props.children(onQuantityChange, onRemove, procurement_items);
+                            return props.children(onQuantityChange, onRemove, procurement_items, typeBulk, setTypeBulk, bulkQuantity, setBulkQuantity, setAllFieldQuantity);
                           }
                         }}
                       </Form.Item>
