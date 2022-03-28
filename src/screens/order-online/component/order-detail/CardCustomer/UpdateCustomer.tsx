@@ -500,6 +500,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               <Form.Item
                 name="shipping_addresses_full_address"
                 style={customerItem !== null ? { marginBottom: "0px" } : {}}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập chi tiết địa chỉ giao hàng",
+                  },
+                ]}
               >
                 <Input
                   placeholder="Địa chỉ"
