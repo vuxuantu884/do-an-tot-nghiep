@@ -104,13 +104,12 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isErrorExchange, setIsErrorExchange] = useState(false);
   const [orderReturnId, setOrderReturnId] = useState<number>(0);
   const [isCanExchange, setIsCanExchange] = useState(false);
-  const [isStepExchange, setIsStepExchange] = useState(false);
+  const [isStepExchange, setIsStepExchange] = useState(false); // đang bị thừa
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(true);
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
-  console.log('isStepExchange', isStepExchange)
   const [inventoryResponse, setInventoryResponse] =
   useState<Array<InventoryResponse> | null>(null);
 
@@ -676,6 +675,13 @@ ShippingServiceConfigDetailResponseModel[]
           // valuesResult.channel_id = ADMIN_ORDER.channel_id;
           valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
+          values.account_code = form.getFieldValue("account_code") || OrderDetail.account_code;
+          values.assignee_code = form.getFieldValue("assignee_code") || OrderDetail.assignee_code;
+          values.coordinator_code = form.getFieldValue("coordinator_code") || OrderDetail.coordinator_code;
+          values.marketer_code = form.getFieldValue("marketer_code") || OrderDetail.marketer_code;
+          values.reference_code = form.getFieldValue("reference_code") || OrderDetail.reference_code;
+          values.url = form.getFieldValue("url") || OrderDetail.url;
+          values.store_id = storeId;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
               valuesResult.order_return_id = orderReturnId;
@@ -1219,7 +1225,8 @@ ShippingServiceConfigDetailResponseModel[]
               </Col>
 
               <Col md={6}>
-                <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn />
+                <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn isExchange = {isExchange} />
+                <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
                 <OrderReturnReason orderReturnReasonResponse={orderReturnReasonResponse} form={form} />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               </Col>

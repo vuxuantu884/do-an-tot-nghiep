@@ -21,10 +21,9 @@ type DiscountGroupProps = {
 const DiscountGroup: React.FC<DiscountGroupProps> = (
   props: DiscountGroupProps
 ) => {
-  console.log('props', props)
   const { items, disabled = false } = props;
   const { Text } = Typography;
-  const [selected, setSelected] = useState(MoneyType.MONEY);
+  const [selected, setSelected] = useState(MoneyType.PERCENT);
   let showResult = true;
 
   const changeDiscountType = (value: string) => {
