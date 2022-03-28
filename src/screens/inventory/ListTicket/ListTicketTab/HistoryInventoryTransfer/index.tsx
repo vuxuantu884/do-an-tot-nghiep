@@ -170,10 +170,10 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
         return (
           <>
           <div>
-            <b>{item.created_by ?? ""}</b>
+            <b>{JSON.parse(item.data).updated_by ?? ""}</b>
           </div>
           <div>
-            {item.created_name ?? ""}
+            {JSON.parse(item.data).updated_name ?? ""}
           </div>
         </>
         );
@@ -218,7 +218,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
             displayName = ACTIONS_STATUS.RECEIVE.name;
             break;
         }
-        return displayName;
+        return `${displayName}`;
       }
     },
     {
@@ -281,7 +281,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
   );
 
   useEffect(() => {
-    if (stores?.length === 0 || (Array.isArray(accountStores) && accountStores?.length === 0)) return;
+    if (stores?.length === 0 || !Array.isArray(accountStores)) return;
     if (accountStores?.length === 1) {
       stores?.forEach((element) => {
         if (element.id === accountStores[0].store_id) {
@@ -299,7 +299,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
 
     dispatch(getListLogInventoryTransferAction(params, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountStores, dispatch, setSearchResult, stores]);
+  }, [accountStores, dispatch, setSearchResult, stores, params]);
 
   useEffect(() => {
     if (accountStoresSelected !== 'SECOND_SEARCH') return;
