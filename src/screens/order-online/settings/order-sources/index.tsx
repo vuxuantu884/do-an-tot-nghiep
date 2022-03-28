@@ -265,7 +265,6 @@ function OrderSources(props: PropTypes) {
       ...values,
       department_ids: values.department_ids ? values.department_ids.join(',') : null,
 			page: 1,
-      extend_default: true,
     };
     fetchData({...resultParams,name: name.trim()});
     handleNavigateByQueryParams(resultParams);
@@ -406,7 +405,6 @@ function OrderSources(props: PropTypes) {
       sort_column: "updated_date",
       name: queryParamsParsed.name,
       department_ids: queryParamsParsed.department_ids,
-      extend_default: true
     };
     setQueryParams(currentParams);
     fetchData(currentParams);
