@@ -144,6 +144,7 @@ function CardReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
+      width: "30%",
       render: (value, record: ReturnProductModel, index: number) => {
         return (
           <div className="d-flex align-items-center">
@@ -174,7 +175,7 @@ function CardReturnProducts(props: PropType) {
     {
       title: () => (
         <div className="text-center">
-          <div style={{textAlign: "center"}}>Số lượng trả</div>
+          <div style={{textAlign: "center"}}>Số lượng trả ({listReturnProducts ? getTotalQuantity(listReturnProducts) : 0})</div>
         </div>
       ),
       className: "columnQuantity",
@@ -218,6 +219,7 @@ function CardReturnProducts(props: PropType) {
       ),
       dataIndex: "price",
       key: "price",
+      align: "right",
       render: (value: number, record: ReturnProductModel, index: number) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
         const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
@@ -240,6 +242,8 @@ function CardReturnProducts(props: PropType) {
         </div>
       ),
       key: "total",
+      align: "right",
+      width: 180,
       render: (
         value: OrderLineItemRequest,
         record: ReturnProductModel,
@@ -261,6 +265,8 @@ function CardReturnProducts(props: PropType) {
       title: "Xóa sản phẩm",
       dataIndex: "delete_variant",
       key: "delete_variant",
+      width: 180,
+      align: "right",
       render: (value, record: ReturnProductModel, index: number) => {
         return (
           <Button
@@ -296,12 +302,11 @@ function CardReturnProducts(props: PropType) {
     <StyledComponent>
       <Card
         className="margin-top-20"
-        title={isStepExchange ? "Thông tin sản phẩm trả" : "SẢN PHẨM"}
+        title={"Thông tin sản phẩm trả"}
         extra={!isDetailPage && !isStepExchange ? renderCardExtra() : null}
       >
         {isShowProductSearch && (
           <div>
-            <div className="label">Sản phẩm:</div>
             <AutoComplete
               notFoundContent={
                 searchVariantInputValue
@@ -362,15 +367,8 @@ function CardReturnProducts(props: PropType) {
         />
         <Row className="boxPayment" gutter={24}>
           <Col xs={24} lg={11}></Col>
+          <Col xs={24} lg={2}></Col>
           <Col xs={24} lg={10}>
-            <Row className="payment-row" justify="space-between">
-              <span className="font-size-text">Số lượng:</span>
-              <span>
-                {listReturnProducts && (
-                  <span>{getTotalQuantity(listReturnProducts)}</span>
-                )}
-              </span>
-            </Row>
             <Row className="payment-row" justify="space-between">
               {isDetailPage ? (
                 <React.Fragment>
@@ -397,6 +395,7 @@ function CardReturnProducts(props: PropType) {
               </strong>
             </Row>
           </Col>
+          <Col xs={24} lg={1}></Col>
         </Row>
       </Card>
       <StoreReturnModel
