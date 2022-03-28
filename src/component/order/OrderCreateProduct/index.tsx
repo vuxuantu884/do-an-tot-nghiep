@@ -2029,7 +2029,7 @@ function OrderCreateProduct(props: PropType) {
 			splitOrderAction(params, (response) => {
 				if (response) {
 					response.data.forEach((singleOrderId: number) => {
-						const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update`;
+						const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update?isSplit=true`;
 						window.open(singleSplitLink, "_blank");
 					});
 					fetchData && fetchData();
