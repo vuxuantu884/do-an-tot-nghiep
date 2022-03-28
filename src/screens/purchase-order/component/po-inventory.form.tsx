@@ -185,6 +185,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       if (idNumber && value.id) {
         if (!poData) return;
         setLoadingConfirm(true);
+        console.log('onConfirmProcument', value);
         dispatch(
           ApprovalPoProcumentAction(
             idNumber,

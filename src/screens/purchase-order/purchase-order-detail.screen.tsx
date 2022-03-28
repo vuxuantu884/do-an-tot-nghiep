@@ -278,6 +278,13 @@ const PODetailScreen: React.FC = () => {
             PO_FORM_TEMPORARY,
             JSON.stringify({
               ...queryParams,
+              line_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {
+                return {
+                  ...item,
+                  id: null,
+                  planned_quantity: 0,
+                };
+              }),
               return_orders: null,
               code: null,
               status_name: null,
