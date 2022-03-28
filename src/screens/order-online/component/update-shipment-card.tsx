@@ -1283,6 +1283,24 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 														</Row>
 													</Col>
 												)}
+
+												{fulfillment.shipment.tracking_code &&
+													(fulfillment.status === FulFillmentStatus.CANCELLED ||
+													fulfillment.status === FulFillmentStatus.RETURNING ||
+													fulfillment.status === FulFillmentStatus.RETURNED) && (	
+													<Col md={12}>
+														<Row gutter={30}>
+															<Col span={10}>
+																<p className="text-field">Mã vận đơn:</p>
+															</Col>
+															<Col span={14}>
+															<b className="text-field" style={{color: "#e24343"}}>
+																{fulfillment.shipment.tracking_code}
+															</b>
+															</Col>
+														</Row>
+													</Col>
+												)}
 											</Row>
 										)}
 
