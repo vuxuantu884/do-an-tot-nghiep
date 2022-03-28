@@ -103,8 +103,8 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         }
         okText={isEdit ? "Lưu phiếu duyệt" : (allowApproval ? "Duyệt phiếu nháp": "") }
       >
-        {(onQuantityChange, onRemove, line_items) => {
-          const listItems = line_items.filter(item => item.quantity > 0);
+        {(onQuantityChange, onRemove, procurement_items) => {
+          const procurementItems = procurement_items.filter(item => item.quantity > 0);
 
           return (
             <Table
@@ -113,7 +113,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                 record.line_item_id
               }
               rowClassName="product-table-row"
-              dataSource={listItems}
+              dataSource={procurementItems}
               tableLayout="fixed"
               scroll={{ y: 250, x: 600 }}
               pagination={false}

@@ -569,11 +569,11 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                         noStyle
                       >
                         {({ getFieldValue }) => {
-                          let line_items = getFieldValue(POProcumentField.procurement_items)
+                          let procurement_items = getFieldValue(POProcumentField.procurement_items)
                             ? getFieldValue(POProcumentField.procurement_items)
                             : [];
                           if (props.children) {
-                            return props.children(onQuantityChange, onRemove, line_items);
+                            return props.children(onQuantityChange, onRemove, procurement_items);
                           }
                         }}
                       </Form.Item>
@@ -786,12 +786,12 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                         noStyle
                       >
                         {({ getFieldValue }) => {
-                          let line_items = getFieldValue(POProcumentField.procurement_items)
+                          let procurement_items = getFieldValue(POProcumentField.procurement_items)
                             ? getFieldValue(POProcumentField.procurement_items)
                             : [];
-                            
+
                           if (props.children) {
-                            return props.children(onQuantityChange, onRemove, line_items);
+                            return props.children(onQuantityChange, onRemove, procurement_items);
                           }
                         }}
                       </Form.Item>
