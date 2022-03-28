@@ -197,6 +197,12 @@ const PurchaseOrderListScreen: React.FC = () => {
         fixed: "left",
       },
       {
+        title: "Mã tham chiếu",
+        dataIndex: "reference",
+        visible: true,
+        fixed: "left",
+      },
+      {
         title: "Nhà cung cấp",
         dataIndex: "supplier",
         visible: true,
@@ -466,11 +472,6 @@ const PurchaseOrderListScreen: React.FC = () => {
         render: (value: string) => {
           return <div className="txt-muted">{value}</div>;
         },
-        visible: true,
-      },
-      {
-        title: "Mã tham chiếu",
-        dataIndex: "reference",
         visible: true,
       },
     ];
