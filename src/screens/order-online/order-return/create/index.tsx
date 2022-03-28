@@ -1379,6 +1379,24 @@ ShippingServiceConfigDetailResponseModel[]
       PaymentMethodGetList((response) => {
         let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
+        let cash = response.find(single => single.code === PaymentMethodCode.CASH);
+        if(cash) {
+          setPayments([{
+            amount: 0,
+            customer_id: customer?.id || null,
+            name: cash.name,
+            note: "",
+            paid_amount: 0,
+            payment_method: "Tiền mặt",
+            payment_method_code: PaymentMethodCode.CASH,
+            payment_method_id: cash.id,
+            reference: "",
+            return_amount: 0,
+            source: "",
+            status: "paid",
+            type: "",
+          }])
+        }
       })
     );
     

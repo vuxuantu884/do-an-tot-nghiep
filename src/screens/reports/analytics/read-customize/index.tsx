@@ -3,7 +3,7 @@ import exportIcon from "assets/icon/export.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
 import UrlConfig from 'config/url.config'
-import { AnalyticCustomize, SUBMIT_MODE } from 'model/report/analytics.model'
+import { AnalyticChartInfo, AnalyticCustomize, AnalyticQuery, FIELD_FORMAT, SUBMIT_MODE } from 'model/report/analytics.model'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, getConditionsFormServerToForm, getPropertiesValue } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getConditionsFormServerToForm, getPropertiesValue } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import AnalyticsForm, { ReportifyFormFields, TIME_GROUP_BY } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
@@ -26,11 +26,12 @@ function CreateAnalytics() {
     let { id } = useParams<{ id: string }>();
 
     const [reportInfo, setReportInfo] = React.useState<AnalyticCustomize>({} as AnalyticCustomize);
-    const { cubeRef, setMetadata, setDataQuery } = useContext(AnalyticsContext)
+    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery } = useContext(AnalyticsContext)
     const [mode, setMode] = React.useState<SUBMIT_MODE>(SUBMIT_MODE.GET_DATA);
     const [isLoadingExport, setIsLoadingExport] = React.useState<boolean>(false);
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
     const [isConfirmDeleteVisible, setIsConfirmDeleteVisible] = React.useState<boolean>(false)
+    const [chartInfo, setChartInfo] = React.useState<AnalyticChartInfo>({ showChart: true, message: '' });
 
     const handleRQuery = async (rQuery: string) => {
         console.log(rQuery)
@@ -153,6 +154,68 @@ function CreateAnalytics() {
 
     }, [dispatch, id, fetchQueryData])
 
+    // Load chart data
+    useEffect(() => {
+        const fetchChartData = async () => {
+            if (!chartColumnSelected?.length) {
+                setChartInfo({
+                    showChart: false,
+                    message: 'Vui lòng chọn Tên cột hiển thị trong Tuỳ chọn hiển thị để vẽ biểu đồ.'
+                })
+                return;
+            }
+            if (dataQuery && !dataQuery.query.rows?.length) {
+                setChartInfo({
+                    showChart: false,
+                    message: 'Vui lòng chọn Thuộc tính hiển thị trong Tuỳ chọn hiển thị để vẽ biểu đồ.'
+                })
+                return;
+            }
+            setChartInfo({
+                showChart: true,
+                message: ''
+            })
+            if (dataQuery && chartColumnSelected?.length) {
+                const { conditions } = dataQuery.query;
+                let mapperConditions;
+                if (conditions?.length) {
+                    mapperConditions = conditions.map(condition => {
+                        if (condition.findIndex(item => item === 'IN') !== -1) {
+                            condition = [...condition.slice(0,2), ...condition.slice(2).join("").split(",").map((item: string) => `'${item}'`).join(",")]
+                        }
+                        return condition;
+                    })
+                }
+                const params: AnalyticQuery = {
+                    ...dataQuery.query,
+                    columns: chartColumnSelected.map(item => {
+                        return { field: item }
+                    }),
+                    conditions: mapperConditions ? mapperConditions : conditions
+                } as AnalyticQuery;
+                const query = generateRQuery(params)
+                const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
+                if (response) {
+                    const { columns, data } = response.result;
+                    if (!data.length) {
+                        setChartInfo({
+                            showChart: false,
+                            message: 'Dữ liệu báo cáo trống nên không thể vẽ biểu đồ. Vui lòng chọn điều kiện lọc khác.'
+                        })
+                        return;
+                    }
+                    const timestampIdx = columns.findIndex((item: any) => item.format === FIELD_FORMAT.Timestamp);
+                    if (timestampIdx !== -1) {
+                        response.result.data.forEach((item: any) => item[timestampIdx] = formatReportTime(item[timestampIdx], columns[timestampIdx].field))
+                    }
+                    setChartDataQuery(response);
+                    form.setFieldsValue({chartFilter: chartColumnSelected})
+                }
+            }
+        }
+        fetchChartData();
+    }, [chartColumnSelected, dataQuery, dispatch, form, setChartDataQuery])
+
     return (
         <ContentContainer
             title={reportInfo?.name || "Báo cáo tuỳ chỉnh"}
@@ -166,7 +229,7 @@ function CreateAnalytics() {
                 }
             ]}
         >
-            <AnalyticsForm form={form} handleRQuery={handleRQuery} mode={mode} />
+            <AnalyticsForm form={form} handleRQuery={handleRQuery} mode={mode} chartInfo={chartInfo} />
             <BottomBarContainer
                 back="Quay lại trang danh sách"
                 rightComponent={

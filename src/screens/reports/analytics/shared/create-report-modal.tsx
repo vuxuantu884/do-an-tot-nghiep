@@ -1,6 +1,6 @@
 import { Form, Input, Modal, Select } from 'antd'
 import { FormInstance } from 'antd/es/form/Form';
-import { ANALYTIC_TEMPLATE_GROUP, CUSTOMIZE_TEMPLATE, REPORT_NAMES } from 'config/report-templates';
+import { ANALYTIC_TEMPLATE_GROUP, CUSTOMIZE_TEMPLATE, REPORT_NAMES } from 'config/report/report-templates';
 import UrlConfig from 'config/url.config';
 import _ from 'lodash';
 import { AnalyticCube, AnalyticCustomizeTemplateForCreate } from 'model/report/analytics.model';
