@@ -192,6 +192,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
           pushCurrentValueToDataAccount("assignee_code", response.data.items);
           pushCurrentValueToDataAccount("marketer_code", response.data.items);
           pushCurrentValueToDataAccount("coordinator_code", response.data.items);
+          pushCurrentValueToDataAccount("account_code", response.data.items);
           setInitAssigneeAccountData(response.data.items);
           setInitMarketingAccountData(response.data.items);
         } else {
@@ -206,7 +207,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
     <StyledComponent>
       <Card title={
         <React.Fragment>
-          THÔNG TIN ĐƠN HÀNG
+          {!isOrderReturn ? "THÔNG TIN ĐƠN HÀNG" : "THÔNG TIN CẬP NHẬT"}
           {isOrderReturn ? (
             <Tooltip title="Thêm sản phẩm đổi có thể thay đổi thông tin đơn hàng!" >
               <span style={{margin: "0 0 0 5px"}}>

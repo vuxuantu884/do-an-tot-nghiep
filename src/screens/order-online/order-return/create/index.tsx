@@ -1224,8 +1224,8 @@ ShippingServiceConfigDetailResponseModel[]
               </Col>
 
               <Col md={6}>
-                <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn isExchange = {isExchange} />
                 <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
+                <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn isExchange = {isExchange} />
                 <OrderReturnReason orderReturnReasonResponse={orderReturnReasonResponse} form={form} />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               </Col>
@@ -1400,7 +1400,7 @@ ShippingServiceConfigDetailResponseModel[]
       })
     );
     
-  }, [dispatch]);
+  }, [customer?.id, dispatch]);
 
   useEffect(() => {
     let cash = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
