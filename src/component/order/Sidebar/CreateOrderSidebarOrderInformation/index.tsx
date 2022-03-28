@@ -1,5 +1,5 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Form, FormInstance, Input } from "antd";
+import { Card, Form, FormInstance, Input, Tooltip } from "antd";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
@@ -17,6 +17,7 @@ type PropType = {
   updateOrder?: boolean;
   orderDetail?: OrderResponse | null;
   isOrderReturn?: boolean;
+  isExchange?: boolean;
 };
 
 /**
@@ -33,7 +34,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
-  const {orderDetail, form, storeId, updateOrder, isOrderReturn} =
+  const {orderDetail, form, storeId, updateOrder, isOrderReturn, isExchange} =
     props;
 
   const dispatch = useDispatch();
@@ -201,10 +202,20 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
 				console.log("error", error);
 			})
 	}, [dispatch, form, storeId])
-
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG">
+      <Card title={
+        <React.Fragment>
+          THÔNG TIN ĐƠN HÀNG
+          {isOrderReturn ? (
+            <Tooltip title="Thêm sản phẩm đổi có thể thay đổi thông tin đơn hàng!" >
+              <span style={{margin: "0 0 0 5px"}}>
+                <InfoCircleOutlined />
+              </span>
+            </Tooltip>
+          ) : null}
+        </React.Fragment>
+      }>
         {isOrderReturn && isOrderFromPOS(orderDetail) ? (
           <Form.Item
             label="Nhân viên thu ngân"
@@ -222,7 +233,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
               dataToSelect={accountCodeAccountData}
               setDataToSelect={setAccountCodeAccountData}
               initDataToSelect={initAccountCodeAccountData}
-              disabled = {isOrderFinishedOrCancel(orderDetail) && !isOrderReturn}
+              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
             />
           </Form.Item>
         ) : null}
@@ -242,7 +253,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
             dataToSelect={assigneeAccountData}
             setDataToSelect={setAssigneeAccountData}
             initDataToSelect={initAssigneeAccountData}
-            disabled = {isOrderFinishedOrCancel(orderDetail) && !isOrderReturn}
+            disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
           />
         </Form.Item>
         {!isOrderFromPOS(orderDetail) ? (
@@ -273,7 +284,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
               dataToSelect={marketingAccountData}
               setDataToSelect={setMarketingAccountData}
               initDataToSelect={initMarketingAccountData}
-              disabled = {isOrderFinishedOrCancel(orderDetail) && !isOrderReturn}
+              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
             />
           </Form.Item>
         ) : null}
@@ -305,7 +316,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền tham chiếu" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail) && !isOrderReturn} />
+          <Input placeholder="Điền tham chiếu" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)} />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"
@@ -315,7 +326,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền đường dẫn" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail) && !isOrderReturn}/>
+          <Input placeholder="Điền đường dẫn" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}/>
         </Form.Item>
         {renderSplitOrder()}
       </Card>
