@@ -114,6 +114,7 @@ import {
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { yellowColor } from "utils/global-styles/variables";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -127,12 +128,13 @@ type PropTypes = {
 };
 type OrderParam = {
 	id: string;
-	isSplit?: string;
 };
 export default function Order(props: PropTypes) {
 	const dispatch = useDispatch();
 	const history = useHistory();
 	let { id } = useParams<OrderParam>();
+	const queryParams = useQuery();
+	const isSplit = queryParams.get("isSplit") || null;
 	const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )
@@ -1026,6 +1028,7 @@ ShippingServiceConfigDetailResponseModel[]
 						...initialForm,
 						customer_note: response.customer_note,
 						source_id: response.source_id,
+						account_code: isSplit ==="true" && userReducer.account?.code ? userReducer.account?.code : response.account_code,
 						assignee_code: response.assignee_code,
 						store_id: response.store_id,
 						items: responseItems,
@@ -1088,7 +1091,7 @@ ShippingServiceConfigDetailResponseModel[]
 	useEffect(() => {
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [id, dispatch]);
+	}, [id, dispatch, userReducer.account?.code, isSplit]);
 
 	useEffect(() => {
 		if (customer) {
