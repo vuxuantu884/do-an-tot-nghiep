@@ -96,16 +96,16 @@ export default function Order() {
 	const dispatch = useDispatch();
 	const history = useHistory();
 	const isExportBill = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
-  );
+		(state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
+	);
 	const isShouldSetDefaultStoreBankAccount = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
-  )	
+		(state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
+	)
 	const [isSaveDraft, setIsSaveDraft] = useState(false);
 	const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
-	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
+	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
 	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
 	const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
 	const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
@@ -121,7 +121,7 @@ export default function Order() {
 
 	const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
 	const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-	Array<LoyaltyUsageResponse>
+		Array<LoyaltyUsageResponse>
 	>([]);
 	const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
@@ -171,7 +171,7 @@ export default function Order() {
 	const [modalAction, setModalAction] = useState<modalActionType>("edit");
 
 	const queryParams = useQuery();
-	const customerParam=queryParams.get("customer") || null;
+	const customerParam = queryParams.get("customer") || null;
 	const actionParam = queryParams.get("action") || null;
 	const cloneIdParam = queryParams.get("cloneId") || null;
 	const typeParam = queryParams.get("type") || null;
@@ -194,11 +194,11 @@ export default function Order() {
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
-	
+
 
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
-ShippingServiceConfigDetailResponseModel[]
->([]);
+		ShippingServiceConfigDetailResponseModel[]
+	>([]);
 
 	const onChangeInfoProduct = (
 		_items: Array<OrderLineItemRequest>,
@@ -332,7 +332,7 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 		return listFulfillmentRequest;
 	};
-	
+
 	const createShipmentRequest = (value: OrderRequest) => {
 		let objShipment: ShipmentRequest = {
 			delivery_service_provider_id: null, //id đối tác vận chuyển
@@ -484,9 +484,9 @@ ShippingServiceConfigDetailResponseModel[]
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
-		let _shippingAddressRequest:any={
+		let _shippingAddressRequest: any = {
 			...shippingAddress,
-			second_phone:shippingAddressesSecondPhone
+			second_phone: shippingAddressesSecondPhone
 		}
 		values.shipping_address = _shippingAddressRequest;
 		values.billing_address = billingAddress;
@@ -591,6 +591,11 @@ ShippingServiceConfigDetailResponseModel[]
 						scrollAndFocusToDomElement(element)
 						setCreating(false);
 					} else {
+						if (!shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address) {
+							form.validateFields();
+							showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
+							return;
+						}
 						if (typeButton === OrderStatus.DRAFT) {
 							setIsSaveDraft(true);
 						} else {
@@ -629,16 +634,16 @@ ShippingServiceConfigDetailResponseModel[]
 	}, [visibleBillStep]);
 
 	const mergePaymentData = (payments: OrderPaymentResponse[]) => {
-		let result:OrderPaymentResponse[] = [];
+		let result: OrderPaymentResponse[] = [];
 		payments.forEach(payment => {
-			let existing = result.filter(function(v, i) {
+			let existing = result.filter(function (v, i) {
 				return v.payment_method_code === payment.payment_method_code;
 			});
 			if (existing.length) {
 				let existingIndex = result.indexOf(existing[0]);
-				if(result[existingIndex].payment_method_code === PaymentMethodCode.POINT) {
+				if (result[existingIndex].payment_method_code === PaymentMethodCode.POINT) {
 					result[existingIndex].point = (result[existingIndex]?.point || 0) + (payment?.point || 0);
-				} 
+				}
 				result[existingIndex].paid_amount = result[existingIndex].paid_amount + payment.paid_amount;
 				result[existingIndex].amount = result[existingIndex].amount + payment.amount;
 				result[existingIndex].return_amount = result[existingIndex].return_amount + payment.return_amount;
@@ -660,13 +665,13 @@ ShippingServiceConfigDetailResponseModel[]
 				if (isFetchApiSuccessful(response)) {
 					dispatch(getStoreBankAccountNumbersAction(response.data.items))
 					const selected = response.data.items.find(single => single.default && single.status);
-					if(isShouldSetDefaultStoreBankAccount) {
-						if(selected) {
+					if (isShouldSetDefaultStoreBankAccount) {
+						if (selected) {
 							dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
 						} else {
 							let paymentsResult = [...payments]
-							let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
-							if(bankPaymentIndex > -1) {
+							let bankPaymentIndex = paymentsResult.findIndex((payment) => payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER);
+							if (bankPaymentIndex > -1) {
 								paymentsResult[bankPaymentIndex].paid_amount = 0;
 								paymentsResult[bankPaymentIndex].amount = 0;
 								paymentsResult[bankPaymentIndex].return_amount = 0;
@@ -684,8 +689,8 @@ ShippingServiceConfigDetailResponseModel[]
 				console.log('error', error)
 			})
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, storeId ]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, storeId]);
 
 	//windows offset
 	useEffect(() => {
@@ -704,12 +709,12 @@ ShippingServiceConfigDetailResponseModel[]
 		);
 	}, [dispatch]);
 
-	useEffect(()=>{
-		if(customerParam){
-			console.log("customerParam",customerParam)
-			dispatch(getCustomerDetailAction(+customerParam,setCustomer))
+	useEffect(() => {
+		if (customerParam) {
+			console.log("customerParam", customerParam)
+			dispatch(getCustomerDetailAction(+customerParam, setCustomer))
 		}
-	},[customerParam, dispatch])
+	}, [customerParam, dispatch])
 	useEffect(() => {
 		const fetchData = async () => {
 			if (isCloneOrder && cloneIdParam) {
@@ -845,14 +850,14 @@ ShippingServiceConfigDetailResponseModel[]
 								setPaymentMethod(PaymentMethodOption.PREPAYMENT);
 								// clone có tiền thừa thì xóa
 								new_payments = mergePaymentData(response.payments.map(payment => {
-									if(payment.return_amount) {
+									if (payment.return_amount) {
 										return {
 											...payment,
 											amount: payment.paid_amount,
 											return_amount: 0,
-										} 
+										}
 									}
-									return {...payment};
+									return { ...payment };
 								}));
 								setPayments(new_payments);
 							}
@@ -863,7 +868,7 @@ ShippingServiceConfigDetailResponseModel[]
 							if (response.fulfillments) {
 								const sortedFulfillments = sortFulfillments(response.fulfillments);
 								switch (
-									sortedFulfillments[0].shipment?.delivery_service_provider_type
+								sortedFulfillments[0]?.shipment?.delivery_service_provider_type
 								) {
 									case ShipmentMethod.EMPLOYEE:
 										{
@@ -871,7 +876,7 @@ ShippingServiceConfigDetailResponseModel[]
 											const shipmentEmployee = sortedFulfillments[0]?.shipment;
 											const thirdPLResponse = {
 												delivery_service_provider_code:
-												shipmentEmployee.delivery_service_provider_code,
+													shipmentEmployee.delivery_service_provider_code,
 												delivery_service_provider_id:
 													shipmentEmployee.delivery_service_provider_id,
 												insurance_fee: shipmentEmployee.insurance_fee,
@@ -921,13 +926,13 @@ ShippingServiceConfigDetailResponseModel[]
 								}
 								setShipmentMethod(newShipmentMethod);
 							}
-							if(response.export_bill) {
+							if (response.export_bill) {
 								dispatch(setIsExportBillAction(true))
 							} else {
 								dispatch(setIsExportBillAction(false))
 							}
 							const bankPayment = response.payments?.find(single => single.payment_method_code === PaymentMethodCode.BANK_TRANSFER && single.bank_account_number)
-							if(bankPayment) {
+							if (bankPayment) {
 								dispatch(changeSelectedStoreBankAccountAction(bankPayment.bank_account_number))
 							} else {
 								dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
@@ -953,15 +958,15 @@ ShippingServiceConfigDetailResponseModel[]
 			}
 		};
 		fetchData();
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [cloneIdParam, dispatch, isCloneOrder ]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [cloneIdParam, dispatch, isCloneOrder]);
 
 	useEffect(() => {
-		if(!isCloneOrder) {
+		if (!isCloneOrder) {
 			dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
 		}
 	}, [dispatch, isCloneOrder])
-	
+
 
 	useEffect(() => {
 		if (customer) {
