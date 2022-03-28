@@ -990,6 +990,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const okExportExcelProduct = () => {
     const RequestExportExcel: RequestExportExcelQuery = {
       ...query,
+      shop_ids: Array.isArray(query.shop_ids) ? query.shop_ids : [query.shop_ids],
       category_id: null,
       core_variant_id: null,
       variant_ids: exportProductType === EXPORT_PRODUCT_OPTION.SELECTED ? idsItemSelected : [],
