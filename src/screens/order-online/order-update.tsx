@@ -127,6 +127,7 @@ type PropTypes = {
 };
 type OrderParam = {
 	id: string;
+	isSplit?: string;
 };
 export default function Order(props: PropTypes) {
 	const dispatch = useDispatch();

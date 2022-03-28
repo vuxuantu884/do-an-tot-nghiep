@@ -810,6 +810,7 @@ export default function Order() {
 							}
 							await setInitialForm({
 								...initialForm,
+								account_code: userReducer?.account?.code,
 								customer_note: response.customer_note,
 								source_id: response.source_id,
 								assignee_code: response?.assignee_code || null,
@@ -992,7 +993,7 @@ export default function Order() {
 			setLoyaltyPoint(null);
 			setCountFinishingUpdateCustomer(prev => prev + 1);
 		}
-	}, [dispatch, customer]);
+	}, [dispatch, customer, userReducer]);
 
 	useEffect(() => {
 		dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
