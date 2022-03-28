@@ -21,7 +21,7 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       return request;
     },
     function (error) {
-    AppConfig.runMode === "development" && console.error(error);
+      AppConfig.runMode === "development" && console.error(error);
     }
   );
 
@@ -52,14 +52,8 @@ export function getAxiosBase(config: AxiosRequestConfig) {
           break;
       }
 
-      /**
-       * response
-       */
-      if (response.data.code === HttpStatus.SUCCESS) {
-      return response.data;
-      } else {
-        return response;
-      }
+      
+      return response.data;      
     },
     function (error) {
       /**
