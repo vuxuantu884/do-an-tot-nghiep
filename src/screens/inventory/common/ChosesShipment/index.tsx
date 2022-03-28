@@ -98,6 +98,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
   const [serviceFeeTotal, setServiceFeeTotal] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isShowMessage, setIsShowMessage] = useState<boolean>(false);
 
   const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
   const dispatch = useDispatch();
@@ -137,6 +138,10 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
 
   const onFinish = useCallback(
     (data) => {
+      if (!hvc) {
+        setIsShowMessage(true);
+        return;
+      }
       setLoading(true);
       if (dataTicket) {
         const deliveryTime = data.expected_delivery_time
@@ -262,7 +267,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                   </thead>
                   <tbody className="ant-table-tbody">
                     {["yody", "ghtk", "ghn", "vtp", "dhl"].map(
-                      (deliveryServiceName: string, index) => {
+                      (deliveryServiceName: string) => {
                         return (
                           ((serviceFee as any)[deliveryServiceName].length && (
                             <React.Fragment key={deliveryServiceName}>
@@ -292,10 +297,11 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                                                 selectedShipmentMethod ===
                                                 service.transport_type
                                               }
-                                              onChange={(e) => {
+                                              onChange={() => {
                                                 setSelectedShipmentMethod(
                                                   service.transport_type
                                                 );
+                                                setIsShowMessage(false);
                                                 changeServiceType(
                                                   (deliveryService as any)[
                                                     deliveryServiceName
@@ -309,7 +315,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                                                 (service.transport_type !== 'yody' && service.total_fee === 0) || levelOrder > 3
                                               }
                                             />
-                                            <span className="checkmark"></span>
+                                            <span className="checkmark"/>
                                             {service.transport_type_name}
                                           </label>
                                         </div>
@@ -348,6 +354,9 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                     )}
                   </tbody>
                 </table>
+                {isShowMessage && (
+                  <div className="error-mess">Vui lòng chọn Hãng vận chuyển</div>
+                )}
               </div>
             </div>
           </div>
