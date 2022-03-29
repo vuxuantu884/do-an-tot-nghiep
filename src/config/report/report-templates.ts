@@ -435,4 +435,23 @@ export const DETAIL_LINKS = [
     link: "/orders",
   }
 ];
+
+export const TIME_GROUP_BY = [
+  {
+      label: 'Giờ',
+      value: 'hour'
+  },
+  {
+      label: 'Ngày',
+      value: 'day'
+  },
+  {
+      label: 'Tháng',
+      value: 'month'
+  },
+  {
+      label: 'Năm',
+      value: 'year'
+  }
+]
 export default REPORT_TEMPLATES;
