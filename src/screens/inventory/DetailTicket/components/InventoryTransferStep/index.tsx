@@ -61,7 +61,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   const PendingDate = props.inventoryTransferDetail?.pending_date ? moment(props.inventoryTransferDetail?.pending_date).format(formatDate) : '';
   const ReceiveDate = props.inventoryTransferDetail?.receive_date ? moment(props.inventoryTransferDetail?.receive_date).format(formatDate) : '';
   const CanceledDate = props.inventoryTransferDetail?.cancel_date ? moment(props.inventoryTransferDetail?.cancel_date).format(formatDate) : '';
-  
+
 
   return (
     <StyledWrapper>
@@ -76,7 +76,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             <>
               <Steps.Step
                 status={(CreateDate !== '') ? "process" : undefined}
-                title="Xin Hàng"
+                title="Yêu cầu"
                 description={CreateDate}
               />
               <Steps.Step
@@ -103,7 +103,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           ) : (
             <>
               <Steps.Step
-                title="Xin Hàng"
+                title="Yêu cầu"
                 status={(CreateDate !== '') ? "process" : undefined}
                 description={CreateDate}
               />
