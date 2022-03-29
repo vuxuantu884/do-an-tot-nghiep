@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router-dom";
 import TabCurrent from "./tabs/TabCurrent";
+import TabSevenDays from "./tabs/TabSevenDays";
 import TabList from "./tabs/TabList/index";
 import TabLogs from "./tabs/TabLogs";
 
@@ -50,6 +51,9 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
         >
           <TabPane tab="Hàng về hôm nay" key={ProcurementTabUrl.TODAY}>
             <TabCurrent />
+          </TabPane>
+          <TabPane tab="Hàng về 7 ngày" key={ProcurementTabUrl.SEVEN_DAYS}>
+            <TabSevenDays />
           </TabPane>
           <TabPane tab="Danh sách phiếu nhập kho" key={ProcurementTabUrl.ALL}>
             <TabList />

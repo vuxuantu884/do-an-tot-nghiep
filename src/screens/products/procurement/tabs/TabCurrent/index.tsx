@@ -38,7 +38,7 @@ import UrlConfig from "../../../../../config/url.config";
 import TabCurrentFilter from "../../filter/TabCurrent.filter";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useHistory } from "react-router";
-import { generateQuery } from "../../../../../utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 
 const ACTIONS_INDEX = {
   CONFIRM_MULTI: 1,
@@ -112,7 +112,6 @@ const TabCurrent: React.FC = () => {
       params.page = page;
       params.limit = size;
       setParams({ ...params });
-      console.log(params)
       history.replace(
         `${UrlConfig.PROCUREMENT}/today?${generateQuery(params)}`
       );
@@ -351,7 +350,6 @@ const TabCurrent: React.FC = () => {
   }, [selected, defaultColumns]);
 
   useEffect(() => {
-    console.log(history.location.search)
     search();
   }, [search, history.location.search]);
 
