@@ -1,7 +1,7 @@
 import { ExportOutlined } from '@ant-design/icons';
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
-import { DETAIL_LINKS } from 'config/report/report-templates';
+import { DETAIL_LINKS, TIME_GROUP_BY } from 'config/report/report-templates';
 import _ from 'lodash';
 import { AnalyticChartInfo, AnalyticConditions, AnalyticQuery, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
 import moment from 'moment';
@@ -40,26 +40,6 @@ export const ReportifyFormFields = {
     orderBy: "orderBy"
 };
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
-
-
-export const TIME_GROUP_BY = [
-    {
-        label: 'Giờ',
-        value: 'hour'
-    },
-    {
-        label: 'Ngày',
-        value: 'day'
-    },
-    {
-        label: 'Tháng',
-        value: 'month'
-    },
-    {
-        label: 'Năm',
-        value: 'year'
-    }
-]
 
 function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
     const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
