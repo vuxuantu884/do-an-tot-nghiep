@@ -840,7 +840,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 setPayments(new_payments);
               }
 
-              setOrderAmount(response.total_line_amount_after_line_discount);
+              setOrderAmount(
+                response.total - (response.shipping_fee_informed_to_customer || 0)
+              );
 
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (
