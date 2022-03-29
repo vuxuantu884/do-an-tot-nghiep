@@ -75,6 +75,7 @@ import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 // import 'assets/css/_sale-order.scss';
 import threeDot from "assets/icon/three-dot.svg";
 import iconUndo from "assets/icon/undo.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -124,6 +125,7 @@ function OrdersTable(props: PropTypes) {
 
   const [typeAPi, setTypeAPi] = useState("");
 
+  const [items, setItems] = useState(data.items);
   // const [isVisiblePopup, setIsVisiblePopup] =
   // useState(false);
 
@@ -178,13 +180,9 @@ function OrdersTable(props: PropTypes) {
           newItems[indexOrder].customer_note = newNote;
         }
       }
-      const newData = {
-        ...data,
-        items: newItems,
-      };
-      setData(newData);
+      setItems(newItems);
     },
-    [data, setData]
+    [data]
   );
 
   const editNote = useCallback(
@@ -384,9 +382,22 @@ function OrdersTable(props: PropTypes) {
         render: (value: string, i: OrderModel) => {
           return (
             <React.Fragment>
-              <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
-                {value}
-              </Link>
+              <div>
+                <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
+                  {value}
+                </Link>
+                <Tooltip title="Click để copy">
+                  <img
+                    onClick={(e) => {
+                      copyTextToClipboard(e, i.code.toString())
+                      showSuccess("Đã copy mã đơn hàng!")
+                    }}
+                    src={copyFileBtn}
+                    alt=""
+                    style={{ width: 18, cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </div>
               <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
               <div className="textSmall">
                 <Tooltip title="Cửa hàng">
@@ -412,7 +423,7 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         fixed: "left",
         className: "orderId custom-shadow-td",
-        width: 110,
+        width: 130,
       },
       {
         title: "Khách hàng",
@@ -422,16 +433,24 @@ function OrdersTable(props: PropTypes) {
               <div style={{ color: "#2A2A86" ,display:"flex" }}>
                 <div
                   style={{ padding: "0px", fontWeight: 500, cursor: "pointer" }}
-                  onClick={(e) => {
-                    navigator.clipboard.writeText(record.customer_phone_number ? record.customer_phone_number : "").then(() => {
-                      showSuccess("Đã copy số điện thoại!")
-                    })
+                  onClick={() => {
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : ""
                     );
                   }
                   }>
                   {record.customer_phone_number}
+                  <Tooltip title="Click để copy">
+                    <img
+                      onClick={(e) => {
+                        copyTextToClipboard(e, (record?.customer_phone_number || "").toString())
+                        showSuccess("Đã copy số điện thoại!")
+                      }}
+                      src={copyFileBtn}
+                      alt=""
+                      style={{ width: 18, cursor: "pointer" }}
+                    />
+                  </Tooltip>
                  
                 </div>
                 <Popover placement="bottomLeft" content={
@@ -661,17 +680,17 @@ function OrdersTable(props: PropTypes) {
               </React.Fragment>
             );
           }
-          if (
-            record?.fulfillments &&
-            record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED
-          ) {
-            return (
-              <div className="single">
-                <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
-                Đã hủy vận chuyển
-              </div>
-            );
-          }
+          // if (
+          //   record?.fulfillments &&
+          //   record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED
+          // ) {
+          //   return (
+          //     <div className="single">
+          //       <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
+          //       Đã hủy vận chuyển
+          //     </div>
+          //   );
+          // }
           if (sortedFulfillments) {
             if (sortedFulfillments[0]?.shipment) {
               switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
@@ -1329,7 +1348,7 @@ function OrdersTable(props: PropTypes) {
             trigger="click"
             onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
           >
-            <Button type="link" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ top: -7 }}></Button>
+            <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }}></Button>
           </Popover>
         </Tooltip>
         {renderActionButton(record)}
@@ -1595,6 +1614,14 @@ function OrdersTable(props: PropTypes) {
     //xóa data
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
+
+  useEffect(() => {
+    setData({
+      ...data, 
+      items,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, setData])
 
   return (
     <StyledComponent>

@@ -145,6 +145,7 @@ export const StyledComponent = styled.div`
   }
 	.orderSource {
 		margin-top: 9px;
+    margin-bottom: 9px;
 	}
   .customer {
     .ant-btn {
@@ -536,5 +537,11 @@ export const StyledComponent = styled.div`
       display:"block"; 
       height:"24px";
     }
+  }
+  .checkInventoryButton {
+    padding: 0;
+    height: auto;
+    line-height: 1;
+    margin-bottom: 8px;
   }
 `;
