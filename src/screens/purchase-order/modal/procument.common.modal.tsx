@@ -1,4 +1,4 @@
-import { Col, Form, Input, Modal, Row, Select, Checkbox, Button, Tabs, ButtonProps, Typography } from "antd";
+import { Col, Form, Input, Modal, Row, Select, Checkbox, Button, Tabs, ButtonProps, Upload, Typography } from "antd";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -10,7 +10,7 @@ import {
 
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 
 import {
   ReactNode,
@@ -24,7 +24,7 @@ import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import moment, { Moment } from "moment";
-import { showError } from "utils/ToastUtils";
+import { showError, showWarning } from "utils/ToastUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { PurchaseOrderTabUrl } from "config/url.config";
@@ -32,6 +32,8 @@ import RenderTabBar from 'component/table/StickyTabBar';
 import PurchaseOrderHistory from "../tab/PurchaseOrderHistory";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseOrderDraft } from "screens/purchase-order/purchase-order-list.style";
+import * as XLSX from 'xlsx';
+import { PurchaseProcumentExportField } from "model/purchase-order/purchase-mapping";
 
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -53,6 +55,7 @@ export type ProcumentModalProps = {
   cancelText: string;
   item?: PurchaseProcument | null;
   isConfirmModal?: boolean;
+  key?: string,
   children(
     onQuantityChange: (quantity: any, index: any, bulkQuantity?: any) => void,
     onRemove: (index: number) => void,
@@ -343,7 +346,63 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
     }
     form.submit();
-  };
+  }; 
+
+  const exportExcel= useCallback(()=>{
+      let procurement_items = form.getFieldValue(POProcumentField.procurement_items)
+      ? form.getFieldValue(POProcumentField.procurement_items)
+      : [];
+      if (!procurement_items) {
+        showWarning("Không có dữ liệu");
+        return
+      }
+      let dataExport:any = [];
+      for (let i = 0; i < procurement_items.length; i++) {
+        const e = procurement_items[i];
+        const item = {
+          [PurchaseProcumentExportField.sku]: e.sku,
+          [PurchaseProcumentExportField.variant]: e.variant,
+          [PurchaseProcumentExportField.sld]: e.ordered_quantity,
+          [PurchaseProcumentExportField.sl]: null,
+        };
+        dataExport.push(item);
+      } 
+      const worksheet = XLSX.utils.json_to_sheet(dataExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      const fileName = poData?.code ?  `nhap_so_luong_phieu_nhap_kho_${poData?.code}.xlsx`:"nhap_so_luong_phieu_nhap_kho.xlsx";
+      XLSX.writeFile(workbook, fileName);
+  },[form, poData]);
+
+  const uploadProps  = {
+    beforeUpload: (file: any) => {
+      const typeExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      if (!typeExcel) {
+        showError("Chỉ chọn file excel");
+      }
+      return typeExcel || Upload.LIST_IGNORE;
+    },
+    onChange: useCallback(async (e:any)=>{ 
+      const file = e.file; 
+      const data = await file.originFileObj.arrayBuffer();
+      const workbook = XLSX.read(data);
+
+      const workSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData: any = XLSX.utils.sheet_to_json(workSheet);
+      let procurement_items = form.getFieldValue(POProcumentField.procurement_items)
+      ? form.getFieldValue(POProcumentField.procurement_items)
+      : []; 
+      
+      procurement_items.forEach((e:PurchaseProcumentLineItem) => {
+        const findItem = jsonData.find((item:any)=>(item.sku !== undefined && item.sku.toString() === e.sku.toString()));
+        if (findItem && typeof(findItem.sl) === "number") {
+          e.quantity = findItem.sl;
+        }
+      });
+
+      form.setFieldsValue({procurement_items: [...procurement_items]});
+    },[form])
+  }    
 
   return (
     <Fragment>
@@ -389,14 +448,22 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         title={titleTabModal}
         okButtonProps={okButtonProps}
       >
-        <PurchaseOrderDraft>
-          {
+        <PurchaseOrderDraft> 
+          { 
             title !== 'Tạo phiếu nháp' ?
               (<Tabs
                 style={{ overflow: "initial", marginTop: "-24px" }}
                 activeKey={activeTab}
                 onChange={(active) => onChangeActive(active)}
                 renderTabBar={RenderTabBar}
+                tabBarExtraContent={ 
+                type !== "draft" ? <></>: 
+                <>
+                  <Button icon={<DownloadOutlined />} onClick={exportExcel}>Export Excel</Button>
+                  <Upload {...uploadProps} maxCount={1}>
+                    <Button icon={<UploadOutlined />}>Import Excel</Button>
+                  </Upload>
+                </>}
               >
                 <TabPane tab="Tồn kho" key={PurchaseOrderTabUrl.INVENTORY}>
                   {item && !isDetail && (
@@ -432,7 +499,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }}
                     onFinish={onFinish}
-                    layout="vertical"
+                    layout="vertical" 
                   >
                     {!isConfirmModal && (
                       <Fragment>
