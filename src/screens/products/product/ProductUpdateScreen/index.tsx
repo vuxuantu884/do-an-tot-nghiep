@@ -1299,19 +1299,19 @@ const ProductDetailScreen: React.FC = () => {
                                           <Col span={24} md={12}>
                                             <Item
                                               name={[name, "sku"]}
-                                              rules={(id === undefined || id === null) ? [
+                                              rules={[
                                                 {required: true},
                                                 {
                                                   min: 10,
                                                   message:
                                                     "Mã sản phẩm tối thiểu 10 kí tự",
                                                 },
-                                              ]: []}
+                                              ]}
                                               label="Mã sản phẩm"
                                             >
                                               <Input
                                                 onChange={onChange}
-                                                disabled={id !== undefined && id !== null}
+                                                //disabled={id !== undefined && id !== null}
                                                 placeholder="Nhập mã sản phẩm"
                                               />
                                             </Item>
