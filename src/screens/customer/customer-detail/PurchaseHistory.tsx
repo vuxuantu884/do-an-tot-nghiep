@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {Tooltip} from "antd";
+import {Button, Tooltip} from "antd";
 import {HiChevronDoubleDown, HiChevronDoubleRight} from "react-icons/hi";
 import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
 import {OrderModel} from "model/order/order.model";
@@ -41,6 +41,7 @@ import {
   getCustomerOrderHistoryAction,
   getCustomerOrderReturnHistoryAction
 } from "../../../domain/actions/customer/customer.action";
+import iconReturn from "assets/icon/return.svg";
 
 type PurchaseHistoryProps = {
   customerId: number;
@@ -377,6 +378,20 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     [dispatch, onSuccessEditNote]
   );
 
+  const renderReturn = (item:OrderModel) => {
+    return (
+      <div style={{marginTop: 5}}>
+        <Tooltip title="Đổi trả hàng">
+          <Link
+            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${item.id}`}
+          >
+            <img alt="" src={iconReturn} style={{width: 20}} />
+          </Link>
+        </Tooltip>
+      </div>
+    )
+  };
+
   const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> =
     React.useMemo(
       () => [
@@ -411,6 +426,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                       </span>
                     </div>
                   )}
+                  {renderReturn(item)}
                 </div>
               </div>
             );

@@ -1,5 +1,5 @@
 import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Dropdown, Input, Menu, Popover, Row, Select, Tooltip } from "antd";
+import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -73,8 +73,7 @@ import search from "assets/img/search.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
-import threeDot from "assets/icon/three-dot.svg";
-import iconUndo from "assets/icon/undo.svg";
+import iconReturn from "assets/icon/return.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 
 type PropTypes = {
@@ -1159,7 +1158,6 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt_id",
         align: "center",
         render: (value, record: OrderModel) => {
-          console.log('record', record)
           if (value) {
             return (
               <Link to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
@@ -1212,58 +1210,6 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         width: 120,
       },
-      {
-        title: "Thao tác",
-        key: "thao_tac",
-        align: "center",
-        render: (value, record: OrderModel) => {
-          const menu = (
-            <Menu>
-              <Menu.Item key="1">
-                <Link
-                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
-                >
-                  <Button
-                    icon={<img alt="" style={{ marginRight: 8 }} src={iconUndo} />}
-                    type="text"
-                    className=""
-                    style={{
-                      paddingLeft: 24,
-                      background: "transparent",
-                      border: "none",
-                    }}
-                  >
-                    Đổi trả hàng
-                  </Button>
-                </Link>
-              </Menu.Item>
-            </Menu>
-          );
-          return (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "0 4px",
-              }}
-            >
-              <div className="action-group">
-                <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-                  <Button
-                    type="text"
-                    icon={<img src={threeDot} alt=""></img>}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  ></Button>
-                </Dropdown>
-              </div>
-            </div>
-          );
-        },
-        visible: true,
-        width: 100,
-      },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.items.length, deliveryServices, editNote, status_order]);
@@ -1307,9 +1253,9 @@ function OrdersTable(props: PropTypes) {
     return (
       <Tooltip title="Đổi trả hàng">
         <Link
-        to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
+          to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
         >
-          <img alt="" src={iconUndo} />
+          <img alt="" src={iconReturn} className="iconReturn"/>
         </Link>
       </Tooltip>
     );
