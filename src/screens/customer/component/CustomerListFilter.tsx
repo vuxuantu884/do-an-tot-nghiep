@@ -1,12 +1,10 @@
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import {
-  AutoComplete,
   Button,
   Dropdown, Form,
   Input, Menu, Select,
   Tag
 } from "antd";
-import { RefSelectProps } from "antd/lib/select";
 import filterIcon from "assets/icon/filter.svg";
 import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
@@ -15,7 +13,7 @@ import BaseFilter from "component/filter/base.filter";
 import SelectDateFilter from "component/filter/SelectDateFilter";
 import TreeStore from "component/tree-node/tree-store";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction} from "domain/actions/account/account.action";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import {
   CityByCountryAction,
@@ -25,7 +23,6 @@ import {
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import {
   AccountResponse,
-  AccountSearchQuery
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProvinceModel } from "model/content/district.model";
@@ -54,6 +51,7 @@ import { VietNamId } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError } from "utils/ToastUtils";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 
 type CustomerListFilterProps = {
   isLoading?: boolean;
@@ -80,6 +78,26 @@ const START_DAY = 1;
 const END_DAY = 31;
 const THIS_MONTH_VALUE = today.getMonth() + 1;
 const TODAY_VALUE = today.getDate();
+
+const DATE_LIST_FORMAT = {
+  todayFrom: moment().startOf('day').format('DD-MM-YYYY'),
+  todayTo: moment().endOf('day').format('DD-MM-YYYY'),
+
+  yesterdayFrom: moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY'),
+  yesterdayTo: moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY'),
+
+  thisWeekFrom: moment().startOf('week').format('DD-MM-YYYY'),
+  thisWeekTo: moment().endOf('week').format('DD-MM-YYYY'),
+
+  lastWeekFrom: moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY'),
+  lastWeekTo: moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY'),
+
+  thisMonthFrom: moment().startOf('month').format('DD-MM-YYYY'),
+  thisMonthTo: moment().endOf('month').format('DD-MM-YYYY'),
+
+  lastMonthFrom: moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY'),
+  lastMonthTo: moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY'),
+}
 
 // select area
 let tempWardList: any[] = [];
@@ -111,14 +129,30 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     (state: RootReducerType) => state.bootstrapReducer
   );
   const LIST_GENDER = bootstrapReducer.data?.gender;
-  const autoCompleteRef = React.createRef<RefSelectProps>();
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
 
-  const [keySearchAccount, setKeySearchAccount] = useState("");
-  const [resultSearch, setResultSearch] = React.useState<
-    PageResponse<AccountResponse> | false
-  >(false);
+  const [initPublicAccounts, setInitPublicAccounts] = useState<Array<AccountResponse>>([]);
+  const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
+  const [accountDataFiltered, setAccountDataFiltered] = useState<Array<AccountResponse>>([]);
+  
+  // handle select date
+  const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
+  const [lastOrderDateClick, setLastOrderDateClick] = useState("");
+
+  const [firstOrderDateFrom, setFirstOrderDateFrom] = useState<any>(
+    params.first_order_time_from
+  );
+  const [firstOrderDateTo, setFirstOrderDateTo] = useState<any>(
+    params.first_order_time_to
+  );
+
+  const [lastOrderDateFrom, setLastOrderDateFrom] = useState<any>(
+    params.last_order_time_from
+  );
+  const [lastOrderDateTo, setLastOrderDateTo] = useState<any>(
+    params.last_order_time_to
+  );
 
   //---Handle Source---\\
   
@@ -155,8 +189,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }, [dispatch, userReducer.account?.account_jobs]);
 
   const getOrderSources = useCallback(async() => {
-		let result:SourceResponse[]  = []
-		result= await sortSources(allSources, departmentIds)
+		let result:SourceResponse[];
+    result= await sortSources(allSources, departmentIds)
 		return result
 	}, [allSources, departmentIds]);
 
@@ -168,14 +202,17 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 		});
   }, [getOrderSources]);
 
-  //---End Handle Source---\\
+  const updatePublicAccounts = (data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setInitPublicAccounts(data.items);
+  };
 
-  const initQueryAccount: AccountSearchQuery = useMemo(
-    () => ({
-      info: "",
-    }),
-    []
-  );
+  useEffect(() => {
+    dispatch(searchAccountPublicAction({ limit: 30 }, updatePublicAccounts));
+  }, [dispatch]);
+  //---End Handle Source---\\
 
   const initialValues = useMemo(() => {
     const cityIds = formCustomerFilter.getFieldValue("city_ids");
@@ -187,65 +224,73 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       city_ids: cityIds,
       district_ids: districtIds,
       ward_ids: wardIds,
+
+      // city_ids: Array.isArray(params.city_ids) ? params.city_ids : [params.city_ids],
+      // district_ids: Array.isArray(params.district_ids) ? params.district_ids : [params.district_ids],
+      // ward_ids: Array.isArray(params.ward_ids) ? params.ward_ids : [params.ward_ids],
+
+      customer_group_ids: Array.isArray(params.customer_group_ids) ? params.customer_group_ids : [params.customer_group_ids],
+      customer_level_ids: Array.isArray(params.customer_level_ids) ? params.customer_level_ids : [params.customer_level_ids],
+      customer_type_ids: Array.isArray(params.customer_type_ids) ? params.customer_type_ids : [params.customer_type_ids],
+      assign_store_ids: Array.isArray(params.assign_store_ids) ? params.assign_store_ids : [params.assign_store_ids],
+      channel_ids: Array.isArray(params.channel_ids) ? params.channel_ids : [params.channel_ids],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
+      store_of_first_order_ids: Array.isArray(params.store_of_first_order_ids) ? params.store_of_first_order_ids : [params.store_of_first_order_ids],
+      store_of_last_order_ids: Array.isArray(params.store_of_last_order_ids) ? params.store_of_last_order_ids : [params.store_of_last_order_ids],
+
     };
   }, [formCustomerFilter, params]);
 
-  const AccountConvertResultSearch = React.useMemo(() => {
-    let options: any[] = [];
-    if (resultSearch)
-      resultSearch.items.forEach((item: AccountResponse, index: number) => {
-        options.push({
-          label: item.code + " - " + item.full_name,
-          value: item.code + " - " + item.full_name,
-        });
-      });
-    return options;
-  }, [resultSearch]);
+  // handle select sale staff (responsible_staff_codes) by filter param
+  const updateAccountData = (data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setAccountData(data.items);
+    setAccountDataFiltered(data.items);
+  };
+  const handleStaffCodesFilterParam = useCallback((responsible_staff_codes: any) => {
+    if (responsible_staff_codes) {
+      dispatch(searchAccountPublicAction({ limit: 30, condition: responsible_staff_codes }, updateAccountData));
+    }
+  }, [dispatch])
+  // end handle select sale staff (responsible_staff_codes) by filter param
 
-  const AccountChangeSearch = React.useCallback(
-    (value) => {
-      setKeySearchAccount(value);
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setResultSearch));
-    },
-    [dispatch, initQueryAccount]
-  );
+  // handle select date by filter param
+  const handleDateFilterParam = (date_from: any, date_to: any, setDate: any) => {
+    const dateFrom = ConvertUtcToLocalDate( date_from, "DD-MM-YYYY" );
+    const dateTo = ConvertUtcToLocalDate( date_to, "DD-MM-YYYY" );
 
-  const SearchAccountSelect = React.useCallback(
-    (value, o) => {
-      let index: number = -1;
-      if (resultSearch) {
-        index = resultSearch.items.findIndex(
-          (accountResponse: AccountResponse) =>
-            accountResponse.id && accountResponse.id.toString() === value
-        );
-        if (index !== -1) {
-          setKeySearchAccount(
-            resultSearch.items[index].code +
-              "-" +
-              resultSearch.items[index].full_name
-          );
-          autoCompleteRef.current?.blur();
-        }
-      }
-    },
-    [autoCompleteRef, resultSearch]
-  );
-
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setResultSearch(data);
-    },
-    []
-  );
+    if (dateFrom === DATE_LIST_FORMAT.todayFrom && dateTo === DATE_LIST_FORMAT.todayTo) {
+      setDate("today");
+    } else if (dateFrom === DATE_LIST_FORMAT.yesterdayFrom && dateTo === DATE_LIST_FORMAT.yesterdayTo) {
+      setDate("yesterday");
+    } else if (dateFrom === DATE_LIST_FORMAT.thisWeekFrom && dateTo === DATE_LIST_FORMAT.thisWeekTo) {
+      setDate("thisWeek");
+    } else if (dateFrom === DATE_LIST_FORMAT.lastWeekFrom && dateTo === DATE_LIST_FORMAT.lastWeekTo) {
+      setDate("lastWeek");
+    } else if(dateFrom === DATE_LIST_FORMAT.thisMonthFrom && dateTo === DATE_LIST_FORMAT.thisMonthTo) {
+      setDate("thisMonth");
+    } else if (dateFrom === DATE_LIST_FORMAT.lastMonthFrom && dateTo === DATE_LIST_FORMAT.lastMonthTo) {
+      setDate("lastMonth");
+    } else {
+      setDate("");
+    }
+  }
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
+    formCustomerFilter.setFieldsValue({
+      ...initialValues
+    });
 
+    handleStaffCodesFilterParam(initialValues.responsible_staff_codes);
+
+    handleDateFilterParam(initialValues.first_order_time_from, initialValues.first_order_time_to, setFirstOrderDateClick);
+    handleDateFilterParam(initialValues.last_order_time_from, initialValues.last_order_time_to, setLastOrderDateClick);
+
+  }, [formCustomerFilter, handleStaffCodesFilterParam, initialValues]);
+  
   // initialization birth day
   const initDateList = () => {
     const dateList: Array<any> = [];
@@ -365,24 +410,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     setFromYearList(INIT_FROM_YEAR_LIST);
   };
   // end handle select birth year
-
-  // handle select date
-  const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
-  const [lastOrderDateClick, setLastOrderDateClick] = useState("");
-
-  const [firstOrderDateFrom, setFirstOrderDateFrom] = useState<any>(
-    initialValues.first_order_time_from
-  );
-  const [firstOrderDateTo, setFirstOrderDateTo] = useState<any>(
-    initialValues.first_order_time_to
-  );
-
-  const [lastOrderDateFrom, setLastOrderDateFrom] = useState<any>(
-    initialValues.last_order_time_from
-  );
-  const [lastOrderDateTo, setLastOrderDateTo] = useState<any>(
-    initialValues.last_order_time_to
-  );
 
   const clearFirstOrderDate = () => {
     setFirstOrderDateClick("");
@@ -686,7 +713,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.gender) {
       const gender = LIST_GENDER?.find(
-        (item) => item.value.toString() === initialValues.gender.toString()
+        (item) => item.value?.toString() === initialValues.gender?.toString()
       );
       list.push({
         key: "gender",
@@ -699,7 +726,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let customerGroupFiltered = "";
       initialValues.customer_group_ids.forEach((customer_group_id: any) => {
         const customerGroup = groups?.find(
-          (item: any) => item.id.toString() === customer_group_id.toString()
+          (item: any) => item.id?.toString() === customer_group_id?.toString()
         );
         customerGroupFiltered = customerGroup
           ? customerGroupFiltered + customerGroup.name + "; "
@@ -717,7 +744,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       initialValues.customer_level_ids.forEach((customer_level_id: any) => {
         const customerLevel = loyaltyUsageRules?.find(
           (item: any) =>
-            item.rank_id.toString() === customer_level_id.toString()
+            item.rank_id?.toString() === customer_level_id?.toString()
         );
         customerLevelFiltered = customerLevel
           ? customerLevelFiltered + customerLevel.rank_name + "; "
@@ -731,14 +758,13 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }
 
     if (initialValues.responsible_staff_codes) {
-      const staff = AccountConvertResultSearch?.find(
-        (item: any) =>
-          item.value.split(" - ")[0] === initialValues.responsible_staff_codes
+      const staff = accountDataFiltered?.find((item: any) =>
+        item.code?.toString() === initialValues.responsible_staff_codes?.toString()
       );
       list.push({
         key: "responsible_staff_codes",
         name: "Nhân viên phụ trách",
-        value: staff?.label,
+        value: staff ? (staff?.code + " - " + staff?.full_name) : initialValues.responsible_staff_codes,
       });
     }
 
@@ -746,7 +772,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let customerTypeFiltered = "";
       initialValues.customer_type_ids.forEach((customer_type_id: any) => {
         const customerType = types?.find(
-          (item: any) => item.id.toString() === customer_type_id.toString()
+          (item: any) => item.id?.toString() === customer_type_id?.toString()
         );
         customerTypeFiltered = customerType
           ? customerTypeFiltered + customerType.name + "; "
@@ -763,7 +789,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let assignedCardStoreFiltered = "";
       initialValues.assign_store_ids.forEach((assign_store_id: any) => {
         const assignedCardStore = listStore?.find(
-          (item: any) => item.id.toString() === assign_store_id.toString()
+          (item: any) => item.id?.toString() === assign_store_id?.toString()
         );
         assignedCardStoreFiltered = assignedCardStore
           ? assignedCardStoreFiltered + assignedCardStore.name + "; "
@@ -780,7 +806,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let storesFiltered = "";
       initialValues.store_ids.forEach((store_id: any) => {
         const store = listStore?.find(
-          (item) => item.id.toString() === store_id.toString()
+          (item) => item.id?.toString() === store_id?.toString()
         );
         storesFiltered = store
           ? storesFiltered + store.name + "; "
@@ -841,7 +867,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let channelsFiltered = "";
       initialValues.channel_ids.forEach((channel_id: any) => {
         const channel = listChannel?.find(
-          (item) => item.id.toString() === channel_id.toString()
+          (item) => item.id?.toString() === channel_id?.toString()
         );
         channelsFiltered = channel
           ? channelsFiltered + channel.name + "; "
@@ -858,7 +884,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let sourcesFiltered = "";
       initialValues.source_ids.forEach((source_id: any) => {
         const source = listSource?.find(
-          (item) => item.id.toString() === source_id.toString()
+          (item) => item.id?.toString() === source_id?.toString()
         );
         sourcesFiltered = source
           ? sourcesFiltered + source.name + "; "
@@ -887,7 +913,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let citiesFiltered = "";
       initialValues.city_ids.forEach((city_id: any) => {
         const city = provincesList?.find(
-          (item) => item.id.toString() === city_id.toString()
+          (item) => item.id?.toString() === city_id?.toString()
         );
         citiesFiltered = city
           ? citiesFiltered + city.name + "; "
@@ -904,7 +930,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let districtsFiltered = "";
       initialValues.district_ids.forEach((district_id: any) => {
         const district = districtsList?.find(
-          (item: any) => item.id.toString() === district_id.toString()
+          (item: any) => item.id?.toString() === district_id?.toString()
         );
         districtsFiltered = district
           ? districtsFiltered + district.name + "; "
@@ -921,7 +947,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let wardsFiltered = "";
       initialValues.ward_ids.forEach((ward_id: any) => {
         const ward = wardsList?.find(
-          (item: any) => item.id.toString() === ward_id.toString()
+          (item: any) => item.id?.toString() === ward_id?.toString()
         );
         wardsFiltered = ward ? wardsFiltered + ward.name + "; " : wardsFiltered;
       });
@@ -1051,7 +1077,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       initialValues.store_of_first_order_ids.forEach(
         (first_order_store_id: any) => {
           const store = listStore?.find(
-            (item) => item.id.toString() === first_order_store_id.toString()
+            (item) => item.id?.toString() === first_order_store_id?.toString()
           );
           firstOrderStoresFiltered = store
             ? firstOrderStoresFiltered + store.name + "; "
@@ -1070,7 +1096,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       initialValues.store_of_last_order_ids.forEach(
         (last_order_store_id: any) => {
           const store = listStore?.find(
-            (item) => item.id.toString() === last_order_store_id.toString()
+            (item) => item.id?.toString() === last_order_store_id?.toString()
           );
           lastOrderStoresFiltered = store
             ? lastOrderStoresFiltered + store.name + "; "
@@ -1220,7 +1246,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     LIST_GENDER,
     groups,
     loyaltyUsageRules,
-    AccountConvertResultSearch,
+    accountDataFiltered,
     types,
     listStore,
     listChannel,
@@ -1519,18 +1545,18 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         : THIS_YEAR;
 
       const startDate = new Date(
-        month_of_birth_from.toString() +
+        month_of_birth_from?.toString() +
           "/" +
-          day_of_birth_from.toString() +
+          day_of_birth_from?.toString() +
           "/" +
-          year_of_birth_from.toString()
+          year_of_birth_from?.toString()
       );
       const endDate = new Date(
-        month_of_birth_to.toString() +
+        month_of_birth_to?.toString() +
           "/" +
-          day_of_birth_to.toString() +
+          day_of_birth_to?.toString() +
           "/" +
-          year_of_birth_to.toString()
+          year_of_birth_to?.toString()
       );
 
       return startDate <= endDate;
@@ -1552,7 +1578,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     await formCustomerFilter
       .validateFields()
       .then()
-      .catch((error: any) => {
+      .catch(() => {
         isValidForm = false;
       });
 
@@ -1568,11 +1594,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const onClearAdvancedFilter = useCallback(() => {
     clearFirstOrderDate();
     clearLastOrderDate();
+    setAccountData(initPublicAccounts);
 
     setVisibleBaseFilter(false);
     formCustomerFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
-  }, [formCustomerFilter, initQuery, onClearFilter]);
+  }, [formCustomerFilter, initPublicAccounts, initQuery, onClearFilter]);
   // end clear advanced filter
   // end handle filter action
 
@@ -1662,7 +1689,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const dropdownMenuList = (
     <Menu>
-      {actionList.map((item, index) => {
+      {actionList.map((item) => {
         return (
           <Menu.Item key={item.type} onClick={() => changeCustomerPoint(item.type)} disabled={selectedCustomerIds?.length < 1}>
             <span>
@@ -1695,7 +1722,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 			 getSourcesWithParamsService(query).then((response) => {
 				 setListSource(response.data.items)
 			 }).catch((error) => {
-				 console.log('error', error)
+				 console.log('getSourcesWithParamsService fail', error)
 			 })
 		 })
 		} else {
@@ -1708,7 +1735,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       <Form
         form={formCustomerFilter}
         onFinish={onFinish}
-        initialValues={params}
+        initialValues={initialValues}
         layout="inline"
         className="inline-filter">
         <Dropdown
@@ -1797,7 +1824,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     placeholder="Chọn nhóm khách hàng"
                     optionFilterProp="children">
                     {groups.map((group: any) => (
-                      <Option key={group.id} value={group.id}>
+                      <Option key={group.id} value={group.id?.toString()}>
                         {group.name}
                       </Option>
                     ))}
@@ -1816,7 +1843,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     placeholder="Chọn hạng thẻ">
                     {loyaltyUsageRules?.map((loyalty: any) => (
-                      <Option key={loyalty.id} value={loyalty.rank_id}>
+                      <Option key={loyalty.id} value={loyalty.rank_id?.toString()}>
                         {loyalty.rank_name}
                       </Option>
                     ))}
@@ -1827,25 +1854,15 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               <div className="base-filter-row">
                 <Form.Item
                   name="responsible_staff_codes"
-                  label={<b>Nhân viên phụ trách</b>}
+                  label="Nhân viên phụ trách"
                   className="left-filter">
-                  <AutoComplete
-                    notFoundContent={
-                      keySearchAccount.length >= 3
-                        ? "Không có bản ghi nào"
-                        : undefined
-                    }
-                    id="search_account"
-                    value={keySearchAccount}
-                    ref={autoCompleteRef}
-                    onSelect={SearchAccountSelect}
-                    onSearch={AccountChangeSearch}
-                    options={AccountConvertResultSearch}>
-                    <Input
-                      placeholder="Chọn nhân viên phụ trách"
-                      suffix={<DownOutlined style={{ color: "#ABB4BD" }} />}
-                    />
-                  </AutoComplete>
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={initPublicAccounts}
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                  />
                 </Form.Item>
 
                 <Form.Item
@@ -1860,7 +1877,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     optionFilterProp="children">
                     {types.map((type: any) => (
-                      <Option key={type.id} value={type.id}>
+                      <Option key={type.id} value={type.id?.toString()}>
                         {type.name + ` - ${type.code}`}
                       </Option>
                     ))}
@@ -1881,7 +1898,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     optionFilterProp="children"
                     defaultValue={undefined}>
                     {listStore?.map((item) => (
-                      <Option key={item.id} value={item.id.toString()}>
+                      <Option key={item.id} value={item.id?.toString()}>
                         {item.name}
                       </Option>
                     ))}
@@ -1902,8 +1919,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     placeholder="Chọn kênh"
                     optionFilterProp="children">
-                    {listChannel?.map((item, index) => (
-                      <Option key={item.id} value={item.id.toString()}>
+                    {listChannel?.map((item) => (
+                      <Option key={item.id} value={item.id?.toString()}>
                         {item.name}
                       </Option>
                     ))}
@@ -1923,8 +1940,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     placeholder="Chọn nguồn"
                     optionFilterProp="children">
-                    {listSource?.map((item, index) => (
-                      <Option key={item.id} value={item.id.toString()}>
+                    {listSource?.map((item) => (
+                      <Option key={item.id} value={item.id?.toString()}>
                         {item.name}
                       </Option>
                     ))}
@@ -1978,20 +1995,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   name="store_ids"
                   label={<b>Cửa hàng</b>}
                   className="left-filter">
-                  {/* <Select
-                    mode="multiple"
-                    showSearch
-                    showArrow
-                    allowClear
-                    placeholder="Chọn cửa hàng"
-                    optionFilterProp="children"
-                    maxTagCount="responsive">
-                    {listStore?.map((item) => (
-                      <Option key={item.id} value={item.id.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select> */}
                    <TreeStore listStore={listStore}  placeholder="Chọn cửa hàng"/>
                 </Form.Item>
 
@@ -2405,7 +2408,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     placeholder="Chọn cửa hàng"
                     optionFilterProp="children">
                     {listStore?.map((item) => (
-                      <Option key={item.id} value={item.id.toString()}>
+                      <Option key={item.id} value={item.id?.toString()}>
                         {item.name}
                       </Option>
                     ))}
@@ -2425,7 +2428,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     placeholder="Chọn cửa hàng"
                     optionFilterProp="children">
                     {listStore?.map((item) => (
-                      <Option key={item.id} value={item.id.toString()}>
+                      <Option key={item.id} value={item.id?.toString()}>
                         {item.name}
                       </Option>
                     ))}
@@ -2585,7 +2588,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       </BaseFilter>
 
       <div className="filter-tags">
-        {filters?.map((filter: any, index) => {
+        {filters?.map((filter: any) => {
           return (
             <Tag
               key={filter.key}

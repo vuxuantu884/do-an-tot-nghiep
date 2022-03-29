@@ -1167,6 +1167,7 @@ ShippingServiceConfigDetailResponseModel[]
                   loyaltyPoint={loyaltyPoint}
                   countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
                   isCreateReturn
+                  shipmentMethod={shipmentMethod}
                 />
                 {!isExchange && (
                   <CardReturnMoneyPageCreateReturn

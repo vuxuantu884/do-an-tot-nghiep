@@ -1168,7 +1168,7 @@ function OrdersTable(props: PropTypes) {
             return "-";
           }
         },
-        visible: true,
+        visible: false,
         width: 160,
       },
       {
@@ -1176,7 +1176,7 @@ function OrdersTable(props: PropTypes) {
         dataIndex: "Mã Afilliate",
         key: "Mã Afilliate",
         render: (value) => null,
-        visible: true,
+        visible: false,
         width: 160,
       },
       {
@@ -1184,7 +1184,7 @@ function OrdersTable(props: PropTypes) {
         dataIndex: "Ghi chú hóa đơn",
         key: "Ghi chú hóa đơn",
         render: (value) => null,
-        visible: true,
+        visible: false,
         width: 190,
       },
       {
@@ -1207,7 +1207,7 @@ function OrdersTable(props: PropTypes) {
           }
           return result;
         },
-        visible: true,
+        visible: false,
         width: 120,
       },
     ];

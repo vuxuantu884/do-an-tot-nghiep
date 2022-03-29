@@ -79,8 +79,16 @@ export const actionAddCustomerGroup = (
     };
   };
 
-export const getCustomerDetailAction = (id: number|null, setData: (data: CustomerResponse) => void) => {
-    return BaseAction(CustomerType.CUSTOMER_DETAIL, { id, setData });
+// get customer detail action
+export const getCustomerDetailAction = (id: number | null | string, setData: (data: CustomerResponse) => void) => {
+  let customer_id: number;
+  const customerIdString = id?.toString().toUpperCase();
+  if (customerIdString?.includes("CU")) {
+    customer_id = Number(customerIdString.replace("CU", ""));
+  } else {
+    customer_id = Number(customerIdString);
+  }
+  return BaseAction(CustomerType.CUSTOMER_DETAIL, { id: customer_id, setData });
 }
 
 // get customer's order history

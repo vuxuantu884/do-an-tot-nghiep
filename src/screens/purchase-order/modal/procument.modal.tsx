@@ -1,4 +1,4 @@
-import { Button, Table } from "antd";
+import { Button, Input, Select, Table } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -54,6 +54,8 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
   const [message, setMessage] = useState("");
   const [removeIndex, setRemoveIndex] = useState(-1);
 
+  const { Option } = Select;
+
   const handleRemoveLineItem = (
     item: PurchaseProcumentLineItem,
     lineIndex: number
@@ -97,7 +99,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
           okText={isEdit ? "Lưu phiếu nháp" : "Tạo phiếu nháp"}
           isEdit={isEdit}
         >
-          {(onQuantityChange, onRemove, line_items) => {
+          {(onQuantityChange, onRemove, line_items, typeBulk, setTypeBulk, bulkQuantity, setBulkQuantity, setAllFieldQuantity) => {
             return (
               <Table
                 className="product-table"
@@ -191,10 +193,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     dataIndex: POProcumentLineItemField.accepted_quantity,
                     render: (value, item, index) =>{
                       return (
-                      <div style={{ textAlign: "right" }}>
-                        {value ? formatCurrency(value,".") : 0}
-                      </div>
-                    )},
+                        <div style={{ textAlign: "right" }}>
+                          {value ? formatCurrency(value,".") : 0}
+                        </div>
+                      )},
                   },
                   {
                     title: (
@@ -222,15 +224,55 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                       <div
                         style={{
                           width: "100%",
-                          textAlign: "right",
+                          textAlign: "center",
                           flexDirection: "column",
                           display: "flex",
                         }}
                       >
-                        Kế hoạch nhận
+                        <div>Kế hoạch nhận</div>
+                        <Input.Group compact>
+                          <Select
+                            defaultValue="percentage"
+                            style={{ width: '50%' }}
+                            onChange={(value: string) => {
+                              setTypeBulk(value)
+                              setBulkQuantity(0)
+                            }}>
+                            <Option value="percentage">%</Option>
+                            <Option value="quantity">SL</Option>
+                          </Select>
+                          <NumberInput
+                            style={{ width: '50%' }}
+                            onChange={(value) => {
+                              if (value === null) return setAllFieldQuantity(0)
+                              if (typeBulk === 'percentage' && value > 100) {
+                                value = 100
+                              }
+                              if (typeBulk === 'quantity' && value > 999999) {
+                                value = 999999
+                              }
+                              onQuantityChange(undefined, undefined, value)
+                              setBulkQuantity && setBulkQuantity(value)
+                            }}
+                            format={(value) => {
+                              if (typeBulk === 'percentage' && Number(value) > 100) {
+                                return "100"
+                              }
+                              if (typeBulk === 'quantity' && Number(value) > 999999) {
+                                return "999999"
+                              }
+                              return value;
+                            }}
+                            placeholder="0"
+                            isFloat={false}
+                            value={bulkQuantity}
+                            min={0}
+                            maxLength={8}
+                          />
+                        </Input.Group>
                       </div>
                     ),
-                    width: 100,
+                    width: 150,
                     dataIndex: POProcumentLineItemField.quantity,
                     render: (value, item, index) => (
                       <NumberInput

@@ -205,9 +205,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         setAssigneeFound(response.data.items);
       });
     }
-    if (params.account_codes && params.account_codes?.length > 0) {
+    if (params.created_by && params.created_by?.length > 0) {
       searchAccountApi({
-        codes: params.account_codes,
+        codes: params.created_by,
       }).then((response) => {
         setAccountFound(response.data.items);
       });
@@ -228,7 +228,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
   }, [
     params.assignee_codes,
-    params.account_codes,
+    params.created_by,
     params.marketer_codes,
     params.coordinator_codes,
   ]);
@@ -304,8 +304,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "assignee_codes":
           onFilter && onFilter({ ...params, assignee_codes: [] });
           break;
-        case "account_codes":
-          onFilter && onFilter({ ...params, account_codes: [] });
+        case "created_by":
+          onFilter && onFilter({ ...params, created_by: [] });
           break;
         case "coordinator_codes":
           onFilter && onFilter({ ...params, coordinator_codes: [] });
@@ -407,9 +407,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
-      account_codes: Array.isArray(params.account_codes)
-        ? params.account_codes
-        : [params.account_codes],
+      created_by: Array.isArray(params.created_by)
+        ? params.created_by
+        : [params.created_by],
       channel_codes: Array.isArray(params.channel_codes)
         ? params.channel_codes
         : [params.channel_codes],
@@ -445,10 +445,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.order_status.length > numberTagShorten,
       },
-			account_codes: {
-        data: initialValues.account_codes,
+			created_by: {
+        data: initialValues.created_by,
         isShorten: isShortenFilterTag,
-        isCanShorten: initialValues.account_codes.length > numberTagShorten,
+        isCanShorten: initialValues.created_by.length > numberTagShorten,
       },
 			assignee_codes: {
         data: initialValues.assignee_codes,
@@ -593,7 +593,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						</Link>
 					);
 				});
-      } else if (type === "account_codes") {
+      } else if (type === "created_by") {
         result = mappedArrayResult.map((single, index) => {
           return (
             <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
@@ -867,18 +867,18 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (initialValues.account_codes.length) {
+    if (initialValues.created_by.length) {
       let text = getFilterString(
         accountFound,
         "full_name",
         UrlConfig.ACCOUNTS,
         "code",
-        "account_codes",
-				filterTagFormatted.account_codes.isCanShorten,
-        filterTagFormatted.account_codes.isShorten
+        "created_by",
+				filterTagFormatted.created_by.isCanShorten,
+        filterTagFormatted.created_by.isShorten
       );
       list.push({
-        key: "account_codes",
+        key: "created_by",
         name: "Nhân viên tạo đơn",
         value: text,
       });
@@ -1053,7 +1053,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     initialValues.variant_ids.length,
     initialValues.assignee_codes.length,
     initialValues.services.length,
-    initialValues.account_codes.length,
+    initialValues.created_by.length,
     initialValues.coordinator_codes.length,
     initialValues.marketer_codes.length,
     initialValues.price_min,
@@ -1446,7 +1446,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="account_codes" label="Nhân viên tạo đơn">
+                  <Item name="created_by" label="Nhân viên tạo đơn">
                     <AccountCustomSearchSelect
                       placeholder="Tìm theo họ tên hoặc mã nhân viên"
                       dataToSelect={accountData}

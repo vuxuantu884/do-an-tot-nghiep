@@ -12,6 +12,7 @@ export interface CustomerSearchQuery extends BaseQuery {
   customer_type_ids?: Array<any> | [];
   assign_store_ids?: Array<any> | [];
   store_ids?: Array<any> | [];
+  source_ids?: Array<any> | [];
   channel_ids?: Array<any> | [];
   day_of_birth_from?: number | undefined;
   day_of_birth_to?: number | undefined;

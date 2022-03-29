@@ -78,6 +78,7 @@ export const InventoryTabUrl = {
 
 export const ProcurementTabUrl = {
   TODAY: UrlConfig.PROCUREMENT + "/today",
+  SEVEN_DAYS: UrlConfig.PROCUREMENT + "/seven-days",
   ALL: UrlConfig.PROCUREMENT,
   LOGS: UrlConfig.PROCUREMENT + "/logs",
 };

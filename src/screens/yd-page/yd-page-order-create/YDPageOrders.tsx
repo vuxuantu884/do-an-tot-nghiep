@@ -473,15 +473,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
       setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
+        showSuccess("Đơn được lưu và duyệt thành công");
         handleCustomerById(customer && customer.id);
         setIsShowOrderModal(true)
-        showSuccess("Đơn được lưu và duyệt thành công");
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
-        setActiveTabKey("1");
-        // setIsClearOrderTab(true)
-        handleRefreshInfoOrderSuccess()
+        setIsShowOrderModal(true)
+        // setActiveTabKey("1");
+        // // setIsClearOrderTab(true)
+        // handleRefreshInfoOrderSuccess()
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

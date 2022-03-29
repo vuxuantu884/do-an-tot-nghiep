@@ -102,7 +102,7 @@ import {
 	isOrderFinishedOrCancel,
 	replaceFormatString
 } from "utils/AppUtils";
-import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE, ShipmentMethodOption } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
@@ -145,6 +145,7 @@ type PropType = {
 	};
 	setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 	countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
+	shipmentMethod: number; 
 };
 
 var barcode = "";
@@ -229,6 +230,7 @@ function OrderCreateProduct(props: PropType) {
 		setShippingFeeInformedToCustomer,
 		countFinishingUpdateCustomer,
 		isCreateReturn,
+		shipmentMethod,
 	} = props;
 
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
@@ -1873,8 +1875,8 @@ function OrderCreateProduct(props: PropType) {
 		props.changeInfo(_items, _promotion);
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
-		if(orderCustomer) {
-			const shippingAddress = getCustomerShippingAddress(orderCustomer);
+		const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
+		if(_items.length > 0 && shipmentMethod !== ShipmentMethodOption.DELIVER_LATER && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE) {
 			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
 				transportService, form, setShippingFeeInformedToCustomer
 				);
