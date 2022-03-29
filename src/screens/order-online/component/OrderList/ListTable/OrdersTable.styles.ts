@@ -544,4 +544,7 @@ export const StyledComponent = styled.div`
     line-height: 1;
     margin-bottom: 8px;
   }
+  .iconReturn {
+    width: 20px
+  }
 `;
