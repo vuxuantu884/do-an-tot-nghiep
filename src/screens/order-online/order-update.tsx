@@ -316,47 +316,49 @@ ShippingServiceConfigDetailResponseModel[]
 	}, [OrderDetail]);
 	let levelOrder = setLevelOrder();
 
-	let initialForm: OrderRequest = {
-		action: "", //finalized
-		store_id: null,
-		company_id: DEFAULT_COMPANY.company_id,
-		price_type: "retail_price", //giá bán lẻ giá bán buôn
-		tax_treatment: TaxTreatment.INCLUSIVE,
-		delivery_service_provider_id: null,
-		shipper_code: null,
-		shipper_name: "",
-		delivery_fee: null,
-		shipping_fee_informed_to_customer: null,
-		shipping_fee_paid_to_three_pls: null,
-		dating_ship: undefined,
-		requirements: null,
-		source_id: null,
-		note: "",
-		tags: "",
-		customer_note: "",
-		account_code: userReducer.account?.code,
-		assignee_code: userReducer.account?.code || null,
-		marketer_code: null,
-		coordinator_code: null,
-		customer_id: null,
-		reference_code: "",
-		url: "",
-		total_line_amount_after_line_discount: null,
-		total: null,
-		total_tax: "",
-		total_discount: null,
-		currency: "VNĐ",
-		items: [],
-		discounts: [],
-		fulfillments: [],
-		shipping_address: null,
-		billing_address: null,
-		payments: [],
-		channel_id: null,
-		finalized: false,
-		automatic_discount: true,
-	};
-
+	let initialForm: OrderRequest = useMemo(() => {
+		return {
+			action: "", //finalized
+			store_id: null,
+			company_id: DEFAULT_COMPANY.company_id,
+			price_type: "retail_price", //giá bán lẻ giá bán buôn
+			tax_treatment: TaxTreatment.INCLUSIVE,
+			delivery_service_provider_id: null,
+			shipper_code: null,
+			shipper_name: "",
+			delivery_fee: null,
+			shipping_fee_informed_to_customer: null,
+			shipping_fee_paid_to_three_pls: null,
+			dating_ship: undefined,
+			requirements: null,
+			source_id: null,
+			note: "",
+			tags: "",
+			customer_note: "",
+			account_code: userReducer.account?.code,
+			assignee_code: userReducer.account?.code || null,
+			marketer_code: null,
+			coordinator_code: null,
+			customer_id: null,
+			reference_code: "",
+			url: "",
+			total_line_amount_after_line_discount: null,
+			total: null,
+			total_tax: "",
+			total_discount: null,
+			currency: "VNĐ",
+			items: [],
+			discounts: [],
+			fulfillments: [],
+			shipping_address: null,
+			billing_address: null,
+			payments: [],
+			channel_id: null,
+			finalized: false,
+			automatic_discount: true,
+		}
+	}, [userReducer.account?.code])
+	
 	const onChangeTag = useCallback(
 		(value: []) => {
 			const strTag = value.join(", ");
