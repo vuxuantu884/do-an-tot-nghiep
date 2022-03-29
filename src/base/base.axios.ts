@@ -30,13 +30,6 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       AppConfig.runMode === "development" && console.log(response.data);
 
       /**
-       * Record api 401 để check lỗi tự đăng xuất
-       */
-      if (response.status === HttpStatus.UNAUTHORIZED) {
-        console.warn("headers", response.config);
-      }
-
-      /**
        * Thông báo lỗi
        */
       switch (response.data.code) {
@@ -48,19 +41,24 @@ export function getAxiosBase(config: AxiosRequestConfig) {
             "Hệ thống đang gián đoạn, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời."
           );
           return response;
+        case HttpStatus.UNAUTHORIZED:
+        /**
+         * Record api 401 để check lỗi tự đăng xuất
+         */
+          console.warn("Lỗi xác thực: \n", response?.config);
+          return response;
         default:
           break;
       }
 
-      
-      return response.data;      
+      return response.data;
     },
     function (error) {
       /**
       * Record api 401 để check lỗi tự đăng xuất
       */
-      if (error.response?.status === 401) {
-        console.warn("error", error);
+      if (error?.response?.status === 401) {
+        console.warn("Lỗi xác thực: \n", error?.response?.config);
       }
       return Promise.reject(error);
     }
