@@ -1765,6 +1765,15 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
   return isChange;
 };
 
+export const isFulfillmentCancelled = (fulfillment: FulFillmentResponse) => {
+  if (fulfillment.status === FulFillmentStatus.CANCELLED ||
+    fulfillment.status === FulFillmentStatus.RETURNING ||
+    fulfillment.status === FulFillmentStatus.RETURNED) {
+    return true
+  }
+  return false
+};
+
 export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, sub_status_code: string) => {
   if(isOrderFromSaleChannel(orderDetail)) {
     return true;
@@ -1773,12 +1782,7 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, 
     return false;
   }
   let isChange = true;
-  const returnStatus = [
-    FulFillmentStatus.RETURNED,
-    FulFillmentStatus.CANCELLED,
-    FulFillmentStatus.RETURNING,
-  ];
-  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !returnStatus.includes(single.status)) : [];
+  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !isFulfillmentCancelled(single)) : [];
   switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
     // giao hàng hvc, tự giao hàng
     case ShipmentMethod.EXTERNAL_SERVICE:

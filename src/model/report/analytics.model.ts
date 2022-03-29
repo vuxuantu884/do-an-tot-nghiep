@@ -38,6 +38,7 @@ export enum AnalyticCube {
   All = 'all'
 }
 
+export declare type QueryMode = "table" | "chart"
 export declare type ArrayString = Array<string>;
 export declare type ArrayAny = Array<any>;
 export declare type AnalyticConditions = Array<ArrayString>;

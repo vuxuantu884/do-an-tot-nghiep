@@ -237,45 +237,48 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [isLoadForm, setIsLoadForm] = useState(false);
 
-  let initialRequest: OrderRequest = {
-    action: "", //finalized
-    store_id: null,
-    company_id: DEFAULT_COMPANY.company_id,
-    price_type: "retail_price", //giá bán lẻ giá bán buôn
-    tax_treatment: TaxTreatment.INCLUSIVE,
-    delivery_service_provider_id: null,
-    shipper_code: null,
-    shipper_name: "",
-    delivery_fee: null,
-    shipping_fee_informed_to_customer: null,
-    shipping_fee_paid_to_three_pls: null,
-    dating_ship: undefined,
-    requirements: null,
-    source_id: null,
-    note: "",
-    tags: "",
-    customer_note: "",
-    account_code: userReducer.account?.code,
-    assignee_code: userReducer.account?.code || null,
-    marketer_code: null,
-    coordinator_code: null,
-    customer_id: null,
-    reference_code: `fb_${fbCustomerId}_${fbPageId}_${userId}`,
-    url: "",
-    total_line_amount_after_line_discount: null,
-    total: null,
-    total_tax: "",
-    total_discount: null,
-    currency: "VNĐ",
-    items: [],
-    discounts: [],
-    fulfillments: [],
-    shipping_address: null,
-    billing_address: null,
-    payments: [],
-    channel_id: null,
-    automatic_discount: true,
-  };
+  let initialRequest: OrderRequest = useMemo(() => {
+    return {
+      action: "", //finalized
+      store_id: null,
+      company_id: DEFAULT_COMPANY.company_id,
+      price_type: "retail_price", //giá bán lẻ giá bán buôn
+      tax_treatment: TaxTreatment.INCLUSIVE,
+      delivery_service_provider_id: null,
+      shipper_code: null,
+      shipper_name: "",
+      delivery_fee: null,
+      shipping_fee_informed_to_customer: null,
+      shipping_fee_paid_to_three_pls: null,
+      dating_ship: undefined,
+      requirements: null,
+      source_id: null,
+      note: "",
+      tags: "",
+      customer_note: "",
+      account_code: userReducer.account?.code,
+      assignee_code: userReducer.account?.code || null,
+      marketer_code: null,
+      coordinator_code: null,
+      customer_id: null,
+      reference_code: `fb_${fbCustomerId}_${fbPageId}_${userId}`,
+      url: "",
+      total_line_amount_after_line_discount: null,
+      total: null,
+      total_tax: "",
+      total_discount: null,
+      currency: "VNĐ",
+      items: [],
+      discounts: [],
+      fulfillments: [],
+      shipping_address: null,
+      billing_address: null,
+      payments: [],
+      channel_id: null,
+      automatic_discount: true,
+    }
+  }, [fbCustomerId, fbPageId, userId, userReducer.account?.code])
+  
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
@@ -841,7 +844,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 setPayments(new_payments);
               }
 
-              setOrderAmount(response.total_line_amount_after_line_discount);
+              setOrderAmount(
+                response.total - (response.shipping_fee_informed_to_customer || 0)
+              );
 
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (

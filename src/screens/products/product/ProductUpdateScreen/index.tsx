@@ -1292,8 +1292,8 @@ const ProductDetailScreen: React.FC = () => {
                                     }
                                   >
                                     {({getFieldValue}) => {
-                                      let variants = getFieldValue("variants");
-                                      let id = variants[active].id;
+                                      // let variants = getFieldValue("variants");
+                                      // let id = variants[active].id;
                                       return (
                                         <Row gutter={50}>
                                           <Col span={24} md={12}>

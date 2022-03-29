@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
 import CreateBillStep from "component/header/create-bill-step";
@@ -11,6 +11,7 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { sortFulfillments } from "utils/AppUtils";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -79,6 +80,29 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
       default: return []
     }
   }, [stepsStatusValue]);
+
+  const isShowButtonCancelFFMAndUpdate = useMemo(() => {
+    const checkIfOrderIsFinalized = () => {
+      return orderDetail?.status !== OrderStatus.FINALIZED
+    };
+    const checkIfOrderHasNoFFM = () => {
+      if(!orderDetail || !orderDetail?.fulfillments || orderDetail?.fulfillments.length === 0) {
+        return true
+      }
+      const sortedFulfillment = sortFulfillments(orderDetail.fulfillments);
+      if(sortedFulfillment[0].status === FulFillmentStatus.RETURNED || sortedFulfillment[0].status === FulFillmentStatus.CANCELLED || sortedFulfillment[0].status === FulFillmentStatus.RETURNING) {
+        return true
+      }
+      return false
+    };
+    const checkIfOrderStepIsUnshipped = () => {
+      return  orderDetail?.fulfillment_status === "unshipped"
+    };
+    if(checkIfOrderIsFinalized() || checkIfOrderHasNoFFM() || !checkIfOrderStepIsUnshipped()) {
+      return false;
+    }
+    return true
+  }, [orderDetail])
 
   return (
     <StyledComponent>
@@ -262,6 +286,27 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   Thêm thao tác <DownOutlined />
                 </Button>
               </Dropdown>
+              {isShowButtonCancelFFMAndUpdate ? (
+                <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
+                  {(isPassed: boolean) => 
+                  <Button
+                    // type="primary"
+                    ghost
+                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                    onClick={() => orderActionsClick && orderActionsClick("cancelFulfillmentAndUpdate")}
+                    disabled={
+                      disabledBottomActions ||
+                      // orderDetail?.status === OrderStatus.FINISHED ||
+                      // orderDetail?.status === OrderStatus.COMPLETED ||
+                      // stepsStatusValue === OrderStatus.CANCELLED ||
+                      !isPassed
+                      || isLoadingDiscount
+                    }
+                  >
+                    Hủy đơn giao & sửa đơn hàng
+                  </Button>}
+                </AuthWrapper>
+              ) : null}
               <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
                 {(isPassed: boolean) => 
                 <Button

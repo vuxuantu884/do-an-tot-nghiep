@@ -36,7 +36,7 @@ const ApiConfig = {
   LOGISTIC_GATEWAY: `${v1}/${ServiceNames.LOGISTIC_GATEWAY_SERVICE}`,
   INVENTORY_ADJUSTMENT: `${v1}/${ServiceNames.INVENTORY_ADJUSTMENT_SERVICE}`,
   PROMOTION: `${v1}/${ServiceNames.PROMOTION_SERVICE}`,
-  ANALYTICS: `${v1}/analytics`,
+  ANALYTICS: `${v1}/reports`,
 };
 
 export { ApiConfig };
