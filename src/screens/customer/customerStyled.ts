@@ -21,10 +21,11 @@ export const StyledCustomerFilter = styled.div`
       margin-top: 0;
     }
     .tag {
-      padding: 10px 10px;
-      margin-bottom: 20px;
+      padding: 10px 20px;
+      margin-bottom: 10px;
       background: rgba(42, 42, 134, 0.05);
       border-radius: 50px;
+      white-space: normal;
     }
   }
 `;
