@@ -372,6 +372,13 @@ function OrderCreateProduct(props: PropType) {
 		[items, isAutomaticDiscount, couponInputText, splitLine]
 	);
 
+	const isShouldUpdatePrivateNote = useMemo(() => {
+	 if(props.updateOrder && form.getFieldValue("note")) {
+		 return false;
+	 }
+	 return true
+	}, [form, props.updateOrder])
+
 	useEffect(() => {
 		window.addEventListener("keypress", eventKeyPress);
 		window.addEventListener("keydown", handlePressKeyBoards);
@@ -1336,7 +1343,7 @@ function OrderCreateProduct(props: PropType) {
 								return single
 							})
 							let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-							if(promotionResult) {
+							if(promotionResult && isShouldUpdatePrivateNote) {
 								form.setFieldsValue({
 									note: `(${promotionResult.reason})`
 								})
@@ -1352,7 +1359,7 @@ function OrderCreateProduct(props: PropType) {
 							return single
 						})
 						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-						if(promotionResult) {
+						if(promotionResult && isShouldUpdatePrivateNote) {
 							form.setFieldsValue({
 								note: `(${promotionResult.reason})`
 							})
@@ -1365,15 +1372,19 @@ function OrderCreateProduct(props: PropType) {
 						})
 						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
 						calculateChangeMoney(items, promotionResult)
-						form.setFieldsValue({
-							note: ``
-						})
+						if(isShouldUpdatePrivateNote) {
+							form.setFieldsValue({
+								note: ``
+							})
+
+						}
 					}
 				} else {
-
-					form.setFieldsValue({
-						note: ""
-					})
+					if(isShouldUpdatePrivateNote) {
+						form.setFieldsValue({
+							note: ""
+						})
+					}
 					showError("Có lỗi khi áp dụng chiết khấu!");
 					calculateChangeMoney(items)
 				}
@@ -1570,9 +1581,11 @@ function OrderCreateProduct(props: PropType) {
 										})
 										break;
 								}
-								form.setFieldsValue({
-									note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`
-								})
+								if(isShouldUpdatePrivateNote) {
+									form.setFieldsValue({
+										note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`
+									})
+								}
 								calculateChangeMoney(_items, promotionResult)
 								showSuccess("Thêm coupon thành công!");
 							}
@@ -1813,9 +1826,11 @@ function OrderCreateProduct(props: PropType) {
 						title = title + discountTitleArr[i] + "."
 					}
 				}
-				form.setFieldsValue({
-					note: `(${title})`
-				})
+				if(isShouldUpdatePrivateNote) {
+					form.setFieldsValue({
+						note: `(${title})`
+					})
+				}
 			}
 		}
 	};
@@ -1960,9 +1975,11 @@ function OrderCreateProduct(props: PropType) {
 				lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
 			}
 		});
-		form.setFieldsValue({
-			note: undefined
-		})
+		if(isShouldUpdatePrivateNote) {
+			form.setFieldsValue({
+				note: undefined
+			})
+		}
 		// calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
 		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
@@ -1983,9 +2000,11 @@ function OrderCreateProduct(props: PropType) {
 			lineItem.discount_value = 0;
 			lineItem.line_amount_after_line_discount = lineItem.price * lineItem.quantity;
 		});
-		form.setFieldsValue({
-			note: undefined
-		})
+		if(isShouldUpdatePrivateNote) {
+			form.setFieldsValue({
+				note: undefined
+			})
+		}
 		// showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
 	};
 
@@ -2083,12 +2102,14 @@ function OrderCreateProduct(props: PropType) {
 
 	useEffect(() => {
 		if (items && items.length === 0) {
-			form.setFieldsValue({
-				note: ""
-			})
+			if(isShouldUpdatePrivateNote) {
+				form.setFieldsValue({
+					note: ""
+				})
+			}
 			setPromotion && setPromotion(null)
 		}
-	}, [form, items, setPromotion]);
+	}, [form, isShouldUpdatePrivateNote, items, setPromotion]);
 
 	return (
 		<StyledComponent>
