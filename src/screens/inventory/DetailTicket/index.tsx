@@ -844,7 +844,6 @@ const DetailTicket: FC = () => {
                           <Table
                             rowClassName="product-table-row"
                             tableLayout="fixed"
-                            scroll={{ y: 300 }}
                             pagination={false}
                             columns={columns}
                             dataSource={data.line_items}
