@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {Tooltip} from "antd";
+import {Button, Tooltip} from "antd";
 import {HiChevronDoubleDown, HiChevronDoubleRight} from "react-icons/hi";
 import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
 import {OrderModel} from "model/order/order.model";
@@ -41,13 +41,14 @@ import {
   getCustomerOrderHistoryAction,
   getCustomerOrderReturnHistoryAction
 } from "../../../domain/actions/customer/customer.action";
+import iconReturn from "assets/icon/return.svg";
 
 type PurchaseHistoryProps = {
-  customerId: number;
+  customer: any;
 };
 
 function PurchaseHistory(props: PurchaseHistoryProps) {
-  const { customerId } = props;
+  const { customer } = props;
 
   // const orderPointSpend = (order: any) => {
   //   if (order && order.payments.length > 0) {
@@ -167,11 +168,11 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   );
 
   useEffect(() => {
-    if (customerId) {
+    if (customer?.id) {
       setTableLoading(true);
-      dispatch(getCustomerOrderReturnHistoryAction(customerId, updateOrderReturnedList));
+      dispatch(getCustomerOrderReturnHistoryAction(customer?.id, updateOrderReturnedList));
     }
-  }, [customerId, dispatch, updateOrderReturnedList]);
+  }, [customer?.id, dispatch, updateOrderReturnedList]);
   // end get order returned
 
   // handle get purchase history
@@ -213,12 +214,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   );
 
   useEffect(() => {
-    if (customerId) {
-      orderHistoryQueryParams.customer_id = [customerId];
+    if (customer?.id) {
+      orderHistoryQueryParams.customer_id = customer?.id;
       setTableLoading(true);
       dispatch(getCustomerOrderHistoryAction(orderHistoryQueryParams, updateOrderHistoryData));
     }
-  }, [customerId, dispatch, orderHistoryQueryParams, updateOrderHistoryData]);
+  }, [customer?.id, dispatch, orderHistoryQueryParams, updateOrderHistoryData]);
 
   const orderHistoryList = useCallback(() => {
     const newOrderHistoryList = orderHistoryData?.items.map((order) => {
@@ -377,6 +378,20 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     [dispatch, onSuccessEditNote]
   );
 
+  const renderReturn = (item:OrderModel) => {
+    return (
+      <div style={{marginTop: 5}}>
+        <Tooltip title="Đổi trả hàng">
+          <Link
+            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${item.id}`}
+          >
+            <img alt="" src={iconReturn} style={{width: 20}} />
+          </Link>
+        </Tooltip>
+      </div>
+    )
+  };
+
   const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> =
     React.useMemo(
       () => [
@@ -411,6 +426,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                       </span>
                     </div>
                   )}
+                  {renderReturn(item)}
                 </div>
               </div>
             );

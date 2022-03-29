@@ -28,6 +28,7 @@ import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import useEffectOnce from "react-use/lib/useEffectOnce";
+import TextEllipsis from "component/table/TextEllipsis";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -114,6 +115,7 @@ const ListSupplierScreen: React.FC = () => {
         return <Link to={`${UrlConfig.SUPPLIERS}/${item.id}`}>{value}</Link>;
       },
       visible: true,
+      width: 130,
     },
     {
       width: 300,
@@ -121,11 +123,14 @@ const ListSupplierScreen: React.FC = () => {
       fixed: "left",
       dataIndex: "name",
       visible: true,
-      ellipsis: true,
+      render: (value: string, item: SupplierResponse) => {
+        return <TextEllipsis value={value} line={2} />
+      },
     },
     {
       title: "Số điện thoại",
       dataIndex: "contacts",
+       width: 130,
       render: (contacts: Array<SupplierContactResposne>) => {
         let index = contacts.findIndex((value) => value.is_default);
         if(index === -1) {
@@ -140,13 +145,22 @@ const ListSupplierScreen: React.FC = () => {
     },
     {
       title: "Merchandiser",
+      width: 200,
       dataIndex: "pic",
       render: (_, item: SupplierResponse) => (
-        <span>{`${item.pic_code} - ${item.pic}`}</span>
+        item.pic ? <div>
+            <div>
+              {item.pic_code}
+            </div>
+            <div>
+              <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.pic_code}`}>{item.pic}</Link>
+            </div>
+          </div>  :"---"
       ),
       visible: true,
     },
     {
+      width: 120,
       title: "Trạng thái",
       dataIndex: "status_name",
       render: (value: string, item: SupplierResponse) => (
@@ -157,6 +171,7 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
+      width: 150,
       title: "Nhóm hàng",
       dataIndex: "collection",
       visible: true,
@@ -165,38 +180,45 @@ const ListSupplierScreen: React.FC = () => {
       )
     },
     {
+      width: 100,
       title: "Phân cấp",
       dataIndex: "scorecard",
       align: "center",
       visible: true,
     },
     {
+      width: 150,
       title: "Quốc gia",
       dataIndex: "country_name",
       visible: false,
     },
     {
+      width: 150,
       title: "Thành phố",
       dataIndex: "city_name",
       visible: false,
     },
     {
+      width: 150,
       title: "Quận huyện",
       dataIndex: "district_name",
       visible: false,
     },
     {
+      width: 150,
       title: "Người tạo",
       dataIndex: "created_name",
       visible: false,
     },
     {
+      width: 150,
       title: "Ngày tạo",
       dataIndex: "created_date",
       visible: false,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
+      width: 150,
       title: "Loại",
       dataIndex: "type_name",
       visible: true,
@@ -287,7 +309,7 @@ const ListSupplierScreen: React.FC = () => {
           title="Quản lý nhà cung cấp"
           breadcrumb={[
             {
-              name: "Sản phầm",
+              name: "Sản phẩm",
             },
             {
               name: "Quản lý sản phẩm",
@@ -320,6 +342,7 @@ const ListSupplierScreen: React.FC = () => {
               listSupplierType={listSupplierType}
             />
             <CustomTable
+              className="small-padding"
               isRowSelection
               pagination={{
                 pageSize: data.metadata.limit,
@@ -329,6 +352,7 @@ const ListSupplierScreen: React.FC = () => {
                 onChange: onPageChange,
                 onShowSizeChange: onPageChange,
               }}
+              scroll={{x: 1200}}
               isLoading={tableLoading}
               showColumnSetting={true}
               onShowColumnSetting={() => setShowSettingColumn(true)}

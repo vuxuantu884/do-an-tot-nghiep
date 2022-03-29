@@ -1,8 +1,9 @@
 .draggble-setting-column {
+  cursor: move !important;
   .ant-list-item-action {
     .ant-btn-icon-only {
       .anticon {
-        vertical-align: 0.125em; 
+        vertical-align: 0.125em;
       }
     }
   }

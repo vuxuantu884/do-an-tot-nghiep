@@ -453,13 +453,12 @@ function* receivedInventoryTransferSaga(action: YodyAction) {
 }
 
 function* cancelShipmentInventoryTransferSaga(action: YodyAction) {
-  let { transferId, shipmentId, onResult } = action.payload;
+  let { transferId, onResult } = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       cancelShipmentInventoryTransfer,
       transferId,
-      shipmentId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -480,13 +479,12 @@ function* cancelShipmentInventoryTransferSaga(action: YodyAction) {
 }
 
 function* exportShipmentInventoryTransferSaga(action: YodyAction) {
-  let { transferId, shipmentId, onResult } = action.payload;
+  let { transferId, onResult } = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       exportShipmentInventoryTransfer,
       transferId,
-      shipmentId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

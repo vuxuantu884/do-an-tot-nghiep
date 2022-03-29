@@ -13,10 +13,11 @@ import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalytic
 import { callApiNative } from 'utils/ApiUtils'
 import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getConditionsFormServerToForm, getPropertiesValue } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
-import AnalyticsForm, { ReportifyFormFields, TIME_GROUP_BY } from '../shared/analytics-form'
+import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
 import ModalFormAnalyticsInfo from '../shared/form-analytics-info-modal'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
+import { TIME_GROUP_BY } from 'config/report'
 
 function CreateAnalytics() {
     const [form] = Form.useForm();
@@ -193,7 +194,7 @@ function CreateAnalytics() {
                     }),
                     conditions: mapperConditions ? mapperConditions : conditions
                 } as AnalyticQuery;
-                const query = generateRQuery(params)
+                const query = generateRQuery(params, "chart");
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
                 if (response) {
                     const { columns, data } = response.result;

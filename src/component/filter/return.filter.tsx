@@ -22,6 +22,12 @@ import { ReturnSearchQuery } from "model/order/return.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import TreeStore from "component/tree-node/tree-store";
+import { getSourcesWithParamsService } from "service/order/order.service";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { useDispatch } from "react-redux";
+import { POS } from "utils/Constants";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
@@ -35,6 +41,7 @@ type ReturnFilterProps = {
   onFilter?: (values: ReturnSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
+  setListSource?: (values: SourceResponse[]) => void;
 };
 
 const { Item } = Form;
@@ -46,12 +53,14 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     params,
     actions,
     listStore,
+    listSource,
     reasons,
     isLoading,
     onMenuClick,
     onClearFilter,
     onFilter,
-    onShowColumnSetting
+    onShowColumnSetting,
+    setListSource
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -60,6 +69,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     return isLoading ? true : false
   }, [isLoading])
 
+  const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
@@ -107,6 +117,12 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         case 'payment_status':
           onFilter && onFilter({...params, payment_status: []});
           break;
+        case "source":
+          onFilter && onFilter({ ...params, source_ids: [] });
+          break;
+        case "channel_codes":
+          onFilter && onFilter({ ...params, channel_codes: [] });
+          break;
 
         default: break
       }
@@ -125,7 +141,17 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       is_received: Array.isArray(params.is_received) ? params.is_received : [params.is_received],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
-  }}, [params])
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      channel_codes: Array.isArray(params.channel_codes)
+        ? params.channel_codes
+        : [params.channel_codes],
+  }}, [params]);
+  
+  const listSources = useMemo(() => {
+    return listSource.filter((item) => item.id !== POS.source_id);
+  }, [listSource]);
+
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
   const [isReceived, setIsReceived] = useState<any[]>(initialValues.is_received);
   const [paymentStatus, setPaymentStatus] = useState<any[]>(initialValues.payment_status);
@@ -286,8 +312,33 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       })
     }
 
+    if (initialValues.source_ids.length) {
+      let textSource = ""
+      initialValues.source_ids.forEach(source_id => {
+        const channel = listSource?.find(source => source.id.toString() === source_id)
+        textSource = channel ? textSource + channel.name + "; " : textSource
+      })
+      list.push({
+        key: 'source',
+        name: 'Nguồn',
+        value: textSource
+      })
+    }
+    if (initialValues.channel_codes.length) {
+      let textChannel = ""
+      initialValues.channel_codes.forEach(channel_code => {
+        const channel = listChannel?.find(channel => channel.code.toString() === channel_code)
+        textChannel = channel ? textChannel + channel.name + "; " : textChannel
+      })
+      list.push({
+        key: 'channel_codes',
+        name: 'Kênh bán hàng',
+        value: textChannel
+      })
+    }
+
     return list
-  }, [initialValues.created_on_max, initialValues.created_on_min, initialValues.is_received, initialValues.payment_status, initialValues.reason_ids, initialValues.received_on_max, initialValues.received_on_min, initialValues.store_ids, listStore, reasons]);
+  }, [initialValues, listChannel, listStore, listSource, reasons]);
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
       return 1400
@@ -310,16 +361,32 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   }, []);
 
   useEffect(() => {
-    setIsReceived(Array.isArray(params.is_received) ? params.is_received : [params.is_received])
-    setPaymentStatus(Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status])
-  }, [params.is_received, params.payment_status]);
+    setIsReceived(Array.isArray(params.is_received) ? params.is_received : [params.is_received]);
+    setPaymentStatus(Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status]);
+    dispatch(getListChannelRequest(setListChannel));
+  }, [dispatch, params.is_received, params.payment_status]);
+
+  useEffect(() => {
+    if (initialValues.source_ids) {
+      const params = {
+        ids: initialValues.source_ids,
+      };
+      getSourcesWithParamsService(params).then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          setListSource && setListSource([...response.data.items]);
+        } else {
+          handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
+        }
+      });
+    }
+  }, [dispatch, initialValues.source_ids, setListSource]);
 
   return (
     <div>
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-            <Item name="search_term" className="input-search">
+            <Item name="search_term" className="input-search" style={{ width: "68%"}}>
               <Input
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo mã đơn trả hàng, tên, sđt khách hàng"
@@ -441,7 +508,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   </Button>
                 </div>
               </Col>
-              <Col span={12}>
+              <Col span={12} style={{ marginBottom: 20}}>
                 <p>Ngày tạo đơn</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="created_on_min"
@@ -453,7 +520,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                 />
               </Col>
 
-              <Col span={12}>
+              <Col span={12} style={{ marginBottom: 20}}>
                 <p>Ngày trả hàng</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="received_on_min"
@@ -463,6 +530,67 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   format="DD-MM-YYYY"
                   formRef={formRef}
                 />
+              </Col>
+              <Col span={12}>
+                <Item name="source_ids" label="Nguồn đơn hàng">
+                  <CustomSelect
+                    mode="multiple"
+                    style={{ width: "100%" }}
+                    showArrow
+                    allowClear
+                    showSearch
+                    placeholder="Nguồn đơn hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                    maxTagCount="responsive"
+                    onSearch={(value) => {
+                      if (value.length > 1) {
+                        const params = {
+                          name: value,
+                          limit: 200,
+                        };
+                        getSourcesWithParamsService(params).then((response) => {
+                          if (isFetchApiSuccessful(response)) {
+                            setListSource && setListSource(response.data.items);
+                          } else {
+                            handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
+                          }
+                        });
+                      }
+                    }}>
+                    {listSources.map((item, index) => (
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.id.toString()}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+              </Col>
+              <Col span={12}>
+                <Item name="channel_codes" label="Kênh bán hàng">
+                  <CustomSelect
+                    mode="multiple"
+                    showSearch
+                    allowClear
+                    showArrow
+                    placeholder="Chọn kênh bán hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    style={{ width: "100%" }}
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                    maxTagCount="responsive">
+                    {listChannel &&
+                      listChannel.map((channel) => (
+                        <CustomSelect.Option key={channel.code} value={channel.code}>
+                          {channel.code} - {channel.name}
+                        </CustomSelect.Option>
+                      ))}
+                  </CustomSelect>
+                </Item>
               </Col>
             </Row>
           </Form>}

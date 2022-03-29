@@ -142,6 +142,11 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
                         return { ...prevState, [propertyKey]: checkedPropertyKey.map((item) => item) };
                     }
                     );
+
+                    setActivePanel((prevState) =>
+                        [...prevState, propertyKey]
+                    );
+                    
                 }
             })
         }

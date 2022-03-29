@@ -158,6 +158,7 @@ export interface OrderSearchQuery {
   payment_status: [];
   return_status: [];
   account_codes?: [];
+  created_by?: [];
   assignee_codes?: [];
   coordinator_codes?: [];
   marketer_codes?: [];

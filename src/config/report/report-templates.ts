@@ -28,7 +28,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 1,
     type: "Báo cáo bán hàng",
     name: "theo nhân viên",
-    query: `SHOW orders, gross_sales,returns, net_sales, shipping,total_sales, average_order_value  
+    query: `SHOW gross_sales,returns, net_sales, shipping,total_sales, average_order_value, orders, ordered_item_quantity, returned_item_quantity, net_quantity   
     BY staff_name
     FROM sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
@@ -42,7 +42,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 1,
     type: "Báo cáo lợi nhuận",
     name: "theo nhân viên",
-    query: `SHOW orders, gross_sales,returns, net_sales, shipping,total_sales,gross_profit, average_order_value  
+    query: `SHOW gross_sales,returns, net_sales, shipping,total_sales,gross_profit, average_order_value, orders, ordered_item_quantity, returned_item_quantity, net_quantity  
     BY staff_name
     FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
@@ -55,7 +55,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo cửa hàng",
-    query: `SHOW net_sales, average_order_value
+    query: `SHOW net_sales, average_order_value, orders, ordered_item_quantity, returned_item_quantity, net_quantity
     BY pos_location_name  
     FROM sales  
     WHERE channel_provider_name IN ('POS')
@@ -435,4 +435,23 @@ export const DETAIL_LINKS = [
     link: "/orders",
   }
 ];
+
+export const TIME_GROUP_BY = [
+  {
+      label: 'Giờ',
+      value: 'hour'
+  },
+  {
+      label: 'Ngày',
+      value: 'day'
+  },
+  {
+      label: 'Tháng',
+      value: 'month'
+  },
+  {
+      label: 'Năm',
+      value: 'year'
+  }
+]
 export default REPORT_TEMPLATES;

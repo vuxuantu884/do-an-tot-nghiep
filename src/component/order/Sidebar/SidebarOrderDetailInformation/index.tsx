@@ -1,16 +1,21 @@
 import {Card, Col, Row} from "antd";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import {OrderResponse} from "model/response/order/order.response";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {Link} from "react-router-dom";
+import { searchAccountPublicApi } from "service/accounts/account.service";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import {StyledComponent} from "./styles";
 
-type PropType = {
+type PropTypes = {
   OrderDetail: OrderResponse | null;
 };
 
-function SidebarOrderDetailInformation(props: PropType) {
+function SidebarOrderDetailInformation(props: PropTypes) {
   const {OrderDetail} = props;
+  const [createdByName, setCreatedByName] = useState("")
+  const dispatch = useDispatch()
   const renderSplitOrder = () => {
     const splitCharacter = "-";
     if (!OrderDetail?.linked_order_code) {
@@ -68,6 +73,27 @@ function SidebarOrderDetailInformation(props: PropType) {
     }
     return result;
   };
+
+  useEffect(() => {
+    if(OrderDetail?.created_by) {
+      searchAccountPublicApi({
+        condition: OrderDetail?.created_by,
+        limit: undefined,
+      })
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            setCreatedByName(response.data.items[0].full_name);
+          } else {
+            handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+    }
+  }, [OrderDetail?.created_by, dispatch])
+  
+
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">
@@ -170,9 +196,9 @@ function SidebarOrderDetailInformation(props: PropType) {
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
               <Link
                 target="_blank"
-								to={`${UrlConfig.ORDER}?page=1&limit=30&account_codes=${OrderDetail?.account_code}`}
+								to={`${UrlConfig.ORDER}?page=1&limit=30&created_by=${OrderDetail?.account_code}`}
               >
-                {OrderDetail?.account_code} - {OrderDetail?.account}
+                {OrderDetail?.created_by} - {createdByName}
               </Link>
             </span>
           </Col>

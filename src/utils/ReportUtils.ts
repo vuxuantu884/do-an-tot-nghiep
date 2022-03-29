@@ -1,5 +1,6 @@
 import { YodyAction } from "base/base.action";
-import { AnalyticConditions, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
+import { TIME_GROUP_BY } from "config/report";
+import { AnalyticConditions, AnalyticMetadata, AnalyticQuery, QueryMode } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
@@ -25,23 +26,28 @@ const getCondistions = (conditions: AnalyticConditions) => {
   return whereValue.slice(0, -3);
 };
 
-const getRows = (rows: Array<string>) => {
+const getRows = (rows: Array<string>, mode: QueryMode = "table") => {
   let rowsValue = "";
   if (rows.length === 1) {
-    rowsValue = ` BY ${rows[0]}`;
+    if (mode === "chart" && TIME_GROUP_BY.some((item) => item.value === rows[0])) {
+      /*nếu là query cho chart và chỉ nhóm theo thời gian thì dùng OVER */
+      rowsValue = ` OVER ${rows[0]}`;
+    } else {
+      rowsValue = ` BY ${rows[0]}`;
+    }
   } else if (rows.length > 1) {
     rowsValue = ` BY ${rows.join(",")}`;
   }
   return rowsValue;
 };
 
-const generateRQuery = (queryObject: AnalyticQuery) => {
+const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") => {
   //validate queryObject
   if (!queryObject.columns || !queryObject.cube) {
     throw new Error("Query is not valid");
   }
 
-  const { columns: column, rows, cube, conditions, from, to, orderBy } = queryObject;
+  const { columns: column, rows, cube, conditions, from, to, order_by } = queryObject;
   let queryString = "SHOW";
   // column
   if (Array.isArray(column)) {
@@ -49,7 +55,7 @@ const generateRQuery = (queryObject: AnalyticQuery) => {
   }
   // by or over
   if (Array.isArray(rows)) {
-    queryString += getRows(rows);
+    queryString += getRows(rows, mode);
   }
   // from
   if (cube) {
@@ -69,9 +75,9 @@ const generateRQuery = (queryObject: AnalyticQuery) => {
     queryString += ` UNTIL ${to}`;
   }
   // orderBy
-  if (Array.isArray(orderBy) && orderBy.length > 0) {
+  if (Array.isArray(order_by) && order_by.length > 0) {
     queryString += ` ORDER BY `;
-    orderBy.forEach((item) => {
+    order_by.forEach((item) => {
       queryString += `${item[0]} ${item[1]} `;
     });
   }

@@ -3,7 +3,7 @@ import { Button, Form } from 'antd'
 import exportIcon from "assets/icon/export.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
-import REPORT_TEMPLATES, { REPORT_NAMES } from "config/report/report-templates"
+import REPORT_TEMPLATES, { REPORT_NAMES, TIME_GROUP_BY } from "config/report/report-templates"
 import { AnnotationDataList } from 'config/report/annotation-data'
 import UrlConfig from 'config/url.config'
 import _ from 'lodash'
@@ -16,7 +16,7 @@ import { executeAnalyticsQueryService, getAnalyticsMetadataService, saveAnalytic
 import { callApiNative } from 'utils/ApiUtils'
 import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
-import AnalyticsForm, { ReportifyFormFields, TIME_GROUP_BY } from '../shared/analytics-form'
+import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
 import AnnotationTableModal from '../shared/annotation-table-modal'
 import ModalFormAnalyticsInfo from '../shared/form-analytics-info-modal'
@@ -149,7 +149,7 @@ function UpdateAnalytics() {
                 setChartColumnSelected(CURRENT_REPORT_TEMPLATE.chartColumnSelected);
                 //queryObject: data lấy từ api
 
-                const { columns, rows, cube, conditions, from, to, orderBy } = response.query;
+                const { columns, rows, cube, conditions, from, to, order_by: orderBy } = response.query;
                 const timeGroup = checkArrayHasAnyValue(rows || [], TIME_GROUP_BY.map(item => item.value));
 
                 const propertiesValue = getPropertiesValue(rows || []);
@@ -231,7 +231,7 @@ function UpdateAnalytics() {
                     }),
                     conditions: mapperConditions ? mapperConditions : conditions
                 } as AnalyticQuery;
-                const query = generateRQuery(params)
+                const query = generateRQuery(params, "chart");
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
                 if (response) {
                     const { columns, data } = response.result;

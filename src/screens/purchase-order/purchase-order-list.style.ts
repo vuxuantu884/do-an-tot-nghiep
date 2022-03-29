@@ -13,4 +13,7 @@ export const PurchaseOrderDraft = styled.div`
       margin: auto 0;
     }
   }
+  .coLofu{
+    position:unset ;
+  }
 `;

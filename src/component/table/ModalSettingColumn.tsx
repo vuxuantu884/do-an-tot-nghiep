@@ -143,7 +143,8 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       <ReactCustomScrollbars style={{ height: "300px" }} autoHide>
         <ReactDragListView
           onDragEnd={onDrag}
-          nodeSelector=".ant-list-item.draggble"
+          nodeSelector="li.ant-list-item.draggble-setting-column"
+          handleSelector="li.ant-list-item.draggble-setting-column"
         >
           <List.Item className={"draggble"} key="select-all">
             <Checkbox  key="checkbox-select-all" checked={isSelectAll} onChange={(e) => onSelectAllChange(e)}>Chọn tất cả</Checkbox>

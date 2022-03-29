@@ -56,12 +56,8 @@ const InventoryScreen: React.FC = () => {
       title="Danh sách tồn kho"
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
           name: "Kho hàng",
-          path: `${UrlConfig.PRODUCT}`,
+          path: `${UrlConfig.INVENTORY}`,
         },
         {
           name: "Danh sách tồn kho",

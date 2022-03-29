@@ -1543,23 +1543,27 @@ export const transformParamsToObject = (arrays: BaseFilterTag[]) => {
    * check cấu hình đơn hàng để tính phí ship báo khách
    */
 export const handleCalculateShippingFeeApplyOrderSetting = (
-  customerShippingAddressCityId: number | null | undefined, 
-  orderPrice: number | undefined, 
+  customerShippingAddressCityId: number | null | undefined = -999, 
+  orderPrice: number = 0, 
   shippingServiceConfig: ShippingServiceConfigDetailResponseModel[], 
   transportService: string | null | undefined, 
   form: FormInstance<any>, 
-  setShippingFeeInformedToCustomer?: (value: number) => void
+  setShippingFeeInformedToCustomer?: (value: number) => void,
+  isApplyALl = true,
 ) => {
  
-  if(!transportService) {
+  if(!transportService && !isApplyALl) {
     return; 
   }
 
-  if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice=== undefined) {
-    form?.setFieldsValue({shipping_fee_informed_to_customer: 0});
-    setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
-    showSuccess("Cập nhật phí ship báo khách thành công!")
-    return;
+  if(!isApplyALl) {
+    if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice=== undefined) {
+      form?.setFieldsValue({shipping_fee_informed_to_customer: 0});
+      setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
+      showSuccess("Cập nhật phí ship báo khách thành công!")
+      return;
+    }
+
   }
   //check thời gian
   const checkIfIsInTimePeriod = (startDate: any, endDate: any) => {
@@ -1572,8 +1576,11 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   // check dịch vụ
   const checkIfListServicesContainSingle = (
     listServices: any[],
-    singleService: string
+    singleService: string | null | undefined
   ) => {
+    if(!singleService) {
+      return false
+    }
     let result = false;
     let checkCondition = listServices.some((single) => {
       return single.code.toLowerCase() === singleService.toLowerCase();
@@ -1602,6 +1609,10 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
 
   // filter thời gian, active
   const filteredShippingServiceConfig = shippingServiceConfig.filter((single) => {
+    if(isApplyALl) {
+      return checkIfIsInTimePeriod(single.start_date, single.end_date) &&
+      single.status === ORDER_SETTINGS_STATUS.active
+    }
     return (
       checkIfIsInTimePeriod(single.start_date, single.end_date) &&
       single.status === ORDER_SETTINGS_STATUS.active &&
@@ -1615,13 +1626,17 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
 
   // filter city
   let listCheckedShippingFeeConfig = [];
-
   if (filteredShippingServiceConfig) {
     for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
       const checkedShippingFeeConfig =
         singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
+          if(isApplyALl) {
+            return (
+              checkIfPrice(orderPrice, single.from_price, single.to_price)
+            );
+          }
           return (
-            checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
+            checkIfSameCity(single.city_id, customerShippingAddressCityId || -999) &&
             checkIfPrice(orderPrice, single.from_price, single.to_price)
           );
         });
@@ -1638,6 +1653,8 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
       );
     }, []);
   };
+
+  console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
 
   const listCheckedShippingFeeConfigFlatten = flattenArray(
     listCheckedShippingFeeConfig
@@ -1673,11 +1690,6 @@ export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | unde
 
 export const copyTextToClipboard = (e: any, data: string | null) => {
   e.stopPropagation();
-  e.target.style.width = "26px";
-  const decWidth = setTimeout(() => {
-    e.target.style.width = "23px";
-  }, 100);
-  clearTimeout(decWidth);
   navigator.clipboard.writeText(data ? data : "").then(() => {});
 };
 
@@ -1753,6 +1765,15 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
   return isChange;
 };
 
+export const isFulfillmentCancelled = (fulfillment: FulFillmentResponse) => {
+  if (fulfillment.status === FulFillmentStatus.CANCELLED ||
+    fulfillment.status === FulFillmentStatus.RETURNING ||
+    fulfillment.status === FulFillmentStatus.RETURNED) {
+    return true
+  }
+  return false
+};
+
 export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, sub_status_code: string) => {
   if(isOrderFromSaleChannel(orderDetail)) {
     return true;
@@ -1761,12 +1782,7 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, 
     return false;
   }
   let isChange = true;
-  const returnStatus = [
-    FulFillmentStatus.RETURNED,
-    FulFillmentStatus.CANCELLED,
-    FulFillmentStatus.RETURNING,
-  ];
-  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !returnStatus.includes(single.status)) : [];
+  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !isFulfillmentCancelled(single)) : [];
   switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
     // giao hàng hvc, tự giao hàng
     case ShipmentMethod.EXTERNAL_SERVICE:

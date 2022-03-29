@@ -351,37 +351,12 @@ const CreateTicket: FC = () => {
 
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
-      // setLoadingSaveButton(false);
+      setIsLoading(false);
       if (result) {
-        setIsLoading(false);
-        let dataShipmentTemp: any = {};
-        const deliveryTime = moment(new Date()).utc().format();
-
-        dataShipmentTemp.delivery_service_id = 1;
-        dataShipmentTemp.delivery_service_code = "yody";
-        dataShipmentTemp.delivery_service_name = "yody";
-        dataShipmentTemp.delivery_service_logo = "";
-        dataShipmentTemp.store_id = result?.from_store_id;
-        dataShipmentTemp.transport_type = 'yody';
-        dataShipmentTemp.transport_type_name = "Tự giao hàng";
-        dataShipmentTemp.cod = 0;
-        dataShipmentTemp.weight = SumWeightLineItems(result?.line_items);
-        dataShipmentTemp.weight_unit = "g";
-        dataShipmentTemp.total_fee = 0;
-        dataShipmentTemp.note_to_shipper = "";
-        dataShipmentTemp.shipping_requirement = "";
-        dataShipmentTemp.who_paid = "";
-        dataShipmentTemp.expected_delivery_time = deliveryTime;
-        dataShipmentTemp.office_time = true;
-
-        dispatch(createInventoryTransferShipmentAction(result.id, dataShipmentTemp, () => {
-          dispatch(getDetailInventoryTransferAction(result.id, () => {
-            showSuccess("Thêm mới dữ liệu thành công");
-            history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
-          }));
+        dispatch(getDetailInventoryTransferAction(result.id, () => {
+          showSuccess("Thêm mới dữ liệu thành công");
+          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
         }));
-      } else {
-        setIsLoading(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -969,7 +944,6 @@ const CreateTicket: FC = () => {
                     className="inventory-table"
                     rowClassName="product-table-row"
                     tableLayout="fixed"
-                    scroll={{ y: 300 }}
                     pagination={false}
                     columns={columns}
                     loading={isLoadingTable}
