@@ -149,7 +149,7 @@ function UpdateAnalytics() {
                 setChartColumnSelected(CURRENT_REPORT_TEMPLATE.chartColumnSelected);
                 //queryObject: data lấy từ api
 
-                const { columns, rows, cube, conditions, from, to, orderBy } = response.query;
+                const { columns, rows, cube, conditions, from, to, order_by: orderBy } = response.query;
                 const timeGroup = checkArrayHasAnyValue(rows || [], TIME_GROUP_BY.map(item => item.value));
 
                 const propertiesValue = getPropertiesValue(rows || []);
