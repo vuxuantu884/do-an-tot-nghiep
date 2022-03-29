@@ -975,7 +975,37 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [selectedRowKeys, data?.items, dispatch])
 
+  // change order status to picked
+  const handleChangeOrderStatusToPicked = useCallback(() => {
+    let ids: number[] = [];
+    selectedRow?.forEach((row) =>
+      row?.fulfillments?.forEach((single) => {
+        ids.push(single?.id);
+      })
+    );
+
+    if (ids?.length) {
+      dispatch(showLoading());
+      changeOrderStatusToPickedService(ids)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            showSuccess("Đã chuyển trạng thái xử lý đơn hàng.")
+          } else {
+            handleFetchApiError(response, "In phiếu giao hàng", dispatch)
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          dispatch(hideLoading());
+        });
+    }
+  }, [dispatch, selectedRow]);
+  
   const handlePrintEcommerceDeliveryNote = useCallback(() => {
+    handleChangeOrderStatusToPicked();
+
     if (selectedRowKeys?.length > 0) {
       let order_list: any = [];
       selectedRowKeys.forEach(idSelected => {
@@ -995,7 +1025,7 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(true);
       dispatch(downloadPrintForm({order_list}, downloadEcommerceDeliveryNote))
     }
-  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
+  }, [selectedRowKeys, handleChangeOrderStatusToPicked, dispatch, downloadEcommerceDeliveryNote, data?.items]);
   // handle print ecommerce delivery note
 
   // handle print yody delivery note
@@ -1015,28 +1045,7 @@ const EcommerceOrders: React.FC = () => {
   );
 
   const handlePrintShipment = () => {
-    let ids: number[] = [];
-    selectedRow.forEach((row) =>
-      row.fulfillments?.forEach((single) => {
-        ids.push(single.id);
-      })
-    );
-
-    dispatch(showLoading());
-    changeOrderStatusToPickedService(ids)
-      .then((response) => {
-        if (isFetchApiSuccessful(response)) {
-        } else {
-          handleFetchApiError(response, "In phiếu giao hàng", dispatch)
-        }
-      })
-      .catch((error) => {
-        console.log("error", error);
-      })
-      .finally(() => {
-        dispatch(hideLoading());
-      });
-
+    handleChangeOrderStatusToPicked();
     printAction("shipment");
   }
   // end handle print yody delivery note
