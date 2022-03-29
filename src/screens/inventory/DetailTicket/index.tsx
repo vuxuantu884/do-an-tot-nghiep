@@ -1019,17 +1019,6 @@ const DetailTicket: FC = () => {
                   )
                 }
                 <div className="inventory-transfer-action">
-                  <AuthWrapper
-                    acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
-                    acceptStoreIds={[data.from_store_id]}
-                  >
-                    <Button
-                      type="default"
-                      onClick={() => setIsVisibleModalWarning(true)}
-                    >
-                      Hủy giao hàng
-                    </Button>
-                  </AuthWrapper>
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
                       <AuthWrapper
