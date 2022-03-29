@@ -1636,7 +1636,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
             );
           }
           return (
-            checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
+            checkIfSameCity(single.city_id, customerShippingAddressCityId || -999) &&
             checkIfPrice(orderPrice, single.from_price, single.to_price)
           );
         });
