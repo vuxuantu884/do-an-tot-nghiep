@@ -2213,6 +2213,26 @@ ShippingServiceConfigDetailResponseModel[]
 																					</Row>
 																				</Col>
 
+																				{fulfillment?.reason_name && (
+																					<Col md={12}>
+																						<Row gutter={30}>
+																							<Col span={10}>
+																								<p className="text-field">Lý do hủy:</p>
+																							</Col>
+																							<Col span={14}>
+																								<b className="text-field">
+																									{fulfillment?.reason_name}
+																									{fulfillment?.sub_reason_name && (
+																										<span>
+																										{" "}- {fulfillment?.sub_reason_name}
+																										</span>
+																									)}
+																								</b>
+																							</Col>
+																						</Row>
+																					</Col>
+																				)}
+
 																				{requirementNameView && (
 																					<Col md={12}>
 																						<Row gutter={30}>
