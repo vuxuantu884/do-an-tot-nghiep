@@ -56,7 +56,7 @@ export interface AnalyticQuery {
   conditions?: AnalyticConditions;
   from?: string;
   to?: string;
-  orderBy?: Array<ArrayString>;
+  order_by?: Array<ArrayString>;
 }
 
 export interface AnalyticProperties {
