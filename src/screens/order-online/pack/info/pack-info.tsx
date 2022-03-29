@@ -320,7 +320,7 @@ const PackInfo: React.FC = () => {
         );
       }
     }
-  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history]);
+  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history, OrderRequestElement]);
 
   useEffect(() => {
     if (disableOrder) {
