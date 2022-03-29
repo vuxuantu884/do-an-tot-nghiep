@@ -137,18 +137,18 @@ const TransferService = {
     return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/receive/${id}`, data);
   },
 
-    //cancel shipment 
+    //cancel shipment
     cancelShipmentInventoryTransfer: (
-      transferId: number, shipmentId: number
+      transferId: number
     ): Promise<BaseResponse<string>> => {
-      return BaseAxios.delete(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment/${shipmentId}`);
+      return BaseAxios.delete(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment`);
     },
 
-    //export shipment 
+    //export shipment
     exportShipmentInventoryTransfer: (
-      transferId: number, shipmentId: number
+      transferId: number
     ): Promise<BaseResponse<string>> => {
-      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment/${shipmentId}`);
+      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment`);
     }
 };
 

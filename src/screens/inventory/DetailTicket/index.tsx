@@ -934,7 +934,6 @@ const DetailTicket: FC = () => {
                         className="inventory-table"
                         rowClassName="product-table-row"
                         tableLayout="fixed"
-                        scroll={{ y: 300 }}
                         pagination={false}
                         columns={columnsTransfer}
                         dataSource={dataTable}
@@ -1019,114 +1018,39 @@ const DetailTicket: FC = () => {
                   </Card>
                   )
                 }
-                {
-                  data.status !== STATUS_INVENTORY_TRANSFER.CANCELED.status &&
-                  <Card
-                    title={"CHUYỂN HÀNG"}
-                    extra={
-                      data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&
-                        <AuthWrapper
-                          acceptPermissions={[ShipmentInventoryTransferPermission.create]}
-                          acceptStoreIds={[data.from_store_id]}
-                        >
-                          <Button
-                            className={"choses-shipper-button"}
-                            onClick={() => setIsVisibleInventoryShipment(true)}
-                          >
-                            Chọn hãng vận chuyển
-                          </Button>
-                        </AuthWrapper>
-                    }
+                <div className="inventory-transfer-action">
+                  <AuthWrapper
+                    acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
+                    acceptStoreIds={[data.from_store_id]}
                   >
-                    {
-                      ((data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
-                        || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
-                        || data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status
-                        || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && data.shipment !==null ) &&
-                      <>
-                        <Row className="shipment">
-                          <div className="shipment-logo">
-                            <img
-                              src={(deliveryService as any)[dataShipment?.delivery_service_code ?? "yody"].logo}
-                              alt=""
-                            />
-                          </div>
-                          <div className="shipment-detail">
-                            Mã vận đơn: <span>{dataShipment?.tracking_code}</span>
-                            <CopyOutlined style={{color: "#71767B"}}
-                              onClick={() => {
-                                showSuccess('Đã copy');
-                                copy(data.shipment?.tracking_code);
-                              }}
-                            />
-                          </div>
-                        </Row>
-                        <Row>
-                          <Collapse className="timeline-collapse" defaultActiveKey={['1']}>
-                            <Panel header="Đóng" key="1">
-                              <Timeline>
-                              {
-                                dataShipment?.tracking_logs?.map(item => {
-                                  return (
-                                    <Timeline.Item>
-                                      <span><b>{item.shipping_message}</b></span>
-                                      &#8226;
-                                      <span>{ConvertUtcToLocalDate(
-                                          item.updated_date,
-                                          "DD/MM/YYYY HH:mm"
-                                        )}</span>
-                                    </Timeline.Item>
-                                  )
-                                })
-                              }
-                              </Timeline>
-                            </Panel>
-                          </Collapse>
-                        </Row>
-                      </>
-                    }
-                    {
-                      ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-                        && (data.shipment !== null && (data.shipment.status === ShipmentStatus.CONFIRMED || data.shipment.status === ShipmentStatus.TRANSFERRING)) ) && (
-                        <div className="inventory-transfer-action">
-                          <AuthWrapper
-                            acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
-                            acceptStoreIds={[data.from_store_id]}
-                          >
-                            <Button
-                              type="default"
-                              onClick={() => setIsVisibleModalWarning(true)}
-                            >
-                              Hủy giao hàng
-                            </Button>
-                          </AuthWrapper>
-                          {
-                            (data.shipment?.status === 'confirmed' &&
-                            data.status ===  STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
-                              <AuthWrapper
-                                acceptPermissions={[ShipmentInventoryTransferPermission.export]}
-                                acceptStoreIds={[data.from_store_id]}
-                              >
-                                <Button
-                                  className="export-button"
-                                  type="primary"
-                                  onClick={() => {
-                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id,
-                                      onReload
-                                      ));
-                                  }}
-                                >
-                                  Xuất kho
-                                </Button>
-                              </AuthWrapper>
-                            )
-                          }
-                        </div>
-                      )
-                    }
-                  </Card>
-                }
+                    <Button
+                      type="default"
+                      onClick={() => setIsVisibleModalWarning(true)}
+                    >
+                      Hủy giao hàng
+                    </Button>
+                  </AuthWrapper>
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
+                      <AuthWrapper
+                        acceptPermissions={[ShipmentInventoryTransferPermission.export]}
+                        acceptStoreIds={[data.from_store_id]}
+                      >
+                        <Button
+                          className="export-button"
+                          type="primary"
+                          onClick={() => {
+                            if(data) dispatch(exportInventoryAction(data?.id,
+                              onReload
+                            ));
+                          }}
+                        >
+                          Xuất kho
+                        </Button>
+                      </AuthWrapper>
+                    )
+                  }
+                </div>
               </Col>
               <Col span={6}>
                 <Card
@@ -1330,7 +1254,7 @@ const DetailTicket: FC = () => {
             onOk={() => {
               if (data) {
                 setIsVisibleModalWarning(false);
-                dispatch(cancelShipmentInventoryTransferAction(data?.id, data?.shipment.id, onReload));
+                dispatch(cancelShipmentInventoryTransferAction(data?.id, onReload));
               }
             }}
             okText="Đồng ý"
