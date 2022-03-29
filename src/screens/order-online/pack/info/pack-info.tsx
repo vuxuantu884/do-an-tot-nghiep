@@ -313,6 +313,7 @@ const PackInfo: React.FC = () => {
               packData?.order?.push({ ...packFulFillmentResponse });
               setPackModel(packData);
               setPackInfo(packData);
+              OrderRequestElement?.focus();
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
