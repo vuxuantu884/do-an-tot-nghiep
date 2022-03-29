@@ -1254,6 +1254,7 @@ ShippingServiceConfigDetailResponseModel[]
 											loyaltyPoint={loyaltyPoint}
 											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 											countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+											shipmentMethod={shipmentMethod}
 										/>
 										<Card title="THANH TOÁN">
 											<OrderCreatePayments

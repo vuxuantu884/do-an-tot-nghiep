@@ -27,9 +27,9 @@ import {
 	ShippingServiceConfigDetailResponseModel
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getShippingAddressDefault, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
+import { getShippingAddressDefault, handleCalculateShippingFeeApplyOrderSetting, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
@@ -133,6 +133,18 @@ function OrderCreateShipment(props: PropType) {
     isOrderReturnFromPOS,
   } = props;
   const dateFormat = "DD/MM/YYYY";
+
+  const shippingAddress = useMemo(() => {
+    const address = customer?.shipping_addresses.find((item) => {
+      return item.default;
+    })
+    if(address) {
+      return address
+    } else {
+      return null
+    }
+  }, [customer?.shipping_addresses])
+
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
@@ -194,10 +206,17 @@ function OrderCreateShipment(props: PropType) {
           <div key={button.value}>
             {shipmentMethod !== button.value ? (
               <div
-                className={`saleorder_shipment_button 2 ${button.isDisabled ? "disabled" : null}`}
+                className={`saleorder_shipment_button 23 ${button.isDisabled ? "disabled" : ""}`}
                 key={button.value}
                 style={isOrderFinishedOrCancel(OrderDetail) ? {pointerEvents: "none"} : undefined}
-                onClick={() => levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value)}
+                onClick={() => {
+                  levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value)
+                  if(items?.length && items?.length > 0 && button.value === 2) {
+                    handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
+                      undefined, form, setShippingFeeInformedToCustomer
+                      );
+                  }
+                }}
               >
                 <img src={button.icon} alt="icon"></img>
                 <span>{button.name}</span>
