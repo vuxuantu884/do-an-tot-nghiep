@@ -62,7 +62,6 @@ const PointAdjustment = () => {
     not: false,
   });
 
-  const [pageQuery, setPageQuery] = useState(1);
 
   const [pointAdjustmentData, setPointAdjustmentData] = useState<PageResponse<any>>({
     metadata: {
@@ -176,7 +175,7 @@ const PointAdjustment = () => {
 
   const onFilter = useCallback(
     (values) => {
-      const filterParams = { ...params, ...values, page: pageQuery };
+      const filterParams = { ...params,...values };
       const currentParam = generateQuery(params)
       const queryParam = generateQuery(filterParams)
       if (currentParam !== queryParam) {
@@ -184,13 +183,12 @@ const PointAdjustment = () => {
       }
 
     },
-    [history, location.pathname, pageQuery, params]
+    [history, location.pathname, params]
   );
 
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setPageQuery(page)
       let newPrams = { ...params, page, limit };
       let queryParam = generateQuery(newPrams);
 			history.push(`${location.pathname}?${queryParam}`);
@@ -208,7 +206,17 @@ const PointAdjustment = () => {
 
   const getPointAdjustmentList = (params: PointAdjustmentListRequest) => {
     setIsLoading(true);
-    dispatch(getPointAdjustmentListAction(params, updatePointAdjustmentData));
+
+    const convertReasonsToArr : any[] = Array.isArray(params.reasons) ? params.reasons : [params.reasons];
+    const convertEmployeesToArr: any[] = Array.isArray(params.emps) ? params.emps : [params.emps];
+
+    const newParams = {
+      ...params, 
+      reasons: convertReasonsToArr,
+      emps: convertEmployeesToArr,
+    }
+
+    dispatch(getPointAdjustmentListAction(newParams, updatePointAdjustmentData));
   }
 
   useEffect(() => {
