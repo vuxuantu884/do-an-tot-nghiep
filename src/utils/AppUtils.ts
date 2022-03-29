@@ -1673,11 +1673,6 @@ export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | unde
 
 export const copyTextToClipboard = (e: any, data: string | null) => {
   e.stopPropagation();
-  e.target.style.width = "26px";
-  const decWidth = setTimeout(() => {
-    e.target.style.width = "23px";
-  }, 100);
-  clearTimeout(decWidth);
   navigator.clipboard.writeText(data ? data : "").then(() => {});
 };
 
