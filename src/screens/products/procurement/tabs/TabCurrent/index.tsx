@@ -91,7 +91,6 @@ const TabCurrent: React.FC = () => {
       ...params,
       is_cancel: false,
       status: ProcumentStatus.NOT_RECEIVED,
-      expect_receipt_from: getStartOfDay(today),
       expect_receipt_to: getEndOfDay(today),
       ...getQueryParams(search),
     }
@@ -272,6 +271,14 @@ const TabCurrent: React.FC = () => {
         title: "Kho nhận hàng dự kiến",
         dataIndex: "store",
         render: (value) => value,
+      },
+      {
+        title: "Ngày nhận hàng dự kiến",
+        dataIndex: "expect_receipt_date",
+        visible: true,
+        render: (value) =>
+          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+        width: 200,
       },
       {
         title: "Hành động",
