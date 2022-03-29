@@ -94,6 +94,8 @@ type PropTypes = {
 
 type dataExtra = PageResponse<OrderExtraModel>;
 
+let itemResult:OrderModel[] = []
+
 function OrdersTable(props: PropTypes) {
   const {
     tableLoading,
@@ -130,6 +132,8 @@ function OrdersTable(props: PropTypes) {
   // useState(false);
 
   // console.log('isVisiblePopup', isVisiblePopup)
+
+  itemResult = data.items;
 
   const paymentIcons = [
     {
@@ -171,22 +175,21 @@ function OrdersTable(props: PropTypes) {
 
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
-      const newItems = [...data.items];
-      const indexOrder = newItems.findIndex((item: any) => item.id === orderID);
+      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
         if (noteType === "note") {
-          newItems[indexOrder].note = newNote;
+          itemResult[indexOrder].note = newNote;
         } else if (noteType === "customer_note") {
-          newItems[indexOrder].customer_note = newNote;
+          itemResult[indexOrder].customer_note = newNote;
         }
       }
-      setItems(newItems);
+      setItems(itemResult);
     },
-    [data]
+    []
   );
 
   const editNote = useCallback(
-    (newNote, noteType, orderID) => {
+    (newNote, noteType, orderID, record: OrderModel) => {
       let params: any = {};
       if (noteType === "note") {
         params.note = newNote;
@@ -195,7 +198,7 @@ function OrdersTable(props: PropTypes) {
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID))
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID, ))
       );
     },
     [dispatch, onSuccessEditNote]
@@ -1102,7 +1105,7 @@ function OrdersTable(props: PropTypes) {
                   title="Khách hàng: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    editNote(newNote, "customer_note", record.id);
+                    editNote(newNote, "customer_note", record.id, record);
                   }}
                 // isDisable={record.status === OrderStatus.FINISHED}
                 />
@@ -1113,7 +1116,7 @@ function OrdersTable(props: PropTypes) {
                   title="Nội bộ: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    editNote(newNote, "note", record.id);
+                    editNote(newNote, "note", record.id, record);
                   }}
                 // isDisable={record.status === OrderStatus.FINISHED}
                 />
@@ -1156,6 +1159,7 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt_id",
         align: "center",
         render: (value, record: OrderModel) => {
+          console.log('record', record)
           if (value) {
             return (
               <Link to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
