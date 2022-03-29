@@ -555,6 +555,12 @@ export default function Order() {
 					payments: reCalculatePaymentReturn(payments, totalAmountCustomerNeedToPay, listPaymentMethod).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
 				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+					if (!shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address) {
+						form.validateFields();
+						showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
+						setCreating(false);
+						return;
+					}
 					if (typeButton === OrderStatus.DRAFT) {
 						setIsSaveDraft(true);
 					} else {
