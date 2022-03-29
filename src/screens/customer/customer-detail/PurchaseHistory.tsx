@@ -43,11 +43,11 @@ import {
 } from "../../../domain/actions/customer/customer.action";
 
 type PurchaseHistoryProps = {
-  customerId: number;
+  customer: any;
 };
 
 function PurchaseHistory(props: PurchaseHistoryProps) {
-  const { customerId } = props;
+  const { customer } = props;
 
   // const orderPointSpend = (order: any) => {
   //   if (order && order.payments.length > 0) {
@@ -167,11 +167,11 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   );
 
   useEffect(() => {
-    if (customerId) {
+    if (customer?.id) {
       setTableLoading(true);
-      dispatch(getCustomerOrderReturnHistoryAction(customerId, updateOrderReturnedList));
+      dispatch(getCustomerOrderReturnHistoryAction(customer?.id, updateOrderReturnedList));
     }
-  }, [customerId, dispatch, updateOrderReturnedList]);
+  }, [customer?.id, dispatch, updateOrderReturnedList]);
   // end get order returned
 
   // handle get purchase history
@@ -213,12 +213,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   );
 
   useEffect(() => {
-    if (customerId) {
-      orderHistoryQueryParams.customer_id = [customerId];
+    if (customer?.id) {
+      orderHistoryQueryParams.customer_id = customer?.id;
       setTableLoading(true);
       dispatch(getCustomerOrderHistoryAction(orderHistoryQueryParams, updateOrderHistoryData));
     }
-  }, [customerId, dispatch, orderHistoryQueryParams, updateOrderHistoryData]);
+  }, [customer?.id, dispatch, orderHistoryQueryParams, updateOrderHistoryData]);
 
   const orderHistoryList = useCallback(() => {
     const newOrderHistoryList = orderHistoryData?.items.map((order) => {
