@@ -1,27 +1,8 @@
-import React, {
-  createRef,
-  FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import './index.scss'
+import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
+import "./index.scss";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import {
-  AutoComplete,
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  Table,
-  Upload,
-} from "antd";
+import { AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Table, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -34,18 +15,13 @@ import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
 import {
-  createInventoryTransferShipmentAction,
-  creatInventoryTransferAction, getDetailInventoryTransferAction,
+  creatInventoryTransferAction,
+  getDetailInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {
-  InventoryTransferDetailItem,
-  LineItem,
-  StockTransferSubmit,
-  Store,
-} from "model/inventory/transfer";
+import { InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
 import _ from "lodash";
 
 import { PageResponse } from "model/base/base-metadata.response";
@@ -55,7 +31,7 @@ import ProductItem from "../../purchase-order/component/product-item";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { UploadFile } from "antd/es/upload/interface";
-import { findAvatar, handleDelayActionWhenInsertTextInSearchInput, SumWeightLineItems } from "utils/AppUtils";
+import { findAvatar, handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -64,14 +40,12 @@ import { Link } from "react-router-dom";
 import { InventoryResponse } from "model/inventory";
 import { callApiNative } from "utils/ApiUtils";
 import { getAccountDetail } from "service/accounts/account.service";
-import { getStoreApi } from "service/inventory/transfer/index.service";import {
-  AccountStoreResponse
-} from "model/account/account.model";
+import { getStoreApi } from "service/inventory/transfer/index.service";
+import { AccountStoreResponse } from "model/account/account.model";
 import { RegUtil } from "utils/RegUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
-import moment from "moment";
 
 const { Option } = Select;
 
@@ -106,8 +80,7 @@ const CreateTicket: FC = () => {
     const dataTableClone = _.cloneDeep(dataTable);
     dataTableClone[index].transfer_quantity = quantity;
 
-    const amountNumber = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
-    dataTableClone[index].amount = amountNumber;
+    dataTableClone[index].amount = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
 
     setDataTable(dataTableClone);
 
@@ -222,7 +195,7 @@ const CreateTicket: FC = () => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+    resultSearch?.items?.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -630,7 +603,7 @@ const CreateTicket: FC = () => {
     [handleSearchProduct]
   );
 
-  const onSelect = useCallback((o,v)=>{
+  const onSelect = useCallback((o)=>{
     onSelectProduct(o);
   },[onSelectProduct])
 
@@ -653,7 +626,7 @@ const CreateTicket: FC = () => {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_images",
-      render: (value: Array<VariantImage>, record: string[]) => {
+      render: (value: Array<VariantImage>) => {
         const avatar = findAvatar(value);
         return (
           <div className="product-item-image">
@@ -668,7 +641,7 @@ const CreateTicket: FC = () => {
       className: "ant-col-info",
 
       dataIndex: "name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
