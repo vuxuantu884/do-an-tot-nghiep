@@ -149,7 +149,8 @@ export const StyledOrderFilter = styled.div`
   .order-filter-tags .tag {
     margin-bottom: 10px;
     margin-top: 0;
-    padding: 5px 10px;
+    padding: 10px 20px;
+    white-space: normal;
   }
 
   .ecommerce-dropdown {
