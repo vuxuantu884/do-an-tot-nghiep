@@ -176,6 +176,8 @@ const OrderDetail = (props: PropType) => {
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
 
+  const updateShipmentCardRef = useRef<any>();
+
   const onPaymentSelect = (paymentMethod: number) => {
     if (paymentMethod === 1) {
       setVisibleShipping(true);
@@ -449,6 +451,12 @@ const OrderDetail = (props: PropType) => {
     }
   }
 
+  const cancelFulfillmentAndUpdateFromRef = useCallback(() => {
+    if(updateShipmentCardRef.current) {
+      updateShipmentCardRef.current.handleCancelFulfillmentAndUpdate()
+    }
+  }, []);
+
   const orderActionsClick = useCallback(
     (type) => {
       switch (type) {
@@ -485,6 +493,9 @@ const OrderDetail = (props: PropType) => {
           break;
         case "change_status_rts":
           changeLazadaOrderStatus(EcommerceOrderStatus.READY_TO_SHIP);
+          break;
+        case "cancelFulfillmentAndUpdate": 
+          cancelFulfillmentAndUpdateFromRef();
           break;
         default:
           break;
@@ -1174,6 +1185,7 @@ const OrderDetail = (props: PropType) => {
                 isEcommerceOrder={isEcommerceOrder.current}
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
+                ref={updateShipmentCardRef}
               />
               {/*--- end shipment ---*/}
 

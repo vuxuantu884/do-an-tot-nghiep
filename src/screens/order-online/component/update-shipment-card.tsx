@@ -8,6 +8,7 @@ import {
 	Row,
 	Space,
 	Tag,
+	Tooltip,
 	Typography
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
@@ -50,7 +51,7 @@ import {
 } from "model/response/order/order.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { setTimeout } from "timers";
@@ -104,11 +105,10 @@ type UpdateShipmentCardProps = {
 	}[];
 	subReasons?: OrderReturnReasonDetailModel[] | null;
 	isEcommerceOrder?: boolean;
+	ref: React.MutableRefObject<any>;
 };
 
-const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
-	props: UpdateShipmentCardProps
-) => {
+const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => { 
 	// props destructuring
 	const {
 		isVisibleShipping,
@@ -314,7 +314,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 		onReload && onReload();
 	};
 
-	const onCancelSuccess = (value: OrderResponse) => {
+	const onCancelSuccess = (value: OrderResponse, isGoToUpdate = false) => {
 		setCancelShipment(false);
 		setReload(true);
 		showSuccess(
@@ -329,7 +329,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 			} thành công`
 		);
 		setIsvibleCancelFullfilment(false);
-		onReload && onReload();
+		if(isGoToUpdate) {
+			history.push(
+				`${UrlConfig.ORDER}/${OrderDetail?.id}/update`
+			);
+		} else {
+			onReload && onReload();
+		}
 	};
 	const onError = (error: boolean) => {
 		setUpdateShipment(false);
@@ -350,7 +356,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	};
 
 	//fulfillmentTypeOrderRequest
-	const fulfillmentTypeOrderRequest = (type: number, dataCancelFFM: any = {}) => {
+	
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const fulfillmentTypeOrderRequest = (type: number, dataCancelFFM: any = {}, isGoToUpdate = false) => {
 		let value: UpdateFulFillmentStatusRequest = {
 			order_id: null,
 			fulfillment_id: null,
@@ -399,7 +407,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 						value.other_reason = dataCancelFFM.reason
 					}
 					setCancelShipment(true);
-					dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
+					dispatch(UpdateFulFillmentStatusAction(value, (data) => {
+						onCancelSuccess(data, isGoToUpdate);
+					}, onError));
 					break;
 				case 6:
 					value.status = FulFillmentStatus.RETURNING;
@@ -760,22 +770,26 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 		}
 	}, [props.OrderDetail]);
 
-	const onOKCancelFullfilment = (reasonID: string, reasonSubID: string, reason: string) => {
+	const onOKCancelFullfilment = useCallback((reasonID: string, reasonSubID: string, reason: string, isGotoUpdate:boolean = false) => {
 		console.log('reasonID', reasonID)
 		console.log('reasonSubID', reasonSubID)
 		console.log('reason', reason)
-		fulfillmentTypeOrderRequest(5, { reasonID, reasonSubID, reason });
+		fulfillmentTypeOrderRequest(5, { reasonID, reasonSubID, reason }, isGotoUpdate);
 		setIsvibleCancelFullfilment(false);
 		setReload(true)
-	};
+	 
+	}, [fulfillmentTypeOrderRequest])
+
 	// cancel fulfillment 3 button modal
-	const onOkCancelAndGetGoodsBack = (reasonID: string, reasonSubID: string, reason: string) => {
+	const onOkCancelAndGetGoodsBack = useCallback((reasonID: string, reasonSubID: string, reason: string) => {
 		console.log('reasonID', reasonID)
 		console.log('reasonSubID', reasonSubID)
 		console.log('reason', reason)
 		fulfillmentTypeOrderRequest(7, { reasonID, reasonSubID, reason });
 		setIsvibleCancelFullfilment(false);
-	};
+	 
+	}, [fulfillmentTypeOrderRequest]);
+	
 	// return goods
 	const onOKGoodsReturn = () => {
 		setIsvibleGoodsReturn(false);
@@ -829,6 +843,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 			}
 		}
 	};
+
+	useImperativeHandle(ref, () => ({
+		handleCancelFulfillmentAndUpdate() {
+			const otherReasonId = "1";
+			onOKCancelFullfilment(otherReasonId, "", "Hủy đơn giao và sửa đơn hàng", true)
+    }
+  }), [onOKCancelFullfilment]);
 
 	useEffect(() => {
 		getRequirementName();
@@ -1007,12 +1028,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 															marginBottom: 2,
 														}}
 													>
-														<img
-															onClick={(e) => copyOrderID(e, fulfillment.code)}
-															src={copyFileBtn}
-															alt=""
-															style={{ width: 23 }}
-														/>
+														<Tooltip title="Sao chép mã vận đơn">
+															<img
+																onClick={(e) => {
+																	copyOrderID(e, fulfillment.code);
+																	showSuccess("Đã copy mã vận đơn!")
+																}}
+																src={copyFileBtn}
+																alt=""
+																style={{ width: 23 }}
+															/>
+														</Tooltip>
 													</div>
 													<FulfillmentStatusTag fulfillment={fulfillment} />
 													{!(fulfillment.status === FulFillmentStatus.CANCELLED ||
@@ -1854,6 +1880,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 			/>
 		</div>
 	);
-};
+});
 
 export default UpdateShipmentCard;
