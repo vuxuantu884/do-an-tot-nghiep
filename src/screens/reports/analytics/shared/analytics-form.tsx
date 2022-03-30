@@ -43,7 +43,7 @@ export const ReportifyFormFields = {
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
 function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
-    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery } = useContext(AnalyticsContext)
     const [loadingTable, setLoadingTable] = useState<boolean>(false);
 
     const dispatch = useDispatch();
@@ -102,17 +102,17 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
 
         let isOrderBy = false;
         if (orderBy?.length) {
-          const orderByArr = orderBy.reduce((res: string[], item: string[]) => {
-            return [...res, item[0]];
-          }, []);
-          if ([...(values[ReportifyFormFields.column] || []), ...show].findIndex(item => orderByArr.includes(item)) !== -1) {
-            isOrderBy = true;
-          }
+            const orderByArr = orderBy.reduce((res: string[], item: string[]) => {
+                return [...res, item[0]];
+            }, []);
+            if ([...(values[ReportifyFormFields.column] || []), ...show].findIndex(item => orderByArr.includes(item)) !== -1) {
+                isOrderBy = true;
+            }
         }
 
         const parms: AnalyticQuery = {
             columns: columns,
-            rows: show,
+            rows: rowsInQuery,
             cube: values?.reportType || cubeRef.current,
             from: ranges?.from,
             to: ranges?.to,
@@ -177,16 +177,16 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             case YEAR:
                 from = moment([value]);
                 to = moment([value]).endOf(YEAR);
-                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: MONTH});
+                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: MONTH });
                 break;
             case MONTH:
                 from = moment(value, DATE_FORMAT.MMYYYY).startOf(MONTH);
                 to = moment(value, DATE_FORMAT.MMYYYY).endOf(MONTH);
-                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: DAY});
+                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: DAY });
                 break;
             case DAY:
                 from = moment(value, DATE_FORMAT.DDMMYYY);
-                form.setFieldsValue({ timeRange: [from, from], timeGroupBy: HOUR});
+                form.setFieldsValue({ timeRange: [from, from], timeGroupBy: HOUR });
                 break;
             default:
                 break;
@@ -221,7 +221,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
     }
 
     const handleRemoveFilter = (filter: any) => {
-        const { field: fieldFilter, value: valueFilter, title } = filter; 
+        const { field: fieldFilter, value: valueFilter, title } = filter;
         const { YEAR, MONTH, DAY } = TIME;
         let timeFilter;
         switch (fieldFilter) {

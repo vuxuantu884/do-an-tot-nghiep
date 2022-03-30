@@ -55,8 +55,8 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo cửa hàng",
-    query: `SHOW net_sales, average_order_value, orders, ordered_item_quantity, returned_item_quantity, net_quantity
-    BY pos_location_name  
+    query: `SHOW orders, gross_sales, returns, net_sales, shipping, total_sales, average_order_value
+    BY channel_provider_name,  pos_location_name   
     FROM sales  
     WHERE channel_provider_name IN ('POS')
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
@@ -69,7 +69,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo cửa hàng",
-    query: `SHOW gross_profit  
+    query: `SHOW orders, gross_sales, returns, net_sales, shipping, total_sales, gross_profit, average_order_value   
     BY pos_location_name  
     FROM costs  
     WHERE channel_provider_name IN ('POS') 
@@ -83,8 +83,8 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo nguồn bán hàng",
-    query: `SHOW net_sales, average_order_value  
-    BY source_name
+    query: `SHOW orders, gross_sales, returns, shipping, total_sales, net_sales, average_order_value   
+    BY channel_provider_name, source_name
     FROM sales 
     WHERE channel_provider_name IN ('web','Shopee','Facebook','Admin','Lazada') 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
@@ -98,8 +98,8 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo nguồn bán hàng",
-    query: `SHOW gross_profit  
-    BY source_name
+    query: `SHOW orders, gross_sales, returns, net_sales, shipping, total_sales, gross_profit, average_order_value  
+    BY channel_provider_name, source_name  
     FROM costs 
     WHERE channel_provider_name IN ('web','Shopee','Lazada','Facebook','Admin') 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
@@ -150,7 +150,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES],
     iconImg: "thoi-gian.svg",
     id: 5,
-    chartColumnSelected: ['net_sales', 'average_order_value']
+    chartColumnSelected: ['net_sales']
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -336,12 +336,12 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo địa chỉ khách hàng",
-    query: `SHOW  net_sales, average_order_value  
+    query: `SHOW  orders, gross_sales, returns, net_sales, shipping, total_sales, average_order_value  
       BY shipping_city  
       FROM sales 
-      WHERE channel_provider_name IN ('Admin','Facebook','Lazada','Shopee','web') 
+      WHERE channel_provider_name IN ('web','Shopee','Lazada','Facebook','Admin') 
       SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
-      ORDER BY net_sales desc `,
+      `,
     cube: "sales",
     iconImg: "dia-chi-kh.png",
     alias: [UrlConfig.ANALYTIC_CUSTOMER],
@@ -351,7 +351,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo địa chỉ khách hàng",
-    query: `SHOW  gross_profit  
+    query: `SHOW  orders, gross_sales, returns, net_sales, shipping, total_sales, gross_profit, average_order_value  
       BY shipping_city  
       FROM costs 
       WHERE channel_provider_name IN ('Admin','Facebook','Lazada','Shopee','web') 
