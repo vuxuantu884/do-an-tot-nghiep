@@ -4,10 +4,11 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
 import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
@@ -24,7 +25,6 @@ function IssueCreate(props: Props): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   let isActive = true;
   const handleSaveAndActivate = (values: any) => {
@@ -40,21 +40,21 @@ function IssueCreate(props: Props): ReactElement {
 
   const onFinish = (values: any) => {
     try {
-      setIsSubmitting(true);
+      dispatch(showLoading());
       const body = transformData(values, PROMO_TYPE.MANUAL);
       body.activated = isActive;
       dispatch(
         addPriceRules(body, (result: PriceRule) => {
           if (result) {
             showSuccess("Thêm thành công");
+            dispatch(hideLoading());
             history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE);
-            setIsSubmitting(false);
           }
         })
       );
     } catch (error: any) {
       showError(error.message);
-      setIsSubmitting(false);
+      dispatch(hideLoading());
     }
   };
 
@@ -122,14 +122,12 @@ function IssueCreate(props: Props): ReactElement {
                     marginRight: ".75rem",
                     borderColor: "#2a2a86",
                   }}
-                  type="ghost"
-                  loading={isSubmitting && !isActive}>
+                  type="ghost">
                   Lưu
                 </Button>
                 <Button
                   type="primary"
-                  onClick={handleSaveAndActivate}
-                  loading={isSubmitting && !isActive}>
+                  onClick={handleSaveAndActivate}>
                   Lưu và kích hoạt
                 </Button>
               </AuthWrapper>
