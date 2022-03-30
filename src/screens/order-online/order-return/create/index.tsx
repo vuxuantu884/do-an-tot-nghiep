@@ -20,6 +20,7 @@ import {
 } from "domain/actions/order/order-return.action";
 import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import purify from "dompurify";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -46,11 +47,12 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { useReactToPrint } from "react-to-print";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
-import { getStoreBankAccountNumbersService } from "service/order/order.service";
+import { getPrintOrderReturnContentService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 
   getAmountPayment,
@@ -85,14 +87,20 @@ import CardReturnProductContainer from "../components/containers/CardReturnProdu
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
 
-type PropType = {
+type PropTypes = {
   id?: string;
 };
 
 let typeButton = "";
 let order_return_id: number = 0;
 
-const ScreenReturnCreate = (props: PropType) => {
+const ScreenReturnCreate = (props: PropTypes) => {
+  const isUserCanCreateOrder = useRef(true);
+  const printType =  {
+    return: "order_return",
+    returnAndExchange: "order_exchange",
+
+  }
   const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )	
@@ -204,6 +212,15 @@ const ScreenReturnCreate = (props: PropType) => {
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
 ShippingServiceConfigDetailResponseModel[]
 >([]);
+
+  const printElementRef = useRef(null);
+  const [printContent, setPrintContent] = useState("");
+  const printerContentHtml = () => {
+    return `<div class='printerContent'>${printContent}<div>`;
+  };
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
 
   const initialForm: OrderRequest = useMemo(() => {
     return {
@@ -408,6 +425,21 @@ ShippingServiceConfigDetailResponseModel[]
     }) || null
   };
 
+  const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
+    const orderIds = [orderId];
+  
+    getPrintOrderReturnContentService(orderIds, printType).then(response => {
+      if (isFetchApiSuccessful(response)) {
+        console.log('response', response)
+        setPrintContent(response.data[0].html_content);
+        handlePrint();
+      } else {
+        handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
+      }
+    })
+   
+  }, [dispatch, handlePrint]);
+
   const handleSubmitFormReturn = () => {
     let formValue = form.getFieldsValue();
 
@@ -479,7 +511,14 @@ ShippingServiceConfigDetailResponseModel[]
       // return;
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
-          history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+          setTimeout(() => {
+            isUserCanCreateOrder.current = true;
+          }, 1000);
+          handlePrintOrderReturnOrExchange(response.id, printType.return);
+          setListReturnProducts([]);
+          setTimeout(() => {
+            history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+          }, 1000);
         })
       );
     }
@@ -693,7 +732,9 @@ ShippingServiceConfigDetailResponseModel[]
                 dispatch(
                   actionCreateOrderExchange(
                     valuesResult,
-                    createOrderExchangeCallback,
+                    (data) => {
+                      createOrderExchangeCallback(data, order_return_id)
+                    },
                     () => {
                       setIsErrorExchange(true);
                       dispatch(hideLoading())
@@ -710,7 +751,9 @@ ShippingServiceConfigDetailResponseModel[]
                 dispatch(
                   actionCreateOrderExchange(
                     valuesResult,
-                    createOrderExchangeCallback,
+                    (data => {
+                      createOrderExchangeCallback(data, response.id)
+                    }),
                     () => {
                       setIsErrorExchange(true);
                       dispatch(hideLoading())
@@ -770,6 +813,13 @@ ShippingServiceConfigDetailResponseModel[]
 	};
 
   const onFinish = (values: ExchangeRequest) => {
+    if(!isUserCanCreateOrder.current) {
+			setTimeout(() => {
+				isUserCanCreateOrder.current = true
+			}, 5000);
+			return values
+		}
+		isUserCanCreateOrder.current = false;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
@@ -850,11 +900,17 @@ ShippingServiceConfigDetailResponseModel[]
   };
 
   const createOrderExchangeCallback = useCallback(
-    (value: OrderResponse) => {
+    (value: OrderResponse, order_return_id: number) => {
+      setTimeout(() => {
+				isUserCanCreateOrder.current = true;
+			}, 1000);
       dispatch(hideLoading());
-      history.push(`${UrlConfig.ORDER}/${value.id}`);
+      handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange);
+      setTimeout(() => {
+        history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }, 1000);
     },
-    [dispatch, history]
+    [dispatch, handlePrintOrderReturnOrExchange, history, printType.returnAndExchange]
   );
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -1052,6 +1108,14 @@ ShippingServiceConfigDetailResponseModel[]
 
   const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
     setBillingAddress(_objBillingAddress);
+  };
+
+  const renderHtml = (text: string) => {
+    if (text === "") {
+      return "";
+    }
+    let result = text;
+    return result;
   };
 
   /**
@@ -1267,6 +1331,16 @@ ShippingServiceConfigDetailResponseModel[]
           subTitle=""
           visible={isVisibleModalWarning}
         />
+        <div style={{display: "none"}}>
+          <div className="printContent333" ref={printElementRef}>
+            <div
+              dangerouslySetInnerHTML={{
+                // __html: renderHtml(printerContentHtml()),
+                __html: purify.sanitize(renderHtml(printerContentHtml())),
+              }}
+            ></div>
+          </div>
+        </div>
       </React.Fragment>
     );
   };
