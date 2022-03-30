@@ -358,7 +358,7 @@ const UpdateTicket: FC = () => {
               <Row className="status">
                 <Col span={6}>
                   <div><Text>Tổng cộng</Text></div>
-                  <div><b>{dataProcess?.total_process}</b></div>
+                  <div><b>{dataProcess?.processed}</b></div>
                 </Col>
                 <Col span={6}>
                   <div><Text>Đã xử lí</Text></div>
