@@ -38,6 +38,7 @@ import {
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
+  OrderReturnResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
   VTPFeeResponse,
@@ -469,4 +470,13 @@ export const getStoreBankAccountNumbersService = (query: StoreBankAccountNumbers
 > => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/bank-accounts?${queryString}`);
+};
+
+export const getPrintOrderReturnContentService = (orderIds: number[], type: string):Promise<
+BaseResponse<OrderReturnResponse[]>> => {
+  const params = generateQuery({
+    ids: orderIds,
+    type
+  });
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/return/print_forms?${params}`);
 };

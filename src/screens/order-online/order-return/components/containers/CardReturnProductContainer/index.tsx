@@ -54,11 +54,8 @@ function CardReturnProductContainer(props: PropType) {
   // const listOrderProducts = OrderDetail?.items;
   const isStepExchange = createOrderReturnContext?.isStepExchange;
   const isExchange = createOrderReturnContext?.isExchange;
-  console.log('createOrderReturnContext', createOrderReturnContext)
 
   const onSelectSearchedVariant = (value: string) => {
-    console.log('value', value)
-    console.log('listReturnProducts', listReturnProducts)
     if (!listItemCanBeReturn) {
       return;
     }

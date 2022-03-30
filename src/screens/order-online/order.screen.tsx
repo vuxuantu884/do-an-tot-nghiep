@@ -58,7 +58,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
@@ -93,6 +93,7 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 let typeButton = "";
 
 export default function Order() {
+	const isUserCanCreateOrder = useRef(true);
 	const dispatch = useDispatch();
 	const history = useHistory();
 	const isExportBill = useSelector(
@@ -438,6 +439,9 @@ export default function Order() {
 
 	const createOrderCallback = useCallback(
 		(value: OrderResponse) => {
+			setTimeout(() => {
+				isUserCanCreateOrder.current = true;
+			}, 1000);
 			setIsSaveDraft(false);
 			setCreating(false);
 			if (value.fulfillments && value.fulfillments.length > 0) {
@@ -476,6 +480,13 @@ export default function Order() {
 	};
 
 	const onFinish = (values: OrderRequest) => {
+		if(!isUserCanCreateOrder.current) {
+			setTimeout(() => {
+				isUserCanCreateOrder.current = true
+			}, 5000);
+			return
+		}
+		isUserCanCreateOrder.current = false;
 		values.channel_id = ADMIN_ORDER.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
 		const element2: any = document.getElementById("save-and-confirm");

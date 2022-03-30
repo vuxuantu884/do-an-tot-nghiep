@@ -353,6 +353,14 @@
     {
       "name": "Biên bản nhận chuyển hoàn từ hãng vận chuyển đầy đủ",
       "value": "goods_receipt_receive_detail"
+    },
+    {
+      "name": "Hóa đơn trả hàng",
+      "value": "order_return"
+    },
+    {
+      "name": "Hóa đơn đổi hàng",
+      "value": "order_exchange"
     }
   ],
   "moq_unit": [

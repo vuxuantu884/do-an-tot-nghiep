@@ -300,6 +300,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
               dataToSelect={coordinatorAccountData}
               setDataToSelect={setCoordinatorAccountData}
               initDataToSelect={initCoordinatorAccountData}
+              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
             />
           </Form.Item>
         ) : (
