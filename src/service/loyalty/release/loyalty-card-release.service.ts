@@ -21,3 +21,11 @@ export const searchLoyaltyCardReleaseList = (query: BaseQuery): Promise<BaseResp
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-card-release/jobs?${params}`);
 };
+
+// get loyalty card release jobs api
+export const getLoyaltyCardReleaseJobsApi = (
+    process_id: any
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.LOYALTY}/loyalty-card-release/jobs/${process_id}`;
+  return BaseAxios.get(requestUrl);
+};
