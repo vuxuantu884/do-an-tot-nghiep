@@ -15,8 +15,9 @@ type Props = {
     chartColumnSelected?: string[],
     setChartColumnSelected: (chartColumnSelected: string[]) => void;
     activeFilters: Map<string, any>,
-    setActiveFilters: (activeFilters: Map<string, any>) => void;
-
+    setActiveFilters: (activeFilters: Map<string, any> | any) => void;
+    rowsInQuery: string[];
+    setRowsInQuery: (rowsInQuery: string[] | any) => void;
 }
 
 export const AnalyticsContext = React.createContext<Props>({} as Props)
@@ -28,6 +29,7 @@ function AnalyticsProvider(props: { children: ReactNode }) {
     const [chartColumnSelected, setChartColumnSelected] = useState<string[]>();
     const [activeFilters, setActiveFilters] = useState<Map<string, any>>(new Map<string, any>());
     const cubeRef = React.useRef<string>('');
+    const [rowsInQuery, setRowsInQuery] = useState<string[]>([]);
     return (
         <AnalyticsContext.Provider
             {...props}
@@ -42,7 +44,9 @@ function AnalyticsProvider(props: { children: ReactNode }) {
                 chartColumnSelected,
                 setChartColumnSelected,
                 activeFilters,
-                setActiveFilters
+                setActiveFilters,
+                rowsInQuery,
+                setRowsInQuery
             }}
         />
     )

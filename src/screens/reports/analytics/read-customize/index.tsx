@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getConditionsFormServerToForm, getPropertiesValue } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
@@ -27,7 +27,7 @@ function CreateAnalytics() {
     let { id } = useParams<{ id: string }>();
 
     const [reportInfo, setReportInfo] = React.useState<AnalyticCustomize>({} as AnalyticCustomize);
-    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery } = useContext(AnalyticsContext)
+    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters } = useContext(AnalyticsContext)
     const [mode, setMode] = React.useState<SUBMIT_MODE>(SUBMIT_MODE.GET_DATA);
     const [isLoadingExport, setIsLoadingExport] = React.useState<boolean>(false);
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
@@ -115,18 +115,18 @@ function CreateAnalytics() {
     }
 
     const fetchQueryData = useCallback(async () => {
-        const report: AnalyticCustomize = await callApiNative({ isShowError: true }, dispatch, getAnalyticsCustomByIdService, Number(id));
+        const report: AnalyticCustomize = await callApiNative({ isShowLoading:true }, dispatch, getAnalyticsCustomByIdService, Number(id));
         setReportInfo(report);
         if (report && report.query) {
             formEditInfo.setFieldsValue({ name: report.name })
             cubeRef.current = report.cube;
 
-            const response = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: report.query });
+            const response = await callApiNative({ notifyAction:"SHOW_ALL" }, dispatch, executeAnalyticsQueryService, { q: report.query });
             if (response) {
                 setMetadata(response);
                 setDataQuery(response);
 
-                const { columns, rows, conditions, from, to } = response.query;
+                const { columns, rows, conditions, from, to, order_by: orderBy } = response.query;
                 const timeGroup = checkArrayHasAnyValue(rows || [], TIME_GROUP_BY.map(item => item.value));
 
                 const propertiesValue = getPropertiesValue(rows || [], response);
@@ -140,12 +140,32 @@ function CreateAnalytics() {
                     [ReportifyFormFields.reportType]: cubeRef.current,
                     [ReportifyFormFields.timeGroupBy]: timeGroup,
                     [ReportifyFormFields.where]: whereValue,
+                    [ReportifyFormFields.orderBy]: orderBy,
                 })
+
+                if (rows && rows.length) {
+                    setRowsInQuery((prev: string[]) => [...prev, ...rows]);
+                }
+
+                const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
+                if (Object.keys(fieldWhereValue).length) {
+                    Object.keys(fieldWhereValue).forEach((key: string) => {
+                        const value = fieldWhereValue[key];
+                        if (value && Array.isArray(value)) {
+                            if (value.length === 1 && value[0] === '') {
+                                setActiveFilters((prev: any) => new Map(prev.set(key, { value: ['Tất cả'], title: response ? getTranslatePropertyKey(response, key) : key })));
+                            } else {
+                                setActiveFilters((prev: any) => new Map(prev.set(key, { value: fieldWhereValue[key], title: response ? getTranslatePropertyKey(response, key) : key })));
+                            }
+                        } else {
+                            setActiveFilters((prev: any) => new Map(prev.delete(key)));
+                        }
+                    })
+                }
             }
             setDataQuery(response);
-
         }
-    }, [dispatch, id, setMetadata, setDataQuery, cubeRef, formEditInfo, form])
+    }, [dispatch, id, formEditInfo, cubeRef, setDataQuery, setMetadata, form, setRowsInQuery, setActiveFilters])
 
     useEffect(() => {
 
@@ -251,7 +271,7 @@ function CreateAnalytics() {
                         </Button>
 
                         <Button type="primary" onClick={handleSaveReport}>
-                            Cập nhật báo cáo
+                            Lưu báo cáo
                         </Button>
                     </div>
                 }

@@ -3,6 +3,7 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
+
 // const ReportOrdersOnline = React.lazy(() => import("screens/reports/report-orders-online"));
 // const ReportOrdersOffline = React.lazy(() => import("screens/reports/report-orders-offline"));
 // const ReportTrackingItems = React.lazy(() => import("screens/reports/report-tracking-items"));
@@ -15,6 +16,9 @@ const ReadCustomizeAnalytics = React.lazy(
 );
 const ReadTemplateAnalytics = React.lazy(
   () => import("screens/reports/analytics/read-template/index")
+);
+const CustomerVisitors = React.lazy(
+  () => import("screens/reports/analytics/shared/customer-visitors")
 );
 
 const reports: Array<RouteMenu> = [
@@ -46,6 +50,17 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: ReadTemplateAnalytics,
         key: "submenureport02",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ANALYTIC_SALES}/customer-visitors`,
+        exact: true,
+        title: "Nhập số lượng khách vào cửa hàng",
+        icon: "icon-dot",
+        component: CustomerVisitors,
+        key: "submenureport03",
         isShow: true,
         header: null,
         subMenu: [],

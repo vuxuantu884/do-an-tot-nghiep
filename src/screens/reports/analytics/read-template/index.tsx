@@ -38,7 +38,7 @@ function UpdateAnalytics() {
 
 
 
-    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, activeFilters, setActiveFilters, setRowsInQuery } = useContext(AnalyticsContext)
     const CURRENT_REPORT_TEMPLATE: AnalyticTemplateData = REPORT_TEMPLATES.find((item) => item.id === templateId) || {} as AnalyticTemplateData;
     const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cube === CURRENT_REPORT_TEMPLATE.cube);
 
@@ -129,7 +129,7 @@ function UpdateAnalytics() {
      */
     useEffect(() => {
         const fetchMetadata = async () => {
-            const response = await callApiNative({ isShowError: true }, dispatch, getAnalyticsMetadataService, { q: CURRENT_REPORT_TEMPLATE.query });
+            const response = await callApiNative({ isShowLoading: true }, dispatch, getAnalyticsMetadataService, { q: CURRENT_REPORT_TEMPLATE.query });
             if (response) {
                 setMetadata(response);
             }
@@ -143,7 +143,7 @@ function UpdateAnalytics() {
       */
     useEffect(() => {
         const fetchTemplateQuery = async () => {
-            const response: AnalyticDataQuery = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: CURRENT_REPORT_TEMPLATE.query });
+            const response: AnalyticDataQuery = await callApiNative({ notifyAction:"SHOW_ALL" }, dispatch, executeAnalyticsQueryService, { q: CURRENT_REPORT_TEMPLATE.query });
             if (response) {
                 setDataQuery(response);
                 setChartColumnSelected(CURRENT_REPORT_TEMPLATE.chartColumnSelected);
@@ -166,6 +166,10 @@ function UpdateAnalytics() {
                     [ReportifyFormFields.chartFilter]: CURRENT_REPORT_TEMPLATE.chartColumnSelected,
                     [ReportifyFormFields.orderBy]: orderBy,
                 })
+
+                if (rows && rows.length) {
+                    setRowsInQuery((prev: string[]) => [...prev, ...rows]);
+                }
 
                 const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
                 if (Object.keys(fieldWhereValue).length) {
@@ -190,7 +194,7 @@ function UpdateAnalytics() {
         }
 
 
-    }, [form, getPropertiesValue, getConditionsFormServerToForm, CURRENT_REPORT_TEMPLATE.query, metadata, dispatch, setDataQuery, setMetadata, CURRENT_REPORT_TEMPLATE.chartColumnSelected, setChartColumnSelected, setActiveFilters, activeFilters])
+    }, [form, getPropertiesValue, getConditionsFormServerToForm, CURRENT_REPORT_TEMPLATE.query, metadata, dispatch, setDataQuery, setMetadata, CURRENT_REPORT_TEMPLATE.chartColumnSelected, setChartColumnSelected, setActiveFilters, activeFilters, setRowsInQuery])
 
     // Load chart data
     useEffect(() => {

@@ -14,6 +14,28 @@ export const executeAnalyticsQueryService = (
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/query`, { params, ...config });
 };
 
+export const getCustomerVisitors = (
+  params: {month: number, year: number, storeIds?: number[]},
+  config?: AxiosRequestConfig
+): Promise<BaseResponse<any>> => {
+  const { month, year, storeIds } = params;
+  if (storeIds?.length) {
+    let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`;
+    storeIds.forEach((id, index) => {
+      endpoint += `&storeId.in[${index}]=${id}`;
+    })
+    return BaseAxiosApi.get(endpoint, { ...config });
+  } else {
+    return BaseAxiosApi.get(`${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`, { ...config });
+  }
+};
+
+export const updateCustomerVisitors = (
+  params: any
+): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.post(`${ApiConfig.CUSTOMER_VISITORS}`, params);
+};
+
 export const getAnalyticsMetadataService = (
   params: AnalyticTemplateParams
 ): Promise<BaseResponse<any>> => {

@@ -1,5 +1,6 @@
 import { Button, Card, Form, Table } from 'antd'
 import Color from "assets/css/export-variable.module.scss"
+import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 import REPORT_TEMPLATES, { REPORT_NAMES } from 'config/report/report-templates'
@@ -186,6 +187,19 @@ function Analytics() {
                     subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
                 />
             </Form.Provider>
+            { [UrlConfig.ANALYTIC_SALES].includes(matchPath) && (
+                <BottomBarContainer
+                    rightComponent={
+                        <>
+                            <Button type="primary">
+                                <Link to={`${matchPath}/customer-visitors`}>
+                                    Nhập số lượng khách vào cửa hàng
+                                </Link>
+                            </Button>
+                        </>
+                    }
+                />
+            )}
         </ContentContainer >
     )
 }

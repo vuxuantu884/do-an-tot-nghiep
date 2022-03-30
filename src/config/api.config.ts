@@ -37,6 +37,7 @@ const ApiConfig = {
   INVENTORY_ADJUSTMENT: `${v1}/${ServiceNames.INVENTORY_ADJUSTMENT_SERVICE}`,
   PROMOTION: `${v1}/${ServiceNames.PROMOTION_SERVICE}`,
   ANALYTICS: `${v1}/reports`,
+  CUSTOMER_VISITORS: `${v1}/customer-visitors`,
 };
 
 export { ApiConfig };

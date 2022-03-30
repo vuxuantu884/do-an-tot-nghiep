@@ -1,10 +1,12 @@
 import Color from "assets/css/export-variable.module.scss";
 import { FIELD_FORMAT } from "model/report/analytics.model";
-import React from 'react';
+import React, { useContext } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { DashboardContainer } from "screens/dashboard/index.style";
 import { formatCurrency } from "utils/AppUtils";
 import { currencyAbbreviation } from 'utils/DashboardUtils';
+import { getTranslatePropertyKey } from "utils/ReportUtils";
+import { AnalyticsContext } from "./analytics-provider";
 
 const { primary, secondary } = Color;
 
@@ -18,7 +20,11 @@ type Props = {
 }
 
 function ReportifyBarChart(props: Props) {
+    const { metadata, rowsInQuery } = useContext(AnalyticsContext);
     const { data, leftLegendName, rightLegendName, chartColumnNumber, leftTickFormat, rightTickFormat } = props;
+    const xAxislabel = rowsInQuery.map((field: string) => {
+        return metadata ? getTranslatePropertyKey(metadata, field) : field;
+    }).join(' | ');
     return (
         <div>
             <ResponsiveContainer width="100%" height={300}>
@@ -35,15 +41,21 @@ function ReportifyBarChart(props: Props) {
                 barSize={50}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                    dataKey={(value) => value.map((item: string) => {
-                        return item || '-';
-                    })[0]}
+                    dataKey={(value: string[]) => value.filter((item: string, index) => index < rowsInQuery.length).reduce((res: string, item: string) => {
+                        if (item) {
+                            return res ? `${res} | ${item}` : `${item}`;
+                        } else {
+                            return res ? `${res} | -` : `-`;
+                        }
+                    }, '')}
                     textAnchor="end"
                     dx={30}
                     interval="preserveStartEnd"
                     dy={15}
                     tickLine={false}
                     fontSize={12}
+                    style={{opacity: 0}}
+                    label={{ value: xAxislabel, position: 'insideBottomCenter', offset: 10 }}
                 />
                 <YAxis
                     yAxisId="left"
@@ -71,7 +83,7 @@ function ReportifyBarChart(props: Props) {
                 {(leftLegendName || rightLegendName) && (
                     <>
                         <Legend wrapperStyle={{
-                            paddingTop: "15px"
+                            paddingTop: "0px"
                         }} />
                     </>)}
                 { chartColumnNumber > 1 && (
