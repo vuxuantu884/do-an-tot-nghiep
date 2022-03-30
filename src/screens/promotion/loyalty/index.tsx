@@ -317,6 +317,7 @@ const LoyaltyPage = () => {
                       position="after"
                       placeholder="Tỷ lệ tích điểm"
                       currency={['đ']}
+                      maxValue={999999999999999}
                       value={accumulationRate}
                       onChange={handleChangeAccumulationRate}
                       style={{ textAlign: 'left' }}
@@ -332,6 +333,7 @@ const LoyaltyPage = () => {
                       position="after"
                       placeholder="Tỷ lệ tiêu điểm"
                       currency={['đ']}
+                      maxValue={999999999999999}
                       value={redemptionRate}
                       onChange={handleChangeRedemptionRate}
                       style={{ textAlign: 'left' }}
@@ -377,6 +379,7 @@ const LoyaltyPage = () => {
                                 <CurrencyInput
                                   position="before"
                                   currency={['%']}
+                                  maxValue={100}
                                   value={rule.limit_order_percent}
                                   onChangeCurrencyType={(value) => handleChangePointUseType(value, index)}
                                   onChange={(value) => handleChangePointUse(value, index)}
@@ -393,6 +396,7 @@ const LoyaltyPage = () => {
                                 <CurrencyInput
                                   position="before"
                                   currency={['%']}
+                                  maxValue={100}
                                   value={rule.limit_line_percent}
                                   onChange={(value) => handleChangeLineItemLimitPoint(value, index)}
                                 />

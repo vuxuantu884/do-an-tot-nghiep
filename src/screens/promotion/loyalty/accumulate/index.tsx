@@ -204,6 +204,7 @@ const LoyaltyPointAccumulate = () => {
             placeholder="Tỷ lệ tích điểm"
             currency={['%']}
             value={rule.percent}
+            maxValue={100}
             onChange={(value) => onChangePercent(value, index)}
             style={{textAlign: 'left'}}
           />
