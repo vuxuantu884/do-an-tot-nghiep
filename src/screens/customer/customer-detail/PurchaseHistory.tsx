@@ -1,14 +1,13 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import { Tooltip} from "antd";
-import {HiChevronDoubleDown, HiChevronDoubleRight} from "react-icons/hi";
 import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
 import {OrderModel} from "model/order/order.model";
 import NumberFormat from "react-number-format";
 import {Link} from "react-router-dom";
 import UrlConfig from "config/url.config";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {formatCurrency, isNullOrUndefined} from "utils/AppUtils";
+import {formatCurrency} from "utils/AppUtils";
 import {PageResponse} from "model/base/base-metadata.response";
 import moment from "moment";
 import {DeliveryServiceResponse, OrderLineItemResponse,} from "model/response/order/order.response";
@@ -51,11 +50,11 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   const { customer } = props;
 
   // const orderPointSpend = (order: any) => {
-  //   if (order && order.payments.length > 0) {
+  //   if (order) {
   //     let _pointPayment = order?.payments?.filter(
   //       (item: any) => item.payment_method_id === 1
   //     );
-  //     let totalPoint = _pointPayment.reduce(
+  //     let totalPoint = _pointPayment?.reduce(
   //       (acc: any, curr: any) => acc + curr.point,
   //       0
   //     );
@@ -125,37 +124,10 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     Array<DeliveryServiceResponse>
   >([]);
 
-  const [orderReturnedIdList, setOrderReturnedIdList] = useState<any>([]);
-
-  const handleChangeBackground = useCallback(
-    (props, event) => {
-      props.onExpand(props.record, event);
-      if(!props.expanded) {
-        const newOpenOrderReturnedList = [...orderReturnedIdList];
-        newOpenOrderReturnedList.push(props.record.id);
-        setOrderReturnedIdList(newOpenOrderReturnedList);
-      }else {
-        orderReturnedIdList.length && orderReturnedIdList.splice(orderReturnedIdList.indexOf(props.record.id), 1)
-      }
-    },
-    [orderReturnedIdList]
-  );
-
-  const checkOpenOrderReturned = useCallback(
-    (orderId) => {
-        return orderReturnedIdList.includes(orderId)
-        ? "order-return-background" : ""
-      },
-    [orderReturnedIdList]
-  );
-
-
   const dispatch = useDispatch();
 
   // get order returned
-  const [orderReturnedList, setOrderReturnedList] = useState<
-    Array<ReturnModel>
-  >([]);
+  const [orderReturnedList, setOrderReturnedList] = useState<any>([]);
 
   const updateOrderReturnedList = useCallback(
     (data: PageResponse<ReturnModel> | false) => {
@@ -222,14 +194,27 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   }, [customer?.id, dispatch, orderHistoryQueryParams, updateOrderHistoryData]);
 
   const orderHistoryList = useCallback(() => {
-    const newOrderHistoryList = orderHistoryData?.items.map((order) => {
-      const order_return = orderReturnedList.filter(
-        (orderReturn) => orderReturn.order_id.toString() === order.id.toString()
-      );
-      return {...order, order_return: order_return};
-    });
 
-    return newOrderHistoryList;
+    const newOrderHistoryList = orderReturnedList.map((order: any) => {
+      const unifiedCode = order.code ? order.code : order.code_order_return
+      const unifiedTotalAmount = order.total_line_amount_after_line_discount 
+      ? order.total_line_amount_after_line_discount 
+      : order.total_amount
+
+      return {
+        ...order,
+        code: unifiedCode,
+        total_line_amount_after_line_discount: unifiedTotalAmount,
+      }
+    })
+
+    const orderMapOrderHistory : Array<any> = orderHistoryData?.items.concat(newOrderHistoryList)
+
+    orderMapOrderHistory.length && orderMapOrderHistory.sort((a, b) => {
+      return (b.created_date < a.created_date) ? -1 : ((b.created_date > a.created_date) ? 1 : 0);
+    });
+ 
+    return orderMapOrderHistory;
   }, [orderHistoryData?.items, orderReturnedList]);
   // end handle get purchase history
 
@@ -405,9 +390,17 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           render: (value: string, item: any) => {
             return (
               <div>
-                <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
+                {
+                  !item.code_order_return
+                  ?  
+                  <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
+                   {value}
+                  </Link>
+                  :
+                  <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">
                   {value}
-                </Link>
+                 </Link>
+                }
                 <div style={{ fontSize: "12px", color: "#666666" }}>
                   <div>
                     {moment(item.created_date).format(
@@ -428,6 +421,10 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   )}
                   {renderReturn(item)}
                 </div>
+                {
+                  item.code_order_return !== undefined
+                  && <span style={{ color: "red" }}>Trả hàng</span>
+                }
               </div>
             );
           },
@@ -560,7 +557,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           render: (value: string, record: any) => {
             return (
               <React.Fragment>
-                {renderOrderPayments(record)}
+                {record.payments &&  renderOrderPayments(record)}
               </React.Fragment>
             );
           },
@@ -568,32 +565,198 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           align: "left",
           width: 120,
         },
-        // {
-        //   title: "Điểm",
-        //   // dataIndex: "",
-        //   render: (record: any) => (
-        //     <>
-        //       <div>
-        //         <span style={{ color: "#27AE60" }}>Tích:</span>
-        //         <span style={{ marginLeft: 10 }}>
-        //           {orderPointSpend(record) || 0}
-        //           {" điểm"}
-        //         </span>
-        //       </div>
-        //       <div>
-        //         <span style={{ color: "#E24343" }}>Tiêu:</span>
-        //         <span style={{ marginLeft: 10 }}>
-        //           {orderPointCollected(record) || 0}
-        //           {" điểm"}
-        //         </span>
-        //       </div>
-        //     </>
-        //   ),
-        //   key: "customer.amount_money",
-        //   visible: true,
-        //   align: "left",
-        //   width: 120,
-        // },
+        {
+          title: "Điểm",
+          dataIndex: "",
+          render: (record: any) => (
+            <>
+              {
+                !record.code_order_return
+                ?
+                <div className="order-point-column">
+                  <span style={{ color: "#27AE60" }}>{`Tích: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
+                  <span style={{ color: "#E24343" }}>{`Tiêu: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
+                </div>
+                :
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <span style={{ color: "#27AE60" }}>{`Trừ Tích: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
+                  <span style={{ color: "#E24343" }}>{`Hoàn Tiêu: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
+                </div>
+
+              }
+            </>
+          ),
+          key: "customer.amount_money",
+          visible: true,
+          align: "left",
+          width: 120,
+        },
+
+        {
+          title: "Ghi chú",
+          className: "notes",
+          render: (value: string, record: any) => (
+            <div className="orderNotes">
+              <div className="inner">
+                {
+                  record.code_order_return
+                  &&  
+                  <div className="order-reason">
+                   <span className="order-reason-heading">Lý do trả</span>
+                   <span className="order-reason-content">{record.reason}</span>
+                  </div>
+                  
+                }
+                <div className="single order-note">
+                  <EditNote
+                    note={record.customer_note}
+                    title="Khách hàng: "
+                    color={primaryColor}
+                    onOk={(newNote) => {
+                      editNote(newNote, "customer_note", record.id);
+                    }}
+                    isDisable={record.status === OrderStatus.FINISHED}
+                  />
+                </div>
+                <div className="single order-note">
+                  <EditNote
+                    note={record.note}
+                    title="Nội bộ: "
+                    color={primaryColor}
+                    onOk={(newNote) => {
+                      editNote(newNote, "note", record.id);
+                    }}
+                    isDisable={record.status === OrderStatus.FINISHED}
+                  />
+                </div>
+              </div>
+            </div>
+          ),
+          key: "note",
+          visible: true,
+          align: "left",
+          width: 150,
+        },
+
+        {
+          title: "Trạng thái",
+          dataIndex: "status",
+          key: "status",
+          className: "orderStatus",
+          render: (value: string, record: any) => {
+            if (!record || !status_order) {
+              return null;
+            }
+            const status = status_order.find(
+              (status) => status.value === record.status
+            );
+
+            const received = {
+              text: record.received ? "Đã nhận" : "Chưa nhận",
+              color: record.received ? "#27AE60" : "#E24343",
+            };
+            const payment_status = {
+              text:
+                record.payment_status === PoPaymentStatus.PAID
+                  ? "Đã hoàn"
+                  : "Chưa hoàn",
+              color:
+                record.payment_status === PoPaymentStatus.PAID
+                  ? "#27AE60"
+                  : "#E24343",
+            };
+    
+            return (
+              <>
+              {
+                !record.code_order_return
+                &&
+                <div className="orderStatus">
+                <div className="inner">
+                  <div className="single">
+                    <div>
+                      <strong>Xử lý đơn: </strong>
+                    </div>
+                    {record.sub_status ? record.sub_status : "-"}
+                  </div>
+                  <div className="single">
+                    <div>
+                      <strong>Đơn hàng: </strong>
+                    </div>
+                    {record.status === OrderStatus.DRAFT && (
+                      <div
+                        style={{
+                          color: "#737373",
+                        }}>
+                        {status?.name}
+                      </div>
+                    )}
+
+                    {record.status === OrderStatus.FINALIZED && (
+                      <div
+                        style={{
+                          color: "#FCAF17",
+                        }}>
+                        {status?.name}
+                      </div>
+                    )}
+
+                    {record.status === OrderStatus.FINISHED && (
+                      <div
+                        style={{
+                          color: "#27AE60",
+                        }}>
+                        {status?.name}
+                      </div>
+                    )}
+
+                    {record.status === OrderStatus.CANCELLED && (
+                      <div
+                        style={{
+                          color: "#E24343",
+                        }}>
+                        {status?.name}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              }
+
+              {
+                record.code_order_return
+                &&  
+                <div>
+                  <div>
+                    <div>
+                    <strong>Hàng: </strong>
+                    <span style={{ color: `${received.color}` }}>
+                      {received.text}
+                    </span>
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#666666" }}>
+                    {record.receive_date
+                      ? moment(record.receive_date).format(DATE_FORMAT.HHmm_DDMMYYYY)
+                      : ""}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <strong>Tiền: </strong>
+                    <span style={{ color: `${payment_status.color}` }}>
+                    {payment_status.text}
+                    </span>
+                  </div>
+                </div>
+              }
+              </>
+            );
+          },
+          visible: true,
+          align: "left",
+          width: 120,
+        },
+        
         {
           title: "Vận chuyển",
           key: "shipment.type",
@@ -853,111 +1016,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           width: 120,
           align: "left",
         },
-        {
-          title: "Trạng thái",
-          dataIndex: "status",
-          key: "status",
-          className: "orderStatus",
-          render: (value: string, record: OrderModel) => {
-            if (!record || !status_order) {
-              return null;
-            }
-            const status = status_order.find(
-              (status) => status.value === record.status
-            );
-            return (
-              <div className="orderStatus">
-                <div className="inner">
-                  <div className="single">
-                    <div>
-                      <strong>Xử lý đơn: </strong>
-                    </div>
-                    {record.sub_status ? record.sub_status : "-"}
-                  </div>
-                  <div className="single">
-                    <div>
-                      <strong>Đơn hàng: </strong>
-                    </div>
-                    {record.status === OrderStatus.DRAFT && (
-                      <div
-                        style={{
-                          color: "#737373",
-                        }}>
-                        {status?.name}
-                      </div>
-                    )}
 
-                    {record.status === OrderStatus.FINALIZED && (
-                      <div
-                        style={{
-                          color: "#FCAF17",
-                        }}>
-                        {status?.name}
-                      </div>
-                    )}
-
-                    {record.status === OrderStatus.FINISHED && (
-                      <div
-                        style={{
-                          color: "#27AE60",
-                        }}>
-                        {status?.name}
-                      </div>
-                    )}
-
-                    {record.status === OrderStatus.CANCELLED && (
-                      <div
-                        style={{
-                          color: "#E24343",
-                        }}>
-                        {status?.name}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          },
-          visible: true,
-          align: "left",
-          width: 120,
-        },
-        {
-          title: "Ghi chú",
-          className: "notes",
-          render: (value: string, record: OrderModel) => (
-            <div className="orderNotes">
-              <div className="inner">
-                <div className="single">
-                  <EditNote
-                    note={record.customer_note}
-                    title="Khách hàng: "
-                    color={primaryColor}
-                    onOk={(newNote) => {
-                      editNote(newNote, "customer_note", record.id);
-                    }}
-                    isDisable={record.status === OrderStatus.FINISHED}
-                  />
-                </div>
-                <div className="single">
-                  <EditNote
-                    note={record.note}
-                    title="Nội bộ: "
-                    color={primaryColor}
-                    onOk={(newNote) => {
-                      editNote(newNote, "note", record.id);
-                    }}
-                    isDisable={record.status === OrderStatus.FINISHED}
-                  />
-                </div>
-              </div>
-            </div>
-          ),
-          key: "note",
-          visible: true,
-          align: "left",
-          width: 150,
-        },
         {
           title: "NV bán hàng",
           render: (value, record: OrderModel) => (
@@ -970,7 +1029,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           key: "assignee",
           visible: true,
           align: "center",
-          width: 130,
+          width: 136,
         },
         {
           title: "NV tạo đơn",
@@ -978,7 +1037,10 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             <Link
               target="_blank"
               to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
-              {`${record.account_code} - ${record.account}`}
+              {record.account 
+                && record.account_code 
+                && `${record.account_code} - ${record.account}`
+              }
             </Link>
           ),
           key: "account",
@@ -1081,126 +1143,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
       [deliveryServices, editNote, renderOrderPayments, status_order]
     );
 
-  const columnsOrderReturned: Array<ICustomTableColumType<ReturnModel>> = [
-    {
-      title: "Mã đơn trả hàng",
-      dataIndex: "code_order_return",
-      width: 150,
-      render: (value: string, item: ReturnModel) => (
-        <div>
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-            <Link target="_blank" to={`${UrlConfig.ORDERS_RETURN}/${item.id}`}>
-              {item.code_order_return}
-            </Link>
-          </div>
-          <div style={{ fontSize: "12px", color: "#666666" }}>
-            {item.created_date
-              ? moment(item.created_date).format(DATE_FORMAT.HHmm_DDMMYYYY)
-              : ""}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Người nhận",
-      key: "customer",
-      visible: true,
-      width: 150,
-      render: (record: any) => (
-        <div className="customer">
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}>
-              {record.customer_name}
-            </Link>
-          </div>
-          <div className="p-b-3">{record.customer_phone_number}</div>
-          <div className="p-b-3">{record.customer_email}</div>
-        </div>
-      ),
-    },
-    {
-      title: "Kho cửa hàng",
-      dataIndex: "store",
-      key: "store",
-      align: "center",
-      width: 200,
-    },
-    {
-      title: "Trạng thái",
-      key: "status",
-      align: "center",
-      width: 150,
-      render: (value: string, item: ReturnModel) => {
-        const received = {
-          text: item.received ? "Đã nhận" : "Chưa nhận",
-          color: item.received ? "#27AE60" : "#E24343",
-        };
-        const payment_status = {
-          text:
-            item.payment_status === PoPaymentStatus.PAID
-              ? "Đã hoàn"
-              : "Chưa hoàn",
-          color:
-            item.payment_status === PoPaymentStatus.PAID
-              ? "#27AE60"
-              : "#E24343",
-        };
-        return (
-          <div>
-            <div>
-              <div>
-                <strong>Hàng: </strong>
-                <span style={{ color: `${received.color}` }}>
-                  {received.text}
-                </span>
-              </div>
-              <div style={{ fontSize: "12px", color: "#666666" }}>
-                {item.receive_date
-                  ? moment(item.receive_date).format(DATE_FORMAT.HHmm_DDMMYYYY)
-                  : ""}
-              </div>
-            </div>
-
-            <div>
-              <strong>Tiền: </strong>
-              <span style={{ color: `${payment_status.color}` }}>
-                {payment_status.text}
-              </span>
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Tổng tiền",
-      dataIndex: "total_amount",
-      key: "total_amount",
-      align: "center",
-      width: 120,
-      render: (value: number) => (
-        <b>
-          {!isNullOrUndefined(value) ? (
-            <NumberFormat
-              value={value}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          ) : (
-            "--"
-          )}
-        </b>
-      ),
-    },
-    {
-      title: "Lý do trả",
-      dataIndex: "reason",
-      key: "reason",
-      align: "center",
-    },
-  ];
-
   return (
     <StyledPurchaseHistory>
       <CustomTable
@@ -1218,47 +1160,8 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           onShowSizeChange: onPageChange,
         }}
         dataSource={orderHistoryList()}
-        rowClassName={(record) => checkOpenOrderReturned(record.id)}
         columns={columnsOrderHistory}
         rowKey={(item: OrderModel) => item.id}
-        expandable={{
-          // rowExpandable: item => item.order_return.length > 0,
-          expandIcon: (props) => {
-            let icon = <HiChevronDoubleRight size={20} />;
-            if (props.expanded) {
-              icon = <HiChevronDoubleDown size={20} color="#2A2A86" />;
-            }
-            return (
-              <>
-                {props.record?.order_return?.length ? (
-                  <div
-                    style={{ cursor: "pointer" }}
-                    onClick={(event) => {
-                      handleChangeBackground(props, event);
-                    }}>
-                    {icon}
-                  </div>
-                ) : (
-                  
-                  <></>
-                )}
-              </>
-            );
-          },
-          expandedRowRender: (item, index) => {
-            return (
-              <div key={index} className="expanded-row-render">
-                <CustomTable
-                  bordered
-                  columns={columnsOrderReturned}
-                  dataSource={item.order_return}
-                  pagination={false}
-                  rowKey={(item: ReturnModel) => item.id}
-                />
-              </div>
-            );
-          },
-        }}
       />
     </StyledPurchaseHistory>
   );
