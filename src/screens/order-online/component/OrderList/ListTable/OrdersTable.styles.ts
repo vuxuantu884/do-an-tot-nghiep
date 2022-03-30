@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 310;
 const quantityWidth = 50;
 const massWidth = 100;
-const priceWidth = 100;
-const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
+const priceWidth = 82;
+const nameWidth = 120;
+export const nameQuantityWidth = nameWidth+ quantityWidth + priceWidth;
 
 export const StyledComponent = styled.div`
   th {
@@ -151,6 +151,7 @@ export const StyledComponent = styled.div`
     .ant-btn {
       line-height: 15px;
       height: 15px;
+      width: auto;
     }
   }
 	.singlePayment {
@@ -176,7 +177,7 @@ export const StyledComponent = styled.div`
 		.single {
 			height: 50%;
 			display: flex;
-			padding: 10px;
+			padding: 10px 10px;
 			align-items: center;
 			&:not(:last-child) {
 				border-bottom: 1px solid ${borderColor};
@@ -195,10 +196,17 @@ export const StyledComponent = styled.div`
 			height: 100%;
 		}
 		.single {
-			padding: 10px;
+			padding: 10px 10px;
 			&:not(:last-child) {
 				border-bottom: 1px solid ${borderColor};
 			}
+      .ant-select-selection-item {
+        font-size: ${13/14}em;
+      }
+      .ant-select-single .ant-select-selector {
+        padding-left: 5px;
+        padding-right: 5px;
+      }
 		}
 	}
 	.shipmentType {
@@ -210,7 +218,7 @@ export const StyledComponent = styled.div`
 				margin-bottom: 2px;
 			}
 			img {
-				max-width: 105px;
+				max-width: 85px;
 				margin-right: 5px;
 				position: relative;
 				top: -2px;
@@ -543,6 +551,7 @@ export const StyledComponent = styled.div`
     height: auto;
     line-height: 1;
     margin-bottom: 8px;
+    width: auto;
   }
   .iconReturn {
     width: 20px

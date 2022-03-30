@@ -46,7 +46,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
@@ -85,14 +85,20 @@ import CardReturnProductContainer from "../components/containers/CardReturnProdu
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
 
-type PropType = {
+type PropTypes = {
   id?: string;
 };
 
 let typeButton = "";
 let order_return_id: number = 0;
 
-const ScreenReturnCreate = (props: PropType) => {
+const ScreenReturnCreate = (props: PropTypes) => {
+  const isUserCanCreateOrder = useRef(true);
+  const printType =  {
+    return: "order_return",
+    returnAndExchange: "order_exchange",
+
+  }
   const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )	
@@ -479,7 +485,13 @@ ShippingServiceConfigDetailResponseModel[]
       // return;
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
-          history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+          setTimeout(() => {
+            isUserCanCreateOrder.current = true;
+          }, 1000);
+          setListReturnProducts([]);
+          setTimeout(() => {
+            history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+          }, 1000);
         })
       );
     }
@@ -770,6 +782,13 @@ ShippingServiceConfigDetailResponseModel[]
 	};
 
   const onFinish = (values: ExchangeRequest) => {
+    if(!isUserCanCreateOrder.current) {
+			setTimeout(() => {
+				isUserCanCreateOrder.current = true
+			}, 5000);
+			return values
+		}
+		isUserCanCreateOrder.current = false;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
@@ -851,6 +870,9 @@ ShippingServiceConfigDetailResponseModel[]
 
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
+      setTimeout(() => {
+				isUserCanCreateOrder.current = true;
+			}, 1000);
       dispatch(hideLoading());
       history.push(`${UrlConfig.ORDER}/${value.id}`);
     },

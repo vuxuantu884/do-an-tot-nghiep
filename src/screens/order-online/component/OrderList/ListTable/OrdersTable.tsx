@@ -425,7 +425,7 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         fixed: "left",
         className: "orderId custom-shadow-td",
-        width: 130,
+        width: 90,
       },
       {
         title: "Khách hàng",
@@ -434,7 +434,7 @@ function OrdersTable(props: PropTypes) {
             {record.customer_phone_number && (
               <div style={{ color: "#2A2A86" ,display:"flex" }}>
                 <div
-                  style={{ padding: "0px", fontWeight: 500, cursor: "pointer" }}
+                  style={{ padding: "0px", fontWeight: 500, cursor: "pointer", fontSize: "0.9em" }}
                   onClick={() => {
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : ""
@@ -534,7 +534,7 @@ function OrdersTable(props: PropTypes) {
         ),
         key: "customer",
         visible: true,
-        width: 140,
+        width: 100,
       },
       {
         title: (
@@ -606,7 +606,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: nameQuantityWidth,
+        width: nameQuantityWidth - 80,
       },
       // {
       //   title: "Kho cửa hàng",
@@ -650,7 +650,7 @@ function OrdersTable(props: PropTypes) {
         key: "customer.amount_money",
         visible: true,
         align: "right",
-        width: 90,
+        width: 70,
       },
       {
         title: "Thanh toán",
@@ -661,7 +661,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "right",
-        width: 120,
+        width: 75,
       },
       {
         title: "Vận chuyển",
@@ -857,7 +857,9 @@ function OrdersTable(props: PropTypes) {
                   return (
                     <React.Fragment>
                       <div className="single">
-                        Nhận tại {" - "}
+                        <strong className="textSmall">
+                          Nhận tại {" - "}
+                        </strong>
                         <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
                           {record.store}
                         </Link>
@@ -958,7 +960,7 @@ function OrdersTable(props: PropTypes) {
           return "";
         },
         visible: true,
-        width: 140,
+        width: 80,
         align: "left",
       },
       {
@@ -1090,7 +1092,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: 145,
+        width: 95,
       },
       {
         title: "Ghi chú",
@@ -1126,7 +1128,7 @@ function OrdersTable(props: PropTypes) {
         key: "note",
         visible: true,
         align: "left",
-        width: 170,
+        width: 120,
       },
       {
         title: "NV bán hàng",
@@ -1138,7 +1140,7 @@ function OrdersTable(props: PropTypes) {
         key: "assignee",
         visible: true,
         align: "center",
-        width: 130,
+        width: 80,
       },
       {
         title: "NV tạo đơn",
@@ -1150,7 +1152,7 @@ function OrdersTable(props: PropTypes) {
         key: "account",
         visible: true,
         align: "center",
-        width: 130,
+        width: 80,
       },
       {
         title: "Biên bản bàn giao",
@@ -1251,13 +1253,15 @@ function OrdersTable(props: PropTypes) {
 
   const renderActionButton = (record: OrderModel) => {
     return (
-      <Tooltip title="Đổi trả hàng">
-        <Link
-          to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
-        >
-          <img alt="" src={iconReturn} className="iconReturn"/>
-        </Link>
-      </Tooltip>
+      <div>
+        <Tooltip title="Đổi trả hàng">
+          <Link
+            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
+          >
+            <img alt="" src={iconReturn} className="iconReturn"/>
+          </Link>
+        </Tooltip>
+      </div>
     );
   };
 
@@ -1271,36 +1275,38 @@ function OrdersTable(props: PropTypes) {
       <React.Fragment>
         {originNode}
         <div className="orderSource">{renderOrderSource(record)}</div>
-        <Tooltip title="Kiểm tra tồn kho">
-          <Popover
-            placement="right"
-            overlayStyle={{ zIndex: 1000, top: "150px" }}
-            title={
-              <Row
-                justify="space-between"
-                align="middle"
-                style={{ width: "100%" }}
-              >
-                <Input.Search
-                  placeholder="Tìm kiếm kho"
-                  allowClear
-                  onSearch={onSearchInventory}
-                />
-              </Row>
-            }
-            content={<InventoryTable
-              inventoryData={inventoryData}
-              storeId={record.store_id || 0}
-              items={record.items}
-              listStore={storeInventory}
-            />
-            }
-            trigger="click"
-            onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
-          >
-            <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }}></Button>
-          </Popover>
-        </Tooltip>
+        <div>
+          <Tooltip title="Kiểm tra tồn kho">
+            <Popover
+              placement="right"
+              overlayStyle={{ zIndex: 1000, top: "150px" }}
+              title={
+                <Row
+                  justify="space-between"
+                  align="middle"
+                  style={{ width: "100%" }}
+                >
+                  <Input.Search
+                    placeholder="Tìm kiếm kho"
+                    allowClear
+                    onSearch={onSearchInventory}
+                  />
+                </Row>
+              }
+              content={<InventoryTable
+                inventoryData={inventoryData}
+                storeId={record.store_id || 0}
+                items={record.items}
+                listStore={storeInventory}
+              />
+              }
+              trigger="click"
+              onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
+            >
+              <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }}></Button>
+            </Popover>
+          </Tooltip>
+        </div>
         {renderActionButton(record)}
       </React.Fragment>
     );
@@ -1579,7 +1585,7 @@ function OrdersTable(props: PropTypes) {
         isRowSelection
         isLoading={tableLoading}
         showColumnSetting={true}
-        scroll={{ x: (2400 * columnFinal.length) / (columns.length ? columns.length : 1) }}
+        scroll={{ x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1) }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
           pageSize: data.metadata?.limit,
@@ -1601,6 +1607,7 @@ function OrdersTable(props: PropTypes) {
         className="order-list"
         footer={() => renderFooter()}
         isShowPaginationAtHeader
+        rowSelectionWidth = {30}
       />
     </StyledComponent>
   );
