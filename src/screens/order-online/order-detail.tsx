@@ -481,6 +481,14 @@ const OrderDetail = (props: PropType) => {
             "print-type": "order",
             "print-dialog": true,
           };
+          if(OrderDetail?.order_return_origin?.id) {
+            params = {
+              action: "print",
+              ids: [OrderDetail?.order_return_origin?.id],
+              "print-type": "order_exchange",
+              "print-dialog": true,
+            }
+          }
           const queryParam = generateQuery(params);
           const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewOrderUrl);
