@@ -115,13 +115,13 @@ function CreateAnalytics() {
     }
 
     const fetchQueryData = useCallback(async () => {
-        const report: AnalyticCustomize = await callApiNative({ isShowError: true }, dispatch, getAnalyticsCustomByIdService, Number(id));
+        const report: AnalyticCustomize = await callApiNative({ isShowLoading:true }, dispatch, getAnalyticsCustomByIdService, Number(id));
         setReportInfo(report);
         if (report && report.query) {
             formEditInfo.setFieldsValue({ name: report.name })
             cubeRef.current = report.cube;
 
-            const response = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: report.query });
+            const response = await callApiNative({ notifyAction:"SHOW_ALL" }, dispatch, executeAnalyticsQueryService, { q: report.query });
             if (response) {
                 setMetadata(response);
                 setDataQuery(response);
