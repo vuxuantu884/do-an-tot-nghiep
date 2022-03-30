@@ -1,6 +1,7 @@
 import { ExportOutlined } from '@ant-design/icons';
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
+import { AppConfig } from 'config/app.config';
 import { DETAIL_LINKS, TIME_GROUP_BY } from 'config/report/report-templates';
 import _ from 'lodash';
 import { AnalyticChartInfo, AnalyticConditions, AnalyticQuery, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
@@ -372,7 +373,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                     className="input-width"
                     showArrow
                     maxTagCount={"responsive"}
-                    onChange={(value: [string]) => setChartColumnSelected(value)}>
+                    onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST )}>
                     {Object.keys(metadata.aggregates).map((key: string) => {
                       const value = Object.values(metadata.aggregates)[
                         Object.keys(metadata.aggregates).indexOf(key)
@@ -464,6 +465,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                   defaultPageSize: 50,
                   pageSizeOptions: ["10", "20", "30", "50", "100", "500"],
                 }}
+                sortDirections={["descend", "ascend", null]}
                 onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
                   if (sorter.columnKey && Array.isArray(dataQuery.result.columns)) {
                     handleSortTable(

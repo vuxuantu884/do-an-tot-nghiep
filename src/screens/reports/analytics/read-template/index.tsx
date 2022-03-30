@@ -129,7 +129,7 @@ function UpdateAnalytics() {
      */
     useEffect(() => {
         const fetchMetadata = async () => {
-            const response = await callApiNative({ isShowError: true }, dispatch, getAnalyticsMetadataService, { q: CURRENT_REPORT_TEMPLATE.query });
+            const response = await callApiNative({ isShowLoading: true }, dispatch, getAnalyticsMetadataService, { q: CURRENT_REPORT_TEMPLATE.query });
             if (response) {
                 setMetadata(response);
             }
@@ -143,7 +143,7 @@ function UpdateAnalytics() {
       */
     useEffect(() => {
         const fetchTemplateQuery = async () => {
-            const response: AnalyticDataQuery = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: CURRENT_REPORT_TEMPLATE.query });
+            const response: AnalyticDataQuery = await callApiNative({ notifyAction:"SHOW_ALL" }, dispatch, executeAnalyticsQueryService, { q: CURRENT_REPORT_TEMPLATE.query });
             if (response) {
                 setDataQuery(response);
                 setChartColumnSelected(CURRENT_REPORT_TEMPLATE.chartColumnSelected);
