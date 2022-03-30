@@ -10,6 +10,8 @@ import { useQuery } from "utils/useQuery";
 import { StyledComponent } from "./styles";
 import 'assets/css/_printer.scss';
 import { getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
+import { getPrintOrderReturnContentService } from "service/order/order.service";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 interface GoodReceiptPrint{
   good_receipt_id:number;
@@ -85,14 +87,12 @@ function OrderPrint(props: PropType) {
         isValidatePrintType();
       if (queryIds && isCanPrint && handlePrint && queryPrintType) {
         const queryIdsFormatted = queryIds.map((single:any) => +single);
-        dispatch(
-          actionFetchPrintFormByOrderIds(
-            queryIdsFormatted,
-            queryPrintType,
-            (response) => {
-							if(!response || response.data?.length === 0) {
-								return null;
-							}
+        if(queryPrintType === "order_exchange") {
+          getPrintOrderReturnContentService(queryIdsFormatted, queryPrintType).then(response => {
+            if (isFetchApiSuccessful(response)) {
+              if(!response || response.data?.length === 0) {
+                return null;
+              }
               const textResponse = response.data.map((single) => {
                 return (
                   "<div class='singleOrderPrint'>" +
@@ -106,9 +106,37 @@ function OrderPrint(props: PropType) {
               let result = textResponseFormatted.replaceAll("<p></p>", "");
               setPrintContent(result);
               handlePrint();
+            } else {
+              handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
             }
-          )
-        );
+          })
+        } else {
+          dispatch(
+            actionFetchPrintFormByOrderIds(
+              queryIdsFormatted,
+              queryPrintType,
+              (response) => {
+                if(!response || response.data?.length === 0) {
+                  return null;
+                }
+                const textResponse = response.data.map((single) => {
+                  return (
+                    "<div class='singleOrderPrint'>" +
+                    single.html_content +
+                    "</div>"
+                  );
+                });
+    
+                let textResponseFormatted = textResponse.join(pageBreak);
+                //xóa thẻ p thừa
+                let result = textResponseFormatted.replaceAll("<p></p>", "");
+                setPrintContent(result);
+                handlePrint();
+              }
+            )
+          );
+
+        }
       } else {
         setPrintContent("Có lỗi! Vui lòng kiểm tra lại.");
       }
