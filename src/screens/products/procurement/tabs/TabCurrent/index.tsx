@@ -30,7 +30,7 @@ import ProcumentInventoryModal from "screens/purchase-order/modal/procument-inve
 import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
 import { callApiNative } from "utils/ApiUtils";
 import { ProcumentStatus } from "utils/Constants";
-import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay, getStartOfDay } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 import { Link } from "react-router-dom";

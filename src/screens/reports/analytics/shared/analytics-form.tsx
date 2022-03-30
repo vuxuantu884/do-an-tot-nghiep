@@ -116,7 +116,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             from: ranges?.from,
             to: ranges?.to,
             conditions: whereParams,
-            orderBy: isOrderBy ? orderBy : [],
+            order_by: isOrderBy ? orderBy : [],
         } as AnalyticQuery;
 
         const params = generateRQuery(parms)

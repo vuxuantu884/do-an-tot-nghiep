@@ -1,0 +1,8 @@
+node_modules/
+build/
+public/
+src/**/*.test.tsx
+src/**/*.test.ts
+deployment/
+nginx-conf/
+

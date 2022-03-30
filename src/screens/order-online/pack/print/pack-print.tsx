@@ -1,14 +1,13 @@
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import {StyledComponent} from "../../print/styles";
 import purify from "dompurify";
 
 const PackPrint:React.FC=()=>{
-    const pageBreak = "<div class='pageBreak'></div>";
-  const [printContent, setPrintContent] = useState("");
-  const dispatch = useDispatch();
+    // const pageBreak = "<div class='pageBreak'></div>";
+  const [printContent] = useState("");
+  // const dispatch = useDispatch();
   const printElementRef = useRef(null);
 
   return (

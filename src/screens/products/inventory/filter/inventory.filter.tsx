@@ -5,7 +5,6 @@ import {FilterWrapper} from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
 import BaseFilter from "component/filter/base.filter";
 import NumberInputRange from "component/filter/component/number-input-range";
-import CustomRangepicker from "component/filter/component/range-picker.custom";
 import {MenuAction} from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import {StoreResponse} from "model/core/store.model";
@@ -15,9 +14,7 @@ import {
   InventoryMappingField,
   InventoryQueryField,
 } from "model/inventory/field";
-import moment from "moment";
 import React, {useCallback, useEffect, useState} from "react";
-import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
 
 export interface InventoryFilterProps {
   id: string;

@@ -232,9 +232,9 @@ const CreateSupplierScreen: React.FC = () => {
     }
   };
 
-  const renderGroupProductItem = useCallback((item: CollectionResponse) => {
-    return <Option key={item.id} value={item.id}>{item.name}</Option>
-  }, [])
+  // const renderGroupProductItem = useCallback((item: CollectionResponse) => {
+  //   return <Option key={item.id} value={item.id}>{item.name}</Option>
+  // }, [])
 
   useEffect(() => {
     dispatch(getCollectionRequestAction({ ...params, limit: data.metadata.limit }, onGetSuccess));
