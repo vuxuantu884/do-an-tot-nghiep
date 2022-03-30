@@ -8,7 +8,7 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { StoreDetailCustomAction, StoreGetListAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
@@ -32,6 +32,7 @@ import {
 	setIsShouldSetDefaultStoreBankAccountAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -59,6 +60,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
@@ -201,6 +203,8 @@ export default function Order() {
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
 		ShippingServiceConfigDetailResponseModel[]
 	>([]);
+
+	const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 
 	const onChangeInfoProduct = (
 		_items: Array<OrderLineItemRequest>,
@@ -1187,6 +1191,10 @@ export default function Order() {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
+	useLayoutEffect(() => {
+		dispatch(StoreGetListAction(setListStores));
+	}, [dispatch]);
+
 
 	return (
 		<React.Fragment>
@@ -1287,6 +1295,7 @@ export default function Order() {
 											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 											countFinishingUpdateCustomer={countFinishingUpdateCustomer}
 											shipmentMethod={shipmentMethod}
+											listStores={listStores}
 										/>
 										<Card title="THANH TOÁN">
 											<OrderCreatePayments
