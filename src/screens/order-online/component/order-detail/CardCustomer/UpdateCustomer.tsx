@@ -358,6 +358,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           if (formRefCustomer.current?.getFieldValue("district_id") !== findArea.id) {
             formRefCustomer.current?.setFieldsValue({
               district_id: findArea.id,
+              ward_id: null
             })
             handleChangeArea(findArea.id);
           }
@@ -366,11 +367,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           if (formRefCustomer.current?.getFieldValue("shipping_addresses_district_id") !== findArea.id) {
             formRefCustomer.current?.setFieldsValue({
               shipping_addresses_district_id: findArea.id,
+              shipping_addresses_ward_id: null
             })
             getShippingWards(findArea.id);
           }
-          break;  
-        default: break;  
+          break;
+        default: break;
       }
       
     }
@@ -384,7 +386,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         .replace(/đ/g, "d")
         .replace(/Đ/g, "D")
         .toLowerCase();
-        console.log();
         
       const newWards = wards.map((ward: any) => {
         return {
@@ -395,13 +396,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           .replace(/Đ/g, "D")
           .toLowerCase(),
         }
-      })  
+      });
       const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      if (findWard) {
-        formRefCustomer.current?.setFieldsValue({
-          ward_id: findWard.id,
-        })
-      }
+      formRefCustomer.current?.setFieldsValue({
+        ward_id: findWard ? findWard.id : null,
+      })
     }
   }, [formRefCustomer, wards]);
 
@@ -422,13 +421,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           .replace(/Đ/g, "D")
           .toLowerCase(),
         }
-      })  
+      });
       const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      if (findWard) {
-        formRefCustomer.current?.setFieldsValue({
-          shipping_addresses_ward_id: findWard.id,
-        })
-      }
+      formRefCustomer.current?.setFieldsValue({
+        shipping_addresses_ward_id: findWard ? findWard.id : null,
+      })
     }
   }, [formRefCustomer, shippingWards]);
 

@@ -131,12 +131,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     });
   });
 
-  const DefaultWard = () => {
-    let value = customerForm.getFieldsValue();
-    value.ward_id = null;
-    customerForm.setFieldsValue(value);
-  };
-
   const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
@@ -243,6 +237,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
             formRef.current?.setFieldsValue({
               district_id: findArea.id,
+              ward_id: null
             })
             handleChangeArea(findArea.id);
           }
@@ -251,6 +246,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           if (formRef.current?.getFieldValue("shipping_addresses_district_id") !== findArea.id) {
             formRef.current?.setFieldsValue({
               shipping_addresses_district_id: findArea.id,
+              shipping_addresses_ward_id: null
             })
             getShippingWards(findArea.id);
           }
@@ -269,7 +265,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         .replace(/đ/g, "d")
         .replace(/Đ/g, "D")
         .toLowerCase();
-        console.log();
         
       const newWards = wards.map((ward: any) => {
         return {
@@ -280,13 +275,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           .replace(/Đ/g, "D")
           .toLowerCase(),
         }
-      })  
+      });
       const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      if (findWard) {
-        formRef.current?.setFieldsValue({
-          ward_id: findWard.id,
-        })
-      }
+      formRef.current?.setFieldsValue({
+        ward_id: findWard ? findWard.id : null,
+      })
+      
     }
   }, [formRef, wards]);
 
@@ -307,13 +301,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           .replace(/Đ/g, "D")
           .toLowerCase(),
         }
-      })  
+      });
       const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      if (findWard) {
-        formRef.current?.setFieldsValue({
-          shipping_addresses_ward_id: findWard.id,
-        })
-      }
+      formRef.current?.setFieldsValue({
+        shipping_addresses_ward_id: findWard ? findWard.id : null,
+      })
     }
   }, [formRef, shippingWards]);
 
@@ -379,7 +371,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 style={{ width: "100%" }}
                 onChange={(value) => {
                   handleChangeArea(value);
-                  DefaultWard();
+                  let values = formRef.current?.getFieldsValue();
+                  values.ward_id = null;
+                  formRef.current?.setFieldsValue(values);
                   setVisibleBtnUpdate(true);
                 }}
                 optionFilterProp="children"
