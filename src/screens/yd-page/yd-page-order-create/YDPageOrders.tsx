@@ -1176,7 +1176,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
           name: "Nhân viên lên đơn:",
           value: 
               <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${listNewOrder.account_code}`}>
-                  {`${listNewOrder.account_code} - ${listNewOrder.account}`}
+                {`${listNewOrder.assignee_code} - ${listNewOrder.assignee}`}
               </Link>,
           key: "staff-order",
         },
