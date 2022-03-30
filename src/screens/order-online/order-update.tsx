@@ -28,7 +28,7 @@ import UrlConfig from "config/url.config";
 import {
 	ShipperGetListAction
 } from "domain/actions/account/account.action";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { StoreDetailCustomAction, StoreGetListAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
@@ -53,6 +53,7 @@ import {
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -84,7 +85,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
@@ -208,6 +209,8 @@ ShippingServiceConfigDetailResponseModel[]
 
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+
+	const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 
 	const onChangeInfoProduct = (
 		_items: Array<OrderLineItemRequest>,
@@ -1271,6 +1274,11 @@ ShippingServiceConfigDetailResponseModel[]
 	useEffect(()=>{
 		setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone||'');
 	},[OrderDetail?.shipping_address]);
+	
+	useLayoutEffect(() => {
+		dispatch(StoreGetListAction(setListStores));
+	}, [dispatch]);
+
 
 	return (
 		<React.Fragment>
@@ -1403,6 +1411,7 @@ ShippingServiceConfigDetailResponseModel[]
 										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										countFinishingUpdateCustomer={countFinishingUpdateCustomer}
 										shipmentMethod={shipmentMethod}
+										listStores={listStores}
 									/>
 
 									{OrderDetail !== null &&

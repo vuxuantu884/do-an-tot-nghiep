@@ -8,7 +8,7 @@ import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarO
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { getListStoresSimpleAction, StoreDetailCustomAction, StoreGetListAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
@@ -46,7 +46,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
@@ -59,6 +59,7 @@ import {
   getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleFetchApiError,
+  haveAccess,
   isFetchApiSuccessful,
   isOrderFromPOS,
   scrollAndFocusToDomElement,
@@ -124,6 +125,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [storeId, setStoreId] = useState<number | null>(null);
+
+  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
@@ -370,9 +373,9 @@ ShippingServiceConfigDetailResponseModel[]
           setDiscountRate(discountRate);
         }
       }
-      dispatch(StoreDetailAction(_data.store_id ? _data.store_id : 0, setStoreReturn))
+      // dispatch(StoreDetailAction(_data.store_id ? _data.store_id : 0, setStoreReturn))
     }
-  }, [dispatch]);
+  }, []);
 
   const ChangeShippingFeeInformedToCustomer = (value: number | null) => {
     form.setFieldsValue({ shipping_fee_informed_to_customer: value });
@@ -1190,6 +1193,7 @@ ShippingServiceConfigDetailResponseModel[]
                   countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
                   isCreateReturn
                   shipmentMethod={shipmentMethod}
+                  listStores={listStores}
                 />
                 {!isExchange && (
                   <CardReturnMoneyPageCreateReturn
@@ -1525,6 +1529,36 @@ ShippingServiceConfigDetailResponseModel[]
       setIsExchange(false)
     }
   }, [listExchangeProducts.length])
+	
+  useLayoutEffect(() => {
+		dispatch(StoreGetListAction(setListStores));
+	}, [dispatch]);
+
+  const dataCanAccess = useMemo(() => {
+		let newData: Array<StoreResponse> = [];
+		if (listStores && listStores.length) {
+			if(userReducer.account?.account_stores && userReducer.account?.account_stores.length>0)
+			{
+				newData = listStores.filter((store) =>
+					haveAccess(
+						store.id,
+						userReducer.account ? userReducer.account.account_stores : []
+					)
+				);
+			}
+			else{
+				newData=listStores;
+			}
+		}
+		return newData;
+	}, [listStores, userReducer.account]);
+
+  useEffect(() => {
+    if(dataCanAccess[0]?.id) {
+      setStoreReturn(dataCanAccess[0]);
+		}
+  }, [dataCanAccess, dispatch])
+  
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

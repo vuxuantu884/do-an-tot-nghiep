@@ -29,8 +29,6 @@ import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-	//getStoreSearchIdsAction ,
-	StoreGetListAction,
 	StoreSearchListAction
 } from "domain/actions/core/store.action";
 import { changeIsLoadingDiscountAction, changeOrderLineItemsAction, setIsShouldSetDefaultStoreBankAccountAction, splitOrderAction } from "domain/actions/order/order.action";
@@ -65,9 +63,7 @@ import React, {
 	createRef,
 	MutableRefObject,
 	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
+	useEffect, useMemo,
 	useRef,
 	useState
 } from "react";
@@ -146,6 +142,7 @@ type PropType = {
 	setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 	countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
 	shipmentMethod: number; 
+	listStores: StoreResponse[];
 };
 
 var barcode = "";
@@ -231,6 +228,7 @@ function OrderCreateProduct(props: PropType) {
 		countFinishingUpdateCustomer,
 		isCreateReturn,
 		shipmentMethod,
+		listStores
 	} = props;
 
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
@@ -243,7 +241,6 @@ function OrderCreateProduct(props: PropType) {
 	const [splitLine, setSplitLine] = useState<boolean>(false);
 	const [isDisableOrderDiscount, setIsDisableOrderDiscount] = useState<boolean>(false);
 	const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
-	const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 	const [keySearchVariant, setKeySearchVariant] = useState("");
 	const [resultSearchVariant, setResultSearchVariant] = useState<
 		PageResponse<VariantResponse>
@@ -2009,10 +2006,6 @@ function OrderCreateProduct(props: PropType) {
 		}
 		// showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
 	};
-
-	useLayoutEffect(() => {
-		dispatch(StoreGetListAction(setListStores));
-	}, [dispatch]);
 
 	const onInputSearchProductFocus = () => {
 		setIsInputSearchProductFocus(true);
