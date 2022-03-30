@@ -1,5 +1,5 @@
 import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Dropdown, Input, Menu, Popover, Row, Select, Tooltip } from "antd";
+import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -73,8 +73,8 @@ import search from "assets/img/search.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
-import threeDot from "assets/icon/three-dot.svg";
-import iconUndo from "assets/icon/undo.svg";
+import iconReturn from "assets/icon/return.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -92,6 +92,8 @@ type PropTypes = {
 };
 
 type dataExtra = PageResponse<OrderExtraModel>;
+
+let itemResult:OrderModel[] = []
 
 function OrdersTable(props: PropTypes) {
   const {
@@ -124,10 +126,13 @@ function OrdersTable(props: PropTypes) {
 
   const [typeAPi, setTypeAPi] = useState("");
 
+  const [items, setItems] = useState(data.items);
   // const [isVisiblePopup, setIsVisiblePopup] =
   // useState(false);
 
   // console.log('isVisiblePopup', isVisiblePopup)
+
+  itemResult = data.items;
 
   const paymentIcons = [
     {
@@ -169,26 +174,21 @@ function OrdersTable(props: PropTypes) {
 
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
-      const newItems = [...data.items];
-      const indexOrder = newItems.findIndex((item: any) => item.id === orderID);
+      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
         if (noteType === "note") {
-          newItems[indexOrder].note = newNote;
+          itemResult[indexOrder].note = newNote;
         } else if (noteType === "customer_note") {
-          newItems[indexOrder].customer_note = newNote;
+          itemResult[indexOrder].customer_note = newNote;
         }
       }
-      const newData = {
-        ...data,
-        items: newItems,
-      };
-      setData(newData);
+      setItems(itemResult);
     },
-    [data, setData]
+    []
   );
 
   const editNote = useCallback(
-    (newNote, noteType, orderID) => {
+    (newNote, noteType, orderID, record: OrderModel) => {
       let params: any = {};
       if (noteType === "note") {
         params.note = newNote;
@@ -197,7 +197,7 @@ function OrdersTable(props: PropTypes) {
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID))
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID, ))
       );
     },
     [dispatch, onSuccessEditNote]
@@ -384,9 +384,22 @@ function OrdersTable(props: PropTypes) {
         render: (value: string, i: OrderModel) => {
           return (
             <React.Fragment>
-              <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
-                {value}
-              </Link>
+              <div>
+                <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
+                  {value}
+                </Link>
+                <Tooltip title="Click để copy">
+                  <img
+                    onClick={(e) => {
+                      copyTextToClipboard(e, i.code.toString())
+                      showSuccess("Đã copy mã đơn hàng!")
+                    }}
+                    src={copyFileBtn}
+                    alt=""
+                    style={{ width: 18, cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </div>
               <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
               <div className="textSmall">
                 <Tooltip title="Cửa hàng">
@@ -412,7 +425,7 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         fixed: "left",
         className: "orderId custom-shadow-td",
-        width: 110,
+        width: 90,
       },
       {
         title: "Khách hàng",
@@ -421,17 +434,25 @@ function OrdersTable(props: PropTypes) {
             {record.customer_phone_number && (
               <div style={{ color: "#2A2A86" ,display:"flex" }}>
                 <div
-                  style={{ padding: "0px", fontWeight: 500, cursor: "pointer" }}
-                  onClick={(e) => {
-                    navigator.clipboard.writeText(record.customer_phone_number ? record.customer_phone_number : "").then(() => {
-                      showSuccess("Đã copy số điện thoại!")
-                    })
+                  style={{ padding: "0px", fontWeight: 500, cursor: "pointer", fontSize: "0.9em" }}
+                  onClick={() => {
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : ""
                     );
                   }
                   }>
                   {record.customer_phone_number}
+                  <Tooltip title="Click để copy">
+                    <img
+                      onClick={(e) => {
+                        copyTextToClipboard(e, (record?.customer_phone_number || "").toString())
+                        showSuccess("Đã copy số điện thoại!")
+                      }}
+                      src={copyFileBtn}
+                      alt=""
+                      style={{ width: 18, cursor: "pointer" }}
+                    />
+                  </Tooltip>
                  
                 </div>
                 <Popover placement="bottomLeft" content={
@@ -513,7 +534,7 @@ function OrdersTable(props: PropTypes) {
         ),
         key: "customer",
         visible: true,
-        width: 140,
+        width: 100,
       },
       {
         title: (
@@ -585,7 +606,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: nameQuantityWidth,
+        width: nameQuantityWidth - 80,
       },
       // {
       //   title: "Kho cửa hàng",
@@ -629,7 +650,7 @@ function OrdersTable(props: PropTypes) {
         key: "customer.amount_money",
         visible: true,
         align: "right",
-        width: 90,
+        width: 70,
       },
       {
         title: "Thanh toán",
@@ -640,7 +661,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "right",
-        width: 120,
+        width: 75,
       },
       {
         title: "Vận chuyển",
@@ -661,17 +682,17 @@ function OrdersTable(props: PropTypes) {
               </React.Fragment>
             );
           }
-          if (
-            record?.fulfillments &&
-            record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED
-          ) {
-            return (
-              <div className="single">
-                <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
-                Đã hủy vận chuyển
-              </div>
-            );
-          }
+          // if (
+          //   record?.fulfillments &&
+          //   record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED
+          // ) {
+          //   return (
+          //     <div className="single">
+          //       <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
+          //       Đã hủy vận chuyển
+          //     </div>
+          //   );
+          // }
           if (sortedFulfillments) {
             if (sortedFulfillments[0]?.shipment) {
               switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
@@ -836,7 +857,9 @@ function OrdersTable(props: PropTypes) {
                   return (
                     <React.Fragment>
                       <div className="single">
-                        Nhận tại {" - "}
+                        <strong className="textSmall">
+                          Nhận tại {" - "}
+                        </strong>
                         <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
                           {record.store}
                         </Link>
@@ -937,7 +960,7 @@ function OrdersTable(props: PropTypes) {
           return "";
         },
         visible: true,
-        width: 140,
+        width: 80,
         align: "left",
       },
       {
@@ -1069,7 +1092,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: 145,
+        width: 95,
       },
       {
         title: "Ghi chú",
@@ -1083,7 +1106,7 @@ function OrdersTable(props: PropTypes) {
                   title="Khách hàng: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    editNote(newNote, "customer_note", record.id);
+                    editNote(newNote, "customer_note", record.id, record);
                   }}
                 // isDisable={record.status === OrderStatus.FINISHED}
                 />
@@ -1094,7 +1117,7 @@ function OrdersTable(props: PropTypes) {
                   title="Nội bộ: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    editNote(newNote, "note", record.id);
+                    editNote(newNote, "note", record.id, record);
                   }}
                 // isDisable={record.status === OrderStatus.FINISHED}
                 />
@@ -1105,7 +1128,7 @@ function OrdersTable(props: PropTypes) {
         key: "note",
         visible: true,
         align: "left",
-        width: 170,
+        width: 120,
       },
       {
         title: "NV bán hàng",
@@ -1117,7 +1140,7 @@ function OrdersTable(props: PropTypes) {
         key: "assignee",
         visible: true,
         align: "center",
-        width: 130,
+        width: 80,
       },
       {
         title: "NV tạo đơn",
@@ -1129,7 +1152,7 @@ function OrdersTable(props: PropTypes) {
         key: "account",
         visible: true,
         align: "center",
-        width: 130,
+        width: 80,
       },
       {
         title: "Biên bản bàn giao",
@@ -1147,7 +1170,7 @@ function OrdersTable(props: PropTypes) {
             return "-";
           }
         },
-        visible: true,
+        visible: false,
         width: 160,
       },
       {
@@ -1155,7 +1178,7 @@ function OrdersTable(props: PropTypes) {
         dataIndex: "Mã Afilliate",
         key: "Mã Afilliate",
         render: (value) => null,
-        visible: true,
+        visible: false,
         width: 160,
       },
       {
@@ -1163,7 +1186,7 @@ function OrdersTable(props: PropTypes) {
         dataIndex: "Ghi chú hóa đơn",
         key: "Ghi chú hóa đơn",
         render: (value) => null,
-        visible: true,
+        visible: false,
         width: 190,
       },
       {
@@ -1186,60 +1209,8 @@ function OrdersTable(props: PropTypes) {
           }
           return result;
         },
-        visible: true,
+        visible: false,
         width: 120,
-      },
-      {
-        title: "Thao tác",
-        key: "thao_tac",
-        align: "center",
-        render: (value, record: OrderModel) => {
-          const menu = (
-            <Menu>
-              <Menu.Item key="1">
-                <Link
-                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
-                >
-                  <Button
-                    icon={<img alt="" style={{ marginRight: 8 }} src={iconUndo} />}
-                    type="text"
-                    className=""
-                    style={{
-                      paddingLeft: 24,
-                      background: "transparent",
-                      border: "none",
-                    }}
-                  >
-                    Đổi trả hàng
-                  </Button>
-                </Link>
-              </Menu.Item>
-            </Menu>
-          );
-          return (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "0 4px",
-              }}
-            >
-              <div className="action-group">
-                <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-                  <Button
-                    type="text"
-                    icon={<img src={threeDot} alt=""></img>}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  ></Button>
-                </Dropdown>
-              </div>
-            </div>
-          );
-        },
-        visible: true,
-        width: 100,
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1280,6 +1251,20 @@ function OrdersTable(props: PropTypes) {
       })
   }, [dispatch, listStore]);
 
+  const renderActionButton = (record: OrderModel) => {
+    return (
+      <div>
+        <Tooltip title="Đổi trả hàng">
+          <Link
+            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
+          >
+            <img alt="" src={iconReturn} className="iconReturn"/>
+          </Link>
+        </Tooltip>
+      </div>
+    );
+  };
+
   const rowSelectionRenderCell = (
     checked: boolean,
     record: OrderModel,
@@ -1290,36 +1275,39 @@ function OrdersTable(props: PropTypes) {
       <React.Fragment>
         {originNode}
         <div className="orderSource">{renderOrderSource(record)}</div>
-        <Tooltip title="Kiểm tra tồn kho">
-          <Popover
-            placement="right"
-            overlayStyle={{ zIndex: 1000, top: "150px" }}
-            title={
-              <Row
-                justify="space-between"
-                align="middle"
-                style={{ width: "100%" }}
-              >
-                <Input.Search
-                  placeholder="Tìm kiếm kho"
-                  allowClear
-                  onSearch={onSearchInventory}
-                />
-              </Row>
-            }
-            content={<InventoryTable
-              inventoryData={inventoryData}
-              storeId={record.store_id || 0}
-              items={record.items}
-              listStore={storeInventory}
-            />
-            }
-            trigger="click"
-            onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
-          >
-            <Button type="link" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ top: -7 }}></Button>
-          </Popover>
-        </Tooltip>
+        <div>
+          <Tooltip title="Kiểm tra tồn kho">
+            <Popover
+              placement="right"
+              overlayStyle={{ zIndex: 1000, top: "150px" }}
+              title={
+                <Row
+                  justify="space-between"
+                  align="middle"
+                  style={{ width: "100%" }}
+                >
+                  <Input.Search
+                    placeholder="Tìm kiếm kho"
+                    allowClear
+                    onSearch={onSearchInventory}
+                  />
+                </Row>
+              }
+              content={<InventoryTable
+                inventoryData={inventoryData}
+                storeId={record.store_id || 0}
+                items={record.items}
+                listStore={storeInventory}
+              />
+              }
+              trigger="click"
+              onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
+            >
+              <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }}></Button>
+            </Popover>
+          </Tooltip>
+        </div>
+        {renderActionButton(record)}
       </React.Fragment>
     );
   };
@@ -1583,13 +1571,21 @@ function OrdersTable(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
 
+  useEffect(() => {
+    setData({
+      ...data, 
+      items,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, setData])
+
   return (
     <StyledComponent>
       <CustomTable
         isRowSelection
         isLoading={tableLoading}
         showColumnSetting={true}
-        scroll={{ x: (2400 * columnFinal.length) / (columns.length ? columns.length : 1) }}
+        scroll={{ x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1) }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
           pageSize: data.metadata?.limit,
@@ -1611,6 +1607,7 @@ function OrdersTable(props: PropTypes) {
         className="order-list"
         footer={() => renderFooter()}
         isShowPaginationAtHeader
+        rowSelectionWidth = {30}
       />
     </StyledComponent>
   );
