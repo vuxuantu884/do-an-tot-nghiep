@@ -549,6 +549,14 @@ const OrderDetail = (props: PropType) => {
     []
   );
 
+  const renderBankAccount = (payment: any) => {
+    let arr = [payment.bank_account_number, payment.bank_account_holder];
+    let arrResult = arr.filter(single => single);
+    if(arrResult.length > 0) {
+      return ` (${arrResult.join(" - ")})`
+    }
+  };
+
   useEffect(() => {
     if (isFirstLoad.current || reload) {
       // if (!Number.isNaN(OrderId)) {
@@ -938,6 +946,7 @@ const OrderDetail = (props: PropType) => {
                                               <span style={{marginLeft: 12}}>
                                                 {payment.reference}
                                               </span>
+                                              {payment.bank_account_number ? renderBankAccount(payment): null}
                                               {payment.payment_method_id === 5 && (
                                                 <span style={{marginLeft: 10}}>
                                                   {payment.amount / 1000} điểm
