@@ -82,6 +82,8 @@ let barCode = "";
 //   CANCELED: "canceled"
 // }
 
+let version = 0;
+
 const DetailTicket: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -158,6 +160,7 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
+        version = result.version;
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
@@ -363,6 +366,7 @@ const DetailTicket: FC = () => {
 
   const updateCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
+      setIsDisableEditNote(false);
       if (!result) return;
       showSuccess("Đổi dữ liệu thành công");
       onReload();
@@ -405,7 +409,8 @@ const DetailTicket: FC = () => {
       dataUpdate.line_items = data?.line_items;
       dataUpdate.exception_items = data?.exception_items;
       dataUpdate.note = key;
-      dataUpdate.version = data?.version;
+      dataUpdate.version = version;
+      version = version + 1;
 
       dispatch(updateInventoryTransferAction(data.id, dataUpdate, updateCallback));
     }
