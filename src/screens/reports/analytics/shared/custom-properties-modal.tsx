@@ -21,7 +21,7 @@ type Props = {
 }
 
 function CustomPropertiesModal({ properties, aggregates, form, warningChooseColumn }: Props) {
-    const { metadata, dataQuery } = useContext(AnalyticsContext);
+    const { metadata, dataQuery, rowsInQuery, setRowsInQuery } = useContext(AnalyticsContext);
 
     const [activePanel, setActivePanel] = useState<string | string[]>([ReportifyFormFields.column]);
     const [visiblePropertiesModal, setVisiblePropertiesModal] = useState(false);
@@ -53,6 +53,8 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
                         [name[1]]: allGroupKeys
                     }
                 });
+                // set rows in query
+                setRowsInQuery([...rowsInQuery.filter(item => !allGroupKeys.includes(item)), ...allGroupKeys]);
                 // set các lựa chọn vào state để hiển thị checked hoặc indeterminate
                 setChosenProperties((prevState) => ({ ...prevState, [name[1]]: allGroupKeys }));
                 setActivePanel((prevState) =>
@@ -73,6 +75,8 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
                         [name[1]]: []
                     }
                 });
+                // set rows in query
+                setRowsInQuery([...rowsInQuery.filter(item => !allGroupKeys.includes(item))]);
                 // set các lựa chọn vào state để hiển thị checked hoặc indeterminate
                 setChosenProperties((prevState) => ({ ...prevState, [name[1]]: [] }));
 
@@ -99,11 +103,19 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
             } else {
                 newValue = [value]
             }
+            // set rows in query
+            if (name !== ReportifyFormFields.column) {
+                setRowsInQuery([...rowsInQuery.filter(item => value !== item), value]);
+            }
 
         } else {
 
             if (currentValue) {
                 newValue = currentValue.filter((item) => item !== value);
+            }
+            // set rows in query
+            if (name !== ReportifyFormFields.column) {
+                setRowsInQuery([...rowsInQuery.filter(item => value !== item)]);
             }
         }
         setChosenProperties((prevState) => {
@@ -155,14 +167,14 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
         <>
             <Button icon={<SettingOutlined />} onClick={() => setVisiblePropertiesModal(true)} danger={warningChooseColumn}>Tuỳ chọn hiển thị </Button>
             <Modal
-                title="Thêm thuộc tính"
+                title="Thay đổi tuỳ chọn hiển thị"
                 visible={visiblePropertiesModal}
                 onOk={handleOk}
                 onCancel={handleCanel}
                 width={800}
                 footer={[
                     <Button key="submit" type="primary" onClick={handleOk}>
-                        Thêm
+                        Xác nhận
                     </Button>,
                 ]}
             >

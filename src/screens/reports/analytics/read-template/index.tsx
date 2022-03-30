@@ -38,7 +38,7 @@ function UpdateAnalytics() {
 
 
 
-    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, activeFilters, setActiveFilters, setRowsInQuery } = useContext(AnalyticsContext)
     const CURRENT_REPORT_TEMPLATE: AnalyticTemplateData = REPORT_TEMPLATES.find((item) => item.id === templateId) || {} as AnalyticTemplateData;
     const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cube === CURRENT_REPORT_TEMPLATE.cube);
 
@@ -167,6 +167,10 @@ function UpdateAnalytics() {
                     [ReportifyFormFields.orderBy]: orderBy,
                 })
 
+                if (rows && rows.length) {
+                    setRowsInQuery((prev: string[]) => [...prev, ...rows]);
+                }
+
                 const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
                 if (Object.keys(fieldWhereValue).length) {
                     Object.keys(fieldWhereValue).forEach((key: string) => {
@@ -190,7 +194,7 @@ function UpdateAnalytics() {
         }
 
 
-    }, [form, getPropertiesValue, getConditionsFormServerToForm, CURRENT_REPORT_TEMPLATE.query, metadata, dispatch, setDataQuery, setMetadata, CURRENT_REPORT_TEMPLATE.chartColumnSelected, setChartColumnSelected, setActiveFilters, activeFilters])
+    }, [form, getPropertiesValue, getConditionsFormServerToForm, CURRENT_REPORT_TEMPLATE.query, metadata, dispatch, setDataQuery, setMetadata, CURRENT_REPORT_TEMPLATE.chartColumnSelected, setChartColumnSelected, setActiveFilters, activeFilters, setRowsInQuery])
 
     // Load chart data
     useEffect(() => {
