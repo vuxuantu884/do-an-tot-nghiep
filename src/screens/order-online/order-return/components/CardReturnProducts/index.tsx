@@ -144,7 +144,7 @@ function CardReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
-      width: "30%",
+      width: "29%",
       render: (value, record: ReturnProductModel, index: number) => {
         return (
           <div className="d-flex align-items-center">
@@ -179,6 +179,7 @@ function CardReturnProducts(props: PropType) {
         </div>
       ),
       className: "columnQuantity",
+      width: "22%",
       render: (value, record: ReturnProductModel, index: number) => {
         if (isDetailPage) {
           return record.quantity;
@@ -220,6 +221,7 @@ function CardReturnProducts(props: PropType) {
       dataIndex: "price",
       key: "price",
       align: "right",
+      width: "16%",
       render: (value: number, record: ReturnProductModel, index: number) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
         const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
@@ -243,7 +245,7 @@ function CardReturnProducts(props: PropType) {
       ),
       key: "total",
       align: "right",
-      width: 180,
+      width: "15%",
       render: (
         value: OrderLineItemRequest,
         record: ReturnProductModel,
@@ -265,7 +267,7 @@ function CardReturnProducts(props: PropType) {
       title: "Xóa sản phẩm",
       dataIndex: "delete_variant",
       key: "delete_variant",
-      width: 180,
+      width: "18%",
       align: "right",
       render: (value, record: ReturnProductModel, index: number) => {
         return (

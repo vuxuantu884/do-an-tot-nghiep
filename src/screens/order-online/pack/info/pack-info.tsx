@@ -313,13 +313,14 @@ const PackInfo: React.FC = () => {
               packData?.order?.push({ ...packFulFillmentResponse });
               setPackModel(packData);
               setPackInfo(packData);
+              OrderRequestElement?.focus();
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
         );
       }
     }
-  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history]);
+  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history, OrderRequestElement]);
 
   useEffect(() => {
     if (disableOrder) {

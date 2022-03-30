@@ -912,6 +912,7 @@ const DetailTicket: FC = () => {
                           <Table
                             rowClassName="product-table-row"
                             tableLayout="fixed"
+                            scroll={{ x: "max-content" }}
                             pagination={false}
                             columns={columns}
                             dataSource={data.line_items}
@@ -997,6 +998,7 @@ const DetailTicket: FC = () => {
                         className="inventory-table"
                         rowClassName="product-table-row"
                         tableLayout="fixed"
+                        scroll={{ x: "max-content" }}
                         pagination={false}
                         columns={columnsTransfer}
                         dataSource={dataTable}

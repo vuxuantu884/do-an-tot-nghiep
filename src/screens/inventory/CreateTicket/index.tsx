@@ -914,6 +914,7 @@ const CreateTicket: FC = () => {
                   </Input.Group>
                   {/*table*/}
                   <Table
+                    scroll={{ x: "max-content" }}
                     className="inventory-table"
                     rowClassName="product-table-row"
                     tableLayout="fixed"
