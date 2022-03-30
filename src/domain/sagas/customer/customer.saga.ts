@@ -28,11 +28,14 @@ import {
   importCustomerService,
   getCustomerOrderHistoryApi,
   getCustomerOrderReturnHistoryApi,
+  getCustomerActivityLogApi,
+  getCustomerActivityLogDetailApi,
 } from "service/customer/customer.service";
-import { CustomerType } from "domain/types/customer.type";
 import {showError} from "utils/ToastUtils";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { isFetchApiSuccessful } from "utils/AppUtils";
+import {callApiSaga} from "utils/ApiUtils";
+import { CustomerType } from "domain/types/customer.type";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
@@ -175,7 +178,7 @@ function* getCustomerOrderHistorySaga(action: YodyAction) {
   } catch (error) {}
 }
 
-// get customer's order history
+// get customer's order return history
 function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
   const { customer_id, callback } = action.payload;
   try {
@@ -192,6 +195,18 @@ function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
         break;
     }
   } catch (error) {}
+}
+
+// get customer's activity log
+function* getCustomerActivityLogSaga(action: YodyAction) {
+  const { queryParams, callback } = action.payload;
+  yield callApiSaga({notifyAction: "SHOW_ALL"}, callback, getCustomerActivityLogApi, queryParams);
+}
+
+// get customer's activity log detail
+function* getCustomerActivityLogDetailSaga(action: YodyAction) {
+  const { log_id, callback } = action.payload;
+  yield callApiSaga({notifyAction: "SHOW_ALL"}, callback, getCustomerActivityLogDetailApi, log_id);
 }
 
 function* CustomerGroups(action: YodyAction) {
@@ -647,6 +662,8 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.CUSTOMER_DETAIL, CustomerDetail);
   yield takeLatest(CustomerType.CUSTOMER_ORDER_HISTORY, getCustomerOrderHistorySaga);
   yield takeLatest(CustomerType.CUSTOMER_ORDER_RETURN_HISTORY, getCustomerOrderReturnHistorySaga);
+  yield takeLatest(CustomerType.CUSTOMER_ACTIVITY_LOG, getCustomerActivityLogSaga);
+  yield takeLatest(CustomerType.CUSTOMER_ACTIVITY_LOG_DETAIL, getCustomerActivityLogDetailSaga);
   yield takeLatest(CustomerType.CREATE_CUSTOMER, CreateCustomer);
   yield takeLatest(CustomerType.UPDATE_CUSTOMER, UpdateCustomer);
   yield takeLatest(CustomerType.CUSTOMER_GROUPS, CustomerGroups);

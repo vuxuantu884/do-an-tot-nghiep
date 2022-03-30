@@ -43,6 +43,23 @@ export const getCustomerOrderReturnHistoryApi = (customer_id: number): Promise<B
   return BaseAxios.get(link);
 };
 
+// get custommer's activity log
+export const getCustomerActivityLogApi = (queryParams: any): Promise<BaseResponse<any>> => {
+  const query = {
+    limit: queryParams.limit,
+    page: queryParams.page,
+  }
+  const params = generateQuery(query);
+  const link = `${ApiConfig.CUSTOMER}/customers/${queryParams.customer_id}/logs?${params}`;
+  return BaseAxios.get(link);
+};
+
+// get custommer's activity log detail
+export const getCustomerActivityLogDetailApi = (log_id: number): Promise<BaseResponse<any>> => {
+  const link = `${ApiConfig.CUSTOMER}/customers/logs/${log_id}`;
+  return BaseAxios.get(link);
+};
+
 export const getCustomerTypes = (): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.CUSTOMER}/customer-types`;
   return BaseAxios.get(link);
