@@ -51,11 +51,29 @@ const SearchVariantWrapperMapping = {
   [SearchVariantWrapperField.material_ids]: "Chất liệu",
 };
 
+const VariantExportField = {
+  sku: "sku",
+  name: 'name',
+  barcode: 'barcode',
+  available: "available",
+  saleable: "saleable",
+};
+
+const VariantExportMapping = {
+  [VariantExportField.sku]: "Mã",
+  [VariantExportField.name]: "Tên",
+  [VariantExportField.barcode]: "Mã vạch",
+  [VariantExportField.saleable]: "Trạng thái",
+  [VariantExportField.available]: "Có thể bán",
+};
+
 export {
   SearchVariantMapping,
   SearchVariantField,
   SearchVariantWrapperMapping,
   SearchVariantWrapperField,
   keysDateFilter,
-  keysDateWrapperFilter
+  keysDateWrapperFilter,
+  VariantExportField,
+  VariantExportMapping
 };

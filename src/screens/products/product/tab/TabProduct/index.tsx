@@ -20,7 +20,6 @@ import {
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
-import { ExportRequest } from "model/other/files/export-model";
 import {
   VariantImage,
   VariantPricesResponse,
@@ -37,8 +36,7 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { exportFile, getJobByCode } from "service/product/product.service";
-import { callApiNative } from "utils/ApiUtils";
+import { getJobByCode } from "service/product/product.service";
 import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -49,6 +47,8 @@ import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
 import { StyledComponent } from "../style";
+import * as XLSX from 'xlsx';
+import { VariantExportField, VariantExportMapping } from "model/product/product-mapping";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -454,52 +454,55 @@ const TabProduct: React.FC<any> = (props) => {
     [setSelected]
   );
 
+  const convertItemExport = (item: VariantResponse)=>{
+    return  {
+              [`${VariantExportMapping[VariantExportField.sku]}`] : item.sku,
+              [`${VariantExportMapping[VariantExportField.name]}`] : item.name,
+              //[`${VariantExportMapping[VariantExportField.barcode]}`] : item.barcode,
+              [`${VariantExportMapping[VariantExportField.available]}`] : item.available ?? "",
+              [`${VariantExportMapping[VariantExportField.saleable]}`] : item.saleable ? "Hoạt động": "Ngừng hoạt động"
+            };;
+  }
+
   const actionExport = {
     Ok: useCallback(async(typeExport: string)=>{
-      let variant_ids: Array<number> = []; let conditions = {};
+      let dataExport:any = [];
       if (typeExport === TYPE_EXPORT.selected &&  selected && selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
+        setVExportProduct(false);
         return;
       }
 
       if ((typeExport === TYPE_EXPORT.page || typeExport === TYPE_EXPORT.all) && data.items && data.items.length === 0) {
         showWarning("Không có sản phẩm nào đủ điều kiện");
+        setVExportProduct(false);
         return;
       }
 
-      if (typeExport === TYPE_EXPORT.all) {
-        conditions ={...params}
-      }
-
       if (typeExport === TYPE_EXPORT.page) {
-        conditions ={
-          ...conditions,
-          variant_ids: data.items.map(e=>e.id)}
+                for (let i = 0; i < data.items.length; i++) {
+            const e = data.items[i];
+            let item = convertItemExport(e);
+
+            dataExport.push(item);
+          }
       }
 
       if (selected && selected.length > 0) {
-        variant_ids = selected.map(e=>e.id);
-      }
-      conditions = {
-        ...conditions,
-        typeExport: typeExport,
-        variant_ids: variant_ids
-      };
-      const request: ExportRequest = {
-        type: "EXPORT_PRODUCT",
-        conditions: JSON.stringify(conditions),
-        url: AppConfig.PRODUCT_EXPORT_TEMPLATE
-      };
-
-      const res = await callApiNative({isShowLoading: false},dispatch,exportFile,request);
-      if (res) {
-        if (res.code === HttpStatus.SUCCESS) {
-          setIsVisibleProgressModal(true);
-          setVExportProduct(false);
-          setExportCodeList([...exportCodeList, res.data.code]);
+        for (let i = 0; i < selected.length; i++) {
+          const e = selected[i];
+          let item = convertItemExport(e);
+          dataExport.push(item);
         }
       }
-    },[dispatch,selected,data.items, params, exportCodeList, setVExportProduct]),
+
+      const worksheet = XLSX.utils.json_to_sheet(dataExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      XLSX.writeFile(workbook, "list_export_unicorn.xlsx");
+
+
+    },[selected,data.items, setVExportProduct]),
     Cancel:()=>{
       setVExportProduct(false);
     },
