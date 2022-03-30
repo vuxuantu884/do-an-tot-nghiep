@@ -9,7 +9,6 @@ import {
   Input, message, Modal, Row, Select, Space
 } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
-import exportIcon from "assets/icon/export.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import search from "assets/img/search.svg";
@@ -380,16 +379,6 @@ const ListCode = () => {
           extra={
             <Row>
               <Space>
-                <Button
-                  type="default"
-                  className="light"
-                  size="large"
-                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                  // onClick={onExport}
-                  onClick={() => { }}
-                >
-                  Xuất file
-                </Button>
                 {allowCreatePromoCode ? (
                   <Button
                     className="ant-btn-outline ant-btn-primary"
