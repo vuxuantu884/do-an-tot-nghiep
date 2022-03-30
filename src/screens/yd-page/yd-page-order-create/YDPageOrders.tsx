@@ -545,6 +545,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
     return payments;
   };
 
+  const checkIfNotCustomerAddress = () => {
+		return !shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address
+	};
+
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id;
@@ -568,6 +572,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
+      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
+				showError("Vui lòng cập nhật địa chỉ giao hàng!");
+				const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+				scrollAndFocusToDomElement(element);
+				return;
+			}
       values.fulfillments = [];
       // thêm payment vào đơn nháp
       // values.payments = [];
@@ -598,15 +608,21 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
 
     if (!values.customer_id) {
-      showError("Vui lòng thêm mới khách hàng");
-      const element: any = document.getElementById("customer_add_full_address");
-      scrollAndFocusToDomElement(element);
+      showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+			const element: any = document.getElementById("search_customer");
+			element?.focus();
     } else {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+        if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
+					showError("Vui lòng cập nhật địa chỉ giao hàng!");
+					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+					scrollAndFocusToDomElement(element);
+					return;
+				}
         let valuesCalculateReturnAmount = {
           ...values,
           payments: reCalculatePaymentReturn(payments).filter(
@@ -614,6 +630,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
           ),
         };
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+          if (checkIfNotCustomerAddress()) {
+						form.validateFields();
+						showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
+						setCreating(false);
+						return;
+					}
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
           } else {
@@ -646,6 +668,11 @@ export default function Order(props: OrdersCreatePermissionProps) {
             scrollAndFocusToDomElement(element);
             setCreating(false);
           } else {
+            if (checkIfNotCustomerAddress()) {
+							form.validateFields();
+							showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
+							return;
+						}
             if (typeButton === OrderStatus.DRAFT) {
               setIsSaveDraft(true);
             } else {

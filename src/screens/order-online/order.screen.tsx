@@ -473,6 +473,10 @@ export default function Order() {
 		}
 	};
 
+	const checkIfNotCustomerAddress = () => {
+		return !shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address
+	};
+
 	const onFinish = (values: OrderRequest) => {
 		values.channel_id = ADMIN_ORDER.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
@@ -499,7 +503,7 @@ export default function Order() {
 
 		//Nếu là lưu nháp Fulfillment = [], payment = []
 		if (typeButton === OrderStatus.DRAFT) {
-			if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+			if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
 				showError("Vui lòng cập nhật địa chỉ giao hàng!");
 				const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
 				scrollAndFocusToDomElement(element);
@@ -544,7 +548,7 @@ export default function Order() {
 				const element: any = document.getElementById("search_product");
 				element?.focus();
 			} else {
-				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
 					showError("Vui lòng cập nhật địa chỉ giao hàng!");
 					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
 					scrollAndFocusToDomElement(element);
@@ -555,7 +559,7 @@ export default function Order() {
 					payments: reCalculatePaymentReturn(payments, totalAmountCustomerNeedToPay, listPaymentMethod).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
 				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-					if (!shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address) {
+					if (checkIfNotCustomerAddress()) {
 						form.validateFields();
 						showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
 						setCreating(false);
@@ -597,7 +601,7 @@ export default function Order() {
 						scrollAndFocusToDomElement(element)
 						setCreating(false);
 					} else {
-						if (!shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address) {
+						if (checkIfNotCustomerAddress()) {
 							form.validateFields();
 							showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
 							return;
