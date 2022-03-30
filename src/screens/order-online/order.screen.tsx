@@ -141,6 +141,7 @@ export default function Order() {
 		number | null
 	>(0);
 	const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+	console.log('payments', payments)
 	const [tags, setTags] = useState<string>("");
 	const formRef = createRef<FormInstance>();
 	const [form] = Form.useForm();

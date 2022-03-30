@@ -52,7 +52,7 @@ function UpdatePaymentCard(props: PropType) {
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>([]);
-
+console.log('paymentData', paymentData)
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const ShowPayment = () => {
@@ -129,6 +129,7 @@ function UpdatePaymentCard(props: PropType) {
         fulfillments: fulfillment,
       };
       let totalAmountCustomerNeedToPay = amount - getAmountPayment(request.payments);
+      
       let valuesCalculateReturnAmount = {
         ...request,
         payments: reCalculatePaymentReturn(request.payments, totalAmountCustomerNeedToPay, listPaymentMethods).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
