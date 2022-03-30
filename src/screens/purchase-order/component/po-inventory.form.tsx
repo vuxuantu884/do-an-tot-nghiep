@@ -51,11 +51,10 @@ const TAB = [
     name: "Tổng quan",
     id: 1,
     icon: dashboardIcon,
-  },
-  {
-    name: "Phiếu nhập kho",
-    id: 2,
-    icon: importIcon,
+  }, {
+    name: "Phiếu nháp",
+    id: 4,
+    icon: editIcon,
   },
   {
     name: "Phiếu đã duyệt",
@@ -63,9 +62,9 @@ const TAB = [
     icon: checkIcon,
   },
   {
-    name: "Phiếu nháp",
-    id: 4,
-    icon: editIcon,
+    name: "Phiếu nhập kho",
+    id: 2,
+    icon: importIcon,
   },
 ];
 
