@@ -47,7 +47,7 @@ const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") =
     throw new Error("Query is not valid");
   }
 
-  const { columns: column, rows, cube, conditions, from, to, orderBy } = queryObject;
+  const { columns: column, rows, cube, conditions, from, to, order_by } = queryObject;
   let queryString = "SHOW";
   // column
   if (Array.isArray(column)) {
@@ -75,9 +75,9 @@ const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") =
     queryString += ` UNTIL ${to}`;
   }
   // orderBy
-  if (Array.isArray(orderBy) && orderBy.length > 0) {
+  if (Array.isArray(order_by) && order_by.length > 0) {
     queryString += ` ORDER BY `;
-    orderBy.forEach((item) => {
+    order_by.forEach((item) => {
       queryString += `${item[0]} ${item[1]} `;
     });
   }

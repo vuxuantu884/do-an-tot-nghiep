@@ -1,4 +1,3 @@
-import { BaseObject } from "model/base/base.response";
 
 export interface LoyaltyPoint {
   customer_id: number | null;
