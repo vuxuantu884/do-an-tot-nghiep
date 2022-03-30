@@ -709,7 +709,7 @@ const UpdateTicket: FC = () => {
         let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
         if (res && res.items && res.items.length > 0) {
           onSelectProduct(res.items[0].id.toString(),res.items[0]);
-        } 
+        }
       }
     }
     else{
@@ -1086,10 +1086,10 @@ const UpdateTicket: FC = () => {
                     </Input.Group>
                     {/*table*/}
                     <Table
+                      scroll={{ x: "max-content" }}
                       className="inventory-table"
                       rowClassName="product-table-row"
                       tableLayout="fixed"
-                      scroll={{ y: 300 }}
                       pagination={false}
                       columns={columns}
                       loading={isLoadingTable}

@@ -133,7 +133,8 @@ const initQuery: DuplicateOrderDetailQuery = {
   services: [],
   coordinator_codes: [],
   marketer_codes: [],
-  channel_codes:[]
+  channel_codes:[],
+  created_by: [],
 };
 
 const OrderDuplicate: React.FC = () => {

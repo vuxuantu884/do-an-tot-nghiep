@@ -1,7 +1,8 @@
 import { ExportOutlined } from '@ant-design/icons';
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
-import { DETAIL_LINKS } from 'config/report-templates';
+import { AppConfig } from 'config/app.config';
+import { DETAIL_LINKS, TIME_GROUP_BY } from 'config/report/report-templates';
 import _ from 'lodash';
 import { AnalyticChartInfo, AnalyticConditions, AnalyticQuery, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
 import moment from 'moment';
@@ -41,28 +42,8 @@ export const ReportifyFormFields = {
 };
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
-
-export const TIME_GROUP_BY = [
-    {
-        label: 'Giờ',
-        value: 'hour'
-    },
-    {
-        label: 'Ngày',
-        value: 'day'
-    },
-    {
-        label: 'Tháng',
-        value: 'month'
-    },
-    {
-        label: 'Năm',
-        value: 'year'
-    }
-]
-
 function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
-    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery } = useContext(AnalyticsContext)
     const [loadingTable, setLoadingTable] = useState<boolean>(false);
 
     const dispatch = useDispatch();
@@ -119,16 +100,25 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             return [key, operator, ...values]
         })
 
+        let isOrderBy = false;
+        if (orderBy?.length) {
+            const orderByArr = orderBy.reduce((res: string[], item: string[]) => {
+                return [...res, item[0]];
+            }, []);
+            if ([...(values[ReportifyFormFields.column] || []), ...show].findIndex(item => orderByArr.includes(item)) !== -1) {
+                isOrderBy = true;
+            }
+        }
+
         const parms: AnalyticQuery = {
             columns: columns,
-            rows: show,
+            rows: rowsInQuery,
             cube: values?.reportType || cubeRef.current,
             from: ranges?.from,
             to: ranges?.to,
             conditions: whereParams,
-            orderBy: orderBy,
+            order_by: isOrderBy ? orderBy : [],
         } as AnalyticQuery;
-
 
         const params = generateRQuery(parms)
         if (mode !== SUBMIT_MODE.GET_DATA) {
@@ -187,16 +177,16 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             case YEAR:
                 from = moment([value]);
                 to = moment([value]).endOf(YEAR);
-                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: MONTH});
+                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: MONTH });
                 break;
             case MONTH:
                 from = moment(value, DATE_FORMAT.MMYYYY).startOf(MONTH);
                 to = moment(value, DATE_FORMAT.MMYYYY).endOf(MONTH);
-                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: DAY});
+                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: DAY });
                 break;
             case DAY:
                 from = moment(value, DATE_FORMAT.DDMMYYY);
-                form.setFieldsValue({ timeRange: [from, from], timeGroupBy: HOUR});
+                form.setFieldsValue({ timeRange: [from, from], timeGroupBy: HOUR });
                 break;
             default:
                 break;
@@ -231,7 +221,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
     }
 
     const handleRemoveFilter = (filter: any) => {
-        const { field: fieldFilter, value: valueFilter, title } = filter; 
+        const { field: fieldFilter, value: valueFilter, title } = filter;
         const { YEAR, MONTH, DAY } = TIME;
         let timeFilter;
         switch (fieldFilter) {
@@ -383,7 +373,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                     className="input-width"
                     showArrow
                     maxTagCount={"responsive"}
-                    onChange={(value: [string]) => setChartColumnSelected(value)}>
+                    onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST )}>
                     {Object.keys(metadata.aggregates).map((key: string) => {
                       const value = Object.values(metadata.aggregates)[
                         Object.keys(metadata.aggregates).indexOf(key)
@@ -475,6 +465,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                   defaultPageSize: 50,
                   pageSizeOptions: ["10", "20", "30", "50", "100", "500"],
                 }}
+                sortDirections={["descend", "ascend", null]}
                 onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
                   if (sorter.columnKey && Array.isArray(dataQuery.result.columns)) {
                     handleSortTable(
@@ -519,12 +510,10 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                           {metadata ? getTranslatePropertyKey(metadata, field) : field}
                         </Tooltip>
                       }
-                      // Đoạn này dùng để request data từ server để sắp xếp cột- hiện tại đang sắp xếp trên client
-                      // còn thiếu set defaultSortOrder khi load data từ server
-
                       sorter={(a, b) => {
                         return 0;
                       }}
+                      sortOrder={form.getFieldValue(ReportifyFormFields.orderBy) && form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field) ? (form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field)[1]?.toLowerCase() === 'desc' ? 'descend' : 'ascend') : undefined}
                       key={index}
                       fixed={
                         index === 0 && format !== "price" && format !== "number"

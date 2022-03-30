@@ -70,7 +70,7 @@ export const inventory: Array<RouteMenu> = [
       header: null,
       subMenu: [],
     },],
-  }, 
+  },
   {
     path: UrlConfig.PURCHASE_ORDERS,
     exact: true,
@@ -156,7 +156,20 @@ export const inventory: Array<RouteMenu> = [
         header: null,
         permissions: [PurchaseOrderPermission.procurements_read],
         subMenu: [],
-      },{
+      },
+      {
+        path: `${ProcurementTabUrl.SEVEN_DAYS}`,
+        exact: true,
+        title: "Nhập kho",
+        icon: "icon-dot",
+        component: ProcurementScreen,
+        key: "submenu25",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.procurements_read],
+        subMenu: [],
+      },
+      {
         path: `${ProcurementTabUrl.LOGS}`,
         exact: true,
         title: "Lịch sử phiếu nhập kho",
@@ -204,7 +217,7 @@ export const inventory: Array<RouteMenu> = [
         header: null,
         permissions:[InventoryTransferPermission.create],
         subMenu: [],
-      },  
+      },
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/:id`,
         exact: true,

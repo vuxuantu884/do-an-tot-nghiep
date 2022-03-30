@@ -21,13 +21,17 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       return request;
     },
     function (error) {
-    AppConfig.runMode === "development" && console.error(error);
+      AppConfig.runMode === "development" && console.error(error);
     }
   );
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
       AppConfig.runMode === "development" && console.log(response.data);
+
+      /**
+       * Thông báo lỗi
+       */
       switch (response.data.code) {
         case HttpStatus.FORBIDDEN:
           showError("Bạn không đủ quyền truy cập, vui lòng liên hệ với IT để được cấp quyền.");
@@ -37,12 +41,25 @@ export function getAxiosBase(config: AxiosRequestConfig) {
             "Hệ thống đang gián đoạn, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời."
           );
           return response;
+        case HttpStatus.UNAUTHORIZED:
+        /**
+         * Record api 401 để check lỗi tự đăng xuất
+         */
+          console.warn("Lỗi xác thực: \n", response?.config);
+          return response;
         default:
           break;
       }
+
       return response.data;
     },
     function (error) {
+      /**
+      * Record api 401 để check lỗi tự đăng xuất
+      */
+      if (error?.response?.status === 401) {
+        console.warn("Lỗi xác thực: \n", error?.response?.config);
+      }
       return Promise.reject(error);
     }
   );

@@ -468,7 +468,7 @@ const CustomerDetail = () => {
                 >
                   <TabPane tab="Lịch sử mua hàng" key="history">
                     <PurchaseHistory
-                      customerId={params?.id}
+                      customer={customer}
                     />
                   </TabPane>
 

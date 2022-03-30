@@ -114,6 +114,7 @@ import {
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { yellowColor } from "utils/global-styles/variables";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -132,6 +133,8 @@ export default function Order(props: PropTypes) {
 	const dispatch = useDispatch();
 	const history = useHistory();
 	let { id } = useParams<OrderParam>();
+	const queryParams = useQuery();
+	const isSplit = queryParams.get("isSplit") || null;
 	const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )
@@ -313,47 +316,49 @@ ShippingServiceConfigDetailResponseModel[]
 	}, [OrderDetail]);
 	let levelOrder = setLevelOrder();
 
-	let initialForm: OrderRequest = {
-		action: "", //finalized
-		store_id: null,
-		company_id: DEFAULT_COMPANY.company_id,
-		price_type: "retail_price", //giá bán lẻ giá bán buôn
-		tax_treatment: TaxTreatment.INCLUSIVE,
-		delivery_service_provider_id: null,
-		shipper_code: null,
-		shipper_name: "",
-		delivery_fee: null,
-		shipping_fee_informed_to_customer: null,
-		shipping_fee_paid_to_three_pls: null,
-		dating_ship: undefined,
-		requirements: null,
-		source_id: null,
-		note: "",
-		tags: "",
-		customer_note: "",
-		account_code: userReducer.account?.code,
-		assignee_code: userReducer.account?.code || null,
-		marketer_code: null,
-		coordinator_code: null,
-		customer_id: null,
-		reference_code: "",
-		url: "",
-		total_line_amount_after_line_discount: null,
-		total: null,
-		total_tax: "",
-		total_discount: null,
-		currency: "VNĐ",
-		items: [],
-		discounts: [],
-		fulfillments: [],
-		shipping_address: null,
-		billing_address: null,
-		payments: [],
-		channel_id: null,
-		finalized: false,
-		automatic_discount: true,
-	};
-
+	let initialForm: OrderRequest = useMemo(() => {
+		return {
+			action: "", //finalized
+			store_id: null,
+			company_id: DEFAULT_COMPANY.company_id,
+			price_type: "retail_price", //giá bán lẻ giá bán buôn
+			tax_treatment: TaxTreatment.INCLUSIVE,
+			delivery_service_provider_id: null,
+			shipper_code: null,
+			shipper_name: "",
+			delivery_fee: null,
+			shipping_fee_informed_to_customer: null,
+			shipping_fee_paid_to_three_pls: null,
+			dating_ship: undefined,
+			requirements: null,
+			source_id: null,
+			note: "",
+			tags: "",
+			customer_note: "",
+			account_code: userReducer.account?.code,
+			assignee_code: userReducer.account?.code || null,
+			marketer_code: null,
+			coordinator_code: null,
+			customer_id: null,
+			reference_code: "",
+			url: "",
+			total_line_amount_after_line_discount: null,
+			total: null,
+			total_tax: "",
+			total_discount: null,
+			currency: "VNĐ",
+			items: [],
+			discounts: [],
+			fulfillments: [],
+			shipping_address: null,
+			billing_address: null,
+			payments: [],
+			channel_id: null,
+			finalized: false,
+			automatic_discount: true,
+		}
+	}, [userReducer.account?.code])
+	
 	const onChangeTag = useCallback(
 		(value: []) => {
 			const strTag = value.join(", ");
@@ -1019,12 +1024,13 @@ ShippingServiceConfigDetailResponseModel[]
 
 					setItems(responseItems);
 					setOrderAmount(
-						response.total_line_amount_after_line_discount - (response.shipping_fee_informed_to_customer || 0)
+						response.total - (response.shipping_fee_informed_to_customer || 0)
 					);
 					form.setFieldsValue({
 						...initialForm,
 						customer_note: response.customer_note,
 						source_id: response.source_id,
+						account_code: isSplit ==="true" && userReducer.account?.code ? userReducer.account?.code : response.account_code,
 						assignee_code: response.assignee_code,
 						store_id: response.store_id,
 						items: responseItems,
@@ -1087,7 +1093,7 @@ ShippingServiceConfigDetailResponseModel[]
 	useEffect(() => {
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [id, dispatch]);
+	}, [id, dispatch, userReducer.account?.code, isSplit]);
 
 	useEffect(() => {
 		if (customer) {
@@ -1235,6 +1241,14 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 		return false
 	};
+
+	const renderBankAccount = (payment: any) => {
+    let arr = [payment.bank_account_number, payment.bank_account_holder];
+    let arrResult = arr.filter(single => single);
+    if(arrResult.length > 0) {
+      return ` (${arrResult.join(" - ")})`
+    }
+  };
 
 	useEffect(() => {
 		if(OrderDetail?.status === OrderStatus.DRAFT) {
@@ -1388,6 +1402,7 @@ ShippingServiceConfigDetailResponseModel[]
 										loyaltyPoint={loyaltyPoint}
 										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+										shipmentMethod={shipmentMethod}
 									/>
 
 									{OrderDetail !== null &&
@@ -1502,7 +1517,10 @@ ShippingServiceConfigDetailResponseModel[]
 																											? "Hoàn tiền cho khách"
 																											: payment.payment_method}
 																									</b>
-																									<span>{payment.reference}</span>
+																									<span style={{marginLeft: 12}}>
+																										{payment.reference}
+																									</span>
+																									{payment.bank_account_number ? renderBankAccount(payment): null}
 																									{payment.payment_method_id === 5 && (
 																										<span style={{ marginLeft: 10 }}>
 																											{payment.amount / 1000} điểm
@@ -2206,6 +2224,26 @@ ShippingServiceConfigDetailResponseModel[]
 																						</Col>
 																					</Row>
 																				</Col>
+
+																				{fulfillment?.reason_name && (
+																					<Col md={12}>
+																						<Row gutter={30}>
+																							<Col span={10}>
+																								<p className="text-field">Lý do hủy:</p>
+																							</Col>
+																							<Col span={14}>
+																								<b className="text-field">
+																									{fulfillment?.reason_name}
+																									{fulfillment?.sub_reason_name && (
+																										<span>
+																										{" "}- {fulfillment?.sub_reason_name}
+																										</span>
+																									)}
+																								</b>
+																							</Col>
+																						</Row>
+																					</Col>
+																				)}
 
 																				{requirementNameView && (
 																					<Col md={12}>

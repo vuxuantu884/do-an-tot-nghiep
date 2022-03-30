@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import {Link, useHistory, useLocation} from "react-router-dom";
 import { Card, Button, Modal, Radio, Space, Progress } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -48,9 +48,8 @@ import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
-import { getQueryParams, useQuery } from "../../utils/useQuery";
-// import { getListSourceRequest } from "domain/actions/product/source.action";
-// import { SourceResponse } from "model/response/order/source.response";
+import {getQueryParamsFromQueryString } from "utils/useQuery";
+import queryString from "query-string";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -59,7 +58,11 @@ const exportCustomerPermission = [CustomerListPermission.customers_export];
 const Customer = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const query = useQuery();
+  const location = useLocation()
+
+  const queryParamsParsed: any = queryString.parse(
+    location.search
+  );
 
   const [allowCreateCustomer] = useAuthorization({
     acceptPermissions: createCustomerPermission,
@@ -87,6 +90,7 @@ const Customer = () => {
       customer_type_ids: [],
       assign_store_ids: [],
       store_ids: [],
+      source_ids: [],
       channel_ids: [],
       day_of_birth_from: undefined,
       day_of_birth_to: undefined,
@@ -128,9 +132,7 @@ const Customer = () => {
       from_wedding_date: null,
       to_wedding_date: null,
       customer_level_id: undefined,
-      ...getQueryParams(query),
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -146,7 +148,6 @@ const Customer = () => {
   const [groups, setGroups] = useState<Array<any>>([]);
   const [types, setTypes] = useState<Array<any>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
-  // const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([
     {
@@ -177,7 +178,7 @@ const Customer = () => {
     {
       title: "Giới tính",
       dataIndex: "gender",
-      render: (value: any, item: any) => (
+      render: (value: any) => (
         <div>
           {LIST_GENDER &&
             LIST_GENDER?.find((item) => item.value === value)?.name}
@@ -299,11 +300,10 @@ const Customer = () => {
   const onPageChange = useCallback(
     (page, limit) => {
       const newParams = { ...params, page, limit };
-      setParams(newParams);
-      let queryParam = generateQuery(newParams);
-      history.push(`${UrlConfig.CUSTOMER}?${queryParam}`);
+      const queryParam = generateQuery(newParams);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, params]
+    [history, location.pathname, params]
   );
 
   const columnFinal = React.useMemo(
@@ -326,25 +326,40 @@ const Customer = () => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CustomerTypes(setTypes));
     dispatch(getListChannelRequest(setListChannel));
-    // dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
-
-  React.useEffect(() => {
-    setIsLoading(true);
-    dispatch(getCustomerListAction(params, setResult));
-  }, [dispatch, params, setResult]);
 
   const onFilter = useCallback(
     (values: CustomerSearchQuery) => {
-      let newPrams = { ...params, ...values, page: 1 };
-      setParams(newPrams);
+      const newParams = { ...params, ...values, page: 1 };
+      const queryParam = generateQuery(newParams);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [params]
+    [history, location.pathname, params]
   );
 
   const onClearAdvancedFilter = useCallback(() => {
-    setParams(initQuery);
-  }, [initQuery]);
+    const queryParam = generateQuery(initQuery);
+    history.push(`${location.pathname}?${queryParam}`);
+  }, [history, initQuery, location.pathname]);
+
+  //get customer data
+  const getCustomerList = useCallback(
+    (params) => {
+      window.scrollTo(0, 0);
+      dispatch(getCustomerListAction(params, setResult));
+    },
+    [dispatch, setResult]
+  );
+
+  useEffect(() => {
+    const dataQuery: CustomerSearchQuery = {
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setParams(dataQuery);
+    getCustomerList(dataQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, location.search]);
 
   // handle export file
   const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
@@ -399,7 +414,7 @@ const Customer = () => {
           setExportCodeList([...exportCodeList, response.data.code]);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
   };

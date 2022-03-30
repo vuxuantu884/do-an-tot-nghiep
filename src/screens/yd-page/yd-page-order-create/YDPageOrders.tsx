@@ -237,45 +237,48 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [isLoadForm, setIsLoadForm] = useState(false);
 
-  let initialRequest: OrderRequest = {
-    action: "", //finalized
-    store_id: null,
-    company_id: DEFAULT_COMPANY.company_id,
-    price_type: "retail_price", //giá bán lẻ giá bán buôn
-    tax_treatment: TaxTreatment.INCLUSIVE,
-    delivery_service_provider_id: null,
-    shipper_code: null,
-    shipper_name: "",
-    delivery_fee: null,
-    shipping_fee_informed_to_customer: null,
-    shipping_fee_paid_to_three_pls: null,
-    dating_ship: undefined,
-    requirements: null,
-    source_id: null,
-    note: "",
-    tags: "",
-    customer_note: "",
-    account_code: userReducer.account?.code,
-    assignee_code: userReducer.account?.code || null,
-    marketer_code: null,
-    coordinator_code: null,
-    customer_id: null,
-    reference_code: `fb_${fbCustomerId}_${fbPageId}_${userId}`,
-    url: "",
-    total_line_amount_after_line_discount: null,
-    total: null,
-    total_tax: "",
-    total_discount: null,
-    currency: "VNĐ",
-    items: [],
-    discounts: [],
-    fulfillments: [],
-    shipping_address: null,
-    billing_address: null,
-    payments: [],
-    channel_id: null,
-    automatic_discount: true,
-  };
+  let initialRequest: OrderRequest = useMemo(() => {
+    return {
+      action: "", //finalized
+      store_id: null,
+      company_id: DEFAULT_COMPANY.company_id,
+      price_type: "retail_price", //giá bán lẻ giá bán buôn
+      tax_treatment: TaxTreatment.INCLUSIVE,
+      delivery_service_provider_id: null,
+      shipper_code: null,
+      shipper_name: "",
+      delivery_fee: null,
+      shipping_fee_informed_to_customer: null,
+      shipping_fee_paid_to_three_pls: null,
+      dating_ship: undefined,
+      requirements: null,
+      source_id: null,
+      note: "",
+      tags: "",
+      customer_note: "",
+      account_code: userReducer.account?.code,
+      assignee_code: userReducer.account?.code || null,
+      marketer_code: null,
+      coordinator_code: null,
+      customer_id: null,
+      reference_code: `fb_${fbCustomerId}_${fbPageId}_${userId}`,
+      url: "",
+      total_line_amount_after_line_discount: null,
+      total: null,
+      total_tax: "",
+      total_discount: null,
+      currency: "VNĐ",
+      items: [],
+      discounts: [],
+      fulfillments: [],
+      shipping_address: null,
+      billing_address: null,
+      payments: [],
+      channel_id: null,
+      automatic_discount: true,
+    }
+  }, [fbCustomerId, fbPageId, userId, userReducer.account?.code])
+  
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
@@ -470,15 +473,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
       setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
+        showSuccess("Đơn được lưu và duyệt thành công");
         handleCustomerById(customer && customer.id);
         setIsShowOrderModal(true)
-        showSuccess("Đơn được lưu và duyệt thành công");
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
-        setActiveTabKey("1");
-        // setIsClearOrderTab(true)
-        handleRefreshInfoOrderSuccess()
+        setIsShowOrderModal(true)
+        // setActiveTabKey("1");
+        // // setIsClearOrderTab(true)
+        // handleRefreshInfoOrderSuccess()
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -545,6 +549,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
     return payments;
   };
 
+  const checkIfNotCustomerAddress = () => {
+		return !shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address
+	};
+
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id;
@@ -568,6 +576,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
+      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
+				showError("Vui lòng cập nhật địa chỉ giao hàng!");
+				const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+				scrollAndFocusToDomElement(element);
+				return;
+			}
       values.fulfillments = [];
       // thêm payment vào đơn nháp
       // values.payments = [];
@@ -598,15 +612,21 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
 
     if (!values.customer_id) {
-      showError("Vui lòng thêm mới khách hàng");
-      const element: any = document.getElementById("customer_add_full_address");
-      scrollAndFocusToDomElement(element);
+      showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+			const element: any = document.getElementById("search_customer");
+			element?.focus();
     } else {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+        if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
+					showError("Vui lòng cập nhật địa chỉ giao hàng!");
+					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+					scrollAndFocusToDomElement(element);
+					return;
+				}
         let valuesCalculateReturnAmount = {
           ...values,
           payments: reCalculatePaymentReturn(payments).filter(
@@ -614,6 +634,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
           ),
         };
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+          if (checkIfNotCustomerAddress()) {
+						form.validateFields();
+						showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
+						setCreating(false);
+						return;
+					}
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
           } else {
@@ -646,6 +672,11 @@ export default function Order(props: OrdersCreatePermissionProps) {
             scrollAndFocusToDomElement(element);
             setCreating(false);
           } else {
+            if (checkIfNotCustomerAddress()) {
+							form.validateFields();
+							showError("Vui lòng nhập đầy đủ thông tin chỉ giao hàng");
+							return;
+						}
             if (typeButton === OrderStatus.DRAFT) {
               setIsSaveDraft(true);
             } else {
@@ -840,7 +871,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 setPayments(new_payments);
               }
 
-              setOrderAmount(response.total_line_amount_after_line_discount);
+              setOrderAmount(
+                response.total - (response.shipping_fee_informed_to_customer || 0)
+              );
 
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (

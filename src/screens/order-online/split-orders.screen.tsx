@@ -76,7 +76,8 @@ function OrdersScreen(props: PropTypes) {
     reference_code: null,
     search_term: "",
 		services: [],
-    channel_codes: []
+    channel_codes: [],
+    created_by:[]
   };
 
   return (

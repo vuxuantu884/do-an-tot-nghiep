@@ -48,6 +48,8 @@ export interface ReturnSearchQuery {
   account_codes: [];
   reason_ids: [];
   is_online?: boolean|null;
+  source_ids: [];
+  channel_codes: [];
 }
 
 export interface ReturnCalculateRefundModel {

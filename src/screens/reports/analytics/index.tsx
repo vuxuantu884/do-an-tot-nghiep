@@ -1,9 +1,10 @@
 import { Button, Card, Form, Table } from 'antd'
 import Color from "assets/css/export-variable.module.scss"
+import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
-import REPORT_TEMPLATES, { REPORT_NAMES } from 'config/report-templates'
-import { REPORT_CUBES } from 'config/report-templates'
+import REPORT_TEMPLATES, { REPORT_NAMES } from 'config/report/report-templates'
+import { REPORT_CUBES } from 'config/report/report-templates'
 import UrlConfig from 'config/url.config'
 import { FormFinishInfo } from 'rc-field-form/es/FormContext'
 import React, { useCallback, useEffect } from 'react'
@@ -101,8 +102,8 @@ function Analytics() {
 
     return (
         <ContentContainer
-            title={REPORT_NAMES[matchPath]}
-            breadcrumb={[{ name: 'Báo cáo' }, { name: 'Báo cáo mẫu' }]}
+            title={`Danh sách ${REPORT_NAMES[matchPath].toLocaleLowerCase()}`}
+            breadcrumb={[{ name: 'Báo cáo' }, { name: `Danh sách ${REPORT_NAMES[matchPath].toLocaleLowerCase()}` }]}
 
         >
             <Form.Provider onFormFinish={handleFormFinish}>
@@ -112,19 +113,27 @@ function Analytics() {
                             <div>
                                 <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
                                     return item.alias.includes(matchPath) && item.cube === 'sales'
-                                })} title="Báo cáo mẫu - Báo cáo bán hàng"></ListAnalyticsBlock>
+                                })} title="Báo cáo bán hàng"></ListAnalyticsBlock>
                                 <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
                                     return item.alias.includes(matchPath) && item.cube === 'payments'
-                                })} title="Báo cáo mẫu - Báo cáo thanh toán"></ListAnalyticsBlock>
+                                })} title="Báo cáo thanh toán"></ListAnalyticsBlock>
                             </div>
                         )
                     }
 
                     {
-                        [UrlConfig.ANALYTIC_FINACE, UrlConfig.ANALYTIC_CUSTOMER].includes(matchPath) && (
+                        [UrlConfig.ANALYTIC_FINACE].includes(matchPath) && (
                             <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
                                 return item.alias.includes(matchPath)
-                            })} title="Báo cáo mẫu"></ListAnalyticsBlock>
+                            })} title="Báo cáo lợi nhuận"></ListAnalyticsBlock>
+                        )
+                    }
+
+                    {
+                        [UrlConfig.ANALYTIC_CUSTOMER].includes(matchPath) && (
+                            <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
+                                return item.alias.includes(matchPath)
+                            })} title="Báo cáo khách hàng"></ListAnalyticsBlock>
                         )
                     }
 
@@ -178,6 +187,19 @@ function Analytics() {
                     subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
                 />
             </Form.Provider>
+            { [UrlConfig.ANALYTIC_SALES].includes(matchPath) && (
+                <BottomBarContainer
+                    rightComponent={
+                        <>
+                            <Button type="primary">
+                                <Link to={`${matchPath}/customer-visitors`}>
+                                    Nhập số lượng khách vào cửa hàng
+                                </Link>
+                            </Button>
+                        </>
+                    }
+                />
+            )}
         </ContentContainer >
     )
 }

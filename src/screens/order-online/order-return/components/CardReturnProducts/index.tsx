@@ -23,6 +23,7 @@ import { OrderResponse, ReturnProductModel } from "model/response/order/order.re
 import React, { createRef, useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
+import iconDelete from "assets/icon/deleteIcon.svg";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -42,6 +43,7 @@ type PropType = {
   onSelectSearchedVariant?: (value: string) => void;
   onChangeProductQuantity?: (value: number | null, index: number) => void;
   handleChangeReturnAll?: (e: CheckboxChangeEvent) => void;
+  setListReturnProducts: ((listReturnProducts: ReturnProductModel[]) => void) | undefined
 };
 
 function CardReturnProducts(props: PropType) {
@@ -61,6 +63,7 @@ function CardReturnProducts(props: PropType) {
     onSelectSearchedVariant,
     onChangeProductQuantity,
     handleChangeReturnAll,
+    setListReturnProducts,
   } = props;
 
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -141,6 +144,7 @@ function CardReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
+      width: "29%",
       render: (value, record: ReturnProductModel, index: number) => {
         return (
           <div className="d-flex align-items-center">
@@ -171,10 +175,11 @@ function CardReturnProducts(props: PropType) {
     {
       title: () => (
         <div className="text-center">
-          <div style={{textAlign: "center"}}>Số lượng trả</div>
+          <div style={{textAlign: "center"}}>Số lượng trả ({listReturnProducts ? getTotalQuantity(listReturnProducts) : 0})</div>
         </div>
       ),
       className: "columnQuantity",
+      width: "22%",
       render: (value, record: ReturnProductModel, index: number) => {
         if (isDetailPage) {
           return record.quantity;
@@ -215,6 +220,8 @@ function CardReturnProducts(props: PropType) {
       ),
       dataIndex: "price",
       key: "price",
+      align: "right",
+      width: "16%",
       render: (value: number, record: ReturnProductModel, index: number) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
         const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
@@ -237,6 +244,8 @@ function CardReturnProducts(props: PropType) {
         </div>
       ),
       key: "total",
+      align: "right",
+      width: "15%",
       render: (
         value: OrderLineItemRequest,
         record: ReturnProductModel,
@@ -254,6 +263,37 @@ function CardReturnProducts(props: PropType) {
         );
       },
     },
+    {
+      title: "Xóa sản phẩm",
+      dataIndex: "delete_variant",
+      key: "delete_variant",
+      width: "18%",
+      align: "right",
+      render: (value, record: ReturnProductModel, index: number) => {
+        return (
+          <Button
+            icon={<img alt="" style={{ marginRight: 5 }} src={iconDelete} />}
+            type="text"
+            className=""
+            style={{
+              paddingLeft: 24,
+              background: "transparent",
+              border: "none",
+              color: "red",
+            }}
+            onClick={() => {
+              if(listReturnProducts) {
+                let result = [...listReturnProducts];
+                result.splice(index, 1);
+                setListReturnProducts && setListReturnProducts(result)
+              }
+            }}
+          >
+            Xóa
+          </Button>
+        );
+      },
+    },
   ];
 
   const handleCancelStoreReturn=()=>{
@@ -264,12 +304,11 @@ function CardReturnProducts(props: PropType) {
     <StyledComponent>
       <Card
         className="margin-top-20"
-        title={isStepExchange ? "Thông tin sản phẩm trả" : "SẢN PHẨM"}
+        title={"Thông tin sản phẩm trả"}
         extra={!isDetailPage && !isStepExchange ? renderCardExtra() : null}
       >
         {isShowProductSearch && (
           <div>
-            <div className="label">Sản phẩm:</div>
             <AutoComplete
               notFoundContent={
                 searchVariantInputValue
@@ -326,20 +365,12 @@ function CardReturnProducts(props: PropType) {
           className="w-100"
           tableLayout="fixed"
           pagination={false}
-          scroll={{y: 300}}
           sticky
         />
         <Row className="boxPayment" gutter={24}>
           <Col xs={24} lg={11}></Col>
+          <Col xs={24} lg={2}></Col>
           <Col xs={24} lg={10}>
-            <Row className="payment-row" justify="space-between">
-              <span className="font-size-text">Số lượng:</span>
-              <span>
-                {listReturnProducts && (
-                  <span>{getTotalQuantity(listReturnProducts)}</span>
-                )}
-              </span>
-            </Row>
             <Row className="payment-row" justify="space-between">
               {isDetailPage ? (
                 <React.Fragment>
@@ -366,6 +397,7 @@ function CardReturnProducts(props: PropType) {
               </strong>
             </Row>
           </Col>
+          <Col xs={24} lg={1}></Col>
         </Row>
       </Card>
       <StoreReturnModel

@@ -18,7 +18,6 @@ import {
 	Tooltip
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
-import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
@@ -103,7 +102,7 @@ import {
 	isOrderFinishedOrCancel,
 	replaceFormatString
 } from "utils/AppUtils";
-import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE, ShipmentMethodOption } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
@@ -146,6 +145,7 @@ type PropType = {
 	};
 	setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 	countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
+	shipmentMethod: number; 
 };
 
 var barcode = "";
@@ -230,6 +230,7 @@ function OrderCreateProduct(props: PropType) {
 		setShippingFeeInformedToCustomer,
 		countFinishingUpdateCustomer,
 		isCreateReturn,
+		shipmentMethod,
 	} = props;
 
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
@@ -372,6 +373,13 @@ function OrderCreateProduct(props: PropType) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[items, isAutomaticDiscount, couponInputText, splitLine]
 	);
+
+	const isShouldUpdatePrivateNote = useMemo(() => {
+	 if(props.updateOrder && form.getFieldValue("note")) {
+		 return false;
+	 }
+	 return true
+	}, [form, props.updateOrder])
 
 	useEffect(() => {
 		window.addEventListener("keypress", eventKeyPress);
@@ -1337,7 +1345,7 @@ function OrderCreateProduct(props: PropType) {
 								return single
 							})
 							let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-							if(promotionResult) {
+							if(promotionResult && isShouldUpdatePrivateNote) {
 								form.setFieldsValue({
 									note: `(${promotionResult.reason})`
 								})
@@ -1353,7 +1361,7 @@ function OrderCreateProduct(props: PropType) {
 							return single
 						})
 						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-						if(promotionResult) {
+						if(promotionResult && isShouldUpdatePrivateNote) {
 							form.setFieldsValue({
 								note: `(${promotionResult.reason})`
 							})
@@ -1366,16 +1374,19 @@ function OrderCreateProduct(props: PropType) {
 						})
 						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
 						calculateChangeMoney(items, promotionResult)
+						if(isShouldUpdatePrivateNote) {
+							form.setFieldsValue({
+								note: ``
+							})
+
+						}
+					}
+				} else {
+					if(isShouldUpdatePrivateNote) {
 						form.setFieldsValue({
-							note: ``
+							note: ""
 						})
 					}
-					showSuccess("Cập nhật chiết khấu tự động thành công!");
-				} else {
-
-					form.setFieldsValue({
-						note: ""
-					})
 					showError("Có lỗi khi áp dụng chiết khấu!");
 					calculateChangeMoney(items)
 				}
@@ -1572,9 +1583,11 @@ function OrderCreateProduct(props: PropType) {
 										})
 										break;
 								}
-								form.setFieldsValue({
-									note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`
-								})
+								if(isShouldUpdatePrivateNote) {
+									form.setFieldsValue({
+										note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`
+									})
+								}
 								calculateChangeMoney(_items, promotionResult)
 								showSuccess("Thêm coupon thành công!");
 							}
@@ -1815,9 +1828,11 @@ function OrderCreateProduct(props: PropType) {
 						title = title + discountTitleArr[i] + "."
 					}
 				}
-				form.setFieldsValue({
-					note: `(${title})`
-				})
+				if(isShouldUpdatePrivateNote) {
+					form.setFieldsValue({
+						note: `(${title})`
+					})
+				}
 			}
 		}
 	};
@@ -1860,8 +1875,8 @@ function OrderCreateProduct(props: PropType) {
 		props.changeInfo(_items, _promotion);
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
-		if(orderCustomer) {
-			const shippingAddress = getCustomerShippingAddress(orderCustomer);
+		const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
+		if(_items.length > 0 && shipmentMethod !== ShipmentMethodOption.DELIVER_LATER && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE) {
 			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
 				transportService, form, setShippingFeeInformedToCustomer
 				);
@@ -1962,9 +1977,11 @@ function OrderCreateProduct(props: PropType) {
 				lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
 			}
 		});
-		form.setFieldsValue({
-			note: undefined
-		})
+		if(isShouldUpdatePrivateNote) {
+			form.setFieldsValue({
+				note: undefined
+			})
+		}
 		// calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
 		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
@@ -1985,9 +2002,11 @@ function OrderCreateProduct(props: PropType) {
 			lineItem.discount_value = 0;
 			lineItem.line_amount_after_line_discount = lineItem.price * lineItem.quantity;
 		});
-		form.setFieldsValue({
-			note: undefined
-		})
+		if(isShouldUpdatePrivateNote) {
+			form.setFieldsValue({
+				note: undefined
+			})
+		}
 		// showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
 	};
 
@@ -2031,7 +2050,7 @@ function OrderCreateProduct(props: PropType) {
 			splitOrderAction(params, (response) => {
 				if (response) {
 					response.data.forEach((singleOrderId: number) => {
-						const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update`;
+						const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update?isSplit=true`;
 						window.open(singleSplitLink, "_blank");
 					});
 					fetchData && fetchData();
@@ -2085,12 +2104,14 @@ function OrderCreateProduct(props: PropType) {
 
 	useEffect(() => {
 		if (items && items.length === 0) {
-			form.setFieldsValue({
-				note: ""
-			})
+			if(isShouldUpdatePrivateNote) {
+				form.setFieldsValue({
+					note: ""
+				})
+			}
 			setPromotion && setPromotion(null)
 		}
-	}, [form, items, setPromotion]);
+	}, [form, isShouldUpdatePrivateNote, items, setPromotion]);
 
 	return (
 		<StyledComponent>
@@ -2303,21 +2324,7 @@ function OrderCreateProduct(props: PropType) {
 					locale={{
 						emptyText: (
 							<div className="sale_order_empty_product">
-								<img src={emptyProduct} alt="empty product"></img>
-								<p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-								<Button
-									type="text"
-									className="font-weight-500"
-									style={{
-										background: "rgba(42,42,134,0.05)",
-									}}
-									onClick={() => {
-										autoCompleteRef.current?.focus();
-									}}
-									disabled={levelOrder > 3}
-								>
-									Thêm sản phẩm ngay (F3)
-								</Button>
+								Đơn hàng của bạn chưa có sản phẩm nào!
 							</div>
 						),
 					}}

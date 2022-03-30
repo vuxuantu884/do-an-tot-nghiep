@@ -146,13 +146,19 @@ function OrderPayments(props: PropType): JSX.Element {
     if (!amount) {
       amount = 0
     }
-    if (payments[index].code === PaymentMethodCode.POINT) {
+    if (payments[index].payment_method_code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
       payments[index].amount = amount * usageRate;
       payments[index].paid_amount = amount * usageRate;
     } else {
       payments[index].amount = amount;
       payments[index].paid_amount = amount;
+      if(payments[index].payment_method_code === PaymentMethodCode.BANK_TRANSFER) {
+        const selected = storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount);
+        payments[index].bank_account_holder = selected?.account_holder || undefined;
+        payments[index].bank_account_id = selected?.id || undefined;
+        payments[index].bank_account_number = selected?.account_number;
+      }
     }
     handlePayment([...payments]);
   };
@@ -206,7 +212,18 @@ function OrderPayments(props: PropType): JSX.Element {
   const onChangeStoreBankAccountNumber = (value: string) => {
     if(value) {
       dispatch(changeSelectedStoreBankAccountAction(value))
+    } else {
+      dispatch(changeSelectedStoreBankAccountAction(undefined))
     }
+    let paymentCopy: OrderPaymentRequest[] = payments;
+    let paymentBankIndex = paymentCopy.findIndex(single =>single.payment_method_code === PaymentMethodCode.BANK_TRANSFER)
+    const selected = storeBankAccountNumbers.find(single => single.account_number === value);
+    if(paymentBankIndex > -1) {
+      paymentCopy[paymentBankIndex].bank_account_holder = selected?.account_holder || undefined;
+      paymentCopy[paymentBankIndex].bank_account_id = selected?.id || undefined;
+      paymentCopy[paymentBankIndex].bank_account_number = selected?.account_number;
+    }
+    setPayments([...paymentCopy])
   };
 
   const selectedStoreBankNumber = useMemo(() => {

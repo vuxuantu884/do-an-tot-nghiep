@@ -2,7 +2,6 @@ import { Button, Form, Input } from "antd";
 import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
-import UrlConfig from "config/url.config";
 import { SupplierResponse } from "model/core/supplier.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -34,7 +33,7 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
   const [formBase] = useForm();
   const onBaseFinish = (data: any) => {
     let queryParam = generateQuery({ ...paramsUrl, ...data });
-    history.replace(`${UrlConfig.PROCUREMENT}/today?${queryParam}`);
+    history.replace(`${history.location.pathname}?${queryParam}`);
   };
 
   useEffect(() => {
