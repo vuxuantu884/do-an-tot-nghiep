@@ -11,6 +11,7 @@ interface IProp {
   value?: number
   onChangeCurrencyType?: (value: string) => void
   style?: any
+  maxValue?: number
 }
 
 const CurrencyInput = (props: IProp) => {
@@ -26,7 +27,7 @@ const CurrencyInput = (props: IProp) => {
         onChange={(value) => props.onChange && props.onChange(value)}
         value={props.value}
         style={props.style}
-        max={100}
+        max={props.maxValue}
       />
       {
         props.currency && props.currency.length > 1 ? (
