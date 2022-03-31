@@ -316,6 +316,8 @@ ShippingServiceConfigDetailResponseModel[]
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
+  console.log('storeId', storeId)
+
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
     if (!data) {
@@ -690,7 +692,6 @@ ShippingServiceConfigDetailResponseModel[]
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
-          // valuesResult.channel_id = ADMIN_ORDER.channel_id;
           valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code") || OrderDetail.account_code;
@@ -699,7 +700,6 @@ ShippingServiceConfigDetailResponseModel[]
           values.marketer_code = form.getFieldValue("marketer_code") || OrderDetail.marketer_code;
           values.reference_code = form.getFieldValue("reference_code") || OrderDetail.reference_code;
           values.url = form.getFieldValue("url") || OrderDetail.url;
-          values.store_id = storeId;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
               valuesResult.order_return_id = orderReturnId;
@@ -719,11 +719,13 @@ ShippingServiceConfigDetailResponseModel[]
                 );
                 return;
               }
+              console.log('orderDetailResult', orderDetailResult)
               handleDispatchReturnAndExchange(orderDetailResult).then((response: any) => {
                 valuesResult.order_return_id = response.id;
                 let lstDiscount = createDiscountRequest();
                 valuesResult.discounts = lstDiscount;
                 setOrderReturnId(response.id);
+                console.log('valuesResult', valuesResult)
                 dispatch(
                   actionCreateOrderExchange(
                     valuesResult,
