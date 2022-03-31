@@ -543,12 +543,22 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     style={{ width: "100%" }}
                     placeholder="Chọn ngày sinh"
                     format={"DD/MM/YYYY"}
-                    defaultPickerValue={moment("01/01/1991", "DD/MM/YYYY")}
+                    // defaultPickerValue={moment("01/01/1991", "DD/MM/YYYY")}
                     suffixIcon={
                       <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                     }
                     onChange={() => {
                       setVisibleBtnUpdate(true);
+                    }}
+                    onMouseLeave={() => {
+                      const elm = document.getElementById("customer_add_birthday");
+                      // console.log(elm?.getAttribute('value'))
+                      const newDate = moment(elm?.getAttribute('value'), "DD/MM/YYYY")
+                      if (newDate) {
+                        formRef.current?.setFieldsValue({
+                          birthday: newDate
+                        })
+                      }
                     }}
                   />
                 </Form.Item>

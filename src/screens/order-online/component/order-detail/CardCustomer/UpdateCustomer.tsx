@@ -955,7 +955,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         ]}
                       >
                         <DatePicker
-                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : moment("01/01/1991", "DD/MM/YYYY")} 
+                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : undefined} 
                           style={{ width: "100%" }}
                           placeholder="Chọn ngày sinh"
                           format={"DD/MM/YYYY"}
@@ -964,6 +964,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           }
                           onChange={() => {
                             setVisibleBtnUpdate(true);
+                          }}
+                          onMouseLeave={() => {
+                            const elm = document.getElementById("customer_update_birthday");
+                            // console.log(elm?.getAttribute('value'))
+                            const newDate = moment(elm?.getAttribute('value'), "DD/MM/YYYY")
+                            if (newDate) {
+                              formRefCustomer.current?.setFieldsValue({
+                                birthday: newDate
+                              })
+                            }
                           }}
                         />
                       </Form.Item>
