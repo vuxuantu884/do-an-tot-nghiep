@@ -57,12 +57,16 @@ const ErrorLogs = (props: ModalProps) => {
         </div>
         <div className="error-logs-body__body">
           {
-            errorObject && errorObject.length > 0 && errorObject.map((error, idx) => (
-              <div className="release-error" key={idx}>
-                <div className="ordinal-number">{idx + 1}</div>
-                <div className="error-content">{error}</div>
-              </div>
-            ))
+            errorObject && errorObject.length > 0 && errors?.split("\n").map((error, idx) => {
+                // eslint-disable-next-line array-callback-return
+              if (error === "") return;
+              return (
+                  <div className="release-error" key={idx}>
+                    <div className="ordinal-number">{idx}</div>
+                    <div style={{color: "red"}} className="error-content">{error}</div>
+                  </div>
+              )
+              })
           }
           {
             (!errorObject || errorObject.length === 0) && (
@@ -70,6 +74,15 @@ const ErrorLogs = (props: ModalProps) => {
             )
           }
         </div>
+        {/*<div style={{fontSize: 16, fontWeight: "bold", color: "#222222"}}>Nội dung lỗi</div>*/}
+        {/*<div>*/}
+        {/*{errors?.split("\n").map((item, index) => {*/}
+        {/*  return <div>*/}
+        {/*    <span>{index + 1}</span>*/}
+        {/*    <span>{item}</span>*/}
+        {/*  </div>;*/}
+        {/*})}*/}
+        {/*</div>*/}
       </div>
     </Modal>
   )
