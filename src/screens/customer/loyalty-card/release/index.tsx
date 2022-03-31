@@ -1,19 +1,19 @@
-import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
-import { Button, Dropdown, Menu } from 'antd';
-import { LoyaltyCardReleaseSearch } from 'domain/actions/loyalty/release/loyalty-release.action';
-import { PageResponse } from 'model/base/base-metadata.response';
-import { BaseQuery } from 'model/base/base.query';
-import { LoyaltyCardReleaseResponse } from 'model/response/loyalty/release/loyalty-card-release.response';
+import CustomTable, {ICustomTableColumType} from 'component/table/CustomTable';
+import {Button, Dropdown, Menu} from 'antd';
+import {LoyaltyCardReleaseSearch} from 'domain/actions/loyalty/release/loyalty-release.action';
+import {PageResponse} from 'model/base/base-metadata.response';
+import {BaseQuery} from 'model/base/base.query';
+import {LoyaltyCardReleaseResponse} from 'model/response/loyalty/release/loyalty-card-release.response';
 import moment from 'moment';
-import { useCallback, useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { DATE_FORMAT } from 'utils/DateUtils';
+import {useCallback, useEffect, useState} from 'react'
+import {useDispatch} from 'react-redux';
+import {DATE_FORMAT} from 'utils/DateUtils';
 import ErrorLogs from '../component/error-logs/ErrorLogs';
 import infoIcon from "assets/icon/info.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import AuthWrapper from 'component/authorization/AuthWrapper';
 import NoPermission from 'screens/no-permission.screen';
-import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
+import {LoyaltyPermission} from 'config/permissions/loyalty.permission';
 
 
 const viewCardReleasePermission = [LoyaltyPermission.cards_release_read];
@@ -50,12 +50,27 @@ const LoyaltyCardRelease = () => {
     {
       title: "Người tạo",
       dataIndex: "created_by",
+      align: "center",
       visible: true,
     },
     {
       title: "Số lượng thẻ",
-      dataIndex: "success",
+      dataIndex: "total",
+      align: "center",
       visible: true,
+    },
+    {
+      title: "Trạng thái",
+      visible: true,
+      align: "center",
+      render: (value: any, i: any) => {
+        return (
+            <span style={{fontWeight: "bold" ,
+              color: value?.status === "FAIL" ? "red" : value?.status === "PROCESSING" ? "yellow" : "green"
+            }}
+            >{value?.status}</span>
+        );
+      }
     },
     {
       title: "",
@@ -103,8 +118,8 @@ const LoyaltyCardRelease = () => {
                 <Button
                   type="text"
                   className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
+                  icon={<img src={threeDot} alt="" />}
+                />
               </Dropdown>
             </div>
           </div>
@@ -135,6 +150,8 @@ const LoyaltyCardRelease = () => {
     [query]
   );
 
+  console.log(selectedLoyaltyRelease)
+
   const closeErrorLogModal = useCallback(() => {
     setOpenErrorLogModal(false)
     setSelectedLoyaltyRelease(undefined)
@@ -163,14 +180,14 @@ const LoyaltyCardRelease = () => {
             columns={pageColumns}
             rowKey={(item: any) => item.id}
           />
-          
+
           <ErrorLogs
             visible={openErrorLogModal}
             onOk={closeErrorLogModal}
             okText="Thoát"
-            errors={selectedLoyaltyRelease?.errors}
-            success={selectedLoyaltyRelease?.success || 0}
-            fail={selectedLoyaltyRelease?.fail || 0}
+            errors={selectedLoyaltyRelease?.errors_msg}
+            success={selectedLoyaltyRelease?.total_success || 0}
+            fail={selectedLoyaltyRelease?.total_error || 0}
             onCancel={closeErrorLogModal}
           />
         </div>
