@@ -32,6 +32,7 @@ import {
 	setIsShouldSetDefaultStoreBankAccountAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import useFetchStores from "hook/useFetchStores";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -201,6 +202,8 @@ export default function Order() {
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
 		ShippingServiceConfigDetailResponseModel[]
 	>([]);
+
+	const listStores = useFetchStores();
 
 	const onChangeInfoProduct = (
 		_items: Array<OrderLineItemRequest>,
@@ -1187,7 +1190,6 @@ export default function Order() {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
-
 	return (
 		<React.Fragment>
 			<ContentContainer
@@ -1287,6 +1289,7 @@ export default function Order() {
 											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 											countFinishingUpdateCustomer={countFinishingUpdateCustomer}
 											shipmentMethod={shipmentMethod}
+											listStores={listStores}
 										/>
 										<Card title="THANH TOÁN">
 											<OrderCreatePayments
