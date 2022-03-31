@@ -376,4 +376,6 @@ export const PRODUCT_TYPE = {
 
 export const DELIVERY_SERVICE_PROVIDER_CODE = {
   ghtk: "ghtk",
+  ghn: "ghn",
+  vtp: "vtp"
 }

@@ -130,7 +130,15 @@ const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrap
 
 const status = bootstrapReducer.data?.order_main_status.filter(
   (single) => single.value !== "splitted"
-  );
+);
+
+  useEffect(() => {
+    setSelectedSubStatusCodes(initSubStatus?.map(single => single.code) || []);
+  }, [initSubStatus])
+
+  // useEffect(() => {
+  //   setShowStatusCodes(status?.map(single => single.value) || []);
+  // }, [status])
   
   const fulfillmentStatus = useMemo(
     () => [
@@ -1696,7 +1704,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                       onChangeAllSelect={(e: CheckboxChangeEvent)=>{
                         if(e.target.checked && status) {
                           formRef.current?.setFieldsValue({
-                            order_status: showedStatusCodes
+                            order_status: showedStatusCodes.length > 0 ? showedStatusCodes : status.map(single => single.value)
                           })
                         } else {
                           formRef.current?.setFieldsValue({
@@ -1709,8 +1717,10 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                       }}
                       allValues={status}
                       onSearch = {(value) => {
-                        const showed = (status|| []).filter(single => fullTextSearch(value, single.name)).map(gg => gg.value)
-                        setShowStatusCodes(showed)
+                        if(status) {
+                          const showed = (status|| []).filter(single => fullTextSearch(value, single.name)).map(gg => gg.value)
+                          setShowStatusCodes(showed)
+                        }
                       }}
                     >
                       {status?.map((item) => (
