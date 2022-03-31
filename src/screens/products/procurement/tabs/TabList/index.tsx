@@ -497,7 +497,7 @@ const TabList: React.FC = () => {
       if (value !== null) {
         showSuccess("Xác nhận nhập kho thành công");
         setLoadingRecive(false);
-        setIsDetail(true);
+        setVisibleConfirm(false);
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
