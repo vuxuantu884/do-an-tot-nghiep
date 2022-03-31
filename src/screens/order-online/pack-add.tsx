@@ -346,6 +346,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                       }}
                       disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
+                      <Select.Option key={-1} value={-1}>Tự giao hàng</Select.Option>
                       {listThirdPartyLogistics.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
                           {item.name}
