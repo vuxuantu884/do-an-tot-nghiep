@@ -35,7 +35,7 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
@@ -100,9 +100,27 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
+  const newAreas = useMemo(() => {
+    return areas.map((area: any) => {
+      return {
+        ...area,
+        city_name_normalize: area.city_name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+        district_name_normalize: area.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+      }
+    })
+  }, [areas]);
+
   //const [customerFormLoading, setCustomerFormLoading] = useState(false);
 
-  const handleShippingWards = useCallback(
+  const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
         dispatch(WardGetByDistrictAction(value, setShippingWards));
@@ -225,9 +243,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         _shippingAddress.splice(index, 1);
       }
 
-      let shipping_district = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
+      let shipping_district = newAreas.find((area: any) => area.id === value.shipping_addresses_district_id);
       let shipping_ward=shippingWards.find((ward:any)=>ward.id===value.shipping_addresses_ward_id)
-      let customer_district = areas.find((area: any) => area.id === value.district_id);
+      let customer_district = newAreas.find((area: any) => area.id === value.district_id);
       let customer_ward=wards.find((ward:any)=>ward.id===value.ward_id);
 
       let paramShipping = {
@@ -319,12 +337,97 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
       }));
     },
-    [customerItem, shippingAddress, areas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
+    [customerItem, shippingAddress, newAreas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
   );
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
   }, [customerForm]);
+
+  const checkAddress = useCallback((type, value) => {
+    const newValue = value.normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase();
+      
+    const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && newValue.indexOf(area.district_name_normalize) > -1);
+    if (findArea) {
+      switch (type) {
+        case "full_address":
+          if (formRefCustomer.current?.getFieldValue("district_id") !== findArea.id) {
+            formRefCustomer.current?.setFieldsValue({
+              district_id: findArea.id,
+              ward_id: null
+            })
+            handleChangeArea(findArea.id);
+          }
+          break;
+        case "shipping_addresses_full_address":
+          if (formRefCustomer.current?.getFieldValue("shipping_addresses_district_id") !== findArea.id) {
+            formRefCustomer.current?.setFieldsValue({
+              shipping_addresses_district_id: findArea.id,
+              shipping_addresses_ward_id: null
+            })
+            getShippingWards(findArea.id);
+          }
+          break;
+        default: break;
+      }
+      
+    }
+  }, [formRefCustomer, getShippingWards, handleChangeArea, newAreas]);
+
+  useEffect(() => {
+    const value = formRefCustomer.current?.getFieldValue("full_address");
+    if (value) {
+      const newValue = value.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase();
+        
+      const newWards = wards.map((ward: any) => {
+        return {
+          ...ward,
+          ward_name_normalize: ward.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+        }
+      });
+      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+      formRefCustomer.current?.setFieldsValue({
+        ward_id: findWard ? findWard.id : null,
+      })
+    }
+  }, [formRefCustomer, wards]);
+
+  useEffect(() => {
+    const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
+    if (value) {
+      const newValue = value.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase();
+      const newWards = shippingWards.map((ward: any) => {
+        return {
+          ...ward,
+          ward_name_normalize: ward.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+        }
+      });
+      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+      formRefCustomer.current?.setFieldsValue({
+        shipping_addresses_ward_id: findWard ? findWard.id : null,
+      })
+    }
+  }, [formRefCustomer, shippingWards]);
 
   useEffect(() => {
     customerForm.resetFields();
@@ -395,13 +498,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     let values = formRefCustomer.current?.getFieldsValue();
                     values.shipping_addresses_ward_id = null;
                     formRefCustomer.current?.setFieldsValue(values);
-                    handleShippingWards(value);
+                    getShippingWards(value);
                     setVisibleBtnUpdate(true);
                   }}
                   optionFilterProp="children"
                   disabled={disableInput}
                 >
-                  {areas.map((area: any) => (
+                  {newAreas.map((area: any) => (
                     <Select.Option key={area.id} value={area.id}>
                       {area.city_name + ` - ${area.name}`}
                     </Select.Option>
@@ -511,6 +614,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   placeholder="Địa chỉ"
                   prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                   disabled={disableInput}
+                  onChange={(e) => checkAddress("shipping_addresses_full_address", e.target.value)}
                 />
               </Form.Item>
             </Col>
@@ -706,7 +810,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           }}
                           optionFilterProp="children"
                         >
-                          {areas.map((area: any) => (
+                          {newAreas.map((area: any) => (
                             <Select.Option key={area.id} value={area.id}>
                               {area.city_name + ` - ${area.name}`}
                             </Select.Option>
@@ -797,6 +901,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         <Input
                           placeholder="Địa chỉ"
                           prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
+                          onChange={(e) => checkAddress("full_address", e.target.value)}
                         />
                       </Form.Item>
                     </Col>
