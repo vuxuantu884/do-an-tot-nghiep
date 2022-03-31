@@ -222,7 +222,6 @@ const UpdateTicket: FC = () => {
             from_store_id: element.id
           });
           setFormStoreData(element);
-          onChangeFromStore(element.id);
         }
       });
     }
