@@ -42,7 +42,7 @@ import {
   StyledCustomerExtraButton,
 } from "screens/customer/customerStyled";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { generateQuery } from "utils/AppUtils";
+import {generateQuery, isNullOrUndefined} from "utils/AppUtils";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
@@ -50,6 +50,7 @@ import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile"
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 import {getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import NumberFormat from "react-number-format";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -82,6 +83,7 @@ const Customer = () => {
     () => ({
       page: 1,
       limit: 30,
+      searchType: "LIST",
       request: "",
       gender: null,
       customer_group_ids: [],
@@ -155,16 +157,17 @@ const Customer = () => {
       dataIndex: "code",
       visible: true,
       fixed: "left",
+      // align: "center",
       render: (value: string, item: any) => (
-        <Link to={`/customers/${item.id}`}>{value}</Link>
+        <Link to={`/customers/${item.id}`}>{value ? value : item.id}</Link>
       ),
-      width: 90,
+      width: 130,
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
       visible: true,
-      width: 150,
+      width: 160,
       render: (value: string, item: any) => (
         <span className="customer-name-textoverflow">{item.full_name}</span>
       ),
@@ -173,105 +176,177 @@ const Customer = () => {
       title: "SĐT",
       dataIndex: "phone",
       visible: true,
-      width: 90,
+      width: 120,
+      align: "center",
     },
     {
       title: "Giới tính",
       dataIndex: "gender",
+      visible: true,
+      width: 80,
+      align: "center",
       render: (value: any) => (
         <div>
-          {LIST_GENDER &&
-            LIST_GENDER?.find((item) => item.value === value)?.name}
+          {LIST_GENDER?.find((item) => item.value === value)?.name}
         </div>
       ),
+    },
+    {
+      title: "Ngày sinh",
+      dataIndex: "birthday",
       visible: true,
-      width: 60,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
+    },
+    {
+      title: "Điểm",
+      dataIndex: "point",
+      visible: true,
+      width: 100,
+      align: "center",
+      render: (value: any) => (
+        <div style={{ textAlign: "right" }}>
+          {!isNullOrUndefined(value) ?
+            <NumberFormat
+              value={value}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : ""
+          }
+        </div>
+      )
+    },
+    {
+      title: "Hạng thẻ",
+      dataIndex: "customer_level",
+      visible: true,
+      width: 90,
+      align: "center",
     },
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
       visible: true,
       width: 150,
+      align: "center",
     },
     {
-      title: "Email",
-      dataIndex: "email",
+      title: "Tiền tích lũy",
+      dataIndex: "total_paid_amount",
       visible: true,
-      width: 150,
+      width: 120,
+      align: "center",
+      render: (value: any) => (
+        <div style={{ textAlign: "right" }}>
+          {!isNullOrUndefined(value) ?
+            <NumberFormat
+              value={value}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : ""
+          }
+        </div>
+      )
+    },
+    {
+      title: "Ngày mua đầu",
+      dataIndex: "first_order_time",
+      visible: true,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
+    },
+    {
+      title: "Ngày mua cuối",
+      dataIndex: "last_order_time",
+      visible: true,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
       visible: true,
       width: 150,
+      align: "center",
     },
     {
       title: "Nhân viên phụ trách",
-      dataIndex: "responsible_staff",
+      // dataIndex: "responsible_staff",
       visible: true,
-      width: 150,
-    },
-    {
-      title: "Hạng thẻ",
-      dataIndex: "customer_level",
-      visible: true,
-      width: 100,
-    },
-    {
-      title: "Ngày sinh",
-      dataIndex: "birthday",
-      visible: true,
-      width: 80,
-      render: (value: string) => (
-        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
+      width: 180,
+      align: "center",
+      render: (item: any) => {
+        const staff = (item.responsible_staff_code ? item.responsible_staff_code + " - " : "") + (item.responsible_staff ? item.responsible_staff  : "");
+        return (
+          <div>{staff}</div>
+        )
+      },
     },
     {
       title: "Ngày cưới",
       dataIndex: "wedding_date",
       visible: true,
-      width: 80,
+      width: 110,
+      align: "center",
       render: (value: string) => (
         <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
       ),
     },
     {
-      title: "website/facebook",
-      dataIndex: "website",
+      title: "Mã số thẻ",
+      dataIndex: "card_number",
       visible: false,
       width: 150,
+      align: "center",
     },
     {
       title: "Ngày kích hoạt thẻ",
-      dataIndex: "",
+      dataIndex: "assigned_date",
       visible: false,
-      width: 150,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "Cửa hàng kích hoạt",
-      dataIndex: "",
+      dataIndex: "assigned_store",
       visible: false,
       width: 150,
+      align: "center",
     },
     {
-      title: "Mã số thẻ",
-      dataIndex: "",
+      title: "Email",
+      dataIndex: "email",
+      visible: true,
+      width: 200,
+    },
+    {
+      title: "website/facebook",
+      dataIndex: "website",
       visible: false,
-      width: 150,
+      width: 200,
     },
     {
       title: "Đơn vị",
       dataIndex: "company",
       visible: false,
-      width: 150,
-    },
-    {
-      title: "Điểm hiện tại",
-      width: 100,
-      dataIndex: "",
-      visible: false,
+      width: 200,
     },
   ]);
+
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -560,7 +635,7 @@ const Customer = () => {
                   isRowSelection
                   bordered
                   isLoading={isLoading}
-                  scroll={{ x: 2000 }}
+                  scroll={{ x: 0 }}
                   sticky={{ offsetScroll: 5, offsetHeader: 55 }}
                   pagination={{
                     pageSize: data.metadata.limit,
