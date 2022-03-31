@@ -67,12 +67,11 @@ import IconPaymentCod from "./images/cod.svg";
 import IconPaymentCash from "./images/tien-mat.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconPaymentReturn from "./images/tien-hoan.svg";
-import IconPaymentExchange from "./images/tien-doi.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import InventoryTable from "./InventoryTable";
 import search from "assets/img/search.svg";
-// import IconWebsite from "./images/website.svg"; 
+// import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
@@ -506,14 +505,14 @@ function OrdersTable(props: PropTypes) {
                       style={{ width: 18, cursor: "pointer" }}
                     />
                   </Tooltip>
-                 
+
                 </div>
                 <Popover placement="bottomLeft" content={
                   <div className="poppver-to-fast">
-                    <Button 
-                      className="btn-to-fast" 
-                      style={{padding: "0px", display:"block", height:"30px"}} 
-                      type="link" 
+                    <Button
+                      className="btn-to-fast"
+                      style={{padding: "0px", display:"block", height:"30px"}}
+                      type="link"
                       icon={<img src={search} alt="" style={{paddingRight:"18px"}}/> }
                       onClick={() =>
                         onFilterPhoneCustomer(
@@ -526,7 +525,7 @@ function OrdersTable(props: PropTypes) {
                     <Button className="btn-to-fast"
                       style={{padding: "0px", display:"block", height:"30px"}}
                       type="link"
-                       icon={<EyeOutlined style={{paddingRight:"10px"}} /> } 
+                       icon={<EyeOutlined style={{paddingRight:"10px"}} /> }
                       onClick={()=>{
                         let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
                         window.open(pathname,"_blank");
@@ -535,10 +534,10 @@ function OrdersTable(props: PropTypes) {
                       Thông tin khách hàng
                     </Button>
                     <Button
-                     className="btn-to-fast" 
-                     style={{padding: "0px", display:"block", height:"30px"}} 
-                     type="link" 
-                     icon={<PlusOutlined style={{paddingRight:"10px"}}/> } 
+                     className="btn-to-fast"
+                     style={{padding: "0px", display:"block", height:"30px"}}
+                     type="link"
+                     icon={<PlusOutlined style={{paddingRight:"10px"}}/> }
                      onClick={()=>{
                        let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
                        window.open(pathname,"_blank");
@@ -546,11 +545,11 @@ function OrdersTable(props: PropTypes) {
                     >
                       Tạo đơn cho khách
                     </Button>
-                    <Button 
-                      className="btn-to-fast" 
-                      style={{padding: "0px", display:"block", height:"30px"}} 
-                      type="link" 
-                      icon={<PhoneOutlined style={{paddingRight:"10px"}}/>} 
+                    <Button
+                      className="btn-to-fast"
+                      style={{padding: "0px", display:"block", height:"30px"}}
+                      type="link"
+                      icon={<PhoneOutlined style={{paddingRight:"10px"}}/>}
                       onClick={()=>{
                         window.location.href=`tel:${record.customer_phone_number}`;
                       }}
@@ -823,7 +822,7 @@ function OrdersTable(props: PropTypes) {
                                             })
                                           )
                                         );
-                                      }} 
+                                      }}
                                     /> */}
                               {true && (
                                 <Popover
@@ -1403,7 +1402,7 @@ function OrdersTable(props: PropTypes) {
   };
 
   // - Doanh số = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng.
-  // - Doanh thu = Doanh số - Chiết khấu - Sử dụng điểm. 
+  // - Doanh thu = Doanh số - Chiết khấu - Sử dụng điểm.
   // - Do total đã trừ chiết khấu nên Doanh thu = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng - Sử dụng điểm
   const getTotalRevenue = () => {
     let result = 0;
@@ -1624,7 +1623,7 @@ function OrdersTable(props: PropTypes) {
 
   useEffect(() => {
     setData({
-      ...data, 
+      ...data,
       items,
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
