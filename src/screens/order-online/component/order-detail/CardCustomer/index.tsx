@@ -23,13 +23,11 @@ import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import {
   DistrictGetByCountryAction,
-  WardGetByDistrictAction
 } from "domain/actions/content/content.action";
 import {
   CustomerGroups, CustomerSearchSo, DeleteShippingAddress, getCustomerDetailAction
 } from "domain/actions/customer/customer.action";
 import { changeOrderCustomerAction } from "domain/actions/order/order.action";
-import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -149,8 +147,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const [countryId] = React.useState<number>(233);
   const [areas, setAreas] = React.useState<Array<any>>([]);
-  const [districtId, setDistrictId] = React.useState<any>(null);
-  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
 
   const [modalActionShipping, setModalActionShipping] =
@@ -577,11 +573,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
 
-  useEffect(() => {
-    if (districtId) {
-      dispatch(WardGetByDistrictAction(districtId, setWards));
-    }
-  }, [dispatch, districtId]);
 
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));
@@ -591,17 +582,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 		
 	}, [dispatch, userReducer.account?.account_jobs])
 
-  useEffect(() => {
-    if (customer) setDistrictId(customer.district_id);
-  }, [customer]);
-	
-
-  const handleChangeArea = (districtId: string | null) => {
-    if (districtId) {
-
-      setDistrictId(districtId);
-    }
-  };
 
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
@@ -844,9 +824,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             {modalAction === CONSTANTS.MODAL_ACTION_TYPE.create && (
               <CreateCustomer
                 areas={areas}
-                wards={wards}
                 groups={groups}
-                handleChangeArea={handleChangeArea}
                 handleChangeCustomer={handleChangeCustomer}
                 ShippingAddressChange={props.ShippingAddressChange}
                 keySearchCustomer={keySearchCustomer}
@@ -858,11 +836,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               <UpdateCustomer
                 levelOrder={levelOrder}
                 areas={areas}
-                wards={wards}
                 groups={groups}
                 customerItem={customer}
                 shippingAddress={shippingAddress}
-                handleChangeArea={handleChangeArea}
                 handleChangeCustomer={handleChangeCustomer}
                 setSingleShippingAddress={setSingleShippingAddress}
                 ShippingAddressChange={props.ShippingAddressChange}

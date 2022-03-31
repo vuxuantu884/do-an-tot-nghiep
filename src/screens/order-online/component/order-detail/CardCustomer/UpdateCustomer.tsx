@@ -45,9 +45,7 @@ import CustomerShippingAddressOrder from "./customer-shipping";
 
 type UpdateCustomerProps = {
   areas: any;
-  wards: any;
   groups: any;
-  handleChangeArea: any;
   handleChangeCustomer: any;
   customerItem: any;
   shippingAddress: ShippingAddress | any;
@@ -66,9 +64,7 @@ type UpdateCustomerProps = {
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const {
     areas,
-    wards,
     groups,
-    handleChangeArea,
     handleChangeCustomer,
     customerItem,
     shippingAddress,
@@ -97,7 +93,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
-
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
   const newAreas = useMemo(() => {
@@ -118,15 +114,73 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     })
   }, [areas]);
 
-  //const [customerFormLoading, setCustomerFormLoading] = useState(false);
+  const getWards = useCallback(
+    (value: number | undefined) => {
+      if (value) {
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRefCustomer.current?.getFieldValue("full_address");
+          if (value) {
+            const newValue = value.normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+              .toLowerCase();
+              
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase(),
+              }
+            });
+            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            formRefCustomer.current?.setFieldsValue({
+              ward_id: findWard ? findWard.id : null,
+            })
+            
+          }
+          setWards(data);
+        }));
+      }
+    },
+    [dispatch, formRefCustomer]
+  );
 
   const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, setShippingWards));
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
+          if (value) {
+            const newValue = value.normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+              .toLowerCase();
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase(),
+              }
+            });
+            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            formRefCustomer.current?.setFieldsValue({
+              shipping_addresses_ward_id: findWard ? findWard.id : null,
+            })
+          }
+          setShippingWards(data);
+        }));
+
       }
     },
-    [dispatch]
+    [dispatch, formRefCustomer]
   );
 
   //properties
@@ -231,6 +285,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     }
   }, [dispatch, shippingAddress]);
 
+  useEffect(() => {
+    if (customerItem.district_id) {
+      dispatch(WardGetByDistrictAction(customerItem.district_id, setWards));
+    }
+  }, [dispatch, customerItem.district_id]);
+
   const handleSubmit = useCallback(
     (value: any) => {
       //return;
@@ -246,7 +306,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       let shipping_district = newAreas.find((area: any) => area.id === value.shipping_addresses_district_id);
       let shipping_ward=shippingWards.find((ward:any)=>ward.id===value.shipping_addresses_ward_id)
       let customer_district = newAreas.find((area: any) => area.id === value.district_id);
-      let customer_ward=wards.find((ward:any)=>ward.id===value.ward_id);
+      let customer_ward= wards.find((ward:any)=>ward.id===value.ward_id);
 
       let paramShipping = {
         ...shippingAddress,
@@ -289,7 +349,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           district:customer_district.name,
           phone: value.phone,
           ward_id: value.ward_id,
-          ward:customer_ward.name,
+          ward: customer_ward?.name,
           card_number: value.card_number,
           full_address: value.full_address,
           gender: GENDER_OPTIONS.findIndex((p)=>p.value===value.gender)===-1?null:value.gender,
@@ -360,7 +420,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               district_id: findArea.id,
               ward_id: null
             })
-            handleChangeArea(findArea.id);
+            getWards(findArea.id);
           }
           break;
         case "shipping_addresses_full_address":
@@ -376,58 +436,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       }
       
     }
-  }, [formRefCustomer, getShippingWards, handleChangeArea, newAreas]);
+  }, [formRefCustomer, getShippingWards, getWards, newAreas]);
 
-  useEffect(() => {
-    const value = formRefCustomer.current?.getFieldValue("full_address");
-    if (value) {
-      const newValue = value.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-        .toLowerCase();
-        
-      const newWards = wards.map((ward: any) => {
-        return {
-          ...ward,
-          ward_name_normalize: ward.name.normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .toLowerCase(),
-        }
-      });
-      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      formRefCustomer.current?.setFieldsValue({
-        ward_id: findWard ? findWard.id : null,
-      })
-    }
-  }, [formRefCustomer, wards]);
-
-  useEffect(() => {
-    const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
-    if (value) {
-      const newValue = value.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-        .toLowerCase();
-      const newWards = shippingWards.map((ward: any) => {
-        return {
-          ...ward,
-          ward_name_normalize: ward.name.normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .toLowerCase(),
-        }
-      });
-      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      formRefCustomer.current?.setFieldsValue({
-        shipping_addresses_ward_id: findWard ? findWard.id : null,
-      })
-    }
-  }, [formRefCustomer, shippingWards]);
 
   useEffect(() => {
     customerForm.resetFields();
@@ -801,11 +811,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           }
                           style={{ width: "100%" }}
                           onChange={(value) => {
-
                             let values = formRefCustomer.current?.getFieldsValue();
                             values.ward_id = null;
                             formRefCustomer.current?.setFieldsValue(values);
-                            handleChangeArea(value);
+                            getWards(Number(value));
                             setVisibleBtnUpdate(true);
                           }}
                           optionFilterProp="children"
