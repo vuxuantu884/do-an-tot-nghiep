@@ -209,7 +209,8 @@ const UpdateTicket: FC = () => {
     } else {
       dispatch(getDetailInventoryTransferAction(idNumber, onResult));
     }
-  }, [CopyId, stateImport, dispatch, idNumber, onResult, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [CopyId]);
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
