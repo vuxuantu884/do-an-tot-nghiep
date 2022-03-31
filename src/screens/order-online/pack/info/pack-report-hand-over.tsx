@@ -257,11 +257,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           order_have_not_taken = order_have_not_taken + 1;
         if (itemOrder.fulfillment_status === FulFillmentStatus.CANCELLED)
           order_cancel = order_cancel + 1;
-        if (itemOrder.status === FulFillmentStatus.RETURNING)
+        if (itemOrder.fulfillment_status === FulFillmentStatus.RETURNING)
           order_moving_complete = order_moving_complete + 1;
-        if (itemOrder.status === FulFillmentStatus.SHIPPED)
+        if (itemOrder.fulfillment_status === FulFillmentStatus.SHIPPED)
           order_success = order_success + 1;
-        if (itemOrder.status === FulFillmentStatus.RETURNED)
+        if (itemOrder.fulfillment_status === FulFillmentStatus.RETURNED)
           order_complete = order_complete + 1;
       });
 
