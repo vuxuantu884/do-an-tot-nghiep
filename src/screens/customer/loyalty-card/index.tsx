@@ -30,7 +30,7 @@ const LoyaltyCardPage = () => {
         extra={
           <>
             {allowCreateCardRelease && activeTab === '1' &&
-              <Link to={`${UrlConfig.CUSTOMER2}-cards/upload`}>
+              <Link to={`${UrlConfig.CUSTOMER_CARDS}/upload`}>
                 <Button
                   className="ant-btn-outline ant-btn-primary"
                   size="large"

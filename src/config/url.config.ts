@@ -26,6 +26,7 @@ const UrlConfig = {
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
+  CUSTOMER_CARDS: `/customer-cards`,
   SHIPMENTS: `/shipments`,
   SHIPMENTS_FAILED: `/shipments-failed`,
   YD_PAGE: `/yd-page`,
