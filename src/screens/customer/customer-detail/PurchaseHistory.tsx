@@ -363,18 +363,20 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     [dispatch, onSuccessEditNote]
   );
 
-  const renderReturn = (item:OrderModel) => {
-    return (
-      <div style={{marginTop: 5}}>
-        <Tooltip title="Đổi trả hàng">
-          <Link
-            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${item.id}`}
-          >
-            <img alt="" src={iconReturn} style={{width: 20}} />
-          </Link>
-        </Tooltip>
-      </div>
-    )
+  const renderReturn = (item: any) => {
+    if (!item.code_order_return) {
+      return (
+        <div style={{marginTop: 5}}>
+          <Tooltip title="Đổi trả hàng">
+            <Link
+              to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${item.id}`}
+            >
+              <img alt="" src={iconReturn} style={{width: 20}} />
+            </Link>
+          </Tooltip>
+        </div>
+      )
+    }
   };
 
   const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> =
