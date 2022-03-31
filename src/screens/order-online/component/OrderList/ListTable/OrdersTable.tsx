@@ -18,6 +18,7 @@ import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
+  ShipmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -60,11 +61,13 @@ import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedT
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
 import IconTrackingCode from "./images/iconTrackingCode.svg";
 import iconWeight from "./images/iconWeight.svg";
-import IconPaymentBank from "./images/paymentBank.svg";
+import IconPaymentBank from "./images/chuyen-khoan.svg";
 import IconPaymentCard from "./images/paymentCard.svg";
-import IconPaymentCod from "./images/paymentCod.svg";
-import IconPaymentCash from "./images/paymentMoney.svg";
+import IconPaymentCod from "./images/cod.svg";
+import IconPaymentCash from "./images/tien-mat.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
+import IconPaymentReturn from "./images/tien-hoan.svg";
+import IconPaymentExchange from "./images/tien-doi.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import InventoryTable from "./InventoryTable";
@@ -75,6 +78,7 @@ import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 // import 'assets/css/_sale-order.scss';
 import iconReturn from "assets/icon/return.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import {DELIVERY_SERVICE_PROVIDER_CODE} from "utils/Constants";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -162,7 +166,7 @@ function OrdersTable(props: PropTypes) {
     },
     {
       payment_method_code: null,
-      icon: IconPaymentCash,
+      icon: IconPaymentReturn,
       tooltip: null,
     },
     {
@@ -251,7 +255,15 @@ function OrdersTable(props: PropTypes) {
       //   return null;
       // }
       let selectedPayment = paymentIcons.find(
-        (single) => single.payment_method_code === payment.payment_method_code
+        (single) => {
+          if(single.payment_method_code === "cod") {
+            return single.payment_method_code === payment.payment_method
+          } else if(!single.payment_method_code ){
+            return payment.payment_method=== "Hàng đổi"
+          } else {
+            return single.payment_method_code === payment.payment_method_code
+          }
+        }
       );
       return (
         <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`}>
@@ -320,7 +332,21 @@ function OrdersTable(props: PropTypes) {
     return html
   };
 
-  const renderTrackingCode = (trackingCode?: string) => {
+  const getLink = (providerCode: string, trackingCode: string) => {
+    switch (providerCode) {
+      case DELIVERY_SERVICE_PROVIDER_CODE.ghn:
+        return `https://donhang.ghn.vn/?order_code=${trackingCode}`
+      case DELIVERY_SERVICE_PROVIDER_CODE.ghtk:
+        return `https://i.ghtk.vn/${trackingCode}`
+      case DELIVERY_SERVICE_PROVIDER_CODE.vtp:
+        return `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don/`
+      default:
+        break;
+    }
+  };
+
+  const renderTrackingCode = (shipment: ShipmentResponse) => {
+    const trackingCode = shipment?.tracking_code;
     if (!trackingCode) {
       return null;
     }
@@ -333,6 +359,7 @@ function OrdersTable(props: PropTypes) {
     } else {
       html = trackingCode;
     }
+    const linkText = shipment?.delivery_service_provider_code ? getLink(shipment.delivery_service_provider_code, trackingCode) : ""
     return (
       <span
         onClick={(e) => {
@@ -341,7 +368,22 @@ function OrdersTable(props: PropTypes) {
             showSuccess("Đã copy mã vận đơn!");
           }
         }}>
-        {html}
+        {linkText ? (
+          <a href={linkText} target="_blank" title={linkText} rel="noreferrer">
+            {html}
+          </a>
+        ) : html }
+        <Tooltip title="Click để copy mã vận đơn">
+          <img
+            onClick={(e) => {
+              copyTextToClipboard(e, html)
+              showSuccess("Đã copy mã vận đơn!")
+            }}
+            src={copyFileBtn}
+            alt=""
+            style={{ width: 18, cursor: "pointer" }}
+          />
+        </Tooltip>
       </span>
     );
   };
@@ -370,6 +412,16 @@ function OrdersTable(props: PropTypes) {
       );
     }
     return html;
+  };
+
+  const renderTypeIfOrderReturn = (order: OrderModel) => {
+    if(order?.order_return_origin?.code) {
+      return (
+        <div title="Đơn có đổi trả" className="isReturn">
+          <strong>[D]</strong>
+        </div>
+      )
+    }
   };
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
@@ -419,6 +471,7 @@ function OrdersTable(props: PropTypes) {
               <div className="textSmall single">
                 <strong>Tổng SP: {getTotalQuantity(i.items)}</strong>
               </div>
+              {renderTypeIfOrderReturn(i)}
             </React.Fragment>
           );
         },
@@ -736,23 +789,21 @@ function OrdersTable(props: PropTypes) {
                           </Tooltip>
 
                           {sortedFulfillments[0]?.shipment?.tracking_code ? (
-                            <Tooltip title="Mã vận đơn">
-                              <div className="single trackingCode">
-                                {/* <div
-                                  onClick={(e) => {
-                                    if (sortedFulfillments[0]?.shipment?.tracking_code) {
-                                      copyTextToClipboard(
-                                        e,
-                                        sortedFulfillments[0]?.shipment?.tracking_code
-                                      );
-                                      showSuccess("Đã copy mã vận đơn!")
-                                    }
-                                  }}>
-                                  {sortedFulfillments[0]?.shipment?.tracking_code}
-                                </div> */}
-                                {renderTrackingCode(sortedFulfillments[0]?.shipment?.tracking_code)}
-                              </div>
-                            </Tooltip>
+                            <div className="single trackingCode">
+                              {/* <div
+                                onClick={(e) => {
+                                  if (sortedFulfillments[0]?.shipment?.tracking_code) {
+                                    copyTextToClipboard(
+                                      e,
+                                      sortedFulfillments[0]?.shipment?.tracking_code
+                                    );
+                                    showSuccess("Đã copy mã vận đơn!")
+                                  }
+                                }}>
+                                {sortedFulfillments[0]?.shipment?.tracking_code}
+                              </div> */}
+                              {renderTrackingCode(sortedFulfillments[0]?.shipment)}
+                            </div>
                           ) : null}
 
                           {sortedFulfillments[0].code ? (

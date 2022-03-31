@@ -5,9 +5,11 @@ import {
   SwapRightOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import search from "assets/img/search.svg";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import CustomSelectWithButtonCheckAll from "component/custom/select-with-button-check-all.custom";
 import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
@@ -40,6 +42,7 @@ import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { POS } from "utils/Constants";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
+import { fullTextSearch } from "utils/StringUtils";
 
 type PropTypes = {
   params: OrderSearchQuery;
@@ -119,12 +122,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const dateFormat = "DD-MM-YYYY";
 
-  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
+  const [selectedOrderSourceId, setSelectedOrderSourceIds] = useState<string[]>([])
+  const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
+  const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
 
-  const status = bootstrapReducer.data?.order_main_status.filter(
-    (single) => single.value !== "splitted"
-  );
+const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
+const status = bootstrapReducer.data?.order_main_status.filter(
+  (single) => single.value !== "splitted"
+);
+
+  useEffect(() => {
+    setSelectedSubStatusCodes(initSubStatus?.map(single => single.code) || []);
+  }, [initSubStatus])
+
+  // useEffect(() => {
+  //   setShowStatusCodes(status?.map(single => single.value) || []);
+  // }, [status])
+  
   const fulfillmentStatus = useMemo(
     () => [
       { name: "Chưa giao", value: "unshipped" },
@@ -1317,7 +1332,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 </Col>
                 <Col span={8} xxl={8}>
                   <Item name="source_ids" label="Nguồn đơn hàng">
-                    <CustomSelect
+                  <CustomSelectWithButtonCheckAll
                       mode="multiple"
                       style={{ width: "100%" }}
                       showArrow
@@ -1342,7 +1357,26 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                             }
                           });
                         }
-                      }}>
+                      }}
+                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
+                        if(e.target.checked) {
+                          formRef.current?.setFieldsValue({
+                            source_ids: selectedOrderSourceId.concat(listSources?.map(single => single.id.toString()))
+                          })
+                        } else {
+                          formRef.current?.setFieldsValue({
+                            source_ids: undefined
+                          })
+                        }
+                      }}
+                      getCurrentValue={() => {
+                        return formRef.current?.getFieldValue("source_ids")
+                      }}
+                      allValues={listSources}
+                      onChange = {(value) => {
+                        setSelectedOrderSourceIds(value)
+                      }}
+                    >
                       {listSources.map((item, index) => (
                         <CustomSelect.Option
                           style={{ width: "100%" }}
@@ -1351,11 +1385,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                           {item.name}
                         </CustomSelect.Option>
                       ))}
-                    </CustomSelect>
+                    </CustomSelectWithButtonCheckAll>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày tạo đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày tạo đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="issued_on_min"
                     fieldNameTo="issued_on_max"
@@ -1367,7 +1403,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 </Col>
                 <Col span={8} xxl={8}>
                   <Item name="sub_status_code" label="Trạng thái xử lý đơn">
-                    <CustomSelect
+                    <CustomSelectWithButtonCheckAll
                       mode="multiple"
                       showArrow
                       allowClear
@@ -1380,13 +1416,33 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       maxTagCount="responsive"
                       onBlur={() =>
                         setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus)
-                      }>
+                      }
+                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
+                        if(e.target.checked) {
+                          formRef.current?.setFieldsValue({
+                            sub_status_code: selectedSubStatusCodes
+                          })
+                        } else {
+                          formRef.current?.setFieldsValue({
+                            sub_status_code: undefined
+                          })
+                        }
+                      }}
+                      getCurrentValue={() => {
+                        return formRef.current?.getFieldValue("sub_status_code")
+                      }}
+                      allValues={subStatus}
+                      onSearch = {(value) => {
+                        const showed = initSubStatus.filter(single => fullTextSearch(value, single.sub_status)).map(gg => gg.code)
+                        setSelectedSubStatusCodes(showed)
+                      }}
+                    >
                       {subStatus?.map((item: any) => (
                         <CustomSelect.Option key={item.id} value={item.code.toString()}>
                           {item.sub_status}
                         </CustomSelect.Option>
                       ))}
-                    </CustomSelect>
+                    </CustomSelectWithButtonCheckAll>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1411,7 +1467,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày duyệt đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày duyệt đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="finalized_on_min"
                     fieldNameTo="finalized_on_max"
@@ -1459,7 +1517,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày huỷ đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày huỷ đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="cancelled_on_min"
                     fieldNameTo="cancelled_on_max"
@@ -1507,7 +1567,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày hoàn tất đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày hoàn tất đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="completed_on_min"
                     fieldNameTo="completed_on_max"
@@ -1545,7 +1607,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 </Col>
 
                 <Col span={8} xxl={8}>
-                  <p>Ngày dự kiến nhận hàng</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày dự kiến nhận hàng</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="expected_receive_on_min"
                     fieldNameTo="expected_receive_on_max"
@@ -1636,7 +1700,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 <Col span={8} xxl={8}></Col>
                 <Col span={8} xxl={8}>
                   <Item name="order_status" label="Trạng thái tiến trình đơn hàng">
-                    <CustomSelect
+                  <CustomSelectWithButtonCheckAll
                       mode="multiple"
                       allowClear
                       showSearch
@@ -1646,13 +1710,35 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       optionFilterProp="children"
                       showArrow
                       getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
+                      maxTagCount="responsive"
+                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
+                        if(e.target.checked && status) {
+                          formRef.current?.setFieldsValue({
+                            order_status: showedStatusCodes.length > 0 ? showedStatusCodes : status.map(single => single.value)
+                          })
+                        } else {
+                          formRef.current?.setFieldsValue({
+                            order_status: undefined
+                          })
+                        }
+                      }}
+                      getCurrentValue={() => {
+                        return formRef.current?.getFieldValue("order_status")
+                      }}
+                      allValues={status}
+                      onSearch = {(value) => {
+                        if(status) {
+                          const showed = (status|| []).filter(single => fullTextSearch(value, single.name)).map(gg => gg.value)
+                          setShowStatusCodes(showed)
+                        }
+                      }}
+                    >
                       {status?.map((item) => (
                         <CustomSelect.Option key={item.value} value={item.value.toString()}>
                           {item.name}
                         </CustomSelect.Option>
                       ))}
-                    </CustomSelect>
+                    </CustomSelectWithButtonCheckAll>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1694,7 +1780,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Tổng tiền</p>
+                  <div className="ant-form-item-label">
+                    <label>Tổng tiền</label>
+                  </div>
                   <div className="date-range" style={{ display: "flex", alignItems: "center" }}>
                     <Item name="price_min" style={{ width: "45%", marginBottom: 0 }}>
                       <InputNumber
