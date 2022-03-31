@@ -8,7 +8,7 @@ import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarO
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import { getListStoresSimpleAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
@@ -22,6 +22,7 @@ import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, change
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import purify from "dompurify";
 import useFetchStores from "hook/useFetchStores";
+import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -538,6 +539,8 @@ ShippingServiceConfigDetailResponseModel[]
   const onReturn = () => {
     if (!storeReturn) {
       showError("Vui lòng chọn cửa hàng để trả!");
+      const element: any = document.getElementById("selectStoreReturn");
+      scrollAndFocusToDomElement(element);
       return;
     }
     if (!checkIfHasReturnProduct) {
@@ -632,6 +635,8 @@ ShippingServiceConfigDetailResponseModel[]
         }
         if (!storeReturn) {
           showError("Vui lòng chọn cửa hàng để trả!");
+          const element: any = document.getElementById("selectStoreReturn");
+          scrollAndFocusToDomElement(element);
           return;
         }
         if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
@@ -1586,30 +1591,13 @@ ShippingServiceConfigDetailResponseModel[]
     }
   }, [listExchangeProducts.length])
 
-  const dataCanAccess = useMemo(() => {
-		let newData: Array<StoreResponse> = [];
-		if (listStores && listStores.length) {
-			if(userReducer.account?.account_stores && userReducer.account?.account_stores.length>0)
-			{
-				newData = listStores.filter((store) =>
-					haveAccess(
-						store.id,
-						userReducer.account ? userReducer.account.account_stores : []
-					)
-				);
-			}
-			else{
-				newData=listStores;
-			}
-		}
-		return newData;
-	}, [listStores, userReducer.account]);
+  const storeIdLogin = useGetStoreIdFromLocalStorage()
 
   useEffect(() => {
-    if(dataCanAccess[0]?.id) {
-      setStoreReturn(dataCanAccess[0]);
-		}
-  }, [dataCanAccess, dispatch])
+    if(storeIdLogin) {
+      dispatch(StoreDetailAction(storeIdLogin, setStoreReturn))
+    }
+  }, [dispatch, storeIdLogin])
   
 
   return (

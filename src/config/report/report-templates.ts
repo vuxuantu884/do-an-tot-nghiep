@@ -28,7 +28,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 1,
     type: "Báo cáo bán hàng",
     name: "theo nhân viên",
-    query: `SHOW gross_sales,returns, net_sales, shipping,total_sales, average_order_value, orders, ordered_item_quantity, returned_item_quantity, net_quantity   
+    query: `SHOW customers, orders, ordered_item_quantity, returned_item_quantity, net_quantity, gross_sales, discounts, returns, net_sales, average_order_value   
     BY staff_name
     FROM sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
@@ -55,10 +55,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo cửa hàng",
-    query: `SHOW orders, gross_sales, returns, net_sales, shipping, total_sales, average_order_value
-    BY channel_provider_name,  pos_location_name   
+    query: `SHOW customers, orders, ordered_item_quantity, gross_sales, returned_item_quantity, returns, discounts, net_quantity, net_sales, average_order_value 
+    BY pos_location_department_lv2,pos_location_name   
     FROM sales  
-    WHERE channel_provider_name IN ('POS')
+    WHERE channel_provider_name IN ('POS') 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_SALES],
     cube: "sales",
@@ -82,11 +82,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   },
   {
     type: "Báo cáo bán hàng",
-    name: "theo nguồn bán hàng",
-    query: `SHOW orders, gross_sales, returns, shipping, total_sales, net_sales, average_order_value   
-    BY channel_provider_name, source_name
+    name: "theo shop online",
+    query: `SHOW customers, orders, ordered_item_quantity, gross_sales, returned_item_quantity, returns, discounts, net_quantity, net_sales, average_order_value   
+    BY source_department_lv2,shop_name
     FROM sales 
-    WHERE channel_provider_name IN ('web','Shopee','Facebook','Admin','Lazada') 
+    WHERE channel_provider_name IN ('web','Shopee','Lazada','Facebook','Admin')   
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
     cube: "sales",
@@ -113,16 +113,17 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo sản phẩm",
-    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales, average_order_value  
-    BY variant_sku
+    query: `SHOW ordered_item_quantity, gross_sales, returned_item_quantity, returns, net_quantity, discounts, net_sales  
+    BY variant_sku3
     FROM sales 
+    WHERE channel_provider_name IN ('POS') 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
     cube: "sales",
     alias: [UrlConfig.ANALYTIC_SALES],
     iconImg: "san-pham.svg",
     id: 4,
-    chartColumnSelected: ['net_sales', 'average_order_value']
+    chartColumnSelected: ['net_quantity', 'net_sales']
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -141,7 +142,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo thời gian",
-    query: `SHOW orders,gross_sales,returns, net_sales,shipping,total_sales, average_order_value  
+    query: `SHOW customers, orders, net_quantity, net_sales, average_order_value  
     BY day 
     FROM sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
@@ -150,7 +151,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES],
     iconImg: "thoi-gian.svg",
     id: 5,
-    chartColumnSelected: ['net_sales']
+    chartColumnSelected: ['customers', 'net_sales']
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -169,15 +170,15 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo khách hàng",
-    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales, average_order_value  
-    BY customer_name
+    query: `SHOW orders, gross_sales, returns, ordered_item_quantity, returned_item_quantity, net_quantity, discounts, net_sales, average_order_value  
+    BY customer_name,customer_phone_number
     FROM sales SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY net_sales DESC `,
     cube: "sales",
     alias: [UrlConfig.ANALYTIC_SALES],
     iconImg: "khach-hang.svg",
     id: 6,
-    chartColumnSelected: ['net_sales', 'average_order_value']
+    chartColumnSelected: []
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -198,29 +199,29 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     query: `SHOW returns, returned_item_quantity 
     BY staff_name 
     FROM sales
-    WHERE sale_kind == "Trả hàng" 
+    WHERE sale_kind IN ('Trả hàng')  
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
     ORDER BY returns DESC`,
     cube: "sales",
     alias: [UrlConfig.ANALYTIC_SALES],
     iconImg: "nhan-vien-tra-hang.svg",
     id: 7,
-    chartColumnSelected: ['returned_item_quantity']
+    chartColumnSelected: ['returns', 'returned_item_quantity']
   },
   {
     type: "Báo cáo trả hàng",
     name: "theo sản phẩm",
-    query: `SHOW returns, returned_item_quantity 
-    BY variant_sku
+    query: `SHOW returned_item_quantity, returns 
+    BY variant_sku3
     FROM sales
-    WHERE sale_kind == "Trả hàng" 
+    WHERE sale_kind IN ('Trả hàng')  
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY returned_item_quantity DESC`,
     cube: "sales",
     alias: [UrlConfig.ANALYTIC_SALES],
     iconImg: "nhan-vien-tra-hang.svg",
     id: 8,
-    chartColumnSelected: ['returned_item_quantity']
+    chartColumnSelected: ['returned_item_quantity', 'returns']
   },
   {
     type: "Báo cáo thanh toán",
@@ -336,17 +337,16 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo địa chỉ khách hàng",
-    query: `SHOW  orders, gross_sales, returns, net_sales, shipping, total_sales, average_order_value  
+    query: `SHOW  customers, orders, ordered_item_quantity, returned_item_quantity, returns, net_sales, average_order_value   
       BY shipping_city  
       FROM sales 
-      WHERE channel_provider_name IN ('web','Shopee','Lazada','Facebook','Admin') 
       SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
       `,
     cube: "sales",
     iconImg: "dia-chi-kh.png",
     alias: [UrlConfig.ANALYTIC_CUSTOMER],
     id: 16,
-    chartColumnSelected: ['net_sales', 'average_order_value']
+    chartColumnSelected: ['customers', 'net_sales']
   },
   {
     type: "Báo cáo lợi nhuận",

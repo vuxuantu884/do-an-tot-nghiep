@@ -36,6 +36,7 @@ import {
 	SearchBarCode,
 	searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
+import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -1880,6 +1881,8 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
+	const storeIdLogin = useGetStoreIdFromLocalStorage()
+
 	const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
 		if (listStores && listStores.length) {
@@ -1906,21 +1909,27 @@ function OrderCreateProduct(props: PropType) {
 				}
 			}
 		}
-		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
+		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu đã có ở local storage thì ưu tiên lấy, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
 		if (newData && newData[0]?.id) {
 			if (!storeId) {
-				setStoreId(newData[0].id);
+				if(storeIdLogin) {
+					setStoreId(storeIdLogin);
+				} else if(!isCreateReturn) {
+					setStoreId(newData[0].id);
+				}
 			}
 		}
 		return newData;
-	}, [listStores, setStoreId, storeId, userReducer.account]);
+	}, [isCreateReturn, listStores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
 
 	useEffect(() => {
-		if(isCreateReturn && dataCanAccess[0]?.id) {
-			setStoreId(dataCanAccess[0].id);
+		if(isCreateReturn ) {
+			if(storeIdLogin) {
+				setStoreId(storeIdLogin);
+			} 
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dataCanAccess, isCreateReturn])
+	}, [storeIdLogin, isCreateReturn])
 	
 
 	const onUpdateData = useCallback(
