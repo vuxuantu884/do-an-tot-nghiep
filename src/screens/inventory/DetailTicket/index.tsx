@@ -822,7 +822,8 @@ const DetailTicket: FC = () => {
     );
 
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-  }, [dispatch, idNumber, onResult]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateNote = (key: string) => {
     updateNoteApi(key);
