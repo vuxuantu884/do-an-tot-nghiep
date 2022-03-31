@@ -1574,7 +1574,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                 </Col>
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
-                    <label>Ngày hoàn tất đơn</label>
+                    <label>Ngày thành công</label>
                   </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="completed_on_min"

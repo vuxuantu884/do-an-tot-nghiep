@@ -96,7 +96,7 @@ function CardReturnProducts(props: PropType) {
         >
           Trả toàn bộ sản phẩm
         </Checkbox>
-        <Button onClick={() => {setStoreReturnModalVisible(true)}} style={{marginLeft: 20}}>Chọn cửa hàng</Button>
+        <Button type="primary" id="selectStoreReturn" ghost onClick={() => {setStoreReturnModalVisible(true)}} style={{marginLeft: 20}}>Chọn cửa hàng trả</Button>
       </React.Fragment>
     );
   };
