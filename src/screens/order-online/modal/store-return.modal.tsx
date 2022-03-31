@@ -3,6 +3,7 @@ import {CreateOrderReturnContext} from "contexts/order-return/create-order-retur
 import React, {useContext, useEffect, useState} from "react";
 import "assets/css/_modal.scss";
 import {StoreResponse} from "model/core/store.model";
+import { fullTextSearch } from "utils/StringUtils";
 
 type StoreReturnModelProps = {
   isModalVisible: boolean;
@@ -73,7 +74,7 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (
     if (listStoreReturn) {
       let query = value.trim();
       let newData: StoreResponse[] = listStoreReturn.filter(function (el) {
-        return el.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+        return fullTextSearch(query, el.name)
       });
 
       let result: StoreModel[] = [];
