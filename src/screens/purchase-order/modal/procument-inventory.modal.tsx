@@ -152,6 +152,7 @@ const ProcumentInventoryModal: React.FC<ProcumentInventoryModalProps> = (
                     size="large"
                     icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
                     onClick={()=>{setShowImportModal(true)}}
+                    hidden
                   >
                     Nhập file
                   </Button>

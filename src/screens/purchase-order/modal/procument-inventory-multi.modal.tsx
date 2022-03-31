@@ -1,4 +1,4 @@
-import { Col, Modal, Row, Table } from "antd";
+import { Button, Col, Modal, Row, Table, Upload } from "antd";
 import {
   POProcumentLineItemField,
   PurchaseProcument,
@@ -17,6 +17,9 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { callApiNative } from "utils/ApiUtils";
 import { useDispatch } from "react-redux";
 import { getProcurementsMerge } from "service/purchase-order/purchase-procument.service";
+import * as XLSX from 'xlsx';
+import { showError } from "utils/ToastUtils";
+import { PurchaseProcumentExportField } from "model/purchase-order/purchase-mapping";
 
 type ProcumentInventoryModalProps = { 
   visible: boolean;
@@ -36,7 +39,8 @@ const ProducmentInventoryMultiModal: React.FC<ProcumentInventoryModalProps> = (
     title,
     onCancel,
     onOk,
-    listProcurement
+    listProcurement,
+    poData
   } = props; 
 
   const [dataTable, setDataTable] = useState<Array<PurchaseProcumentLineItem>>([]); 
@@ -67,6 +71,51 @@ const ProducmentInventoryMultiModal: React.FC<ProcumentInventoryModalProps> = (
     }
   },[listProcurement, dispatch]);
 
+  const exportExcel= useCallback(()=>{
+    let dataExport:any = [];
+    for (let i = 0; i < dataTable.length; i++) {
+      const e = dataTable[i];
+      let item = { [PurchaseProcumentExportField.sku]: e.sku,
+        [PurchaseProcumentExportField.variant]: e.variant,
+        [PurchaseProcumentExportField.sld]: e.ordered_quantity,
+        [PurchaseProcumentExportField.sldduyet]: e.quantity,
+        [PurchaseProcumentExportField.sl]: null,};
+
+      dataExport.push(item);
+    } 
+    const worksheet = XLSX.utils.json_to_sheet(dataExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    const fileName = poData?.code ?  `nhap_so_luong_phieu_nhap_kho_${poData?.code}.xlsx`:"nhap_so_luong_phieu_nhap_kho.xlsx";
+    XLSX.writeFile(workbook, fileName);
+},[poData,dataTable]);
+
+  const uploadProps  = {
+    beforeUpload: (file: any) => {
+      const typeExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      if (!typeExcel) {
+        showError("Chỉ chọn file excel");
+      }
+      return typeExcel || Upload.LIST_IGNORE;
+    },
+    onChange: useCallback(async (e:any)=>{ 
+      const file = e.file; 
+      const data = await file.originFileObj.arrayBuffer();
+      const workbook = XLSX.read(data);
+
+      const workSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData: any = XLSX.utils.sheet_to_json(workSheet);
+      
+      dataTable.forEach((e:PurchaseProcumentLineItem) => {
+        const findItem = jsonData.find((item:any)=>(item.sku !== undefined && item.sku.toString() === e.sku.toString()));
+        if (findItem && typeof(findItem.sl) === "number") {
+            e.real_quantity = findItem.sl;
+        }
+      });
+      setDataTable([...dataTable]);
+    },[dataTable])
+  } 
+
   useEffect(()=>{
     getProcurementItems();
   },[getProcurementItems, listProcurement]);
@@ -78,9 +127,25 @@ const ProducmentInventoryMultiModal: React.FC<ProcumentInventoryModalProps> = (
         width={920}
         centered
         title={title}
-        onCancel={onCancel}
-        onOk={okModal}
-        okText="Xác nhận nhập"
+        footer={
+            <>
+            <Button danger onClick={onCancel}>
+              Hủy
+            </Button>
+            <Button onClick={exportExcel}>
+              Export Excel
+            </Button>
+            <Button>
+                <Upload {...uploadProps} maxCount={1} showUploadList={false}>
+                    <>Import Excel</>
+                 </Upload>
+            </Button>
+            <Button type="primary" onClick={okModal}>
+              Xác nhận nhập
+            </Button>
+          </>
+        }
+        okText={undefined}
       >
          <Row gutter={50}>
               <Col span={12}>

@@ -20,7 +20,7 @@ import {
   useMemo,
   Fragment,
 } from "react";
-import { ProcumentStatus } from "utils/Constants";
+import { ProcumentStatus, TypeModalPo } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import moment, { Moment } from "moment";
@@ -359,12 +359,25 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       let dataExport:any = [];
       for (let i = 0; i < procurement_items.length; i++) {
         const e = procurement_items[i];
-        const item = {
-          [PurchaseProcumentExportField.sku]: e.sku,
-          [PurchaseProcumentExportField.variant]: e.variant,
-          [PurchaseProcumentExportField.sld]: e.ordered_quantity,
-          [PurchaseProcumentExportField.sl]: null,
-        };
+        let item = {};
+        if (type === TypeModalPo.CONFIRM) {
+          item = {
+            [PurchaseProcumentExportField.sku]: e.sku,
+            [PurchaseProcumentExportField.variant]: e.variant,
+            [PurchaseProcumentExportField.sld]: e.ordered_quantity,
+            [PurchaseProcumentExportField.sl]: null,
+          };
+        }
+        if (type === TypeModalPo.INVENTORY) {
+          item = {
+            [PurchaseProcumentExportField.sku]: e.sku,
+            [PurchaseProcumentExportField.variant]: e.variant,
+            [PurchaseProcumentExportField.sld]: e.ordered_quantity,
+            [PurchaseProcumentExportField.sldduyet]: e.quantity,
+            [PurchaseProcumentExportField.sl]: null,
+          };
+        }
+
         dataExport.push(item);
       } 
       const worksheet = XLSX.utils.json_to_sheet(dataExport);
@@ -372,7 +385,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
       const fileName = poData?.code ?  `nhap_so_luong_phieu_nhap_kho_${poData?.code}.xlsx`:"nhap_so_luong_phieu_nhap_kho.xlsx";
       XLSX.writeFile(workbook, fileName);
-  },[form, poData]);
+  },[form, poData,type]);
 
   const uploadProps  = {
     beforeUpload: (file: any) => {
@@ -396,13 +409,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       procurement_items.forEach((e:PurchaseProcumentLineItem) => {
         const findItem = jsonData.find((item:any)=>(item.sku !== undefined && item.sku.toString() === e.sku.toString()));
         if (findItem && typeof(findItem.sl) === "number") {
-          e.quantity = findItem.sl;
+          if (type === TypeModalPo.CONFIRM) {
+            e.quantity = findItem.sl;
+          }
+          if (type === TypeModalPo.INVENTORY) {
+            e.real_quantity = findItem.sl;
+          }
         }
       });
 
       form.setFieldsValue({procurement_items: [...procurement_items]});
-    },[form])
-  }    
+    },[form,type])
+  } 
 
   return (
     <Fragment>
@@ -457,8 +475,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                 onChange={(active) => onChangeActive(active)}
                 renderTabBar={RenderTabBar}
                 tabBarExtraContent={ 
-                type !== "draft" ? <></>: 
-                <>
+                ([ProcumentStatus.DRAFT,ProcumentStatus.NOT_RECEIVED].indexOf(item?.status ?? "") !== -1) && <>
                   <Button icon={<DownloadOutlined />} onClick={exportExcel}>Export Excel</Button>
                   <Upload {...uploadProps} maxCount={1}>
                     <Button icon={<UploadOutlined />}>Import Excel</Button>
