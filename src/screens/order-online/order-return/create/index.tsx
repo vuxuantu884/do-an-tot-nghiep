@@ -8,7 +8,7 @@ import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarO
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import { getListStoresSimpleAction, StoreDetailCustomAction, StoreGetListAction } from "domain/actions/core/store.action";
+import { getListStoresSimpleAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
@@ -20,6 +20,7 @@ import {
 } from "domain/actions/order/order-return.action";
 import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import useFetchStores from "hook/useFetchStores";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -46,7 +47,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
@@ -117,6 +118,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
+  const listStores = useFetchStores();
   const [inventoryResponse, setInventoryResponse] =
   useState<Array<InventoryResponse> | null>(null);
 
@@ -126,7 +128,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const [storeId, setStoreId] = useState<number | null>(null);
 
-  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  // const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
@@ -313,6 +315,8 @@ ShippingServiceConfigDetailResponseModel[]
     let result = totalAmountCustomerNeedToPay - totalAmountPayment;
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
+
+  console.log('storeId', storeId)
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
@@ -688,7 +692,6 @@ ShippingServiceConfigDetailResponseModel[]
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
-          // valuesResult.channel_id = ADMIN_ORDER.channel_id;
           valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code") || OrderDetail.account_code;
@@ -697,7 +700,6 @@ ShippingServiceConfigDetailResponseModel[]
           values.marketer_code = form.getFieldValue("marketer_code") || OrderDetail.marketer_code;
           values.reference_code = form.getFieldValue("reference_code") || OrderDetail.reference_code;
           values.url = form.getFieldValue("url") || OrderDetail.url;
-          values.store_id = storeId;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
               valuesResult.order_return_id = orderReturnId;
@@ -717,11 +719,13 @@ ShippingServiceConfigDetailResponseModel[]
                 );
                 return;
               }
+              console.log('orderDetailResult', orderDetailResult)
               handleDispatchReturnAndExchange(orderDetailResult).then((response: any) => {
                 valuesResult.order_return_id = response.id;
                 let lstDiscount = createDiscountRequest();
                 valuesResult.discounts = lstDiscount;
                 setOrderReturnId(response.id);
+                console.log('valuesResult', valuesResult)
                 dispatch(
                   actionCreateOrderExchange(
                     valuesResult,
@@ -1529,10 +1533,6 @@ ShippingServiceConfigDetailResponseModel[]
       setIsExchange(false)
     }
   }, [listExchangeProducts.length])
-	
-  useLayoutEffect(() => {
-		dispatch(StoreGetListAction(setListStores));
-	}, [dispatch]);
 
   const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
