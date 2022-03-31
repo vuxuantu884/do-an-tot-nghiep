@@ -192,13 +192,11 @@ const InventoryDefectCreate: React.FC = () => {
       return
     }
     setIsLoading(true)
-    const dataSubmit: Array<InventoryItemsDefectedDetail> = dataTable.map((item: LineItemDefect) => {
+    const dataSubmit: Array<InventoryItemsDefectedDetail> = dataTable.map((item: InventoryItemsDefectedDetail) => {
       return {
-        variant_name: item.variant_name,
         code: item.code,
         defect: item.defect,
         note: item.note,
-        on_hand: item.on_hand,
         sku: item.sku,
         store: item.store,
         store_id: item.store_id,

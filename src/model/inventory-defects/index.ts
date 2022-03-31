@@ -23,17 +23,19 @@ export interface InventorySearchItem {
 }
 
 export interface InventoryItemsDefectedDetail {
+    id?: number; 
     code: string;
     sku: string;
     variant_id: number,
-    variant_name?: string; //bo
+    variant_name?: string; 
     image_url?: string;
-    on_hand?: number, //bo
+    on_hand?: number,
     note: string | null,
     defect: number;
     store_id: number;
     store: string;
 }
+
 
 export interface InventoryDefectResponse {
     id: number;
@@ -53,6 +55,7 @@ export interface InventoryDefectResponse {
     note: string;
     image_url? :string;
     on_hand: number;
+    product_id? :number;
 }
 
 export const InventoryDefectFields = {

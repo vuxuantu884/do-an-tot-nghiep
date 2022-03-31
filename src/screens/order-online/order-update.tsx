@@ -54,7 +54,6 @@ import {
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useFetchStores from "hook/useFetchStores";
 import { AccountResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
