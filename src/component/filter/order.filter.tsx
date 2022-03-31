@@ -31,6 +31,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,7 +39,7 @@ import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { POS } from "utils/Constants";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
@@ -121,6 +122,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   }, [isLoading]);
 
   const dateFormat = "DD-MM-YYYY";
+
+  const orderSourceFilterRef = useRef()
 
   const [selectedOrderSourceId, setSelectedOrderSourceIds] = useState<string[]>([])
   const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
@@ -1342,6 +1345,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                       notFoundContent="Không tìm thấy kết quả"
                       optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
+                      ref={orderSourceFilterRef}
                       maxTagCount="responsive"
                       onSearch={(value) => {
                         if (value.length > 1) {
@@ -1349,13 +1353,15 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                             name: value,
                             limit: 200,
                           };
-                          getSourcesWithParamsService(params).then((response) => {
-                            if (isFetchApiSuccessful(response)) {
-                              setListSource && setListSource(response.data.items);
-                            } else {
-                              handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
-                            }
-                          });
+                          handleDelayActionWhenInsertTextInSearchInput(orderSourceFilterRef, () => {
+                            getSourcesWithParamsService(params).then((response) => {
+                              if (isFetchApiSuccessful(response)) {
+                                setListSource && setListSource(response.data.items);
+                              } else {
+                                handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
+                              }
+                            });
+                          })
                         }
                       }}
                       onChangeAllSelect={(e: CheckboxChangeEvent)=>{
