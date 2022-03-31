@@ -556,4 +556,7 @@ export const StyledComponent = styled.div`
   .iconReturn {
     width: 20px
   }
+  .isReturn {
+    text-align: center;
+  }
 `;
