@@ -43,7 +43,7 @@ export const ReportifyFormFields = {
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
 function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
-    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery, setRowsInQuery } = useContext(AnalyticsContext)
     const [loadingTable, setLoadingTable] = useState<boolean>(false);
 
     const dispatch = useDispatch();
@@ -69,7 +69,10 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         let show: Array<string> = [];
 
         if (timeGroupBy) {
-            show = [timeGroupBy]
+            show = [timeGroupBy];
+            setRowsInQuery((prev: string[]) => [timeGroupBy, ...(prev.filter((item: string) => TIME_GROUP_BY.findIndex(timeGroupItem => timeGroupItem.value === item) === -1))]);
+        } else {
+            setRowsInQuery((prev: string[]) => [...(prev.filter((item: string) => TIME_GROUP_BY.findIndex(timeGroupItem => timeGroupItem.value === item) === -1))]);
         }
         if (properties) {
             const propertiesList: Array<string> = [];
@@ -109,10 +112,10 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 isOrderBy = true;
             }
         }
-
+        const rowsInQueryNoTimeGroup = rowsInQuery.filter((item: string) => TIME_GROUP_BY.findIndex(timeGroupItem => timeGroupItem.value === item) === -1);
         const parms: AnalyticQuery = {
             columns: columns,
-            rows: rowsInQuery,
+            rows: timeGroupBy ? [timeGroupBy, ...rowsInQueryNoTimeGroup] : rowsInQueryNoTimeGroup,
             cube: values?.reportType || cubeRef.current,
             from: ranges?.from,
             to: ranges?.to,
@@ -299,7 +302,14 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         form.submit();
     }
 
-    const handleChangeTimeGroup= (timeGroup:string)=>{
+    const handleChangeTimeGroup = (timeGroup:string) => {
+        // clear active filter relate time 
+        TIME_GROUP_BY.forEach((item) => {
+            const { value } = item;
+            activeFilters.delete(value);
+        })
+        setActiveFilters(activeFilters);
+
         const where = form.getFieldValue(ReportifyFormFields.orderBy);
         if(Array.isArray(where) && TIME_GROUP_BY.some((item)=>item.value===where[0][0])){
             //reset orderBy khi chuyển nhóm thời gian.
