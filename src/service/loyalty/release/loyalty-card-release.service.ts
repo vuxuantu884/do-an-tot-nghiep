@@ -19,5 +19,5 @@ export const loyaltyCardUploadApi = (
 
 export const searchLoyaltyCardReleaseList = (query: BaseQuery): Promise<BaseResponse<any>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-card-release?${params}`);
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-card-release/jobs?${params}`);
 };
