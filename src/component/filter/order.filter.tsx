@@ -1389,7 +1389,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày tạo đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày tạo đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="issued_on_min"
                     fieldNameTo="issued_on_max"
@@ -1465,7 +1467,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày duyệt đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày duyệt đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="finalized_on_min"
                     fieldNameTo="finalized_on_max"
@@ -1513,7 +1517,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày huỷ đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày huỷ đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="cancelled_on_min"
                     fieldNameTo="cancelled_on_max"
@@ -1561,7 +1567,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày hoàn tất đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày hoàn tất đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="completed_on_min"
                     fieldNameTo="completed_on_max"
@@ -1599,7 +1607,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                 </Col>
 
                 <Col span={8} xxl={8}>
-                  <p>Ngày dự kiến nhận hàng</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày dự kiến nhận hàng</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="expected_receive_on_min"
                     fieldNameTo="expected_receive_on_max"
@@ -1770,7 +1780,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Tổng tiền</p>
+                  <div className="ant-form-item-label">
+                    <label>Tổng tiền</label>
+                  </div>
                   <div className="date-range" style={{ display: "flex", alignItems: "center" }}>
                     <Item name="price_min" style={{ width: "45%", marginBottom: 0 }}>
                       <InputNumber
