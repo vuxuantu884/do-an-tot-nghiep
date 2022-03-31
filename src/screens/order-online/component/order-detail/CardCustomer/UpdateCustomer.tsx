@@ -967,8 +967,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           }}
                           onMouseLeave={() => {
                             const elm = document.getElementById("customer_update_birthday");
-                            // console.log(elm?.getAttribute('value'))
-                            const newDate = moment(elm?.getAttribute('value'), "DD/MM/YYYY")
+                            const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
                             if (newDate) {
                               formRefCustomer.current?.setFieldsValue({
                                 birthday: newDate

@@ -552,9 +552,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     }}
                     onMouseLeave={() => {
                       const elm = document.getElementById("customer_add_birthday");
-                      // console.log(elm?.getAttribute('value'))
-                      const newDate = moment(elm?.getAttribute('value'), "DD/MM/YYYY")
-                      if (newDate) {
+                      const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
+                      if (newDate ) {
                         formRef.current?.setFieldsValue({
                           birthday: newDate
                         })
