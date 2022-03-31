@@ -212,6 +212,33 @@ const UpdateTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [CopyId]);
 
+  useEffect(() => {
+    if (stores.length === 0) return;
+
+    if (fromStores?.length === 1) {
+      stores.forEach((element: any) => {
+        if (element.id === fromStores[0].store_id) {
+          form.setFieldsValue({
+            from_store_id: element.id
+          });
+          setFormStoreData(element);
+          onChangeFromStore(element.id);
+        }
+      });
+    }
+
+    if (fromStores?.length === 0) {
+      const newStore = stores.map((i) => {
+        return {
+          store_id: i.id,
+          store: i.name,
+        }
+      });
+      setFromStores(newStore);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stores, fromStores]);
+
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
     if (value) {
