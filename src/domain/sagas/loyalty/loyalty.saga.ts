@@ -44,6 +44,7 @@ import {
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
   const { file, name, callback } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
       loyaltyCardUploadApi,
@@ -66,6 +67,8 @@ function* uploadLoyaltyCardSaga(action: YodyAction) {
   } catch (error) {
     callback(null);
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 

@@ -208,6 +208,8 @@ const EcommerceOrders: React.FC = () => {
     items: [],
   });
 
+  const [successDeliveryNote, setSuccessDeliveryNote] = useState<Array<string>>([]);
+  
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
@@ -747,10 +749,11 @@ const EcommerceOrders: React.FC = () => {
   ]);
 
   const onSelectTableRow = useCallback((selectedRowTable) => {
-    setSelectedRow(selectedRowTable);
     const newSelectedRow = selectedRowTable.filter((row: any) => {
       return row !== undefined;
     });
+    
+    setSelectedRow(newSelectedRow);
 
     const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowIds);
@@ -848,6 +851,9 @@ const EcommerceOrders: React.FC = () => {
             setIsProcessing(false);
             setCommonProcessId(null);
             setCommonProcessPercent(100);
+            
+            setSuccessDeliveryNote(responseData.success_list || []);
+            
             if (!responseData.api_error) {
               showSuccess(`${processMessage.success}`);
             } else {
@@ -884,6 +890,17 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(false);
     }
   }, [isVisibleProcessModal]);
+  
+  const handleChangeEcommerceOrderStatusToPicked = () => {
+    const orderPickedList: Array<any> = [];
+    successDeliveryNote.forEach((referenceCode) => {
+      const order = selectedRow.find((row) => row.reference_code?.toString().toUpperCase() === referenceCode?.toString().toUpperCase());
+      if (order) {
+        orderPickedList.push(order);
+      }
+    });
+    handleChangeOrderStatusToPicked(orderPickedList);
+  }
 
   const okPrintEcommerceDeliveryNote = () => {
     setIsVisibleProcessModal(false);
@@ -891,6 +908,8 @@ const EcommerceOrders: React.FC = () => {
     if (commonProcessData?.url) {
       showSuccess("Tải phiếu giao hàng sàn thành công!");
       window.open(commonProcessData?.url);
+      
+      handleChangeEcommerceOrderStatusToPicked();
     } else {
       showError("Tải phiếu giao hàng sàn thất bại!");
     }
@@ -912,7 +931,7 @@ const EcommerceOrders: React.FC = () => {
       setIsVisibleProcessModal(true);
       setIsProcessing(true);
       setProcessMessage({
-        success: "Tải dữ liệu phiếu giao hàng sàn thành công!",
+        success: "Đã tải dữ liệu phiếu giao hàng sàn.",
       })
 
       setExitProcessModal({
@@ -976,17 +995,17 @@ const EcommerceOrders: React.FC = () => {
   }, [selectedRowKeys, data?.items, dispatch])
 
   // change order status to picked
-  const handleChangeOrderStatusToPicked = useCallback(() => {
-    let ids: number[] = [];
-    selectedRow?.forEach((row) =>
-      row?.fulfillments?.forEach((single) => {
-        ids.push(single?.id);
+  const handleChangeOrderStatusToPicked = useCallback((orderList) => {
+    const fulfillmentIds: Array<number> = [];
+    orderList?.forEach((row: any) =>
+      row?.fulfillments?.forEach((single: any) => {
+        fulfillmentIds.push(single?.id);
       })
     );
 
-    if (ids?.length) {
+    if (fulfillmentIds?.length) {
       dispatch(showLoading());
-      changeOrderStatusToPickedService(ids)
+      changeOrderStatusToPickedService(fulfillmentIds)
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             showSuccess("Đã chuyển trạng thái xử lý đơn hàng.")
@@ -1001,11 +1020,9 @@ const EcommerceOrders: React.FC = () => {
           dispatch(hideLoading());
         });
     }
-  }, [dispatch, selectedRow]);
+  }, [dispatch]);
   
   const handlePrintEcommerceDeliveryNote = useCallback(() => {
-    handleChangeOrderStatusToPicked();
-
     if (selectedRowKeys?.length > 0) {
       let order_list: any = [];
       selectedRowKeys.forEach(idSelected => {
@@ -1025,7 +1042,7 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(true);
       dispatch(downloadPrintForm({order_list}, downloadEcommerceDeliveryNote))
     }
-  }, [selectedRowKeys, handleChangeOrderStatusToPicked, dispatch, downloadEcommerceDeliveryNote, data?.items]);
+  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
   // handle print ecommerce delivery note
 
   // handle print yody delivery note
@@ -1045,7 +1062,7 @@ const EcommerceOrders: React.FC = () => {
   );
 
   const handlePrintShipment = () => {
-    handleChangeOrderStatusToPicked();
+    handleChangeOrderStatusToPicked(selectedRow);
     printAction("shipment");
   }
   // end handle print yody delivery note

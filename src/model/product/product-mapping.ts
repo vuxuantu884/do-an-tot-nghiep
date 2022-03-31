@@ -51,11 +51,81 @@ const SearchVariantWrapperMapping = {
   [SearchVariantWrapperField.material_ids]: "Chất liệu",
 };
 
+const VariantExportField = {
+  product_code: "product_code",
+  product_name: "product_name",
+  barcode: 'barcode',
+  sku: "sku",
+  name: 'name',
+  unit: 'unit',
+  images: 'images',
+  weight: 'weight',
+  import_price: 'import_price',
+  cost_price: 'cost_price',
+  retail_price: 'retail_price',
+  wholesale_price: 'wholesale_price',
+  saleable: "saleable",//trạng thái
+  total_stock: 'total_stock',
+  on_hand: 'on_hand',
+  available: "available",
+  committed: 'committed',
+  on_hold: 'on_hold',//tạm giữ
+  defect: 'defect',//hàng lỗi
+  incomming: 'incomming',
+  onway: 'onway',
+  transferring: 'transferring',
+  shipping: 'shipping',
+  category: 'category',
+  category_code: 'category_code',
+  brand: 'brand',
+  supplier: 'supplier',
+  length: 'length',
+  width: 'width',
+  height: 'height',
+  link: 'link',
+};
+
+const VariantExportMapping = {
+  [VariantExportField.product_code]: "Mã sản phẩm cha",
+  [VariantExportField.product_name]: "Tên sản phẩm cha",
+  [VariantExportField.barcode]: "Mã vạch",
+  [VariantExportField.sku]: "Mã sản phẩm",
+  [VariantExportField.name]: "Tên sản phẩm",
+  [VariantExportField.unit]: 'Đơn vị',
+  [VariantExportField.images]: 'Link ảnh sản phẩm',
+  [VariantExportField.weight]: 'Khối lượng',
+  [VariantExportField.import_price]: 'Giá nhập',
+  [VariantExportField.cost_price]: 'Giá vốn',
+  [VariantExportField.retail_price]: 'Giá bán',
+  [VariantExportField.wholesale_price]: 'Giá buôn',
+  [VariantExportField.saleable]: "Trạng thái",
+  [VariantExportField.total_stock]: 'Tổng tồn',
+  [VariantExportField.on_hand]: 'Tồn trong kho',
+  [VariantExportField.available]: 'Có thể bán',
+  [VariantExportField.committed]: 'Đang giao dịch',
+  [VariantExportField.on_hold]: 'Hàng tạm giữ',
+  [VariantExportField.defect]: 'Hàng lỗi',
+  [VariantExportField.incomming]: 'Chờ nhập',
+  [VariantExportField.onway]: 'Hàng đang chuyển đến',
+  [VariantExportField.transferring]: 'Hàng đang chuyển đi',
+  [VariantExportField.shipping]: 'Hàng đang giao',
+  [VariantExportField.category_code]: 'Mã danh mục',
+  [VariantExportField.category]: 'Danh mục',
+  [VariantExportField.brand]: 'Thương hiệu',
+  [VariantExportField.supplier]: 'Nhà cung cấp',
+  [VariantExportField.length]: 'Chiều dài',
+  [VariantExportField.weight]: 'Chiều rộng',
+  [VariantExportField.height]: 'Chiều cao',
+  [VariantExportField.link]: 'Link trên website',
+};
+
 export {
   SearchVariantMapping,
   SearchVariantField,
   SearchVariantWrapperMapping,
   SearchVariantWrapperField,
   keysDateFilter,
-  keysDateWrapperFilter
+  keysDateWrapperFilter,
+  VariantExportField,
+  VariantExportMapping
 };

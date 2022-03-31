@@ -35,7 +35,7 @@ function ModalCreateOrderSource(props: PropType) {
     company: CONSTANTS.DEFAULT_COMPANY.company,
   };
 
-  const {form, visible, listChannels, listDepartments, onCreate,onCancel } = props;
+  const {form, visible, listChannels, listDepartments } = props;
   /**
   * hiển thị trường đặt làm mặc định
   */

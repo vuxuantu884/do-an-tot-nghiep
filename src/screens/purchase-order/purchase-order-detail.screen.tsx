@@ -465,6 +465,7 @@ const PODetailScreen: React.FC = () => {
           <Space direction="horizontal" id="bottomRight">
             <Button
                 type="default"
+                hidden
                 onClick={(e) => {
                   e.stopPropagation();
                   handleExport();

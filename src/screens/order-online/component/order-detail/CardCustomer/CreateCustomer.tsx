@@ -35,7 +35,7 @@ import {
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useLayoutEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
@@ -73,7 +73,23 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
-
+  const newAreas = useMemo(() => {
+    return areas.map((area: any) => {
+      return {
+        ...area,
+        city_name_normalize: area.city_name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+        district_name_normalize: area.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+      }
+    })
+  }, [areas]);
   var pattern = new RegExp(RegUtil.PHONE);
   const initialFormValueCustomer ={
       phone:  pattern.test(keySearchCustomer)?keySearchCustomer:"",
@@ -115,13 +131,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     });
   });
 
-  const DefaultWard = () => {
-    let value = customerForm.getFieldsValue();
-    value.ward_id = null;
-    customerForm.setFieldsValue(value);
-  };
-
-  const handleShippingWards = useCallback(
+  const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
         dispatch(WardGetByDistrictAction(value, setShippingWards));
@@ -144,13 +154,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
   const handleSubmit = useCallback(
     (values: any) => {
-      let area = areas.find((area: any) => area.id === values.district_id);
+      let area = newAreas.find((area: any) => area.id === values.district_id);
       values.full_name = values.full_name.trim();
 
-      let area_shipping_district = areas.find((area: any) => area.id === values.shipping_addresses_district_id);
+      let area_shipping_district = newAreas.find((area: any) => area.id === values.shipping_addresses_district_id);
       let area_shipping_ward=shippingWards.find((ward:any)=>ward.id===values.shipping_addresses_ward_id)
 
-      let customer_district = areas.find((area: any) => area.id === values.district_id);
+      let customer_district = newAreas.find((area: any) => area.id === values.district_id);
       let customer_ward=wards.find((ward:any)=>ward.id===values.ward_id);
 
       let shipping_addresses: CustomerShippingAddress[] | null = isVisibleShipping === false ? [
@@ -205,13 +215,99 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback)
       );
     },
-    [dispatch, createCustomerCallback, areas, isVisibleShipping,shippingWards,wards]
+    [dispatch, createCustomerCallback, newAreas, isVisibleShipping,shippingWards,wards]
   );
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
     setVisibleBtnUpdate(false);
   }, [customerForm]);
+
+  const checkAddress = useCallback((type, value) => {
+    const newValue = value.normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase();
+      
+    const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && newValue.indexOf(area.district_name_normalize) > -1);
+    if (findArea) {
+      switch (type) {
+        case "full_address":
+          if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+            formRef.current?.setFieldsValue({
+              district_id: findArea.id,
+              ward_id: null
+            })
+            handleChangeArea(findArea.id);
+          }
+          break;
+        case "shipping_addresses_full_address":
+          if (formRef.current?.getFieldValue("shipping_addresses_district_id") !== findArea.id) {
+            formRef.current?.setFieldsValue({
+              shipping_addresses_district_id: findArea.id,
+              shipping_addresses_ward_id: null
+            })
+            getShippingWards(findArea.id);
+          }
+          break;  
+        default: break;  
+      }
+      
+    }
+  }, [formRef, getShippingWards, handleChangeArea, newAreas]);
+
+  useEffect(() => {
+    const value = formRef.current?.getFieldValue("full_address");
+    if (value) {
+      const newValue = value.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase();
+        
+      const newWards = wards.map((ward: any) => {
+        return {
+          ...ward,
+          ward_name_normalize: ward.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+        }
+      });
+      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+      formRef.current?.setFieldsValue({
+        ward_id: findWard ? findWard.id : null,
+      })
+      
+    }
+  }, [formRef, wards]);
+
+  useEffect(() => {
+    const value = formRef.current?.getFieldValue("shipping_addresses_full_address");
+    if (value) {
+      const newValue = value.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase();
+      const newWards = shippingWards.map((ward: any) => {
+        return {
+          ...ward,
+          ward_name_normalize: ward.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+        }
+      });
+      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+      formRef.current?.setFieldsValue({
+        shipping_addresses_ward_id: findWard ? findWard.id : null,
+      })
+    }
+  }, [formRef, shippingWards]);
 
   return (
     <>
@@ -275,12 +371,14 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 style={{ width: "100%" }}
                 onChange={(value) => {
                   handleChangeArea(value);
-                  DefaultWard();
+                  let values = formRef.current?.getFieldsValue();
+                  values.ward_id = null;
+                  formRef.current?.setFieldsValue(values);
                   setVisibleBtnUpdate(true);
                 }}
                 optionFilterProp="children"
               >
-                {areas.map((area: any) => (
+                {newAreas.map((area: any) => (
                   <Select.Option key={area.id} value={area.id}>
                     {area.city_name + ` - ${area.name}`}
                   </Select.Option>
@@ -367,6 +465,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               <Input
                 placeholder="Địa chỉ"
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
+                onChange={(e) => checkAddress("full_address", e.target.value)}
               />
             </Form.Item>
           </Col>
@@ -444,12 +543,21 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     style={{ width: "100%" }}
                     placeholder="Chọn ngày sinh"
                     format={"DD/MM/YYYY"}
-                    defaultPickerValue={moment("01/01/1991", "DD/MM/YYYY")}
+                    // defaultPickerValue={moment("01/01/1991", "DD/MM/YYYY")}
                     suffixIcon={
                       <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                     }
                     onChange={() => {
                       setVisibleBtnUpdate(true);
+                    }}
+                    onMouseLeave={() => {
+                      const elm = document.getElementById("customer_add_birthday");
+                      const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
+                      if (newDate ) {
+                        formRef.current?.setFieldsValue({
+                          birthday: newDate
+                        })
+                      }
                     }}
                   />
                 </Form.Item>
@@ -626,12 +734,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                         let values = customerForm.getFieldsValue();
                         values.shipping_addresses_ward_id = null;
                         customerForm.setFieldsValue(values);
-                        handleShippingWards(value);
+                        getShippingWards(value);
                         setVisibleBtnUpdate(true);
                       }}
                       optionFilterProp="children"
                     >
-                      {areas.map((area: any) => (
+                      {newAreas.map((area: any) => (
                         <Select.Option key={area.id} value={area.id}>
                           {area.city_name + ` - ${area.name}`}
                         </Select.Option>
@@ -683,6 +791,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     <Input
                       placeholder="Địa chỉ"
                       prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
+                      onChange={(e) => checkAddress("shipping_addresses_full_address", e.target.value)}
                     />
                   </Form.Item>
                 </Col>

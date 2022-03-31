@@ -16,4 +16,7 @@ export const PurchaseOrderDraft = styled.div`
   .coLofu{
     position:unset ;
   }
+  .bnQZA-d{
+    position:unset ;
+  }
 `;

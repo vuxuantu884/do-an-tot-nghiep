@@ -193,6 +193,11 @@ export const ProcumentStatus = {
   CANCELLED: "cancelled",
 };
 
+export const TypeModalPo = {
+  CONFIRM: "confirm",
+  INVENTORY: "inventory",
+};
+
 export const PoPaymentStatus = {
   DRAFT: "draft",
   UNPAID: "unpaid",

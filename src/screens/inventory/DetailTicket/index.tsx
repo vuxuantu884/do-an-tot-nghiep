@@ -1,17 +1,15 @@
-import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { ChangeEvent, createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Table, Tag, Input, Timeline, Collapse, AutoComplete } from "antd";
+import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
-import copy from 'copy-to-clipboard';
 import {
   CloseCircleOutlined,
-  CopyOutlined,
   EditOutlined,
   PaperClipOutlined,
   PrinterOutlined,
@@ -29,14 +27,14 @@ import {
   receivedInventoryTransferAction,
   getFeesAction,
   cancelShipmentInventoryTransferAction,
-  exportInventoryAction,
+  exportInventoryAction, updateInventoryTransferAction,
   // createInventoryTransferShipmentAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryTransferDetailItem, LineItem, ShipmentItem, Store } from "model/inventory/transfer";
+import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
-import InventoryShipment, { deliveryService } from "../common/ChosesShipment";
+import InventoryShipment  from "../common/ChosesShipment";
 import {
   findAvatar,
   handleDelayActionWhenInsertTextInSearchInput,
@@ -54,7 +52,7 @@ import { showSuccess } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -69,6 +67,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
+import TextArea from "antd/es/input/TextArea";
 // import moment from "moment";
 export interface InventoryParams {
   id: string;
@@ -76,21 +75,24 @@ export interface InventoryParams {
 
 let barCode = "";
 
-const ShipmentStatus = {
-  CONFIRMED: "confirmed",
-  TRANSFERRING: "transferring",
-  RECEIVED: "received",
-  CANCELED: "canceled"
-}
+// const ShipmentStatus = {
+//   CONFIRMED: "confirmed",
+//   TRANSFERRING: "transferring",
+//   RECEIVED: "received",
+//   CANCELED: "canceled"
+// }
+
+let version = 0;
 
 const DetailTicket: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
-  const [dataShipment, setDataShipment] = useState<ShipmentItem | undefined>();
+  // const [dataShipment, setDataShipment] = useState<ShipmentItem | undefined>();
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
   const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
+  const [isDisableEditNote, setIsDisableEditNote] = useState<boolean>(false);
 
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
@@ -112,7 +114,7 @@ const DetailTicket: FC = () => {
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
 
-  const { Panel } = Collapse;
+  const [form] = Form.useForm();
   const printElementRef = useRef(null);
 
   const [printContent, setPrintContent] = useState<string>("");
@@ -141,6 +143,7 @@ const DetailTicket: FC = () => {
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
       setLoading(false);
+      setIsDisableEditNote(false);
       if (!result) {
         setError(true);
         return;
@@ -157,7 +160,9 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
-        setDataShipment(result.shipment);
+        version = result.version;
+        form.setFieldsValue({ note: result.note });
+        // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
       }
     },
@@ -200,7 +205,7 @@ const DetailTicket: FC = () => {
   },[dispatch,setResultSearch, data]);
 
   let textTag: string;
-  let classTag = '';
+  let classTag: string;
   switch (data?.status) {
     case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
       textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
@@ -227,7 +232,7 @@ const DetailTicket: FC = () => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+    resultSearch?.items?.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -359,6 +364,58 @@ const DetailTicket: FC = () => {
     [history]
   );
 
+  const updateCallback = useCallback(
+    (result: InventoryTransferDetailItem) => {
+      setIsDisableEditNote(false);
+      if (!result) return;
+      showSuccess("Đổi dữ liệu thành công");
+      onReload();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const updateNoteApi = (key: string) => {
+    if (data && dataTable) {
+      setIsDisableEditNote(true);
+      data.line_items = dataTable;
+      let dataUpdate: any = {};
+
+      stores.forEach((store) => {
+        if (store.id === Number(data?.from_store_id)) {
+          dataUpdate.store_transfer = {
+            id: data?.store_transfer?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+        if (store.id === Number(data?.to_store_id)) {
+          dataUpdate.store_receive = {
+            id: data?.store_receive?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+      })
+      dataUpdate.from_store_id = data?.from_store_id;
+      dataUpdate.to_store_id = data?.to_store_id;
+      dataUpdate.attached_files = data?.attached_files;
+      dataUpdate.line_items = data?.line_items;
+      dataUpdate.exception_items = data?.exception_items;
+      dataUpdate.note = key;
+      dataUpdate.version = version;
+      version = version + 1;
+
+      dispatch(updateInventoryTransferAction(data.id, dataUpdate, updateCallback));
+    }
+  };
+
   const onReceive = useCallback(() => {
     if (data && dataTable) {
       data.line_items = dataTable;
@@ -469,7 +526,7 @@ const DetailTicket: FC = () => {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_image",
-      render: (value: string, record: any) => {
+      render: (value: string) => {
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
@@ -561,7 +618,7 @@ const DetailTicket: FC = () => {
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -765,7 +822,20 @@ const DetailTicket: FC = () => {
     );
 
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-  }, [dispatch, idNumber, onResult]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateNote = (key: string) => {
+    updateNoteApi(key);
+  };
+
+  const updateNoteDebounce = debounce((key: string) => {
+    updateNote(key);
+  }, 500);
+
+  const changeNote = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    updateNoteDebounce(e.target.value);
+  };
 
   return (
     <StyledWrapper>
@@ -1097,12 +1167,17 @@ const DetailTicket: FC = () => {
                       <b>Ghi chú nội bộ:</b>
                     </Col>
                     <Col span={24}>
-                      <span
-                        className="text-focus"
-                        style={{ wordWrap: "break-word" }}
-                      >
-                        {data.note !== "" ? data.note : "Không có ghi chú"}
-                      </span>
+                      <Form form={form}>
+                        <Form.Item name="note">
+                          <TextArea
+                            disabled={isDisableEditNote}
+                            onChange={changeNote}
+                            maxLength={250}
+                            placeholder="Nhập ghi chú nội bộ"
+                            autoSize={{ minRows: 4, maxRows: 6 }}
+                          />
+                        </Form.Item>
+                      </Form>
                     </Col>
                   </Row>
 
@@ -1232,7 +1307,7 @@ const DetailTicket: FC = () => {
               dangerouslySetInnerHTML={{
                 __html: purify.sanitize(printContent),
               }}
-            ></div>
+            />
           </div>
         </div>
         {

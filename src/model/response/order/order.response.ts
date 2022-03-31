@@ -509,3 +509,9 @@ export interface PackFulFillmentResponse extends FulFillmentResponse{
   customer:string;
   customer_id:number;
 }
+
+export interface OrderReturnResponse {
+  html_content: string;
+  order_id: number;
+  size: string;
+}

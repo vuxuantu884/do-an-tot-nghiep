@@ -333,13 +333,22 @@ function OrderList(props: PropTypes) {
           }
 
         case ACTION_ID.printOrder:
+          
           const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
-          const queryParamOrder = generateQuery({
+          let queryParamOrder = generateQuery({
             action: "print",
             ids: printBill,
             "print-type": "order",
             "print-dialog": true,
           });
+          if(selectedRow.length === 1 && selectedRow[0]?.order_return_origin?.id) {
+            queryParamOrder = generateQuery({
+              action: "print",
+              ids: [selectedRow[0]?.order_return_origin?.id],
+              "print-type": "order_exchange",
+              "print-dialog": true,
+            });
+          }
           Modal.confirm({
             title: 'In hoá đơn',
             icon: <ExclamationCircleOutlined />,

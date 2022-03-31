@@ -359,4 +359,34 @@ export const StyledPurchaseHistory = styled.div`
       background-color: #ffffff;
     }
   }
+
+  .orderStatus {
+    text-align: center !important;
+  }
+
+  .order-reason {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+    &-heading {
+      font-weight: 700;
+    }
+    &-content {
+      padding-left: 4px;
+      white-space: normal;
+    }
+  }
+
+  .order-note {
+    display: flex;
+    justify-content: center;
+  }
+
+  .order-point-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 `;

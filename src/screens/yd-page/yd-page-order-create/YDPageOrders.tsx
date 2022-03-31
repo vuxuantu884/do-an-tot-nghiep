@@ -475,14 +475,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
         handleCustomerById(customer && customer.id);
+        setActiveTabKey("1");
         setIsShowOrderModal(true)
+        handleRefreshInfoOrderSuccess()
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
+        setActiveTabKey("1");
         setIsShowOrderModal(true)
-        // setActiveTabKey("1");
-        // // setIsClearOrderTab(true)
-        // handleRefreshInfoOrderSuccess()
+        handleRefreshInfoOrderSuccess()
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1176,7 +1177,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
           name: "Nhân viên lên đơn:",
           value: 
               <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${listNewOrder.account_code}`}>
-                  {`${listNewOrder.account_code} - ${listNewOrder.account}`}
+                {`${listNewOrder.assignee_code} - ${listNewOrder.assignee}`}
               </Link>,
           key: "staff-order",
         },
@@ -1295,8 +1296,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const handleCreatOrder = () => {
     setIsShowOrderModal(false)
-    handleRefreshInfoOrderSuccess()
-    setActiveTabKey("1");
   }
 
   const handleCancelOrder = () => {

@@ -8,7 +8,7 @@ import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import { ProductPermission } from "config/permissions/product.permission";
-import UrlConfig, { ProductTabUrl } from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER, ProductTabUrl } from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
@@ -20,7 +20,6 @@ import {
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
-import { ExportRequest } from "model/other/files/export-model";
 import {
   VariantImage,
   VariantPricesResponse,
@@ -37,8 +36,7 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { exportFile, getJobByCode } from "service/product/product.service";
-import { callApiNative } from "utils/ApiUtils";
+import { getJobByCode } from "service/product/product.service";
 import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -49,6 +47,8 @@ import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
 import { StyledComponent } from "../style";
+import * as XLSX from 'xlsx';
+import { VariantExportField, VariantExportMapping } from "model/product/product-mapping";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -454,52 +454,78 @@ const TabProduct: React.FC<any> = (props) => {
     [setSelected]
   );
 
+  const convertItemExport = (item: VariantResponse)=>{
+    return  {
+              [`${VariantExportMapping[VariantExportField.product_code]}`] : item.product.code,
+              [`${VariantExportMapping[VariantExportField.product_name]}`] : item.product.name,
+              [`${VariantExportMapping[VariantExportField.barcode]}`] : item.barcode,
+              [`${VariantExportMapping[VariantExportField.sku]}`] : item.sku,
+              [`${VariantExportMapping[VariantExportField.name]}`] : item.name,
+              [`${VariantExportMapping[VariantExportField.unit]}`] : item.weight_unit,
+              [`${VariantExportMapping[VariantExportField.import_price]}`] : item.variant_prices[0].import_price ?? null,
+              [`${VariantExportMapping[VariantExportField.cost_price]}`] : item.variant_prices[0].cost_price ?? null,
+              [`${VariantExportMapping[VariantExportField.retail_price]}`] : item.variant_prices[0].retail_price ?? null,
+              [`${VariantExportMapping[VariantExportField.wholesale_price]}`] : item.variant_prices[0].wholesale_price ?? null,
+              [`${VariantExportMapping[VariantExportField.saleable]}`] : item.saleable ? "Hoạt động": "Ngừng hoạt động",
+              //[`${VariantExportMapping[VariantExportField.total_stock]}`] : item.on_hand,
+              //[`${VariantExportMapping[VariantExportField.on_hand]}`] : item.on_hand,
+              [`${VariantExportMapping[VariantExportField.available]}`] : item.available,
+              // [`${VariantExportMapping[VariantExportField.committed]}`] : item.on_hand,
+              // [`${VariantExportMapping[VariantExportField.on_hold]}`] : item.on_hand,
+              // [`${VariantExportMapping[VariantExportField.defect]}`] : item.on_hand,
+              // [`${VariantExportMapping[VariantExportField.incomming]}`] : item.on_hand,
+              // [`${VariantExportMapping[VariantExportField.onway]}`] : item.on_hand,
+              // [`${VariantExportMapping[VariantExportField.transferring]}`] : item.on_hand,
+              // [`${VariantExportMapping[VariantExportField.shipping]}`] : item.on_hand,
+              [`${VariantExportMapping[VariantExportField.category_code]}`] : item.product.category,
+              [`${VariantExportMapping[VariantExportField.category]}`] : item.category,
+              [`${VariantExportMapping[VariantExportField.brand]}`] : item.product.brand_name,
+              [`${VariantExportMapping[VariantExportField.supplier]}`] : null,//chưa biết lấy từ đâu
+              [`${VariantExportMapping[VariantExportField.length]}`] : item.length,
+              [`${VariantExportMapping[VariantExportField.weight]}`] : item.weight,
+              [`${VariantExportMapping[VariantExportField.height]}`] : item.height,
+              [`${VariantExportMapping[VariantExportField.link]}`] : `${document.location.origin}${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/${item.product.id}/variants/${item.id}`,
+            };
+  }
+
   const actionExport = {
     Ok: useCallback(async(typeExport: string)=>{
-      let variant_ids: Array<number> = []; let conditions = {};
+      let dataExport:any = [];
       if (typeExport === TYPE_EXPORT.selected &&  selected && selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
+        setVExportProduct(false);
         return;
       }
 
       if ((typeExport === TYPE_EXPORT.page || typeExport === TYPE_EXPORT.all) && data.items && data.items.length === 0) {
         showWarning("Không có sản phẩm nào đủ điều kiện");
+        setVExportProduct(false);
         return;
       }
 
-      if (typeExport === TYPE_EXPORT.all) {
-        conditions ={...params}
-      }
-
       if (typeExport === TYPE_EXPORT.page) {
-        conditions ={
-          ...conditions,
-          variant_ids: data.items.map(e=>e.id)}
+                for (let i = 0; i < data.items.length; i++) {
+            const e = data.items[i];
+            let item = convertItemExport(e);
+
+            dataExport.push(item);
+          }
       }
 
       if (selected && selected.length > 0) {
-        variant_ids = selected.map(e=>e.id);
-      }
-      conditions = {
-        ...conditions,
-        typeExport: typeExport,
-        variant_ids: variant_ids
-      };
-      const request: ExportRequest = {
-        type: "EXPORT_PRODUCT",
-        conditions: JSON.stringify(conditions),
-        url: AppConfig.PRODUCT_EXPORT_TEMPLATE
-      };
-
-      const res = await callApiNative({isShowLoading: false},dispatch,exportFile,request);
-      if (res) {
-        if (res.code === HttpStatus.SUCCESS) {
-          setIsVisibleProgressModal(true);
-          setVExportProduct(false);
-          setExportCodeList([...exportCodeList, res.data.code]);
+        for (let i = 0; i < selected.length; i++) {
+          const e = selected[i];
+          let item = convertItemExport(e);
+          dataExport.push(item);
         }
       }
-    },[dispatch,selected,data.items, params, exportCodeList, setVExportProduct]),
+
+      const worksheet = XLSX.utils.json_to_sheet(dataExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      XLSX.writeFile(workbook, "list_export_unicorn.xlsx");
+      setVExportProduct(false);
+    },[selected,data.items, setVExportProduct]),
     Cancel:()=>{
       setVExportProduct(false);
     },

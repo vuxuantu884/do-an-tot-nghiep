@@ -148,7 +148,7 @@ const TransferService = {
     exportShipmentInventoryTransfer: (
       transferId: number
     ): Promise<BaseResponse<string>> => {
-      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment`);
+      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/export`);
     }
 };
 

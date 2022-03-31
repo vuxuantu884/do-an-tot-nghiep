@@ -30,7 +30,7 @@ import ProcumentInventoryModal from "screens/purchase-order/modal/procument-inve
 import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
 import { callApiNative } from "utils/ApiUtils";
 import { ProcumentStatus } from "utils/Constants";
-import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay, getStartOfDay } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 import { Link } from "react-router-dom";
@@ -91,7 +91,6 @@ const TabCurrent: React.FC = () => {
       ...params,
       is_cancel: false,
       status: ProcumentStatus.NOT_RECEIVED,
-      expect_receipt_from: getStartOfDay(today),
       expect_receipt_to: getEndOfDay(today),
       ...getQueryParams(search),
     }
@@ -272,6 +271,14 @@ const TabCurrent: React.FC = () => {
         title: "Kho nhận hàng dự kiến",
         dataIndex: "store",
         render: (value) => value,
+      },
+      {
+        title: "Ngày nhận hàng dự kiến",
+        dataIndex: "expect_receipt_date",
+        visible: true,
+        render: (value) =>
+          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+        width: 200,
       },
       {
         title: "Hành động",
