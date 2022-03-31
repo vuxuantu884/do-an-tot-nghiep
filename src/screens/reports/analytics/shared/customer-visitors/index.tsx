@@ -91,7 +91,7 @@ function CustomerVisitors() {
                     if (existedStore) {
                         return { storeName: name, code, department, ...existedStore };
                     }
-                    const dayValues = Array.from({ length: moment(`${year}-${month}`).daysInMonth() }, (x, i) => {
+                    const dayValues = Array.from({ length: moment(`${year}-${month}`, 'YYYY-M').daysInMonth() }, (x, i) => {
                         return { [`day${moment().startOf('month').add(i, 'days').format('DD')}`]: 0 }
                     }).reduce((result, item) => {
                         return { ...result, ...item }
@@ -101,14 +101,16 @@ function CustomerVisitors() {
                     }
                 })
                 const columnsTmp: any[] = [];
-                Array.from({ length: moment(`${year}-${month}`).daysInMonth() }, (x, i) => `${moment().startOf('month').add(i, 'days').format('DD')}`).forEach((day: string) => {
+                Array.from({ length: moment(`${year}-${month}`, 'YYYY-M').daysInMonth() }, (x, i) => `${moment().startOf('month').add(i, 'days').format('DD')}`).forEach((day: string) => {
                     const column = {
                         title: day,
                         dataIndex: `day${day}`,
                         key: `day${day}`,
                     }
                     columnsTmp.push(column);
+                    
                 })
+
                 setColumns((prev) => [...prev, ...columnsTmp, {
                     title: 'Thao tác',
                     dataIndex: 'actions',
@@ -163,14 +165,14 @@ function CustomerVisitors() {
             >
                 <Form form={form} name="filter-block" initialValues={initialFilterValues}>
                     <Card bodyStyle={{ paddingBottom: 0, paddingTop: 0 }} title="Bộ lọc">
-                        <div className="w-100 d-flex justify-content-start align-items-end">
+                        <div className="d-flex justify-content-start align-items-end">
                             <Form.Item
                                 label="Cửa hàng"
                                 name={CustomerVisitorsFilter.StoreIds}
                                 labelCol={{ span: 24 }}
+                                className="input-width"
                                 help={false}>
                                 <TreeStore
-                                    className="input-width"
                                     form={form}
                                     name={CustomerVisitorsFilter.StoreIds}
                                     placeholder="Chọn cửa hàng"
@@ -181,10 +183,9 @@ function CustomerVisitors() {
                                 label="Tháng"
                                 name={CustomerVisitorsFilter.Month}
                                 labelCol={{ span: 24 }}
-                                className="px-2"
+                                className="input-width"
                                 help={false}>
                                 <Select
-                                    className="input-width"
                                     placeholder="Chọn tháng">
                                     {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map((month) => {
                                         return (
@@ -199,9 +200,9 @@ function CustomerVisitors() {
                                 label="Năm"
                                 name={CustomerVisitorsFilter.Year}
                                 labelCol={{ span: 24 }}
+                                className="input-width"
                                 help={false}>
                                 <Select
-                                    className="input-width"
                                     placeholder="Chọn năm">
                                     {yearList.map((year) => {
                                         return (
@@ -225,9 +226,9 @@ function CustomerVisitors() {
                                 <Table
                                     dataSource={customerVisitors}
                                     loading={loadingTable}
-                                    scroll={{ x: 1000, y: 450 }}
-                                    sticky={{ offsetScroll: 55, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
-                                    pagination={false}
+                                    scroll={{ x: 1000 }}
+                                    sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+                                    pagination={{defaultPageSize: 30, showSizeChanger: false }}
                                     bordered={true}
 
                                 >
