@@ -134,6 +134,7 @@ const ListProductScreen: React.FC = () => {
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
                 onClick={() => {setVExportProduct(true)}}
+                hidden
               >
                 Xuất file
               </Button>
