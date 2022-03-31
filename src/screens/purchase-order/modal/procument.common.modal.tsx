@@ -360,7 +360,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       for (let i = 0; i < procurement_items.length; i++) {
         const e = procurement_items[i];
         let item = {};
-        if (type === TypeModalPo.CONFIRM) {
+        if (type === TypeModalPo.CONFIRM || type===ProcumentStatus.DRAFT) {
           item = {
             [PurchaseProcumentExportField.sku]: e.sku,
             [PurchaseProcumentExportField.variant]: e.variant,
@@ -409,7 +409,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       procurement_items.forEach((e:PurchaseProcumentLineItem) => {
         const findItem = jsonData.find((item:any)=>(item.sku !== undefined && item.sku.toString() === e.sku.toString()));
         if (findItem && typeof(findItem.sl) === "number") {
-          if (type === TypeModalPo.CONFIRM) {
+          if (type === TypeModalPo.CONFIRM || type===ProcumentStatus.DRAFT) {
             e.quantity = findItem.sl;
           }
           if (type === TypeModalPo.INVENTORY) {
@@ -420,7 +420,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
 
       form.setFieldsValue({procurement_items: [...procurement_items]});
     },[form,type])
-  } 
+  }
 
   return (
     <Fragment>
@@ -475,7 +475,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                 onChange={(active) => onChangeActive(active)}
                 renderTabBar={RenderTabBar}
                 tabBarExtraContent={ 
-                ([ProcumentStatus.DRAFT,ProcumentStatus.NOT_RECEIVED].indexOf(item?.status ?? "") !== -1) && <>
+                ([ProcumentStatus.DRAFT,ProcumentStatus.NOT_RECEIVED].indexOf(item?.status ?? "draft") !== -1) && <>
                   <Button icon={<DownloadOutlined />} onClick={exportExcel}>Export Excel</Button>
                   <Upload {...uploadProps} maxCount={1}>
                     <Button icon={<UploadOutlined />}>Import Excel</Button>
