@@ -43,9 +43,7 @@ import { showSuccess } from "utils/ToastUtils";
 
 type CreateCustomerProps = {
   areas: any;
-  wards: any;
   groups: any;
-  handleChangeArea: any;
   handleChangeCustomer: any;
   keySearchCustomer: string;
   ShippingAddressChange: (items: any) => void;
@@ -55,9 +53,7 @@ type CreateCustomerProps = {
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const {
     areas,
-    wards,
     groups,
-    handleChangeArea,
     handleChangeCustomer,
     keySearchCustomer,
     CustomerDeleteInfo
@@ -71,7 +67,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
   const [isVisibleShipping, setVisibleShipping] = useState(true);
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
-
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
   const newAreas = useMemo(() => {
     return areas.map((area: any) => {
@@ -131,13 +127,73 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     });
   });
 
+  const getWards = useCallback(
+    (value: number) => {
+      if (value) {
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRef.current?.getFieldValue("full_address");
+          if (value) {
+            const newValue = value.normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+              .toLowerCase();
+              
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase(),
+              }
+            });
+            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            formRef.current?.setFieldsValue({
+              ward_id: findWard ? findWard.id : null,
+            })
+            
+          }
+          setWards(data);
+        }));
+      }
+    },
+    [dispatch, formRef]
+  );
+
   const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, setShippingWards));
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRef.current?.getFieldValue("shipping_addresses_full_address");
+          if (value) {
+            const newValue = value.normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+              .toLowerCase();
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase(),
+              }
+            });
+            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            formRef.current?.setFieldsValue({
+              shipping_addresses_ward_id: findWard ? findWard.id : null,
+            })
+          }
+          setShippingWards(data);
+        }));
+
       }
     },
-    [dispatch]
+    [dispatch, formRef]
   );
 
   const createCustomerCallback = useCallback(
@@ -161,7 +217,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       let area_shipping_ward=shippingWards.find((ward:any)=>ward.id===values.shipping_addresses_ward_id)
 
       let customer_district = newAreas.find((area: any) => area.id === values.district_id);
-      let customer_ward=wards.find((ward:any)=>ward.id===values.ward_id);
+      let customer_ward= wards.find((ward:any)=>ward.id===values.ward_id);
 
       let shipping_addresses: CustomerShippingAddress[] | null = isVisibleShipping === false ? [
         {
@@ -189,7 +245,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         district_id: values.district_id,
         district:customer_district.name,
         ward_id: values.ward_id,
-        ward:customer_ward.name,
+        ward: customer_ward?.name,
         card_number: values.card_number,
         full_address: values.full_address,
         gender: values.gender,
@@ -239,7 +295,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               district_id: findArea.id,
               ward_id: null
             })
-            handleChangeArea(findArea.id);
+            getWards(findArea.id);
           }
           break;
         case "shipping_addresses_full_address":
@@ -255,59 +311,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       }
       
     }
-  }, [formRef, getShippingWards, handleChangeArea, newAreas]);
+  }, [formRef, getShippingWards, getWards, newAreas]);
 
-  useEffect(() => {
-    const value = formRef.current?.getFieldValue("full_address");
-    if (value) {
-      const newValue = value.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-        .toLowerCase();
-        
-      const newWards = wards.map((ward: any) => {
-        return {
-          ...ward,
-          ward_name_normalize: ward.name.normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .toLowerCase(),
-        }
-      });
-      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      formRef.current?.setFieldsValue({
-        ward_id: findWard ? findWard.id : null,
-      })
-      
-    }
-  }, [formRef, wards]);
-
-  useEffect(() => {
-    const value = formRef.current?.getFieldValue("shipping_addresses_full_address");
-    if (value) {
-      const newValue = value.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-        .toLowerCase();
-      const newWards = shippingWards.map((ward: any) => {
-        return {
-          ...ward,
-          ward_name_normalize: ward.name.normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .toLowerCase(),
-        }
-      });
-      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      formRef.current?.setFieldsValue({
-        shipping_addresses_ward_id: findWard ? findWard.id : null,
-      })
-    }
-  }, [formRef, shippingWards]);
 
   return (
     <>
@@ -370,7 +375,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 }
                 style={{ width: "100%" }}
                 onChange={(value) => {
-                  handleChangeArea(value);
+                  getWards(value);
                   let values = formRef.current?.getFieldsValue();
                   values.ward_id = null;
                   formRef.current?.setFieldsValue(values);
