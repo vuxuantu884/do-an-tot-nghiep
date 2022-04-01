@@ -1355,7 +1355,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						}
 					} else if(isOrderHasDiscountLineItems(response.data)) {
 							let result = getApplyDiscountLineItem(response, items);
-							calculateChangeMoney(result, null)
+							calculateChangeMoney(result, promotion)
 					} else if(isOrderHasDiscountOrder(response.data)) {
 						let itemsAfterRemove = items.map(single => {
 							removeDiscountItem(single)
@@ -2137,7 +2137,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						</Form.Item>
 						<Form.Item name="automatic_discount" valuePropName="checked">
 							<Checkbox
-								disabled={levelOrder > 3 || isLoadingDiscount || typeof(promotion?.discount_code) === "string"}
+								disabled={levelOrder > 3 || isLoadingDiscount}
 								value={isAutomaticDiscount}
 								onChange={(e) => {
 									if (e.target.checked) {
@@ -2149,7 +2149,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 										handleRemoveAllAutomaticDiscount();
 										setIsAutomaticDiscount(false);
 										if (items) {
-											calculateChangeMoney(items, null)
+											calculateChangeMoney(items, promotion)
 										}
 									}
 								}}
