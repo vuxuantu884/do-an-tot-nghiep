@@ -1029,7 +1029,7 @@ ShippingServiceConfigDetailResponseModel[]
 
 					setItems(responseItems);
 					setOrderAmount(
-						response.total - (response.shipping_fee_informed_to_customer || 0 )
+						response.total - (response.shipping_fee_informed_to_customer || 0 ) - (response?.discounts ? getTotalOrderDiscount(response.discounts) : 0)
 					);
 					form.setFieldsValue({
 						...initialForm,
