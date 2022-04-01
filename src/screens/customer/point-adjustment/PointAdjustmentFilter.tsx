@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   Button,
   Form,
@@ -6,9 +6,7 @@ import {
   Select,
   Tag,
 } from "antd";
-import { FilterOutlined } from "@ant-design/icons";
 
-import BaseFilter from "component/filter/base.filter";
 import CustomSelect from "component/custom/select.custom";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.request";
@@ -19,9 +17,7 @@ import { StyledPointAdjustment } from "screens/customer/point-adjustment/StyledP
 
 type PointAdjustmentFilterProps = {
   params: PointAdjustmentListRequest;
-  initParams: any;
   isLoading: boolean;
-  onClearFilter?: () => void;
   onFilter?: (values: GetOrdersMappingQuery | Object) => void;
 };
 
@@ -43,15 +39,12 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
 ) => {
   const {
     params,
-    initParams,
     isLoading,
-    onClearFilter,
     onFilter,
   } = props;
 
   const [formFilter] = Form.useForm();
 
-  const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
 
   let initialValues = useMemo(() => {
     return {
@@ -66,6 +59,14 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   const filters = useMemo(() => {
     let list = [];
 
+    if (initialValues.term) {
+      list.push({
+        key: "term",
+        name: "Tên hoặc mã phiếu điều chỉnh",
+        value: initialValues.term
+      })
+    }
+
     if (initialValues.reasons?.length) {
       let reasonsList = "";
       initialValues.reasons.forEach((reason: any) => {
@@ -77,16 +78,65 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
         value: reasonsList,
       });
     }
+
+    if (initialValues.emps?.length) {
+      let empsList = "";
+      initialValues.emps.forEach((emp) => {
+        empsList = empsList + emp + ";";
+      })
+      list.push({
+        key: "emps",
+        name: "Người điều chỉnh",
+        value: empsList,
+      });
+    }
+
+    if (initialValues.from) {
+      list.push({
+        key: "from",
+        name: "Từ ngày",
+        value: initialValues.from
+      })
+    }
+
+    if (initialValues.to) {
+      list.push({
+        key: "to",
+        name: "Đến ngày",
+        value: initialValues.to,
+      })
+    }
+    
+
     return list;
-  }, [initialValues.reasons]);
+  }, [
+    initialValues.term,
+    initialValues.reasons,
+    initialValues.emps,
+    initialValues.from,
+    initialValues.to
+  ]);
 
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
       switch (tag.key) {
+        case "term":
+          onFilter && onFilter({ ...params, term: null })
+          break;
         case "reasons":
           onFilter && onFilter({ ...params, reasons: [] });
           formFilter?.setFieldsValue({ reasons: [] });
+          break;
+        case "from":
+          onFilter && onFilter({ ...params, from: null })
+          break;
+        case "to":
+        onFilter && onFilter({ ...params, to: null })
+        break;
+        case "emps":
+          onFilter && onFilter({ ...params, emps: [] });
+          formFilter?.setFieldsValue({ emps: [] });
           break;
         default:
           break;
@@ -95,29 +145,6 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
     [formFilter, onFilter, params]
   );
   // end handle tag filter
-
-  // handle filter action
-  const onFilterClick = useCallback(() => {
-    setVisibleBaseFilter(false);
-    formFilter?.submit();
-  }, [formFilter]);
-
-  const openBaseFilter = useCallback(() => {
-    setVisibleBaseFilter(true);
-  }, []);
-
-  const onCancelFilter = useCallback(() => {
-    setVisibleBaseFilter(false);
-  }, []);
-
-  //clear base filter
-
-  const onClearBaseFilter = useCallback(() => {
-    setVisibleBaseFilter(false);
-    formFilter.setFieldsValue(initParams);
-    onClearFilter && onClearFilter();
-  }, [formFilter, initParams, onClearFilter]);
-  // end handle filter action
 
   const onFinish = useCallback(
     (values) => {
@@ -129,6 +156,17 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
     },
     [onFilter]
   );
+
+  useEffect(() => {
+    formFilter.setFieldsValue({
+      term: params.term,
+      reasons: params.reasons,
+      from: params.from,
+      to: params.to,
+      emps: params.emps,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
 
 
   return (
@@ -180,34 +218,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
               Lọc
             </Button>
           </Item>
-
-          <Item style={{ display: "none" }}>
-            <Button
-              icon={<FilterOutlined />}
-              onClick={openBaseFilter}
-              disabled={isLoading}
-            >
-              Thêm bộ lọc
-            </Button>
-          </Item>
         </Form>
-
-        <BaseFilter
-          onClearFilter={onClearBaseFilter}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
-          visible={visibleBaseFilter}
-          width={500}
-        >
-          <Form
-            form={formFilter}
-            onFinish={onFinish}
-            initialValues={params}
-            layout="vertical"
-          >
-            
-          </Form>
-        </BaseFilter>
       </div>
 
       <div className="filter-tags">
