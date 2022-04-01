@@ -63,7 +63,6 @@ import {
   getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleFetchApiError,
-  haveAccess,
   isFetchApiSuccessful,
   isOrderFromPOS,
   scrollAndFocusToDomElement,

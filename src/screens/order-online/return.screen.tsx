@@ -307,7 +307,9 @@ const ListOrderScreen: React.FC = () => {
         break
       case 2: break
       case 3:
-        newParams.code_order_return = selectedRowCodes;
+        newParams = {
+          code_order_return: selectedRowCodes
+        };
         break
       case 4:
         delete newParams.page

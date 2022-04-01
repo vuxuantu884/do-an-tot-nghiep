@@ -812,7 +812,9 @@ const OrderDuplicate: React.FC = () => {
         case 2:
           break;
         case 3:
-          newParams.code = selectedRowCodes;
+          newParams = {
+            code: selectedRowCodes
+          };
           break;
         case 4:
           delete newParams.page;
