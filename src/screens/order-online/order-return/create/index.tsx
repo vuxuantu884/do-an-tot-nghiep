@@ -439,7 +439,7 @@ ShippingServiceConfigDetailResponseModel[]
       if (isFetchApiSuccessful(response)) {
         console.log('response', response)
         setPrintContent(response.data[0].html_content);
-        handlePrint();
+        if(handlePrint)handlePrint();
       } else {
         handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
       }

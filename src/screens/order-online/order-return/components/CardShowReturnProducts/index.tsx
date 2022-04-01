@@ -1,4 +1,4 @@
-import { Card, Col, Popover, Row, Table, Tooltip } from "antd";
+import { Card, Col, Popover, Row, Table, Tag, Tooltip, Typography } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import UrlConfig from "config/url.config";
@@ -75,6 +75,7 @@ function CardShowReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
+      
       render: (value, record: ReturnProductModel, index: number) => {
         return (
           <div className="d-flex align-items-center">
@@ -108,9 +109,80 @@ function CardShowReturnProducts(props: PropType) {
           <div style={{ textAlign: "center" }}>Số lượng trả</div>
         </div>
       ),
+      width:"150px",
+      align:"center",
       className: "columnQuantity",
       render: (value, record: ReturnProductModel, index: number) => {
         return record.quantity;
+      },
+    },
+   
+    {
+      title: () => (
+        <div>
+          <span style={{ color: "#222222" }}>Chiết khấu/sản phẩm</span>
+          {/* <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span> */}
+        </div>
+      ),
+      align: "center",
+      width:"150px",
+      //width: "15%",
+      className: "yody-table-discount text-right 32",
+      render: (
+        value: OrderLineItemRequest,
+        record: ReturnProductModel,
+        index: number
+      ) => {
+       
+        return (
+          <div>
+          {value.discount_items.length > 0 && value.discount_items[0].value !== null
+            ? formatCurrency(value.discount_items[0].value)
+            : 0}
+            {value.discount_items[0]?.rate ? (
+              <div className="d-flex justify-content-end yody-table-discount-converted">
+                <Typography.Text type="danger">
+                  <span style={{fontSize: "0.857rem"}}>
+                    {Math.round(value.discount_items[0]?.rate * 100 || 0)/100}%
+                  </span>
+                </Typography.Text>
+              </div>
+            ) : null}
+        </div>
+        );
+      },
+    },
+    {
+      title: () => (
+        <div>
+          <span style={{ color: "#222222" }}>Chiết khấu/đơn hàng</span>
+          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+        </div>
+      ),
+      align: "center",
+      width:"150px",
+      key: "total",
+      render: (
+        value: OrderLineItemRequest,
+        record: ReturnProductModel,
+        index: number
+      ) => {
+        let discountPerOrder = OrderDetail?.order_return_origin ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, record) : getProductDiscountPerOrder(OrderDetail, record);
+        return (
+          
+          <div>
+            {formatCurrency(discountPerOrder)}
+            {/* {value.discount_items[0]?.rate ? (
+              <div className="d-flex justify-content-end yody-table-discount-converted">
+                <Typography.Text type="danger">
+                  <span style={{fontSize: "0.857rem"}}>
+                    {Math.round(value.discount_items[0]?.rate * 100 || 0)/100}%
+                  </span>
+                </Typography.Text>
+              </div>
+            ) : null} */}
+          </div>
+        );
       },
     },
     {
@@ -122,7 +194,9 @@ function CardShowReturnProducts(props: PropType) {
           <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
+      width:"200px",
       dataIndex: "price",
+      align:"center",
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
@@ -147,6 +221,8 @@ function CardShowReturnProducts(props: PropType) {
           <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
+      align: "right",
+      width:"150px",
       key: "total",
       render: (
         value: OrderLineItemRequest,
@@ -216,6 +292,21 @@ function CardShowReturnProducts(props: PropType) {
                 {`${pointUsing ? pointUsing : 0} điểm`}
               </Row>
             )}
+            <Row className="payment-row" justify="space-between">
+                <span className="font-size-text">Chiết khấu: 
+								<Tag
+									style={{
+										marginTop: 0,
+										color: "#E24343",
+										backgroundColor: "#F5F5F5",
+									}}
+									className="orders-tag orders-tag-danger"
+								>
+									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0].rate ||0) *100 )/100 : 0}%{" "}
+								</Tag>
+                </span>
+                {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0].amount||0) : 0} đ`} 
+              </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>

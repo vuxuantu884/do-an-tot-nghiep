@@ -1,6 +1,6 @@
 import { YodyAction } from "base/base.action";
 import { TIME_GROUP_BY } from "config/report";
-import { AnalyticConditions, AnalyticMetadata, AnalyticQuery, QueryMode } from "model/report/analytics.model";
+import { AnalyticConditions, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
@@ -26,10 +26,10 @@ const getCondistions = (conditions: AnalyticConditions) => {
   return whereValue.slice(0, -3);
 };
 
-const getRows = (rows: Array<string>, mode: QueryMode = "table") => {
+const getRows = (rows: Array<string>) => {
   let rowsValue = "";
   if (rows.length === 1) {
-    if (mode === "chart" && TIME_GROUP_BY.some((item) => item.value === rows[0])) {
+    if (TIME_GROUP_BY.some((item) => item.value === rows[0])) {
       /*nếu là query cho chart và chỉ nhóm theo thời gian thì dùng OVER */
       rowsValue = ` OVER ${rows[0]}`;
     } else {
@@ -41,7 +41,7 @@ const getRows = (rows: Array<string>, mode: QueryMode = "table") => {
   return rowsValue;
 };
 
-const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") => {
+const generateRQuery = (queryObject: AnalyticQuery) => {
   //validate queryObject
   if (!queryObject.columns || !queryObject.cube) {
     throw new Error("Query is not valid");
@@ -55,7 +55,7 @@ const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") =
   }
   // by or over
   if (Array.isArray(rows)) {
-    queryString += getRows(rows, mode);
+    queryString += getRows(rows);
   }
   // from
   if (cube) {

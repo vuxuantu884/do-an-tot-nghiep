@@ -3,7 +3,8 @@ import OrderPayments from "../OrderPayments";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-// import { formatCurrency } from "utils/AppUtils";
+// import {useMemo} from "react";
+// import { getAmountPayment } from "utils/AppUtils";
 import { PaymentMethodOption } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
@@ -65,22 +66,11 @@ function OrderCreatePayments(props: PropType): JSX.Element {
     }
   };
 
-  // khách cần trả
-  // const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-  //   let value = 0;
-  //   if (items !== null) {
-  //     if (items.length > 0) {
-  //       items.forEach((a) => (value = value + a.paid_amount));
-  //     }
-  //   }
-  //   return value;
-  // };
-
   /**
    * tổng số tiền đã trả
    */
   // const totalAmountPayment = getAmountPayment(payments);
-
+  //
   // const totalAmountCustomerNeedToPay = useMemo(() => {
   //   return totalAmountOrder - totalAmountPayment;
   // }, [totalAmountOrder, totalAmountPayment]);
@@ -100,6 +90,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
               <Space size={20}>
                 <Radio value={PaymentMethodOption.COD}>COD</Radio>
                 <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
+                {/*Ẩn phương thức thanh toán chưa xác định*/}
                 {/* <Radio
                 value={PaymentMethodOption.POSTPAYMENT}
                 disabled={isDisablePostPayment}
@@ -115,8 +106,10 @@ function OrderCreatePayments(props: PropType): JSX.Element {
               <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
                 <Panel
                   className="orders-timeline-custom orders-dot-status"
+                  //ant-collapse-header{ display: none;}
                   header={
                     <span
+                      hidden
                       style={{
                         textTransform: "uppercase",
                         fontWeight: 500,

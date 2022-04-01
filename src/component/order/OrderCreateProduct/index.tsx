@@ -1172,15 +1172,15 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		items: OrderLineItemRequest[] | undefined
 	) => {
 		if (!items) {
-			return null;
+			return promotion;
 		}
 		if (checkingDiscountResponse.data.suggested_discounts === null || checkingDiscountResponse.data.suggested_discounts.length === 0) {
-			return null;
+			return promotion;
 		}
 		let discountOrder = checkingDiscountResponse.data.suggested_discounts[0];
 		if (discountOrder) {
 			if (!discountOrder?.value) {
-				return null;
+				return promotion;
 			}
 			let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
 			let discountAmount =  getTotalDiscountOrder(checkingDiscountResponse.data, items);
@@ -1213,10 +1213,10 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 					}
 				}
 			} else {
-				return null;
+				return promotion;
 			}
 		}
-		return null;
+		return promotion;
 	};
 
 
@@ -1355,7 +1355,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						}
 					} else if(isOrderHasDiscountLineItems(response.data)) {
 							let result = getApplyDiscountLineItem(response, items);
-							calculateChangeMoney(result, null)
+							calculateChangeMoney(result, promotion)
 					} else if(isOrderHasDiscountOrder(response.data)) {
 						let itemsAfterRemove = items.map(single => {
 							removeDiscountItem(single)
@@ -2137,7 +2137,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						</Form.Item>
 						<Form.Item name="automatic_discount" valuePropName="checked">
 							<Checkbox
-								disabled={levelOrder > 3 || isLoadingDiscount || typeof(promotion?.discount_code) === "string"}
+								disabled={levelOrder > 3 || isLoadingDiscount}
 								value={isAutomaticDiscount}
 								onChange={(e) => {
 									if (e.target.checked) {
@@ -2149,7 +2149,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 										handleRemoveAllAutomaticDiscount();
 										setIsAutomaticDiscount(false);
 										if (items) {
-											calculateChangeMoney(items, null)
+											calculateChangeMoney(items, promotion)
 										}
 									}
 								}}

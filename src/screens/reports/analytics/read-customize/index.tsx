@@ -9,7 +9,7 @@ import React, { useCallback, useContext, useEffect } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { useDispatch } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
-import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, updateAnalyticsCustomService } from 'service/report/analytics.service'
+import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, saveAnalyticsCustomService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
 import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
@@ -22,6 +22,7 @@ import { TIME_GROUP_BY } from 'config/report'
 function CreateAnalytics() {
     const [form] = Form.useForm();
     const [formEditInfo] = Form.useForm();
+    const [formCloneReport] = Form.useForm();
     const history = useHistory();
     const dispatch = useDispatch();
     let { id } = useParams<{ id: string }>();
@@ -33,6 +34,7 @@ function CreateAnalytics() {
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
     const [isConfirmDeleteVisible, setIsConfirmDeleteVisible] = React.useState<boolean>(false)
     const [chartInfo, setChartInfo] = React.useState<AnalyticChartInfo>({ showChart: true, message: '' });
+    const [visiableCloneReportModal, setVisiableCloneReportModal] = React.useState(false);
 
     const handleRQuery = async (rQuery: string) => {
         console.log(rQuery)
@@ -69,6 +71,23 @@ function CreateAnalytics() {
                     }
                 }
                 break;
+            case SUBMIT_MODE.CLONE_REPORT:
+                name = formCloneReport.getFieldValue("name")
+                if (name) {
+                    const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch,
+                        saveAnalyticsCustomService, {
+                            query: rQuery,
+                            cube: cubeRef.current,
+                            name,
+                    });
+                    if (response) {
+                        showSuccess("Nhân bản thành công");
+                        history.push(`${UrlConfig.ANALYTICS}/${response.id}`);
+                    } else {
+                        showError("Nhân bản báo cáo không thành công ");
+                    }
+                }
+                break;
         }
 
         setMode(SUBMIT_MODE.GET_DATA);
@@ -100,6 +119,21 @@ function CreateAnalytics() {
         setIsModalEditNameVisible(false);
     }
 
+    const handleCloneReport = async () => {
+        try {
+            await formCloneReport.validateFields();
+            setMode(SUBMIT_MODE.CLONE_REPORT);
+            form.submit();
+            setVisiableCloneReportModal(false);
+        } catch {
+
+        }
+    }
+
+    const handleCancelCloneReport = () => {
+        setVisiableCloneReportModal(false);
+    }
+
     const confirmDelete = async () => {
         if (Number(id)) {
             const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, deleteAnalyticsCustomService, Number(id));
@@ -119,6 +153,7 @@ function CreateAnalytics() {
         setReportInfo(report);
         if (report && report.query) {
             formEditInfo.setFieldsValue({ name: report.name })
+            formCloneReport.setFieldsValue({ name: `${report.name} nhân bản` })
             cubeRef.current = report.cube;
 
             const response = await callApiNative({ notifyAction:"SHOW_ALL" }, dispatch, executeAnalyticsQueryService, { q: report.query });
@@ -165,7 +200,7 @@ function CreateAnalytics() {
             }
             setDataQuery(response);
         }
-    }, [dispatch, id, formEditInfo, cubeRef, setDataQuery, setMetadata, form, setRowsInQuery, setActiveFilters])
+    }, [dispatch, id, formEditInfo, formCloneReport, cubeRef, setDataQuery, setMetadata, form, setRowsInQuery, setActiveFilters])
 
     useEffect(() => {
 
@@ -214,7 +249,7 @@ function CreateAnalytics() {
                     }),
                     conditions: mapperConditions ? mapperConditions : conditions
                 } as AnalyticQuery;
-                const query = generateRQuery(params, "chart");
+                const query = generateRQuery(params);
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
                 if (response) {
                     const { columns, data } = response.result;
@@ -266,6 +301,10 @@ function CreateAnalytics() {
                             &nbsp; Đổi tên
                         </Button>
 
+                        <Button type="primary" className='margin-left-20' onClick={() => setVisiableCloneReportModal(true)}>
+                            Nhân bản báo cáo
+                        </Button>
+
                         <Button icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />} loading={isLoadingExport} onClick={handleExportReport}>
                             Xuất báo cáo
                         </Button>
@@ -276,12 +315,13 @@ function CreateAnalytics() {
                     </div>
                 }
             />
-            <ModalFormAnalyticsInfo form={formEditInfo} isVisiable={isModalEditNameVisible} handleOk={handleOk} handleCancel={handleCancel} />
+            <ModalFormAnalyticsInfo form={formEditInfo} title="Đổi tên báo cáo" isVisiable={isModalEditNameVisible} handleOk={handleOk} handleCancel={handleCancel} />
             <ModalDeleteConfirm onOk={confirmDelete} onCancel={() => setIsConfirmDeleteVisible(false)}
                 visible={isConfirmDeleteVisible}
                 title="Xóa báo cáo"
                 subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
             />
+            <ModalFormAnalyticsInfo form={formCloneReport} title="Nhân bản báo cáo" isVisiable={visiableCloneReportModal} handleOk={handleCloneReport} handleCancel={handleCancelCloneReport} />
         </ContentContainer>
     )
 }

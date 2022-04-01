@@ -62,6 +62,9 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 				}
         if(_price < v) {
 					showError("Chiết khấu không lớn hơn giá sản phẩm!");
+          _itemDiscount.value = 0;
+          _itemDiscount.rate = 0;
+          return;
 				}
         _itemDiscount.value = v;
         _itemDiscount.rate = (v / _price) * 100;
