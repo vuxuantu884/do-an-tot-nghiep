@@ -437,6 +437,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
+              <div style={{fontSize:"0.86em", lineHeight:"1.25"}}>{moment(item?.created_date).format("DD/MM/YYYY")}</div>
               <div className="shipment-details">
                 Tự vận chuyển
               </div>
@@ -449,6 +450,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
+              <div style={{fontSize:"0.86em", lineHeight:"1.25"}}>{moment(item?.created_date).format("DD/MM/YYYY")}</div>
               <div className="shipment-details">
                 {service &&
                   <img

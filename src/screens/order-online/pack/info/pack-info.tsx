@@ -146,6 +146,15 @@ const PackInfo: React.FC = () => {
               let a = document.getElementById("inputProduct");
               setTimeout(() => {
                 a?.focus();
+                if (!packModel?.store_id) {
+                  setPackModel({
+                    ...new PackModelDefaltValue(), ...packModel,
+                    store_id: data[0]?.store_id
+                  });
+                  formRef.current?.setFieldsValue({
+                    store_request: data[0]?.store_id
+                  })
+                }
               }, 200);
             } else {
               setDisableStoreId(false);

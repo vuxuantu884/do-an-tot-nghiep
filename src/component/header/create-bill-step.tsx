@@ -189,7 +189,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         }
       />
       <Steps.Step
-        title={!(orderDetail?.status === OrderStatus.CANCELLED) ? orderDetail?.status === OrderStatus.COMPLETED ? "Hoàn thành" : "Kết thúc" : "Huỷ đơn"}
+        title={!(orderDetail?.status === OrderStatus.CANCELLED) ? orderDetail?.status === OrderStatus.COMPLETED ? "Hoàn thành" : "Thành công" : "Huỷ đơn"}
         description={renderStepFinishDescription()}
         className={orderDetail?.status === "cancelled" ? "cancelled" : ""}
       />

@@ -34,7 +34,7 @@ function CustomerVisitors() {
     const [isFilter, setIsFilter] = useState<boolean>(true);
 
     const currentYear = moment().year();
-    const numberOfYears = 10;
+    const startYear = 2018;
     const initialFilterValues = {
         [CustomerVisitorsFilter.StoreIds]: [],
         [CustomerVisitorsFilter.Month]: moment().month() + 1,
@@ -49,7 +49,7 @@ function CustomerVisitors() {
 
     useEffect(() => {
         const years = [];
-        for (let i = currentYear; i > currentYear - numberOfYears; --i) {
+        for (let i = currentYear; i >= startYear; --i) {
             years.push(i.toString());
         }
         setYearList(years);
@@ -165,11 +165,9 @@ function CustomerVisitors() {
             >
                 <Form form={form} name="filter-block" initialValues={initialFilterValues}>
                     <Card bodyStyle={{ paddingBottom: 0, paddingTop: 0 }} title="Bộ lọc">
-                        <div className="d-flex justify-content-start align-items-end">
+                        <div className="d-flex justify-content-start align-items-end pt-3">
                             <Form.Item
-                                label="Cửa hàng"
                                 name={CustomerVisitorsFilter.StoreIds}
-                                labelCol={{ span: 24 }}
                                 className="input-width"
                                 help={false}>
                                 <TreeStore
@@ -180,9 +178,7 @@ function CustomerVisitors() {
                                 />
                             </Form.Item>
                             <Form.Item
-                                label="Tháng"
                                 name={CustomerVisitorsFilter.Month}
-                                labelCol={{ span: 24 }}
                                 className="input-width"
                                 help={false}>
                                 <Select
@@ -197,9 +193,7 @@ function CustomerVisitors() {
                                 </Select>
                             </Form.Item>
                             <Form.Item
-                                label="Năm"
                                 name={CustomerVisitorsFilter.Year}
-                                labelCol={{ span: 24 }}
                                 className="input-width"
                                 help={false}>
                                 <Select

@@ -200,7 +200,7 @@ function OrderCreateProduct(props: PropType) {
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
-	const QUANTITY_DELAY_TIME = 800;
+	const QUANTITY_DELAY_TIME = 1000;
 	const {
 		form,
 		items,
@@ -282,10 +282,10 @@ function OrderCreateProduct(props: PropType) {
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
 	// const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
-
-	const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
-	const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
-
+console.log('props.updateOrder', props.updateOrder)
+	const isShouldUpdateCouponRef = useRef(orderDetail|| props.updateOrder ? false : true);
+	const isShouldUpdateDiscountRef = useRef(orderDetail|| props.updateOrder ? false : true);
+console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
 
@@ -529,6 +529,7 @@ function OrderCreateProduct(props: PropType) {
 	const onChangeQuantity = (value: number | null, index: number) => {
 		if (items) {
 			let _items = _.cloneDeep(items)
+			console.log('_items', _items)
 			if (value === _items[index].quantity) {
 				return;
 			}
@@ -542,6 +543,7 @@ function OrderCreateProduct(props: PropType) {
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
 			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
+			setItems(_items);
 			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
 	};
@@ -743,6 +745,7 @@ function OrderCreateProduct(props: PropType) {
 		width: "9%",
 		align: "right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
+			console.log('lgg', l)
 			return (
 				<div className="yody-pos-qtt">
 					<NumberInput
@@ -771,7 +774,7 @@ function OrderCreateProduct(props: PropType) {
 						min={1}
 						maxLength={4}
 						minLength={0}
-						disabled={levelOrder > 3}
+						disabled={levelOrder > 3 || isLoadingDiscount}
 						isChangeAfterBlur = {false}
 					/>
 				</div>
@@ -1304,7 +1307,7 @@ function OrderCreateProduct(props: PropType) {
 		console.log('items', items)
 		setIsLoadingDiscount(true);
 		dispatch(changeIsLoadingDiscountAction(true));
-		removeCoupon()
+		// removeCoupon()
 		// handleRemoveAllAutomaticDiscount();
 		let params: DiscountRequestModel = {
 			order_id: orderDetail?.id || null,
@@ -1408,7 +1411,7 @@ function OrderCreateProduct(props: PropType) {
 		if (!_items || _items?.length === 0 || !coupon) {
 			return;
 		}
-		handleRemoveAllDiscount();
+		handleRemoveAllAutomaticDiscount();
 		coupon = coupon.trim();
 		if (!isAutomaticDiscount) {
 			let params: DiscountRequestModel = {
@@ -1587,7 +1590,6 @@ function OrderCreateProduct(props: PropType) {
 									})
 								}
 								calculateChangeMoney(_items, promotionResult)
-								showSuccess("Thêm coupon thành công!");
 							}
 					} else {
 						calculateChangeMoney(_items)
@@ -1989,7 +1991,6 @@ function OrderCreateProduct(props: PropType) {
 			})
 		}
 		// calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
-		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
 
 	const handleRemoveAllDiscount = async () => {
@@ -2081,7 +2082,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2097,12 +2098,15 @@ function OrderCreateProduct(props: PropType) {
 			handleApplyCouponWhenInsertCoupon(couponInputText, items);
 		}
 
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+
+	useEffect(() => {
 		setTimeout(() => {
 			isShouldUpdateCouponRef.current = true;
 			isShouldUpdateDiscountRef.current = true;
-		}, 1000);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
+		}, 3000);
+	}, []);
 
 	useEffect(() => {
 		if (items && items.length === 0) {
