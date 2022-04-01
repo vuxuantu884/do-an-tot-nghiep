@@ -200,7 +200,7 @@ function OrderCreateProduct(props: PropType) {
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
-	const QUANTITY_DELAY_TIME = 800;
+	const QUANTITY_DELAY_TIME = 1000;
 	const {
 		form,
 		items,
@@ -1305,7 +1305,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		setIsLoadingDiscount(true);
 		dispatch(changeIsLoadingDiscountAction(true));
 		removeCoupon()
-		// handleRemoveAllAutomaticDiscount();
+		handleRemoveAllAutomaticDiscount();
 		let params: DiscountRequestModel = {
 			order_id: orderDetail?.id || null,
 			customer_id: customer?.id || null,
@@ -1408,7 +1408,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		if (!_items || _items?.length === 0 || !coupon) {
 			return;
 		}
-		handleRemoveAllDiscount();
+		handleRemoveAllAutomaticDiscount();
 		coupon = coupon.trim();
 		if (!isAutomaticDiscount) {
 			let params: DiscountRequestModel = {
@@ -1587,7 +1587,6 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 									})
 								}
 								calculateChangeMoney(_items, promotionResult)
-								showSuccess("Thêm coupon thành công!");
 							}
 					} else {
 						calculateChangeMoney(_items)
@@ -1989,7 +1988,6 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 			})
 		}
 		// calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
-		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
 
 	const handleRemoveAllDiscount = async () => {
