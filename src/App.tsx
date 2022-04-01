@@ -16,7 +16,10 @@ function App() {
   const dispatch = useDispatch();
 
   const isLoad = useSelector(
-    (state: RootReducerType) => state.userReducer.isLoad
+    (state: RootReducerType) => {
+      console.log('stateLog', state)
+      return state.userReducer.isLoad
+    }
   );
 
   const user_id = useSelector(

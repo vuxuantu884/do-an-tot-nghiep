@@ -1351,7 +1351,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                         if (value.length > 1) {
                           const params = {
                             name: value,
-                            limit: 200,
+                            limit: 1000,
                           };
                           handleDelayActionWhenInsertTextInSearchInput(orderSourceFilterRef, () => {
                             getSourcesWithParamsService(params).then((response) => {
