@@ -1174,7 +1174,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
           key: "finished_on",
         },
         {
-          name: "Nhân viên lên đơn:",
+          name: "Nhân viên bán hàng:",
           value: 
               <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${listNewOrder.account_code}`}>
                 {`${listNewOrder.assignee_code} - ${listNewOrder.assignee}`}
