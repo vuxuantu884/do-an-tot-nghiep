@@ -1172,15 +1172,15 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		items: OrderLineItemRequest[] | undefined
 	) => {
 		if (!items) {
-			return null;
+			return promotion;
 		}
 		if (checkingDiscountResponse.data.suggested_discounts === null || checkingDiscountResponse.data.suggested_discounts.length === 0) {
-			return null;
+			return promotion;
 		}
 		let discountOrder = checkingDiscountResponse.data.suggested_discounts[0];
 		if (discountOrder) {
 			if (!discountOrder?.value) {
-				return null;
+				return promotion;
 			}
 			let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
 			let discountAmount =  getTotalDiscountOrder(checkingDiscountResponse.data, items);
@@ -1213,10 +1213,10 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 					}
 				}
 			} else {
-				return null;
+				return promotion;
 			}
 		}
-		return null;
+		return promotion;
 	};
 
 
