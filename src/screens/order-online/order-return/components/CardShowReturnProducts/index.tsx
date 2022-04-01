@@ -302,7 +302,7 @@ function CardShowReturnProducts(props: PropType) {
 									}}
 									className="orders-tag orders-tag-danger"
 								>
-									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0].rate ||0) *100 )/100 : 0}%{" "}
+									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0]?.rate ||0) *100 )/100 : 0}%{" "}
 								</Tag>
                 </span>
                 {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0].amount||0) : 0} đ`} 
