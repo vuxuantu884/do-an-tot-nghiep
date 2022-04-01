@@ -2,7 +2,11 @@ import { BaseQuery } from "model/base/base.query";
 
 export interface PointAdjustmentListRequest extends BaseQuery {
   id: string | null;
-  reasons: Array<string> | [];
+  term: string | null;
+  reasons: Array<string> | null;
+  emps: Array<string> | null;
+  from: any | null;
+  to: any | null;
 }
 
 export interface CreateCustomerPointAdjustmentRequest {
