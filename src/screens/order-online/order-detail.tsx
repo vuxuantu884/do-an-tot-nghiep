@@ -689,7 +689,7 @@ const OrderDetail = (props: PropType) => {
         shippingFeeInformedCustomer -
         (OrderDetail?.discounts &&
           OrderDetail?.discounts.length > 0 &&
-          OrderDetail?.discounts[0].amount
+          OrderDetail?.discounts[0]?.amount
           ? OrderDetail?.discounts[0].amount
           : 0)
       );
@@ -699,7 +699,7 @@ const OrderDetail = (props: PropType) => {
         shippingFeeInformedCustomer -
         (OrderDetail?.discounts &&
           OrderDetail?.discounts.length > 0 &&
-          OrderDetail?.discounts[0].amount
+          OrderDetail?.discounts[0]?.amount
           ? OrderDetail?.discounts[0].amount
           : 0)
       );
@@ -1019,7 +1019,7 @@ const OrderDetail = (props: PropType) => {
                                       getAmountPayment(OrderDetail.payments) -
                                       (OrderDetail?.discounts &&
                                         OrderDetail?.discounts.length > 0 &&
-                                        OrderDetail?.discounts[0].amount
+                                        OrderDetail?.discounts[0]?.amount
                                         ? OrderDetail?.discounts[0].amount
                                         : 0)
                                     }

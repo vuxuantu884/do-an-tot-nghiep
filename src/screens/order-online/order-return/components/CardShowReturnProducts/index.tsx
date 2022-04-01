@@ -305,7 +305,7 @@ function CardShowReturnProducts(props: PropType) {
 									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0]?.rate ||0) *100 )/100 : 0}%{" "}
 								</Tag>
                 </span>
-                {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0].amount||0) : 0} đ`} 
+                {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0]?.amount||0) : 0} đ`} 
               </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
