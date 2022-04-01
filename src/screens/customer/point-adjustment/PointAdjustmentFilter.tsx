@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import {
   Button,
   Form,
@@ -13,7 +13,13 @@ import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.reques
 
 import search from "assets/img/search.svg";
 import { StyledPointAdjustment } from "screens/customer/point-adjustment/StyledPointAdjustment";
-
+import {
+  searchAccountApi,
+} from "service/accounts/account.service";
+import { useDispatch } from "react-redux";
+import rightArrow from "assets/icon/right-arrow.svg";
+import CustomDatePicker from "component/custom/new-date-picker.custom";
+import DebounceSelect from "component/filter/component/debounce-select";
 
 type PointAdjustmentFilterProps = {
   params: PointAdjustmentListRequest;
@@ -45,6 +51,8 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
 
   const [formFilter] = Form.useForm();
 
+  const [listAccount, setListAccount] = useState<any[]>([]);
+  const dispatch = useDispatch();
 
   let initialValues = useMemo(() => {
     return {
@@ -52,6 +60,9 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       reasons: Array.isArray(params.reasons)
         ? params.reasons
         : [params.reasons],
+      emps: Array.isArray(params.emps)
+        ? params.emps
+        : [params.emps]
     };
   }, [params]);
 
@@ -146,16 +157,25 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   );
   // end handle tag filter
 
-  const onFinish = useCallback(
-    (values) => {
-      const formValues = {
-        ...values,
-      };
-      
-      onFilter && onFilter(formValues);
-    },
-    [onFilter]
-  );
+
+  async function searchRegulator(value: any) {
+    try {
+      const response = await searchAccountApi({ info: value });
+      setListAccount(response.data.items)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    let query = {
+      info: '',
+    }
+    searchAccountApi(query).then((response) => {
+      setListAccount(response.data.items)
+    }).catch((error) => {
+    })
+  }, [dispatch]);
 
   useEffect(() => {
     formFilter.setFieldsValue({
@@ -168,15 +188,14 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
-
   return (
     <StyledPointAdjustment>
-      <div>
+      <div className="filter">
         <Form
           form={formFilter}
-          onFinish={onFinish}
+          onFinish={onFilter}
           initialValues={initialValues}
-          className="basic-filter"
+          layout="inline"
         >
           <Item name="term" className="search-input">
             <Input
@@ -209,10 +228,53 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
             </CustomSelect>
           </Item>
 
-          <Item>
+          <Item
+            className="regulator"
+            name="emps"
+            // style={{ margin: "10px 0px" }}
+          >
+            <DebounceSelect
+              mode="multiple"
+              showArrow
+              maxTagCount="responsive"
+              placeholder="Người điều chỉnh"
+              allowClear
+              fetchOptions={searchRegulator}
+            >
+              {listAccount.map((item, index) => (
+                <CustomSelect.Option
+                  style={{ width: "100%" }}
+                  key={index.toString()}
+                  value={item.code}
+                >
+                  {item.code + " - " + item.full_name}
+                </CustomSelect.Option>
+              ))}
+            </DebounceSelect>
+          </Item>
+
+          <Item name="from">
+            <CustomDatePicker 
+              format="DD-MM-YYYY"
+              placeholder="Từ ngày"
+              style={{width: "100%"}}
+              />
+          </Item>
+
+          <span> <img src={rightArrow} alt="" style={{marginRight: "10px"}}/> </span>
+
+          <Item name="to">
+            <CustomDatePicker 
+              format="DD-MM-YYYY"
+              placeholder="Đến ngày"
+              style={{width: "100%"}}
+              />
+          </Item>
+
+          <Item >
             <Button
               type="primary"
-              htmlType="submit" 
+              htmlType="submit"
               disabled={isLoading}
             >
               Lọc
