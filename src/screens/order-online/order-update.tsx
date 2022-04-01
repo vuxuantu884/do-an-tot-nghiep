@@ -95,8 +95,6 @@ import {
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
-	getTotalDiscount,
-	getTotalOrderDiscount,
 	handleFetchApiError,
 	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
