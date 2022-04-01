@@ -529,6 +529,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 	const onChangeQuantity = (value: number | null, index: number) => {
 		if (items) {
 			let _items = _.cloneDeep(items)
+			console.log('_items', _items)
 			if (value === _items[index].quantity) {
 				return;
 			}
@@ -542,6 +543,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
 			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
+			setItems(_items);
 			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
 	};
@@ -743,6 +745,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		width: "9%",
 		align: "right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
+			console.log('lgg', l)
 			return (
 				<div className="yody-pos-qtt">
 					<NumberInput
@@ -771,7 +774,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						min={1}
 						maxLength={4}
 						minLength={0}
-						disabled={levelOrder > 3}
+						disabled={levelOrder > 3 || isLoadingDiscount}
 						isChangeAfterBlur = {false}
 					/>
 				</div>
@@ -1304,8 +1307,8 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		console.log('items', items)
 		setIsLoadingDiscount(true);
 		dispatch(changeIsLoadingDiscountAction(true));
-		removeCoupon()
-		handleRemoveAllAutomaticDiscount();
+		// removeCoupon()
+		// handleRemoveAllAutomaticDiscount();
 		let params: DiscountRequestModel = {
 			order_id: orderDetail?.id || null,
 			customer_id: customer?.id || null,
