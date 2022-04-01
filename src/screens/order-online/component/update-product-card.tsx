@@ -351,7 +351,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                       }}
                       className="orders-tag orders-tag-danger"
                     >
-                      {props.OrderDetail?.discounts[0].rate ? Math.round(props.OrderDetail?.discounts[0].rate*100)/100 : 0} %
+                      {props.OrderDetail?.discounts[0]?.rate ? Math.round(props.OrderDetail?.discounts[0].rate*100)/100 : 0} %
                     </Tag>
                   </div>
                 )}
