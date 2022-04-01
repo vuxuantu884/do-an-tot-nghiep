@@ -12,7 +12,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
-import DiscountGroup from "screens/order-online/component/discount-group";
 
 type PropType = {
   listReturnProducts: OrderLineItemResponse[];

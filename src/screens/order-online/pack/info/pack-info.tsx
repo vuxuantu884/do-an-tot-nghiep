@@ -168,6 +168,7 @@ const PackInfo: React.FC = () => {
         OrderRequestElement?.select();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [formRef, dispatch, OrderRequestElement]
   );
 
