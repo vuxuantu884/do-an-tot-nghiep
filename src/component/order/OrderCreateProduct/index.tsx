@@ -282,10 +282,10 @@ function OrderCreateProduct(props: PropType) {
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
 	// const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
-
-	const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
-	const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
-
+console.log('props.updateOrder', props.updateOrder)
+	const isShouldUpdateCouponRef = useRef(orderDetail|| props.updateOrder ? false : true);
+	const isShouldUpdateDiscountRef = useRef(orderDetail|| props.updateOrder ? false : true);
+console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
 
@@ -2081,7 +2081,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2097,12 +2097,15 @@ function OrderCreateProduct(props: PropType) {
 			handleApplyCouponWhenInsertCoupon(couponInputText, items);
 		}
 
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+
+	useEffect(() => {
 		setTimeout(() => {
 			isShouldUpdateCouponRef.current = true;
 			isShouldUpdateDiscountRef.current = true;
-		}, 1000);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
+		}, 3000);
+	}, []);
 
 	useEffect(() => {
 		if (items && items.length === 0) {
