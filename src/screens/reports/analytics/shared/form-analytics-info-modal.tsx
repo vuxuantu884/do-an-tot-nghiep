@@ -6,7 +6,8 @@ type Props = {
     isVisiable: boolean;
     handleOk: () => void;
     handleCancel: () => void;
-    form: FormInstance
+    form: FormInstance,
+    title?: string
 }
 
 function ModalFormAnalyticsInfo({
@@ -14,11 +15,12 @@ function ModalFormAnalyticsInfo({
     isVisiable,
     handleOk,
     handleCancel,
+    title
 
 }: Props) {
 
     return (
-        <Modal title="Cài đặt báo cáo" visible={isVisiable} onOk={handleOk} onCancel={handleCancel} okText="Lưu">
+        <Modal title={title || 'Cài đặt báo cáo'} visible={isVisiable} onOk={handleOk} onCancel={handleCancel} okText="Lưu">
             <Form name="analytic-info" form={form} layout="vertical">
                 <Form.Item label="Tên báo cáo" name="name" rules={[{ required: true, whitespace: true, message: "Vui lòng nhập tên báo cáo" }]}>
                     <Input type="text" placeholder='Nhập tên báo cáo' />
