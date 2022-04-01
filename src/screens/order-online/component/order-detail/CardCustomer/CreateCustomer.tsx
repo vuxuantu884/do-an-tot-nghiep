@@ -35,7 +35,7 @@ import {
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
@@ -77,12 +77,18 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
-          .toLowerCase(),
+          .toLowerCase()
+          .replace("tinh ", "")
+          .replace("tp. ", ""),
         district_name_normalize: area.name.normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
-          .toLowerCase(),
+          .toLowerCase()
+          .replace("quan ", "")
+          .replace("huyen ", "")
+          .replace("thanh pho ", "")
+          .replace("thi xa ", ""),
       }
     })
   }, [areas]);
@@ -146,7 +152,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/đ/g, "d")
                 .replace(/Đ/g, "D")
-                .toLowerCase(),
+                .toLowerCase()
+                .replace("phuong ", "")
+                .replace("xa ", ""),
               }
             });
             const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
