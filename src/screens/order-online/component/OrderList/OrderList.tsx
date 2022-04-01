@@ -403,7 +403,9 @@ function OrderList(props: PropTypes) {
         case EXPORT_IDs.ordersOnThisPage:
           break;
         case EXPORT_IDs.selectedOrders:
-          newParams.code = selectedRowCodes;
+          newParams = {
+            code: selectedRowCodes
+          };
           break;
         case EXPORT_IDs.ordersFound:
           delete newParams.page;

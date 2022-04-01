@@ -625,7 +625,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 				break
 			case 2: break
 			case 3:
-				newParams.fulfillment_code = selectedRowCodes;
+				newParams = {
+					fulfillment_code: selectedRowCodes
+				};
 				break
 			case 4:
 				delete newParams.page
