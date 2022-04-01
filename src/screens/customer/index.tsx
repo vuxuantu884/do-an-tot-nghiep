@@ -42,7 +42,10 @@ import {
   StyledCustomerExtraButton,
 } from "screens/customer/customerStyled";
 import { showError, showSuccess } from "utils/ToastUtils";
-import {generateQuery, isNullOrUndefined} from "utils/AppUtils";
+import {
+  generateQuery,
+  // isNullOrUndefined,
+} from "utils/AppUtils";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
@@ -50,7 +53,7 @@ import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile"
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 import {getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
-import NumberFormat from "react-number-format";
+// import NumberFormat from "react-number-format";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -83,7 +86,7 @@ const Customer = () => {
     () => ({
       page: 1,
       limit: 30,
-      searchType: "LIST",
+      // searchType: "LIST",
       request: "",
       gender: null,
       customer_group_ids: [],
@@ -201,32 +204,32 @@ const Customer = () => {
         <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
       ),
     },
-    {
-      title: "Điểm",
-      dataIndex: "point",
-      visible: true,
-      width: 100,
-      align: "center",
-      render: (value: any) => (
-        <div style={{ textAlign: "right" }}>
-          {!isNullOrUndefined(value) ?
-            <NumberFormat
-              value={value}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-            : ""
-          }
-        </div>
-      )
-    },
-    {
-      title: "Hạng thẻ",
-      dataIndex: "customer_level",
-      visible: true,
-      width: 90,
-      align: "center",
-    },
+    // {
+    //   title: "Điểm",
+    //   dataIndex: "point",
+    //   visible: true,
+    //   width: 100,
+    //   align: "center",
+    //   render: (value: any) => (
+    //     <div style={{ textAlign: "right" }}>
+    //       {!isNullOrUndefined(value) ?
+    //         <NumberFormat
+    //           value={value}
+    //           displayType={"text"}
+    //           thousandSeparator={true}
+    //         />
+    //         : ""
+    //       }
+    //     </div>
+    //   )
+    // },
+    // {
+    //   title: "Hạng thẻ",
+    //   dataIndex: "customer_level",
+    //   visible: true,
+    //   width: 90,
+    //   align: "center",
+    // },
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
@@ -234,45 +237,45 @@ const Customer = () => {
       width: 150,
       align: "center",
     },
-    {
-      title: "Tiền tích lũy",
-      dataIndex: "total_paid_amount",
-      visible: true,
-      width: 120,
-      align: "center",
-      render: (value: any) => (
-        <div style={{ textAlign: "right" }}>
-          {!isNullOrUndefined(value) ?
-            <NumberFormat
-              value={value}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-            : ""
-          }
-        </div>
-      )
-    },
-    {
-      title: "Ngày mua đầu",
-      dataIndex: "first_order_time",
-      visible: true,
-      width: 110,
-      align: "center",
-      render: (value: string) => (
-        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
-    },
-    {
-      title: "Ngày mua cuối",
-      dataIndex: "last_order_time",
-      visible: true,
-      width: 110,
-      align: "center",
-      render: (value: string) => (
-        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
-    },
+    // {
+    //   title: "Tiền tích lũy",
+    //   dataIndex: "total_paid_amount",
+    //   visible: true,
+    //   width: 120,
+    //   align: "center",
+    //   render: (value: any) => (
+    //     <div style={{ textAlign: "right" }}>
+    //       {!isNullOrUndefined(value) ?
+    //         <NumberFormat
+    //           value={value}
+    //           displayType={"text"}
+    //           thousandSeparator={true}
+    //         />
+    //         : ""
+    //       }
+    //     </div>
+    //   )
+    // },
+    // {
+    //   title: "Ngày mua đầu",
+    //   dataIndex: "first_order_time",
+    //   visible: true,
+    //   width: 110,
+    //   align: "center",
+    //   render: (value: string) => (
+    //     <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+    //   ),
+    // },
+    // {
+    //   title: "Ngày mua cuối",
+    //   dataIndex: "last_order_time",
+    //   visible: true,
+    //   width: 110,
+    //   align: "center",
+    //   render: (value: string) => (
+    //     <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+    //   ),
+    // },
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
