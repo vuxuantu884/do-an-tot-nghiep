@@ -15,6 +15,7 @@ import { formatCurrency } from 'utils/AppUtils';
 import { OFFSET_HEADER_UNDER_NAVBAR } from 'utils/Constants';
 import { DATE_FORMAT } from 'utils/DateUtils';
 import { formatReportTime, generateRQuery, getTranslatePropertyKey, transformDateRangeToString } from 'utils/ReportUtils';
+import { strForSearch } from 'utils/StringUtils';
 import { ActiveFiltersStyle, AnalyticsStyle } from '../index.style';
 import ActiveFilters from './active-filters';
 import AnalyticsDatePicker from './analytics-date-picker';
@@ -173,10 +174,15 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
     }
 
     const setRelatedTimeFields = (field: string, value: string) => {
-        const { YEAR, MONTH, DAY, HOUR } = TIME;
+        const { YEAR, MONTH, DAY, HOUR, YearNoChange } = TIME;
         let from;
         let to;
         switch (field) {
+            case YearNoChange:
+                from = moment([value]);
+                to = moment([value]).endOf(YEAR);
+                form.setFieldsValue({ timeRange: [from, to], timeGroupBy: YEAR });
+                break;
             case YEAR:
                 from = moment([value]);
                 to = moment([value]).endOf(YEAR);
@@ -225,7 +231,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
 
     const handleRemoveFilter = (filter: any) => {
         const { field: fieldFilter, value: valueFilter, title } = filter;
-        const { YEAR, MONTH, DAY } = TIME;
+        const { YEAR, MONTH, DAY, YearNoChange } = TIME;
         let timeFilter;
         switch (fieldFilter) {
             case MONTH:
@@ -261,12 +267,27 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 break;
         }
         if (!timeFilter && [YEAR, MONTH, DAY].includes(fieldFilter)) {
-            timeFilter = { field: fieldFilter, ...activeFilters.get(fieldFilter) };;
+            switch (fieldFilter) {
+                case YEAR:
+                    timeFilter = { field: YearNoChange, ...activeFilters.get(fieldFilter) };
+                    break;
+                case MONTH:
+                    const currentYear = moment(activeFilters.get(fieldFilter).value[0], DATE_FORMAT.MMYYYY).year();
+                    timeFilter = { field: YEAR, value: [currentYear] };
+                    break;
+                case DAY:
+                    const currentMonth = moment(activeFilters.get(fieldFilter).value[0], DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MMYYYY);
+                    timeFilter = { field: MONTH, value: [currentMonth] };
+                    break;
+                default:
+                    break;
+            }
         }
+        
         if (timeFilter) {
             const { field, value } = timeFilter;
             setRelatedTimeFields(field, value[0]);
-            if (fieldFilter === YEAR) {
+            if (fieldFilter === YEAR || fieldFilter === YearNoChange) {
                 [YEAR, MONTH, DAY].forEach(item => {
                     activeFilters.delete(item);
                 });
@@ -383,7 +404,14 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                     className="input-width"
                     showArrow
                     maxTagCount={"responsive"}
-                    onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST )}>
+                    onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST )}
+                    filterOption={(input, option) => {
+                      if (option?.props.children) {
+                        return strForSearch(option.props.children.toLowerCase()).includes(strForSearch(input.toLowerCase()))
+                      }
+                      return false
+                    }
+                    }>
                     {Object.keys(metadata.aggregates).map((key: string) => {
                       const value = Object.values(metadata.aggregates)[
                         Object.keys(metadata.aggregates).indexOf(key)
