@@ -1647,7 +1647,7 @@ ShippingServiceConfigDetailResponseModel[]
 										OrderDetail?.total_line_amount_after_line_discount -
 										(OrderDetail?.discounts &&
 											OrderDetail?.discounts.length > 0 &&
-											OrderDetail?.discounts[0].amount
+											OrderDetail?.discounts[0]?.amount
 											? OrderDetail?.discounts[0].amount
 											: 0) &&
 										checkPaymentStatusToShow(OrderDetail) !== 1 && (

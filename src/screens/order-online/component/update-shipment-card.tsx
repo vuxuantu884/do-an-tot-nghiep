@@ -503,7 +503,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 				totalPaid -
 				(props.OrderDetail?.discounts &&
 					props.OrderDetail?.discounts.length > 0 &&
-					props.OrderDetail?.discounts[0].amount
+					props.OrderDetail?.discounts[0]?.amount
 					? props.OrderDetail?.discounts[0].amount
 					: 0)
 			);
