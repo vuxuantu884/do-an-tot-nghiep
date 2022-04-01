@@ -22,6 +22,7 @@ export enum TIME {
   MONTH = 'month',
   DAY = 'day',
   HOUR = 'hour',
+  YearNoChange = 'yearNoChange'
 }
 
 export enum FIELD_FORMAT {
