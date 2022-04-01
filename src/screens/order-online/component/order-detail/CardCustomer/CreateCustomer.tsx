@@ -188,7 +188,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/đ/g, "d")
                 .replace(/Đ/g, "D")
-                .toLowerCase(),
+                .toLowerCase().replace("phuong ", "")
+                .replace("xa ", ""),
               }
             });
             const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);

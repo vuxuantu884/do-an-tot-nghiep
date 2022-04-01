@@ -104,12 +104,18 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
-          .toLowerCase(),
+          .toLowerCase()
+          .replace("tinh ", "")
+          .replace("tp. ", ""),
         district_name_normalize: area.name.normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
-          .toLowerCase(),
+          .toLowerCase()
+          .replace("quan ", "")
+          .replace("huyen ", "")
+          .replace("thanh pho ", "")
+          .replace("thi xa ", ""),
       }
     })
   }, [areas]);
@@ -133,7 +139,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/đ/g, "d")
                 .replace(/Đ/g, "D")
-                .toLowerCase(),
+                .toLowerCase()
+                .replace("phuong ", "")
+                .replace("xa ", ""),
               }
             });
             const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
@@ -167,7 +175,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/đ/g, "d")
                 .replace(/Đ/g, "D")
-                .toLowerCase(),
+                .toLowerCase()
+                .replace("phuong ", "")
+                .replace("xa ", ""),
               }
             });
             const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
