@@ -332,9 +332,13 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         setActiveFilters(activeFilters);
 
         const where = form.getFieldValue(ReportifyFormFields.orderBy);
-        if(Array.isArray(where) && TIME_GROUP_BY.some((item)=>item.value===where[0][0])){
-            //reset orderBy khi chuyển nhóm thời gian.
-            form.setFieldsValue({ orderBy: []});
+        if (
+          Array.isArray(where) &&
+          where.length &&
+          TIME_GROUP_BY.some((item) => item.value === where[0][0])
+        ) {
+          //reset orderBy khi chuyển nhóm thời gian.
+          form.setFieldsValue({ orderBy: [] });
         }
         pushSubmitAction();
     }

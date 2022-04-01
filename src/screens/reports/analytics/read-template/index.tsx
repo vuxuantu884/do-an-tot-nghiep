@@ -235,7 +235,7 @@ function UpdateAnalytics() {
                     }),
                     conditions: mapperConditions ? mapperConditions : conditions
                 } as AnalyticQuery;
-                const query = generateRQuery(params, "chart");
+                const query = generateRQuery(params);
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
                 if (response) {
                     const { columns, data } = response.result;
@@ -302,7 +302,7 @@ function UpdateAnalytics() {
                     </>
                 }
             />
-            <ModalFormAnalyticsInfo form={formSaveInfo} isVisiable={isVisibleFormName} handleOk={handleSaveReport} handleCancel={handleCancel} />
+            <ModalFormAnalyticsInfo form={formSaveInfo} title="Nhân bản báo cáo" isVisiable={isVisibleFormName} handleOk={handleSaveReport} handleCancel={handleCancel} />
             <AnnotationTableModal isVisiable={isVisibleAnnotation} handleCancel={() => setIsVisibleAnnotation(false)} annotationData={currentAnnotation?.data || []} documentLink={currentAnnotation?.documentLink || ''} />
 
         </ContentContainer>
