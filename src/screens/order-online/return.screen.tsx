@@ -222,7 +222,7 @@ const ListOrderScreen: React.FC = () => {
               style={{ fontWeight: 500, color: "#27ae60"}}
             />
           </Tooltip>
-          
+
           {record.point_refund  && record.total && (
             <>
               <br />

@@ -3,6 +3,7 @@ import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/CreateOrderSidebarOrderExtraInformation/CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOrderSidebarOrderInformation";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
@@ -136,7 +137,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
   const [orderAmount, setOrderAmount] = useState<number>(0);
-  const [tags, setTag] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
@@ -284,8 +285,10 @@ ShippingServiceConfigDetailResponseModel[]
       assignee_code: OrderDetail?.assignee_code || null,
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
+      note: OrderDetail?.note,
+      customer_note: OrderDetail?.customer_note,
     }
-  }, [OrderDetail?.account_code, OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.marketer_code, initialForm, listPaymentMethodsReturnToCustomer?.id])
+  }, [OrderDetail?.account_code, OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, listPaymentMethodsReturnToCustomer?.id])
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -327,8 +330,6 @@ ShippingServiceConfigDetailResponseModel[]
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
-  console.log('storeId', storeId)
-
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
     if (!data) {
@@ -369,7 +370,7 @@ ShippingServiceConfigDetailResponseModel[]
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
       if (_data.tags) {
-        setTag(_data.tags);
+        setTags(_data.tags);
       }
       if (_data.discounts) {
         let totalDiscount = 0;
@@ -736,6 +737,9 @@ ShippingServiceConfigDetailResponseModel[]
               valuesResult.order_return_id = orderReturnId;
               valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0)) : null;
               valuesResult.items = listExchangeProducts.concat(itemGifts);
+              valuesResult.tags = tags;
+              valuesResult.note = form.getFieldValue("note");
+              valuesResult.customer_note = form.getFieldValue("customer_note");
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(
@@ -1129,6 +1133,14 @@ ShippingServiceConfigDetailResponseModel[]
     return result;
   };
 
+  const onChangeTag = useCallback(
+		(value: []) => {
+			const strTag = value.join(",");
+			setTags(strTag);
+		},
+		[setTags]
+	);
+
   /**
    * theme context data
    */
@@ -1242,6 +1254,7 @@ ShippingServiceConfigDetailResponseModel[]
                   loyaltyPoint={loyaltyPoint}
                   countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
                   isCreateReturn
+                  isExchange = {isExchange}
                   shipmentMethod={shipmentMethod}
                   listStores={listStores}
                 />
@@ -1306,6 +1319,12 @@ ShippingServiceConfigDetailResponseModel[]
                 <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn isExchange = {isExchange} />
                 <OrderReturnReason orderReturnReasonResponse={orderReturnReasonResponse} form={form} />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
+                {isExchange ? (
+                  <Card title="THÔNG TIN BỔ SUNG CẬP NHẬT">
+                    <CreateOrderSidebarOrderExtraInformation onChangeTag={onChangeTag} tags={tags} />
+                  </Card>
+                  ) : null
+                }
               </Col>
             </Row>
           </Form>

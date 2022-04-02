@@ -1,10 +1,9 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Form, FormInstance, Input } from "antd";
-import CustomInputTags from "component/custom/custom-input-tags";
+import { Card, FormInstance } from "antd";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useState } from "react";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
+import CreateOrderSidebarOrderExtraInformation from "../CreateOrderSidebarOrderExtraInformation/CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "../CreateOrderSidebarOrderInformation";
 import { StyledComponent } from "./styles";
 
@@ -58,37 +57,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
         />
       )}
       <Card title="THÔNG TIN BỔ SUNG">
-        <Form.Item name="customer_note" label="Ghi chú của khách">
-          <Input.TextArea
-            placeholder="Điền ghi chú"
-            maxLength={500}
-            style={{minHeight: "80px"}}
-          />
-        </Form.Item>
-        <Form.Item
-          name="note"
-          label="Ghi chú nội bộ"
-          tooltip={{
-            title: "Thêm thông tin ghi chú chăm sóc khách hàng",
-            icon: <InfoCircleOutlined />,
-          }}
-        >
-          <Input.TextArea
-            placeholder="Điền ghi chú"
-            maxLength={500}
-            style={{minHeight: "80px"}}
-          />
-        </Form.Item>
-        <Form.Item
-          label="Nhãn"
-          tooltip={{
-            title: "Thêm từ khóa để tiện lọc đơn hàng",
-            icon: <InfoCircleOutlined />,
-          }}
-          // name="tags"
-        >
-          <CustomInputTags onChangeTag={onChangeTag} tags={tags} />
-        </Form.Item>
+        <CreateOrderSidebarOrderExtraInformation onChangeTag={onChangeTag} tags={tags} />
       </Card>
 			{customerId && (
 				<SidebarOrderHistory customerId={customerId} />

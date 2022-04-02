@@ -143,6 +143,7 @@ type PropType = {
 	setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 	countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
 	shipmentMethod: number; 
+	isExchange?: boolean; 
 	listStores: StoreResponse[];
 };
 
@@ -229,7 +230,8 @@ function OrderCreateProduct(props: PropType) {
 		countFinishingUpdateCustomer,
 		isCreateReturn,
 		shipmentMethod,
-		listStores
+		listStores,
+		isExchange
 	} = props;
 
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
@@ -2209,12 +2211,12 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 					<Col md={8}>
 						<Form.Item
 							name="store_id"
-							rules={[
+							rules={!isCreateReturn && isExchange ? [
 								{
 									required: true,
 									message: "Vui lòng chọn cửa hàng!",
 								},
-							]}
+							] : undefined}
 						>
 							<CustomSelect
 								className="select-with-search"
