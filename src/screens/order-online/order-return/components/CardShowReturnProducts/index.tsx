@@ -75,7 +75,7 @@ function CardShowReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
-      
+      width: "30%",
       render: (value, record: ReturnProductModel, index: number) => {
         return (
           <div className="d-flex align-items-center">
@@ -109,7 +109,6 @@ function CardShowReturnProducts(props: PropType) {
           <div style={{ textAlign: "center" }}>Số lượng trả</div>
         </div>
       ),
-      width:"150px",
       align:"center",
       className: "columnQuantity",
       render: (value, record: ReturnProductModel, index: number) => {
@@ -125,8 +124,8 @@ function CardShowReturnProducts(props: PropType) {
         </div>
       ),
       align: "center",
-      width:"150px",
-      //width: "15%",
+      // width:"150px",
+      width: "17%",
       className: "yody-table-discount text-right 32",
       render: (
         value: OrderLineItemRequest,
@@ -160,7 +159,7 @@ function CardShowReturnProducts(props: PropType) {
         </div>
       ),
       align: "center",
-      width:"150px",
+      width: "15%",
       key: "total",
       render: (
         value: OrderLineItemRequest,
@@ -194,10 +193,10 @@ function CardShowReturnProducts(props: PropType) {
           <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
-      width:"200px",
       dataIndex: "price",
       align:"center",
       key: "price",
+      width: "15%",
       render: (value: number, record: ReturnProductModel, index: number) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
 				// nếu là page đổi trả hàng thì có order_return_origin
@@ -222,7 +221,6 @@ function CardShowReturnProducts(props: PropType) {
         </div>
       ),
       align: "right",
-      width:"150px",
       key: "total",
       render: (
         value: OrderLineItemRequest,
@@ -302,10 +300,10 @@ function CardShowReturnProducts(props: PropType) {
 									}}
 									className="orders-tag orders-tag-danger"
 								>
-									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0].rate ||0) *100 )/100 : 0}%{" "}
+									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0]?.rate ||0) *100 )/100 : 0}%{" "}
 								</Tag>
                 </span>
-                {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0].amount||0) : 0} đ`} 
+                {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0]?.amount||0) : 0} đ`} 
               </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>

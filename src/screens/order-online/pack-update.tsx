@@ -180,6 +180,16 @@ const PackUpdate: React.FC = () => {
 
   const handleSubmit = useCallback(
     (value: any) => {
+
+      const insert = (arr:any, index:number, newItem:any) => [
+        // part of the array before the specified index
+        ...arr.slice(0, index),
+        // inserted item
+        newItem,
+        // part of the array after the specified index
+        ...arr.slice(index)
+      ]
+
       if (!packDetail) return;
 
       let order_id = value.order_id?.trim();
@@ -194,12 +204,15 @@ const PackUpdate: React.FC = () => {
         showWarning("Đơn hàng đã tồn tại trong biên bản");
         return;
       }
+      let codes: string[]=[]
+      if(packDetail.orders)
+        codes = packDetail.orders?.map((p)=>p.code);
+      // packDetail.orders?.forEach((item) => {
+      //   if (item.code) codes.push(item.code);
+      // });
+      codes = insert([...codes],0,order_id);
 
-      let codes: string[] = [];
-      packDetail.orders?.forEach((item) => {
-        if (item.code) codes.push(item.code);
-      });
-      codes.push(order_id);
+      console.log("codes",codes)
 
       let id = packDetail?.id ? packDetail?.id : 0;
       let param: any = {
@@ -217,7 +230,7 @@ const PackUpdate: React.FC = () => {
       );
       searchOrderForm.resetFields();
     },
-    [packDetail, dispatch, searchOrderForm]
+    [dispatch, packDetail, searchOrderForm]
   );
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
