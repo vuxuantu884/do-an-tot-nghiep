@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
-import { borderColor } from "utils/global-styles/variables";
+import { borderColor, primaryColor } from "utils/global-styles/variables";
 
 // Inherit StyledCustomerInfo in StyledCustomerDetail
 export const StyledCustomerDetail = styled(StyledCustomerInfo)`
@@ -9,10 +9,10 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
     border-radius: 5px;
     display: flex;
     align-items: center;
-    color: $primary-color;
+    color: ${primaryColor};
     &:hover {
-      border: 1px solid $primary-color;
-      color: $primary-color;
+      border: 1px solid ${primaryColor};
+      color: ${primaryColor};
     }
   }
 
@@ -359,34 +359,46 @@ export const StyledPurchaseHistory = styled.div`
       background-color: #ffffff;
     }
   }
+`;
 
-  .orderStatus {
-    text-align: center !important;
-  }
-
-  .order-reason {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #ddd;
-    &-heading {
-      font-weight: 700;
-    }
-    &-content {
-      padding-left: 4px;
-      white-space: normal;
+export const StyledActivityLog = styled.div`
+  .link {
+    color: #2A2A86;
+    text-decoration: none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+    transition: color .3s;
+    &:hover {
+      color: #1890ff;
+      text-decoration: underline;
     }
   }
-
-  .order-note {
-    display: flex;
-    justify-content: center;
+  
+  .activity-log-detail-modal {
+    .log-detail-modal-body {
+      height: 500px;
+      overflow: scroll;
+      padding: 10px 20px;
+    }
   }
+`;
 
-  .order-point-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+export const StyledActivityLogDetailModal = styled.div`
+  .log-detail-modal-body {
+    max-height: 500px;
+    overflow: auto;
+    .log-detail-update {
+      display: flex;
+      justify-content: space-between;
+      .content {
+        width: 49%;
+      }
+    }
+    .content {
+      background: #eee;
+      padding: 10px;
+      margin-bottom: 0;
+    }
   }
 `;

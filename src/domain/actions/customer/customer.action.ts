@@ -101,6 +101,16 @@ export const getCustomerOrderReturnHistoryAction = (customer_id: number | null, 
   return BaseAction(CustomerType.CUSTOMER_ORDER_RETURN_HISTORY, { customer_id, callback });
 }
 
+// get customer's Activity Log
+export const getCustomerActivityLogAction = (queryParams: any, callback: (data: any) => void) => {
+  return BaseAction(CustomerType.CUSTOMER_ACTIVITY_LOG, { queryParams, callback });
+}
+
+// get customer's Activity Log detail
+export const getCustomerActivityLogDetailAction = (log_id: number, callback: (data: any) => void) => {
+  return BaseAction(CustomerType.CUSTOMER_ACTIVITY_LOG_DETAIL, { log_id, callback });
+}
+
 export const CustomerGroups = (setData: (data: any) => void) => {
     return BaseAction(CustomerType.CUSTOMER_GROUPS, { setData });
 }
