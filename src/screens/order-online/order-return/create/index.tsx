@@ -1242,6 +1242,7 @@ ShippingServiceConfigDetailResponseModel[]
                   loyaltyPoint={loyaltyPoint}
                   countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
                   isCreateReturn
+                  isExchange = {isExchange}
                   shipmentMethod={shipmentMethod}
                   listStores={listStores}
                 />
