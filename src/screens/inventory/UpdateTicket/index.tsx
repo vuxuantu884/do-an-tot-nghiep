@@ -1,27 +1,8 @@
-import React, {
-  createRef,
-  FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import './index.scss';
+import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
+import "./index.scss";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import {
-  AutoComplete,
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  Table,
-  Upload,
-} from "antd";
+import { AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Table, Upload } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { UploadOutlined } from "@ant-design/icons";
@@ -44,13 +25,7 @@ import {
   inventoryUploadFileAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {
-  FileUrl,
-  InventoryTransferDetailItem,
-  LineItem,
-  StockTransferSubmit,
-  Store,
-} from "model/inventory/transfer";
+import { FileUrl, InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
 
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
@@ -67,7 +42,6 @@ import _ from "lodash";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
 import { Link } from "react-router-dom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { InventoryResponse } from "model/inventory";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { AccountStoreResponse } from "model/account/account.model";
@@ -154,8 +128,7 @@ const UpdateTicket: FC = () => {
     const dataTableClone = _.cloneDeep(dataTable);
     dataTableClone[index].transfer_quantity = quantity;
 
-    const amountNumber = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
-    dataTableClone[index].amount = amountNumber;
+    dataTableClone[index].amount = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
     setDataTable(dataTableClone);
   }
 
@@ -285,7 +258,7 @@ const UpdateTicket: FC = () => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+    resultSearch?.items?.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -465,20 +438,24 @@ const UpdateTicket: FC = () => {
   const onResultGetDetailVariantIds = useCallback( result => {
     if (result) {
       setIsLoadingTable(false);
-      const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable, newOnHand;
-        result?.forEach((itemNew: InventoryResponse) => {
-          if (itemNew.variant_id === itemOld.variant_id) {
-            newAvailable = itemNew.available;
-            newOnHand = itemNew.on_hand;
+
+      let newDataTable = [...dataTable];
+
+      const storeId = form.getFieldValue("from_store_id");
+
+      for (let i = 0; i < newDataTable.length; i++) {
+        for (let j = 0; j < result.length; j++) {
+          if (storeId === result[j].store_id && newDataTable[i].variant_id === result[j].variant_id) {
+            newDataTable[i].available = result[j].available;
+            newDataTable[i].on_hand = result[j].on_hand;
+            break;
           }
-        });
-        return {
-          ...itemOld,
-          available: newAvailable,
-          on_hand: newOnHand,
-        };
-      });
+
+          if (j === result.length - 1 && i === newDataTable.length - 1) {
+            newDataTable = [];
+          }
+        }
+      }
 
       setDataTable(newDataTable);
     } else {
@@ -696,7 +673,7 @@ const UpdateTicket: FC = () => {
       return true
     }
 
-    dataTable?.forEach((element: VariantResponse, index: number) => {
+    dataTable?.forEach((element: VariantResponse) => {
       if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
         error= true
       }
@@ -772,7 +749,7 @@ const UpdateTicket: FC = () => {
    [onSelectProduct,form, dispatch, onSearchProduct]
  );
 
- const onSelect = useCallback((o,v)=>{
+ const onSelect = useCallback((o)=>{
    onSelectProduct(o);
  },[onSelectProduct])
 
@@ -808,7 +785,7 @@ const UpdateTicket: FC = () => {
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
