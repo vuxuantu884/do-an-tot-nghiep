@@ -1,4 +1,4 @@
-import { Button, Card, Radio, Row, Space } from "antd";
+import { Button, Card, Radio, Row, Space, Tooltip } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -37,6 +37,7 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import moment from "moment";
 import { StyledComponent } from "./return.screen.styles";
+import IconPaymentPoint from "./component/OrderList/ListTable/images/paymentPoint.svg";
 
 const initQuery: ReturnSearchQuery = {
   page: 1,
@@ -212,14 +213,48 @@ const ListOrderScreen: React.FC = () => {
       title: "Tổng tiền",
       render: (record: any) => (
         <>
-          <span>
+          <Tooltip title="Tổng thanh toán">
             <NumberFormat
               value={record.total_amount}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}
+              style={{ fontWeight: 500, color: "#27ae60"}}
             />
-          </span>
+          </Tooltip>
+          
+          {record.point_refund ? (
+            <>
+              <br />
+              <Tooltip title="Hoàn điểm">
+                <span>
+                  <img src={IconPaymentPoint} alt="" />
+                  <NumberFormat
+                    value={record.point_refund}
+                    className="foo"
+                    displayType={"text"}
+                    thousandSeparator={true}
+                    style={{ fontWeight: 500, color: "#fcaf17", paddingLeft: 5 }}
+                  />
+                </span>
+              </Tooltip>
+            </>
+          ) : null}
+          {record.total ? (
+            <>
+              <br />
+              <Tooltip title="Thu người nhận">
+                <span style={{ fontWeight: 500 }}>
+                  <NumberFormat
+                    value={record.total}
+                    className="foo"
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                </span>
+              </Tooltip>
+            </>
+          ) : null}
         </>
       ),
       key: "total_amount",
