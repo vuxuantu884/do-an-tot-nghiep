@@ -152,3 +152,12 @@
     justify-content: center;
   }
 }
+
+.ant-table-wrapper ::-webkit-scrollbar {
+  height: 5px;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
