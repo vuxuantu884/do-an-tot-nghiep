@@ -72,6 +72,15 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     }
   ];
 
+  const insert = (arr:any, index:number, newItem:any) => [
+    // part of the array before the specified index
+    ...arr.slice(0, index),
+    // inserted item
+    newItem,
+    // part of the array after the specified index
+    ...arr.slice(index)
+  ]
+
   const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest) => {
     console.log(param)
     if (param) {
@@ -95,8 +104,12 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
               if(dataAdd.length === 0) {
                 showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
               } else {
-                dataAdd.forEach((item) => orderListResponse.push(item));
-                setOrderListResponse([...orderListResponse]);
+                let orderListResponseCopy= [...orderListResponse];
+                dataAdd.forEach((item) => {
+                  orderListResponseCopy = insert([...orderListResponseCopy], 0, item)
+                  // orderListResponseCopy.push(item)
+                });
+                setOrderListResponse([...orderListResponseCopy]);
               }
             } else {
               showError("Không tìm thấy đơn hàng");
@@ -185,6 +198,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     (value: any) => {
 
       let orderCode: string[] = orderListResponse.map((p) => p.code);
+
+      console.log("orderCode",orderCode)
 
       let store_name = listStores.find(
         (data) => data.id === value.store_id
