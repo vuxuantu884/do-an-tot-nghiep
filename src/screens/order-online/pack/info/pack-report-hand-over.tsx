@@ -216,6 +216,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
     let dataResult: Array<GoodsReceiptsSearhModel> = [];
+    
     data.items.forEach((item: GoodsReceiptsResponse, index: number) => {
       //let product_quantity = 0;
       let order_quantity = item.orders?.length ? item.orders?.length : 0;
@@ -268,7 +269,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           order_complete = order_complete + 1;
       });
 
-      let _result = {
+      let _result:GoodsReceiptsSearhModel = {
         ...item,
         key: index,
         id_handover_record: item.id,
@@ -289,7 +290,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         note:item.note,
         goods_receipts:item
       };
-
+      console.log("dataResult",_result)
       dataResult.push(_result);
 
     });
@@ -611,7 +612,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           <div className="inner">
             <div className="single">
               <EditNote
-                note={record?.description}
+                note={record?.note}
                 //title="Khách hàng: "
                 color={"#2a2a86"}
                 onOk={(newNote) => {

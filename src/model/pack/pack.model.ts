@@ -72,6 +72,8 @@ export interface GoodsReceiptsSearhModel{
   order_complete?:number;//đơn hoàn
   account_create:string;//người tạo
   description?:string; //ghi chú
+  ecommerce_id?:number;
+  note?:string;
   goods_receipts:GoodsReceiptsResponse
 }
 

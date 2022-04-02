@@ -1,6 +1,6 @@
 import BaseAction from "base/base.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel, OrderSearchQuery, StoreBankAccountNumberModel } from "model/order/order.model";
+import { FulfillmentsOrderPackQuery, OrderModel, OrderSearchQuery, StoreBankAccountNumberModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery, thirdPLModel } from "model/order/shipment.model";
 import {
@@ -411,15 +411,11 @@ export const orderConfigSaga = (setData: (data: OrderConfigResponseModel) => voi
 };
 
 export const getFulfillments = (
-  code: string,
-  store_id: any,
-  delivery_service_provider_id: any,
-  setData: (data: Array<any>) => void
+  request:FulfillmentsOrderPackQuery,
+  setData?: (data: Array<any>) => void
 ) => {
   return BaseAction(OrderType.GET_FULFILLMENTS, {
-    code,
-    store_id,
-    delivery_service_provider_id,
+    request,
     setData,
   });
 };

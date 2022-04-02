@@ -282,3 +282,11 @@ export interface OrderExtraModel extends OrderModel {
   }[];
   subStatus?: string;
 }
+
+export interface FulfillmentsOrderPackQuery{
+  code:string;
+  store_id?:number;
+  delivery_service_provider_id?:number;
+  // channel_id?:number;
+  // receipt_type_id?:number;
+}
