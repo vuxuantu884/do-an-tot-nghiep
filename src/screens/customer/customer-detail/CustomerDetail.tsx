@@ -483,14 +483,14 @@ const CustomerDetail = () => {
                     />
                   </TabPane>
 
-                  <TabPane tab="Lịch sử thao tác" key="activity-log">
-                    <CustomerActivityLog
+                  <TabPane tab="Lịch sử chăm sóc" key="caring-history">
+                    <CustomerCareHistory
                       customer={customer}
                     />
                   </TabPane>
 
-                  <TabPane tab="Lịch sử chăm sóc" key="caring-history">
-                    <CustomerCareHistory
+                  <TabPane tab="Lịch sử thao tác" key="activity-log">
+                    <CustomerActivityLog
                       customer={customer}
                     />
                   </TabPane>
