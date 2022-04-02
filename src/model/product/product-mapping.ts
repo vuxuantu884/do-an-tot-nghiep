@@ -71,7 +71,7 @@ const VariantExportField = {
   committed: 'committed',
   on_hold: 'on_hold',//tạm giữ
   defect: 'defect',//hàng lỗi
-  incomming: 'incomming',
+  in_coming: 'in_coming',
   onway: 'onway',
   transferring: 'transferring',
   shipping: 'shipping',
@@ -105,7 +105,7 @@ const VariantExportMapping = {
   [VariantExportField.committed]: 'Đang giao dịch',
   [VariantExportField.on_hold]: 'Hàng tạm giữ',
   [VariantExportField.defect]: 'Hàng lỗi',
-  [VariantExportField.incomming]: 'Chờ nhập',
+  [VariantExportField.in_coming]: 'Chờ nhập',
   [VariantExportField.onway]: 'Hàng đang chuyển đến',
   [VariantExportField.transferring]: 'Hàng đang chuyển đi',
   [VariantExportField.shipping]: 'Hàng đang giao',

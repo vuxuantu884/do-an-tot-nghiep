@@ -43,6 +43,7 @@ const ExportProduct: React.FC<ExportModalProps> = (props: ExportModalProps) => {
                   <Space direction="vertical">
                     <Radio value={TYPE_EXPORT.page}>Sản phẩm trên trang này</Radio>
                     <Radio value={TYPE_EXPORT.selected}>Các sản phẩm được chọn</Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả sản phẩm</Radio>
                   </Space>
                 </Radio.Group>
               </Form.Item>
