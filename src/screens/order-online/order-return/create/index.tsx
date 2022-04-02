@@ -105,7 +105,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }
   const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
-  )	
+  )
   const [form] = Form.useForm();
   const [isError, setError] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
@@ -423,7 +423,7 @@ ShippingServiceConfigDetailResponseModel[]
 
   const handleRecalculateOriginDiscount = (itemsResult: any) => {
     return OrderDetail?.discounts?.map(singleDiscount => {
-      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult) 
+      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult)
       return {
         ...singleDiscount,
         value: value,
@@ -434,7 +434,7 @@ ShippingServiceConfigDetailResponseModel[]
 
   const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
     const orderIds = [orderId];
-  
+
     getPrintOrderReturnContentService(orderIds, printType).then(response => {
       if (isFetchApiSuccessful(response)) {
         console.log('response', response)
@@ -444,7 +444,7 @@ ShippingServiceConfigDetailResponseModel[]
         handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
       }
     })
-   
+
   }, [dispatch, handlePrint]);
 
   const handleSubmitFormReturn = () => {
@@ -967,7 +967,7 @@ ShippingServiceConfigDetailResponseModel[]
           service: thirdPL.service,
           shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
-      
+
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
@@ -1206,7 +1206,7 @@ ShippingServiceConfigDetailResponseModel[]
                     isAutoDefaultOrderSource= {false}
                   />
                 )}
-                
+
                 <CardReturnProductContainer
                   discountRate={discountRate}
                   isDetailPage={false}
@@ -1487,7 +1487,7 @@ ShippingServiceConfigDetailResponseModel[]
         }
       })
     );
-    
+
   }, [customer?.id, dispatch]);
 
   useEffect(() => {
@@ -1521,7 +1521,7 @@ ShippingServiceConfigDetailResponseModel[]
       })
     );
   }, [dispatch])
-  
+
 
   /**
    * orderSettings
@@ -1581,7 +1581,7 @@ ShippingServiceConfigDetailResponseModel[]
       setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE)
     }
   }, [OrderDetail])
-  
+
   useEffect(() => {
     if(listExchangeProducts.length > 0) {
       setIsExchange(true)
@@ -1597,7 +1597,7 @@ ShippingServiceConfigDetailResponseModel[]
       dispatch(StoreDetailAction(storeIdLogin, setStoreReturn))
     }
   }, [dispatch, storeIdLogin])
-  
+
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

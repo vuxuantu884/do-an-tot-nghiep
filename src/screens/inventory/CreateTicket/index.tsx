@@ -37,7 +37,6 @@ import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { Link } from "react-router-dom";
-import { InventoryResponse } from "model/inventory";
 import { callApiNative } from "utils/ApiUtils";
 import { getAccountDetail } from "service/accounts/account.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
@@ -339,20 +338,24 @@ const CreateTicket: FC = () => {
   const onResultGetDetailVariantIds = useCallback( result => {
     if (result) {
       setIsLoadingTable(false);
-      const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable, newOnHand;
-        result?.forEach((itemNew: InventoryResponse) => {
-          if (itemNew.variant_id === itemOld.id) {
-            newAvailable = itemNew.available;
-            newOnHand = itemNew.on_hand;
+
+      let newDataTable = [...dataTable];
+
+      const storeId = form.getFieldValue("from_store_id");
+
+      for (let i = 0; i < newDataTable.length; i++) {
+        for (let j = 0; j < result.length; j++) {
+          if (storeId === result[j].store_id && newDataTable[i].variant_id === result[j].variant_id) {
+            newDataTable[i].available = result[j].available;
+            newDataTable[i].on_hand = result[j].on_hand;
+            break;
           }
-        });
-        return {
-          ...itemOld,
-          available: newAvailable,
-          on_hand: newOnHand,
-        };
-      });
+
+          if (j === result.length - 1 && i === newDataTable.length - 1) {
+            newDataTable = [];
+          }
+        }
+      }
 
       setDataTable(newDataTable);
     } else {
@@ -528,7 +531,7 @@ const CreateTicket: FC = () => {
       return true
     }
 
-    dataTable?.forEach((element: VariantResponse, index: number) => {
+    dataTable?.forEach((element: VariantResponse) => {
       if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
         error= true
       }
