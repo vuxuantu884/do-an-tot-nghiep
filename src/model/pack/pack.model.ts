@@ -69,7 +69,7 @@ export interface GoodsReceiptsSearhModel{
   order_cancel:number;//đơn hủy 
   order_moving_complete:number;//đơn hoàn chuyển
   order_success:number;//đơn thành công
-  order_complete:number;//đơn hoàn
+  order_complete?:number;//đơn hoàn
   account_create:string;//người tạo
   description?:string; //ghi chú
   goods_receipts:GoodsReceiptsResponse

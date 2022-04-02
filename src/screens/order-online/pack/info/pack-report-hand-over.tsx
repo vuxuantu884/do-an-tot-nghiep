@@ -592,14 +592,14 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       width: "110px",
     },
 
-    {
-      title: "Đơn hoàn",
-      dataIndex: "order_complete",
-      key: "order_complete",
-      visible: true,
-      align: "center",
-      width: "80px",
-    },
+    // {
+    //   title: "Đơn hoàn",
+    //   dataIndex: "order_complete",
+    //   key: "order_complete",
+    //   visible: true,
+    //   align: "center",
+    //   width: "80px",
+    // },
     {
       title: "Ghi chú",
       dataIndex: "note",
