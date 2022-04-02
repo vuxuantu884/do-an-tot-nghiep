@@ -568,9 +568,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       const elm = document.getElementById("customer_add_birthday");
                       const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
                       if (newDate ) {
-                        formRef.current?.setFieldsValue({
-                          birthday: newDate
-                        })
+                        formRef.current?.setFields([
+                          {
+                            name: "birthday",
+                            value: newDate,
+                            errors: newDate > moment(new Date(), "DD/MM/YYYY") ? ["Ngày sinh không được lớn hơn ngày hiện tại"] : []
+                          }
+                        ])
                       }
                     }}
                   />
