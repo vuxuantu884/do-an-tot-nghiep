@@ -475,7 +475,7 @@ const TabProduct: React.FC<any> = (props) => {
       [`${VariantExportMapping[VariantExportField.retail_price]}`]: item.variant_prices[0].retail_price ?? null,
       [`${VariantExportMapping[VariantExportField.wholesale_price]}`]: item.variant_prices[0].wholesale_price ?? null,
       [`${VariantExportMapping[VariantExportField.saleable]}`]: item.saleable ? "Hoạt động" : "Ngừng hoạt động",
-      [`${VariantExportMapping[VariantExportField.total_stock]}`]: item.total_stock,
+      [`${VariantExportMapping[VariantExportField.total_stock]}`]: (item.on_hand ?? 0)+(item.shipping ?? 0)+(item.onway ?? 0),
       [`${VariantExportMapping[VariantExportField.on_hand]}`]: item.on_hand,
       [`${VariantExportMapping[VariantExportField.available]}`]: item.available,
       [`${VariantExportMapping[VariantExportField.committed]}`]: item.committed,
@@ -485,7 +485,7 @@ const TabProduct: React.FC<any> = (props) => {
       [`${VariantExportMapping[VariantExportField.onway]}`]: item.onway,
       [`${VariantExportMapping[VariantExportField.transferring]}`]: item.transferring,
       [`${VariantExportMapping[VariantExportField.shipping]}`]: item.shipping,
-      [`${VariantExportMapping[VariantExportField.category_code]}`]: null,
+      //[`${VariantExportMapping[VariantExportField.category_code]}`]: null,
       [`${VariantExportMapping[VariantExportField.category]}`]: item.product ? item.product.category : null,
       [`${VariantExportMapping[VariantExportField.brand]}`]: item.product ? item.product.brand_name : null,
       [`${VariantExportMapping[VariantExportField.supplier]}`]: item.supplier,
@@ -547,6 +547,7 @@ const TabProduct: React.FC<any> = (props) => {
       for (let i = 0; i < res.length; i++) {
         const e = res[i];
         const item = convertItemExport(e);
+        debugger
         dataExport.push(item);
       }
 
