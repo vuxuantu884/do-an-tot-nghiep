@@ -1164,8 +1164,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     formSearchRef.current?.setFieldsValue({
       search_term: params.search_term,
       variant_ids: params.variant_ids,
+      tracking_codes: params.tracking_codes,
     });
-  }, [formSearchRef, params.search_term, params.variant_ids]);
+  }, [formSearchRef, params.search_term, params.tracking_codes, params.variant_ids]);
 
   useEffect(() => {
     if (params.variant_ids && params.variant_ids.length) {
@@ -1253,12 +1254,12 @@ const status = bootstrapReducer.data?.order_main_status.filter(
             initialValues={initialValues}
             layout="inline">
             <div style={{ width: "100%" }}>
-              <Row gutter={20}>
-                <Col span={12}>
+              <Row gutter={12}>
+                <Col span={8}>
                   <Item name="search_term" className="input-search">
                     <Input
                       prefix={<img src={search} alt="" />}
-                      placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+                      placeholder="ID đơn hàng, tên, sđt khách hàng"
                       onBlur={(e) => {
                         formSearchRef?.current?.setFieldsValue({
                           search_term: e.target.value.trim(),
@@ -1267,9 +1268,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     />
                   </Item>
                 </Col>
-                <Col span={12}>
+                <Col span={8}>
                   {rerenderSearchVariant && (
-                    <Item name="variant_ids">
+                    <Item name="variant_ids" style={{marginRight: 0}}>
                       <DebounceSelect
                         mode="multiple"
                         showArrow
@@ -1284,6 +1285,19 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                       />
                     </Item>
                   )}
+                </Col>
+                <Col span={8}>
+                  <Item name="tracking_codes" className="input-search">
+                    <Input
+                      prefix={<img src={search} alt="" />}
+                      placeholder="Mã vận đơn"
+                      onBlur={(e) => {
+                        formSearchRef?.current?.setFieldsValue({
+                          tracking_codes: e.target.value.trim(),
+                        });
+                      }}
+                    />
+                  </Item>
                 </Col>
               </Row>
             </div>
