@@ -10,7 +10,7 @@ import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
 import CustomNumberInput from "component/custom/customNumberInput";
 import BaseFilter from "component/filter/base.filter";
-import SelectDateFilter from "component/filter/SelectDateFilter";
+import FilterDateCustomerCustom from "component/filter/FilterDateCustomerCustom";
 import TreeStore from "component/tree-node/tree-store";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchAccountPublicAction} from "domain/actions/account/account.action";
@@ -52,6 +52,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError } from "utils/ToastUtils";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import './style.scss';
 
 type CustomerListFilterProps = {
   isLoading?: boolean;
@@ -130,6 +131,20 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   );
   const LIST_GENDER = bootstrapReducer.data?.gender;
 
+  const ConvertUtcToDate = (
+    date?: Date | string | number | null,
+    format?: string
+  ) => {
+    if (date != null) {
+      let localDate = moment.utc(date).toDate();
+      let dateFormat = moment(localDate).format(
+        format ? format : "DD/MM/YYYY"
+      );
+      return dateFormat;
+    }
+    return "";
+  };
+
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
 
   const [initPublicAccounts, setInitPublicAccounts] = useState<Array<AccountResponse>>([]);
@@ -139,20 +154,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   // handle select date
   const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
   const [lastOrderDateClick, setLastOrderDateClick] = useState("");
-
-  const [firstOrderDateFrom, setFirstOrderDateFrom] = useState<any>(
-    params.first_order_time_from
-  );
-  const [firstOrderDateTo, setFirstOrderDateTo] = useState<any>(
-    params.first_order_time_to
-  );
-
-  const [lastOrderDateFrom, setLastOrderDateFrom] = useState<any>(
-    params.last_order_time_from
-  );
-  const [lastOrderDateTo, setLastOrderDateTo] = useState<any>(
-    params.last_order_time_to
-  );
 
   //---Handle Source---\\
   
@@ -256,6 +257,102 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }
   }, [dispatch])
   // end handle select sale staff (responsible_staff_codes) by filter param
+
+  //handle change value date filter
+  const [firstDateStart, setFirstDateStart] = useState<any>(params.first_order_time_from);
+  const [firstDateEnd, setFirstDateEnd] = useState<any>(params.first_order_time_to);
+
+  const [lastDateStart, setLastDateStart] = useState<any>(params.first_order_time_from);
+  const [lastDateEnd, setLastDateEnd] = useState<any>(params.first_order_time_to);
+
+
+  const handleRemoveButtonFirstDateActive = () => {
+    const date_from_first = ConvertUtcToDate(firstDateStart)
+    const date_to_first = ConvertUtcToDate(firstDateEnd)
+
+    if (date_from_first !== date_to_first) {
+      setFirstOrderDateClick("");
+    }
+  }
+
+  const handleRemoveButtonLastDateActive = () => {
+
+    const date_from_last = ConvertUtcToDate(lastDateStart)
+    const date_to_last = ConvertUtcToDate(lastDateEnd)
+
+    if (date_from_last !== date_to_last) {
+      setLastOrderDateClick("");
+    }
+  }
+
+  const handleGetFirstDateStart = (date: any) => {
+    const dateConvert = ConvertUtcToDate(date)
+    const date_from_first_start = ConvertUtcToDate(firstDateStart)
+
+    if (dateConvert !== date_from_first_start) {
+      setFirstOrderDateClick("");
+    }
+    
+    setFirstDateStart(date)
+  }
+
+  const handleGetFirstDateEnd = (date: any) => {
+    const dateConvert = ConvertUtcToDate(date)
+    const date_to_first_end = ConvertUtcToDate(firstDateStart)
+
+    if (dateConvert !== date_to_first_end) {
+      setFirstOrderDateClick("");
+    }
+    
+
+    setFirstDateEnd(date)
+  }
+
+  const handleGetLastDateStart = (date: any) => {
+    const dateConvert = ConvertUtcToDate(date)
+    const date_from_last_start = ConvertUtcToDate(firstDateStart)
+
+    if (dateConvert !== date_from_last_start) {
+      setLastOrderDateClick("");
+    }
+
+    setLastDateStart(date)
+  }
+
+  const handleGetLastDateEnd = (date: any) => {
+    const dateConvert = ConvertUtcToDate(date)
+    const date_to_last_end = ConvertUtcToDate(firstDateStart)
+
+    if (dateConvert !== date_to_last_end) {
+      setLastOrderDateClick("");
+    }
+
+    setLastDateEnd(date)
+  }
+
+  
+  const handleRemoveValueFirstDateStart = () => {
+    setFirstDateStart(null);
+    handleRemoveButtonFirstDateActive()
+  }
+
+  const handleRemoveValueFirstDateEnd = () => {
+    setFirstDateEnd(null)
+    handleRemoveButtonFirstDateActive()
+  }
+
+
+  const handleRemoveValueLastDateStart = () => {
+    setLastDateStart(null);
+    handleRemoveButtonLastDateActive()
+  }
+
+  const handleRemoveValueLastDateEnd = () => {
+    setLastDateEnd(null)
+    handleRemoveButtonLastDateActive()
+  }
+  //-- handle change value date filter --//
+
 
   // handle select date by filter param
   const handleDateFilterParam = (date_from: any, date_to: any, setDate: any) => {
@@ -413,14 +510,14 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const clearFirstOrderDate = () => {
     setFirstOrderDateClick("");
-    setFirstOrderDateFrom(null);
-    setFirstOrderDateTo(null);
+    setFirstDateStart(null);
+    setFirstDateEnd(null);
   };
 
   const clearLastOrderDate = () => {
     setLastOrderDateClick("");
-    setLastOrderDateFrom(null);
-    setLastOrderDateTo(null);
+    setLastDateStart(null);
+    setLastDateEnd(null);
   };
   const clickOptionDate = useCallback(
     (type, value) => {
@@ -454,7 +551,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         default:
           break;
-      }
+      }      
 
       switch (type) {
         case "firstOrderDate":
@@ -462,8 +559,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             clearFirstOrderDate();
           } else {
             setFirstOrderDateClick(value);
-            setFirstOrderDateFrom(startDateValue);
-            setFirstOrderDateTo(endDateValue);
+            setFirstDateStart(startDateValue);
+            setFirstDateEnd(endDateValue);
           }
           break;
         case "lastOrderDate":
@@ -471,8 +568,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             clearLastOrderDate();
           } else {
             setLastOrderDateClick(value);
-            setLastOrderDateFrom(startDateValue);
-            setLastOrderDateTo(endDateValue);
+            setLastDateStart(startDateValue);
+            setLastDateEnd(endDateValue);
           }
           break;
         default:
@@ -482,52 +579,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     [firstOrderDateClick, lastOrderDateClick]
   );
 
-  // handle select RangPicker
-  const setLocalStartDate = (dateString: string) => {
-    if (!dateString) {
-      return null;
-    }
-    const dateArray = dateString.split("-");
-    const day = dateArray[0];
-    const month = dateArray[1];
-    const year = dateArray[2];
-    const newDate = new Date(month + "-" + day + "-" + year);
-    return moment(newDate).startOf("day");
-  };
-
-  const setLocalEndDate = (dateString: string) => {
-    if (!dateString) {
-      return null;
-    }
-    const dateArray = dateString.split("-");
-    const day = dateArray[0];
-    const month = dateArray[1];
-    const year = dateArray[2];
-    const newDate = new Date(month + "-" + day + "-" + year);
-    return moment(newDate).endOf("day");
-  };
-
-  const onChangeRangeDate = useCallback((dates, dateString, type) => {
-    switch (type) {
-      case "firstOrderDate":
-        setFirstOrderDateClick("");
-        const firstOrderStartDate = setLocalStartDate(dateString[0]);
-        const firstOrderEndDate = setLocalEndDate(dateString[1]);
-        setFirstOrderDateFrom(firstOrderStartDate);
-        setFirstOrderDateTo(firstOrderEndDate);
-        break;
-      case "lastOrderDate":
-        setLastOrderDateClick("");
-        const lastOrderStartDate = setLocalStartDate(dateString[0]);
-        const lastOrderEndDate = setLocalEndDate(dateString[1]);
-        setLastOrderDateFrom(lastOrderStartDate);
-        setLastOrderDateTo(lastOrderEndDate);
-        break;
-      default:
-        break;
-    }
-  }, []);
-  // end handle select RangPicker
   // end handle select date
 
   //---------------handle filter by area---------------\\
@@ -1442,8 +1493,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "first_order_date":
           setFirstOrderDateClick("");
-          setFirstOrderDateFrom(null);
-          setFirstOrderDateTo(null);
+          setFirstDateStart(null);
+          setFirstDateEnd(null);
           onFilter &&
             onFilter({
               ...params,
@@ -1453,8 +1504,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "last_order_date":
           setLastOrderDateClick("");
-          setLastOrderDateFrom(null);
-          setLastOrderDateTo(null);
+          setLastDateStart(null);
+          setLastDateEnd(null);
           onFilter &&
             onFilter({
               ...params,
@@ -1469,7 +1520,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             point_to: null,
           });
           break;
-
+          
         default:
           break;
       }
@@ -1644,20 +1695,20 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         responsible_staff_codes: values.responsible_staff_codes
           ? values.responsible_staff_codes.split(" - ")[0]
           : null,
-        first_order_time_from: firstOrderDateFrom,
-        first_order_time_to: firstOrderDateTo,
-        last_order_time_from: lastOrderDateFrom,
-        last_order_time_to: lastOrderDateTo,
+        first_order_time_from: firstDateStart,
+        first_order_time_to: firstDateEnd,
+        last_order_time_from: lastDateStart,
+        last_order_time_to: lastDateEnd,
       };
 
       onFilter && onFilter(formValues);
     },
     [
-      firstOrderDateFrom,
-      firstOrderDateTo,
-      lastOrderDateFrom,
-      lastOrderDateTo,
-      onFilter,
+      firstDateStart,
+      firstDateEnd,
+      lastDateStart,
+      lastDateEnd,
+      onFilter
     ]
   );
 
@@ -2478,27 +2529,34 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               </div>
 
               <div className="base-filter-row">
-                <Form.Item className="left-filter" label={<b>Ngày mua đầu</b>}>
-                  <SelectDateFilter
-                    clickOptionDate={clickOptionDate}
-                    onChangeRangeDate={onChangeRangeDate}
+                <Form.Item className="left-filter" 
+                 label={<b>Ngày mua đầu</b>}>
+                  <FilterDateCustomerCustom
                     dateType="firstOrderDate"
+                    clickOptionDate={clickOptionDate}
                     dateSelected={firstOrderDateClick}
-                    startDate={firstOrderDateFrom}
-                    endDate={firstOrderDateTo}
+                    startDate={firstDateStart}
+                    endDate={firstDateEnd}
+                    handleRemoveValueDateStart={handleRemoveValueFirstDateStart}
+                    handleRemoveValueDateEnd={handleRemoveValueFirstDateEnd}
+                    handleGetDateStart={handleGetFirstDateStart}
+                    handleGetDateEnd={handleGetFirstDateEnd}
                   />
                 </Form.Item>
 
                 <Form.Item
                   label={<b>Ngày mua cuối</b>}
                   className="center-filter">
-                  <SelectDateFilter
-                    clickOptionDate={clickOptionDate}
-                    onChangeRangeDate={onChangeRangeDate}
+                  <FilterDateCustomerCustom
                     dateType="lastOrderDate"
+                    clickOptionDate={clickOptionDate}
                     dateSelected={lastOrderDateClick}
-                    startDate={lastOrderDateFrom}
-                    endDate={lastOrderDateTo}
+                    startDate={lastDateStart}
+                    endDate={lastDateEnd}
+                    handleRemoveValueDateStart={handleRemoveValueLastDateStart}
+                    handleRemoveValueDateEnd={handleRemoveValueLastDateEnd}
+                    handleGetDateStart={handleGetLastDateStart}
+                    handleGetDateEnd={handleGetLastDateEnd}
                   />
                 </Form.Item>
 
