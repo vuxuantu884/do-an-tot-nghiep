@@ -223,13 +223,18 @@ const Customer = () => {
     //     </div>
     //   )
     // },
-    // {
-    //   title: "Hạng thẻ",
-    //   dataIndex: "customer_level",
-    //   visible: true,
-    //   width: 90,
-    //   align: "center",
-    // },
+    {
+      title: "Hạng thẻ",
+      dataIndex: "customer_level_id",
+      visible: true,
+      width: 90,
+      align: "center",
+      render: (value: any) => (
+        <div>
+          {loyaltyUsageRules?.find((level) => level.rank_id === value)?.rank_name}
+        </div>
+      ),
+    },
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
