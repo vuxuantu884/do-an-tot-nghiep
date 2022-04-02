@@ -32,7 +32,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import EditNote from "screens/order-online/component/edit-note";
 import { GoodsReceiptsRequest } from "model/request/pack.request";
 
@@ -671,7 +671,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   useEffect(() => {
     const convertFromStringToDate = (pDate: any, fomat:string) => {
-      let date: any = null;
+      let date: Moment|null = null;
 
       if (pDate) {
         if (!moment(pDate).isValid()) {
@@ -685,17 +685,17 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           mm = (parseInt(mm) - 1).toString(); // January is 0
           dd = (parseInt(dd) + 1).toString();
 
-          date = moment(new Date(yyyy, mm, dd), fomat);
+          date = moment(new Date(yyyy, mm, dd)).utc(true);
         }
         else
-          date = moment(pDate, fomat);
+          date = moment(pDate, 'DD-MM-YYYY').utc(true);
       }
 
       return date;
     }
     setTableLoading(true);
-    let from_date: any = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'");
-    let to_date: any =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'");
+    let from_date: Moment|undefined = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
+    let to_date: Moment|undefined =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
 
     let query = {
       ...params,
