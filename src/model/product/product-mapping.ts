@@ -114,7 +114,7 @@ const VariantExportMapping = {
   [VariantExportField.brand]: 'Thương hiệu',
   [VariantExportField.supplier]: 'Nhà cung cấp',
   [VariantExportField.length]: 'Chiều dài',
-  [VariantExportField.weight]: 'Chiều rộng',
+  [VariantExportField.width]: 'Chiều rộng',
   [VariantExportField.height]: 'Chiều cao',
   [VariantExportField.link]: 'Link trên website',
 };

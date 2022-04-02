@@ -36,7 +36,7 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { getJobByCode, searchVariantsSimpleApi } from "service/product/product.service";
+import { getJobByCode, searchVariantsApi } from "service/product/product.service";
 import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -73,6 +73,9 @@ const initQuery: VariantSearchQuery = {
 let variantResponse: VariantResponse | null = null;
 
 const TabProduct: React.FC<any> = (props) => {
+  const product_units = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
+  );
   const { vExportProduct, setVExportProduct } = props;
   const query = useQuery();
   const history = useHistory();
@@ -461,12 +464,12 @@ const TabProduct: React.FC<any> = (props) => {
 
   const convertItemExport = (item: VariantResponse) => {
     return {
-      [`${VariantExportMapping[VariantExportField.product_code]}`]: item.product_code,
-      [`${VariantExportMapping[VariantExportField.product_name]}`]: item.product_name,
+      [`${VariantExportMapping[VariantExportField.product_code]}`]: item.product.code,
+      [`${VariantExportMapping[VariantExportField.product_name]}`]: item.product.name,
       [`${VariantExportMapping[VariantExportField.barcode]}`]: item.barcode,
       [`${VariantExportMapping[VariantExportField.sku]}`]: item.sku,
       [`${VariantExportMapping[VariantExportField.name]}`]: item.name,
-      [`${VariantExportMapping[VariantExportField.unit]}`]: item.weight_unit,
+      [`${VariantExportMapping[VariantExportField.unit]}`]: product_units ? product_units.find(e=>e.value === item.product.unit)?.name :null,
       [`${VariantExportMapping[VariantExportField.import_price]}`]: item.variant_prices[0].import_price ?? null,
       [`${VariantExportMapping[VariantExportField.cost_price]}`]: item.variant_prices[0].cost_price ?? null,
       [`${VariantExportMapping[VariantExportField.retail_price]}`]: item.variant_prices[0].retail_price ?? null,
@@ -482,12 +485,12 @@ const TabProduct: React.FC<any> = (props) => {
       [`${VariantExportMapping[VariantExportField.onway]}`]: item.onway,
       [`${VariantExportMapping[VariantExportField.transferring]}`]: item.transferring,
       [`${VariantExportMapping[VariantExportField.shipping]}`]: item.shipping,
-      [`${VariantExportMapping[VariantExportField.category_code]}`]: item.product ? item.product.category : null,
-      [`${VariantExportMapping[VariantExportField.category]}`]: item.category,
+      [`${VariantExportMapping[VariantExportField.category_code]}`]: null,
+      [`${VariantExportMapping[VariantExportField.category]}`]: item.product ? item.product.category : null,
       [`${VariantExportMapping[VariantExportField.brand]}`]: item.product ? item.product.brand_name : null,
-      [`${VariantExportMapping[VariantExportField.supplier]}`]: null,//chưa biết lấy từ đâu
+      [`${VariantExportMapping[VariantExportField.supplier]}`]: item.supplier,
       [`${VariantExportMapping[VariantExportField.length]}`]: item.length,
-      [`${VariantExportMapping[VariantExportField.weight]}`]: item.weight,
+      [`${VariantExportMapping[VariantExportField.width]}`]: item.width,
       [`${VariantExportMapping[VariantExportField.height]}`]: item.height,
       [`${VariantExportMapping[VariantExportField.link]}`]: `${document.location.origin}${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`,
     };
@@ -497,12 +500,12 @@ const TabProduct: React.FC<any> = (props) => {
     let res: any; let items: Array<VariantResponse> = [];
     switch (type) {
       case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsSimpleApi, params);
+        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, params);
         items = res.items;
         break;
       case TYPE_EXPORT.selected:
         const ids = selected.map(e => e.id);
-        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsSimpleApi, { ids: ids.toString() });
+        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { variant_ids: ids.toString() });
         items = res.items;
         break;
       case TYPE_EXPORT.all:
@@ -510,11 +513,11 @@ const TabProduct: React.FC<any> = (props) => {
         const total = Math.floor(data.metadata.total / limit);
         for (let index = 1; index <= total; index++) {
           setProcess(items.length);
-
-          const output = document.getElementById("processExport");
+          //dùng cho notification
+          const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
-          const res1 = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsSimpleApi, {...params,page: index,limit:limit});
+          const res1 = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
           items= items.concat(res1.items);
         }
         break;
@@ -522,13 +525,13 @@ const TabProduct: React.FC<any> = (props) => {
         break;
     }
     return items;
-  },[dispatch,selected,params])
+  },[dispatch,selected,params,data])
 
   console.log('process',process);
   
 
   const actionExport = {
-    Ok: useCallback(async (typeExport: string) => {
+    Ok: async (typeExport: string) => {
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
@@ -557,7 +560,7 @@ const TabProduct: React.FC<any> = (props) => {
       const year  = today.format('YYYY');
       XLSX.writeFile(workbook, `products_${day}_${month}_${year}.xlsx`);
       setVExportProduct(false);
-    }, [selected, setVExportProduct, getVariantsByCondition]),
+    },
     Cancel: () => {
       setVExportProduct(false);
     },
