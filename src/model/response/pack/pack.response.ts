@@ -8,10 +8,11 @@ export interface GoodsReceiptsTypeResponse extends BaseObject {
 }
 
 export interface GoodsReceiptsAddOrderRequest{
-    order_codes:string;
-    store_id:number;
-    delivery_service_provider_id:number;
-    channel_id:number;
+    order_codes?:string;
+    store_id?:number;
+    delivery_service_provider_id?:number;
+    receipt_type_id?:number;
+    channel_id?:number;
 }
 
 export interface GoodsReceiptsResponse extends BaseObject{
@@ -28,6 +29,9 @@ export interface GoodsReceiptsResponse extends BaseObject{
     delivery_service_type:string;
     variant: Array<any>;
     total_quantity?: number;
+    version?:number;
+    description?:string;
+    note?:string;
 }
 
 export interface GoodsReceiptsOrder extends OrderResponse{

@@ -82,7 +82,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   ]
 
   const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest) => {
-    console.log(param)
     if (param) {
 
       dispatch(
@@ -153,11 +152,12 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     if (!store_id || !delivery_service_provider_id || !channel_id || !receipt_type_id)
       return;
 
-    let param = {
+    let param:GoodsReceiptsAddOrderRequest = {
       order_codes: order_codes,
       store_id: store_id,
       delivery_service_provider_id: delivery_service_provider_id,
-      channel_id: channel_id
+      channel_id: channel_id,
+      receipt_type_id:receipt_type_id
     }
     handleAddOrder(param)
   }, [goodsReceiptsForm, handleAddOrder])

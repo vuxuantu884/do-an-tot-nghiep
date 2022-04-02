@@ -7,6 +7,11 @@ import React, { createRef, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import search from "assets/img/search.svg";
 import { StyledComponent } from "../../index.screen.styles";
+import EditNote from "screens/order-online/component/edit-note";
+// import { OrderModel } from "model/order/order.model";
+import { useDispatch } from "react-redux";
+import { updateOrderPartial } from "domain/actions/order/order.action";
+import { formatCurrency } from "utils/AppUtils";
 const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
@@ -16,6 +21,7 @@ type PackListOrderProps = {
 };
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
   const { packOrderList, actions, handleSearchOrder, onMenuClick } = props;
+  const dispatch=useDispatch();
   const formSearchOrderRef = createRef<FormInstance>();
 
   const [dataPackOrderList, setDataPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
@@ -31,6 +37,51 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     [packOrderList],
   )
 
+  const onSuccessEditNote = useCallback(
+    (newNote, noteType, orderID) => {
+      // const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
+      // if (indexOrder > -1) {
+      //   if (noteType === "note") {
+      //     itemResult[indexOrder].note = newNote;
+      //   } else if (noteType === "customer_note") {
+      //     itemResult[indexOrder].customer_note = newNote;
+      //   }
+      // }
+      // setItems(itemResult);
+      //dataPackOrderList, setDataPackOrderList
+      const dataPackOrderListCopy=[...dataPackOrderList]
+      const indexOrder= dataPackOrderListCopy.findIndex((item)=>item.order_id===orderID);
+      if(indexOrder!==-1)
+      {
+        if (noteType === "note")
+        {
+          dataPackOrderListCopy[indexOrder].note=newNote;
+        }
+        else if(noteType === "customer_note") {
+          dataPackOrderListCopy[indexOrder].customer_note=newNote
+        }
+      }
+      setDataPackOrderList([...dataPackOrderListCopy]);
+    },
+    [dataPackOrderList]
+  );
+
+  const editNote = useCallback(
+    (newNote, noteType, orderID) => {
+      let params: any = {};
+      if (noteType === "note") {
+        params.note = newNote;
+      }
+      if (noteType === "customer_note") {
+        params.customer_note = newNote;
+      }
+      dispatch(
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID, ))
+      );
+    },
+    [dispatch, onSuccessEditNote]
+  );
+
   useEffect(() => {
     if (packOrderList)
       setDataPackOrderList(packOrderList);
@@ -41,7 +92,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: "STT",
       dataIndex: "key",
       visible: true,
-      width: "5%",
+      width: "60px",
       align: "center",
       render: (value: number) => {
         return <div>{value + 1}</div>;
@@ -51,7 +102,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: "ID đơn ",
       dataIndex: "order_code",
       visible: true,
-      width: "10%",
+      width: "130px",
       align: "center",
       render: (value: string) => {
         return (
@@ -67,7 +118,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: "Khách hàng",
       dataIndex: "customer_name",
       visible: true,
-      width: "13%",
+      width: "200px",
       render: (value: string) => {
         return <div>{value}</div>;
       },
@@ -105,13 +156,13 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                     </Link>
                   </div>
                   <div className="mass massWidth">
-                    <span>{item.net_weight ? item.net_weight : 0}</span>
+                    <span>{formatCurrency(item.net_weight ? item.net_weight : 0)}</span>
                   </div>
                   <div className="quantity quantityWidth">
                     <span>{item.quantity ? item.quantity : 0}</span>
                   </div>
                   <div className="price priceWidth">
-                    <span>{item.price ? item.price : 0}</span>
+                    <span>{formatCurrency(item.price ? item.price : 0)}</span>
                   </div>
                 </div>
               );
@@ -127,27 +178,27 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: "Phí thu khách",
       dataIndex: "postage",
       visible: true,
-      width: "8%",
+      width: "150",
       align: "center",
       render: (value: number) => {
-        return <div>{value}</div>;
+        return <div>{formatCurrency(value)}</div>;
       },
     },
     {
       title: "Thanh toán",
       dataIndex: "card_number",
       visible: true,
-      width: "8%",
+      width: "150",
       align: "center",
       render: (value: number) => {
-        return <div>{value}</div>;
+        return <div>{formatCurrency(value)}</div>;
       },
     },
     {
       title: "Trạng thái",
       dataIndex: "sub_status",
       visible: true,
-      width: "10%",
+      width: "150",
       align: "center",
       render: (value: any) => {
         return <div>{value}</div>;
@@ -157,11 +208,36 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
-      width: "20%",
+      width: "150",
       align: "left",
-      render: (value: string) => {
-        return <div>{value}</div>;
-      },
+      render: (value: string, record: GoodsReceiptsOrderListModel) => (
+        <div className="orderNotes">
+          <div className="inner">
+            {/* <div className="single">
+              <EditNote
+                note={record.note}
+                title="Khách hàng: "
+                color={"#2a2a86"}
+                onOk={(newNote) => {
+                  editNote(newNote, "customer_note", record.order_id, record);
+                }}
+              // isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div> */}
+            <div className="single">
+              <EditNote
+                note={record.note}
+                title="Nội bộ: "
+                color={"#2a2a86"}
+                onOk={(newNote) => {
+                  editNote(newNote, "note", record.order_id);
+                }}
+              // isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div>
+          </div>
+        </div>
+      ),
     },
   ];
 
@@ -201,7 +277,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
         </div>
         <Table
           dataSource={dataPackOrderList}
-          scroll={{ x: 1388 }}
+          scroll={{ x: 1500 }}
           columns={column}
           //pagination={false}
           bordered

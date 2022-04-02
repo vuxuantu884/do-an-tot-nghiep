@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { Button, Card } from 'antd';
 
 import UrlConfig from 'config/url.config';
@@ -17,13 +17,21 @@ import mathPlusIcon from "assets/icon/math-plus.svg";
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
 import NumberFormat from 'react-number-format';
 import useAuthorization from 'hook/useAuthorization';
+import { generateQuery } from 'utils/AppUtils';
+import { getQueryParamsFromQueryString } from 'utils/useQuery';
+import queryString from "query-string";
+
 
 
 const initParams: PointAdjustmentListRequest = {
   page: 1,
   limit: 30,
   id: null,
+  term: null,
   reasons: [],
+  emps: [],
+  from: null,
+  to: null,
 };
 
 const TYPE_ADJUSTMENT = [
@@ -42,10 +50,18 @@ const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 const PointAdjustment = () => {
 
+  const history = useHistory()
+  const location = useLocation()
+
+  const queryParamsParsed: any = queryString.parse(
+    location.search
+  );
+
   const [allowCreatePointAdjustment] = useAuthorization({
     acceptPermissions: createPointAdjustmentPermission,
     not: false,
   });
+
 
   const [pointAdjustmentData, setPointAdjustmentData] = useState<PageResponse<any>>({
     metadata: {
@@ -159,23 +175,26 @@ const PointAdjustment = () => {
 
   const onFilter = useCallback(
     (values) => {
-      const filterParams = { ...params, ...values, page: 1 };
-      setParams(filterParams);
-    },
-    [params]
-  );
+      const filterParams = { ...params,...values };
+      const currentParam = generateQuery(params)
+      const queryParam = generateQuery(filterParams)
+      if (currentParam !== queryParam) {
+        history.push(`${location.pathname}?${queryParam}`)
+      }
 
-  const onClearFilter = useCallback(() => {
-    setParams(initParams);
-  }, []);
+    },
+    [history, location.pathname, params]
+  );
 
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setParams({ ...params, page, limit });
+      let newPrams = { ...params, page, limit };
+      let queryParam = generateQuery(newPrams);
+			history.push(`${location.pathname}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [params]
+    [history, location.pathname, params]
   );
 
   const updatePointAdjustmentData = useCallback((data: any) => {
@@ -185,11 +204,30 @@ const PointAdjustment = () => {
     }
   }, [])
 
-  useEffect(() => {
+  const getPointAdjustmentList = (params: PointAdjustmentListRequest) => {
     setIsLoading(true);
-    dispatch(getPointAdjustmentListAction(params, updatePointAdjustmentData));
-  }, [dispatch, updatePointAdjustmentData, params]);
-  
+
+    const convertReasonsToArr : any[] = Array.isArray(params.reasons) ? params.reasons : [params.reasons];
+    const convertEmployeesToArr: any[] = Array.isArray(params.emps) ? params.emps : [params.emps];
+
+    const newParams = {
+      ...params, 
+      reasons: convertReasonsToArr,
+      emps: convertEmployeesToArr,
+    }
+
+    dispatch(getPointAdjustmentListAction(newParams, updatePointAdjustmentData));
+  }
+
+  useEffect(() => {
+    let dataQuery: PointAdjustmentListRequest = {
+      ...initParams,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setParams(dataQuery)
+    getPointAdjustmentList(dataQuery)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, location.search]);
 
   return (
     <StyledPointAdjustment>
@@ -215,8 +253,6 @@ const PointAdjustment = () => {
           <PointAdjustmentFilter
             isLoading={isLoading}
             params={params}
-            initParams={initParams}
-            onClearFilter={onClearFilter}
             onFilter={onFilter}
           />
           

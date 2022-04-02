@@ -11,7 +11,6 @@ import { formatCurrency } from "utils/AppUtils";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
-import {getCustomerOrderYdpageAction} from "domain/actions/order/order.action";
 import {OrderModel} from "model/order/order.model";
 import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
 import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
@@ -25,6 +24,7 @@ import phonePlus from "assets/icon/phone-plus.svg";
 import editIcon from "assets/icon/edit.svg";
 
 import { StyledComponent } from "./styles";
+import { getCustomerOrderHistoryAction } from "domain/actions/customer/customer.action";
 
 
 const YDPageCustomerView = (props: any) => {
@@ -108,9 +108,9 @@ const YDPageCustomerView = (props: any) => {
 
   useEffect(() => {
     if (customer && customer.id !== null && customer.id !== undefined) {
-      orderHistoryYDpageQuery.customer_ids = [customer.id];
+      orderHistoryYDpageQuery.customer_id = [customer.id];
       setOrderHistoryLoading(true);
-      dispatch(getCustomerOrderYdpageAction(orderHistoryYDpageQuery, updateCustomerOrderHistory));
+      dispatch(getCustomerOrderHistoryAction(orderHistoryYDpageQuery, updateCustomerOrderHistory));
     } else {
       setOrderHistory(defaultOrderHistory);
     }

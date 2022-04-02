@@ -15,6 +15,7 @@ import CustomerShippingAddressInfo from "./customer-shipping/customer.shipping";
 import CustomerShippingInfo from "./customer-billing/customer.billing";
 import CustomerNoteInfo from "./customer-note/customer.note";
 import PurchaseHistory from "screens/customer/customer-detail/PurchaseHistory";
+// import CustomerActivityLog from "screens/customer/customer-detail/CustomerActivityLog";
 import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHistory";
 
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
@@ -129,6 +130,10 @@ const CustomerDetail = () => {
       switch (history.location.hash) {
         case "#history":
           setActiveTab("history");
+          setIsShowAddBtn(false);
+          break;
+        case "#activity-log":
+          setActiveTab("activity-log");
           setIsShowAddBtn(false);
           break;
         case "#caring-history":
@@ -335,6 +340,9 @@ const CustomerDetail = () => {
       case "history":
         setIsShowAddBtn(false);
         break;
+      case "activity-log":
+        setIsShowAddBtn(false);
+        break;
     }
     if (active === "add") {
       switch (history.location.hash) {
@@ -365,6 +373,9 @@ const CustomerDetail = () => {
           setIsShowAddBtn(false);
           break;
         case "#history":
+          setIsShowAddBtn(false);
+          break;
+        case "#activity-log":
           setIsShowAddBtn(false);
           break;
       }
@@ -477,6 +488,13 @@ const CustomerDetail = () => {
                       customer={customer}
                     />
                   </TabPane>
+
+                  {/*Tạm ẩn đợi BE*/}
+                  {/*<TabPane tab="Lịch sử thao tác" key="activity-log">*/}
+                  {/*  <CustomerActivityLog*/}
+                  {/*    customer={customer}*/}
+                  {/*  />*/}
+                  {/*</TabPane>*/}
 
                   <TabPane tab="Ghi chú" key="notes">
                     <CustomerNoteInfo

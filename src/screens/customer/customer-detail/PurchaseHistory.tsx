@@ -29,10 +29,11 @@ import iconShippingFeeInformedToCustomer
   from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeePay3PL.svg";
 import iconWeight from "screens/order-online/component/OrderList/ListTable/images/iconWeight.svg";
-import IconPaymentBank from "screens/order-online/component/OrderList/ListTable/images/paymentBank.svg";
+import IconPaymentBank from "screens/order-online/component/OrderList/ListTable/images/chuyen-khoan.svg";
 import IconPaymentCard from "screens/order-online/component/OrderList/ListTable/images/paymentCard.svg";
-import IconPaymentCod from "screens/order-online/component/OrderList/ListTable/images/paymentCod.svg";
-import IconPaymentCash from "screens/order-online/component/OrderList/ListTable/images/paymentMoney.svg";
+import IconPaymentCod from "screens/order-online/component/OrderList/ListTable/images/cod.svg";
+import IconPaymentReturn from "screens/order-online/component/OrderList/ListTable/images/tien-hoan.svg";
+import IconPaymentCash from "screens/order-online/component/OrderList/ListTable/images/tien-mat.svg";
 import IconPaymentPoint from "screens/order-online/component/OrderList/ListTable/images/paymentPoint.svg";
 import IconStore from "screens/order-online/component/OrderList/ListTable/images/store.svg";
 import {ReturnModel} from "model/order/return.model";
@@ -254,7 +255,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     },
     {
       payment_method_code: null,
-      icon: IconPaymentCash,
+      icon: IconPaymentReturn,
       tooltip: null,
     },
     {
@@ -272,10 +273,18 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         return null;
       }
       let selectedPayment = paymentIcons.find(
-        (single) => single.payment_method_code === payment.payment_method_code
+        (single) => {
+          if(single.payment_method_code === "cod") {
+            return single.payment_method_code === payment.payment_method
+          } else if(!single.payment_method_code ){
+            return payment.payment_method=== "Hàng đổi"
+          } else {
+            return single.payment_method_code === payment.payment_method_code
+          }
+        }
       );
       return (
-        <div className="singlePayment" key={index}>
+        <div  className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={index}>
           {payment.paid_amount < 0 ? (
             <Tooltip title="Hoàn tiền">
               <img src={selectedPayment?.icon} alt="" />
@@ -575,12 +584,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               {
                 !record.code_order_return
                 ?
-                <div className="order-point-column">
+                <div className="order-point-column order-point-screen">
                   <span style={{ color: "#27AE60" }}>{`Tích: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
                   <span style={{ color: "#E24343" }}>{`Tiêu: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
                 </div>
                 :
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div className="order-point-screen">
                   <span style={{ color: "#27AE60" }}>{`Trừ Tích: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
                   <span style={{ color: "#E24343" }}>{`Hoàn Tiêu: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
                 </div>
@@ -591,7 +600,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           key: "customer.amount_money",
           visible: true,
           align: "left",
-          width: 120,
+          width: 130,
         },
 
         {

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import {
   Button,
   Form,
@@ -6,22 +6,24 @@ import {
   Select,
   Tag,
 } from "antd";
-import { FilterOutlined } from "@ant-design/icons";
 
-import BaseFilter from "component/filter/base.filter";
 import CustomSelect from "component/custom/select.custom";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.request";
 
 import search from "assets/img/search.svg";
 import { StyledPointAdjustment } from "screens/customer/point-adjustment/StyledPointAdjustment";
-
+import {
+  searchAccountApi,
+} from "service/accounts/account.service";
+import { useDispatch } from "react-redux";
+import rightArrow from "assets/icon/right-arrow.svg";
+import CustomDatePicker from "component/custom/new-date-picker.custom";
+import DebounceSelect from "component/filter/component/debounce-select";
 
 type PointAdjustmentFilterProps = {
   params: PointAdjustmentListRequest;
-  initParams: any;
   isLoading: boolean;
-  onClearFilter?: () => void;
   onFilter?: (values: GetOrdersMappingQuery | Object) => void;
 };
 
@@ -43,15 +45,14 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
 ) => {
   const {
     params,
-    initParams,
     isLoading,
-    onClearFilter,
     onFilter,
   } = props;
 
   const [formFilter] = Form.useForm();
 
-  const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
+  const [listAccount, setListAccount] = useState<any[]>([]);
+  const dispatch = useDispatch();
 
   let initialValues = useMemo(() => {
     return {
@@ -59,12 +60,23 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       reasons: Array.isArray(params.reasons)
         ? params.reasons
         : [params.reasons],
+      emps: Array.isArray(params.emps)
+        ? params.emps
+        : [params.emps]
     };
   }, [params]);
 
   // handle tag filter
   const filters = useMemo(() => {
     let list = [];
+
+    if (initialValues.term) {
+      list.push({
+        key: "term",
+        name: "Tên hoặc mã phiếu điều chỉnh",
+        value: initialValues.term
+      })
+    }
 
     if (initialValues.reasons?.length) {
       let reasonsList = "";
@@ -77,16 +89,65 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
         value: reasonsList,
       });
     }
+
+    if (initialValues.emps?.length) {
+      let empsList = "";
+      initialValues.emps.forEach((emp) => {
+        empsList = empsList + emp + ";";
+      })
+      list.push({
+        key: "emps",
+        name: "Người điều chỉnh",
+        value: empsList,
+      });
+    }
+
+    if (initialValues.from) {
+      list.push({
+        key: "from",
+        name: "Từ ngày",
+        value: initialValues.from
+      })
+    }
+
+    if (initialValues.to) {
+      list.push({
+        key: "to",
+        name: "Đến ngày",
+        value: initialValues.to,
+      })
+    }
+    
+
     return list;
-  }, [initialValues.reasons]);
+  }, [
+    initialValues.term,
+    initialValues.reasons,
+    initialValues.emps,
+    initialValues.from,
+    initialValues.to
+  ]);
 
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
       switch (tag.key) {
+        case "term":
+          onFilter && onFilter({ ...params, term: null })
+          break;
         case "reasons":
           onFilter && onFilter({ ...params, reasons: [] });
           formFilter?.setFieldsValue({ reasons: [] });
+          break;
+        case "from":
+          onFilter && onFilter({ ...params, from: null })
+          break;
+        case "to":
+        onFilter && onFilter({ ...params, to: null })
+        break;
+        case "emps":
+          onFilter && onFilter({ ...params, emps: [] });
+          formFilter?.setFieldsValue({ emps: [] });
           break;
         default:
           break;
@@ -96,49 +157,45 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   );
   // end handle tag filter
 
-  // handle filter action
-  const onFilterClick = useCallback(() => {
-    setVisibleBaseFilter(false);
-    formFilter?.submit();
-  }, [formFilter]);
 
-  const openBaseFilter = useCallback(() => {
-    setVisibleBaseFilter(true);
-  }, []);
+  async function searchRegulator(value: any) {
+    try {
+      const response = await searchAccountApi({ info: value });
+      setListAccount(response.data.items)
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-  const onCancelFilter = useCallback(() => {
-    setVisibleBaseFilter(false);
-  }, []);
+  useEffect(() => {
+    let query = {
+      info: '',
+    }
+    searchAccountApi(query).then((response) => {
+      setListAccount(response.data.items)
+    }).catch((error) => {
+    })
+  }, [dispatch]);
 
-  //clear base filter
-
-  const onClearBaseFilter = useCallback(() => {
-    setVisibleBaseFilter(false);
-    formFilter.setFieldsValue(initParams);
-    onClearFilter && onClearFilter();
-  }, [formFilter, initParams, onClearFilter]);
-  // end handle filter action
-
-  const onFinish = useCallback(
-    (values) => {
-      const formValues = {
-        ...values,
-      };
-      
-      onFilter && onFilter(formValues);
-    },
-    [onFilter]
-  );
-
+  useEffect(() => {
+    formFilter.setFieldsValue({
+      term: params.term,
+      reasons: params.reasons,
+      from: params.from,
+      to: params.to,
+      emps: params.emps,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
 
   return (
     <StyledPointAdjustment>
-      <div>
+      <div className="filter">
         <Form
           form={formFilter}
-          onFinish={onFinish}
+          onFinish={onFilter}
           initialValues={initialValues}
-          className="basic-filter"
+          layout="inline"
         >
           <Item name="term" className="search-input">
             <Input
@@ -171,43 +228,59 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
             </CustomSelect>
           </Item>
 
-          <Item>
+          <Item
+            className="regulator"
+            name="emps"
+            // style={{ margin: "10px 0px" }}
+          >
+            <DebounceSelect
+              mode="multiple"
+              showArrow
+              maxTagCount="responsive"
+              placeholder="Người điều chỉnh"
+              allowClear
+              fetchOptions={searchRegulator}
+            >
+              {listAccount.map((item, index) => (
+                <CustomSelect.Option
+                  style={{ width: "100%" }}
+                  key={index.toString()}
+                  value={item.code}
+                >
+                  {item.code + " - " + item.full_name}
+                </CustomSelect.Option>
+              ))}
+            </DebounceSelect>
+          </Item>
+
+          <Item name="from">
+            <CustomDatePicker 
+              format="DD-MM-YYYY"
+              placeholder="Từ ngày"
+              style={{width: "100%"}}
+              />
+          </Item>
+
+          <span> <img src={rightArrow} alt="" style={{marginRight: "10px"}}/> </span>
+
+          <Item name="to">
+            <CustomDatePicker 
+              format="DD-MM-YYYY"
+              placeholder="Đến ngày"
+              style={{width: "100%"}}
+              />
+          </Item>
+
+          <Item >
             <Button
               type="primary"
-              htmlType="submit" 
+              htmlType="submit"
               disabled={isLoading}
             >
               Lọc
             </Button>
           </Item>
-
-          <Item style={{ display: "none" }}>
-            <Button
-              icon={<FilterOutlined />}
-              onClick={openBaseFilter}
-              disabled={isLoading}
-            >
-              Thêm bộ lọc
-            </Button>
-          </Item>
         </Form>
-
-        <BaseFilter
-          onClearFilter={onClearBaseFilter}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
-          visible={visibleBaseFilter}
-          width={500}
-        >
-          <Form
-            form={formFilter}
-            onFinish={onFinish}
-            initialValues={params}
-            layout="vertical"
-          >
-            
-          </Form>
-        </BaseFilter>
       </div>
 
       <div className="filter-tags">

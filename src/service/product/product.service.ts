@@ -17,6 +17,13 @@ import {
 import { ProductUploadModel } from "model/product/product-upload.model";
 import { ExportRequest, ExportResponse, JobResponse} from "model/other/files/export-model";
 
+export const searchVariantsSimpleApi = (
+  query: VariantSearchQuery
+): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
+  const queryString = generateQuery(query);  
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/simple?${queryString}`);
+};
+
 export const searchVariantsApi = (
   query: VariantSearchQuery
 ): Promise<BaseResponse<PageResponse<VariantResponse>>> => {

@@ -40,7 +40,16 @@ const LoyaltyCardRelease = () => {
     {
       title: "Tên đợt",
       visible: true,
-      render: (value: any) => <div style={{color: '#2A2A86'}}>{value.name}</div>,
+      render: (value: any) =>
+        <div
+          style={{color: '#2A2A86', cursor: "pointer"}}
+          onClick={() => {
+            setOpenErrorLogModal(true)
+            setSelectedLoyaltyRelease(value)
+          }}
+        >
+          {value.name}
+        </div>,
     },
     {
       title: "Ngày tạo",
@@ -58,19 +67,6 @@ const LoyaltyCardRelease = () => {
       dataIndex: "total",
       align: "center",
       visible: true,
-    },
-    {
-      title: "Trạng thái",
-      visible: true,
-      align: "center",
-      render: (value: any, i: any) => {
-        return (
-            <span style={{fontWeight: "bold" ,
-              color: value?.status === "FAIL" ? "red" : value?.status === "PROCESSING" ? "yellow" : "green"
-            }}
-            >{value?.status}</span>
-        );
-      }
     },
     {
       title: "",
