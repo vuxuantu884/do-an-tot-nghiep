@@ -14,6 +14,7 @@ export interface GoodsReceiptsRequest extends BaseObject {
     delivery_service_type:string;
     codes:string[];
     description:string;
+    note:string;
 }
 
 export interface GoodsReceiptsDeleteRequest extends BaseObject{

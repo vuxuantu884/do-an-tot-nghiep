@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import {
   deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
+  updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
 import { FulFillmentStatus } from "utils/Constants";
@@ -32,6 +33,8 @@ import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import moment from "moment";
+import EditNote from "screens/order-online/component/edit-note";
+import { GoodsReceiptsRequest } from "model/request/pack.request";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -282,6 +285,9 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         order_complete: order_complete, //đơn hoàn
         account_create: item.updated_by ? item.updated_by : "", //người tạo
         ecommerce_id: item.ecommerce_id,
+        description:item.description,
+        note:item.note,
+        goods_receipts:item
       };
 
       dataResult.push(_result);
@@ -317,7 +323,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         if (data) {
           setTableLoading(true);
           dispatch(
-            getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
+            getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
               let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
               /////
               setData({
@@ -417,6 +423,38 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       </Menu>
     );
   };
+
+  const editNote= useCallback((id:number, data:GoodsReceiptsResponse, newNote:string)=>{
+    let goodsReceiptsCopy:any={...data}
+    let codes=data.orders?.map((p)=>p.code)
+    let param : GoodsReceiptsRequest={
+      ...goodsReceiptsCopy,
+      codes:codes,
+      note: newNote
+    }
+
+    dispatch(
+      updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
+        if (data) {
+          dispatch(
+            getGoodsReceiptsSerch({...params}, (data: PageResponse<GoodsReceiptsResponse>) => {
+              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+              /////
+              setData({
+                metadata: {
+                  limit: data.metadata.limit,
+                  page: data.metadata.page,
+                  total: data.metadata.total,
+                },
+                items: dataResult,
+              });
+            })
+          );
+          showSuccess("Cập nhập ghi chú biên bản thành công");
+        }
+      })
+    );
+  },[dispatch, params])
 
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
@@ -562,7 +600,30 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       align: "center",
       width: "80px",
     },
-
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      visible: true,
+      width: "160px",
+      align: "left",
+      render: (value: string, record: GoodsReceiptsSearhModel) => (
+        <div className="orderNotes">
+          <div className="inner">
+            <div className="single">
+              <EditNote
+                note={record?.description}
+                //title="Khách hàng: "
+                color={"#2a2a86"}
+                onOk={(newNote) => {
+                   editNote(record.id_handover_record, record.goods_receipts, newNote);
+                }}
+              // isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div>
+          </div>
+        </div>
+      ),
+    },
     {
       title: "Người tạo",
       dataIndex: "account_create",
@@ -676,7 +737,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 1450, y: 520 }}
+          scroll={{ x: 1550, y: 520 }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={{
             pageSize: data.metadata.limit,
