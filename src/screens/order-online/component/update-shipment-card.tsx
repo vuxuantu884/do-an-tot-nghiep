@@ -813,8 +813,17 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	// end
 
 	const onPrint = () => {
-		onOkShippingConfirm();
-		setReload(true);
+		if (
+			props.OrderDetail?.fulfillments &&
+			props.OrderDetail?.fulfillments.length > 0 &&
+			props.OrderDetail?.fulfillments[0].shipment &&
+			props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+			props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
+			ShipmentMethod.PICK_AT_STORE
+		) {
+			fulfillmentTypeOrderRequest(1);
+			setReload(true);
+		}
 	};
 
 	const renderPushingStatusWhenDeliverPartnerFailed = () => {
