@@ -113,6 +113,12 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
     }
   }
 
+  .order-point-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
 `;
 
 export const nameQuantityWidth = 400;
