@@ -36,7 +36,7 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { getJobByCode } from "service/product/product.service";
+import { getJobByCode, searchVariantsApi } from "service/product/product.service";
 import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -49,6 +49,8 @@ import ProductFilter from "../../filter/ProductFilter";
 import { StyledComponent } from "../style";
 import * as XLSX from 'xlsx';
 import { VariantExportField, VariantExportMapping } from "model/product/product-mapping";
+import { callApiNative } from "utils/ApiUtils";
+import moment from "moment";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -71,6 +73,9 @@ const initQuery: VariantSearchQuery = {
 let variantResponse: VariantResponse | null = null;
 
 const TabProduct: React.FC<any> = (props) => {
+  const product_units = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
+  );
   const { vExportProduct, setVExportProduct } = props;
   const query = useQuery();
   const history = useHistory();
@@ -106,8 +111,9 @@ const TabProduct: React.FC<any> = (props) => {
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
+  const [process,setProcess] = useState<number>(0);
 
-  const actionsDefault: Array<MenuAction> = useMemo(()=>{
+  const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
 
     return [
@@ -131,26 +137,28 @@ const TabProduct: React.FC<any> = (props) => {
         disabled: disabled
       },
     ]
-  },[selected]);
+  }, [selected]);
 
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
-      setPrams({...params});
+      setPrams({ ...params });
       let queryParam = generateQuery(params);
       history.push(`${UrlConfig.VARIANTS}${history.location.hash}?${queryParam}`);
     },
-    [history,params]
+    [history, params]
   );
 
   const onFilter = useCallback((values) => {
-    let {info} = values;
+    let { info } = values;
     values.info = info && info.trim();
-    let newPrams = { ...params, ...{
+    let newPrams = {
+      ...params, ...{
         ...values,
         info: values.info ? values.info : values.info === '' ? null : params.info
-      }, page: 1 };
+      }, page: 1
+    };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
     history.replace(`${ProductTabUrl.VARIANTS}?${queryParam}`);
@@ -170,10 +178,10 @@ const TabProduct: React.FC<any> = (props) => {
         data.items.forEach((item) => {
           let index = success.findIndex((item1) => item.id === item1.id);
           if (index !== -1) {
-            item = {...item, ...success[index]};
+            item = { ...item, ...success[index] };
           }
         });
-        setData({...data, items: [...data.items]});
+        setData({ ...data, items: [...data.items] });
         dispatch(searchVariantsRequestAction(params, setSearchResult));
         showSuccess("Cập nhật thông tin thành công");
         setRowKey([]);
@@ -228,7 +236,7 @@ const TabProduct: React.FC<any> = (props) => {
       dispatch(showLoading());
       let request: Array<any> = [];
       selected.forEach((value) => {
-        request.push({product_id: value.product_id, variant_id: value.id});
+        request.push({ product_id: value.product_id, variant_id: value.id });
       });
       dispatch(variantDeleteManyAction(request, onResultDelete));
     }
@@ -238,7 +246,7 @@ const TabProduct: React.FC<any> = (props) => {
     (index: number) => {
       switch (index) {
         case ACTIONS_INDEX.PRINT_BAR_CODE:
-          history.push(`${UrlConfig.PRODUCT}/barcode`, {selected: selected});
+          history.push(`${UrlConfig.PRODUCT}/barcode`, { selected: selected });
           break;
         case ACTIONS_INDEX.ACTIVE:
           onActive();
@@ -278,22 +286,22 @@ const TabProduct: React.FC<any> = (props) => {
     {
       width: 70,
       title: "Ảnh",
-      align:"center",
+      align: "center",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
-            <ImageProduct
-              path={image !== null ? image.url : null}
-              isUpload={true}
-              onClick={() => {
-                setVariant({
-                  name: value.name,
-                  sku: value.sku,
-                  variant_images: value.variant_images,
-                });
-                variantResponse = value;
-                setUploadVisible(true);
-              }}
+          <ImageProduct
+            path={image !== null ? image.url : null}
+            isUpload={true}
+            onClick={() => {
+              setVariant({
+                name: value.name,
+                sku: value.sku,
+                variant_images: value.variant_images,
+              });
+              variantResponse = value;
+              setUploadVisible(true);
+            }}
           />
         );
       },
@@ -301,14 +309,14 @@ const TabProduct: React.FC<any> = (props) => {
     },
 
     {
-      title:  "Sản phẩm",
+      title: "Sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => {
-        let strName=(i.name.trim());
-        strName=window.screen.width>=1920?splitEllipsis(strName,100,30)
-          :window.screen.width>=1600?strName=splitEllipsis(strName,60,30)
-          :window.screen.width>=1366?strName=splitEllipsis(strName,47,30):strName;
-        return(
+        let strName = (i.name.trim());
+        strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
+          : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
+            : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
+        return (
           <div>
             <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`} className="yody-text-ellipsis">
               {value}
@@ -343,7 +351,7 @@ const TabProduct: React.FC<any> = (props) => {
       visible: true,
       align: "right",
       width: 110,
-      render: (value: number) => <div> {value?formatCurrency(value,"."):"0"}</div>,
+      render: (value: number) => <div> {value ? formatCurrency(value, ".") : "0"}</div>,
     },
 
     {
@@ -364,13 +372,13 @@ const TabProduct: React.FC<any> = (props) => {
       align: "left",
       width: 150,
       render: (record: VariantResponse) => {
-        return(
+        return (
           <div>
-             {
-              (record?.product?.designer) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.designer_code}`}>
+            {
+              (record?.product?.designer) !== null ?
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.product?.designer_code}`}>
                   {record?.product?.designer}
-                </Link>  :"---"
+                </Link> : "---"
             }
           </div>
         )
@@ -382,13 +390,13 @@ const TabProduct: React.FC<any> = (props) => {
       width: 150,
       visible: true,
       render: (record: VariantResponse) => {
-        return(
+        return (
           <div>
-             {
-              (record?.product?.merchandiser) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.product?.merchandiser_code}`}>
+            {
+              (record?.product?.merchandiser) !== null ?
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.product?.merchandiser_code}`}>
                   {record?.product?.merchandiser}
-                </Link>  :"---"
+                </Link> : "---"
             }
           </div>
         )
@@ -401,7 +409,7 @@ const TabProduct: React.FC<any> = (props) => {
       align: "left",
       width: 110,
       render: (value, record) => {
-        return ((record?.created_date)!==null?ConvertUtcToLocalDate(record?.created_date,DATE_FORMAT.DDMMYYY):"---")
+        return ((record?.created_date) !== null ? ConvertUtcToLocalDate(record?.created_date, DATE_FORMAT.DDMMYYY) : "---")
       },
     },
   ];
@@ -431,17 +439,17 @@ const TabProduct: React.FC<any> = (props) => {
       if (item.id === ACTIONS_INDEX.ACTIVE || item.id === ACTIONS_INDEX.INACTIVE) {
         return canUpdateProduct;
       }
-      if (item.id ===  ACTIONS_INDEX.DELETE) {
+      if (item.id === ACTIONS_INDEX.DELETE) {
         return canDeleteVariants;
       }
       return false;
     });
   }, [canPrintBarcode, canDeleteVariants, canUpdateProduct, actionsDefault]);
 
-    const onCancelProgressModal = () => {
-      setExportCodeList([]);
-      setIsVisibleProgressModal(false);
-    };
+  const onCancelProgressModal = () => {
+    setExportCodeList([]);
+    setIsVisibleProgressModal(false);
+  };
 
   const onSelect = useCallback(
     (selectedRow: Array<VariantResponse>) => {
@@ -454,79 +462,107 @@ const TabProduct: React.FC<any> = (props) => {
     [setSelected]
   );
 
-  const convertItemExport = (item: VariantResponse)=>{
-    return  {
-              [`${VariantExportMapping[VariantExportField.product_code]}`] : item.product.code,
-              [`${VariantExportMapping[VariantExportField.product_name]}`] : item.product.name,
-              [`${VariantExportMapping[VariantExportField.barcode]}`] : item.barcode,
-              [`${VariantExportMapping[VariantExportField.sku]}`] : item.sku,
-              [`${VariantExportMapping[VariantExportField.name]}`] : item.name,
-              [`${VariantExportMapping[VariantExportField.unit]}`] : item.weight_unit,
-              [`${VariantExportMapping[VariantExportField.import_price]}`] : item.variant_prices[0].import_price ?? null,
-              [`${VariantExportMapping[VariantExportField.cost_price]}`] : item.variant_prices[0].cost_price ?? null,
-              [`${VariantExportMapping[VariantExportField.retail_price]}`] : item.variant_prices[0].retail_price ?? null,
-              [`${VariantExportMapping[VariantExportField.wholesale_price]}`] : item.variant_prices[0].wholesale_price ?? null,
-              [`${VariantExportMapping[VariantExportField.saleable]}`] : item.saleable ? "Hoạt động": "Ngừng hoạt động",
-              //[`${VariantExportMapping[VariantExportField.total_stock]}`] : item.on_hand,
-              //[`${VariantExportMapping[VariantExportField.on_hand]}`] : item.on_hand,
-              [`${VariantExportMapping[VariantExportField.available]}`] : item.available,
-              // [`${VariantExportMapping[VariantExportField.committed]}`] : item.on_hand,
-              // [`${VariantExportMapping[VariantExportField.on_hold]}`] : item.on_hand,
-              // [`${VariantExportMapping[VariantExportField.defect]}`] : item.on_hand,
-              // [`${VariantExportMapping[VariantExportField.incomming]}`] : item.on_hand,
-              // [`${VariantExportMapping[VariantExportField.onway]}`] : item.on_hand,
-              // [`${VariantExportMapping[VariantExportField.transferring]}`] : item.on_hand,
-              // [`${VariantExportMapping[VariantExportField.shipping]}`] : item.on_hand,
-              [`${VariantExportMapping[VariantExportField.category_code]}`] : item.product.category,
-              [`${VariantExportMapping[VariantExportField.category]}`] : item.category,
-              [`${VariantExportMapping[VariantExportField.brand]}`] : item.product.brand_name,
-              [`${VariantExportMapping[VariantExportField.supplier]}`] : null,//chưa biết lấy từ đâu
-              [`${VariantExportMapping[VariantExportField.length]}`] : item.length,
-              [`${VariantExportMapping[VariantExportField.weight]}`] : item.weight,
-              [`${VariantExportMapping[VariantExportField.height]}`] : item.height,
-              [`${VariantExportMapping[VariantExportField.link]}`] : `${document.location.origin}${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/${item.product.id}/variants/${item.id}`,
-            };
+  const convertItemExport = (item: VariantResponse) => {
+    return {
+      [`${VariantExportMapping[VariantExportField.product_code]}`]: item.product.code,
+      [`${VariantExportMapping[VariantExportField.product_name]}`]: item.product.name,
+      [`${VariantExportMapping[VariantExportField.barcode]}`]: item.barcode,
+      [`${VariantExportMapping[VariantExportField.sku]}`]: item.sku,
+      [`${VariantExportMapping[VariantExportField.name]}`]: item.name,
+      [`${VariantExportMapping[VariantExportField.unit]}`]: product_units ? product_units.find(e=>e.value === item.product.unit)?.name :null,
+      [`${VariantExportMapping[VariantExportField.import_price]}`]: item.variant_prices[0].import_price ?? null,
+      [`${VariantExportMapping[VariantExportField.cost_price]}`]: item.variant_prices[0].cost_price ?? null,
+      [`${VariantExportMapping[VariantExportField.retail_price]}`]: item.variant_prices[0].retail_price ?? null,
+      [`${VariantExportMapping[VariantExportField.wholesale_price]}`]: item.variant_prices[0].wholesale_price ?? null,
+      [`${VariantExportMapping[VariantExportField.saleable]}`]: item.saleable ? "Hoạt động" : "Ngừng hoạt động",
+      [`${VariantExportMapping[VariantExportField.total_stock]}`]: (item.on_hand ?? 0)+(item.shipping ?? 0)+(item.onway ?? 0),
+      [`${VariantExportMapping[VariantExportField.on_hand]}`]: item.on_hand,
+      [`${VariantExportMapping[VariantExportField.available]}`]: item.available,
+      [`${VariantExportMapping[VariantExportField.committed]}`]: item.committed,
+      [`${VariantExportMapping[VariantExportField.on_hold]}`]: item.on_hold,
+      [`${VariantExportMapping[VariantExportField.defect]}`]: item.defect,
+      [`${VariantExportMapping[VariantExportField.in_coming]}`]: item.in_coming,
+      [`${VariantExportMapping[VariantExportField.onway]}`]: item.onway,
+      [`${VariantExportMapping[VariantExportField.transferring]}`]: item.transferring,
+      [`${VariantExportMapping[VariantExportField.shipping]}`]: item.shipping,
+      //[`${VariantExportMapping[VariantExportField.category_code]}`]: null,
+      [`${VariantExportMapping[VariantExportField.category]}`]: item.product ? item.product.category : null,
+      [`${VariantExportMapping[VariantExportField.brand]}`]: item.product ? item.product.brand_name : null,
+      [`${VariantExportMapping[VariantExportField.supplier]}`]: item.supplier,
+      [`${VariantExportMapping[VariantExportField.length]}`]: item.length,
+      [`${VariantExportMapping[VariantExportField.width]}`]: item.width,
+      [`${VariantExportMapping[VariantExportField.height]}`]: item.height,
+      [`${VariantExportMapping[VariantExportField.link]}`]: `${document.location.origin}${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`,
+    };
   }
 
+  const getVariantsByCondition = useCallback(async (type: string) => {
+    let res: any; let items: Array<VariantResponse> = [];
+    switch (type) {
+      case TYPE_EXPORT.page:
+        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, params);
+        items = res.items;
+        break;
+      case TYPE_EXPORT.selected:
+        const ids = selected.map(e => e.id);
+        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { variant_ids: ids.toString() });
+        items = res.items;
+        break;
+      case TYPE_EXPORT.all:
+        const limit = 50;
+        const total = Math.floor(data.metadata.total / limit);
+        for (let index = 1; index <= total; index++) {
+          setProcess(items.length);
+          //dùng cho notification
+          const output = document.getElementById("processExport"); 
+          if (output) output.innerHTML=items.length.toString();
+          
+          const res1 = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
+          items= items.concat(res1.items);
+        }
+        break;
+      default:
+        break;
+    }
+    return items;
+  },[dispatch,selected,params,data])
+
+  console.log('process',process);
+  
+
   const actionExport = {
-    Ok: useCallback(async(typeExport: string)=>{
-      let dataExport:any = [];
-      if (typeExport === TYPE_EXPORT.selected &&  selected && selected.length === 0) {
+    Ok: async (typeExport: string) => {
+      let dataExport: any = [];
+      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
         setVExportProduct(false);
         return;
       }
 
-      if ((typeExport === TYPE_EXPORT.page || typeExport === TYPE_EXPORT.all) && data.items && data.items.length === 0) {
+      const res = await getVariantsByCondition(typeExport);
+      if (res && res.length === 0) {
         showWarning("Không có sản phẩm nào đủ điều kiện");
-        setVExportProduct(false);
         return;
       }
-
-      if (typeExport === TYPE_EXPORT.page) {
-                for (let i = 0; i < data.items.length; i++) {
-            const e = data.items[i];
-            let item = convertItemExport(e);
-
-            dataExport.push(item);
-          }
+      for (let i = 0; i < res.length; i++) {
+        const e = res[i];
+        const item = convertItemExport(e);
+        debugger
+        dataExport.push(item);
       }
 
-      if (selected && selected.length > 0) {
-        for (let i = 0; i < selected.length; i++) {
-          const e = selected[i];
-          let item = convertItemExport(e);
-          dataExport.push(item);
-        }
-      }
-
-      const worksheet = XLSX.utils.json_to_sheet(dataExport);
+      let worksheet = XLSX.utils.json_to_sheet(dataExport);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-      XLSX.writeFile(workbook, "list_export_unicorn.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      const today = moment(new Date(), 'YYYY/MM/DD');
+
+      const month = today.format('M');
+      const day   = today.format('D');
+      const year  = today.format('YYYY');
+      XLSX.writeFile(workbook, `products_${day}_${month}_${year}.xlsx`);
       setVExportProduct(false);
-    },[selected,data.items, setVExportProduct]),
-    Cancel:()=>{
+    },
+    Cancel: () => {
       setVExportProduct(false);
     },
   }
@@ -556,7 +592,7 @@ const TabProduct: React.FC<any> = (props) => {
             if (response.data.num_of_record >= response.data.total) {
               setExportProgress(response.data.processed);
             } else {
-              const percent = Math.floor(
+              const percent = Math.round(
                 (response.data.num_of_record / response.data.total) * 100
               );
               setExportProgress(percent);
@@ -605,8 +641,8 @@ const TabProduct: React.FC<any> = (props) => {
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
-        scroll={{x: 1200}}
-        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        scroll={{ x: 1200 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -622,12 +658,12 @@ const TabProduct: React.FC<any> = (props) => {
         rowKey={(item: VariantResponse) => item.id}
       />
       <AuthWrapper acceptPermissions={[ProductPermission.upload_image]}>
-      <UploadImageModal
-        onCancel={() => setUploadVisible(false)}
-        variant={variant}
-        visible={uploadVisible}
-        onSave={onSave}
-      />
+        <UploadImageModal
+          onCancel={() => setUploadVisible(false)}
+          variant={variant}
+          visible={uploadVisible}
+          onSave={onSave}
+        />
       </AuthWrapper>
       <ModalSettingColumn
         visible={showSettingColumn}
@@ -654,34 +690,34 @@ const TabProduct: React.FC<any> = (props) => {
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportProduct}
-       />
+      />
 
-       {/* Progress export customer data */}
-       <Modal
-          onCancel={onCancelProgressModal}
-          visible={isVisibleProgressModal}
-          title="Xuất file"
-          centered
-          width={600}
-          footer={[
-            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-              Thoát
-            </Button>,
-          ]}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 15 }}>
-              Đang tạo file, vui lòng đợi trong giây lát
-            </div>
-            <Progress
-              type="circle"
-              strokeColor={{
-                "0%": "#108ee9",
-                "100%": "#87d068",
-              }}
-              percent={exportProgress}
-            />
+      {/* Progress export customer data */}
+      <Modal
+        onCancel={onCancelProgressModal}
+        visible={isVisibleProgressModal}
+        title="Xuất file"
+        centered
+        width={600}
+        footer={[
+          <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
+            Thoát
+          </Button>,
+        ]}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ marginBottom: 15 }}>
+            Đang tạo file, vui lòng đợi trong giây lát
           </div>
-        </Modal>
+          <Progress
+            type="circle"
+            strokeColor={{
+              "0%": "#108ee9",
+              "100%": "#87d068",
+            }}
+            percent={exportProgress}
+          />
+        </div>
+      </Modal>
     </StyledComponent>
   );
 };
