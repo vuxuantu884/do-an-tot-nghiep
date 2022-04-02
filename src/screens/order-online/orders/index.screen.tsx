@@ -57,7 +57,7 @@ function OrdersScreen(props: PropTypes) {
     fulfillment_status: [],
     payment_status: [],
     return_status: [],
-    created_by: [],
+    account_codes: [],
     coordinator_codes: [],
     marketer_codes: [],
     assignee_codes: [],
