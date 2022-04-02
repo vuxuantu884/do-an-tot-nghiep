@@ -647,14 +647,13 @@ function* orderConfigSaga(action: YodyAction) {
 }
 
 function* getFulfillmentsSaga(action: YodyAction) {
-  const { code, store_id, delivery_service_provider_id, setData } = action.payload;
+  const { request, setData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
       getFulfillmentsApi,
-      code,
-      store_id,
-      delivery_service_provider_id
+      request
+      
     );
     if (isFetchApiSuccessful(response)) {
       setData(response.data);

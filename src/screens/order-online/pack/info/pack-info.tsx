@@ -30,6 +30,7 @@ import barcodeIcon from "assets/img/scanbarcode.svg";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { RegUtil } from "utils/RegUtils";
 import { FulFillmentStatus } from "utils/Constants";
+import { FulfillmentsOrderPackQuery } from "model/order/order.model";
 
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
@@ -116,8 +117,9 @@ const PackInfo: React.FC = () => {
 
               if (order_request && packFulFillmentResponse) {
                 formRef.current?.setFieldsValue({ product_request: barcode });
-                ProductRequestElement.select();
-                btnFinishPackElement?.click();
+                ProductRequestElement?.blur();
+                ProductPack(barcode,1);
+                //btnFinishPackElement?.click();
               }
               barcode = "";
             }
@@ -125,16 +127,23 @@ const PackInfo: React.FC = () => {
         }
       }
     },
-    [formRef, ProductRequestElement, btnFinishPackElement, packFulFillmentResponse]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formRef, packFulFillmentResponse, ProductRequestElement]
   );
+
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
       formRef.current?.validateFields(["store_request", "delivery_service_provider_id","order_request"]);
       let { store_request, delivery_service_provider_id } = formRef.current?.getFieldsValue();
       if (value) {
+        let query:FulfillmentsOrderPackQuery={
+          code:value?.trim(),
+          store_id:store_request,
+          delivery_service_provider_id:delivery_service_provider_id
+        }
         dispatch(
-          getFulfillments(value.trim(), store_request, delivery_service_provider_id, (data: PackFulFillmentResponse[]) => {
+          getFulfillments(query, (data: PackFulFillmentResponse[]) => {
             if (data && data.length !== 0) {
               console.log(data)
               let fMSuccess:PackFulFillmentResponse[]=data.filter((p)=>p.status!==FulFillmentStatus.CANCELLED&&p.status!==FulFillmentStatus.RETURNED&&p.status!==FulFillmentStatus.RETURNING)
@@ -143,19 +152,25 @@ const PackInfo: React.FC = () => {
               setDisableStoreId(true);
               setDisableDeliveryProviderId(true);
               setDisableOrder(true);
-              let a = document.getElementById("inputProduct");
-              setTimeout(() => {
-                a?.focus();
-                if (!packModel?.store_id) {
-                  setPackModel({
-                    ...new PackModelDefaltValue(), ...packModel,
-                    store_id: data[0]?.store_id
-                  });
-                  formRef.current?.setFieldsValue({
-                    store_request: data[0]?.store_id
-                  })
-                }
-              }, 200);
+              let storeId: number | null | undefined = data[0]?.stock_location_id ?
+              listStoresDataCanAccess?.findIndex((p) => p.id === data[0]?.stock_location_id) !== -1
+              ? data[0]?.stock_location_id : null : null;
+              console.log("store_id",listStoresDataCanAccess)
+              console.log("store_id",storeId)
+
+              if (data[0]?.stock_location_id) {
+                setPackModel({
+                  ...new PackModelDefaltValue(),
+                  ...packModel,
+                  store_id: storeId
+                });
+                setPackInfo({ ...packModel, store_id: storeId });
+                formRef.current?.setFieldsValue({
+                  store_request: storeId
+                })
+              }
+              OrderRequestElement?.blur();
+
             } else {
               setDisableStoreId(false);
               setDisableDeliveryProviderId(false)
@@ -208,6 +223,34 @@ const PackInfo: React.FC = () => {
     });
   };
 
+  const ProductPack=useCallback((product_request:string,quality_request:number)=>{
+    let indexPack = itemProductList.findIndex(
+      (p) =>
+        p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
+    );
+
+    if (indexPack !== -1) {
+
+      if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
+        showError("Số lượng nhặt không đúng");
+        return
+      } else {
+        itemProductList[indexPack].pick += Number(quality_request);
+
+        if (itemProductList[indexPack].pick === itemProductList[indexPack].quantity)
+          itemProductList[indexPack].color = "#27AE60";
+
+        setItemProductList([...itemProductList]);
+        if (Number(itemProductList[indexPack].quantity) === Number(itemProductList[indexPack].pick))
+          formRef.current?.setFieldsValue({ product_request: "" });
+      }
+
+      formRef.current?.setFieldsValue({ quality_request: "" });
+    } else {
+      showError("Sản phẩm này không có trong đơn hàng");
+    }
+  },[formRef, itemProductList])
+
   const FinishPack = useCallback(() => {
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
@@ -220,34 +263,10 @@ const PackInfo: React.FC = () => {
     let quality_request = value.quality_request ? +value.quality_request : 1;
     let product_request = value.product_request;
 
-    if (store_request && order_request && product_request) {
-      let indexPack = itemProductList.findIndex(
-        (p) =>
-          p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
-      );
+    if (store_request && order_request && product_request)
+      ProductPack(product_request,quality_request)
 
-      if (indexPack !== -1) {
-
-        if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
-          showError("Số lượng nhặt không đúng");
-          return
-        } else {
-          itemProductList[indexPack].pick += Number(quality_request);
-
-          if (itemProductList[indexPack].pick === itemProductList[indexPack].quantity)
-            itemProductList[indexPack].color = "#27AE60";
-
-          setItemProductList([...itemProductList]);
-          if (Number(itemProductList[indexPack].quantity) === Number(itemProductList[indexPack].pick))
-            formRef.current?.setFieldsValue({ product_request: "" });
-        }
-
-        formRef.current?.setFieldsValue({ quality_request: "" });
-      } else {
-        showError("Sản phẩm này không có trong đơn hàng");
-      }
-    }
-  }, [formRef, itemProductList]);
+  }, [formRef, ProductPack]);
 
   const onChangeStoreId = useCallback((value?: number) => {
     setPackModel({ ...new PackModelDefaltValue(), ...packModel, store_id: value });
