@@ -223,7 +223,7 @@ const ListOrderScreen: React.FC = () => {
             />
           </Tooltip>
           
-          {record.point_refund ? (
+          {record.point_refund  && record.total && (
             <>
               <br />
               <Tooltip title="Hoàn điểm">
@@ -238,10 +238,6 @@ const ListOrderScreen: React.FC = () => {
                   />
                 </span>
               </Tooltip>
-            </>
-          ) : null}
-          {record.total ? (
-            <>
               <br />
               <Tooltip title="Thu người nhận">
                 <span style={{ fontWeight: 500 }}>
@@ -254,7 +250,7 @@ const ListOrderScreen: React.FC = () => {
                 </span>
               </Tooltip>
             </>
-          ) : null}
+          )}
         </>
       ),
       key: "total_amount",
