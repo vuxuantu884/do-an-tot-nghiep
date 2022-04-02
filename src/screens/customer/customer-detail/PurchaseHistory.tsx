@@ -575,12 +575,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               {
                 !record.code_order_return
                 ?
-                <div className="order-point-column">
+                <div className="order-point-column order-point-screen">
                   <span style={{ color: "#27AE60" }}>{`Tích: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
                   <span style={{ color: "#E24343" }}>{`Tiêu: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
                 </div>
                 :
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div className="order-point-screen">
                   <span style={{ color: "#27AE60" }}>{`Trừ Tích: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
                   <span style={{ color: "#E24343" }}>{`Hoàn Tiêu: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
                 </div>
@@ -591,7 +591,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           key: "customer.amount_money",
           visible: true,
           align: "left",
-          width: 120,
+          width: 130,
         },
 
         {
