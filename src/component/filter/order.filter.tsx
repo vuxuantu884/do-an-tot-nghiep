@@ -223,9 +223,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         setAssigneeFound(response.data.items);
       });
     }
-    if (params.created_by && params.created_by?.length > 0) {
+    if (params.account_codes && params.account_codes?.length > 0) {
       searchAccountApi({
-        codes: params.created_by,
+        codes: params.account_codes,
       }).then((response) => {
         setAccountFound(response.data.items);
       });
@@ -246,7 +246,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     }
   }, [
     params.assignee_codes,
-    params.created_by,
+    params.account_codes,
     params.marketer_codes,
     params.coordinator_codes,
   ]);
@@ -322,8 +322,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         case "assignee_codes":
           onFilter && onFilter({ ...params, assignee_codes: [] });
           break;
-        case "created_by":
-          onFilter && onFilter({ ...params, created_by: [] });
+        case "account_codes":
+          onFilter && onFilter({ ...params, account_codes: [] });
           break;
         case "coordinator_codes":
           onFilter && onFilter({ ...params, coordinator_codes: [] });
@@ -425,9 +425,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
-      created_by: Array.isArray(params.created_by)
-        ? params.created_by
-        : [params.created_by],
+      account_codes: Array.isArray(params.account_codes)
+        ? params.account_codes
+        : [params.account_codes],
       channel_codes: Array.isArray(params.channel_codes)
         ? params.channel_codes
         : [params.channel_codes],
@@ -463,10 +463,10 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.order_status.length > numberTagShorten,
       },
-			created_by: {
-        data: initialValues.created_by,
+			account_codes: {
+        data: initialValues.account_codes,
         isShorten: isShortenFilterTag,
-        isCanShorten: initialValues.created_by.length > numberTagShorten,
+        isCanShorten: initialValues.account_codes.length > numberTagShorten,
       },
 			assignee_codes: {
         data: initialValues.assignee_codes,
@@ -611,7 +611,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 						</Link>
 					);
 				});
-      } else if (type === "created_by") {
+      } else if (type === "account_codes") {
         result = mappedArrayResult.map((single, index) => {
           return (
             <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
@@ -885,18 +885,18 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
 
-    if (initialValues.created_by.length) {
+    if (initialValues.account_codes.length) {
       let text = getFilterString(
         accountFound,
         "full_name",
         UrlConfig.ACCOUNTS,
         "code",
-        "created_by",
-				filterTagFormatted.created_by.isCanShorten,
-        filterTagFormatted.created_by.isShorten
+        "account_codes",
+				filterTagFormatted.account_codes.isCanShorten,
+        filterTagFormatted.account_codes.isShorten
       );
       list.push({
-        key: "created_by",
+        key: "account_codes",
         name: "Nhân viên tạo đơn",
         value: text,
       });
@@ -1071,7 +1071,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     initialValues.variant_ids.length,
     initialValues.assignee_codes.length,
     initialValues.services.length,
-    initialValues.created_by.length,
+    initialValues.account_codes.length,
     initialValues.coordinator_codes.length,
     initialValues.marketer_codes.length,
     initialValues.price_min,
@@ -1510,7 +1510,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="created_by" label="Nhân viên tạo đơn">
+                  <Item name="account_codes" label="Nhân viên tạo đơn">
                     <AccountCustomSearchSelect
                       placeholder="Tìm theo họ tên hoặc mã nhân viên"
                       dataToSelect={accountData}

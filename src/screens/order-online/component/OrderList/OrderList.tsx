@@ -292,20 +292,6 @@ function OrderList(props: PropTypes) {
             })
           );
           dispatch(showLoading());
-          changeOrderStatusToPickedService(ids)
-            .then((response) => {
-              if (isFetchApiSuccessful(response)) {
-              } else {
-                handleFetchApiError(response, "In phiếu giao hàng", dispatch)
-              }
-            })
-            .catch((error) => {
-              console.log("error", error);
-            })
-            .finally(() => {
-              dispatch(hideLoading());
-            });
-          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
           const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewUrl);
           break;

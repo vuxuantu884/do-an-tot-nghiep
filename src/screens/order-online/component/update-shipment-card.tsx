@@ -813,8 +813,8 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	// end
 
 	const onPrint = () => {
-		onOkShippingConfirm();
-		setReload(true);
+		// onOkShippingConfirm();
+		// setReload(true);
 	};
 
 	const renderPushingStatusWhenDeliverPartnerFailed = () => {
