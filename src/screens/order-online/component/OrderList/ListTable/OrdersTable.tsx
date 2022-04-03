@@ -9,7 +9,7 @@ import {
   setSubStatusAction,
   updateOrderPartial,
 } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
+import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
 import { OrderExtraModel, OrderModel } from "model/order/order.model";
@@ -96,7 +96,12 @@ type PropTypes = {
 
 type dataExtra = PageResponse<OrderExtraModel>;
 
-let itemResult:OrderModel[] = []
+let itemResult:OrderModel[] = [];
+let metadataResult:BaseMetadata = {
+  limit: 0,
+  page: 0,
+  total: 0
+};
 
 function OrdersTable(props: PropTypes) {
   const {
@@ -130,12 +135,14 @@ function OrdersTable(props: PropTypes) {
   const [typeAPi, setTypeAPi] = useState("");
 
   const [items, setItems] = useState(data.items);
+  const [metadata, setMetaData] = useState(data.metadata);
   // const [isVisiblePopup, setIsVisiblePopup] =
   // useState(false);
 
   // console.log('isVisiblePopup', isVisiblePopup)
 
   itemResult = data.items;
+  metadataResult = data.metadata;
 
   const paymentIcons = [
     {
@@ -174,9 +181,9 @@ function OrdersTable(props: PropTypes) {
       tooltip: "Tiêu điểm",
     },
   ];
-
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
+      console.log('itemResult', itemResult)
       const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
         if (noteType === "note") {
@@ -186,8 +193,13 @@ function OrdersTable(props: PropTypes) {
         }
       }
       setItems(itemResult);
+      setMetaData(metadataResult);
+      setData({
+        metadata: metadataResult,
+        items: itemResult,
+      })
     },
-    []
+    [setData]
   );
 
   const editNote = useCallback(
@@ -1629,6 +1641,10 @@ function OrdersTable(props: PropTypes) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, setData])
 
+  useEffect(() => {
+    setMetaData(data.metadata)
+  }, [data.metadata])
+
   return (
     <StyledComponent>
       <CustomTable
@@ -1638,9 +1654,9 @@ function OrdersTable(props: PropTypes) {
         scroll={{ x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1) }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
-          pageSize: data.metadata?.limit,
-          total: data.metadata?.total,
-          current: data.metadata?.page,
+          pageSize: metadata?.limit,
+          total: metadata?.total,
+          current: metadata?.page,
           showSizeChanger: true,
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
