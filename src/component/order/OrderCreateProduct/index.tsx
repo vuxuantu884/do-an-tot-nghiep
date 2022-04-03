@@ -1887,6 +1887,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 
 	const storeIdLogin = useGetStoreIdFromLocalStorage()
 
+	
 	const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
 		if (listStores && listStores.length) {
@@ -1905,7 +1906,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
 			if (storeId && userReducer.account) {
-				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
+				if (newData.map((single) => single.id).indexOf(storeId) === -1) {
 					let initStore = listStores.find((single) => single.id === storeId)
 					if (initStore) {
 						newData.push(initStore);
@@ -1926,6 +1927,8 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		return newData;
 	}, [isCreateReturn, listStores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
 
+	console.log('dataCanAccess', dataCanAccess)
+	
 	useEffect(() => {
 		if(isCreateReturn ) {
 			if(storeIdLogin) {
