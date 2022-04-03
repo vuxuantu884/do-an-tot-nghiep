@@ -27,7 +27,7 @@ import iconDelete from "assets/icon/deleteIcon.svg";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   isDetailPage?: boolean;
   isExchange?: boolean;
   isStepExchange?: boolean;
@@ -46,7 +46,7 @@ type PropType = {
   setListReturnProducts: ((listReturnProducts: ReturnProductModel[]) => void) | undefined
 };
 
-function CardReturnProducts(props: PropType) {
+function CardReturnProducts(props: PropTypes) {
   const {
     isDetailPage = false,
     isExchange = false,
