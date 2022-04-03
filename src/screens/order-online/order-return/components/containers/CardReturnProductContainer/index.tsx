@@ -177,7 +177,7 @@ function CardReturnProductContainer(props: PropType) {
           </div>
           <div className="rs-info w-100">
             <span style={{ color: "#37394D" }} className="text">
-              {item.product}
+              {item.variant}
             </span>
             <span style={{ color: "#95A1AC" }} className="text p-4">
               {item.sku}
@@ -209,8 +209,9 @@ function CardReturnProductContainer(props: PropType) {
     let listOrderProductsResult = listItemCanBeReturn;
     if (searchVariantInputValue) {
       listOrderProductsResult = listItemCanBeReturn.filter((single) => {
+        console.log('single', single)
         return (
-          fullTextSearch(searchVariantInputValue, single.product) ||
+          fullTextSearch(searchVariantInputValue, single.variant) ||
           fullTextSearch(searchVariantInputValue, single.sku)
         );
       });
