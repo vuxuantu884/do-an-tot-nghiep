@@ -113,6 +113,8 @@ export interface GoodsReceiptsOrderListModel{
   key:number;
   order_id:number;
   order_code:string;
+  ffm_code?:string;
+  tracking_code?:string
   customer_name:string;
   total_quantity:number;
   total_price:number;
