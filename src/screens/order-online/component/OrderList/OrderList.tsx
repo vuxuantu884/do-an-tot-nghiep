@@ -295,6 +295,7 @@ function OrderList(props: PropTypes) {
           changeOrderStatusToPickedService(ids)
             .then((response) => {
               if (isFetchApiSuccessful(response)) {
+                window.location.reload();
               } else {
                 handleFetchApiError(response, "In phiếu giao hàng", dispatch)
               }
