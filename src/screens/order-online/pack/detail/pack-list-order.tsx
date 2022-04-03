@@ -12,6 +12,7 @@ import EditNote from "screens/order-online/component/edit-note";
 import { useDispatch } from "react-redux";
 import { updateOrderPartial } from "domain/actions/order/order.action";
 import { formatCurrency } from "utils/AppUtils";
+import { fullTextSearch } from "utils/StringUtils";
 const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
@@ -28,11 +29,20 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   const packOrderLists = useCallback(
     (value: any) => {
-      let query = value.search_term.trim();
-      let newData: GoodsReceiptsOrderListModel[] = packOrderList.filter(function (el) {
-        return el.order_code.toLowerCase().indexOf(query.toLowerCase()) !== -1
-      })
-      setDataPackOrderList(newData);
+      let query:string = value?.search_term?value?.search_term.trim():"";
+      
+      if(!query || query.length<=0) {
+        setDataPackOrderList([...packOrderList])
+      }else{
+        let newData: GoodsReceiptsOrderListModel[] = packOrderList.filter(function (el) {
+          // return el.order_code.toLowerCase().indexOf(query.toLowerCase()) !== -1
+          return fullTextSearch(el.order_code, query) 
+              || (el.ffm_code &&fullTextSearch(el.ffm_code,query)) 
+              || (el.tracking_code &&fullTextSearch(el.tracking_code,query));
+        })
+        setDataPackOrderList(newData);
+      }
+      
     },
     [packOrderList],
   )
@@ -258,7 +268,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                   <Input
                     style={{ width: "100%" }}
                     prefix={<img src={search} alt="" />}
-                    placeholder="Mã đơn hàng"
+                    placeholder="ID đơn hàng/Mã vận đơn"
                   />
                 </Item>
 
