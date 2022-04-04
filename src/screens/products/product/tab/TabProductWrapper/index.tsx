@@ -267,13 +267,10 @@ const TabProductWrapper: React.FC = () => {
   }, [dispatch]);
 
   const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => {
-    dispatch(hideLoading());
-    setTableLoading(false);
-    showSuccess("Xóa sản phẩm thành công");
     if (!!result) {
       setData(result);
     }
-  }, [dispatch]);
+  }, []);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -308,10 +305,12 @@ const TabProductWrapper: React.FC = () => {
 
   const onDeleteSuccess = useCallback((res: any) => {
     if (res) {
+      showSuccess("Xóa sản phẩm thành công");
       setSelected([]);
       dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
     }
-
+    dispatch(hideLoading());
+    setTableLoading(false);
   }, [dispatch, setSearchResultDelete, params]);
 
   const onAcitveSuccess = useCallback(async ()=>{

@@ -102,7 +102,8 @@ function* searchProductWrapperSaga(action: YodyAction) {
 }
 
 function* productWrapperDeleteSaga(action: YodyAction) {
-  const {ids, onDeleteSuccess} = action.payload;
+  const {ids, onDeleteSuccess} = action.payload; 
+  let res = true;
     try {
       for(let i = 0 ; i< ids.length; i++) {
         let response: BaseResponse<string> = yield call(productWrapperDeleteApi, ids[i]);
@@ -111,13 +112,15 @@ function* productWrapperDeleteSaga(action: YodyAction) {
             break;
           case HttpStatus.UNAUTHORIZED:
             yield put(unauthorizedAction());
+            res = false;
             break;
           default:
+            res = false;
             response.errors.forEach((e) => showError(e));
             break;
         }
       }
-      onDeleteSuccess(true);
+      onDeleteSuccess(res);
     } catch (error) {
       onDeleteSuccess(false);
       // showError("Có lỗi vui lòng thử lại sau");
