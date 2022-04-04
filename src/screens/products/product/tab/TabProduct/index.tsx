@@ -72,6 +72,8 @@ const initQuery: VariantSearchQuery = {
 
 let variantResponse: VariantResponse | null = null;
 
+let firstLoad = true;
+
 const TabProduct: React.FC<any> = (props) => {
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
@@ -107,11 +109,13 @@ const TabProduct: React.FC<any> = (props) => {
   });
   const [rowKey, setRowKey] = useState<Array<any>>([]);
   const dispatch = useDispatch();
+  const [totalVariant,setTotalVariant] = useState<number>(0)
   // process export modal
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
-  const [process,setProcess] = useState<number>(0);
+  //const [process,setProcess] = useState<number>(0);
+  //const [totalProcess,setTotalProcess] = useState<number>(0);
 
   const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
@@ -167,9 +171,16 @@ const TabProduct: React.FC<any> = (props) => {
   const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!!result) {
       setData(result);
+      if (firstLoad) {
+        setTotalVariant(result.metadata.total);
+      }
+      firstLoad = false;
     }
     setTableLoading(false);
   }, []);
+
+  console.log('totalVariant',totalVariant);
+  
 
   const onResultUpdateSaleable = useCallback(
     (success: Array<VariantResponse>, error: Array<VariantResponse>, isException) => {
@@ -475,14 +486,14 @@ const TabProduct: React.FC<any> = (props) => {
       [`${VariantExportMapping[VariantExportField.retail_price]}`]: item.variant_prices[0].retail_price ?? null,
       [`${VariantExportMapping[VariantExportField.wholesale_price]}`]: item.variant_prices[0].wholesale_price ?? null,
       [`${VariantExportMapping[VariantExportField.saleable]}`]: item.saleable ? "Hoạt động" : "Ngừng hoạt động",
-      [`${VariantExportMapping[VariantExportField.total_stock]}`]: (item.on_hand ?? 0)+(item.shipping ?? 0)+(item.onway ?? 0),
+      [`${VariantExportMapping[VariantExportField.total_stock]}`]: item.total_stock,
       [`${VariantExportMapping[VariantExportField.on_hand]}`]: item.on_hand,
       [`${VariantExportMapping[VariantExportField.available]}`]: item.available,
       [`${VariantExportMapping[VariantExportField.committed]}`]: item.committed,
       [`${VariantExportMapping[VariantExportField.on_hold]}`]: item.on_hold,
       [`${VariantExportMapping[VariantExportField.defect]}`]: item.defect,
       [`${VariantExportMapping[VariantExportField.in_coming]}`]: item.in_coming,
-      [`${VariantExportMapping[VariantExportField.onway]}`]: item.onway,
+      [`${VariantExportMapping[VariantExportField.on_way]}`]: item.on_way,
       [`${VariantExportMapping[VariantExportField.transferring]}`]: item.transferring,
       [`${VariantExportMapping[VariantExportField.shipping]}`]: item.shipping,
       //[`${VariantExportMapping[VariantExportField.category_code]}`]: null,
@@ -497,7 +508,10 @@ const TabProduct: React.FC<any> = (props) => {
   }
 
   const getVariantsByCondition = useCallback(async (type: string) => {
-    let res: any; let items: Array<VariantResponse> = [];
+    let res: any; 
+    let items: Array<VariantResponse> = [];
+    const limit = 50;
+    let times = 0;
     switch (type) {
       case TYPE_EXPORT.page:
         res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, params);
@@ -509,11 +523,21 @@ const TabProduct: React.FC<any> = (props) => {
         items = res.items;
         break;
       case TYPE_EXPORT.all:
-        const limit = 50;
-        const total = Math.floor(data.metadata.total / limit);
-        for (let index = 1; index <= total; index++) {
-          setProcess(items.length);
-          //dùng cho notification
+        times= Math.round(data.metadata.total / limit);
+        for (let index = 1; index <= times; index++) {
+          const output = document.getElementById("processExport"); 
+          if (output) output.innerHTML=items.length.toString();
+          
+          const res1 = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
+          items= items.concat(res1.items);
+        }
+        break;
+      case TYPE_EXPORT.allin:
+        if (!totalVariant || totalVariant===0) {
+          break;
+        }
+        times= Math.round(totalVariant / limit);
+        for (let index = 1; index <= times; index++) {
           const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
@@ -525,10 +549,7 @@ const TabProduct: React.FC<any> = (props) => {
         break;
     }
     return items;
-  },[dispatch,selected,params,data])
-
-  console.log('process',process);
-  
+  },[dispatch,selected,params,data,totalVariant])  
 
   const actionExport = {
     Ok: async (typeExport: string) => {
@@ -547,7 +568,6 @@ const TabProduct: React.FC<any> = (props) => {
       for (let i = 0; i < res.length; i++) {
         const e = res[i];
         const item = convertItemExport(e);
-        debugger
         dataExport.push(item);
       }
 

@@ -165,7 +165,7 @@ export interface VariantResponse extends BaseObject {
   on_hold?: number,
   defect?: number,
   in_coming?: number,
-  onway?: number,
+  on_way?: number,
   transferring?: number,
   shipping?: number,
 }
