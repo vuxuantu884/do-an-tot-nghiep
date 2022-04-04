@@ -613,7 +613,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   record.code_order_return
                   &&  
                   <div className="order-reason">
-                   <span className="order-reason-heading">Lý do trả</span>
+                   <span className="order-reason-heading">Lý do trả:</span>
                    <span className="order-reason-content">{record.reason}</span>
                   </div>
                   
@@ -646,7 +646,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           key: "note",
           visible: true,
           align: "left",
-          width: 150,
+          width: 160,
         },
 
         {
@@ -737,7 +737,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               {
                 record.code_order_return
                 &&  
-                <div>
+                <div style={{ textAlign: "center" }}>
                   <div>
                     <div>
                     <strong>Hàng: </strong>
