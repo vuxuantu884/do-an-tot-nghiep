@@ -37,6 +37,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
 import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { findWard } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -157,11 +158,14 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 .replace("xa ", ""),
               }
             });
-            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            console.log('newWards', newWards)
+            let district = document.getElementsByClassName("inputDistrictCreateCustomer")[0].textContent;
+            console.log('district', district)
+            const foundWard = findWard(district, newWards, newValue);
+            console.log('foundWard', foundWard)
             formRef.current?.setFieldsValue({
-              ward_id: findWard ? findWard.id : null,
+              ward_id: foundWard ? foundWard.id : null,
             })
-            
           }
           setWards(data);
         }));
@@ -372,6 +376,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   message: "Vui lòng chọn khu vực",
                 },
               ]}
+              className="inputDistrictCreateCustomer"
             >
               <CustomSelect
                 className="select-with-search"

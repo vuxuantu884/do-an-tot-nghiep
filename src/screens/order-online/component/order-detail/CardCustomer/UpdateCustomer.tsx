@@ -37,7 +37,7 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
+import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -164,7 +164,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
           if (value) {
             const newValue = value.normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[\u0300-\u036f]/g, "")
               .replace(/đ/g, "d")
               .replace(/Đ/g, "D")
               .toLowerCase();
@@ -180,9 +180,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 .replace("xa ", ""),
               }
             });
-            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            let district = document.getElementsByClassName("inputDistrictUpdateCustomer")[0].textContent;
+            console.log('district', district)
+            const foundWard = findWard(district, newWards, newValue);
+            console.log('foundWard', foundWard)
             formRefCustomer.current?.setFieldsValue({
-              shipping_addresses_ward_id: findWard ? findWard.id : null,
+              shipping_addresses_ward_id: foundWard ? foundWard.id : null,
             })
           }
           setShippingWards(data);
@@ -502,6 +505,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     message: "Vui lòng chọn khu vực",
                   },
                 ]}
+                className="inputDistrictUpdateCustomer"
               >
                 <Select
                   className="select-with-search"
