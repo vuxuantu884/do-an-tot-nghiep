@@ -38,7 +38,7 @@ const DiscountPage = () => {
     from_created_date: "",
     to_created_date: "",
     state: null,
-    applied_shop: "",
+    applied_shop: [],
     applied_source: "",
     customer_category: "",
     discount_method: "",

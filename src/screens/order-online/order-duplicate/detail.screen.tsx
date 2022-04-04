@@ -15,7 +15,7 @@ import UrlConfig from "config/url.config";
 import { searchAccountPublicAction, ShipperGetListAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { DeliveryServicesGetList, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -1028,7 +1028,7 @@ const OrderDuplicate: React.FC = () => {
 
   useEffect(() => {
     dispatch(searchAccountPublicAction({ limit: 30 }, setDataAccounts));
-    dispatch(getListSourceRequest(setListSource));
+    dispatch(getListAllSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(PaymentMethodGetList(
       (data) => {
