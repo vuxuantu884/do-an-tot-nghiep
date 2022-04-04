@@ -1802,3 +1802,27 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, 
   }
   return isChange
 };
+
+export const findWard = (district: string | null, newWards: any[],  newValue: string) => {
+  let districtConvert = district ? district.normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/đ/g, "d")
+  .replace(/Đ/g, "D")
+  .toLowerCase()
+  .replace("quan ", "")
+  .replace("huyen ", "")
+  .replace("thanh pho ", "")
+  .replace("thi xa ", "") 
+  .replace("tinh ", "")
+  : "";
+  console.log('districtConvert', districtConvert);
+  let districtArr = districtConvert.split("-");
+  console.log('districtArr', districtArr)
+  let valueResult = newValue;
+  districtArr.forEach(ddd => {
+    valueResult = valueResult.replaceAll(ddd.trim(), "");
+  })
+  console.log('valueResult', valueResult)
+  const findWard = newWards.find((ward: any) => valueResult.indexOf(ward.ward_name_normalize) > -1);
+  return findWard;
+};
