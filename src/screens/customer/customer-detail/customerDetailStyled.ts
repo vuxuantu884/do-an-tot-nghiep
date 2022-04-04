@@ -119,6 +119,16 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
     align-items: center;
   }
 
+  .order-reason {
+    text-align: center;
+    &-heading {
+      font-weight: 600;
+    }
+    &-content {
+      padding-left: 3px;
+    }
+  }
+
 `;
 
 export const nameQuantityWidth = 400;
