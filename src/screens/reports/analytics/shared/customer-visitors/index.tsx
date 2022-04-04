@@ -5,7 +5,7 @@ import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { getCustomerVisitors, updateCustomerVisitors } from "service/report/analytics.service";
@@ -34,10 +34,11 @@ function CustomerVisitors() {
     const [isFilter, setIsFilter] = useState<boolean>(true);
 
     const currentYear = moment().year();
+    const currentMonth = moment().month() + 1;
     const startYear = 2018;
     const initialFilterValues = {
         [CustomerVisitorsFilter.StoreIds]: [],
-        [CustomerVisitorsFilter.Month]: moment().month() + 1,
+        [CustomerVisitorsFilter.Month]: currentMonth,
         [CustomerVisitorsFilter.Year]: currentYear,
     }
 
@@ -92,7 +93,7 @@ function CustomerVisitors() {
                         return { storeName: name, code, department, ...existedStore };
                     }
                     const dayValues = Array.from({ length: moment(`${year}-${month}`, 'YYYY-M').daysInMonth() }, (x, i) => {
-                        return { [`day${moment().startOf('month').add(i, 'days').format('DD')}`]: 0 }
+                        return { [`day${moment(`${year}-${month}`, 'YYYY-M').startOf('month').add(i, 'days').format('DD')}`]: 0 }
                     }).reduce((result, item) => {
                         return { ...result, ...item }
                     }, {});
@@ -101,11 +102,12 @@ function CustomerVisitors() {
                     }
                 })
                 const columnsTmp: any[] = [];
-                Array.from({ length: moment(`${year}-${month}`, 'YYYY-M').daysInMonth() }, (x, i) => `${moment().startOf('month').add(i, 'days').format('DD')}`).forEach((day: string) => {
+                Array.from({ length: moment(`${year}-${month}`, 'YYYY-M').daysInMonth() }, (x, i) => `${moment(`${year}-${month}`, 'YYYY-M').startOf('month').add(i, 'days').format('DD')}`).forEach((day: string) => {
                     const column = {
                         title: day,
                         dataIndex: `day${day}`,
                         key: `day${day}`,
+                        isToday: currentYear === year && currentMonth === month && +day === +moment().date()
                     }
                     columnsTmp.push(column);
                     
@@ -124,7 +126,7 @@ function CustomerVisitors() {
         if (yearList.length && stores.length && isFilter) {
             fetchCustomerVisitors();
         }
-    }, [dispatch, form, stores, yearList.length, isFilter])
+    }, [dispatch, form, stores, yearList.length, isFilter, currentYear, currentMonth])
 
     const handleChangeVisitors = _.debounce((record: any, key: string, event: any) => {
         const { store_id } = record;
@@ -152,6 +154,12 @@ function CustomerVisitors() {
             }
         }
     }
+    const currentDay = document.querySelector('.current-day');
+    useLayoutEffect(() => {   
+        if (currentDay) {
+            currentDay.scrollIntoView({ block: "center", behavior: "auto", inline: "center" });
+        }
+    }, [currentDay]);
 
     return (
         <CustomerVisitorsStyle>
@@ -224,7 +232,6 @@ function CustomerVisitors() {
                                     sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                                     pagination={{defaultPageSize: 30, showSizeChanger: false }}
                                     bordered={true}
-
                                 >
                                     {columns.map((item: any, index: number) => {
                                         return (
@@ -234,9 +241,12 @@ function CustomerVisitors() {
                                                 className="px-1"
                                                 title={
                                                     <Tooltip
-                                                        title={item.title}>
-                                                        {item.title}
+                                                        title={item.key.includes('day') ? (item.isToday ? 'Hôm nay' : `${item.title}/${form.getFieldValue(CustomerVisitorsFilter.Month)}/${form.getFieldValue(CustomerVisitorsFilter.Year)}`) : item.title}>
+                                                            <span className={item.isToday ? 'text-primary' : ''}>
+                                                                {item.title}
+                                                            </span>
                                                     </Tooltip>
+                                                    
                                                 }
                                                 fixed={
                                                     index > 0 && index < columns.length - 1
@@ -244,10 +254,13 @@ function CustomerVisitors() {
                                                         : (index === 0 ? 'left' : 'right')
                                                 }
                                                 key={index}
-                                                width={index > 0 ? (index === columns.length - 1 ? 100 : 80) : 150}
+                                                width={index > 0 ? (index === columns.length - 1 ? 100 : 80) : 160}
                                                 render={(record: any) => {
                                                     return (
-                                                        index > 0 ? (index === columns.length - 1 ? <Button type="primary" className="px-1" size="small" onClick={() => handleUpdateCustomerVisitors(record.store_id)}>Cập nhật</Button> : <Input style={{ width: "100%" }} defaultValue={record[item.key]} onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()} onChange={(e) => handleChangeVisitors(record, item.key, e)} />) : record[item.key]
+                                                        index > 0 ? (index === columns.length - 1 ? <Button type="primary" className="px-1" size="small" onClick={() => handleUpdateCustomerVisitors(record.store_id)}>Cập nhật</Button> : 
+                                                        <div className={item.isToday ? 'current-day' : ''}>
+                                                                <Input style={{ width: "100%" }} defaultValue={record[item.key]} onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()} onChange={(e) => handleChangeVisitors(record, item.key, e)} />
+                                                            </div>) : record[item.key]
                                                     )
                                                 }}
                                             />)
