@@ -30,6 +30,7 @@ import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model
 import { Link } from "react-router-dom";
 import { StyledComponent } from "./scss/index.screen.styles";
 import { showSuccess, showWarning } from "utils/ToastUtils";
+import { formatCurrency } from "utils/AppUtils";
 
 const { Item } = Form;
 type PackParam = {
@@ -307,7 +308,7 @@ const PackUpdate: React.FC = () => {
                     <span>{item.quantity}</span>
                   </div>
                   <div className="price priceWidth">
-                    <span>{item.price}</span>
+                    <span>{formatCurrency(item?.price||0)}</span>
                   </div>
                 </div>
               );
@@ -322,7 +323,7 @@ const PackUpdate: React.FC = () => {
     {
       title: "Cước phí",
       dataIndex: "ship_price",
-      render: (value: number) => <div>{value}</div>,
+      render: (value: number) => <div>{formatCurrency(value||0)}</div>,
       key: "ship_price",
       visible: true,
       align: "center",
@@ -330,7 +331,7 @@ const PackUpdate: React.FC = () => {
     {
       title: "Tổng thu",
       dataIndex: "total_price",
-      render: (value: number) => <div>{value}</div>,
+      render: (value: number) => <div>{formatCurrency(value||0)}</div>,
       key: "total_price",
       visible: true,
       align: "center",
@@ -497,7 +498,7 @@ const PackUpdate: React.FC = () => {
                     <Item name="order_id" style={{ width: 400 }}>
                       <Input
                         prefix={<img src={search} alt="" />}
-                        placeholder="ID đơn hàng"
+                        placeholder="ID đơn hàng/Mã vận đơn"
                       />
                     </Item>
                     <Item style={{ width: 150, marginRight: 0 }}>
