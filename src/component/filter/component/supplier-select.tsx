@@ -67,12 +67,9 @@ function SupplierSelect({
 
         const res = await callApiNative({isShowLoading: false}, dispatch,supplierGetApi,query);
         if (res) {
-          setLstSupplier((lstSupplier) => {
+          setLstSupplier(() => {
             return {
-              items: [
-                ...res.items,
-                ...lstSupplier.items
-              ],
+              items: res.items,
               isLoading: false,
             }
           });
