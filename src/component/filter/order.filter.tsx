@@ -380,7 +380,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const [completedClick, setCompletedClick] = useState("");
   const [cancelledClick, setCancelledClick] = useState("");
   const [expectedClick, setExpectedClick] = useState("");
-
+console.log('listSource', listSource)
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);
@@ -668,7 +668,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     if (filterTagFormatted?.source_ids?.data && filterTagFormatted.source_ids?.data?.length) {
       let mappedSources = listSources?.filter((source) =>
         filterTagFormatted.source_ids.data?.some(
-          (single: string) => single === source.id.toString()
+          (single: number) => single === source.id
         )
       );
       let text = getFilterString(
