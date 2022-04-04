@@ -16,7 +16,6 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
 import {
   creatInventoryTransferAction,
-  getDetailInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
@@ -325,10 +324,8 @@ const CreateTicket: FC = () => {
     (result: InventoryTransferDetailItem) => {
       setIsLoading(false);
       if (result) {
-        dispatch(getDetailInventoryTransferAction(result.id, () => {
-          showSuccess("Thêm mới dữ liệu thành công");
-          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
-        }));
+        showSuccess("Thêm mới dữ liệu thành công");
+        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
