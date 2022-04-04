@@ -76,6 +76,7 @@ import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
 import iconReturn from "assets/icon/return.svg";
+import iconPrint from "assets/icon/Print.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import {DELIVERY_SERVICE_PROVIDER_CODE} from "utils/Constants";
 
@@ -1315,15 +1316,25 @@ function OrdersTable(props: PropTypes) {
 
   const renderActionButton = (record: OrderModel) => {
     return (
-      <div>
-        <Tooltip title="Đổi trả hàng">
+      <React.Fragment>
+        <div className="actionButton">
           <Link
             to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
+            title="Đổi trả hàng"
           >
             <img alt="" src={iconReturn} className="iconReturn"/>
           </Link>
-        </Tooltip>
-      </div>
+        </div>
+        <div className="actionButton">
+          <Link
+            to={`${UrlConfig.ORDER}/print-preview?action=print&ids=${record.id}&print-type=order&print-dialog=true`}
+            title="In hóa đơn"
+            target = "_blank"
+          >
+            <img alt="" src={iconPrint} className="iconReturn"/>
+          </Link>
+        </div>
+      </React.Fragment>
     );
   };
 
@@ -1338,36 +1349,34 @@ function OrdersTable(props: PropTypes) {
         {originNode}
         <div className="orderSource">{renderOrderSource(record)}</div>
         <div>
-          <Tooltip title="Kiểm tra tồn kho">
-            <Popover
-              placement="right"
-              overlayStyle={{ zIndex: 1000, top: "150px" }}
-              title={
-                <Row
-                  justify="space-between"
-                  align="middle"
-                  style={{ width: "100%" }}
-                >
-                  <Input.Search
-                    placeholder="Tìm kiếm kho"
-                    allowClear
-                    onSearch={onSearchInventory}
-                  />
-                </Row>
-              }
-              content={<InventoryTable
-                inventoryData={inventoryData}
-                storeId={record.store_id || 0}
-                items={record.items}
-                listStore={storeInventory}
-              />
-              }
-              trigger="click"
-              onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
-            >
-              <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }}></Button>
-            </Popover>
-          </Tooltip>
+          <Popover
+            placement="right"
+            overlayStyle={{ zIndex: 1000, top: "150px" }}
+            title={
+              <Row
+                justify="space-between"
+                align="middle"
+                style={{ width: "100%" }}
+              >
+                <Input.Search
+                  placeholder="Tìm kiếm kho"
+                  allowClear
+                  onSearch={onSearchInventory}
+                />
+              </Row>
+            }
+            content={<InventoryTable
+              inventoryData={inventoryData}
+              storeId={record.store_id || 0}
+              items={record.items}
+              listStore={storeInventory}
+            />
+            }
+            trigger="click"
+            onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
+          >
+            <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }} title="Kiểm tra tồn kho"></Button>
+          </Popover>
         </div>
         {renderActionButton(record)}
       </React.Fragment>

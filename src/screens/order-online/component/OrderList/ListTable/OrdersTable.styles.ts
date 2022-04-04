@@ -559,4 +559,9 @@ export const StyledComponent = styled.div`
   .isReturn {
     text-align: center;
   }
+  .actionButton {
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
+  }
 `;
