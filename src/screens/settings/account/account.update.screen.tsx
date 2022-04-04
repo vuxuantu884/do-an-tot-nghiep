@@ -50,7 +50,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } f
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/tree-node/tree-store";
 import { convertDistrict } from "utils/AppUtils";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
