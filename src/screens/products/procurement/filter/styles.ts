@@ -13,7 +13,7 @@ export const FilterProcurementStyle = styled.div`
     min-width: 200px;
   }
   .suppliers {
-    width: 20%;
+    width: 40%;
   }
   .btn-action {
     display: flex;
