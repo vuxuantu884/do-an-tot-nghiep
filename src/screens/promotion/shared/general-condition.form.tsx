@@ -12,7 +12,7 @@ import {
 } from "antd";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
@@ -23,9 +23,10 @@ import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
-import { dayOfWeekOptions } from "../constants/index";
+import { dayOfWeekOptions } from "../constants";
 import { CustomerContitionFormlStyle } from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
+import TreeSource from "../../../component/treeSource";
 
 const { Option } = Select;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -64,7 +65,7 @@ function GeneralConditionForm({
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
-    dispatch(getListSourceRequest(setListSource));
+    dispatch(getListAllSourceRequest(setListSource));
     dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
   return (
@@ -279,24 +280,14 @@ function GeneralConditionForm({
                   message: "Vui lòng chọn nguồn bán hàng áp dụng",
                 },
               ]}>
-              <Select
-                disabled={allSource}
+              <TreeSource
+                form={form}
+                name="prerequisite_order_source_ids"
                 placeholder="Chọn nguồn đơn hàng"
-                mode="multiple"
-                className="ant-select-selector-min-height"
-                showSearch
-                allowClear
-                filterOption={(input, option) =>
-                  option?.children
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase().trim()) >= 0
-                }>
-                {listSource?.map((source: any) => (
-                  <Option value={source.id} key={source.name}>
-                    {source.name}
-                  </Option>
-                ))}
-              </Select>
+                listSource={listSource}
+                style={{ width: "100%" }}
+                disabled={allSource}
+              />
             </Form.Item>
             <Space direction="horizontal">
               <Switch

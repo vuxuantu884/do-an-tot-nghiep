@@ -18,6 +18,7 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
+import TreeStore from "../../../products/inventory/filter/TreeStore";
 
 type DiscountFilterProps = {
   params: DiscountSearchQuery;
@@ -252,22 +253,11 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                     break;
                   case SearchVariantField.applied_shop:
                     component = (
-                      <Select
-                        optionFilterProp="children"
-                        mode="multiple"
+                      <TreeStore
+                        name="applied_shop"
                         placeholder="Chọn 1 hoặc nhiều cửa hàng"
-                        onFocus={() => formAvd.setFieldsValue({
-                          ...formAvd.getFieldsValue(true),
-                          applied_shop: undefined,
-                        })}
-                      >
-                        <Option value="">Tất cả cửa hàng</Option>
-                        {listStore?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        listStore={listStore}
+                      />
                     );
                     break;
                   case SearchVariantField.applied_source:
@@ -332,7 +322,6 @@ const FilterList = (({
   resetField,
   listStore,
   listSource,
-  listChannel,
   listCustomerCategories
 }: any) => {
   let filterKeys = Object.keys(filters);
@@ -361,6 +350,8 @@ const FilterList = (({
             renderTxt = `${SearchVariantMapping[filterKey]} : ${selectedMethods}`;
             break;
           case SearchVariantField.applied_shop:
+            // eslint-disable-next-line array-callback-return
+            if (!Array.isArray(value) || (Array.isArray(value) && value.length === 0)) return;
             const selectedShops = value.map((v: string) => listStore.find((store: { id: string; }) => store.id === v)?.name);
             renderTxt = `${SearchVariantMapping[filterKey]} : ${selectedShops}`;
             break;

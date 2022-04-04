@@ -87,6 +87,10 @@ export const getSources = (): Promise<BaseResponse<SourceResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/sources?limit=1000`);
 };
 
+export const getAllSources = (): Promise<BaseResponse<SourceResponse[]>> => {
+  return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
+};
+
 export const getPaymentMethod = (): Promise<
   BaseResponse<Array<PaymentMethodResponse>>
 > => {
@@ -318,7 +322,7 @@ export const setSubStatusService = (
   }
   return BaseAxios.put(
     `${ApiConfig.ORDER}/orders/${order_id}/sub_status/${statusCode}`,
-    queryParams 
+    queryParams
   );
 };
 
