@@ -852,7 +852,7 @@ const EcommerceOrders: React.FC = () => {
             setCommonProcessId(null);
             setCommonProcessPercent(100);
             
-            setSuccessDeliveryNote(responseData.success_list || []);
+            setSuccessDeliveryNote(responseData.success_list ? responseData.success_list.split(",") : []);
             
             if (!responseData.api_error) {
               showSuccess(`${processMessage.success}`);
@@ -893,8 +893,8 @@ const EcommerceOrders: React.FC = () => {
   
   const handleChangeEcommerceOrderStatusToPicked = () => {
     const orderPickedList: Array<any> = [];
-    successDeliveryNote.forEach((referenceCode) => {
-      const order = selectedRow.find((row) => row.reference_code?.toString().toUpperCase() === referenceCode?.toString().toUpperCase());
+    successDeliveryNote?.forEach((referenceCode) => {
+      const order = selectedRow?.find((row) => row.reference_code?.toString().toUpperCase() === referenceCode?.toString().toUpperCase());
       if (order) {
         orderPickedList.push(order);
       }
@@ -902,14 +902,16 @@ const EcommerceOrders: React.FC = () => {
     handleChangeOrderStatusToPicked(orderPickedList);
   }
 
-  const okPrintEcommerceDeliveryNote = () => {
+  const okPrintEcommerceDeliveryNote = (isPick: boolean) => {
     setIsVisibleProcessModal(false);
     // setIsPrintEcommerceDeliveryNote(false);
     if (commonProcessData?.url) {
       showSuccess("Tải phiếu giao hàng sàn thành công!");
       window.open(commonProcessData?.url);
-      
-      handleChangeEcommerceOrderStatusToPicked();
+
+      if (isPick) {
+        handleChangeEcommerceOrderStatusToPicked();
+      }
     } else {
       showError("Tải phiếu giao hàng sàn thất bại!");
     }
@@ -1437,7 +1439,8 @@ const EcommerceOrders: React.FC = () => {
           <PrintEcommerceDeliveryNoteProcess
             visible={isPrintEcommerceDeliveryNote && isVisibleProcessModal}
             isProcessing={isProcessing}
-            onOk={okPrintEcommerceDeliveryNote}
+            onOk={() => okPrintEcommerceDeliveryNote(false)}
+            onPrintAndPick={() => okPrintEcommerceDeliveryNote(true)}
             onCancel={cancelPrintEcommerceDeliveryNote}
             processData={commonProcessData}
             processPercent={commonProcessPercent}
