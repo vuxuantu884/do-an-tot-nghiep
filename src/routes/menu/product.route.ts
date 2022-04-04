@@ -1,8 +1,9 @@
-import {ProductPermission} from "config/permissions/product.permission";
-import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import { ProductPermission } from "config/permissions/product.permission";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
-import {RouteMenu} from "model/other";
+import { RouteMenu } from "model/other";
 import React from "react";
+import ImportFileProducts from "screens/products/import-products";
 
 const ColorUpdateScreen = React.lazy(
   () => import("screens/products/color/color-update.screen")
@@ -223,6 +224,17 @@ const product: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
     ],
+  },
+  {
+    path: `${UrlConfig.PRODUCT}/import-files`,
+    exact: true,
+    title: "Chuyển đổi mã vạch",
+    icon: "icon-dot",
+    component: ImportFileProducts,
+    key: "submenu22",
+    isShow: true,
+    header: null,
+    subMenu: []
   },
   {
     path: "submenu23",

@@ -45,6 +45,7 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
       setReasonSubID('')
       setReasonSubs([])
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reasonID, reasons])
 
   return (
