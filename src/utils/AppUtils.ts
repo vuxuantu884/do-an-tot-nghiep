@@ -43,7 +43,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { ErrorGHTK, FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
@@ -1802,3 +1802,27 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, 
   }
   return isChange
 };
+
+export const convertFromStringToDate = (pDate: any, fomat:string) => {
+  let date: Moment|null = null;
+
+  if (pDate) {
+    if (!moment(pDate).isValid()) {
+      let dd = pDate.split("-")[0].padStart(2, "0");
+      let mm = pDate.split("-")[1].padStart(2, "0");
+      let yyyy = pDate.split("-")[2].split(" ")[0];
+      // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
+      // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
+      // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
+
+      mm = (parseInt(mm) - 1).toString(); // January is 0
+      dd = (parseInt(dd) + 1).toString();
+
+      date = moment(new Date(yyyy, mm, dd)).utc(true);
+    }
+    else
+      date = moment(pDate, 'DD-MM-YYYY').utc(true);
+  }
+
+  return date;
+}

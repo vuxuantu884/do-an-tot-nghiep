@@ -246,7 +246,7 @@ const PackUpdate: React.FC = () => {
             <Link
               target="_blank"
               to={`${UrlConfig.ORDER}/${i.order_id}`}
-              style={{ fontWeight: 500 }}
+              style={{ fontWeight: 500, whiteSpace:"nowrap" }}
             >
               {value}
             </Link>
