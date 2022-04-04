@@ -124,3 +124,15 @@ export const getJobByCode = (
 ): Promise<BaseResponse<JobResponse>> => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/excel/jobs/${code}`);
 };
+
+export const productImportFile = (file: any) => {
+  const formData = new FormData();
+  formData.append('file', file)
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/variants/barcode/job`, formData , {
+    headers: { "content-type": "multipart/form-data" },
+  });
+}
+
+export const getFileProductByCode = (code: string) => {
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/barcode/job/${code}`)
+}
