@@ -98,9 +98,11 @@ function* getGoodsReceiptsSerchSaga(action: YodyAction) {
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setData(null);
         yield put(unauthorizedAction());
         break;
       default:
+        setData(null);
         response.errors.forEach((e: any) => showError(e));
         break;
     }

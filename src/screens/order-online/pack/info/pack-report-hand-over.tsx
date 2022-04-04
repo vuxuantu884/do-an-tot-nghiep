@@ -325,16 +325,27 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           setTableLoading(true);
           dispatch(
             getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
-              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-              /////
-              setData({
-                metadata: {
-                  limit: data.metadata.limit,
-                  page: data.metadata.page,
-                  total: data.metadata.total,
-                },
-                items: dataResult,
-              });
+              if(data){
+                let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+                /////
+                setData({
+                  metadata: {
+                    limit: data.metadata.limit,
+                    page: data.metadata.page,
+                    total: data.metadata.total,
+                  },
+                  items: dataResult,
+                });
+              }else{
+                setData({
+                  metadata: {
+                    limit: 30,
+                    page: 1,
+                    total: 0,
+                  },
+                  items: [],
+                })
+              }
               setTableLoading(false);
             })
           );
@@ -437,18 +448,31 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     dispatch(
       updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
         if (data) {
+          setTableLoading(true);
           dispatch(
-            getGoodsReceiptsSerch({...params}, (data: PageResponse<GoodsReceiptsResponse>) => {
-              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+            getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
+              if(data){
+                let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
               /////
-              setData({
-                metadata: {
-                  limit: data.metadata.limit,
-                  page: data.metadata.page,
-                  total: data.metadata.total,
-                },
-                items: dataResult,
-              });
+                setData({
+                  metadata: {
+                    limit: data.metadata.limit,
+                    page: data.metadata.page,
+                    total: data.metadata.total,
+                  },
+                  items: dataResult,
+                });
+              }else{
+                setData({
+                  metadata: {
+                    limit: 30,
+                    page: 1,
+                    total: 0,
+                  },
+                  items: [],
+                })
+              }
+              setTableLoading(false);
             })
           );
           showSuccess("Cập nhập ghi chú biên bản thành công");
@@ -682,18 +706,27 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     }
     dispatch(
       getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
-        let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+        if(data){
+          let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
         /////
-        setData({
-          metadata: {
-            limit: data.metadata.limit,
-            page: data.metadata.page,
-            total: data.metadata.total,
-          },
-          items: dataResult,
-        });
+          setData({
+            metadata: {
+              limit: data.metadata.limit,
+              page: data.metadata.page,
+              total: data.metadata.total,
+            },
+            items: dataResult,
+          });
 
-        setGoodsReceipt(data.items);
+          setGoodsReceipt(data.items);
+        }else setData({
+          metadata: {
+            limit: 30,
+            page: 1,
+            total: 0,
+          },
+          items: [],
+        })
         setTableLoading(false);
       })
     );

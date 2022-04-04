@@ -296,7 +296,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     <Input
                       style={{ width: "100%" }}
                       prefix={<img src={search} alt="" />}
-                      placeholder="Mã đơn hàng"
+                      placeholder="ID đơn hàng/Mã vận đơn"
                     />
                   </Item>
 
