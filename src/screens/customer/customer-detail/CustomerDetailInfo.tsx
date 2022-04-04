@@ -174,6 +174,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
       ];
       return details;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer, loyaltyCard]);
 
   const onClickWebsite = React.useCallback((value: any) => {
