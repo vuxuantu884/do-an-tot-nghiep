@@ -230,6 +230,7 @@ function* getByIdGoodsReceiptsSaga(action: YodyAction) {
 
 function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
   let {param, setData} = action.payload;
+  yield put(showLoading())
   try {
     let response: BaseResponse<OrderConcernGoodsReceiptsResponse[]> =
       yield call(getOrderConcernGoodsReceiptsService, param);
@@ -246,7 +247,10 @@ function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch {
     showError("Lỗi hệ thống, vui lòng thử lại");
+  }  finally {
+    yield put(hideLoading());
   }
+
 }
 
 /**
