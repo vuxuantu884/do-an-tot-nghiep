@@ -295,7 +295,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       .replace(/Đ/g, "D")
       .toLowerCase();
       
-    const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && newValue.indexOf(area.district_name_normalize) > -1);
+    // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
+    const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && (newValue.indexOf(area.district_name_normalize) > -1 && newValue.replaceAll(area.city_name_normalize, "").indexOf(area.district_name_normalize) > -1));
     if (findArea) {
       switch (type) {
         case "full_address":
