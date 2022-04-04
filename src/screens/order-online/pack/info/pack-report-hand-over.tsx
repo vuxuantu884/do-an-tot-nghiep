@@ -19,7 +19,7 @@ import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
 import { FulFillmentStatus } from "utils/Constants";
 import { getQueryParams } from "utils/useQuery";
 import { useHistory } from "react-router";
-import { generateQuery } from "utils/AppUtils";
+import { convertFromStringToDate, generateQuery } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import PackFilter from "component/filter/pack.filter";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
@@ -670,29 +670,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   );
 
   useEffect(() => {
-    const convertFromStringToDate = (pDate: any, fomat:string) => {
-      let date: Moment|null = null;
-
-      if (pDate) {
-        if (!moment(pDate).isValid()) {
-          let dd = pDate.split("-")[0].padStart(2, "0");
-          let mm = pDate.split("-")[1].padStart(2, "0");
-          let yyyy = pDate.split("-")[2].split(" ")[0];
-          // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
-          // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
-          // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
-
-          mm = (parseInt(mm) - 1).toString(); // January is 0
-          dd = (parseInt(dd) + 1).toString();
-
-          date = moment(new Date(yyyy, mm, dd)).utc(true);
-        }
-        else
-          date = moment(pDate, 'DD-MM-YYYY').utc(true);
-      }
-
-      return date;
-    }
+    
     setTableLoading(true);
     let from_date: Moment|undefined = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
     let to_date: Moment|undefined =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');

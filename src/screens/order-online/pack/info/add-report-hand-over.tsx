@@ -20,13 +20,14 @@ import { useDispatch } from "react-redux";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
 import { ShipmentMethod } from "utils/Constants";
 import UrlConfig from "config/url.config";
+import { convertFromStringToDate } from "utils/AppUtils";
 // import { useHistory } from "react-router-dom";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
@@ -124,8 +125,6 @@ const AddReportHandOver: React.FC = () => {
             setVisibleModal(false);
             goodsReceiptsForm.resetFields()
 
-            setGoodsReceipts(value);
-
             const fromDate = moment().startOf("days");
             const toDate = moment().endOf("days");
 
@@ -139,6 +138,9 @@ const AddReportHandOver: React.FC = () => {
             dispatch(
               getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
                 setListGoodsReceipts(data.items);
+                let index= data.items.findIndex((p)=>p.id===value.id);
+                if(index!==-1)
+                  setGoodsReceipts(value);
               })
             );
           }
@@ -220,15 +222,15 @@ const AddReportHandOver: React.FC = () => {
 
   useEffect(() => {
 
-    const fromDate = moment().startOf("days");
-    const toDate = moment().endOf("days");
+    let fromDate: Moment|undefined = convertFromStringToDate(moment(new Date().setHours(-72)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
+    let toDate: Moment|undefined =convertFromStringToDate(new Date(),"yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
 
     initQueryGoodsReceipts.limit = 1000;
     initQueryGoodsReceipts.page = 1;
     //initQueryGoodsReceipts.sort_type = "desc";
     //initQueryGoodsReceipts.sort_column = "updated_date";
-    initQueryGoodsReceipts.from_date = moment(fromDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
-    initQueryGoodsReceipts.to_date = moment(toDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    initQueryGoodsReceipts.from_date =fromDate;
+    initQueryGoodsReceipts.to_date = toDate;
 
     dispatch(
       getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
