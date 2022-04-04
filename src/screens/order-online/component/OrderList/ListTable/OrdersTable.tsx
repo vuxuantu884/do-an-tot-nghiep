@@ -1325,15 +1325,17 @@ function OrdersTable(props: PropTypes) {
             <img alt="" src={iconReturn} className="iconReturn"/>
           </Link>
         </div>
-        <div className="actionButton">
-          <Link
-            to={`${UrlConfig.ORDER}/print-preview?action=print&ids=${record.id}&print-type=order&print-dialog=true`}
-            title="In hóa đơn"
-            target = "_blank"
-          >
-            <img alt="" src={iconPrint} className="iconReturn"/>
-          </Link>
-        </div>
+        {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
+          <div className="actionButton">
+            <Link
+              to={`${UrlConfig.ORDER}/print-preview?action=print&ids=${record.id}&print-type=order&print-dialog=true`}
+              title="In hóa đơn"
+              target = "_blank"
+            >
+              <img alt="" src={iconPrint} className="iconReturn"/>
+            </Link>
+          </div>
+        ) : null}
       </React.Fragment>
     );
   };
