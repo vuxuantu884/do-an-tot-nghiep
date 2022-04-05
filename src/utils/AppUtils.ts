@@ -1827,7 +1827,7 @@ export const convertFromStringToDate = (pDate: any, fomat:string) => {
   return date;
 }
 export const findWard = (district: string | null, newWards: any[],  newValue: string) => {
-  let districtConvert = district ? district.normalize("NFD")
+  let districtConvert = district ? district.replace("tỉnh ", "").normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
@@ -1835,8 +1835,7 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
   .replace("quan ", "")
   .replace("huyen ", "")
   .replace("thanh pho ", "")
-  .replace("thi xa ", "") 
-  .replace("tinh ", "")
+  .replace("thi xa ", "")
   : "";
   console.log('districtConvert', districtConvert);
   let districtArr = districtConvert.split("-");
