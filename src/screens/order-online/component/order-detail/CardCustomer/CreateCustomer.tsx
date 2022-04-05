@@ -293,14 +293,16 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-    const newValue = value.normalize("NFD")
+    const newValue = value.replace("tỉnh", "").normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
       .replace(/Đ/g, "D")
-      .toLowerCase();
+      .toLowerCase()
       
     // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
     const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && (newValue.indexOf(area.district_name_normalize) > -1 && newValue.replace(area.city_name_normalize, "").indexOf(area.district_name_normalize) > -1));
+    console.log('findArea', findArea)
+    console.log('newValue', newValue)
     if (findArea) {
       switch (type) {
         case "full_address":
