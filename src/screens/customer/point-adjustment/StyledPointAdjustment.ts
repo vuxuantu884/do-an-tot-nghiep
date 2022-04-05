@@ -10,13 +10,22 @@ export const StyledPointAdjustment = styled.div`
   }
 
   .filter {
-    // overflow-x: auto;
     margin-bottom: 5px;
     .ant-form {
-      // display: flex;
       .ant-form-item {
         margin-bottom: 5px;
       }
+    }
+
+    .check-validate-adjustment {
+      width: 15%;
+      margin-right: 10px;
+    }
+  
+    .form-adjustment-arrow-icon {
+      height: 38px;
+      line-height: 38px;
+      transform: translateY(-2px);
     }
   }
 
@@ -38,8 +47,6 @@ export const StyledPointAdjustment = styled.div`
     min-width: 150px;
     min-width: 20%;
     width: 20%;
-    // width: 300px;
-    // flex-grow: 1;
   }
   .datetime {
     margin-right: 10px;
@@ -52,7 +59,6 @@ export const StyledPointAdjustment = styled.div`
     display: flex;
     flex-grow: 1;
     min-width: 180px;
-    // justify-content: space-between;
     align-items: baseline;
     .select-item {
       width: 40%;

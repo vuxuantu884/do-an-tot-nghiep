@@ -102,7 +102,8 @@ function* searchProductWrapperSaga(action: YodyAction) {
 }
 
 function* productWrapperDeleteSaga(action: YodyAction) {
-  const {ids, onDeleteSuccess} = action.payload;
+  const {ids, onDeleteSuccess} = action.payload; 
+  let res = true;
     try {
       for(let i = 0 ; i< ids.length; i++) {
         let response: BaseResponse<string> = yield call(productWrapperDeleteApi, ids[i]);
@@ -111,13 +112,15 @@ function* productWrapperDeleteSaga(action: YodyAction) {
             break;
           case HttpStatus.UNAUTHORIZED:
             yield put(unauthorizedAction());
+            res = false;
             break;
           default:
+            res = false;
             response.errors.forEach((e) => showError(e));
             break;
         }
       }
-      onDeleteSuccess(true);
+      onDeleteSuccess(res);
     } catch (error) {
       onDeleteSuccess(false);
       // showError("Có lỗi vui lòng thử lại sau");
@@ -434,6 +437,7 @@ function* variantUpdateSaleableSaga(action: YodyAction) {
 
 function* variantDeleteSaga(action: YodyAction) {
   const { variants, onResult } = action.payload;
+  let res = false;
   try {
     for(let i = 0 ; i< variants.length; i++) {
       let response: BaseResponse<VariantResponse> =yield call(deleteVariantApi,
@@ -443,14 +447,16 @@ function* variantDeleteSaga(action: YodyAction) {
         case HttpStatus.SUCCESS:
           break;
         case HttpStatus.UNAUTHORIZED:
+          res = true;
           yield put(unauthorizedAction());
           break;
         default:
+          res = true;
           response.errors.forEach((e) => showError(e));
           break;
       }
     }
-    onResult(false);
+    onResult(res);
   } catch (error) {
     onResult(true);
     // showError("Có lỗi vui lòng thử lại sau");

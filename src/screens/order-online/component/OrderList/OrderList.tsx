@@ -20,7 +20,7 @@ import {
   getListOrderAction,
   PaymentMethodGetList
 } from "domain/actions/order/order.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -333,7 +333,7 @@ function OrderList(props: PropTypes) {
           }
 
         case ACTION_ID.printOrder:
-          
+
           const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
           let queryParamOrder = generateQuery({
             action: "print",
@@ -494,7 +494,7 @@ function OrderList(props: PropTypes) {
         setShippers(response)
       }
     }));
-    dispatch(getListSourceRequest(setListSource));
+    dispatch(getListAllSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
       PaymentMethodGetList((data) => {

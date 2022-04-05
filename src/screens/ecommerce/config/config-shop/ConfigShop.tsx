@@ -508,12 +508,6 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               <Form.Item
                 label="Nhân viên bán hàng"
                 name="assign_account_code"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn nhân viên bán hàng",
-                  },
-                ]}
               >
                 <Select
                   disabled={!configDetail || !allowShopsUpdate}

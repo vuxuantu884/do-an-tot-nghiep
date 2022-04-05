@@ -139,11 +139,12 @@ const PackDetail: React.FC = () => {
 
 
           data.orders?.forEach(function (itemOrder) {
-
             let total_quantity = 0;
             let total_price = 0;
             let postage = 0;
             let card_number = 0;
+            let ffrmCode=null;
+            let trackingCode=null;
 
             let _itemProduct: FulfillmentsItemModel[] = [];
             const ffms = itemOrder.fulfillments?.filter(ffm =>
@@ -155,7 +156,8 @@ const PackDetail: React.FC = () => {
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
               total_price += itemFFM.total ? itemFFM.total : 0;
               postage += itemFFM?.shipment?.shipping_fee_informed_to_customer ? itemFFM.shipment.shipping_fee_informed_to_customer : 0;
-
+              ffrmCode=itemFFM.code;
+              trackingCode=itemFFM.shipment?.tracking_code;
               itemFFM.items.forEach(function (itemProduct) {
                 _itemProduct.push({
                   sku: itemProduct.sku,
@@ -178,6 +180,8 @@ const PackDetail: React.FC = () => {
               key: keyOrder++,
               order_id: itemOrder.id,
               order_code: itemOrder.code,
+              ffm_code:ffrmCode||"",
+              tracking_code:trackingCode||"",
               customer_name: itemOrder.customer ? itemOrder.customer : "n/a",
               total_quantity: total_quantity,
               total_price: total_price,

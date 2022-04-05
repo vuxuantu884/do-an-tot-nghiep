@@ -14,7 +14,7 @@ import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import TreeStore from "component/tree-node/tree-store";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
@@ -31,19 +31,17 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
-import { getSourcesWithParamsService } from "service/order/order.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import { handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { POS } from "utils/Constants";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
 import { fullTextSearch } from "utils/StringUtils";
+import TreeSource from "../treeSource";
 
 type PropTypes = {
   params: OrderSearchQuery;
@@ -111,21 +109,17 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onClearFilter,
     onFilter,
     onShowColumnSetting,
-    setListSource,
     setListOrderProcessingStatus,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
   const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
   const loadingFilter = useMemo(() => {
-    return isLoading ? true : false;
+    return !!isLoading;
   }, [isLoading]);
 
   const dateFormat = "DD-MM-YYYY";
 
-  const orderSourceFilterRef = useRef()
-
-  const [selectedOrderSourceId, setSelectedOrderSourceIds] = useState<string[]>([])
   const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
   const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
 
@@ -142,7 +136,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   // useEffect(() => {
   //   setShowStatusCodes(status?.map(single => single.value) || []);
   // }, [status])
-  
+
   const fulfillmentStatus = useMemo(
     () => [
       { name: "Chưa giao", value: "unshipped" },
@@ -386,7 +380,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const [completedClick, setCompletedClick] = useState("");
   const [cancelledClick, setCancelledClick] = useState("");
   const [expectedClick, setExpectedClick] = useState("");
-
+console.log('listSource', listSource)
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);
@@ -394,8 +388,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const initialValues = useMemo(() => {
     return {
       ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [params.store_ids],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids.map(i => Number(i)) : [params.source_ids],
       order_status: Array.isArray(params.order_status)
         ? params.order_status
         : [params.order_status],
@@ -674,7 +668,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     if (filterTagFormatted?.source_ids?.data && filterTagFormatted.source_ids?.data?.length) {
       let mappedSources = listSources?.filter((source) =>
         filterTagFormatted.source_ids.data?.some(
-          (single: string) => single === source.id.toString()
+          (single: number) => single === source.id
         )
       );
       let text = getFilterString(
@@ -1219,21 +1213,6 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     return <React.Fragment>{filter.value}</React.Fragment>;
   };
 
-  useEffect(() => {
-    if (initialValues.source_ids) {
-      const params = {
-        ids: initialValues.source_ids,
-      };
-      getSourcesWithParamsService(params).then((response) => {
-        if (isFetchApiSuccessful(response)) {
-          setListSource && setListSource([...response.data.items]);
-        } else {
-          handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
-        }
-      });
-    }
-  }, [dispatch, initialValues.source_ids, setListSource]);
-
   return (
     <StyledComponent>
       {!isHideTab && (
@@ -1294,7 +1273,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
               <Button icon={<FilterOutlined />} onClick={openFilter}>
                 Thêm bộ lọc
               </Button>
-              <Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
+              <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} />
             </div>
           </Form>
         </CustomFilter>
@@ -1311,87 +1290,21 @@ const status = bootstrapReducer.data?.order_main_status.filter(
               <Row gutter={20}>
                 <Col span={8} xxl={8}>
                   <Item name="store_ids" label="Kho cửa hàng">
-                    {/* <CustomSelect
-										mode="multiple"
-										showArrow allowClear
-										showSearch
-										placeholder="Cửa hàng"
-										notFoundContent="Không tìm thấy kết quả"
-										style={{
-											width: '100%'
-										}}
-										optionFilterProp="children"
-										getPopupContainer={trigger => trigger.parentNode}
-										maxTagCount='responsive'
-									>
-										{listStore?.map((item) => (
-											<CustomSelect.Option key={item.id} value={item.id.toString()}>
-												{item.name}
-											</CustomSelect.Option>
-										))}
-									</CustomSelect> */}
-                    <TreeStore listStore={listStore} placeholder="Cửa hàng" />
+                    <TreeStore
+                      name="store_ids"
+                      placeholder="Cửa hàng"
+                      listStore={listStore}
+                      style={{ width: "100%" }}
+                    />
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
                   <Item name="source_ids" label="Nguồn đơn hàng">
-                  <CustomSelectWithButtonCheckAll
-                      mode="multiple"
-                      style={{ width: "100%" }}
-                      showArrow
-                      allowClear
-                      showSearch
+                    <TreeSource
                       placeholder="Nguồn đơn hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      ref={orderSourceFilterRef}
-                      maxTagCount="responsive"
-                      onSearch={(value) => {
-                        if (value.length > 1) {
-                          const params = {
-                            name: value,
-                            limit: 1000,
-                          };
-                          handleDelayActionWhenInsertTextInSearchInput(orderSourceFilterRef, () => {
-                            getSourcesWithParamsService(params).then((response) => {
-                              if (isFetchApiSuccessful(response)) {
-                                setListSource && setListSource(response.data.items);
-                              } else {
-                                handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
-                              }
-                            });
-                          })
-                        }
-                      }}
-                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
-                        if(e.target.checked) {
-                          formRef.current?.setFieldsValue({
-                            source_ids: selectedOrderSourceId.concat(listSources?.map(single => single.id.toString()))
-                          })
-                        } else {
-                          formRef.current?.setFieldsValue({
-                            source_ids: undefined
-                          })
-                        }
-                      }}
-                      getCurrentValue={() => {
-                        return formRef.current?.getFieldValue("source_ids")
-                      }}
-                      allValues={listSources}
-                      onChange = {(value) => {
-                        setSelectedOrderSourceIds(value)
-                      }}
-                    >
-                      {listSources.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.id.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelectWithButtonCheckAll>
+                      name="source_ids"
+                      listSource={listSource}
+                    />
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1677,7 +1590,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                       showArrow
                       allowClear
                       placeholder="Điền 1 hoặc nhiều tag"
-                      style={{ width: "100%" }}></CustomSelect>
+                      style={{ width: "100%" }}
+                    />
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1701,9 +1615,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     <Input placeholder="Tìm kiếm theo mã tham chiếu" />
                   </Item>
                 </Col>
-                <Col span={8} xxl={8}></Col>
-                <Col span={8} xxl={8}></Col>
-                <Col span={8} xxl={8}></Col>
+                <Col span={8} xxl={8}/>
+                <Col span={8} xxl={8}/>
+                <Col span={8} xxl={8}/>
                 <Col span={8} xxl={8}>
                   <Item name="order_status" label="Trạng thái tiến trình đơn hàng">
                   <CustomSelectWithButtonCheckAll

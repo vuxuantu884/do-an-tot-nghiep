@@ -418,11 +418,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-    const newValue = value.replace("tỉnh ", "").normalize("NFD")
+    const newValue = value.toLowerCase().replace("tỉnh", "").normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
       .replace(/Đ/g, "D")
-      .toLowerCase()
     // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
     const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && (newValue.indexOf(area.district_name_normalize) > -1 && newValue.replace(area.city_name_normalize, "").indexOf(area.district_name_normalize) > -1));
     if (findArea) {

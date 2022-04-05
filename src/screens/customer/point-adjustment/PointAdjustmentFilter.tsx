@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import rightArrow from "assets/icon/right-arrow.svg";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import DebounceSelect from "component/filter/component/debounce-select";
+import moment from "moment";
 
 type PointAdjustmentFilterProps = {
   params: PointAdjustmentListRequest;
@@ -52,6 +53,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   const [formFilter] = Form.useForm();
 
   const [listAccount, setListAccount] = useState<any[]>([]);
+  const [isDisableFilterAdjustment, setDisableFilterAdjustment] = useState(false);
   const dispatch = useDispatch();
 
   let initialValues = useMemo(() => {
@@ -188,6 +190,39 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
+  const onChangeDate = useCallback(
+    () => {
+      let value: any = {};
+      value = formFilter?.getFieldsValue(["from", "to"])
+      if (value["from"] && value["to"] && (+moment(value["to"], 'DD-MM-YYYY') < + moment(value["from"], 'DD-MM-YYYY'))) {
+        formFilter?.setFields([
+          {
+            name: "from",
+            errors: [''],
+          },
+          {
+            name: "to",
+            errors: ['Ngày kết thúc không được nhỏ hơn ngày bắt đầu'],
+          },
+        ])
+
+        setDisableFilterAdjustment(true)
+      } else {
+        formFilter?.setFields([
+          {
+            name: "from",
+            errors: undefined,
+          },
+          {
+            name: "to",
+            errors: undefined,
+          },
+        ])
+        setDisableFilterAdjustment(false)
+      }
+    }, [formFilter]);
+
+
   return (
     <StyledPointAdjustment>
       <div className="filter">
@@ -253,29 +288,31 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
             </DebounceSelect>
           </Item>
 
-          <Item name="from">
-            <CustomDatePicker 
-              format="DD-MM-YYYY"
-              placeholder="Từ ngày"
-              style={{width: "100%"}}
+          <Item name="from" className="check-validate-adjustment">
+              <CustomDatePicker
+                format="DD-MM-YYYY"
+                placeholder="Từ ngày"
+                style={{ width: "100%", borderRadius: 0 }}
+                onChange={() => onChangeDate()}
               />
           </Item>
 
-          <span> <img src={rightArrow} alt="" style={{marginRight: "10px"}}/> </span>
+          <span className="form-adjustment-arrow-icon"> <img src={rightArrow} alt="" style={{marginRight: "10px"}}/> </span>
 
-          <Item name="to">
-            <CustomDatePicker 
-              format="DD-MM-YYYY"
-              placeholder="Đến ngày"
-              style={{width: "100%"}}
+          <Item name="to" className="check-validate-adjustment">
+              <CustomDatePicker
+                format="DD-MM-YYYY"
+                placeholder="Đến ngày"
+                style={{ width: "100%", borderRadius: 0 }}
+                onChange={() => onChangeDate()}
               />
           </Item>
 
-          <Item >
+          <Item style={{ marginRight: 0 }}>
             <Button
               type="primary"
               htmlType="submit"
-              disabled={isLoading}
+              disabled={isDisableFilterAdjustment}
             >
               Lọc
             </Button>
