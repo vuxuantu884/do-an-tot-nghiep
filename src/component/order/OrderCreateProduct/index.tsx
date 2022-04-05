@@ -531,9 +531,11 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 	const onChangeQuantity = (value: number | null, index: number) => {
 		if (items) {
 			let _items = _.cloneDeep(items)
-			console.log('_items', _items)
 			if (value === _items[index].quantity) {
 				return;
+			}
+			if(value === 0 || !value) {
+				value = 1
 			}
 			let _item = _items[index];
 			_item.quantity = Number(value == null ? "0" : value.toString().replace(".", ""));
@@ -545,6 +547,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
 			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
+			console.log('_items', _items)
 			setItems(_items);
 			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
@@ -778,6 +781,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						minLength={0}
 						disabled={levelOrder > 3 || isLoadingDiscount}
 						isChangeAfterBlur = {false}
+						key={Math.random()}
 					/>
 				</div>
 			);
