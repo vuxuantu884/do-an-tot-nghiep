@@ -14,7 +14,7 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { showLoading } from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   DeliveryServicesGetList,
   getListOrderAction,
@@ -41,9 +41,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
-// import { changeOrderStatusToPickedService } from "service/order/order.service";
+import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
-import { generateQuery, goToTopPage } from "utils/AppUtils";
+import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -292,6 +292,20 @@ function OrderList(props: PropTypes) {
             })
           );
           dispatch(showLoading());
+          changeOrderStatusToPickedService(ids)
+            .then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                window.location.reload();
+              } else {
+                handleFetchApiError(response, "In phiếu giao hàng", dispatch)
+              }
+            })
+            .catch((error) => {
+              console.log("error", error);
+            })
+            .finally(() => {
+              dispatch(hideLoading());
+            });
           const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewUrl);
           break;

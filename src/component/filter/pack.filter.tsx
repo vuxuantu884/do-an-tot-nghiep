@@ -31,6 +31,7 @@ import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
+import NumberInput from "component/custom/number-input.custom";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -329,21 +330,21 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                   layout="inline"
                 >
                   <Item name="ids" style={{width: "32%"}}>
-                    <Input
+                    <NumberInput
                       prefix={<img src={search} alt="" />}
                       placeholder="ID Biên bản bàn giao"
-                      onBlur={(e) => {
-                        formSearchRef?.current?.setFieldsValue({
-                          search_term: e.target.value.trim(),
-                        });
-                      }}
+                      // onBlur={(e) => {
+                      //   formSearchRef?.current?.setFieldsValue({
+                      //     search_term: e.target.value.trim(),
+                      //   });
+                      // }}
                     />
                   </Item>
 
                   <Item name="order_codes" style={{width: "32%"}}>
                     <Input
                       prefix={<img src={search} alt="" />}
-                      placeholder="Mã đơn hàng"
+                      placeholder="ID đơn hàng/Mã vận đơn"
                       onBlur={(e) => {
                         formSearchRef?.current?.setFieldsValue({
                           search_term: e.target.value.trim(),

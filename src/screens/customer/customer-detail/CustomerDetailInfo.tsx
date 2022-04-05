@@ -48,7 +48,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
 
   const params = useParams<CustomerParams>();
   const [isShowMore, setIsShowMore] = React.useState<boolean>(false);
-  
+
   const customerDetail: Array<detailMapping> | undefined = React.useMemo(() => {
     if (customer) {
       const details = [
@@ -86,11 +86,9 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         },
         {
           name: "Địa chỉ",
-          value: `${customer.full_address ? customer.full_address : ""}${
-            customer.ward ? " - " + customer.ward : ""
-          }${customer.district ? " - " + customer.district : ""}${
-            customer.city ? " - " + customer.city : ""
-          }`,
+          value: `${customer.full_address ? customer.full_address : ""}${customer.ward ? " - " + customer.ward : ""
+            }${customer.district ? " - " + customer.district : ""}${customer.city ? " - " + customer.city : ""
+            }`,
           position: "right",
           key: "8",
         },
@@ -104,7 +102,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
       return details;
     }
   }, [customer]);
-  
+
   const customerDetailCollapse: Array<detailMapping> | undefined = React.useMemo(() => {
     if (customer) {
       const details = [
@@ -112,9 +110,9 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
           name: "Ngày cưới",
           value: customer.wedding_date
             ? ConvertUtcToLocalDate(
-                customer.wedding_date,
-                DATE_FORMAT.DDMMYYY
-              )
+              customer.wedding_date,
+              DATE_FORMAT.DDMMYYY
+            )
             : null,
           position: "left",
           key: "4",
@@ -133,7 +131,8 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         },
         {
           name: "Thẻ khách hàng",
-          value: loyaltyCard?.card_number,
+          // value: loyaltyCard?.card_number,
+          value: customer?.card_number,
           position: "right",
           key: "4",
         },
@@ -151,13 +150,11 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         },
         {
           name: "Nhân viên phụ trách",
-          value: `${
-            customer.responsible_staff_code
-              ? customer.responsible_staff_code
-              : ""
-          }${
-            customer.responsible_staff ? "-" + customer.responsible_staff : ""
-          }`,
+          value: `${customer.responsible_staff_code
+            ? customer.responsible_staff_code
+            : ""
+            }${customer.responsible_staff ? "-" + customer.responsible_staff : ""
+            }`,
           position: "left",
           key: "1",
         },
@@ -177,8 +174,9 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
       ];
       return details;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer, loyaltyCard]);
-  
+
   const onClickWebsite = React.useCallback((value: any) => {
     let link = "";
     if (value.includes("https://")) {
@@ -186,7 +184,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
     } else {
       link = `https://${value}`;
     }
-    
+
     window.open(link, "_blank");
   }, []);
 
@@ -199,7 +197,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
           <span className="card-title">THÔNG TIN CÁ NHÂN</span>
           {customer && customer.status === "active" ?
             <Tag className="customer-status active">Đang hoạt động</Tag>
-          : <Tag className="customer-status inactive">Không hoạt động</Tag>
+            : <Tag className="customer-status inactive">Không hoạt động</Tag>
           }
         </>
       }
@@ -215,31 +213,31 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         <div className="left-item">
           {customerDetail &&
             customerDetail.filter((detail: detailMapping) => detail.position === "left")
-            .map((detail: detailMapping, index: number) => (
-              <div className="detail-info" key={index}>
-                <div className="title">
-                  <span style={{ color: "#666666" }}>{detail.name}</span>
-                  <span style={{ fontWeight: 600 }}>:</span>
-                </div>
+              .map((detail: detailMapping, index: number) => (
+                <div className="detail-info" key={index}>
+                  <div className="title">
+                    <span style={{ color: "#666666" }}>{detail.name}</span>
+                    <span style={{ fontWeight: 600 }}>:</span>
+                  </div>
 
-                <span className="content">{detail.value ? detail.value : "---"}</span>
-              </div>
+                  <span className="content">{detail.value ? detail.value : "---"}</span>
+                </div>
               ))}
         </div>
 
         <div className="right-item">
           {customerDetail &&
             customerDetail.filter((detail: detailMapping) => detail.position === "right")
-            .map((detail: detailMapping, index: number) => (
-              <div className="detail-info" key={index}>
-                <div className="title">
-                  <span style={{ color: "#666666" }}>{detail.name}</span>
-                  <span style={{ fontWeight: 600 }}>:</span>
-                </div>
+              .map((detail: detailMapping, index: number) => (
+                <div className="detail-info" key={index}>
+                  <div className="title">
+                    <span style={{ color: "#666666" }}>{detail.name}</span>
+                    <span style={{ fontWeight: 600 }}>:</span>
+                  </div>
 
-                <span className="content">{detail.value ? detail.value : "---"}</span>
-              </div>
-            ))
+                  <span className="content">{detail.value ? detail.value : "---"}</span>
+                </div>
+              ))
           }
         </div>
 
@@ -251,47 +249,47 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
             <div className="left-item">
               {customerDetailCollapse &&
                 customerDetailCollapse.filter((detail: detailMapping) => detail.position === "left")
-                .map((detail: detailMapping, index: number) => (
-                  <div className="detail-info" key={index}>
-                    <div className="title">
-                      <span style={{ color: "#666666" }}>{detail.name}</span>
-                      <span style={{ fontWeight: 600 }}>:</span>
-                    </div>
+                  .map((detail: detailMapping, index: number) => (
+                    <div className="detail-info" key={index}>
+                      <div className="title">
+                        <span style={{ color: "#666666" }}>{detail.name}</span>
+                        <span style={{ fontWeight: 600 }}>:</span>
+                      </div>
 
-                    {detail.value ?
-                      (detail.isWebsite ?
-                        <span className="content link"
-                          onClick={() => onClickWebsite(detail.value)}
-                        >
-                          {detail.value}
-                        </span>
-                        : <span className="content">{detail.value}</span>
-                      )
-                      : <span className="content">{"---"}</span>
-                    }
-                  </div>
-                ))
+                      {detail.value ?
+                        (detail.isWebsite ?
+                          <span className="content link"
+                            onClick={() => onClickWebsite(detail.value)}
+                          >
+                            {detail.value}
+                          </span>
+                          : <span className="content">{detail.value}</span>
+                        )
+                        : <span className="content">{"---"}</span>
+                      }
+                    </div>
+                  ))
               }
             </div>
 
             <div className="right-item">
               {customerDetailCollapse &&
                 customerDetailCollapse.filter((detail: detailMapping) => detail.position === "right")
-                .map((detail: detailMapping, index: number) => (
-                  <div className="detail-info" key={index}>
-                    <div className="title">
-                      <span style={{ color: "#666666" }}>{detail.name}</span>
-                      <span style={{ fontWeight: 600 }}>:</span>
-                    </div>
+                  .map((detail: detailMapping, index: number) => (
+                    <div className="detail-info" key={index}>
+                      <div className="title">
+                        <span style={{ color: "#666666" }}>{detail.name}</span>
+                        <span style={{ fontWeight: 600 }}>:</span>
+                      </div>
 
-                    <span className="content">{detail.value ? detail.value : "---"}</span>
-                  </div>
-                ))
+                      <span className="content">{detail.value ? detail.value : "---"}</span>
+                    </div>
+                  ))
               }
             </div>
           </div>
-        
-          <div style={{ cursor: "pointer", marginLeft: "10px" }} onClick={() => {setIsShowMore(!isShowMore)}}>
+
+          <div style={{ cursor: "pointer", marginLeft: "10px" }} onClick={() => { setIsShowMore(!isShowMore) }}>
             <img alt="arrowUp" src={arrowUp} />
             <span style={{ marginLeft: "10px", color: "#5656A2" }}>Thu gọn</span>
           </div>
@@ -300,7 +298,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
 
       {!isShowMore &&
         <div className="show-more">
-          <span className="action" onClick={() => {setIsShowMore(!isShowMore)}}>
+          <span className="action" onClick={() => { setIsShowMore(!isShowMore) }}>
             <img alt="arrowUp" src={arrowLeft} />
             <span style={{ marginLeft: "10px", color: "#5656A2" }}>Xem thêm</span>
           </span>

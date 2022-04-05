@@ -32,7 +32,7 @@ const ImportFileProducts: React.FC = () => {
     setLoading(true)
     const fileUpload: any = fileList[0]
     const response = await callApiNative({ isShowError: true }, dispatch, productImportFile, fileUpload)
-    if (response.code) {
+    if (response && response.code) {
       let num = 0
       ref.current = setInterval(async () => {
         num += 3000

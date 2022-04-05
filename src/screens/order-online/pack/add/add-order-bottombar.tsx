@@ -23,6 +23,7 @@ const AddOrderBottombar: React.FC<any> = (props: any) => {
               Đóng
             </Button>
             <Button
+              loading={props?.isLoading}
               style={{width:120, fontWeight: 400}}
               type="primary"
               className="create-button-custom"

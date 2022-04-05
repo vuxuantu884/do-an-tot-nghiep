@@ -55,4 +55,7 @@ export const CustomerVisitorsStyle = styled.div`
 .pt-3 {
     padding-top: 24px;
 }
+.text-primary {
+    color: #fcaf17;
+}
 `;

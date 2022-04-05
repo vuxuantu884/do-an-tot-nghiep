@@ -117,7 +117,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       render: (value: string) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.ORDER}/${value}`}>
+            <Link target="_blank" to={`${UrlConfig.ORDER}/${value}`} style={{whiteSpace:"nowrap"}}>
               {value}
             </Link>
           </React.Fragment>

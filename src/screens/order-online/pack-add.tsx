@@ -30,6 +30,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const formSearchOrderRef = createRef<FormInstance>();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
+  const [isLoading,setIsLoading]= useState(false);
+
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
   const [orderListResponse, setOrderListResponse] = useState<OrderConcernGoodsReceiptsResponse[]>([]);
 
@@ -72,44 +74,49 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     }
   ];
 
-  const insert = (arr:any, index:number, newItem:any) => [
-    // part of the array before the specified index
-    ...arr.slice(0, index),
-    // inserted item
-    newItem,
-    // part of the array after the specified index
-    ...arr.slice(index)
-  ]
+
 
   const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest) => {
-    if (param) {
+    const insert = (arr:any, index:number, newItem:any) => [
+      ...arr.slice(0, index),
+      newItem,
+      ...arr.slice(index)
+    ]
 
+    if (param) {
       dispatch(
         getOrderConcernGoodsReceipts(
           param,
           (data: OrderConcernGoodsReceiptsResponse[]) => {
-            let dataAdd: OrderConcernGoodsReceiptsResponse[] = [];
+            //let dataAdd: OrderConcernGoodsReceiptsResponse[] = [];
             if (data.length > 0) {
-              data.forEach(function (item, index) {
+              // data.forEach(function (item, index) {
 
-                let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
-                if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
-                if(item.fulfillment_status !== 'returned' && item.fulfillment_status !== 'returning'
-                && item.fulfillment_status !== 'cancelled' && item.fulfillment_status !== 'splitted') {
-                  dataAdd.push(item);
-                }
+              //   let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
+              //   if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
+              //   if(item.fulfillment_status !== 'returned' && item.fulfillment_status !== 'returning'
+              //   && item.fulfillment_status !== 'cancelled' && item.fulfillment_status !== 'splitted') {
+              //     dataAdd.push(item);
+              //   }
+              // });
+
+              // if(dataAdd.length === 0) {
+              //   showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
+              // } else {
+              //   let orderListResponseCopy= [...orderListResponse];
+              //   dataAdd.forEach((item) => {
+              //     orderListResponseCopy = insert([...orderListResponseCopy], 0, item)
+              //     // orderListResponseCopy.push(item)
+              //   });
+              //   setOrderListResponse([...orderListResponseCopy]);
+              // }
+
+              let orderListResponseCopy= [...orderListResponse];
+              data.forEach((item) => {
+                orderListResponseCopy = insert([...orderListResponseCopy], 0, item)
               });
+              setOrderListResponse([...orderListResponseCopy]);
 
-              if(dataAdd.length === 0) {
-                showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
-              } else {
-                let orderListResponseCopy= [...orderListResponse];
-                dataAdd.forEach((item) => {
-                  orderListResponseCopy = insert([...orderListResponseCopy], 0, item)
-                  // orderListResponseCopy.push(item)
-                });
-                setOrderListResponse([...orderListResponseCopy]);
-              }
             } else {
               showError("Không tìm thấy đơn hàng");
             }
@@ -197,6 +204,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const handSubmit = useCallback(
     (value: any) => {
 
+      setIsLoading(true)
       let orderCode: string[] = orderListResponse.map((p) => p.code);
 
       console.log("orderCode",orderCode)
@@ -237,9 +245,10 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         createGoodsReceipts(param, (value: GoodsReceiptsResponse) => {
           if (value) {
             showSuccess("Thêm biên bản bàn giao thành công");
-            console.log(value.id)
+            
             history.push(`${UrlConfig.DELIVERY_RECORDS}/${value.id}`);
           }
+          setIsLoading(false)
         })
       );
     },
@@ -439,7 +448,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                       disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
                       <Select.Option key={-1} value={-1}>
-                        Mặc định
+                        Biên bản tự tạo
                       </Select.Option>
                       {listChannels.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
@@ -462,7 +471,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
             formSearchOrderRef={formSearchOrderRef}
           />
 
-          <AddOrderBottombar onOkPress={onOkPress} />
+          <AddOrderBottombar onOkPress={onOkPress} isLoading={isLoading}/>
         </StyledComponent>
 
 

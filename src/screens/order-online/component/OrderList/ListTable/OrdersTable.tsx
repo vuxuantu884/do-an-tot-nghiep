@@ -9,7 +9,7 @@ import {
   setSubStatusAction,
   updateOrderPartial,
 } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
+import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
 import { OrderExtraModel, OrderModel } from "model/order/order.model";
@@ -76,6 +76,7 @@ import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
 import iconReturn from "assets/icon/return.svg";
+import iconPrint from "assets/icon/Print.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import {DELIVERY_SERVICE_PROVIDER_CODE} from "utils/Constants";
 
@@ -96,7 +97,12 @@ type PropTypes = {
 
 type dataExtra = PageResponse<OrderExtraModel>;
 
-let itemResult:OrderModel[] = []
+let itemResult:OrderModel[] = [];
+let metadataResult:BaseMetadata = {
+  limit: 0,
+  page: 0,
+  total: 0
+};
 
 function OrdersTable(props: PropTypes) {
   const {
@@ -130,12 +136,14 @@ function OrdersTable(props: PropTypes) {
   const [typeAPi, setTypeAPi] = useState("");
 
   const [items, setItems] = useState(data.items);
+  const [metadata, setMetaData] = useState(data.metadata);
   // const [isVisiblePopup, setIsVisiblePopup] =
   // useState(false);
 
   // console.log('isVisiblePopup', isVisiblePopup)
 
   itemResult = data.items;
+  metadataResult = data.metadata;
 
   const paymentIcons = [
     {
@@ -174,9 +182,9 @@ function OrdersTable(props: PropTypes) {
       tooltip: "Tiêu điểm",
     },
   ];
-
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
+      console.log('itemResult', itemResult)
       const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
         if (noteType === "note") {
@@ -186,8 +194,13 @@ function OrdersTable(props: PropTypes) {
         }
       }
       setItems(itemResult);
+      setMetaData(metadataResult);
+      setData({
+        metadata: metadataResult,
+        items: itemResult,
+      })
     },
-    []
+    [setData]
   );
 
   const editNote = useCallback(
@@ -1303,15 +1316,27 @@ function OrdersTable(props: PropTypes) {
 
   const renderActionButton = (record: OrderModel) => {
     return (
-      <div>
-        <Tooltip title="Đổi trả hàng">
+      <React.Fragment>
+        <div className="actionButton">
           <Link
             to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
+            title="Đổi trả hàng"
           >
             <img alt="" src={iconReturn} className="iconReturn"/>
           </Link>
-        </Tooltip>
-      </div>
+        </div>
+        {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
+          <div className="actionButton">
+            <Link
+              to={`${UrlConfig.ORDER}/print-preview?action=print&ids=${record.id}&print-type=order&print-dialog=true`}
+              title="In hóa đơn"
+              target = "_blank"
+            >
+              <img alt="" src={iconPrint} className="iconReturn"/>
+            </Link>
+          </div>
+        ) : null}
+      </React.Fragment>
     );
   };
 
@@ -1326,36 +1351,34 @@ function OrdersTable(props: PropTypes) {
         {originNode}
         <div className="orderSource">{renderOrderSource(record)}</div>
         <div>
-          <Tooltip title="Kiểm tra tồn kho">
-            <Popover
-              placement="right"
-              overlayStyle={{ zIndex: 1000, top: "150px" }}
-              title={
-                <Row
-                  justify="space-between"
-                  align="middle"
-                  style={{ width: "100%" }}
-                >
-                  <Input.Search
-                    placeholder="Tìm kiếm kho"
-                    allowClear
-                    onSearch={onSearchInventory}
-                  />
-                </Row>
-              }
-              content={<InventoryTable
-                inventoryData={inventoryData}
-                storeId={record.store_id || 0}
-                items={record.items}
-                listStore={storeInventory}
-              />
-              }
-              trigger="click"
-              onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
-            >
-              <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }}></Button>
-            </Popover>
-          </Tooltip>
+          <Popover
+            placement="right"
+            overlayStyle={{ zIndex: 1000, top: "150px" }}
+            title={
+              <Row
+                justify="space-between"
+                align="middle"
+                style={{ width: "100%" }}
+              >
+                <Input.Search
+                  placeholder="Tìm kiếm kho"
+                  allowClear
+                  onSearch={onSearchInventory}
+                />
+              </Row>
+            }
+            content={<InventoryTable
+              inventoryData={inventoryData}
+              storeId={record.store_id || 0}
+              items={record.items}
+              listStore={storeInventory}
+            />
+            }
+            trigger="click"
+            onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
+          >
+            <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }} title="Kiểm tra tồn kho"></Button>
+          </Popover>
         </div>
         {renderActionButton(record)}
       </React.Fragment>
@@ -1629,6 +1652,10 @@ function OrdersTable(props: PropTypes) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, setData])
 
+  useEffect(() => {
+    setMetaData(data.metadata)
+  }, [data.metadata])
+
   return (
     <StyledComponent>
       <CustomTable
@@ -1638,9 +1665,9 @@ function OrdersTable(props: PropTypes) {
         scroll={{ x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1) }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
-          pageSize: data.metadata?.limit,
-          total: data.metadata?.total,
-          current: data.metadata?.page,
+          pageSize: metadata?.limit,
+          total: metadata?.total,
+          current: metadata?.page,
           showSizeChanger: true,
           onChange: onPageChange,
           onShowSizeChange: onPageChange,

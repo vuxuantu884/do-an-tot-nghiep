@@ -98,9 +98,11 @@ function* getGoodsReceiptsSerchSaga(action: YodyAction) {
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setData(null);
         yield put(unauthorizedAction());
         break;
       default:
+        setData(null);
         response.errors.forEach((e: any) => showError(e));
         break;
     }
@@ -230,6 +232,7 @@ function* getByIdGoodsReceiptsSaga(action: YodyAction) {
 
 function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
   let {param, setData} = action.payload;
+  yield put(showLoading())
   try {
     let response: BaseResponse<OrderConcernGoodsReceiptsResponse[]> =
       yield call(getOrderConcernGoodsReceiptsService, param);
@@ -246,7 +249,10 @@ function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch {
     showError("Lỗi hệ thống, vui lòng thử lại");
+  }  finally {
+    yield put(hideLoading());
   }
+
 }
 
 /**

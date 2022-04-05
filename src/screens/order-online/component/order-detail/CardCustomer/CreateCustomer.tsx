@@ -37,6 +37,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
 import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { findWard } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -157,11 +158,14 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 .replace("xa ", ""),
               }
             });
-            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            console.log('newWards', newWards)
+            let district = document.getElementsByClassName("inputDistrictCreateCustomer")[0].textContent;
+            console.log('district', district)
+            const foundWard = findWard(district, newWards, newValue);
+            console.log('foundWard', foundWard)
             formRef.current?.setFieldsValue({
-              ward_id: findWard ? findWard.id : null,
+              ward_id: foundWard ? foundWard.id : null,
             })
-            
           }
           setWards(data);
         }));
@@ -289,13 +293,16 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-    const newValue = value.normalize("NFD")
+    const newValue = value.replace("tỉnh", "").normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
       .replace(/Đ/g, "D")
-      .toLowerCase();
+      .toLowerCase()
       
-    const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && newValue.indexOf(area.district_name_normalize) > -1);
+    // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
+    const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && (newValue.indexOf(area.district_name_normalize) > -1 && newValue.replace(area.city_name_normalize, "").indexOf(area.district_name_normalize) > -1));
+    console.log('findArea', findArea)
+    console.log('newValue', newValue)
     if (findArea) {
       switch (type) {
         case "full_address":
@@ -371,6 +378,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   message: "Vui lòng chọn khu vực",
                 },
               ]}
+              className="inputDistrictCreateCustomer"
             >
               <CustomSelect
                 className="select-with-search"

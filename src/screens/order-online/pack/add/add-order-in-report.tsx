@@ -152,7 +152,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       align: "center",
       render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
         return (
-          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`}>
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`} style={{whiteSpace:"nowrap"}}>
             {l.order_code}
           </Link>
         );
@@ -296,7 +296,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     <Input
                       style={{ width: "100%" }}
                       prefix={<img src={search} alt="" />}
-                      placeholder="Mã đơn hàng"
+                      placeholder="ID đơn hàng/Mã vận đơn"
                     />
                   </Item>
 

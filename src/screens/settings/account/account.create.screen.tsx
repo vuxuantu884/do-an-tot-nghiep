@@ -52,7 +52,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/tree-node/tree-store";
 import { convertDistrict } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -233,7 +233,10 @@ const AccountCreateScreen: React.FC = () => {
         form={formRef}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={initRequest}
+        initialValues={{
+          ...initRequest,
+          store_ids: []
+        }}
         scrollToFirstError
       >
         <Card
@@ -393,7 +396,7 @@ const AccountCreateScreen: React.FC = () => {
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item name="store_ids" label="Cửa hàng">
-                <TreeStore name="store_ids" form={formRef} listStore={listStore} />
+                <TreeStore name="store_ids" formRef={formRef} listStore={listStore} />
               </Form.Item>
             </Col>
           </Row>
