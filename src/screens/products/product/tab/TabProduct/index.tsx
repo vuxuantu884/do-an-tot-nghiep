@@ -470,6 +470,8 @@ const TabProduct: React.FC<any> = (props) => {
       [`${VariantExportMapping[VariantExportField.sku]}`]: item.sku,
       [`${VariantExportMapping[VariantExportField.name]}`]: item.name,
       [`${VariantExportMapping[VariantExportField.unit]}`]: product_units ? product_units.find(e=>e.value === item.product.unit)?.name :null,
+      [`${VariantExportMapping[VariantExportField.images]}`]: item.variant_images?.map(e=>e.url).toString(),
+      [`${VariantExportMapping[VariantExportField.weight]}`]: item.weight,
       [`${VariantExportMapping[VariantExportField.import_price]}`]: item.variant_prices[0].import_price ?? null,
       [`${VariantExportMapping[VariantExportField.cost_price]}`]: item.variant_prices[0].cost_price ?? null,
       [`${VariantExportMapping[VariantExportField.retail_price]}`]: item.variant_prices[0].retail_price ?? null,
