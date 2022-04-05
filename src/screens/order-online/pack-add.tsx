@@ -77,50 +77,32 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
 
 
   const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest) => {
-    const insert = (arr:any, index:number, newItem:any) => [
-      ...arr.slice(0, index),
-      newItem,
-      ...arr.slice(index)
-    ]
-
     if (param) {
       dispatch(
         getOrderConcernGoodsReceipts(
           param,
           (data: OrderConcernGoodsReceiptsResponse[]) => {
-            //let dataAdd: OrderConcernGoodsReceiptsResponse[] = [];
+            let dataAdd: OrderConcernGoodsReceiptsResponse[] = [];
             if (data.length > 0) {
-              // data.forEach(function (item, index) {
+              data.forEach(function (item, index) {dataAdd.push(item);});
 
-              //   let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
-              //   if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
-              //   if(item.fulfillment_status !== 'returned' && item.fulfillment_status !== 'returning'
-              //   && item.fulfillment_status !== 'cancelled' && item.fulfillment_status !== 'splitted') {
-              //     dataAdd.push(item);
-              //   }
-              // });
-
-              // if(dataAdd.length === 0) {
-              //   showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
-              // } else {
-              //   let orderListResponseCopy= [...orderListResponse];
-              //   dataAdd.forEach((item) => {
-              //     orderListResponseCopy = insert([...orderListResponseCopy], 0, item)
-              //     // orderListResponseCopy.push(item)
-              //   });
-              //   setOrderListResponse([...orderListResponseCopy]);
-              // }
-
-              let orderListResponseCopy= [...orderListResponse];
-              data.forEach((item) => {
-                orderListResponseCopy = insert([...orderListResponseCopy], 0, item)
-              });
-              setOrderListResponse([...orderListResponseCopy]);
-
+              if(dataAdd.length === 0) {
+                showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
+              } else {
+                dataAdd.forEach((item) => {
+                  let findIndex = orderListResponse.findIndex(response => response.id === item.id);
+                  if(findIndex === -1) {
+                    orderListResponse.unshift(item)
+                  } else {
+                    showError("Đơn hàng đã tồn tại không thể thêm vào biên bản bàn giao");
+                  }
+                });
+                setOrderListResponse([...orderListResponse]);
+              }
             } else {
               showError("Không tìm thấy đơn hàng");
             }
-            formSearchOrderRef.current?.resetFields();
+            
             
           }
         )
@@ -129,7 +111,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     else {
       showWarning("Vui lòng nhập mã đơn hàng");
     }
-  }, [dispatch, orderListResponse, setOrderListResponse, formSearchOrderRef]);
+  }, [dispatch, orderListResponse, setOrderListResponse]);
 
   const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLBodyElement) {
@@ -207,8 +189,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
       setIsLoading(true)
       let orderCode: string[] = orderListResponse.map((p) => p.code);
 
-      console.log("orderCode",orderCode)
-
       let store_name = listStores.find(
         (data) => data.id === value.store_id
       )?.name;
@@ -228,7 +208,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         (data) => data.id === value.receipt_type_id
       )?.name;
 
-      console.log(listThirdPartyLogistics)
       let param: any = {
         ...value,
         store_name: store_name,
@@ -268,9 +247,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         break;
     }
   }
-
-  console.log("orderListResponse",orderListResponse)
-
+  console.log('formSearchOrderRef1', formSearchOrderRef.current)
   return (
     <AddReportHandOverContext.Provider value={addReportHandOverContextData}>
       <ContentContainer
