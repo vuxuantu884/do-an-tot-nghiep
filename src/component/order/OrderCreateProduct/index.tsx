@@ -2104,7 +2104,7 @@ console.log('items', items)
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+	}, [countFinishingUpdateCustomer, orderSourceId, isShouldUpdateDiscountRef]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2121,7 +2121,7 @@ console.log('items', items)
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+	}, [countFinishingUpdateCustomer, orderSourceId, isShouldUpdateDiscountRef]);
 
 	// đợi 3s cho load trang xong thì sẽ update trong trường hợp clone, update
 	useEffect(() => {
