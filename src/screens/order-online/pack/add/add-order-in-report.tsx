@@ -20,13 +20,14 @@ type AddOrderInReportProps = {
   onMenuClick?: (index: number) => void;
   handleAddOrder: (code: string) => void;
   formSearchOrderRef: any;
+  codes: Array<String>
 };
 const { Item } = Form;
 
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef } = props;
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, codes } = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
@@ -60,7 +61,10 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           isOrderPack.forEach((value) => {
             console.log(value);
             let indexOrder = orderListResponseCopy.findIndex((p) => p.code === value);
-            if (indexOrder !== -1) orderListResponseCopy.splice(indexOrder, 1);
+            if (indexOrder !== -1) {
+              orderListResponseCopy.splice(indexOrder, 1);
+              codes.splice(indexOrder, 1);
+            }
           })
           console.log("orderListResponseCopy2", orderListResponseCopy)
           setOrderListResponse([...orderListResponseCopy]);
@@ -70,7 +74,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           break;
       }
     },
-    [setOrderListResponse, setIsOrderPack, isOrderPack, orderListResponse]
+    [isOrderPack, orderListResponse, setOrderListResponse, codes]
   );
 
   console.log("isOrderPack", formSearchOrderRef)

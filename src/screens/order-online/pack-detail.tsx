@@ -111,7 +111,6 @@ const PackDetail: React.FC = () => {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
               if (itemFFM.status !== 'returned'
               && itemFFM.status !== 'returning'
-              && itemFFM.status !== 'cancelled'
               && itemFFM.status !== 'splitted') {
                 itemFFM.items.forEach(function (itemProduct, index) {
                   ////
@@ -148,8 +147,7 @@ const PackDetail: React.FC = () => {
 
             let _itemProduct: FulfillmentsItemModel[] = [];
             const ffms = itemOrder.fulfillments?.filter(ffm =>
-              ffm.status !== 'returned' && ffm.status !== 'returning'
-              && ffm.status !== 'cancelled' && ffm.status !== 'splitted');
+              ffm.status !== 'returned' && ffm.status !== 'returning' && ffm.status !== 'splitted');
 
             ffms?.forEach(function (itemFFM) {
 
