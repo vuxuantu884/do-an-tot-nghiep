@@ -31,6 +31,8 @@ export const getCustomerOrderHistoryApi = (queryParams: any): Promise<BaseRespon
   const query = {
     limit: queryParams.limit,
     page: queryParams.page,
+    variant_ids: queryParams.variant_ids,
+    customer_id: null,
   }
   const params = generateQuery(query);
   const link = `${ApiConfig.CUSTOMER}/customers/${queryParams.customer_id}/order-histories?${params}`;
