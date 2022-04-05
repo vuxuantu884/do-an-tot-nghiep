@@ -563,7 +563,12 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		}
 	};
 
-	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
+	const onDiscountItem = (_items: Array<OrderLineItemRequest>, index: number) => {
+		// nhập chiết khấu tay thì clear chương trình chiết khấu
+		if(_items[index].discount_items && _items[index].discount_items[0]) {
+			_items[index].discount_items[0].promotion_id = undefined;
+			_items[index].discount_items[0].reason = "";
+		}
 		handleDelayCalculateWhenChangeOrderInput(lineItemDiscountInputTimeoutRef, _items, false);
 	};
 
@@ -868,7 +873,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						discountValue={l.discount_items[0]?.value ? l.discount_items[0]?.value : 0}
 						totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
 						items={items}
-						handleCardItems={onDiscountItem}
+						handleCardItems={(_items) => onDiscountItem(_items, index)}
 						// disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
 						disabled={
 							levelOrder > 3
@@ -1074,6 +1079,18 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 	//   items.splice(position, 0, lineItem);
 	// };
 
+	const checkIfReplaceDiscountLineItem = (item: OrderLineItemRequest, newDiscountValue: number) => {
+		if(item.discount_items[0] && !item.discount_items[0].promotion_id) {
+			if(item.discount_items[0].value > newDiscountValue) {
+				return false;
+			}
+		}
+		if(newDiscountValue >= 0) {
+			return true;
+		}
+		return false;
+	};
+console.log('items', items)
 	const calculateDiscount = (
 		_item: OrderLineItemRequest,
 		_highestValueSuggestDiscount: any
@@ -1096,7 +1113,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 				? item.price - highestValueSuggestDiscount.value
 				: 0;
 		}
-		if (value >= 0) {
+		if (checkIfReplaceDiscountLineItem(item, value)) {
 			value = Math.min(value, item.price);
 			value = Math.round(value);
 			let rate = Math.round((value / item.price) * 100 * 100) / 100;
@@ -1106,8 +1123,8 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 				rate,
 				value,
 				amount: value * item.quantity,
-				reason: highestValueSuggestDiscount.title,
-				promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
+				reason: value > 0 ? highestValueSuggestDiscount.title : "",
+				promotion_id: value > 0 ? highestValueSuggestDiscount.price_rule_id || undefined: undefined,
 			};
 			let itemResult = {
 				..._item,
@@ -2091,7 +2108,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+	}, [countFinishingUpdateCustomer, orderSourceId, isShouldUpdateDiscountRef]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2108,8 +2125,9 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+	}, [countFinishingUpdateCustomer, orderSourceId, isShouldUpdateDiscountRef]);
 
+	// đợi 3s cho load trang xong thì sẽ update trong trường hợp clone, update
 	useEffect(() => {
 		setTimeout(() => {
 			isShouldUpdateCouponRef.current = true;
