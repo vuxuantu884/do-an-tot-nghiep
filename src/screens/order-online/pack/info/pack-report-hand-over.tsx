@@ -438,7 +438,25 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const editNote= useCallback((id:number, data:GoodsReceiptsResponse, newNote:string)=>{
     let goodsReceiptsCopy:any={...data}
-    let codes=data.orders?.map((p)=>p.code)
+    let codes = data.orders?.map((p) => {
+      if(data.receipt_type_id === 1) {
+        let fulfillments = p.fulfillments
+        ?.filter(f => f.status === "packed");
+        if(fulfillments && fulfillments.length > 0) {
+          return fulfillments[0].code ? fulfillments[0].code : ""
+        }
+        return "";
+      } else if(data.receipt_type_id === 2) {
+        let fulfillments = p.fulfillments
+        ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
+        if(fulfillments && fulfillments.length > 0) {
+          return fulfillments[0].code ? fulfillments[0].code : ""
+        }
+        return "";
+      } else{
+        return "";
+      }
+    });
     let param : GoodsReceiptsRequest={
       ...goodsReceiptsCopy,
       codes:codes,
