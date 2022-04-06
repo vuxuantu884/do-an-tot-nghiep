@@ -7,18 +7,18 @@ import OrderList from "../component/OrderList/OrderList";
 type PropTypes = {
   location: any;
 };
-function OrdersScreen(props: PropTypes) {
+function PosOrders(props: PropTypes) {
 
   const { location } = props;
 
   const pageTitle = {
-    title: "Danh sách đơn hàng",
+    title: "Danh sách đơn hàng bán lẻ",
     breadcrumb: [
       {
-        name: "Đơn hàng",
+        name: "Đơn hàng bán lẻ",
       },
       {
-        name: "Danh sách đơn hàng",
+        name: "Danh sách đơn hàng bán lẻ",
       },
     ]
   } 
@@ -26,7 +26,7 @@ function OrdersScreen(props: PropTypes) {
   const initQuery: OrderSearchQuery = {
     page: 1,
     limit: 30,
-    is_online: null,
+    is_online: "false",
     sort_type: null,
     sort_column: null,
     code: null,
@@ -73,12 +73,11 @@ function OrdersScreen(props: PropTypes) {
     reference_code: null,
     search_term: "",
 		services: [],
-    channel_codes: [],
-    tracking_codes: [],
+    channel_codes: []
   };
 
   return (
-    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} />
+    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} isShowOfflineOrder />
   );
 };
-export default withRouter(OrdersScreen);
+export default withRouter(PosOrders);
