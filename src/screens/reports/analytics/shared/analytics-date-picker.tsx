@@ -74,6 +74,16 @@ function AnalyticsDatePicker(props: Props) {
                         FIXED_DATE_LIST[selectedIdx].selected = true;
                     }
                     setStateTimeList([...FIXED_DATE_LIST]);
+                } else {
+                    const selectedGroup = FIXED_DATE_LIST.filter(timeItem => compare2RangeDate(timeItem.value, value));
+                    if (selectedGroup.length) {
+                        const selectedIdx = stateTimeList.findIndex(item => item.selected && (selectedGroup.findIndex(timeItem => timeItem.label === item.label) !== -1));
+                        if (selectedIdx === -1) {
+                            setStateTimeList([...FIXED_DATE_LIST.map((item) => ({...item, selected: item.label === selectedGroup[0].label ? true : false}))]);
+                        }
+                    } else {
+                        setStateTimeList([...FIXED_DATE_LIST.map(item => ({...item, selected: false}))]);
+                    }
                 }
                 setOnOpen(open)
             }}

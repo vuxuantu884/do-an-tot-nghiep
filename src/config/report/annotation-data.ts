@@ -88,7 +88,7 @@ export const AnnotationDataList: AnnotationData[] = [
                 key: '16',
             },
         ],
-        documentLink: 'https://hdsd.yody.io/bao-cao/huong-dan-su-dung-bao-cao'
+        documentLink: 'https://hdsd-yody.gitbook.io/unicorn-free/bao-cao/huong-dan-su-dung-bao-cao-tinh-nang-co-ban'
     },
     {
         alias: UrlConfig.ANALYTIC_SALES,
@@ -135,7 +135,7 @@ export const AnnotationDataList: AnnotationData[] = [
                 key: '8',
             },
         ],
-        documentLink: 'https://hdsd.yody.io/bao-cao/huong-dan-su-dung-bao-cao'
+        documentLink: 'https://hdsd-yody.gitbook.io/unicorn-free/bao-cao/huong-dan-su-dung-bao-cao-tinh-nang-co-ban'
     },
     {
         alias: UrlConfig.ANALYTIC_FINACE,
@@ -222,6 +222,6 @@ export const AnnotationDataList: AnnotationData[] = [
                 key: '16',
             },
         ],
-        documentLink: 'https://hdsd.yody.io/bao-cao/huong-dan-su-dung-bao-cao'
+        documentLink: 'https://hdsd-yody.gitbook.io/unicorn-free/bao-cao/huong-dan-su-dung-bao-cao-tinh-nang-co-ban'
     }
 ]

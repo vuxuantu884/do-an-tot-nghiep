@@ -582,7 +582,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                         if (type === "property" && field !== TIME.HOUR && (!existedFilter || existedFilter.value.length > 1 || (existedFilter.value.length === 1 && existedFilter.value[0] === 'Tất cả')) ) {
                           return (
                             <span className="link detail-link">
-                              <span onClick={() => handleQueryColumn(item, data)}>{data}</span>
+                              <span onClick={() => handleQueryColumn(item, format === 'price' ? record[index] : data)}>{data}</span>
                               {detailLink ? (
                                 <Link
                                   target="_blank"
