@@ -11,6 +11,7 @@ type PrintEcommerceDeliveryNoteProcessType = {
   visible: boolean;
   isProcessing: boolean;
   onOk: () => void;
+  onPrintAndPick: () => void;
   onCancel: () => void;
   processData: any;
   processPercent: number;
@@ -20,7 +21,7 @@ type PrintEcommerceDeliveryNoteProcessType = {
 const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProcessType> = (
   props: PrintEcommerceDeliveryNoteProcessType
 ) => {
-  const { visible, isProcessing, onOk, onCancel, processData, processPercent } = props;
+  const { visible, isProcessing, onOk, onPrintAndPick, onCancel, processData, processPercent } = props;
   const [errorData, setErrorData] = useState<Array<any>>([]);
   const [processingCount, setProcessingCount] = useState<any>(null);
 
@@ -53,6 +54,13 @@ const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProc
     }
   }
 
+  const handlePrintAndPick = () => {
+    if (processData?.total_created) {
+      onPrintAndPick && onPrintAndPick();
+    } else {
+      showError("Chưa tạo được phiếu giao hàng. Vui lòng kiểm tra lại.")
+    }
+  }
 
   return (
     <Modal
@@ -71,13 +79,24 @@ const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProc
             Hủy
           </Button>
 
-          <Button
-            type="primary"
-            onClick={handleOnClickOk}
-            loading={isProcessing}
-          >
-            In
-          </Button>
+          <div>
+            <Button
+              type="default"
+              onClick={handlePrintAndPick}
+              loading={isProcessing}
+              style={{ marginRight: 15 }}
+            >
+              In và nhặt hàng
+            </Button>
+
+            <Button
+              type="primary"
+              onClick={handleOnClickOk}
+              loading={isProcessing}
+            >
+              In
+            </Button>
+          </div>
         </StyledModalFooter>
       }
     >
