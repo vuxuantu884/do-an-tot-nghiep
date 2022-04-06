@@ -217,4 +217,7 @@ export const StyledWrapper = styled.div`
       border: none;
     }
   }
+  .ant-table-thead > tr > th, .ant-table-tbody >tr>td {
+    padding: 5px 0 !important;
+  }
 `;
