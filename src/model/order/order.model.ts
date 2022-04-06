@@ -146,6 +146,9 @@ export interface OrderSearchQuery {
   expected_receive_on_min: string | null;
   expected_receive_on_max: string | null;
   expected_receive_predefined: string | null;
+  exported_on_min: string | null;
+  exported_on_max: string | null;
+  exported_on_predefined: string | null;
   completed_on_min: string | null;
   completed_on_max: string | null;
   completed_on_predefined: string | null;

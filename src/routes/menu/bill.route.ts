@@ -9,7 +9,7 @@ const PackSupportScreen = React.lazy(() => import("screens/order-online/pack.scr
 const DeliveryRecordsScreen = React.lazy(() => import("screens/order-online/records.screen"));
 const AddReportHandOver = React.lazy(() => import("screens/order-online/pack-add"));
 const PackUpdate = React.lazy(() => import("screens/order-online/pack-update"));
-const SplitOrdersScreen = React.lazy(() => import("screens/order-online/split-orders.screen"));
+// const SplitOrdersScreen = React.lazy(() => import("screens/order-online/split-orders.screen"));
 const CustomerDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/index"));
 const OrderDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/detail.screen"));
 const ListOrder = React.lazy(() => import("screens/order-online/orders/index.screen"));
@@ -146,18 +146,18 @@ const bill: Array<RouteMenu> = [
       }
     ],
   },
-  {
-    path: UrlConfig.SPLIT_ORDERS,
-    exact: true,
-    title: "Danh sách đơn tách",
-    icon: "icon-dot",
-    component: SplitOrdersScreen,
-    key: "split-orders",
-    isShow: true,
-    header: null,
-    subMenu: [],
-    // permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
-  },
+  // {
+  //   path: UrlConfig.SPLIT_ORDERS,
+  //   exact: true,
+  //   title: "Danh sách đơn tách",
+  //   icon: "icon-dot",
+  //   component: SplitOrdersScreen,
+  //   key: "split-orders",
+  //   isShow: true,
+  //   header: null,
+  //   subMenu: [],
+  //   // permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
+  // },
   {
     path: UrlConfig.PACK_SUPPORT,
     exact: true,
