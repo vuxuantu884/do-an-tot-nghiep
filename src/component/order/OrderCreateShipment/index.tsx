@@ -356,7 +356,7 @@ function OrderCreateShipment(props: PropType) {
 
   return (
     <StyledComponent>
-      {isEcommerceOrder &&
+      {isEcommerceOrder && ecommerceShipment &&
         <ShipmentMethodEcommerce
           ecommerceShipment={ecommerceShipment}
           OrderDetail={OrderDetail}
@@ -366,7 +366,7 @@ function OrderCreateShipment(props: PropType) {
         />
       }
 
-      {!isEcommerceOrder &&
+      {(!isEcommerceOrder || !ecommerceShipment)&&
         <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>
