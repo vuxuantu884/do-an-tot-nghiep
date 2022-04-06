@@ -419,10 +419,14 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const checkAddress = useCallback((type, value) => {
     // trường hợp hà tĩnh thì phải replace trước khi convert
-    const newValue = value.toLowerCase().replace("tỉnh", "").normalize("NFD")
+    // bắc quang hà giang: quận trước
+    const newValue = value.toLowerCase().replace("tỉnh", "").replace("quận", "").replace("huyện", "").normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
       .replace(/Đ/g, "D")
+      .replace("thanh pho", "")
+      .replace("thi xa", "")
+      .replaceAll("-", " ")
     // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
     const findArea = newAreas.find((area: any) => {
       const districtString = convertStringDistrict(area.name);

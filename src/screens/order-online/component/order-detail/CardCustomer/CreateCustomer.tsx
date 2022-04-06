@@ -159,7 +159,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               }
             });
             console.log('newWards', newWards)
-            let district = document.getElementsByClassName("inputDistrictCreateCustomer")[0].textContent;
+            let district = document.getElementsByClassName("inputDistrictCreateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
             console.log('district', district)
             const foundWard = findWard(district, newWards, newValue);
             console.log('foundWard', foundWard)
@@ -293,16 +293,15 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-      // trường hợp hà tĩnh thì phải replace trước khi convert
-    const newValue = value.toLowerCase().replace("tỉnh", "").normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/Đ/g, "D")
-      .replace("quan", "")
-      .replace("huyen", "")
-      .replace("thanh pho", "")
-      .replace("thi xa", "")
-      .replace("tinh", "")
+    // trường hợp hà tĩnh thì phải replace trước khi convert
+    // bắc quang hà giang: quận trước
+    const newValue = value.toLowerCase().replace("tỉnh", "").replace("quận", "").replace("huyện", "").normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .replace("thanh pho", "")
+    .replace("thi xa", "")
+    .replaceAll("-", " ")
       
     // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
     const findArea = newAreas.find((area: any) => {
