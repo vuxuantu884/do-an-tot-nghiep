@@ -2515,10 +2515,10 @@ ShippingServiceConfigDetailResponseModel[]
 														</div>
 													)
 											)}
-											{(fulfillments.length === 0
-												|| fulfillments[0].status === FulFillmentStatus.RETURNED
-												|| fulfillments[0].status === FulFillmentStatus.CANCELLED
-												|| fulfillments[0].status === FulFillmentStatus.RETURNING) && (
+											{OrderDetail?.fulfillments && (OrderDetail?.fulfillments?.length === 0
+												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNED
+												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.CANCELLED
+												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNING) && (
 													<OrderCreateShipment
 														shipmentMethod={shipmentMethod}
 														orderPrice={orderAmount}
