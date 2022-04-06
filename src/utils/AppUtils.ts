@@ -1846,6 +1846,7 @@ export const convertStringDistrict = (text: string) => {
   .replace("thanh pho", "")
   .replace("thi xa", "")
   .replace("tinh", "")
+  .replace("-", "")
 };
 
 export const findWard = (district: string | null, newWards: any[],  newValue: string) => {

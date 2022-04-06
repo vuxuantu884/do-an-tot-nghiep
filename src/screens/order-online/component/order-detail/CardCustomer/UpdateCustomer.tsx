@@ -426,7 +426,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
     const findArea = newAreas.find((area: any) => {
       const districtString = convertStringDistrict(area.name);
-      const cityString = convertStringDistrict(area.city_name);
+      // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao: 
+      // test Thị xã Phú Mỹ, bà rịa vũng tàu
+      // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
+      const cityString = convertStringDistrict(area.city_name).replace(/\s\s+/g, ' ');
       return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
     });
     if (findArea) {
