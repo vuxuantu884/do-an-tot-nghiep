@@ -176,6 +176,7 @@ export interface OrderSearchQuery {
   search_term?: string | null;
 	services?: [];
   channel_codes?: Array<any> | [];
+  tracking_codes ?: Array<string> | [];
 }
 
 export interface OrderSearchQueryModel {
