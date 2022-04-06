@@ -657,7 +657,7 @@ const DetailTicket: FC = () => {
           {data?.total_quantity}
         </div>
       </div>,
-      width: 20,
+      width: 40,
       align: "center",
       dataIndex: "transfer_quantity",
     },
