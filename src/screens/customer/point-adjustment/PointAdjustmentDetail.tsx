@@ -13,12 +13,23 @@ import { StyledPointAdjustmentDetail } from 'screens/customer/point-adjustment/S
 const TYPE_ADJUSTMENT = [
   {
     title: "Tặng điểm",
-    value: "ADD"
+    value: "ADD_POINT"
   },
+
   {
     title: "Trừ điểm",
-    value: "SUBTRACT"
-  }
+    value: "SUBTRACT_POINT"
+  },
+
+  {
+    title: "Tặng tiền tích lũy",
+    value: "ADD_MONEY"
+  },
+
+  {
+    title: "Trừ tiền tích lũy",
+    value: "SUBTRACT_MONEY"
+  },
 ]
 
 const pointInfoColumns: Array<ICustomTableColumType<any>> = [
@@ -50,7 +61,7 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Kiểu điều chỉnh",
     dataIndex: "type",
-    width: "7%",
+    width: "12%",
     align: "center",
     render: (value: any, item: any) => {
       const type = TYPE_ADJUSTMENT.find(type => type.value === value);
@@ -61,7 +72,7 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   },
   {
     title: "Giá trị",
-    dataIndex: "point_change",
+    dataIndex: "value_change",
     width: "8%",
     align: "center",
     render: (value: any, item: any) => (

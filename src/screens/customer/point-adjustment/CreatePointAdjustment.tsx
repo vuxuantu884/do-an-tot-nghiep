@@ -58,6 +58,9 @@ const POINT_ADD_REASON = [
 ];
 const POINT_SUBTRACT_REASON = ["Trừ điểm bù", "Khác"];
 
+const MONEY_ADD_REASON = ["Tặng tiền tích lũy", "Khác"];
+const MONEY_SUBTRACT_REASON = ["Trừ tiền tích lũy", "Khác"];
+
 const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 const CreatePointAdjustment = () => {
@@ -70,14 +73,14 @@ const CreatePointAdjustment = () => {
 
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [selectedCustomers, setSelectedCustomers] = useState<any[]>([]);
-  const [type, setType] = useState<string>(query.get("type") || "ADD");
+  const [type, setType] = useState<string>(query.get("type") as any);
   const [keyword, setKeyword] = useState<string>("");
   const [fieldName, setFieldName] = useState<string>("");
 
   const initFormValues = {
     type: type,
     reason: "Khác",
-    point_change: 1,
+    value_change: 1,
     note: null,
     search: "",
     name: ""
@@ -206,7 +209,6 @@ const CreatePointAdjustment = () => {
   const onUpdateEnd = useCallback(
     (data: any) => {
       formRef.current?.resetFields();
-      setType("ADD");
       setSelectedCustomers([]);
       dispatch(hideLoading());
       showSuccess("Tạo mới phiếu điều chỉnh thành công");
@@ -226,7 +228,7 @@ const CreatePointAdjustment = () => {
         return;
       }
 
-      if (values.point_change === 0) {
+      if (values.value_change === 0) {
         showError("Giá trị điều chỉnh phải lớn hơn 0");
         return;
       }
@@ -240,7 +242,7 @@ const CreatePointAdjustment = () => {
         customer_ids: customerIds,
         note: values.note,
         reason: values.reason,
-        point_change: values.point_change,
+        value_change: values.value_change,
         type: values.type,
         name: values.name,
       }
@@ -290,7 +292,6 @@ const CreatePointAdjustment = () => {
       return false;
     }
   }, [fieldName, selectedCustomers.length]);
-
 
   return (
     <StyledCreatePointAdjustment>
@@ -370,11 +371,20 @@ const CreatePointAdjustment = () => {
                               style={{ width: "100%" }}
                               onChange={onChangeType}
                             >
-                              <Select.Option key="ADD" value="ADD">
-                                Tăng
+                             <Select.Option key="ADD_POINT" value="ADD_POINT">
+                              Tặng điểm tích lũy
                               </Select.Option>
-                              <Select.Option key="SUBTRACT" value="SUBTRACT">
-                                Giảm
+                            
+                              <Select.Option key="SUBTRACT_POINT" value="SUBTRACT_POINT">
+                              Trừ điểm tích lũy
+                              </Select.Option>
+                            
+                              <Select.Option key="ADD_MONEY" value="ADD_MONEY">
+                              Tặng tiền tích lũy
+                              </Select.Option>
+                            
+                              <Select.Option key="SUBTRACT_MONEY" value="SUBTRACT_MONEY">
+                              Trừ tiền tích lũy
                               </Select.Option>
                             </Select>
                           </Item>
@@ -399,18 +409,37 @@ const CreatePointAdjustment = () => {
                               placeholder="Chọn lý do điều chỉnh"
                               style={{ width: "100%" }}
                             >
-                              {type === "ADD" &&
+                              {type === "ADD_POINT" && 
                                 POINT_ADD_REASON.map((reason, idx) => (
                                   <Select.Option key={idx} value={reason}>
                                     {reason}
                                   </Select.Option>
-                                ))}
-                              {type === "SUBTRACT" &&
-                                POINT_SUBTRACT_REASON.map((reason, idx) => (
+                                ))
+                              }
+
+                              {type === "SUBTRACT_POINT" && 
+                                  POINT_SUBTRACT_REASON.map((reason, idx) => (
+                                    <Select.Option key={idx} value={reason}>
+                                      {reason}
+                                    </Select.Option>
+                                  ))
+                              }
+
+                              {type === "ADD_MONEY" && 
+                                MONEY_ADD_REASON.map((reason, idx) => (
                                   <Select.Option key={idx} value={reason}>
                                     {reason}
                                   </Select.Option>
-                                ))}
+                                ))
+                              }
+
+                              {type === "SUBTRACT_MONEY" && 
+                                MONEY_SUBTRACT_REASON.map((reason, idx) => (
+                                  <Select.Option key={idx} value={reason}>
+                                    {reason}
+                                  </Select.Option>
+                                ))
+                              }
                             </Select>
                           </Item>
                         </div>
@@ -423,7 +452,7 @@ const CreatePointAdjustment = () => {
                         </div>
                         <div className="row-content">
                           <Item
-                            name="point_change"
+                            name="value_change"
                             rules={[
                               {
                                 required: true,
