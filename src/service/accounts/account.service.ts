@@ -39,7 +39,7 @@ export const AccountUpdateService = (id: number, request: AccountRequest): Promi
 }
 
 export const updateMeService = (request: MeRequest): Promise<BaseResponse<AccountResponse>> => {
-  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/me`, request)
+  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/user/profile`, request)
 }
 
 export const AccountGetByIdService = (code: string): Promise<BaseResponse<AccountResponse>> => {
@@ -79,5 +79,5 @@ export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
 }
 
 export const accountUpdatePassScreenService = (request: AccountRequest): Promise<BaseResponse<AccountResponse>> => {
-  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/me/update-password`, request)
+  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/user/update-password`, request)
 }
