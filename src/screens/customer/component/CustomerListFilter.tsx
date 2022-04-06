@@ -1715,11 +1715,20 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const actionList = [
     {
       name: "Tặng điểm",
-      type: "ADD",
+      type: "ADD_POINT",
     },
     {
       name: "Trừ điểm",
-      type: "SUBTRACT",
+      type: "SUBTRACT_POINT",
+    },
+
+    {
+      name: "Tặng tiền tích lũy",
+      type: "ADD_MONEY",
+    },
+    {
+      name: "Trừ tiền tích lũy",
+      type: "SUBTRACT_MONEY",
     },
   ];
 

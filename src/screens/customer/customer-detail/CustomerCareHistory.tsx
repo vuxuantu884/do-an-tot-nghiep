@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import CustomTable from "component/table/CustomTable";
-import { getLoyaltyAdjustPointAction } from "domain/actions/loyalty/loyalty.action";
+import { getLoyaltyAdjustMoneyAction } from "domain/actions/loyalty/loyalty.action";
 
 function CustomerCareHistory(props: any) {
   const { customer } = props;
@@ -21,7 +21,9 @@ function CustomerCareHistory(props: any) {
   );
 
   useEffect(() => {
-    dispatch(getLoyaltyAdjustPointAction(customer?.id, setAdjustPointData, () => {}));
+    if (customer?.id) {
+      dispatch(getLoyaltyAdjustMoneyAction(customer?.id, setAdjustPointData, () => {}));
+    }
   }, [dispatch, customer, setAdjustPointData]);
 
   
@@ -42,16 +44,30 @@ function CustomerCareHistory(props: any) {
     },
     {
       title: "Kiểu điều chỉnh",
-      dataIndex: "source",
+      dataIndex: "type",
       width: "12%",
       render: (value: any, row: any, index: any) => {
-        const adjustmentType = value === "API_ADMIN_SUBTRACT" ? "Giảm" : "Tăng";
+        let adjustmentType;
+        switch(value) {
+          case "ADD_POINT":
+            adjustmentType = "Tặng điểm"
+            break;
+          case "SUBTRACT_POINT":
+            adjustmentType = "Trừ điểm"
+            break;
+          case "ADD_MONEY":
+            adjustmentType = "Tặng tiền"
+            break;
+          case "SUBTRACT_MONEY":
+            adjustmentType = "Trừ tiền"
+            break;
+      }
         return <span>{adjustmentType}</span>;
       },
     },
     {
       title: "Giá trị",
-      dataIndex: "change_point",
+      dataIndex: "value_change",
       width: "7%",
       render: (value: any, row: any, index: any) => {
         const pointValue = value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -81,13 +97,13 @@ function CustomerCareHistory(props: any) {
       dataIndex: "note",
       visible: true,
     }
-  ]);
+  ]);  
 
   return (
     <CustomTable
       bordered
       pagination={false}
-      dataSource={adjustPoint?.data}
+      dataSource={adjustPoint}
       columns={columns}
       rowKey={(item: any) => item.id}
       scroll={{ x: 1114 }}
