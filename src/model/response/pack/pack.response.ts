@@ -32,6 +32,7 @@ export interface GoodsReceiptsResponse extends BaseObject{
     version?:number;
     description?:string;
     note?:string;
+    
 }
 
 export interface GoodsReceiptsOrder extends OrderResponse{
@@ -40,6 +41,7 @@ export interface GoodsReceiptsOrder extends OrderResponse{
     goods_receipt_id: number;
     id: number;
     total_quantity: number|null;
+    fullfilement_code: string;
 }
 export interface  GoodsReceiptsSearchResponse extends BaseObject{
     store_id:number;
