@@ -159,6 +159,7 @@ const InventoryAdjustment: React.FC = () => {
       visible: true,
       align: "left",
       fixed: "left",
+      width: 150,
       render: (value: string, row: InventoryAdjustmentDetailItem) => (
         <>
           <Link
@@ -506,7 +507,7 @@ const InventoryAdjustment: React.FC = () => {
           bordered
           isRowSelection
           isLoading={tableLoading}
-          scroll={{x: 1300}}
+          scroll={{x: "max-content"}}
           sticky={{offsetScroll: 5, offsetHeader: 55}}
           pagination={{
             pageSize: data.metadata.limit,
