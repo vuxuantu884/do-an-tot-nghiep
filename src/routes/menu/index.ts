@@ -12,12 +12,14 @@ import setting from './setting.route';
 import shipments from "./shipment.route";
 import reports from "./reports.route";
 import { ODERS_PERMISSIONS } from 'config/permissions/order.permission';
+import webAppRoute from "./web-app.route";
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
+const WebAppOrdersSync = React.lazy(() => import ("screens/web-app/orders-sync/WebAppOrdersSync"));
 const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
 const ReportOrdersOnline = React.lazy(() => import ("screens/reports/report-orders-online"));
 const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
@@ -145,6 +147,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: ecommerce,
+  },
+  {
+    path: UrlConfig.WEB_APP,
+    exact: true,
+    title: "Web/App",
+    icon: 'icon-web-app',
+    component: WebAppOrdersSync,
+    key: "web_app",
+    isShow: true,
+    header: null,
+    subMenu: webAppRoute,
   },
   {
     path: "/setting",

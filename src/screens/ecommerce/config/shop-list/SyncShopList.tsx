@@ -67,7 +67,7 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       render: (value: any, data: any, index: any) => {
         return (
           <div style={{ display: "flex" }}>
-            <img src={ECOMMERCE_ICON[data.ecommerce.toLowerCase()]} alt="" style={{ marginRight: 8 }} />
+            <img src={ECOMMERCE_ICON[data.ecommerce?.toLowerCase()]} alt="" style={{ marginRight: 8 }} />
             <strong className="link" onClick={() => handleUpdate(data)}>{data.name}</strong>
           </div>
         )
