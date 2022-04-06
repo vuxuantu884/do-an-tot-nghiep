@@ -294,3 +294,5 @@ export interface FulfillmentsOrderPackQuery{
   // channel_id?:number;
   // receipt_type_id?:number;
 }
+
+export type OrderSourceTypeModel = "offline" | "online" | null ;

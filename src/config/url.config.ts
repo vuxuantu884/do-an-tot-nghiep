@@ -16,6 +16,7 @@ const UrlConfig = {
   STORE: `/stores`,
   ROLES: `/roles`,
   ORDER: `/orders`,
+  OFFLINE_ORDERS: `/offline-orders`,
   ORDERS_RETURN: `/order-returns`,
   SPLIT_ORDERS: `/split-orders`,
   ORDER_PROCESSING_STATUS: `/order-processing-status`,

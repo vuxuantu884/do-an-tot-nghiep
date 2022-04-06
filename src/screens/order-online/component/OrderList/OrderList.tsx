@@ -20,7 +20,7 @@ import {
   getListOrderAction,
   PaymentMethodGetList
 } from "domain/actions/order/order.action";
-import { getListAllSourceRequest } from "domain/actions/product/source.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -38,8 +38,9 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { SourceResponse } from "model/response/order/source.response";
 import queryString from "query-string";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { GoPlus } from "react-icons/go";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
@@ -60,6 +61,7 @@ type PropTypes = {
     }[];
   };
   isHideTab?: boolean;
+  isShowOfflineOrder?: boolean;
 };
 
 function OrderList(props: PropTypes) {
@@ -80,7 +82,7 @@ function OrderList(props: PropTypes) {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { location, initQuery, pageTitle, isHideTab = false } = props;
+  const { location, initQuery, pageTitle, isHideTab = false, isShowOfflineOrder = false } = props;
   const queryParamsParsed: any = queryString.parse(
     location.search
   );
@@ -333,7 +335,7 @@ function OrderList(props: PropTypes) {
           }
 
         case ACTION_ID.printOrder:
-
+          
           const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
           let queryParamOrder = generateQuery({
             action: "print",
@@ -494,7 +496,7 @@ function OrderList(props: PropTypes) {
         setShippers(response)
       }
     }));
-    dispatch(getListAllSourceRequest(setListSource));
+    dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
       PaymentMethodGetList((data) => {
@@ -572,15 +574,33 @@ function OrderList(props: PropTypes) {
                   </Button>
                 )}
               </AuthWrapper>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
-                {(isPassed: boolean) => (
-                  <ButtonCreate
-                    path={`${UrlConfig.ORDER}/create`}
-                    disabled={!isPassed}
-                    child="Thêm mới đơn hàng"
-                  />
-                )}
-              </AuthWrapper>
+              {!isShowOfflineOrder ? (
+                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                  {(isPassed: boolean) => (
+                    <ButtonCreate
+                      path={`${UrlConfig.ORDER}/create`}
+                      disabled={!isPassed}
+                      child="Thêm mới đơn hàng"
+                    />
+                  )}
+                </AuthWrapper>
+              ) : (
+                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                  {(isPassed: boolean) => (
+                    <a href={process.env.REACT_APP_BASE_POS || ""} target="_blank" rel="noreferrer">
+                      <Button
+                        type="primary"
+                        className="ant-btn-primary"
+                        size={"large"}
+                        icon={<GoPlus style={{marginRight: "0.2em"}}/>}
+                        disabled={!isPassed}
+                      >
+                        Thêm mới đơn hàng
+                      </Button>
+                    </a>
+                  )}
+                </AuthWrapper>
+              )}
             </Space>
           </Row>
         }
@@ -603,6 +623,7 @@ function OrderList(props: PropTypes) {
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
             isHideTab={isHideTab}
+            isShowOfflineOrder={isShowOfflineOrder}
             setListSource={setListSource}
             setListOrderProcessingStatus={setListOrderProcessingStatus}
           />
@@ -621,6 +642,7 @@ function OrderList(props: PropTypes) {
               selectedRowKeys={selectedRowKeys}
               onFilterPhoneCustomer={onFilterPhoneCustomer}
               listStore={listStore}
+              isShowOfflineOrder={isShowOfflineOrder}
             />
           ) : "Đang tải dữ liệu..."
           }

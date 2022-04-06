@@ -63,6 +63,7 @@ type PropTypes = {
   onClearFilter?: () => void;
   setListSource?: (values: SourceResponse[]) => void;
   setListOrderProcessingStatus?: (values: OrderProcessingStatusModel[]) => void;
+  isShowOfflineOrder?: boolean;
 };
 
 type ListFilterTagTypes = {
@@ -110,6 +111,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onFilter,
     onShowColumnSetting,
     setListOrderProcessingStatus,
+    isShowOfflineOrder,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -1171,6 +1173,24 @@ console.log('listSource', listSource)
     setVisible(false);
     setRerender(false);
   };
+
+  const renderTabHeader = () => {
+    if(isShowOfflineOrder) {
+      return null
+    }
+    if(!isHideTab) {
+      return (
+        <div className="order-options">
+          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+            <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
+            <Radio.Button value="true">Đơn hàng online</Radio.Button>
+            <Radio.Button value="false">Đơn hàng offline</Radio.Button>
+          </Radio.Group>
+        </div>
+      )
+    }
+  };
+
   useLayoutEffect(() => {
     window.addEventListener("resize", () => setVisible(false));
   }, []);
@@ -1237,15 +1257,7 @@ console.log('listSource', listSource)
 
   return (
     <StyledComponent>
-      {!isHideTab && (
-        <div className="order-options">
-          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
-            <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
-            <Radio.Button value="true">Đơn hàng online</Radio.Button>
-            <Radio.Button value="false">Đơn hàng offline</Radio.Button>
-          </Radio.Group>
-        </div>
-      )}
+      {renderTabHeader()}
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form
@@ -1255,7 +1267,7 @@ console.log('listSource', listSource)
             layout="inline">
             <div style={{ width: "100%" }}>
               <Row gutter={12}>
-                <Col span={8}>
+                <Col span={isShowOfflineOrder ? 12 : 8}>
                   <Item name="search_term" className="input-search">
                     <Input
                       prefix={<img src={search} alt="" />}
@@ -1268,7 +1280,7 @@ console.log('listSource', listSource)
                     />
                   </Item>
                 </Col>
-                <Col span={8}>
+                <Col span={isShowOfflineOrder ? 12 : 8}>
                   {rerenderSearchVariant && (
                     <Item name="variant_ids" style={{marginRight: 0}}>
                       <DebounceSelect
@@ -1286,19 +1298,22 @@ console.log('listSource', listSource)
                     </Item>
                   )}
                 </Col>
-                <Col span={8}>
-                  <Item name="tracking_codes" className="input-search">
-                    <Input
-                      prefix={<img src={search} alt="" />}
-                      placeholder="Mã vận đơn"
-                      onBlur={(e) => {
-                        formSearchRef?.current?.setFieldsValue({
-                          tracking_codes: e.target.value.trim(),
-                        });
-                      }}
-                    />
-                  </Item>
-                </Col>
+                {isShowOfflineOrder ? null : (
+                  <Col span={8}>
+                    <Item name="tracking_codes" className="input-search">
+                      <Input
+                        prefix={<img src={search} alt="" />}
+                        placeholder="Mã vận đơn"
+                        onBlur={(e) => {
+                          formSearchRef?.current?.setFieldsValue({
+                            tracking_codes: e.target.value.trim(),
+                          });
+                        }}
+                      />
+                    </Item>
+                  </Col>
+
+                )}
               </Row>
             </div>
             <div className="buttonGroup">

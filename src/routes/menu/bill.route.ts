@@ -12,10 +12,10 @@ const PackUpdate = React.lazy(() => import("screens/order-online/pack-update"));
 // const SplitOrdersScreen = React.lazy(() => import("screens/order-online/split-orders.screen"));
 const CustomerDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/index"));
 const OrderDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/detail.screen"));
-const ListOrder = React.lazy(() => import("screens/order-online/orders/index.screen"));
+const ListOrder = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
-const ReturnOrder = React.lazy(() => import("screens/order-online/return.screen"));
+const OnlineReturnOrders = React.lazy(() => import("screens/order-online/online-return-orders.screen"));
 const ScreenReturnCreate = React.lazy(
   () => import("screens/order-online/order-return/create")
 );
@@ -44,7 +44,7 @@ const bill: Array<RouteMenu> = [
     title: "Danh sách đơn hàng",
     icon: "icon-dot",
     component: ListOrder,
-    key: "submenu54",
+    key: "danh-sach-don-hang-online",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.READ],
@@ -87,12 +87,12 @@ const bill: Array<RouteMenu> = [
     ],
   },
   {
-		path: UrlConfig.ORDERS_RETURN,
+    path: `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
     exact: true,
     title: "Danh sách trả hàng",
     icon: "icon-dot",
-    component: ReturnOrder,
-    key: "submenu55",
+    component: OnlineReturnOrders,
+    key: "danh-sach-tra-hang-online",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.READ_RETURNS],
