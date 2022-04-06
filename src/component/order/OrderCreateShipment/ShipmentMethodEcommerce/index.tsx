@@ -58,7 +58,7 @@ function ShipmentMethodEcommerce(props: PropType) {
           <span className="content">
             {ecommerceShipment ? 
               <NumberFormat
-                value={ecommerceShipment.shipping_fee_paid_to_three_pls}
+                value={ecommerceShipment.shipping_fee_paid_to_three_pls || 0}
                 displayType={"text"}
                 thousandSeparator={true}
               /> 
