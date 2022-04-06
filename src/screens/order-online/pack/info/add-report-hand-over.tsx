@@ -179,11 +179,30 @@ const AddReportHandOver: React.FC = () => {
 
     let codes: any[] = [];
 
-    goodsReceipts?.orders?.forEach((i) => {
-      codes.push(i.code);
+    goodsReceipts?.orders?.forEach((order) => {
+      if(goodsReceipts.receipt_type_id === 1) {
+        let fulfillments = order.fulfillments
+        ?.filter(f => f.status === "packed");
+        if(fulfillments && fulfillments.length > 0) {
+          codes.push(fulfillments[0].code ? fulfillments[0].code : "")
+        }
+      } else if(goodsReceipts.receipt_type_id === 2) {
+        let fulfillments = order.fulfillments
+        ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
+        if(fulfillments && fulfillments.length > 0) {
+          codes.push(fulfillments[0].code ? fulfillments[0].code : "")
+        } else {
+          codes.push("");
+        }
+      }
     });
-    selectOrderPackSuccess?.forEach((i: any) => {
-      codes.push(i.order_code);
+    
+    selectOrderPackSuccess?.forEach((f) => {
+      if(goodsReceipts.receipt_type_id === 1 && f.status === "picked") {
+        codes.push(f.code);
+      } else if(goodsReceipts.receipt_type_id === 2 && f.status === "cancelled" && f.return_status === "returning") {
+        codes.push(f.code);
+      }
     });
 
     let param: any = {
