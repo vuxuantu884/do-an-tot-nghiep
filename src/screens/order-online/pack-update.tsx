@@ -341,7 +341,7 @@ const PackUpdate: React.FC = () => {
   const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLBodyElement) {
       if (event.key !== "Enter") {
-        barcode += event.key;
+        barcode += event.key.toUpperCase();
       }
       else {
         if (!packDetail) return;
