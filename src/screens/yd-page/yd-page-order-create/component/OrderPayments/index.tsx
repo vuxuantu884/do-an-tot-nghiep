@@ -306,8 +306,8 @@ function OrderPayments(props: PropType): JSX.Element {
   };
 
   useEffect(() => {
-    if (payments.some((payment) => payment.payment_method === PaymentMethodCode.COD)) {
-      let _payments = payments.filter((single) => single.payment_method !== PaymentMethodCode.COD);
+    if (payments.some((payment) => payment.payment_method_code === PaymentMethodCode.COD)) {
+      let _payments = payments.filter((single) => single.payment_method_code !== PaymentMethodCode.COD);
       handlePayment(_payments);
     }
 
