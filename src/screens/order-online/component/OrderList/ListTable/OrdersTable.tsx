@@ -93,6 +93,7 @@ type PropTypes = {
   onSelectedChange: (selectedRows: any[], selected?: boolean, changeRow?: any[]) => void;
   setShowSettingColumn: (value: boolean) => void;
   onFilterPhoneCustomer: (value: string) => void;
+  isShowOfflineOrder?: boolean;
 };
 
 type dataExtra = PageResponse<OrderExtraModel>;
@@ -118,6 +119,7 @@ function OrdersTable(props: PropTypes) {
     setColumns,
     setData,
     onFilterPhoneCustomer,
+    isShowOfflineOrder = false,
   } = props;
 
   const dispatch = useDispatch();
@@ -1022,7 +1024,7 @@ function OrdersTable(props: PropTypes) {
           }
           return "";
         },
-        visible: true,
+        visible: !isShowOfflineOrder,
         width: 80,
         align: "left",
       },
@@ -1153,7 +1155,7 @@ function OrdersTable(props: PropTypes) {
             </div>
           );
         },
-        visible: true,
+        visible: !isShowOfflineOrder,
         align: "left",
         width: 95,
       },
@@ -1194,7 +1196,7 @@ function OrdersTable(props: PropTypes) {
         width: 120,
       },
       {
-        title: "NV bán hàng",
+        title: !isShowOfflineOrder ? "NV bán hàng" : "Chuyên gia tư vấn",
         render: (value, record: OrderModel) => (
           <Link to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
             {`${record.assignee_code} - ${record.assignee}`}
@@ -1206,7 +1208,7 @@ function OrdersTable(props: PropTypes) {
         width: 80,
       },
       {
-        title: "NV tạo đơn",
+        title: !isShowOfflineOrder ? "NV tạo đơn" : "Thu ngân",
         render: (value, record: OrderModel) => (
           <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
             {`${record.account_code} - ${record.account}`}
@@ -1657,7 +1659,7 @@ function OrdersTable(props: PropTypes) {
   }, [data.metadata])
 
   return (
-    <StyledComponent>
+    <StyledComponent isShowOfflineOrder = {isShowOfflineOrder}>
       <CustomTable
         isRowSelection
         isLoading={tableLoading}

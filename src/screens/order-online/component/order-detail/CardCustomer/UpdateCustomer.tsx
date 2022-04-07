@@ -114,7 +114,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           .toLowerCase()
           .replace("quan ", "")
           .replace("huyen ", "")
-          .replace("thanh pho ", "")
+          // .replace("thanh pho ", "")
           .replace("thi xa ", ""),
       }
     })

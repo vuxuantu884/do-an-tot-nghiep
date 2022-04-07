@@ -62,6 +62,7 @@ export interface PurchaseOrder extends BaseObject {
   qc_code:string;
   designer?:string;
   designer_code?:string;
+  reference?: string;
 }
 
 export interface PurchaseOrderQuery extends BaseQuery {

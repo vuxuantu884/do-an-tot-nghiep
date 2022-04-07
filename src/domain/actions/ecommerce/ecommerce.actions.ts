@@ -257,3 +257,24 @@ export const changeEcommerceOrderStatus = (
     callback,
   });
 };
+
+export const getAddressByShopIdAction = (
+  request: any,
+  callback:(data: any) => any
+) => {
+  return BaseAction(EcommerceType.GET_ECOMMERCE_ADDRESS, {
+    request,
+    callback
+  })
+}
+
+export const batchShippingAction = (
+  request: any,
+  callback:(data: any) => any
+) => {
+  return BaseAction(EcommerceType.BATCH_SHIPPING_SHOPPE_PRODUCT, {
+    request,
+    callback
+  })
+}
+

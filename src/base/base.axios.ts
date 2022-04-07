@@ -14,6 +14,8 @@ export function getAxiosBase(config: AxiosRequestConfig) {
 
   BaseAxios.interceptors.request.use(
     function (request: AxiosRequestConfig) {
+      // thêm version git commit để check xem user có update code mới nhất ko
+      request.headers['X-Client-Git-Version'] = `${process.env.REACT_APP_GIT_COMMIT_HASH ? process.env.REACT_APP_GIT_COMMIT_HASH : "no-git-commit-hash"}`
       const token = getToken();
       if (token != null) {
         request.headers["Authorization"] = `Bearer ${token}`;
@@ -27,7 +29,6 @@ export function getAxiosBase(config: AxiosRequestConfig) {
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
-      AppConfig.runMode === "development" && console.log(response.data);
 
       /**
        * Thông báo lỗi

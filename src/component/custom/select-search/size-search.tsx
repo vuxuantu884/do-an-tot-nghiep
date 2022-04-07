@@ -1,3 +1,6 @@
+/**
+ * @deprecated : 
+ */
 import { SelectProps } from "antd";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -106,7 +109,6 @@ function SizeSelect(props: SelectContentProps): ReactElement {
             return false;
           }, set);
            totalItems = _.uniqBy(totalItems, key!);
-           console.log('totalItems',totalItems);
 
         } else if (defaultOptons) {
           totalItems = defaultOptons;

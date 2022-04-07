@@ -1215,14 +1215,14 @@ export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		});
 		return _amount;
 }
-// check if value is null or undefined
+
 export const isNullOrUndefined = (value: any) => {
-  if (value === null || value === undefined) {
-    return true;
-  } else {
-    return false;
-  }
+  return value === null || value === undefined;
 };
+
+export const convertItemToArray = (item: any) => {
+  return Array.isArray(item) ? item : [item];
+}
 
 export const convertActionLogDetailToText = (data?: string, dateFormat: string = "HH:mm DD/MM/YYYY") => {
   const renderAddress = (dataJson: any) => {

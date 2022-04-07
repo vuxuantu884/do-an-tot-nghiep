@@ -27,13 +27,14 @@ import moment, { Moment } from "moment";
 import { showError, showWarning } from "utils/ToastUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import { PurchaseOrderTabUrl } from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER, PurchaseOrderTabUrl } from "config/url.config";
 import RenderTabBar from 'component/table/StickyTabBar';
 import PurchaseOrderHistory from "../tab/PurchaseOrderHistory";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseOrderDraft } from "screens/purchase-order/purchase-order-list.style";
 import * as XLSX from 'xlsx';
 import { PurchaseProcumentExportField } from "model/purchase-order/purchase-mapping";
+import { Link } from "react-router-dom";
 
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -327,7 +328,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
-  }, [item, allProcurementItems,form,type]);
+  }, [item, allProcurementItems, form, type]);
 
   const confirmDeletePhrase: string = useMemo(() => {
     if (!item) return "";
@@ -520,12 +521,27 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                   >
                     {!isConfirmModal && (
                       <Fragment>
-                        <Row gutter={50} style={{marginTop: 5, marginBottom: 10}}>
+                        <Row gutter={50} style={{ marginTop: 5, marginBottom: 10 }}>
                           <Col span={24} md={12}>
-                            Đơn đặt hàng: <Typography.Text strong>{poData?.code}</Typography.Text>
+                            <Row style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <div>
+                                Đơn đặt hàng: {" "}
+                                <Link to={"#"} onClick={() => {
+                                  const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${poData?.id}`
+                                  const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+                                  if (newWindow) newWindow.opener = null
+                                }}>
+                                  {poData?.code}
+                                </Link>
+                              </div>
+                              {poData?.reference ? <div>Mã tham chiếu:{" "}
+                                <Typography.Text strong>{`${poData?.reference}`}</Typography.Text>
+                              </div> : null}
+
+                            </Row>
                           </Col>
                           <Col span={24} md={12}>
-                            Nhà cung cấp:  <Typography.Text strong>{poData?.supplier}</Typography.Text>
+                            Nhà cung cấp:  <Typography.Text strong>{`${poData?.supplier} - ${poData?.phone}`}</Typography.Text>
                           </Col>
                         </Row>
 

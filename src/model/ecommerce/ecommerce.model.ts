@@ -33,3 +33,29 @@ export interface PickUpAddress {
   pickup_time_id: String;
   tracking_number: String;
 }
+
+export interface StoreAddressByShopId {
+  address: String | null;
+  address_id: number | null;
+  address_type: Array<any>;
+  city: String | null;
+  district: String | null;
+  region: String | null;
+  state: String | null;
+  town: String | null;
+  zip_code: String | null;
+}
+
+export interface ShopAddressByShopId {
+  shop_id: number | null;
+  store_addresses: StoreAddressByShopId[];
+}
+
+export interface ErrorMessageBatchShipping {
+  error: String;
+  message: String;
+  request_id: string
+  response: any;
+  warning: any;
+  order_sn: string;
+}

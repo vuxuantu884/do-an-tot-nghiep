@@ -15,13 +15,14 @@ import BaseFilter from "component/filter/base.filter";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import moment from "moment";
 import {fullTextSearch} from "utils/StringUtils";
+import {convertItemToArray} from "utils/AppUtils";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
 import {
   AllOrdersMappingFilterStyled,
 } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import { StyledEcommerceOrderBaseFilter } from "screens/ecommerce/orders/orderStyles";
-import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
+import {ConvertDateToUtc, ConvertUtcToLocalDate} from "utils/DateUtils";
 import { useDispatch } from "react-redux";
 import {
   getShopEcommerceList,
@@ -29,6 +30,8 @@ import {
 import {
   ECOMMERCE_LIST,
   getEcommerceIcon,
+  LAZADA_ORDER_STATUS_LIST,
+  SHOPEE_ORDER_STATUS_LIST,
 } from "screens/ecommerce/common/commonAction";
 import 'component/filter/order.filter.scss'
 
@@ -56,15 +59,6 @@ const CONNECTED_STATUS = [
     title: "Thất bại",
     value: "waiting",
   },
-];
-
-const ECOMMERCE_ORDER_STATUS = [
-  { name: "Chờ xác nhận", value: "UNPAID" },
-  { name: "Chờ lấy hàng (chưa xử lý)", value: "READY_TO_SHIP" },
-  { name: "Chờ lấy hàng (đã xử lý)", value: "PROCESSED" },
-  { name: "Đang giao", value: "SHIPPED" },
-  { name: "Đã giao", value: "TO_CONFIRM_RECEIVE" },
-  { name: "Đã huỷ", value: "CANCELLED" },
 ];
 
 const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
@@ -96,14 +90,21 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   let initialValues = useMemo(() => {
     return {
       ...params,
-      ecommerce_order_statuses: Array.isArray(params.ecommerce_order_statuses)
-        ? params.ecommerce_order_statuses
-        : [params.ecommerce_order_statuses],
-      shop_ids: Array.isArray(params.shop_ids)
-        ? params.shop_ids
-        : [params.shop_ids],
+      ecommerce_order_statuses: convertItemToArray(params.ecommerce_order_statuses),
+      shop_ids: convertItemToArray(params.shop_ids),
     };
   }, [params]);
+
+  let ECOMMERCE_ORDER_STATUS_LIST = useMemo(() => {
+    switch (params?.ecommerce_id?.toString()) {
+      case "1":
+        return SHOPEE_ORDER_STATUS_LIST
+      case "2":
+        return LAZADA_ORDER_STATUS_LIST
+      default:
+        return [];
+    }
+  }, [params?.ecommerce_id]);
 
   const isDisableAction = () => {
     return !selectedRowKeys || selectedRowKeys.length === 0;
@@ -238,7 +239,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       })
       }
 
-    if (initialValues.shop_ids.length) {
+    if (initialValues.shop_ids?.length) {
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
         const findStatus = ecommerceShopList?.find(
@@ -299,11 +300,11 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       });
     }
 
-    if (initialValues.ecommerce_order_statuses.length) {
+    if (initialValues.ecommerce_order_statuses?.length) {
       let textStatus = "";
-      initialValues.ecommerce_order_statuses.forEach((i) => {
-        const findStatus = ECOMMERCE_ORDER_STATUS?.find(
-          (item) => item.value === i
+      initialValues.ecommerce_order_statuses.forEach((status) => {
+        const findStatus = ECOMMERCE_ORDER_STATUS_LIST?.find(
+          (item) => item.value === status
         );
         textStatus = findStatus
           ? textStatus + findStatus.name + "; "
@@ -311,7 +312,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       });
       list.push({
         key: "ecommerce_order_statuses",
-        name: "Trạng thái đơn hàng",
+        name: "Trạng thái đơn hàng sàn",
         value: textStatus,
       });
     }
@@ -326,7 +327,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     initialValues.created_date_from,
     initialValues.created_date_to,
     initialValues.ecommerce_order_statuses,
-    params.ecommerce_id, ecommerceShopList,
+    params.ecommerce_id,
+    ecommerceShopList,
+    ECOMMERCE_ORDER_STATUS_LIST,
   ]);
 
   // close tag filter
@@ -335,8 +338,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       e.preventDefault();
       switch (tag.key) {
         case "ecommerce_id":
-          onFilter && onFilter({ ...params, ecommerce_id: "", shop_ids: [] });
-          formFilter?.setFieldsValue({ ecommerce_id: null, shop_ids: [] });
+          onFilter && onFilter({ ...params, ecommerce_id: "", shop_ids: [], ecommerce_order_statuses: [] });
+          formFilter?.setFieldsValue({ ecommerce_id: null, shop_ids: [], ecommerce_order_statuses: [] });
           setEcommerceIdSelected(null);
         break;
         case "shop_ids":
@@ -427,13 +430,19 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   //handle select ecommerce
   const handleSelectEcommerce = (ecommerceId: any) => {
-    if (ecommerceId !== null && ecommerceId !== ecommerceIdSelected) {
+    if (ecommerceId && ecommerceId !== ecommerceIdSelected) {
       formFilter?.setFieldsValue({
-        shop_ids: []
+        shop_ids: [],
+        ecommerce_order_statuses: [],
       });
 
       setEcommerceIdSelected(ecommerceId)
-      onFilter && onFilter({...params, shop_ids: [], ecommerce_id: ecommerceId});
+      onFilter && onFilter({
+        ...params,
+        shop_ids: [],
+        ecommerce_order_statuses: [],
+        ecommerce_id: ecommerceId,
+      });
 
     }
   }
@@ -465,9 +474,12 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   }, []);
 
   const removeEcommerce = () => {
-    formFilter.setFieldsValue({ecommerce_id: null,})
     setEcommerceIdSelected(null);
-    formFilter?.setFieldsValue({ shop_ids: [] });
+    formFilter?.setFieldsValue({
+      ecommerce_id: null,
+      shop_ids: [],
+      ecommerce_order_statuses: [],
+    });
   };
 
   //handle query params filter
@@ -507,28 +519,23 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
 
   useEffect(() => {
-    let checkEcommerceShop = Array.isArray(params.shop_ids)
-    ? params.shop_ids
-    : [params.shop_ids];
-
     formFilter.setFieldsValue({
       ecommerce_order_code: params.ecommerce_order_code,
       core_order_code: params.core_order_code,
-      shop_ids: checkEcommerceShop.map(item => +item),
+      shop_ids: convertItemToArray(params.shop_ids),
       ecommerce_id: params.ecommerce_id,
       connected_status: params.connected_status,
       created_date_from: params.created_date_from,
       created_date_to: params.created_date_to,
-      ecommerce_order_statuses: params.ecommerce_order_statuses,
+      ecommerce_order_statuses: convertItemToArray(params.ecommerce_order_statuses),
       page: params.page
     })
 
     onCheckDateFilterParam(params.created_date_from, params.created_date_to, setCreatedDateClick)
 
-    if (params.ecommerce_id !== null) {
+    if (params.ecommerce_id) {
       getEcommerceShop(params.ecommerce_id)
     }
-
 
     if (params.created_date_from === null) {
       setCreatedDateFrom(null);
@@ -719,23 +726,34 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
               </Form.Item>
 
               <Form.Item
-                label={<b>TRẠNG THÁI ĐƠN HÀNG</b>}
+                label={<b>TRẠNG THÁI ĐƠN HÀNG SÀN</b>}
                 name="ecommerce_order_statuses">
-                <Select
-                  mode="multiple"
-                  showArrow
-                  allowClear
-                  placeholder="Chọn trạng thái đơn hàng"
-                  notFoundContent="Không tìm thấy kết quả"
-                  optionFilterProp="children"
-                  maxTagCount="responsive"
-                  getPopupContainer={(trigger) => trigger.parentNode}>
-                  {ECOMMERCE_ORDER_STATUS?.map((item) => (
-                    <Option key={item.value} value={item.value.toString()}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
+                {params.ecommerce_id ?
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn trạng thái đơn hàng sàn"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    maxTagCount="responsive"
+                    getPopupContainer={(trigger) => trigger.parentNode}>
+                    {ECOMMERCE_ORDER_STATUS_LIST?.map((item) => (
+                      <Option key={item.value} value={item.value.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                  :
+                  <Tooltip title="Yêu cầu chọn sàn" color={"gold"}>
+                    <Select
+                      showSearch
+                      disabled={true}
+                      placeholder="Chọn trạng thái đơn hàng sàn"
+                    />
+                  </Tooltip>
+                }
+
               </Form.Item>
             </Form>
           </StyledEcommerceOrderBaseFilter>

@@ -85,14 +85,14 @@ const CustomerDetail = () => {
       id: 2,
       name: "Trừ điểm",
     },
-    // {
-    //   id: 3,
-    //   name: "Tặng tiền tích lũy",
-    // },
-    // {
-    //   id: 4,
-    //   name: "Trừ tiền tích lũy",
-    // },
+    {
+      id: 3,
+      name: "Tặng tiền tích lũy",
+    },
+    {
+      id: 4,
+      name: "Trừ tiền tích lũy",
+    },
   ];
 
 
@@ -389,20 +389,24 @@ const CustomerDetail = () => {
       switch (menuId) {
         case 1:
           history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD_POINT&customer_ids=${customer?.id}`
           );
           break;
         case 2:
           history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT_POINT&customer_ids=${customer?.id}`
           );
           break;
-        // case 3:
-        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
-        //   break;
-        // case 4:
-        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
-        //   break;
+        case 3:
+          history.replace(
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD_MONEY&customer_ids=${customer?.id}`
+          );
+          break;
+        case 4:
+          history.replace(
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT_MONEY&customer_ids=${customer?.id}`
+          );
+          break;
       }
     },
     [customer, history]

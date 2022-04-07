@@ -55,6 +55,8 @@ type EcommerceOrderFilterProps = {
   isLoading?: boolean | undefined;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
+  setEcommerceShopListByAddress: (item: any) => void;
+
   onClearFilter?: () => void;
 };
 
@@ -94,6 +96,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     onClearFilter,
     onFilter,
     onShowColumnSetting,
+    setEcommerceShopListByAddress
+
   } = props;
 
   const [actionList, setActionList] = useState<Array<any>>(actions);
@@ -305,6 +309,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
 
     setEcommerceShopList(shopList);
+    setEcommerceShopListByAddress(shopList)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getEcommerceShopList = (ecommerceId: any) => {
@@ -920,6 +926,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     if (params.channel_codes !== undefined) {
       getEcommerceShopList(getEcommerceIdByChannelCode(params.channel_codes as any))
     }
+
+    const checkChannelCode = params.channel_codes as any
+    if (checkChannelCode === "shopee") {
+     setEcommerceKeySelected("shopee")   
+    }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, params]);
 

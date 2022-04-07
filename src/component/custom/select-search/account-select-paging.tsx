@@ -1,3 +1,8 @@
+/**
+ * @deprecated : use useFetchMerchans + BaseSelectPaging instead
+ * src\hook\useFetchMerchans.ts
+ * src\component\base\BaseSelect\BaseSelectPaging.tsx
+ */
 import { SelectProps } from "antd";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import _ from "lodash";

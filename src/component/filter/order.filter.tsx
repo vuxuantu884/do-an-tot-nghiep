@@ -63,6 +63,7 @@ type PropTypes = {
   onClearFilter?: () => void;
   setListSource?: (values: SourceResponse[]) => void;
   setListOrderProcessingStatus?: (values: OrderProcessingStatusModel[]) => void;
+  isShowOfflineOrder?: boolean;
 };
 
 type ListFilterTagTypes = {
@@ -110,6 +111,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onFilter,
     onShowColumnSetting,
     setListOrderProcessingStatus,
+    isShowOfflineOrder,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -301,6 +303,11 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           onFilter &&
             onFilter({ ...params, expected_receive_on_min: null, expected_receive_on_max: null });
           break;
+        case "exported":
+          setExportedClick("");
+          onFilter &&
+            onFilter({ ...params, exported_on_min: null, exported_on_max: null });
+          break;
         case "order_status":
           onFilter && onFilter({ ...params, order_status: [] });
           break;
@@ -380,6 +387,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const [completedClick, setCompletedClick] = useState("");
   const [cancelledClick, setCancelledClick] = useState("");
   const [expectedClick, setExpectedClick] = useState("");
+  const [exportedClick, setExportedClick] = useState("");
 console.log('listSource', listSource)
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
@@ -388,8 +396,8 @@ console.log('listSource', listSource)
   const initialValues = useMemo(() => {
     return {
       ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [params.store_ids],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids.map(i => Number(i)) : [params.source_ids],
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids.map(i => Number(i)) : [Number(params.source_ids)],
       order_status: Array.isArray(params.order_status)
         ? params.order_status
         : [params.order_status],
@@ -496,6 +504,8 @@ console.log('listSource', listSource)
           "cancelled_on_max",
           "expected_receive_on_min",
           "expected_receive_on_max",
+          "exported_on_min",
+          "exported_on_max",
         ])
         .forEach((field) => {
           if (field.errors.length) {
@@ -647,7 +657,7 @@ console.log('listSource', listSource)
     if (filterTagFormatted?.store_ids?.data && filterTagFormatted.store_ids?.data?.length) {
       let mappedStores = listStore?.filter((store) =>
         filterTagFormatted.store_ids.data?.some(
-          (single: string) => single.toString() === store.id.toString()
+          (single: number) => single === store.id
         )
       );
       let text = getFilterString(
@@ -742,6 +752,17 @@ console.log('listSource', listSource)
         key: "expected",
         name: "Ngày dự kiến nhận hàng",
         value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
+      });
+    }
+    if (initialValues.exported_on_min || initialValues.exported_on_max) {
+      let textExportedOnDate =
+        (initialValues.exported_on_min ? initialValues.exported_on_min : "??") +
+        " ~ " +
+        (initialValues.exported_on_max ? initialValues.exported_on_max : "??");
+      list.push({
+        key: "exported_on",
+        name: "Ngày dự kiến nhận hàng",
+        value: <React.Fragment>{textExportedOnDate}</React.Fragment>,
       });
     }
     if (initialValues.order_status.length) {
@@ -1057,6 +1078,8 @@ console.log('listSource', listSource)
     initialValues.cancelled_on_max,
     initialValues.expected_receive_on_min,
     initialValues.expected_receive_on_max,
+    initialValues.exported_on_min,
+    initialValues.exported_on_max,
     initialValues.order_status,
     initialValues.return_status,
     initialValues.sub_status_code,
@@ -1150,6 +1173,24 @@ console.log('listSource', listSource)
     setVisible(false);
     setRerender(false);
   };
+
+  const renderTabHeader = () => {
+    if(isShowOfflineOrder) {
+      return null
+    }
+    if(!isHideTab) {
+      return (
+        <div className="order-options">
+          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+            <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
+            <Radio.Button value="true">Đơn hàng online</Radio.Button>
+            <Radio.Button value="false">Đơn hàng offline</Radio.Button>
+          </Radio.Group>
+        </div>
+      )
+    }
+  };
+
   useLayoutEffect(() => {
     window.addEventListener("resize", () => setVisible(false));
   }, []);
@@ -1216,15 +1257,7 @@ console.log('listSource', listSource)
 
   return (
     <StyledComponent>
-      {!isHideTab && (
-        <div className="order-options">
-          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
-            <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
-            <Radio.Button value="true">Đơn hàng online</Radio.Button>
-            <Radio.Button value="false">Đơn hàng offline</Radio.Button>
-          </Radio.Group>
-        </div>
-      )}
+      {renderTabHeader()}
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form
@@ -1234,7 +1267,7 @@ console.log('listSource', listSource)
             layout="inline">
             <div style={{ width: "100%" }}>
               <Row gutter={12}>
-                <Col span={8}>
+                <Col span={isShowOfflineOrder ? 12 : 8}>
                   <Item name="search_term" className="input-search">
                     <Input
                       prefix={<img src={search} alt="" />}
@@ -1247,7 +1280,7 @@ console.log('listSource', listSource)
                     />
                   </Item>
                 </Col>
-                <Col span={8}>
+                <Col span={isShowOfflineOrder ? 12 : 8}>
                   {rerenderSearchVariant && (
                     <Item name="variant_ids" style={{marginRight: 0}}>
                       <DebounceSelect
@@ -1265,19 +1298,22 @@ console.log('listSource', listSource)
                     </Item>
                   )}
                 </Col>
-                <Col span={8}>
-                  <Item name="tracking_codes" className="input-search">
-                    <Input
-                      prefix={<img src={search} alt="" />}
-                      placeholder="Mã vận đơn"
-                      onBlur={(e) => {
-                        formSearchRef?.current?.setFieldsValue({
-                          tracking_codes: e.target.value.trim(),
-                        });
-                      }}
-                    />
-                  </Item>
-                </Col>
+                {isShowOfflineOrder ? null : (
+                  <Col span={8}>
+                    <Item name="tracking_codes" className="input-search">
+                      <Input
+                        prefix={<img src={search} alt="" />}
+                        placeholder="Mã vận đơn"
+                        onBlur={(e) => {
+                          formSearchRef?.current?.setFieldsValue({
+                            tracking_codes: e.target.value.trim(),
+                          });
+                        }}
+                      />
+                    </Item>
+                  </Col>
+
+                )}
               </Row>
             </div>
             <div className="buttonGroup">
@@ -1538,16 +1574,15 @@ console.log('listSource', listSource)
                     />
                   </Item>
                 </Col>
-
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
-                    <label>Ngày dự kiến nhận hàng</label>
+                    <label>Ngày giao hàng cho HVC</label>
                   </div>
                   <CustomFilterDatePicker
-                    fieldNameFrom="expected_receive_on_min"
-                    fieldNameTo="expected_receive_on_max"
-                    activeButton={expectedClick}
-                    setActiveButton={setExpectedClick}
+                    fieldNameFrom="exported_on_min"
+                    fieldNameTo="exported_on_max"
+                    activeButton={exportedClick}
+                    setActiveButton={setExportedClick}
                     format={dateFormat}
                     formRef={formRef}
                   />
@@ -1596,18 +1631,19 @@ console.log('listSource', listSource)
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="tags" label="Tags">
-                    <CustomSelect
-                      mode="tags"
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      allowClear
-                      placeholder="Điền 1 hoặc nhiều tag"
-                      style={{ width: "100%" }}
-                    />
-                  </Item>
+                  <div className="ant-form-item-label">
+                    <label>Ngày dự kiến nhận hàng</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="expected_receive_on_min"
+                    fieldNameTo="expected_receive_on_max"
+                    activeButton={expectedClick}
+                    setActiveButton={setExpectedClick}
+                    format={dateFormat}
+                    formRef={formRef}
+                  />
                 </Col>
+                
                 <Col span={8} xxl={8}>
                   <Item name="note" label="Ghi chú nội bộ">
                     <Input.TextArea
@@ -1625,10 +1661,19 @@ console.log('listSource', listSource)
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="reference_code" label="Mã tham chiếu">
-                    <Input placeholder="Tìm kiếm theo mã tham chiếu" />
+                  <Item name="tags" label="Tags">
+                    <CustomSelect
+                      mode="tags"
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      allowClear
+                      placeholder="Điền 1 hoặc nhiều tag"
+                      style={{ width: "100%" }}
+                    />
                   </Item>
                 </Col>
+                
                 <Col span={8} xxl={8}/>
                 <Col span={8} xxl={8}/>
                 <Col span={8} xxl={8}/>
@@ -1700,19 +1745,11 @@ console.log('listSource', listSource)
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item label="Đơn tự giao hàng">
-                    <div className="button-option-1">
-                      {serviceListVariables.map((single) => (
-                        <Button
-                          key={single.value}
-                          onClick={() => handleSelectServices(single.value)}
-                          className={services.includes(single.value) ? "active" : "deactive"}>
-                          {single.title}
-                        </Button>
-                      ))}
-                    </div>
+                  <Item name="reference_code" label="Mã tham chiếu">
+                    <Input placeholder="Tìm kiếm theo mã tham chiếu" />
                   </Item>
                 </Col>
+                
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Tổng tiền</label>
@@ -1766,6 +1803,21 @@ console.log('listSource', listSource)
                     </CustomSelect>
                   </Item>
                 </Col>
+                <Col span={8} xxl={8}>
+                  <Item label="Đơn tự giao hàng">
+                    <div className="button-option-1">
+                      {serviceListVariables.map((single) => (
+                        <Button
+                          key={single.value}
+                          onClick={() => handleSelectServices(single.value)}
+                          className={services.includes(single.value) ? "active" : "deactive"}>
+                          {single.title}
+                        </Button>
+                      ))}
+                    </div>
+                  </Item>
+                </Col>
+                
                 <Col span={8} xxl={8}>
                   <Item name="channel_codes" label="Kênh bán hàng">
                     <CustomSelect

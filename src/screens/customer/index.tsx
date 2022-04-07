@@ -5,7 +5,7 @@ import { Card, Button, Modal, Radio, Space, Progress } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import {ConvertTimestampToDate, ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
 import { getCustomerListAction } from "domain/actions/customer/customer.action";
@@ -44,16 +44,16 @@ import {
 import { showError, showSuccess } from "utils/ToastUtils";
 import {
   generateQuery,
-  // isNullOrUndefined,
+  isNullOrUndefined,
 } from "utils/AppUtils";
-import { exportFile, getFile } from "service/other/export.service";
+import {exportCustomerFile, getCustomerFile} from "service/customer/customer.service";
 import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 import {getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
-// import NumberFormat from "react-number-format";
+import NumberFormat from "react-number-format";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -86,7 +86,7 @@ const Customer = () => {
     () => ({
       page: 1,
       limit: 30,
-      // searchType: "LIST",
+      search_type: "LIST",
       request: "",
       gender: null,
       customer_group_ids: [],
@@ -204,36 +204,31 @@ const Customer = () => {
         <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
       ),
     },
-    // {
-    //   title: "Điểm",
-    //   dataIndex: "point",
-    //   visible: true,
-    //   width: 100,
-    //   align: "center",
-    //   render: (value: any) => (
-    //     <div style={{ textAlign: "right" }}>
-    //       {!isNullOrUndefined(value) ?
-    //         <NumberFormat
-    //           value={value}
-    //           displayType={"text"}
-    //           thousandSeparator={true}
-    //         />
-    //         : ""
-    //       }
-    //     </div>
-    //   )
-    // },
+    {
+      title: "Điểm",
+      dataIndex: "point",
+      visible: true,
+      width: 100,
+      align: "center",
+      render: (value: any) => (
+        <div style={{ textAlign: "right" }}>
+          {!isNullOrUndefined(value) ?
+            <NumberFormat
+              value={value}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : ""
+          }
+        </div>
+      )
+    },
     {
       title: "Hạng thẻ",
-      dataIndex: "customer_level_id",
+      dataIndex: "customer_level",
       visible: true,
       width: 90,
       align: "center",
-      render: (value: any) => (
-        <div>
-          {loyaltyUsageRules?.find((level) => level.rank_id === value)?.rank_name}
-        </div>
-      ),
     },
     {
       title: "Nhóm khách hàng",
@@ -242,45 +237,45 @@ const Customer = () => {
       width: 150,
       align: "center",
     },
-    // {
-    //   title: "Tiền tích lũy",
-    //   dataIndex: "total_paid_amount",
-    //   visible: true,
-    //   width: 120,
-    //   align: "center",
-    //   render: (value: any) => (
-    //     <div style={{ textAlign: "right" }}>
-    //       {!isNullOrUndefined(value) ?
-    //         <NumberFormat
-    //           value={value}
-    //           displayType={"text"}
-    //           thousandSeparator={true}
-    //         />
-    //         : ""
-    //       }
-    //     </div>
-    //   )
-    // },
-    // {
-    //   title: "Ngày mua đầu",
-    //   dataIndex: "first_order_time",
-    //   visible: true,
-    //   width: 110,
-    //   align: "center",
-    //   render: (value: string) => (
-    //     <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Ngày mua cuối",
-    //   dataIndex: "last_order_time",
-    //   visible: true,
-    //   width: 110,
-    //   align: "center",
-    //   render: (value: string) => (
-    //     <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-    //   ),
-    // },
+    {
+      title: "Tiền tích lũy",
+      dataIndex: "total_paid_amount",
+      visible: true,
+      width: 120,
+      align: "center",
+      render: (value: any) => (
+        <div style={{ textAlign: "right" }}>
+          {!isNullOrUndefined(value) ?
+            <NumberFormat
+              value={value}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : ""
+          }
+        </div>
+      )
+    },
+    {
+      title: "Ngày mua đầu",
+      dataIndex: "first_order_time",
+      visible: true,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
+    },
+    {
+      title: "Ngày mua cuối",
+      dataIndex: "last_order_time",
+      visible: true,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
+    },
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
@@ -415,8 +410,14 @@ const Customer = () => {
     (values: CustomerSearchQuery) => {
       const newParams = { ...params, ...values, page: 1 };
       const queryParam = generateQuery(newParams);
-      history.push(`${location.pathname}?${queryParam}`);
+      const currentParam = generateQuery(params);
+      if (currentParam === queryParam) {
+        getCustomerList(newParams);
+      } else {
+        history.push(`${location.pathname}?${queryParam}`);
+      }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, location.pathname, params]
   );
 
@@ -480,13 +481,14 @@ const Customer = () => {
 
   const okExportModal = () => {
     let newParams = { ...params };
+    newParams.search_type = undefined;  //remove search_type param
     if (exportAll) {
-      newParams.limit = undefined;
+      newParams.limit = data.metadata?.total;
       newParams.page = undefined;
     }
     const exportParams = generateQuery(newParams);
 
-    exportFile({
+    exportCustomerFile({
       conditions: exportParams,
       type: "EXPORT_CUSTOMER",
     })
@@ -518,32 +520,25 @@ const Customer = () => {
 
   const checkExportFile = useCallback(() => {
     let getFilePromises = exportCodeList.map((code) => {
-      return getFile(code);
+      return getCustomerFile(code);
     });
 
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
-        if (
-          response.code === HttpStatus.SUCCESS &&
-          response.data &&
-          response.data.total > 0
-        ) {
-          if (!!response.data.url) {
+        if (response.code === HttpStatus.SUCCESS && response.data?.total > 0) {
+          if (response.data.url) {
             const newExportCode = exportCodeList.filter((item) => {
               return item !== response.data.code;
             });
             setExportCodeList(newExportCode);
             setExportProgress(100);
-            setIsVisibleProgressModal(false);
             showSuccess("Xuất file dữ liệu khách hàng thành công!");
             window.open(response.data.url);
           } else {
-            if (response.data.num_of_record >= response.data.total) {
+            if (response.data.processed >= response.data.total) {
               setExportProgress(99);
             } else {
-              const percent = Math.floor(
-                (response.data.num_of_record / response.data.total) * 100
-              );
+              const percent = Math.floor((response.data.processed / response.data.total) * 100);
               setExportProgress(percent);
             }
           }
@@ -646,9 +641,9 @@ const Customer = () => {
                   scroll={{ x: 0 }}
                   sticky={{ offsetScroll: 5, offsetHeader: 55 }}
                   pagination={{
-                    pageSize: data.metadata.limit,
-                    total: data.metadata.total,
-                    current: data.metadata.page,
+                    pageSize: data.metadata?.limit,
+                    total: data.metadata?.total,
+                    current: data.metadata?.page,
                     showSizeChanger: true,
                     onChange: onPageChange,
                     onShowSizeChange: onPageChange,
@@ -727,13 +722,26 @@ const Customer = () => {
           centered
           width={600}
           footer={[
-            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-              Thoát
-            </Button>,
+            <>
+              {exportProgress < 100 ?
+                <Button key="cancel" danger onClick={onCancelProgressModal}>
+                    Thoát
+                </Button>
+                :
+                <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
+                  Xác nhận
+                </Button>
+              }
+            </>
           ]}>
           <div style={{ textAlign: "center" }}>
             <div style={{ marginBottom: 15 }}>
-              Đang tạo file, vui lòng đợi trong giây lát
+              {exportProgress < 100 ?
+                <span>Đang tạo file, vui lòng đợi trong giây lát!</span>
+                :
+                <span style={{ color: "#27AE60" }}>Đã xuất file dữ liệu khách hàng thành công!</span>
+             }
+
             </div>
             <Progress
               type="circle"

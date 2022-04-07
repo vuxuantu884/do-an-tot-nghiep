@@ -34,17 +34,6 @@ const initParams: PointAdjustmentListRequest = {
   to: null,
 };
 
-const TYPE_ADJUSTMENT = [
-  {
-    title: "Tặng điểm",
-    value: "ADD"
-  },
-  {
-    title: "Trừ điểm",
-    value: "SUBTRACT"
-  }
-]
-
 const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 
@@ -120,16 +109,28 @@ const PointAdjustment = () => {
       dataIndex: "type",
       width: "7%",
       align: "center",
-      render: (value: any, item: any) => {
-        const type = TYPE_ADJUSTMENT.find(type => type.value === value);
-        return (
-          <div>{type?.title}</div>
-        )
+      render: (value: any, row: any, index: any) => {
+        let adjustmentType;
+        switch(value) {
+          case "ADD_POINT":
+            adjustmentType = "Tặng điểm"
+            break;
+          case "SUBTRACT_POINT":
+            adjustmentType = "Trừ điểm"
+            break;
+          case "ADD_MONEY":
+            adjustmentType = "Tặng tiền"
+            break;
+          case "SUBTRACT_MONEY":
+            adjustmentType = "Trừ tiền"
+            break;
+      }
+        return <span>{adjustmentType}</span>;
       },
     },
     {
       title: "Giá trị",
-      dataIndex: "point_change",
+      dataIndex: "value_change",
       width: "8%",
       align: "center",
       render: (value: any, item: any) => (
