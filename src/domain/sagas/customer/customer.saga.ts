@@ -85,6 +85,7 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
 
 function* getCustomerList(action: YodyAction) {
   const { query, setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       getCustomers,
@@ -105,6 +106,8 @@ function* getCustomerList(action: YodyAction) {
   } catch (error) {
     setData(false);
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -138,6 +141,7 @@ function* getCustomerByPhone(action: YodyAction) {
 
 function* CustomerDetail(action: YodyAction) {
   const { id, setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getDetailCustomer,
@@ -156,12 +160,15 @@ function* CustomerDetail(action: YodyAction) {
     }
   } catch (error) {
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 // get customer's order history
 function* getCustomerOrderHistorySaga(action: YodyAction) {
   const { queryParams, callback } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderHistoryApi, queryParams );
     switch (response.code) {
@@ -175,12 +182,15 @@ function* getCustomerOrderHistorySaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {}
+  } catch (error) {} finally {
+    yield put(hideLoading());
+  }
 }
 
 // get customer's order return history
 function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
   const { customer_id, callback } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderReturnHistoryApi, customer_id );
     switch (response.code) {
@@ -194,7 +204,9 @@ function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {}
+  } catch (error) {} finally {
+    yield put(hideLoading());
+  }
 }
 
 // get customer's activity log
@@ -211,6 +223,7 @@ function* getCustomerActivityLogDetailSaga(action: YodyAction) {
 
 function* CustomerGroups(action: YodyAction) {
   const { setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerGroups
@@ -222,11 +235,14 @@ function* CustomerGroups(action: YodyAction) {
 		}
   } catch (error) {
     showError("Có lỗi khi lấy danh sách nhóm khách hàng. Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* CustomerLevels(action: YodyAction) {
   const { setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerLevels
@@ -244,11 +260,14 @@ function* CustomerLevels(action: YodyAction) {
     }
   } catch (error) {
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* CustomerTypes(action: YodyAction) {
   const { setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerTypes
@@ -266,6 +285,8 @@ function* CustomerTypes(action: YodyAction) {
     }
   } catch (error) {
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
