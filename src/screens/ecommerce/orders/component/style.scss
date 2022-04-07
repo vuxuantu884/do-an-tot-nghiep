@@ -1,0 +1,9 @@
+.error-message{
+    max-height: 300px;
+    overflow-y: scroll;
+    &-list {
+     color: #E24343;
+     background-color: #F5F5F5;
+     padding: 20px 30px;
+   }
+}

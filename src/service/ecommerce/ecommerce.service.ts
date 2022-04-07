@@ -214,6 +214,22 @@ export const getEcommercePrintForm = (
   return BaseAxios.post(requestUrl, requestBody);
 };
 
+//get address shop by shop_id
+export const getEcommerceAddressByShopIdApi = (query: any) => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.ECOMMERCE}/logistic/list-store-address?${params}`;
+  return BaseAxios.get(link);
+}
+
+//batching shipping shoppe product
+export const batchShippingShopeeProductApi = (
+  requestBody: any
+): Promise<BaseResponse<any>> => {
+const requestUrl = `${ApiConfig.ECOMMERCE}/logistic/batch-shipping-order`;
+return BaseAxios.post(requestUrl, requestBody);
+};
+
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
