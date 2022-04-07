@@ -81,7 +81,7 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
           }
           className="list__variants"
           dataSource={props.variants.filter(
-            (item, index) => index !== props.currentVariant
+            (item, index) => index !== props.currentVariant && item.id
           )}
           rowKey={(item) => item.id.toString()}
           renderItem={(item, index) => {

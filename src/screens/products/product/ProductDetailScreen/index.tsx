@@ -115,18 +115,19 @@ const ProductDetailScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.product_status
   );
 
-  const renderSize = useMemo(() => {
-    if (currentVariant) {
-      if (
-        currentVariant.length &&
-        currentVariant.width &&
-        currentVariant.height
-      ) {
-        return `${currentVariant.length} x ${currentVariant.width} x ${currentVariant.height} ${currentVariant.length_unit}`;
+  const renderSize = () => {
+    const dimensionList: Array<number|string> = [currentVariant?.length || 0, currentVariant?.width || 0, currentVariant?.height || 0];
+    
+    let dimension = "";
+    if(currentVariant?.length || currentVariant?.width || currentVariant?.height){
+    dimension = dimensionList.join(" x ");
+      if(currentVariant?.length_unit){
+        dimension += ` ${currentVariant.length_unit}`;
       }
     }
-    return "";
-  }, [currentVariant]);
+
+    return dimension;
+  };
 
   const onResultUpdate = useCallback((data: ProductResponse | false) => {
     setLoadingVariant(false);
@@ -632,7 +633,7 @@ const tab= document.getElementById("tab");
                                 <RowDetail title="Size" value={currentVariant.size} />
                                 <RowDetail
                                   title="Kích thước (Dài, Rộng, Cao) "
-                                  value={renderSize}
+                                  value={renderSize()}
                                 />
                                 <RowDetail
                                   title="Khối lượng"

@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 import { FormItemProps, SelectProps } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import _ from "lodash";
