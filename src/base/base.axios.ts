@@ -27,7 +27,6 @@ export function getAxiosBase(config: AxiosRequestConfig) {
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
-      AppConfig.runMode === "development" && console.log(response.data);
 
       /**
        * Thông báo lỗi
