@@ -20,6 +20,7 @@ docker build dev:
     - develop
   before_script:
     - unset DOCKER_HOST
+    - echo "\nREACT_APP_GIT_COMMIT_HASH: $CI_COMMIT_SHA" >> .env.development
   variables:
     PREFIX: dev
     DOCKER_FILE: Dockerfile
@@ -35,6 +36,7 @@ docker build uat:
   - builder
   before_script:
     - unset DOCKER_HOST
+    - echo "\nREACT_APP_GIT_COMMIT_HASH: $CI_COMMIT_SHA" >> .env.development
   only:
     - uat
   variables:
@@ -52,6 +54,7 @@ docker build production:
   - builder
   before_script:
     - unset DOCKER_HOST
+    - echo "\nREACT_APP_GIT_COMMIT_HASH: $CI_COMMIT_SHA" >> .env.production
   only:
     - master
   variables:
