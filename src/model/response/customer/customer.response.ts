@@ -121,3 +121,11 @@ export interface billingAddress extends BaseObject {
   default: boolean;
   country: string;
 }
+
+export interface ExportCustomerResponse extends BaseObject {
+  name?: string;
+  status: string;
+  processed: number;
+  total: number;
+  url: string;
+}

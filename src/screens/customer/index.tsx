@@ -46,7 +46,7 @@ import {
   generateQuery,
   // isNullOrUndefined,
 } from "utils/AppUtils";
-import { exportFile, getFile } from "service/other/export.service";
+import {exportCustomerFile, getCustomerFile} from "service/customer/customer.service";
 import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
@@ -487,12 +487,12 @@ const Customer = () => {
   const okExportModal = () => {
     let newParams = { ...params };
     if (exportAll) {
-      newParams.limit = undefined;
+      newParams.limit = data.metadata?.total;
       newParams.page = undefined;
     }
     const exportParams = generateQuery(newParams);
 
-    exportFile({
+    exportCustomerFile({
       conditions: exportParams,
       type: "EXPORT_CUSTOMER",
     })
@@ -524,32 +524,25 @@ const Customer = () => {
 
   const checkExportFile = useCallback(() => {
     let getFilePromises = exportCodeList.map((code) => {
-      return getFile(code);
+      return getCustomerFile(code);
     });
 
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
-        if (
-          response.code === HttpStatus.SUCCESS &&
-          response.data &&
-          response.data.total > 0
-        ) {
-          if (!!response.data.url) {
+        if (response.code === HttpStatus.SUCCESS && response.data?.total > 0) {
+          if (response.data.url) {
             const newExportCode = exportCodeList.filter((item) => {
               return item !== response.data.code;
             });
             setExportCodeList(newExportCode);
             setExportProgress(100);
-            setIsVisibleProgressModal(false);
             showSuccess("Xuất file dữ liệu khách hàng thành công!");
             window.open(response.data.url);
           } else {
-            if (response.data.num_of_record >= response.data.total) {
+            if (response.data.processed >= response.data.total) {
               setExportProgress(99);
             } else {
-              const percent = Math.floor(
-                (response.data.num_of_record / response.data.total) * 100
-              );
+              const percent = Math.floor((response.data.processed / response.data.total) * 100);
               setExportProgress(percent);
             }
           }
@@ -652,9 +645,9 @@ const Customer = () => {
                   scroll={{ x: 0 }}
                   sticky={{ offsetScroll: 5, offsetHeader: 55 }}
                   pagination={{
-                    pageSize: data.metadata.limit,
-                    total: data.metadata.total,
-                    current: data.metadata.page,
+                    pageSize: data.metadata?.limit,
+                    total: data.metadata?.total,
+                    current: data.metadata?.page,
                     showSizeChanger: true,
                     onChange: onPageChange,
                     onShowSizeChange: onPageChange,
@@ -733,13 +726,26 @@ const Customer = () => {
           centered
           width={600}
           footer={[
-            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-              Thoát
-            </Button>,
+            <>
+              {exportProgress < 100 ?
+                <Button key="cancel" danger onClick={onCancelProgressModal}>
+                    Thoát
+                </Button>
+                :
+                <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
+                  Xác nhận
+                </Button>
+              }
+            </>
           ]}>
           <div style={{ textAlign: "center" }}>
             <div style={{ marginBottom: 15 }}>
-              Đang tạo file, vui lòng đợi trong giây lát
+              {exportProgress < 100 ?
+                <span>Đang tạo file, vui lòng đợi trong giây lát!</span>
+                :
+                <span style={{ color: "#27AE60" }}>Đã xuất file dữ liệu khách hàng thành công!</span>
+             }
+
             </div>
             <Progress
               type="circle"
