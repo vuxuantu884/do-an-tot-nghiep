@@ -12,7 +12,6 @@ const ServiceNames = {
   INVENTORY_TRANSFER_SERVICE: "inventory-transfer-service",
   LOYALTY_SERVICE: "loyalty-service",
   ECOMMERCE_SERVICE: "ecommerce-service",
-  WEBSITE_SERVICE: "website-service",
   LOGISTIC_GATEWAY_SERVICE: "logistic-gateway-service",
   INVENTORY_ADJUSTMENT_SERVICE: "inventory-adjustment-service",
   PROMOTION_SERVICE: "promotion-service"
@@ -34,7 +33,6 @@ const ApiConfig = {
   INVENTORY_TRANSFER: `${v1}/${ServiceNames.INVENTORY_TRANSFER_SERVICE}`,
   LOYALTY: `${v1}/${ServiceNames.LOYALTY_SERVICE}`,
   ECOMMERCE: `${v1}/${ServiceNames.ECOMMERCE_SERVICE}`,
-  WEB_APP: `${v1}/${ServiceNames.WEBSITE_SERVICE}`,
   LOGISTIC_GATEWAY: `${v1}/${ServiceNames.LOGISTIC_GATEWAY_SERVICE}`,
   INVENTORY_ADJUSTMENT: `${v1}/${ServiceNames.INVENTORY_ADJUSTMENT_SERVICE}`,
   PROMOTION: `${v1}/${ServiceNames.PROMOTION_SERVICE}`,
