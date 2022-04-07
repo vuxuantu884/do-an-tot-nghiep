@@ -891,7 +891,7 @@ export default function Order() {
 							}
 
 							setOrderAmount(
-								response.total - (response.shipping_fee_informed_to_customer || 0)
+								response.total_line_amount_after_line_discount
 							);
 
 							let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
