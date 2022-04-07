@@ -9,6 +9,7 @@ export enum ProcurementFilterBasicEnum {
   content = "content",
   suppliers = "suppliers",
   merchandisers = "merchandisers",
+  store_ids = "stores"
 }
 
 export enum SearchProcurementFieldEnum {
@@ -24,6 +25,7 @@ export const ProcurementFilterBasicName = {
   [ProcurementFilterBasicEnum.content]: "Thông tin tìm kiếm",
   [ProcurementFilterBasicEnum.suppliers]: "Nhà cung cấp",
   [ProcurementFilterBasicEnum.merchandisers]: "Merchandiser",
+  [ProcurementFilterBasicEnum.store_ids]: "Kho nhận",
 };
 
 export const ProcurementFilterAdvanceName = {

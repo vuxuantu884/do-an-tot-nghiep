@@ -252,6 +252,16 @@ const TabCurrent: React.FC = () => {
         },
       },
       {
+        title: "Mã tham chiếu",
+        dataIndex: "purchase_order",
+        fixed: "left",
+        width: 120,
+        visible: true,
+        render: (value) => {
+          return (value?.reference)
+        },
+      },
+      {
         title: "Nhà cung cấp",
         dataIndex: "purchase_order",
         visible: true,
