@@ -19,6 +19,9 @@ import { isArray } from "lodash";
 import BaseFilterResult from "component/base/BaseFilterResult";
 import { callApiNative } from "../../../../utils/ApiUtils";
 import { supplierGetApi } from "../../../../service/core/supplier.service";
+import { getStoreApi } from "service/inventory/transfer/index.service";
+import { StoreResponse } from "model/core/store.model";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 const { Item } = Form;
 
 function TabCurrentFilter(props: ProcurementFilterProps) {
@@ -29,6 +32,7 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
   const dispatch = useDispatch();
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
+  const [stores, setStores] = useState<Array<StoreResponse>>([] as Array<StoreResponse>);
 
   const [formBase] = useForm();
   const onBaseFinish = (data: any) => {
@@ -52,13 +56,21 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
           return {...item, valueName: findSupplier?.name}
         case ProcurementFilterBasicEnum.content:
           return {...item, valueName: item.valueId.toString()}
+        case ProcurementFilterBasicEnum.store_ids:
+          if (isArray(item.valueId)) {
+            const filterStore = stores?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
+            if (filterStore)
+              return { ...item, valueName: filterStore?.map((item: any) => item.name).toString() }
+          }
+          const findStore = stores.find((el => el.id === parseInt(item.valueId)))
+          return { ...item, valueName: findStore?.name };
         default:
           return item
       }
     })
     setParamsArray(transformParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[paramsUrl, JSON.stringify(allSupplier)])
+  }, [paramsUrl, JSON.stringify(allSupplier), JSON.stringify(stores), setParamsArray])
 
   const onRemoveStatus = useCallback((index: number) => {
     remove(index)
@@ -85,6 +97,7 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
     formBase.setFieldsValue({
       [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers?.toString()?.split(',').map((x: string) => parseInt(x)),
       [ProcurementFilterBasicEnum.content]: paramsUrl.content,
+      [ProcurementFilterBasicEnum.store_ids]: paramsUrl.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
     });
 
     if (paramsUrl.suppliers) {
@@ -94,6 +107,18 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paramsUrl, formBase]);
 
+  useEffect(() => {
+    const getStores = async () => {
+      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, { status: "active", simple: true })
+      if (res) {
+        setStores(res)
+      }
+    }
+    getStores()
+  }, [dispatch])
+
+
+
   return (
     <Form.Provider>
       <Form onFinish={onBaseFinish} form={formBase} layout="inline">
@@ -102,7 +127,15 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
             <Input
               prefix={<img src={search} alt="" />}
               allowClear
-              placeholder="Tìm kiếm theo mã phiếu nhập kho, mã đơn hàng"
+              placeholder="Tìm kiếm theo mã phiếu nhập kho, mã đơn hàng, mã tham chiếu"
+            />
+          </Item>
+          <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 250 }}>
+            <TreeStore
+              form={formBase}
+              name={ProcurementFilterBasicEnum.store_ids}
+              placeholder="Chọn kho nhận"
+              listStore={stores}
             />
           </Item>
           <Item className="suppliers">

@@ -686,7 +686,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               <Item name="info" className="search">
                 <Input
                   prefix={<img src={search} alt="" />}
-                  placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
+                  placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT, Mã tham chiếu, ncc"
                 />
               </Item>
               <Item name={filterFields.merchandiser} style={{width: 250}}>
