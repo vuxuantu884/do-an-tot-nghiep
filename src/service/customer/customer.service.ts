@@ -1,5 +1,5 @@
 import { CustomerNote, CustomerRequest } from '../../model/request/customer.request';
-import { CustomerResponse } from 'model/response/customer/customer.response';
+import {CustomerResponse, ExportCustomerResponse} from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
 import { CustomerSearchQuery } from 'model/query/customer.query';
@@ -7,11 +7,26 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { CustomerBillingAddress, CustomerContact, CustomerShippingAddress } from 'model/request/customer.request';
+import {ExportRequest, ExportResponse} from "model/other/files/export-model";
 
 export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<PageResponse<CustomerResponse>>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.CUSTOMER}/customers?${params}`;
   return BaseAxios.get(link);
+};
+
+//customer export file
+export const exportCustomerFile = (
+  params: ExportRequest
+): Promise<BaseResponse<ExportResponse>> => {
+  return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/export`, params);
+};
+
+// export jobs
+export const getCustomerFile = (
+  code: string
+): Promise<BaseResponse<ExportCustomerResponse>> => {
+  return BaseAxios.get(`${ApiConfig.CUSTOMER}/jobs/${code}`);
 };
 
 export const getCustomersSo = (query : CustomerSearchQuery): Promise<BaseResponse<CustomerResponse>> => {
