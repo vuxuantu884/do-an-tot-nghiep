@@ -51,6 +51,104 @@ export const ECOMMERCE_LIST = [
   },
 ];
 
+export const SHOPEE_ORDER_STATUS_LIST = [
+  {
+    name: "Chờ xác nhận",
+    value: "UNPAID",
+  },
+  {
+    name: "Chờ xử lý",
+    value: "READY_TO_SHIP",
+  },
+  {
+    name: "Đã xử lý",
+    value: "PROCESSED",
+  },
+  {
+    name: "Lấy hàng lại",
+    value: "RETRY_SHIP",
+  },
+  {
+    name: "Đang giao",
+    value: "SHIPPED",
+  },
+  {
+    name: "Khách nhận hàng",
+    value: "TO_CONFIRM_RECEIVE",
+  },
+  {
+    name: "Yêu cầu hủy",
+    value: "IN_CANCEL",
+  },
+  {
+    name: "Đã huỷ",
+    value: "CANCELLED",
+  },
+  {
+    name: "Trả hàng",
+    value: "TO_RETURN",
+  },
+  {
+    name: "Đã giao",
+    value: "COMPLETED",
+  },
+];
+
+export const LAZADA_ORDER_STATUS_LIST = [
+  {
+    name: "Chưa thanh toán",
+    value: "UNPAID",
+  },
+  {
+    name: "Đang xử lý",
+    value: "PENDING",
+  },
+  {
+    name: "Chờ đóng gói",
+    value: "PACKED",
+  },
+  {
+    name: "Đóng gói lại",
+    value: "REPACKED",
+  },
+  {
+    name: "Chờ bàn giao",
+    value: "READY_TO_SHIP",
+  },
+  {
+    name: "Đang giao hàng",
+    value: "SHIPPED",
+  },
+  {
+    name: "Đã giao hàng",
+    value: "DELIVERED",
+  },
+  {
+    name: "Đơn đã hủy",
+    value: "CANCELLED",
+  },
+  {
+    name: "Giao hàng thất bại",
+    value: "SHIPPED_BACK",
+  },
+  {
+    name: "Đã hoàn hàng",
+    value: "SHIPPED_BACK_SUCCESS",
+  },
+  {
+    name: "Trả hàng hoặc hoàn tiền",
+    value: "RETURNED",
+  },
+  {
+    name: "Mất hàng",
+    value: "LOST_BY_3PL",
+  },
+  {
+    name: "Hỏng hàng",
+    value: "DAMAGED_BY_3PL",
+  },
+];
+
 export const getEcommerceIcon = (ecommerce_key: string) => {
   const ecommerce = ECOMMERCE_LIST.find(
     (item) => item.key.toLowerCase() === ecommerce_key?.toLowerCase()
