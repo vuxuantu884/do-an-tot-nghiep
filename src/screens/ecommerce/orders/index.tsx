@@ -1378,9 +1378,13 @@ const EcommerceOrders: React.FC = () => {
       dispatch(getListSourceRequest(setListSource));
       dispatch(PaymentMethodGetList(setListPaymentMethod));
       dispatch(StoreGetListAction(setStore));
+
       dispatch(
         actionFetchListOrderProcessingStatus(
-          {},
+          {
+            sort_type: "asc",
+            sort_column: "display_order",
+          },
           (data: OrderProcessingStatusResponseModel) => {
             setListOrderProcessingStatus(data.items);
           }
