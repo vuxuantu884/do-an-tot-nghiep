@@ -39,11 +39,12 @@ import ExportModal from "screens/order-online/modal/export.modal";
 import {StyledComponent} from "./OrderReturnList.styles";
 
 type PropTypes = {
-  initQuery: ReturnSearchQuery
+  initQuery: ReturnSearchQuery;
+  location: any;
 }
 
 function OrderReturnList(props: PropTypes) {
-  const {initQuery} = props;
+  const {initQuery, location} = props;
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -260,9 +261,9 @@ function OrderReturnList(props: PropTypes) {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDERS_RETURN}?${queryParam}`);
+      history.replace(`${location.pathname}?${queryParam}`);
     },
-    [history, params]
+    [history, location.pathname, params]
   );
   const onFilter = useCallback(
     (values) => {
@@ -270,9 +271,9 @@ function OrderReturnList(props: PropTypes) {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true) 
-      history.push(`${UrlConfig.ORDERS_RETURN}?${queryParam}`);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, params]
+    [history, location.pathname, params]
   );
 
   const onClearFilter = useCallback(
