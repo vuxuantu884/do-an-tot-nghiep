@@ -1938,10 +1938,12 @@ console.log('items', items)
 		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu đã có ở local storage thì ưu tiên lấy, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
 		if (newData && newData[0]?.id) {
 			if (!storeId) {
-				if(storeIdLogin) {
+				if(storeIdLogin && isCreateReturn) {
 					setStoreId(storeIdLogin);
 				} else if(!isCreateReturn) {
-					setStoreId(newData[0].id);
+					const hubOnlineStoreId = 78;
+					setStoreId(hubOnlineStoreId);
+					// setStoreId(newData[0].id);
 				}
 			}
 		}
