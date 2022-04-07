@@ -35,6 +35,8 @@ import {
   changeEcommerceOrderStatusService,
   getEcommercePrintForm,
   exitEcommerceJobsApi,
+  getEcommerceAddressByShopIdApi,
+  batchShippingShopeeProductApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import {
@@ -701,6 +703,56 @@ function* changeEcommerceOrderStatus(action: YodyAction) {
   }
 }
 
+function* getAddressEcommerceShopSaga(action: YodyAction) {
+  const { request, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(getEcommerceAddressByShopIdApi, request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* batchShippingShopeeProductSaga(action: YodyAction) {
+  const { request, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(batchShippingShopeeProductApi, request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -776,4 +828,18 @@ export function* ecommerceSaga() {
 
   //change ecommerce order status
   yield takeLatest(EcommerceType.CHANGE_ECOMMERCE_ORDER_STATUS, changeEcommerceOrderStatus);
+
+   //get address ecommerce by shop id
+   yield takeLatest(
+    EcommerceType.GET_ECOMMERCE_ADDRESS,
+    getAddressEcommerceShopSaga
+  )
+
+  //batch shipping shopee product
+  yield takeLatest(
+    EcommerceType.BATCH_SHIPPING_SHOPPE_PRODUCT,
+    batchShippingShopeeProductSaga
+  )
+
+
 }
