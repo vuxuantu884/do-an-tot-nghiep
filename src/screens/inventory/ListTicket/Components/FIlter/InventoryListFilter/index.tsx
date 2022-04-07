@@ -581,7 +581,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       <div className="order-filter-tags">
         {filters && filters.map((filter: any, index) => {
           return (
-            <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+            <Tag style={{ marginBottom: 20 }} key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
           )
         })}
       </div>
