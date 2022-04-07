@@ -33,6 +33,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const [isLoading,setIsLoading]= useState(false);
 
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [codes, setCodes] = useState<Array<String>>([]);
   const [orderListResponse, setOrderListResponse] = useState<OrderConcernGoodsReceiptsResponse[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
@@ -89,14 +90,17 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
               if(dataAdd.length === 0) {
                 showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
               } else {
+                let newCodes: Array<string> = [];
                 dataAdd.forEach((item) => {
                   let findIndex = orderListResponse.findIndex(response => response.id === item.id);
                   if(findIndex === -1) {
                     orderListResponse.unshift(item)
+                    param.order_codes  && newCodes.push(param.order_codes);
                   } else {
                     showError("Đơn hàng đã tồn tại không thể thêm vào biên bản bàn giao");
                   }
                 });
+                setCodes([...codes, ...newCodes]);
                 setOrderListResponse([...orderListResponse]);
               }
             } else {
@@ -111,7 +115,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     else {
       showWarning("Vui lòng nhập mã đơn hàng");
     }
-  }, [dispatch, orderListResponse, setOrderListResponse]);
+  }, [codes, dispatch, orderListResponse]);
 
   const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLBodyElement) {
@@ -187,7 +191,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     (value: any) => {
 
       setIsLoading(true)
-      let orderCode: string[] = orderListResponse.map((p) => p.code);
 
       let store_name = listStores.find(
         (data) => data.id === value.store_id
@@ -217,7 +220,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         delivery_service_name: delivery_service_name,
         delivery_service_type: "",
         receipt_type_name: receipt_type_name,
-        codes: orderCode
+        codes: codes,
       };
 
       dispatch(
@@ -231,7 +234,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         })
       );
     },
-    [orderListResponse, listStores, listThirdPartyLogistics, listGoodsReceiptsType, dispatch, listChannels, history]
+    [listStores, listThirdPartyLogistics, listGoodsReceiptsType, codes, dispatch, listChannels, history]
   );
 
   const onOkPress = useCallback(() => {
@@ -441,6 +444,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
 
           <AddOrderInReport
             orderListResponse={orderListResponse}
+            codes={codes}
             setOrderListResponse={setOrderListResponse}
             menu={actions}
             onMenuClick={onMenuClick}

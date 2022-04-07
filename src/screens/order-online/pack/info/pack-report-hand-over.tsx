@@ -438,10 +438,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const editNote= useCallback((id:number, data:GoodsReceiptsResponse, newNote:string)=>{
     let goodsReceiptsCopy:any={...data}
-    let codes=data.orders?.map((p)=>p.code)
+    let codes = data.orders?.map((p) => p.fullfilement_code);
     let param : GoodsReceiptsRequest={
       ...goodsReceiptsCopy,
-      codes:codes,
+      codes: codes,
       note: newNote
     }
 

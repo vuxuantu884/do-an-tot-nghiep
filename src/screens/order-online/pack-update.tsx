@@ -83,8 +83,7 @@ const PackUpdate: React.FC = () => {
         let total_price = 0;
 
         itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-          if (itemFulfillment.status !== 'returned' && itemFulfillment.status !== 'returning'
-          && itemFulfillment.status !== 'cancelled' && itemFulfillment.status !== 'splitted') {
+          if (itemFulfillment.status !== 'returned' && itemFulfillment.status !== 'returning' && itemFulfillment.status !== 'splitted') {
             ship_price =
               ship_price +
               (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
@@ -206,14 +205,34 @@ const PackUpdate: React.FC = () => {
         return;
       }
       let codes: string[]=[]
+      
+      
       if(packDetail.orders)
-        codes = packDetail.orders?.map((p)=>p.code);
+        codes = packDetail.orders?.map((p) => {
+          if(packDetail.receipt_type_id === 1) {
+            let fulfillments = p.fulfillments
+            ?.filter(f => f.status === "packed");
+            if(fulfillments && fulfillments.length > 0) {
+              return fulfillments[0].code ? fulfillments[0].code : ""
+            }
+            return "";
+          } else if(packDetail.receipt_type_id === 2) {
+            let fulfillments = p.fulfillments
+            ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
+            if(fulfillments && fulfillments.length > 0) {
+              return fulfillments[0].code ? fulfillments[0].code : ""
+            }
+            return "";
+          } else{
+            return "";
+          }
+        });
       // packDetail.orders?.forEach((item) => {
       //   if (item.code) codes.push(item.code);
       // });
       codes = insert([...codes],0,order_id);
 
-      console.log("codes",codes)
+      console.log("codes", codes)
 
       let id = packDetail?.id ? packDetail?.id : 0;
       let param: any = {
@@ -341,7 +360,7 @@ const PackUpdate: React.FC = () => {
   const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLBodyElement) {
       if (event.key !== "Enter") {
-        barcode += event.key;
+        barcode += event.key.toUpperCase();
       }
       else {
         if (!packDetail) return;

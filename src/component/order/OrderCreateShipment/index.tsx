@@ -366,7 +366,7 @@ function OrderCreateShipment(props: PropType) {
         />
       }
 
-      {!isEcommerceOrder &&
+      {(!isEcommerceOrder)&&
         <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>

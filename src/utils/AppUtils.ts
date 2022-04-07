@@ -1826,25 +1826,59 @@ export const convertFromStringToDate = (pDate: any, fomat:string) => {
 
   return date;
 }
+
+export const replaceLast = (text: string, textShort: string) => {
+  let index = text.lastIndexOf(textShort);
+  console.log('index', index);
+  let result = text
+  if(index > -1) {
+    result = text.substring(index, index + textShort.length);
+    console.log('result', result);
+
+  }
+  return result;
+};
+
+export const convertStringDistrict = (text: string) => {
+  return text.toLowerCase().replace("quận", "").normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/đ/g, "d")
+  .replace(/Đ/g, "D")
+  .replace("thi xa", "")
+  .replace("xa", "")
+  .replace("huyen", "")
+  .replace("thanh pho", "")
+  .replace("thi tran", "")
+  .replace("tinh", "")
+  .replace("tp.", "")
+  .replace("phuong", "")
+  .replace("p.", "")
+  .replace("-", " ")
+};
+
 export const findWard = (district: string | null, newWards: any[],  newValue: string) => {
   let districtConvert = district ? district.replace("tỉnh ", "").normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
   .toLowerCase()
-  .replace("quan ", "")
-  .replace("huyen ", "")
-  .replace("thanh pho ", "")
-  .replace("thi xa ", "")
+  .replace("quan", "")
+  .replace("huyen", "")
+  .replace("thanh pho", "")
+  .replace("thi xa", "")
+  .replace("thi tran", "")
   : "";
   console.log('districtConvert', districtConvert);
   let districtArr = districtConvert.split("-");
   console.log('districtArr', districtArr)
   let valueResult = newValue;
   districtArr.forEach(ddd => {
-    valueResult = valueResult.replaceAll(ddd.trim(), "");
+    console.log('ddd', ddd)
+    console.log('valueResult', valueResult)
+    // valueResult = valueResult.replace(ddd.trim(), "");
+    valueResult = replaceLast(valueResult, ddd);
   })
   console.log('valueResult', valueResult)
-  const findWard = newWards.find((ward: any) => valueResult.indexOf(ward.ward_name_normalize) > -1);
+  const findWard = newWards.find((ward: any) => valueResult.indexOf(convertStringDistrict(ward.name)) > -1);
   return findWard;
 };

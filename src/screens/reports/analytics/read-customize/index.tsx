@@ -301,7 +301,7 @@ function CreateAnalytics() {
                             &nbsp; Đổi tên
                         </Button>
 
-                        <Button type="primary" className='margin-left-20' onClick={() => setVisiableCloneReportModal(true)}>
+                        <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
                             Nhân bản báo cáo
                         </Button>
 

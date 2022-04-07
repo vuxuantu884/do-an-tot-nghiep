@@ -47,47 +47,55 @@ function ShipmentMethodEcommerce(props: PropType) {
   
   return (
     <StyledComponent>
-      <div className="shipment">
-        <div className="shipment-item">
-          <span className="title">Đối tác giao hàng: </span>
-          <span className="content">{ecommerceShipment?.delivery_service_provider_name || "--"}</span>
-        </div>
+      {ecommerceShipment ?
+        <>
+          <div className="shipment">
+            <div className="shipment-item">
+              <span className="title">Đối tác giao hàng: </span>
+              <span className="content">{ecommerceShipment?.delivery_service_provider_name || "--"}</span>
+            </div>
 
-        <div className="shipment-item">
-          <span className="title">Phí ship trả đối tác: </span>
-          <span className="content">
-            {ecommerceShipment ? 
-              <NumberFormat
-                value={ecommerceShipment.shipping_fee_paid_to_three_pls}
-                displayType={"text"}
-                thousandSeparator={true}
-              /> 
-              : 0
-            }
-          </span>
-        </div>
-      </div>
+            <div className="shipment-item">
+              <span className="title">Phí ship trả đối tác: </span>
+              <span className="content">
+                {ecommerceShipment ?
+                  <NumberFormat
+                    value={ecommerceShipment.shipping_fee_paid_to_three_pls || 0}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                  : 0
+                }
+              </span>
+            </div>
+          </div>
 
-      <div className="shipment">
-        <div className="shipment-item">
-          <span className="title">Phí ship báo khách: </span>
-          <span className="content">
-            {ecommerceShipment ? 
-              <NumberFormat
-                value={ecommerceShipment.shipping_fee_informed_to_customer}
-                displayType={"text"}
-                thousandSeparator={true}
-              /> 
-              : 0
-            }
-          </span>
-        </div>
+          <div className="shipment">
+            <div className="shipment-item">
+              <span className="title">Phí ship báo khách: </span>
+              <span className="content">
+                {ecommerceShipment ?
+                  <NumberFormat
+                    value={ecommerceShipment.shipping_fee_informed_to_customer}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                  : 0
+                }
+              </span>
+            </div>
 
-        <div className="shipment-item">
-          <span className="title">Loại đơn giao hàng: </span>
-          <span className="content">{ecommerceShipment?.service === SHIPPING_TYPE.DELIVERY_4H ? "Đơn giao 4H" : "Đơn giao bình thường"}</span>
+            <div className="shipment-item">
+              <span className="title">Loại đơn giao hàng: </span>
+              <span className="content">{ecommerceShipment?.service === SHIPPING_TYPE.DELIVERY_4H ? "Đơn giao 4H" : "Đơn giao bình thường"}</span>
+            </div>
+          </div>
+        </>
+        :
+        <div style={{ color: "red", fontSize: 16 }}>
+          <strong>Đơn hàng chưa có thông tin vận chuyển!</strong>
         </div>
-      </div>
+      }
 
       <Row className="orders-timeline-custom orders-shipment-item">
         <Collapse ghost>
@@ -199,20 +207,22 @@ function ShipmentMethodEcommerce(props: PropType) {
         </div>
       }
 
-      <div style={{marginTop: 20}}>
-        <Button
-          type="primary"
-          className="create-button-custom"
-          style={{float: "right"}}
-          onClick={() => {
-            handleCreateShipment && handleCreateShipment();
-          }}
-          loading={isLoading}
-        >
-          Tạo đơn giao hàng
-        </Button>
-      </div>
-      
+      {ecommerceShipment &&
+        <div style={{marginTop: 20}}>
+          <Button
+            type="primary"
+            className="create-button-custom"
+            style={{float: "right"}}
+            onClick={() => {
+              handleCreateShipment && handleCreateShipment();
+            }}
+            loading={isLoading}
+          >
+            Tạo đơn giao hàng
+          </Button>
+        </div>
+      }
+
     </StyledComponent>
   );
 }

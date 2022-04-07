@@ -636,7 +636,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 			value.cod = totalAmountCustomerNeedToPay;
 		}
 
-		FulFillmentRequest.shipment = isEcommerceOrder ? ecommerceShipment : value;
+		FulFillmentRequest.shipment = (isEcommerceOrder && ecommerceShipment) ? ecommerceShipment : value;
 
 		if (props.shippingFeeInformedCustomer !== null) {
 			FulFillmentRequest.shipping_fee_informed_to_customer =

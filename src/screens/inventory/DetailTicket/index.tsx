@@ -267,7 +267,7 @@ const DetailTicket: FC = () => {
       available: selectedItem.available ?? 0,
       amount: variantPrice,
       price: variantPrice,
-      transfer_quantity: 1,
+      transfer_quantity: 0,
       real_quantity: 1,
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
@@ -597,13 +597,13 @@ const DetailTicket: FC = () => {
     {
       title: "STT",
       align: "center",
-      width: "70px",
+      width: "50px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
         index + 1,
     },
     {
       title: "Ảnh",
-      width: "60px",
+      width: "50px",
       dataIndex: "variant_image",
       render: (value: string) => {
         return (
@@ -615,7 +615,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: "Sản phẩm",
-      width: "200px",
+      width: "150px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem) => (
@@ -651,8 +651,13 @@ const DetailTicket: FC = () => {
       },
     },
     {
-      title: "Số lượng",
-      width: 100,
+      title: <div>
+        <div>SL</div>
+        <div className="text-center">
+          {data?.total_quantity}
+        </div>
+      </div>,
+      width: 40,
       align: "center",
       dataIndex: "transfer_quantity",
     },
@@ -671,10 +676,15 @@ const DetailTicket: FC = () => {
       },
     },
     {
-      title: "Thực nhận",
+      title: <div>
+        <div>Thực nhận</div>
+        <div className="text-center">
+          {getTotalRealQuantity()}
+        </div>
+      </div>,
       dataIndex: "real_quantity",
       align: "center",
-      width: 100,
+      width: 70,
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
@@ -688,7 +698,7 @@ const DetailTicket: FC = () => {
             className={value && value < row.transfer_quantity
               ? 'border-red'
               : value && value > row.transfer_quantity
-                ? 'border-orange'
+                ? 'border-red'
                 : ''}
           />
         }
@@ -700,7 +710,7 @@ const DetailTicket: FC = () => {
     {
       title: "Lệch",
       align: "center",
-      width: 200,
+      width: 100,
       render: (item, row: LineItem) => {
         const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
         if (totalDifference) {
@@ -717,7 +727,7 @@ const DetailTicket: FC = () => {
     {
       title: "",
       fixed: dataTable?.length !== 0 && "right",
-      width: 50,
+      width: 40,
       dataIndex: "transfer_quantity",
       render: (value: string, row, index) => {
         if (
