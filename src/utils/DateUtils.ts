@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import moment, {Moment} from "moment";
 
 export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
@@ -20,6 +20,17 @@ export const ConvertUtcToLocalDate = (
       format ? format : DATE_FORMAT.fullDate
     );
     return dateFormat;
+  }
+  return "";
+};
+
+export const ConvertTimestampToDate = (
+  date?: string | number | null,
+  format?: string
+) => {
+  if (date != null) {
+    let dateTimestamp = Number(date);
+    return moment(new Date(dateTimestamp * 1000)).format(format ? format : DATE_FORMAT.fullDate);
   }
   return "";
 };
