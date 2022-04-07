@@ -40,7 +40,7 @@ import queryString from "query-string";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";

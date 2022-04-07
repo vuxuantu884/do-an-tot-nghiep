@@ -415,8 +415,14 @@ const Customer = () => {
     (values: CustomerSearchQuery) => {
       const newParams = { ...params, ...values, page: 1 };
       const queryParam = generateQuery(newParams);
-      history.push(`${location.pathname}?${queryParam}`);
+      const currentParam = generateQuery(params);
+      if (currentParam === queryParam) {
+        getCustomerList(newParams);
+      } else {
+        history.push(`${location.pathname}?${queryParam}`);
+      }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, location.pathname, params]
   );
 
