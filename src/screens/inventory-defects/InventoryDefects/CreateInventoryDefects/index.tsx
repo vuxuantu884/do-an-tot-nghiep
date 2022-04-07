@@ -293,29 +293,42 @@ const InventoryDefectCreate: React.FC = () => {
   }, [dataTable, calculatingDefectAndInventory])
 
   const onSelectProduct = useCallback(async (value: string) => {
-    const dataTemp = [...dataTable];
+    const dataTemp = cloneDeep(dataTable);
     const selectedItem = variantData?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
-    if (formStoreData && selectedItem && !dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      const item: LineItemDefect = {
-        id: selectedItem.id,
-        variant_id: selectedItem.id,
-        variant_name: selectedItem.name ?? selectedItem.variant_name,
-        code: selectedItem.code,
-        image_url: findAvatar(selectedItem.variant_images),
-        note: "",
-        on_hand: selectedItem.on_hand,
-        sku: selectedItem.sku,
-        defect: 1,
-        store: formStoreData.name,
-        store_id: formStoreData.id
+    if (formStoreData && selectedItem) {
+      let item: any = {}
+      if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
+        item = {
+          id: selectedItem.id,
+          variant_id: selectedItem.id,
+          variant_name: selectedItem.name ?? selectedItem.variant_name,
+          code: selectedItem.code,
+          image_url: findAvatar(selectedItem.variant_images),
+          note: "",
+          on_hand: selectedItem.on_hand,
+          sku: selectedItem.sku,
+          defect: 1,
+          store: formStoreData.name,
+          store_id: formStoreData.id
+        }
+        calculatingDefectAndInventory(dataTable.concat([{ ...item }]));
+        setDataTable((prev: Array<LineItemDefect>) =>
+          prev.concat([{ ...item }])
+        );
+      } else {
+        const itemExist = dataTemp.find((variant: VariantResponse) => variant.id === selectedItem.id)
+        const index = dataTemp.findIndex((variant: VariantResponse) => variant.id === selectedItem.id)
+        item = {
+          ...itemExist,
+          defect: itemExist.defect + 1
+        }
+        const newDataTable = cloneDeep(dataTable)
+        newDataTable[index] = item
+        setDataTable(newDataTable)
+        calculatingDefectAndInventory(newDataTable);
       }
-      calculatingDefectAndInventory(dataTable.concat([{ ...item }]));
-
-      setDataTable((prev: Array<LineItemDefect>) =>
-        prev.concat([{ ...item }])
-      );
     }
   }, [dataTable, variantData, calculatingDefectAndInventory, formStoreData]);
 
