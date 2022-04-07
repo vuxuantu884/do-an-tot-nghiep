@@ -101,7 +101,20 @@ export const ListAnalyticsStyle = styled.div`
         }
     }
     .card-custom-report {
-        background-color: ${Color.gray} ;
+        background-color: ${Color.gray};
+        .ant-card-head-wrapper {
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .btn-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            .search {
+                width: 320px;
+            }
+        }
     }
     .ana-list {
         &__link{
