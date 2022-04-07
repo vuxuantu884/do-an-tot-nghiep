@@ -1504,7 +1504,7 @@ ShippingServiceConfigDetailResponseModel[]
 																				//   return true;
 																				// }
 																				return (
-																					payment.payment_method !== PaymentMethodCode.COD && payment.amount
+																					payment.payment_method_code !== PaymentMethodCode.COD && payment.amount
 																				);
 																			})
 																			.map((payment: any, index: number) => (
