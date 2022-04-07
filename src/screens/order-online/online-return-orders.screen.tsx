@@ -1,4 +1,5 @@
 import { ReturnSearchQuery } from "model/order/return.model";
+import { withRouter } from "react-router-dom";
 import OrderReturnList from "./component/OrderReturnList/OrderReturnList";
 
 const initQuery: ReturnSearchQuery = {
@@ -25,9 +26,13 @@ const initQuery: ReturnSearchQuery = {
   source_ids: [],
   channel_codes: []
 };
-
-function OnlineReturnOrdersScreen() {
-    return <OrderReturnList initQuery={initQuery}/>
+type PropTypes = {
+  location: any;
 };
 
-export default OnlineReturnOrdersScreen;
+function OnlineReturnOrdersScreen(props: PropTypes) {
+  const { location } = props;
+  return <OrderReturnList initQuery={initQuery} location={location}/>
+};
+
+export default withRouter(OnlineReturnOrdersScreen);
