@@ -37,7 +37,7 @@ docker build uat:
   - builder
   before_script:
     - unset DOCKER_HOST
-    - 'echo "\nREACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.uat'
+    - 'echo "REACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.uat'
     - cat .env.uat
   only:
     - uat
@@ -56,7 +56,7 @@ docker build production:
   - builder
   before_script:
     - unset DOCKER_HOST
-    - 'echo "\nREACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.production'
+    - 'echo "REACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.production'
     - cat .env.production
   only:
     - master
