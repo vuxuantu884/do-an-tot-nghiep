@@ -105,7 +105,7 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
 	storeId: number | null;
 	items?: Array<OrderLineItemRequest>;
 	shippingFeeInformedToCustomer: number | null;
@@ -155,6 +155,7 @@ const initQueryVariant: VariantSearchQuery = {
 	saleable: true,
 };
 
+
 /**
  * component dùng trong trang tạo đơn, update đơn hàng, đổi trả đơn hàng
  *
@@ -197,7 +198,8 @@ const initQueryVariant: VariantSearchQuery = {
  * customer: thông tin khách hàng, để apply coupon
  *
  */
-function OrderCreateProduct(props: PropType) {
+function OrderCreateProduct(props: PropTypes) {
+	let isQuantityIsSame = false;
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
@@ -277,6 +279,8 @@ function OrderCreateProduct(props: PropType) {
 	const lineItemQuantityInputTimeoutRef: MutableRefObject<any> = useRef();
 	const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
 	const lineItemDiscountInputTimeoutRef: MutableRefObject<any> = useRef();
+
+	const [isLineItemChanging, setIsLineItemChanging] = useState(false)
 
 	const [storeArrayResponse, setStoreArrayResponse] =
 		useState<Array<StoreResponse> | null>([]);
@@ -532,6 +536,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 		if (items) {
 			let _items = _.cloneDeep(items)
 			if (value === _items[index].quantity) {
+				setIsLineItemChanging(false)
 				return;
 			}
 			if(value === 0 || !value) {
@@ -547,8 +552,6 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
 			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
-			console.log('_items', _items)
-			setItems(_items);
 			handleDelayCalculateWhenChangeOrderInput(lineItemQuantityInputTimeoutRef, _items);
 		}
 	};
@@ -741,6 +744,13 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 			);
 		},
 	};
+console.log('isLineItemChanging', isLineItemChanging)
+	const isOtherLineItemIsChanged = () => {
+		if(isLineItemChanging) {
+			return true;
+		}
+		return false
+	};
 
 	const AmountColumn = {
 		title: () => (
@@ -763,6 +773,13 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						replace={(a: string) => replaceFormatString(a)}
 						style={{ textAlign: "right", fontWeight: 500, color: "#222222" }}
 						value={l.quantity}
+						onBlur={() => {
+							if(isQuantityIsSame) {
+								setIsLineItemChanging(true)
+							} else {
+								setIsLineItemChanging(false)
+							}
+						}}
 						onChange={(value) => {
 							// let maxQuantityToApplyDiscount = l?.maxQuantityToApplyDiscount;
 							// if (
@@ -778,15 +795,22 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 							//   value = maxQuantityToApplyDiscount;
 							//   return;
 							// }
+							if(!items) {
+								return;
+							}
+							if(isQuantityIsSame && value === l.quantity) {
+								isQuantityIsSame = false
+							} else {
+								isQuantityIsSame = true
+							}
 							onChangeQuantity(value, index);
 						}}
 						// max={l.maxQuantityToApplyDiscount}
 						min={1}
 						maxLength={4}
 						minLength={0}
-						disabled={levelOrder > 3 || isLoadingDiscount}
+						disabled={levelOrder > 3 || isLoadingDiscount || isOtherLineItemIsChanged()}
 						isChangeAfterBlur = {false}
-						key={Math.random()}
 					/>
 				</div>
 			);
@@ -836,6 +860,9 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 						maxLength={14}
 						minLength={0}
 						value={l.price}
+						onBlur={() => {
+							setIsLineItemChanging(true)
+						}}
 						onChange={(value) => {
 							onChangePrice(value, index);
 						}}
@@ -847,6 +874,7 @@ console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 							promotion !== null ||
 							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin) || 
 							isLoadingDiscount
+							|| isOtherLineItemIsChanged()
 						}
 					/>
 				</div>
@@ -1904,6 +1932,7 @@ console.log('items', items)
 				transportService, form, setShippingFeeInformedToCustomer
 				);
 		}
+		setIsLineItemChanging(false)
 	};
 
 	const storeIdLogin = useGetStoreIdFromLocalStorage()
