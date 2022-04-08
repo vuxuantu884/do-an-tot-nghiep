@@ -13,6 +13,6 @@ export interface CreateCustomerPointAdjustmentRequest {
   customer_ids: Array<any> | []
   note?: string
   reason: string
-  point_change: number
+  value_change: number
   type: string
 }
