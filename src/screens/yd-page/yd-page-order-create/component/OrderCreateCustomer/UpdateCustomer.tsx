@@ -77,16 +77,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
   const [visibleModalChangeAddress, setVisibleModalChangeAddress] = useState(false)
 
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
-    []
-  );
+  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
+  const [loadingWardList, setLoadingWardList] = React.useState<boolean>(false);
 
   //const [shippingDistrictId, setShippingDistrictId] = React.useState<any>(null);
 
   const getWardByDistrictId = useCallback(
     (districtId: number) => {
       if (districtId) {
-        dispatch(WardGetByDistrictAction(districtId, setShippingWards));
+        setLoadingWardList(true);
+        dispatch(WardGetByDistrictAction(Number(districtId), (wardResponse) => {
+          setShippingWards(wardResponse);
+          setLoadingWardList(false);
+        }));
       }
     },
     [dispatch]
@@ -413,6 +416,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 className="select-with-search"
                 showSearch
                 allowClear
+                loading={loadingWardList}
                 optionFilterProp="children"
                 style={{ width: "100%" }}
                 placeholder={
@@ -424,7 +428,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 onChange={() => {
                   setVisibleBtnUpdate(true);
                 }}
-                disabled={disableInput}
+                disabled={disableInput || loadingWardList}
               >
                 {shippingWards.map((ward: any) => (
                   <Select.Option key={ward.id} value={ward.id}>
