@@ -37,7 +37,7 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { convertStringDistrict, findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, totalAmount } from "utils/AppUtils";
+import { convertStringDistrict, findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -420,33 +420,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-    // trường hợp hà tĩnh thì phải replace trước khi convert
-    // bắc quang hà giang: quận trước
-    const newValue = value.toLowerCase().replace("tỉnh", "").replace("quận", "").replace("huyện", "").normalize("NFD")
-    .replaceAll(",", " ")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D")
-    .replace("thanh pho", "")
-    .replace("thi xa", "")
-    .replace("xa", "")
-    .replace("thon", "")
-    .replaceAll("-", " ")
-    .replaceAll(",", " ")
-      
-    // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
-    const findArea = newAreas.find((area: any) => {
-      const districtString = convertStringDistrict(area.name);
-       // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao: 
-      // test Thị xã Phú Mỹ, bà rịa vũng tàu
-      // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
-      const cityString = convertStringDistrict(area.city_name).replace(/\s\s+/g, ' ');
-      console.log('cityString', cityString)
-      console.log('districtString', districtString)
-      return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
-    });
+    const findArea = handleFindArea(value, newAreas)
     console.log('findArea', findArea)
-    console.log('newValue', newValue)
     if (findArea) {
       switch (type) {
         case "full_address":
