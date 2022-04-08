@@ -37,6 +37,8 @@ const POINT_ADJUSTMENT_REASON = [
   "Tặng điểm bù",
   "Tặng điểm sự cố",
   "Trừ điểm bù",
+  "Tặng tiền tích lũy",
+  "Trừ tiền tích lũy",
   "Khác",
 ];
 
@@ -246,7 +248,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
           </Item>
 
           <Item name="reasons" className="select-reason">
-            <CustomSelect
+            <Select
               mode="multiple"
               maxTagCount="responsive"
               showSearch
@@ -260,7 +262,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
                   <div>{item}</div>
                 </Option>
               ))}
-            </CustomSelect>
+            </Select>
           </Item>
 
           <Item
