@@ -582,7 +582,7 @@ const ListCode = () => {
                 }}
                 disabled={uploadStatus === "error"}
               >
-                Xác nhận
+                Xong
               </Button>,
             ]}
           >
