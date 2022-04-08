@@ -1827,20 +1827,27 @@ export const convertFromStringToDate = (pDate: any, fomat:string) => {
   return date;
 }
 
+export const removeSpaceBeforeAndAfterWord = (text: string) => {
+  return text.split(" ").map(single => single.trim()).filter(single => single).join(" ")
+};
+
 export const replaceLast = (text: string, textShort: string) => {
+  textShort = removeSpaceBeforeAndAfterWord(textShort);
+  console.log('textShort', textShort)
+  console.log('text', text)
   let index = text.lastIndexOf(textShort);
   console.log('index', index);
   let result = text
   if(index > -1) {
-    result = text.substring(index, index + textShort.length);
-    console.log('result', result);
-
+    let deleteText = text.substring(index, index + textShort.length);
+    console.log('deleteText', deleteText);
+    result = text.replace(deleteText, "");
   }
   return result;
 };
 
 export const convertStringDistrict = (text: string) => {
-  return text.toLowerCase().replace("quận", "").normalize("NFD")
+  return text.toLowerCase().replace("tỉnh", "").replace("quận", "").replaceAll(".", "").replaceAll(",", " ").normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
@@ -1849,15 +1856,14 @@ export const convertStringDistrict = (text: string) => {
   .replace("huyen", "")
   .replace("thanh pho", "")
   .replace("thi tran", "")
-  .replace("tinh", "")
-  .replace("tp.", "")
+  .replace("tp", "")
   .replace("phuong", "")
   .replace("p.", "")
   .replace("-", " ")
 };
 
 export const findWard = (district: string | null, newWards: any[],  newValue: string) => {
-  let districtConvert = district ? district.replace("tỉnh ", "").normalize("NFD")
+  let districtConvert = district ? district.toLowerCase().replace("tỉnh ", "").normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
