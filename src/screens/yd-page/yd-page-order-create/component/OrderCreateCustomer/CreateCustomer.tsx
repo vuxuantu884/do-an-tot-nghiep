@@ -38,6 +38,7 @@ type CreateCustomerProps = {
   newCustomerInfo?: YDpageCustomerRequest;
   areaList: any;
   wards: any;
+  loadingWardList: boolean;
   customerGroups: any;
   handleChangeArea: any;
   handleChangeCustomer: any;
@@ -52,6 +53,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     newCustomerInfo,
     areaList,
     wards,
+    loadingWardList,
     customerGroups,
     handleChangeArea,
     handleChangeCustomer,
@@ -470,6 +472,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 className="select-with-search"
                 showSearch
                 allowClear
+                loading={loadingWardList}
+                disabled={loadingWardList}
                 optionFilterProp="children"
                 style={{ width: "100%" }}
                 placeholder={
