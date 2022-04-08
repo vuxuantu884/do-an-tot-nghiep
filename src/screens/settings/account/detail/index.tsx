@@ -25,7 +25,17 @@ function AccountDetail() {
   const dispatch = useDispatch();
   const {code} = useParams<{code: string}>();
   const detailContext = useContext(AccountDetailContext);
-  const {setAccountInfo, setUserCode} = detailContext;
+  const {setAccountInfo, setUserCode, accountInfo} = detailContext;
+
+  const AccountStatus = () => {
+    let Status = <></>
+    if (accountInfo?.status?.toLocaleLowerCase() === "active") {
+      Status = <span className="text-success">Hoạt động</span>
+    } else {
+      Status = <span className="text-error">Ngừng hoạt động</span>
+    }
+    return <div className="account-title">Trạng thái: &nbsp;<b>{Status}</b></div>;
+  }
 
   useEffect(() => {
     setUserCode && setUserCode(code);
@@ -67,6 +77,7 @@ function AccountDetail() {
         <Card className="card-tab">
           <Tabs style={{overflow: "initial"}} 
           renderTabBar={RenderTabBar}
+          tabBarExtraContent={<AccountStatus/>}
           >
             <TabPane tab="Thông tin cơ bản" key={TabName.DETAIL_TAB}>
               <AccountViewTab />

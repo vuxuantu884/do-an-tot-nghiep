@@ -801,7 +801,7 @@ const PromotionDetailScreen: React.FC = () => {
               setShowImportFile(false);
             }}
           >
-            Xác nhận
+            Xong
           </Button>,
         ]}
       >
