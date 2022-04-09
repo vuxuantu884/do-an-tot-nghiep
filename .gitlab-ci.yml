@@ -20,6 +20,8 @@ docker build dev:
     - develop
   before_script:
     - unset DOCKER_HOST
+    - 'echo "REACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.development'
+    - cat .env.development
   variables:
     PREFIX: dev
     DOCKER_FILE: Dockerfile
@@ -35,6 +37,8 @@ docker build uat:
   - builder
   before_script:
     - unset DOCKER_HOST
+    - 'echo "REACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.uat'
+    - cat .env.uat
   only:
     - uat
   variables:
@@ -52,6 +56,8 @@ docker build production:
   - builder
   before_script:
     - unset DOCKER_HOST
+    - 'echo "REACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.production'
+    - cat .env.production
   only:
     - master
   variables:
@@ -150,4 +156,3 @@ deploy to accountant:
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
     - bash deployment/deploy.sh app-admin
-

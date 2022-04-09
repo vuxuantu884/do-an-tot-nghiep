@@ -82,8 +82,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
     props.onClearFilter && props.onClearFilter();
     setVisible(false);
     formAdvanceFilter.submit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formAdvanceFilter]);
+  }, [formAdvanceFilter, props]);
   const onResetFilter = useCallback(() => {
     let fields = formAdvanceFilter.getFieldsValue(true);
     for (let key in fields) {

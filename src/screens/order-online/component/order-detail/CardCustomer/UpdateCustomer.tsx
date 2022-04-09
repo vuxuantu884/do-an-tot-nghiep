@@ -35,9 +35,9 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { convertStringDistrict, findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
+import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -79,6 +79,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     setShippingFeeInformedToCustomer,
     form,
   } = props;
+
+  const fullAddressRef = useRef()
 
   const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
 
@@ -131,7 +133,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               .replace(/đ/g, "d")
               .replace(/Đ/g, "D")
               .toLowerCase();
-              
+
             const newWards = data.map((ward: any) => {
               return {
                 ...ward,
@@ -148,7 +150,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             formRefCustomer.current?.setFieldsValue({
               ward_id: findWard ? findWard.id : null,
             })
-            
+
           }
           setWards(data);
         }));
@@ -418,24 +420,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-    // trường hợp hà tĩnh thì phải replace trước khi convert
-    // bắc quang hà giang: quận trước
-    const newValue = value.toLowerCase().replace("tỉnh", "").replace("quận", "").replace("huyện", "").normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/Đ/g, "D")
-      .replace("thanh pho", "")
-      .replace("thi xa", "")
-      .replaceAll("-", " ")
-    // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
-    const findArea = newAreas.find((area: any) => {
-      const districtString = convertStringDistrict(area.name);
-      // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao: 
-      // test Thị xã Phú Mỹ, bà rịa vũng tàu
-      // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
-      const cityString = convertStringDistrict(area.city_name).replace(/\s\s+/g, ' ');
-      return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
-    });
+    const findArea = handleFindArea(value, newAreas)
+    console.log('findArea', findArea)
     if (findArea) {
       switch (type) {
         case "full_address":
@@ -458,7 +444,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           break;
         default: break;
       }
-      
+
     }
   }, [formRefCustomer, getShippingWards, getWards, newAreas]);
 
@@ -935,7 +921,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         <Input
                           placeholder="Địa chỉ"
                           prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                          onChange={(e) => checkAddress("full_address", e.target.value)}
+                          onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                            checkAddress("full_address", e.target.value)
+                          },500)}
                         />
                       </Form.Item>
                     </Col>
@@ -989,7 +977,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         ]}
                       >
                         <DatePicker
-                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : undefined} 
+                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : undefined}
                           style={{ width: "100%" }}
                           placeholder="Chọn ngày sinh"
                           format={"DD/MM/YYYY"}

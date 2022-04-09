@@ -35,9 +35,9 @@ import {
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { convertStringDistrict, findWard } from "utils/AppUtils";
+import { findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -59,6 +59,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     keySearchCustomer,
     CustomerDeleteInfo
   } = props;
+
+  const fullAddressRef = useRef()
 
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
@@ -140,12 +142,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRef.current?.getFieldValue("full_address");
           if (value) {
-            const newValue = value.normalize("NFD")
+            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
               .replace(/đ/g, "d")
               .replace(/Đ/g, "D")
-              .toLowerCase();
-              
+
             const newWards = data.map((ward: any) => {
               return {
                 ...ward,
@@ -193,7 +194,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 .replace(/đ/g, "d")
                 .replace(/Đ/g, "D")
                 .toLowerCase().replace("phuong ", "")
-                .replace("xa ", ""),
+                .replace("xa", ""),
               }
             });
             const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
@@ -293,29 +294,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-    // trường hợp hà tĩnh thì phải replace trước khi convert
-    // bắc quang hà giang: quận trước
-    const newValue = value.toLowerCase().replace("tỉnh", "").replace("quận", "").replace("huyện", "").normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D")
-    .replace("thanh pho", "")
-    .replace("thi xa", "")
-    .replaceAll("-", " ")
-      
-    // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
-    const findArea = newAreas.find((area: any) => {
-      const districtString = convertStringDistrict(area.name);
-       // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao: 
-      // test Thị xã Phú Mỹ, bà rịa vũng tàu
-      // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
-      const cityString = convertStringDistrict(area.city_name).replace(/\s\s+/g, ' ');
-      console.log('cityString', cityString)
-      console.log('districtString', districtString)
-      return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
-    });
+    const findArea = handleFindArea(value, newAreas)
     console.log('findArea', findArea)
-    console.log('newValue', newValue)
     if (findArea) {
       switch (type) {
         case "full_address":
@@ -335,10 +315,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             })
             getShippingWards(findArea.id);
           }
-          break;  
-        default: break;  
+          break;
+        default: break;
       }
-      
+
     }
   }, [formRef, getShippingWards, getWards, newAreas]);
 
@@ -500,7 +480,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               <Input
                 placeholder="Địa chỉ"
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                onChange={(e) => checkAddress("full_address", e.target.value)}
+                onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                  checkAddress("full_address", e.target.value)
+                },500)}
               />
             </Form.Item>
           </Col>
