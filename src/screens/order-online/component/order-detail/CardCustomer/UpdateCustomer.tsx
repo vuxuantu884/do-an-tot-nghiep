@@ -37,7 +37,7 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { convertStringDistrict, findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
+import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -133,7 +133,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               .replace(/đ/g, "d")
               .replace(/Đ/g, "D")
               .toLowerCase();
-              
+
             const newWards = data.map((ward: any) => {
               return {
                 ...ward,
@@ -150,7 +150,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             formRefCustomer.current?.setFieldsValue({
               ward_id: findWard ? findWard.id : null,
             })
-            
+
           }
           setWards(data);
         }));
@@ -444,7 +444,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           break;
         default: break;
       }
-      
+
     }
   }, [formRefCustomer, getShippingWards, getWards, newAreas]);
 
@@ -977,7 +977,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         ]}
                       >
                         <DatePicker
-                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : undefined} 
+                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : undefined}
                           style={{ width: "100%" }}
                           placeholder="Chọn ngày sinh"
                           format={"DD/MM/YYYY"}

@@ -37,7 +37,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
 import React, { createRef, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { convertStringDistrict, findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea } from "utils/AppUtils";
+import { findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -146,7 +146,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               .replace(/[\u0300-\u036f]/g, "")
               .replace(/đ/g, "d")
               .replace(/Đ/g, "D")
-              
+
             const newWards = data.map((ward: any) => {
               return {
                 ...ward,
@@ -315,10 +315,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             })
             getShippingWards(findArea.id);
           }
-          break;  
-        default: break;  
+          break;
+        default: break;
       }
-      
+
     }
   }, [formRef, getShippingWards, getWards, newAreas]);
 
