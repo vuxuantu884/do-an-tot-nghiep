@@ -19,6 +19,7 @@ import UrlConfig from "config/url.config";
 import _ from "lodash";
 import POSupplierAddress from "./POSupplierAddress";
 import { EmailWrap } from "./index.style";
+import { POField } from "model/purchase-order/po-field";
 
 const SupplierAddModal = lazy(
   () => import("screens/products/supplier/modal/supplier-add-modal.screen")
@@ -100,16 +101,17 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
   };
 
   const onSelect = (value: string) => {
-    let index = data.findIndex((item) => item.id === +value);
-    let supplier = data[index];
+    const index = data.findIndex((item) => item.id === +value);
+    const supplier = data[index];
     const supplierAddress = transformSupplier(supplier);
-
+    const condition = supplier.debt_time && supplier.debt_time_unit_name && supplier.debt_time + " " + supplier.debt_time_unit_name;
     formMain.setFieldsValue({
       supplier_id: value,
       supplier: data[index].name,
       billing_address: supplierAddress,
       supplier_address: supplierAddress,
       phone: supplier.phone,
+      [POField.payment_condition_name]: condition,
     });
     setIsSelectSupplier(true);
   };
@@ -178,6 +180,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
           </div>
         }>
         <div>
+          <Form.Item name={POField.payment_condition_name} noStyle/>
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
