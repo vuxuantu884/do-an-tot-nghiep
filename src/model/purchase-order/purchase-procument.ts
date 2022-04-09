@@ -24,7 +24,7 @@ export interface PurchaseProcurementViewDraft {
   id?: number,
   fake_id: number,
   reference?: string;
-  store_id?: number;
+  store_id: number;
   expect_receipt_date: string;
   procurement_items: Array<PurchaseOrderLineItemDraft>;
   status: string;

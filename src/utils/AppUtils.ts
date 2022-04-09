@@ -1685,7 +1685,7 @@ export const getCustomerShippingAddress = (customer: CustomerResponse) => {
 export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | undefined) => {
   return  orderDetail?.status === OrderStatus.FINISHED ||
    orderDetail?.status === OrderStatus.COMPLETED ||
-   orderDetail?.status === OrderStatus.CANCELLED
+   orderDetail?.status === OrderStatus.CANCELLED 
 };
 
 export const copyTextToClipboard = (e: any, data: string | null) => {

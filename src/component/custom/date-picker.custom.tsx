@@ -19,7 +19,7 @@ type CustomDatePickerProps = {
 const CustomDatePicker: React.FC<CustomDatePickerProps> = (
   props: CustomDatePickerProps
 ) => {
-  const { value, onChange, placeholder, style, ...rest } = props;
+  const { value, onChange, placeholder, style } = props;
   return (
     <DatePicker
       defaultValue={props.defaultValue}
@@ -33,7 +33,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = (
       className={props.className}
       format={props.format || DATE_FORMAT.DDMMYYY}
       showTime={props.showTime}
-      {...rest}
     />
   );
 };

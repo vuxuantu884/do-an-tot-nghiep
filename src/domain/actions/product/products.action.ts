@@ -126,7 +126,7 @@ export const productGetHistoryAction = (
   });
 };
 
-export const productGetDetail = (id: number, onResult: (result: ProductResponse) => void) => {
+export const productGetDetail = (id: number, onResult: (result: ProductResponse|false) => void) => {
   return BaseAction(ProductType.PRODUCT_DETAIL, {id, onResult});
 }
 

@@ -74,34 +74,33 @@ const ListProductScreen: React.FC = () => {
     }
   }, [path, canReadHistories, canReadVariants, canReadProducts, history]);
 
-  const defaultTabs = useMemo(() => {
-    return [
-      {
-        name: "Danh sách sản phẩm",
-        key: ProductTabUrl.VARIANTS,
-        component: <TabProduct vExportProduct={vExportProduct} setVExportProduct={setVExportProduct}/>,
-        isShow: canReadVariants,
-      },
-      {
-        name: "Danh sách cha",
-        key: ProductTabUrl.PRODUCTS,
-        component: <TabProductWrapper />,
-        isShow: canReadProducts,
-      },
-      {
-        name: "Lịch sử sản phẩm",
-        key: ProductTabUrl.PRODUCT_HISTORIES,
-        component: <TabHistoryInfo />,
-        isShow: canReadHistories,
-      },
-      {
-        name: "Lịch sử giá",
-        key: ProductTabUrl.HISTORY_PRICES,
-        component: <TabHistoryPrice />,
-        isShow: canReadHistories,
-      },
-    ];
-  }, [canReadHistories, canReadVariants, canReadProducts, vExportProduct]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultTabs = [
+    {
+      name: "Danh sách sản phẩm",
+      key: ProductTabUrl.VARIANTS,
+      component: <TabProduct vExportProduct={vExportProduct} setVExportProduct={setVExportProduct}/>,
+      isShow: canReadVariants,
+    },
+    {
+      name: "Danh sách cha",
+      key: ProductTabUrl.PRODUCTS,
+      component: <TabProductWrapper />,
+      isShow: canReadProducts,
+    },
+    {
+      name: "Lịch sử sản phẩm",
+      key: ProductTabUrl.PRODUCT_HISTORIES,
+      component: <TabHistoryInfo />,
+      isShow: canReadHistories,
+    },
+    {
+      name: "Lịch sử giá",
+      key: ProductTabUrl.HISTORY_PRICES,
+      component: <TabHistoryPrice />,
+      isShow: canReadHistories,
+    },
+  ];
   const tabs = useMemo(() => defaultTabs.filter((tab) => tab.isShow),[defaultTabs]);
   return (
     <ContentContainer
