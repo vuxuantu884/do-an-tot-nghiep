@@ -138,7 +138,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   services: [],
 };
 
-const ALL_CHANNEL = ["web", "mobile_app", "landing_page"];
+const ALL_CHANNEL = ["WEBSITE", "APP", "LANDINGPAGE"];
 
 const ordersViewPermission = [EcommerceOrderPermission.orders_read];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
