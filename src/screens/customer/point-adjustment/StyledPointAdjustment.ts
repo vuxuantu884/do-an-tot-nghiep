@@ -97,12 +97,33 @@ export const StyledCreatePointAdjustment= styled.div`
       margin: 0 0 20px;
     }
     .row {
-      margin-bottom: 4px;
       &-label {
         font-weight: 500;
         margin-bottom: 8px;
       }
+      
+      &-content {
+        &-info-customer {
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+
+      .search-info-customer {
+        flex-grow: 1;
+        margin-right: 20px;
+        & .ant-form-item-control {
+          width: 712px;
+        }
+      }
+			
+			.customer-adjustment-file-name {
+				display: flex;
+				align-items: center;
+				padding-left: 20px;
+			}
     }
+
     .footer-controller {
       margin-left: -50px;
       margin-right: -12px;
@@ -150,4 +171,5 @@ export const StyledCreatePointAdjustment= styled.div`
       }
     }
   }
+
 `;
