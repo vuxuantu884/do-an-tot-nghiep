@@ -82,7 +82,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
     props.onClearFilter && props.onClearFilter();
     setVisible(false);
     formAdvanceFilter.submit();
-  }, [formAdvanceFilter]);
+  }, [formAdvanceFilter, props]);
   const onResetFilter = useCallback(() => {
     let fields = formAdvanceFilter.getFieldsValue(true);
     for (let key in fields) {
@@ -91,7 +91,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
     formAdvanceFilter.setFieldsValue(fields);
     setVisible(false);
     formAdvanceFilter.submit();
-    
+
   }, [formAdvanceFilter]);
   useEffect(() => {
     formBaseFilter.setFieldsValue({...advanceFilters});
@@ -124,9 +124,9 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
           let data = {
             ...baseValues,
-            ...advanceValues, 
-            condition: baseValues.condition, 
-          };  
+            ...advanceValues,
+            condition: baseValues.condition,
+          };
           for (let key in data) {
             if (data[key] instanceof Array) {
               if (data[key].length === 0) data[key] = undefined;
