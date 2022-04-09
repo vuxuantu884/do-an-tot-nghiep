@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {Link, useHistory, useLocation} from "react-router-dom";
-import { Card, Button, Modal, Radio, Space, Progress } from "antd";
+import { Card, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -41,19 +41,16 @@ import {
   StyledCustomer,
   StyledCustomerExtraButton,
 } from "screens/customer/customerStyled";
-import { showError, showSuccess } from "utils/ToastUtils";
 import {
   generateQuery,
   isNullOrUndefined,
 } from "utils/AppUtils";
-import {exportCustomerFile, getCustomerFile} from "service/customer/customer.service";
-import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
-import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 import {getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import NumberFormat from "react-number-format";
+import ExportCustomerFile from "screens/customer/export-file/ExportCustomerFile";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -447,114 +444,14 @@ const Customer = () => {
 
   // handle export file
   const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
-  const [isVisibleWarningExportModal, setIsVisibleWarningExportModal] =
-    useState(false);
-  const [exportAll, setExportAll] = useState(true);
-  const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
 
   const handleExportFile = () => {
-    setExportProgress(0);
     setIsVisibleExportModal(true);
-  };
-
-  const onChangeExportOption = (e: any) => {
-    setExportAll(e.target.value);
-  };
-
-  // warning export 10k customers
-  const onOkWarningExportModal = () => {
-    setIsVisibleWarningExportModal(false);
-  };
-
-  const onCancelWarningExportModal = () => {
-    setIsVisibleWarningExportModal(false);
-    cancelExportModal();
-  };
-
-  const onOkExportModal = () => {
-    if (exportAll && data?.metadata.total >= 10000) {
-      setIsVisibleWarningExportModal(true);
-    } else {
-      okExportModal();
-    }
-  };
-
-  const okExportModal = () => {
-    let newParams = { ...params };
-    newParams.search_type = undefined;  //remove search_type param
-    if (exportAll) {
-      newParams.limit = data.metadata?.total;
-      newParams.page = undefined;
-    }
-    const exportParams = generateQuery(newParams);
-
-    exportCustomerFile({
-      conditions: exportParams,
-      type: "EXPORT_CUSTOMER",
-    })
-      .then((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          setIsVisibleProgressModal(true);
-          cancelExportModal();
-          setExportCodeList([...exportCodeList, response.data.code]);
-        }
-      })
-      .catch(() => {
-        showError("Có lỗi xảy ra, vui lòng thử lại sau");
-      });
   };
 
   const cancelExportModal = () => {
     setIsVisibleExportModal(false);
-    setExportAll(true);
   };
-
-  // process export modal
-  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
-  const [exportProgress, setExportProgress] = useState<number>(0);
-
-  const onCancelProgressModal = () => {
-    setExportCodeList([]);
-    setIsVisibleProgressModal(false);
-  };
-
-  const checkExportFile = useCallback(() => {
-    let getFilePromises = exportCodeList.map((code) => {
-      return getCustomerFile(code);
-    });
-
-    Promise.all(getFilePromises).then((responses) => {
-      responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data?.total > 0) {
-          if (response.data.url) {
-            const newExportCode = exportCodeList.filter((item) => {
-              return item !== response.data.code;
-            });
-            setExportCodeList(newExportCode);
-            setExportProgress(100);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
-            window.open(response.data.url);
-          } else {
-            if (response.data.processed >= response.data.total) {
-              setExportProgress(99);
-            } else {
-              const percent = Math.floor((response.data.processed / response.data.total) * 100);
-              setExportProgress(percent);
-            }
-          }
-        }
-      });
-    });
-  }, [exportCodeList]);
-
-  useEffect(() => {
-    if (exportProgress === 100 || exportCodeList.length === 0) return;
-
-    checkExportFile();
-
-    const getFileInterval = setInterval(checkExportFile, 3000);
-    return () => clearInterval(getFileInterval);
-  }, [checkExportFile, exportProgress, exportCodeList]);
   // end handle export file
 
   // handle import file
@@ -669,90 +566,12 @@ const Customer = () => {
           />
         }
 
-        {/* Export customer data */}
-        <Modal
-          centered
-          width="600px"
-          visible={isVisibleExportModal}
-          title="Xuất excel dữ liệu khách hàng"
-          okText="Xuất dữ liệu"
-          cancelText="Đóng"
-          onCancel={cancelExportModal}
-          onOk={onOkExportModal}
-          maskClosable={false}>
-          <Radio.Group onChange={onChangeExportOption} value={exportAll}>
-            <Space direction="vertical">
-              <Radio value={false}>Tải trang hiện tại</Radio>
-              <Radio value={true}>Tải tất cả các trang</Radio>
-            </Space>
-          </Radio.Group>
-        </Modal>
-
-        {/* Warning export customer data */}
-        <Modal
-          centered
-          width="600px"
-          visible={isVisibleWarningExportModal}
-          title=""
-          closable={false}
-          maskClosable={false}
-          footer={
-            <StyledModalFooter>
-              <Button danger onClick={onCancelWarningExportModal}>
-                Thoát
-              </Button>
-
-              <Button type="primary" onClick={onOkWarningExportModal}>
-                Đồng ý
-              </Button>
-            </StyledModalFooter>
-          }>
-          <div>
-            Để đảm bảo hệ thống và tốc độ tải dữ liệu, xin vui lòng xuất dưới{" "}
-            <b>10.000</b> khách hàng.
-          </div>
-          <div>Xin cảm ơn!</div>
-        </Modal>
-
-        {/* Progress export customer data */}
-        <Modal
-          onCancel={onCancelProgressModal}
-          visible={isVisibleProgressModal}
-          title="Xuất file"
-          centered
-          width={600}
-          footer={[
-            <>
-              {exportProgress < 100 ?
-                <Button key="cancel" danger onClick={onCancelProgressModal}>
-                    Thoát
-                </Button>
-                :
-                <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-                  Xác nhận
-                </Button>
-              }
-            </>
-          ]}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 15 }}>
-              {exportProgress < 100 ?
-                <span>Đang tạo file, vui lòng đợi trong giây lát!</span>
-                :
-                <span style={{ color: "#27AE60" }}>Đã xuất file dữ liệu khách hàng thành công!</span>
-             }
-
-            </div>
-            <Progress
-              type="circle"
-              strokeColor={{
-                "0%": "#108ee9",
-                "100%": "#87d068",
-              }}
-              percent={exportProgress}
-            />
-          </div>
-        </Modal>
+        <ExportCustomerFile
+          isVisibleExportModal={isVisibleExportModal}
+          cancelExportModal={cancelExportModal}
+          customerData={data}
+          params={params}
+        />
 
         <ModalSettingColumn
           visible={showSettingColumn}

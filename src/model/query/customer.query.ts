@@ -61,3 +61,10 @@ export interface FpageCustomerSearchQuery extends BaseQuery {
   request: "",
   phone: string | null
 }
+
+export interface ExportCustomerRequest {
+  conditions?: string;
+  fields?: Array<string> | null;
+  type: string;
+  url?: string
+}

@@ -2,12 +2,12 @@ import { CustomerNote, CustomerRequest } from '../../model/request/customer.requ
 import {CustomerResponse, ExportCustomerResponse} from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
-import { CustomerSearchQuery } from 'model/query/customer.query';
+import {CustomerSearchQuery, ExportCustomerRequest} from 'model/query/customer.query';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { CustomerBillingAddress, CustomerContact, CustomerShippingAddress } from 'model/request/customer.request';
-import {ExportRequest, ExportResponse} from "model/other/files/export-model";
+import { ExportResponse } from "model/other/files/export-model";
 
 export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<PageResponse<CustomerResponse>>> => {
   let params = generateQuery(query);
@@ -17,7 +17,7 @@ export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<
 
 //customer export file
 export const exportCustomerFile = (
-  params: ExportRequest
+  params: ExportCustomerRequest
 ): Promise<BaseResponse<ExportResponse>> => {
   return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/export`, params);
 };
