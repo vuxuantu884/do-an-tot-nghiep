@@ -1,6 +1,7 @@
 import { EditOutlined } from "@ant-design/icons";
 import {
   Button,
+  Card,
   Col,
   Divider,
   Empty,
@@ -8,46 +9,52 @@ import {
   FormInstance,
   Input,
   Row,
+  Select,
+  Space,
   Table,
-  Tooltip
+  Tooltip,
 } from "antd";
-import emptyProduct from "assets/icon/empty_products.svg";
-import imgDefIcon from "assets/img/img-def.svg";
 import classNames from "classnames";
-import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import NumberInput from "component/custom/number-input.custom";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import imgDefIcon from "assets/img/img-def.svg";
+import emptyProduct from "assets/icon/empty_products.svg";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-import { DiscountType, POField } from "model/purchase-order/po-field";
 import {
   PurchaseOrderLineItem,
-  Vat
+  Vat,
 } from "model/purchase-order/purchase-item.model";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
-import React, { createRef, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import React, {createRef, lazy, useCallback, useEffect, useMemo} from "react";
+import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import useKeyboardJs from 'react-use/lib/useKeyboardJs';
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { POStatus } from "utils/Constants";
 import { POUtils } from "utils/POUtils";
-import BaseButton from "../../../component/base/BaseButton";
-import { IconAddMultiple } from "../../../component/icon/IconAddMultiple";
 import ProductItem from "./product-item";
+// import { RootReducerType } from "model/reducers/RootReducerType";
+import NumberInput from "component/custom/number-input.custom";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+// import ExpenseModal from "../modal/expense.modal";
+import { DiscountType, POField } from "model/purchase-order/po-field";
+// import { CostLine } from "model/purchase-order/cost-line.model";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import { AppConfig } from "config/app.config";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { Link } from "react-router-dom";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import { POStatus } from "utils/Constants";
+import useKeyboardJs from 'react-use/lib/useKeyboardJs';
+import {IconAddMultiple} from "../../../component/icon/IconAddMultiple";
+import BaseButton from "../../../component/base/BaseButton";
 
 const PickManyProductModal = lazy(() => import("../modal/pick-many-product.modal"))
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
-  isCodeSeven?: boolean;
 };
 var position = 0;
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
-  const { formMain, isEdit, isCodeSeven } = props;
+  const { formMain, isEdit } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
@@ -57,8 +64,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const [vatValue, setVatValue] = useState(0);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [isPressed] = useKeyboardJs('f3');
-
-  // const {quickInputQtyProcurementLineItem, setQuickInputProductLineItem} = useContext(PurchaseOrderCreateContext)
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -239,7 +244,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onQuantityChange = useCallback(
     (quantity, index) => {
-
       let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
         POField.line_items
       );
@@ -292,13 +296,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
-      // let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-      //   POField.procurements
-      // );
-      // let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
-      //   currentProcument,
-      //   data
-      // );
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        data
+      );
       formMain.setFieldsValue({
         line_items: [...data],
         total: total,
@@ -306,7 +310,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         trade_discount_amount: trade_discount_amount,
         payment_discount_amount: payment_discount_amount,
         untaxed_amount: untaxed_amount,
-        // [POField.procurements]: newProcument,
+        [POField.procurements]: newProcument,
       });
     },
     [formMain]
@@ -581,21 +585,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     window.scrollTo({ top: y, behavior: "smooth" });
   }
 
-  /**
-   * Thay đổi số lượng tại bảng sản phẩm sẽ thay đổi sl tại bảng procurement
-   * @param value input
-   * @param tableProductIndex bảng sản phẩm
-   */
-  // const applyChangeQtyForProcurement = (inputValue: number, variantId: number) => {
-  //   //lưu lại giá trị vừa nhập để sửa dụng lại khi thay đổi số lượng bảng procurement
-  //   setQuickInputProductLineItem((prev: Map<number, number>) => {
-  //     prev.set(variantId, inputValue);
-  //     return {...prev};
-  //   })
-
-  //   setProcurementLineItemById(formMain, [variantId], inputValue, quickInputQtyProcurementLineItem);
-  // }
-
   useEffect(() => {
     if(isPressed) {
       onSearchProduct()
@@ -604,7 +593,68 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
 
   return (
     <React.Fragment>
-      <>
+      <Card
+        className="po-form margin-top-20"
+        title={
+          <div className="d-flex">
+            <span className="title-card">SẢN PHẨM</span>
+          </div>
+        }
+        extra={
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, current) => prev.status !== current.status}
+          >
+            {({ getFieldValue }) => {
+              let status = getFieldValue(POField.status);
+              return (
+                <Space size={20}>
+                  {/* {!isEdit && status === POStatus.DRAFT && (
+                    <Checkbox
+                      checked={splitLine}
+                      onChange={() => setSplitLine(!splitLine)}
+                    >
+                      Tách dòng
+                    </Checkbox>
+                  )} */}
+
+                  <span>Chính sách giá:</span>
+                  {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
+                  {!isEdit && (!status || status === POStatus.DRAFT) ? (
+                    <Form.Item
+                      name={POField.policy_price_code}
+                      style={{ margin: "0px" }}
+                    >
+                      <Select
+                        style={{ minWidth: 145, height: 38 }}
+                        placeholder="Chính sách giá"
+                      >
+                        <Select.Option
+                          value={AppConfig.import_price}
+                          color="#222222"
+                        >
+                          Giá nhập
+                        </Select.Option>
+                      </Select>
+                    </Form.Item>
+                  ) : (
+                    <div>
+                      <span style={{ fontWeight: 700 }}>Giá nhập</span>
+                      <Form.Item
+                        name={POField.policy_price_code}
+                        noStyle
+                        hidden
+                      >
+                        <Input />
+                      </Form.Item>
+                    </div>
+                  )}
+                </Space>
+              );
+            }}
+          </Form.Item>
+        }
+      >
         <div>
           <Form.Item
             noStyle
@@ -618,7 +668,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     <CustomAutoComplete
                       loading={loadingSearch}
                       id="#product_search"
-                      disabled={!isCodeSeven}
                       dropdownClassName="product"
                       placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
                       onSearch={onSearch}
@@ -813,7 +862,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           maxLength={6}
                           onChange={(quantity) => {
                             onQuantityChange(quantity, index);
-                            // applyChangeQtyForProcurement(quantity||0, item.variant_id);
                           }}
                         />
                       ),
@@ -990,7 +1038,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             textAlign: "right",
                           }}
                         >
-                          {formatCurrency(Math.round(value||0))}
+                          {formatCurrency(Math.round(value))}
                         </div>
                       ),
                     },
@@ -1248,7 +1296,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       <div className="po-payment-row-result">
                         {untaxed_amount === 0
                           ? "-"
-                          : formatCurrency(Math.round(untaxed_amount||0))}
+                          : formatCurrency(Math.round(untaxed_amount))}
                       </div>
                     </div>
                   );
@@ -1320,7 +1368,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         Tiền cần trả
                       </strong>
                       <strong className="po-payment-row-success">
-                        {formatCurrency(Math.round(total||0))}
+                        {formatCurrency(Math.round(total))}
                       </strong>
                     </div>
                   );
@@ -1329,7 +1377,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             </Col>
           </Row>
         </div>
-      </>
+      </Card>
       {
         visibleManyProduct && (
           <PickManyProductModal

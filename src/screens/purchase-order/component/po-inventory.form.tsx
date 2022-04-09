@@ -1,22 +1,32 @@
-import { Button, Card, Form, Input, Space, Tag } from "antd";
-import dashboardIcon from "assets/icon/dashboard.svg";
-import importIcon from "assets/icon/import-card.svg";
+import { Card, Form, Input, Space, Tag } from "antd";
+import { Button } from "antd";
 import {
-  ApprovalPoProcumentAction, ConfirmPoProcumentAction, PoProcumentCreateAction, PoProcumentDeleteAction, PoProcumentUpdateAction
+  PoProcumentCreateAction,
+  PoProcumentUpdateAction,
+  PoProcumentDeleteAction,
+  ConfirmPoProcumentAction,
+  ApprovalPoProcumentAction,
 } from "domain/actions/po/po-procument.action";
-import { PoUpdateAction } from "domain/actions/po/po.action";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
-import React, { lazy, useCallback, useEffect, useRef, useState } from "react";
+import React, {useCallback, useState, useEffect, useRef, lazy} from "react";
+import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { POStatus, ProcumentStatus } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
-import POInventoryView from "./po-inventory/po-inventory.view";
 import POInventoryDraft from "./po-inventory/POInventoryDraft";
+import POInventoryView from "./po-inventory/po-inventory.view";
+import importIcon from "assets/icon/import-card.svg";
+import dashboardIcon from "assets/icon/dashboard.svg";
+import checkIcon from "assets/icon/check.svg";
+import editIcon from "assets/icon/edit.svg";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { PoUpdateAction } from "domain/actions/po/po.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 const ProcumentConfirmModal = lazy(() => import("../modal/procument-confirm.modal"))
 const ProcumentInventoryModal = lazy(() => import("../modal/procument-inventory.modal"))
@@ -41,17 +51,16 @@ const TAB = [
     name: "Tổng quan",
     id: 1,
     icon: dashboardIcon,
-  }, 
-  // {
-  //   name: "Phiếu nháp",
-  //   id: 4,
-  //   icon: editIcon,
-  // },
-  // {
-  //   name: "Phiếu đã duyệt",
-  //   id: 3,
-  //   icon: checkIcon,
-  // },
+  }, {
+    name: "Phiếu nháp",
+    id: 4,
+    icon: editIcon,
+  },
+  {
+    name: "Phiếu đã duyệt",
+    id: 3,
+    icon: checkIcon,
+  },
   {
     name: "Phiếu nhập kho",
     id: 2,
@@ -309,7 +318,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             let procurements: Array<PurchaseProcurementViewDraft> = getFieldValue(
               POField.procurements
             ) || [];
-            // let receive_status: string = getFieldValue(POField.receive_status);
+            let receive_status: string = getFieldValue(POField.receive_status);
             if (!status) {
               return null;
             }
@@ -338,36 +347,34 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                   Sửa kế hoạch nhập kho
                 </Button>
               );
-            } else {
-              return null
             }
 
-            // return (
-            //   status !== POStatus.CANCELLED &&
-            //   receive_status !== ProcumentStatus.FINISHED &&
-            //   receive_status !== ProcumentStatus.CANCELLED && (
-            //     <AuthWrapper
-            //       acceptPermissions={[PurchaseOrderPermission.procurements_create]}
-            //     >
-            //       <Button
-            //         onClick={() => {
-            //           setEditProcument(false);
-            //           setPOItem(line_items);
-            //           setStoreExpect(expect_store_id);
-            //           setVisible(true);
-            //         }}
-            //         style={{
-            //           alignItems: "center",
-            //           display: "flex",
-            //         }}
-            //         icon={<AiOutlinePlus size={16} />}
-            //         className="create-button-custom ant-btn-outline fixed-button"
-            //       >
-            //         Tạo phiếu nhập kho nháp
-            //       </Button>
-            //     </AuthWrapper>
-            //   )
-            // );
+            return (
+              status !== POStatus.CANCELLED &&
+              receive_status !== ProcumentStatus.FINISHED &&
+              receive_status !== ProcumentStatus.CANCELLED && (
+                <AuthWrapper
+                  acceptPermissions={[PurchaseOrderPermission.procurements_create]}
+                >
+                  <Button
+                    onClick={() => {
+                      setEditProcument(false);
+                      setPOItem(line_items);
+                      setStoreExpect(expect_store_id);
+                      setVisible(true);
+                    }}
+                    style={{
+                      alignItems: "center",
+                      display: "flex",
+                    }}
+                    icon={<AiOutlinePlus size={16} />}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                  >
+                    Tạo phiếu nhập kho nháp
+                  </Button>
+                </AuthWrapper>
+              )
+            );
           }}
         </Form.Item>
       }

@@ -134,7 +134,6 @@ export interface VariantResponse extends BaseObject {
   supplier:string,
   color_id:number,
   color:string,
-  color_code?:string,
   size_id:number,
   size:string,
   barcode:string,

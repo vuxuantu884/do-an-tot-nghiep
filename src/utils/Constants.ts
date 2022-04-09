@@ -1,5 +1,5 @@
 export const VietNamId = 233;
-// export const PO_FORM_TEMPORARY = 'po-form-temporary';
+export const PO_FORM_TEMPORARY = 'po-form-temporary';
 
 export const optionAllCities = {
   name: "Tất cả tỉnh thành",
