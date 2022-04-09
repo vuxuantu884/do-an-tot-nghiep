@@ -335,7 +335,7 @@ function OrderList(props: PropTypes) {
           }
 
         case ACTION_ID.printOrder:
-          
+
           const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
           let queryParamOrder = generateQuery({
             action: "print",

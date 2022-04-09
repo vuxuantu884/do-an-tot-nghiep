@@ -62,7 +62,7 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import UrlConfig from "config/url.config";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
-import { formatCurrency } from "utils/AppUtils";
+import {formatCurrency, handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { debounce } from "lodash";
 //#end region
@@ -137,6 +137,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
+  const [loadingWardList, setLoadingWardList] = React.useState<boolean>(false);
 
   const [modalActionShipping, setModalActionShipping] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -254,11 +255,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const CustomerChangeSearch = useCallback(
     (value) => {
       setKeySearchCustomer(value);
-      setSearchCustomer(true);
+      if(value.length >= 3) {
+        setSearchCustomer(true);
+      } else {
+        setSearchCustomer(false);
+      }
       initQueryCustomer.request = value.trim();
-      dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
-      setSearchCustomer(false);
+      const handleSearch = () => {
+        dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+        setSearchCustomer(false);
+      };
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, typingTimer, setTypingTimer]
   );
 
@@ -294,13 +303,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
-    resultSearch.forEach((item: CustomerResponse) => {
-      options.push({
-        label: CustomerRenderSearchResult(item),
-        value: item.id ? item.id.toString() : "",
+    if (resultSearch.length > 0) {
+      resultSearch.forEach((item: CustomerResponse, index: number) => {
+        options.push({
+          label: CustomerRenderSearchResult(item),
+          value: item.id ? item.id.toString() : "",
+        });
       });
-    });
+    }
     return options;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, resultSearch]);
 
   //Delete customer
@@ -342,9 +354,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         } else {
           props.setBillingAddress(null);
         }
-        autoCompleteRef.current?.blur();
+
+        if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur) {
+          autoCompleteRef.current?.blur();
+        }
         setKeySearchCustomer("");
-        setDistrictId(customer?.district_id);
+        // setDistrictId(customer?.district_id);
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
@@ -399,7 +414,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   useEffect(() => {
     if (districtId) {
-      dispatch(WardGetByDistrictAction(districtId, setWards));
+      setLoadingWardList(true);
+      dispatch(WardGetByDistrictAction(Number(districtId), (wardResponse) => {
+        setWards(wardResponse);
+        setLoadingWardList(false);
+      }));
     } else {
       setWards([]);
     }
@@ -414,7 +433,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   useEffect(() => {
     if (customer) {
       setDistrictId(customer.district_id);
-      dispatch(WardGetByDistrictAction(Number(customer.district_id), setWards));
     }
   }, [customer]);
 
@@ -582,6 +600,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           areaList={areaList}
           newCustomerInfo={newCustomerInfo}
           wards={wards}
+          loadingWardList={loadingWardList}
           handleChangeArea={handleChangeArea}
           handleChangeCustomer={handleChangeCustomer}
           setShippingAddress={setShippingAddress}

@@ -26,3 +26,15 @@ export const getFileProduct = (
 ): Promise<BaseResponse<ExportProductResponse>> => {
   return BaseAxios.get(`${ApiConfig.ECOMMERCE}${ApiConfig.IMPORT_EXPORT}/${process_id}`);
 };
+
+export const webAppExportFileProduct = (
+  params: RequestExportExcelQuery
+): Promise<BaseResponse<ExportProductResponse>> => {
+  return BaseAxios.post(`${ApiConfig.WEB_APP}/import-export/variants-export`, params);
+};
+
+export const webAppGetFileProduct = (
+  process_id: number
+): Promise<BaseResponse<ExportProductResponse>> => {
+  return BaseAxios.get(`${ApiConfig.WEB_APP}${ApiConfig.IMPORT_EXPORT}/${process_id}`);
+};

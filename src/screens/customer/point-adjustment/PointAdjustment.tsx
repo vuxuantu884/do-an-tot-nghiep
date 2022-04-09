@@ -34,17 +34,6 @@ const initParams: PointAdjustmentListRequest = {
   to: null,
 };
 
-const TYPE_ADJUSTMENT = [
-  {
-    title: "Tặng điểm",
-    value: "ADD"
-  },
-  {
-    title: "Trừ điểm",
-    value: "SUBTRACT"
-  }
-]
-
 const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 
@@ -106,11 +95,11 @@ const PointAdjustment = () => {
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
           {item.customers?.length &&
-              <NumberFormat
-                  value={item.customers?.length}
-                  displayType={"text"}
-                  thousandSeparator={true}
-              />
+            <NumberFormat
+              value={item.customers?.length}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
           }
         </div>
       ),
@@ -120,26 +109,38 @@ const PointAdjustment = () => {
       dataIndex: "type",
       width: "7%",
       align: "center",
-      render: (value: any, item: any) => {
-        const type = TYPE_ADJUSTMENT.find(type => type.value === value);
-        return (
-          <div>{type?.title}</div>
-        )
+      render: (value: any, row: any, index: any) => {
+        let adjustmentType;
+        switch(value) {
+          case "ADD_POINT":
+            adjustmentType = "Tặng điểm"
+            break;
+          case "SUBTRACT_POINT":
+            adjustmentType = "Trừ điểm"
+            break;
+          case "ADD_MONEY":
+            adjustmentType = "Tặng tiền"
+            break;
+          case "SUBTRACT_MONEY":
+            adjustmentType = "Trừ tiền"
+            break;
+      }
+        return <span>{adjustmentType}</span>;
       },
     },
     {
       title: "Giá trị",
-      dataIndex: "point_change",
+      dataIndex: "value_change",
       width: "8%",
       align: "center",
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
           {value &&
-              <NumberFormat
-                  value={value}
-                  displayType={"text"}
-                  thousandSeparator={true}
-              />
+            <NumberFormat
+            value={value}
+            displayType={"text"}
+            thousandSeparator={true}
+            />
           }
         </div>
       ),
@@ -191,7 +192,7 @@ const PointAdjustment = () => {
     (page, limit) => {
       let newPrams = { ...params, page, limit };
       let queryParam = generateQuery(newPrams);
-      history.push(`${location.pathname}?${queryParam}`);
+			history.push(`${location.pathname}?${queryParam}`);
       window.scrollTo(0, 0);
     },
     [history, location.pathname, params]
@@ -211,7 +212,7 @@ const PointAdjustment = () => {
     const convertEmployeesToArr: any[] = Array.isArray(params.emps) ? params.emps : [params.emps];
 
     const newParams = {
-      ...params,
+      ...params, 
       reasons: convertReasonsToArr,
       emps: convertEmployeesToArr,
     }
@@ -226,7 +227,7 @@ const PointAdjustment = () => {
     };
     setParams(dataQuery)
     getPointAdjustmentList(dataQuery)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
 
   return (
@@ -236,15 +237,15 @@ const PointAdjustment = () => {
         extra={
           <>
             {allowCreatePointAdjustment &&
-                <Link to={`${UrlConfig.CUSTOMER2}-adjustments/create`}>
-                    <Button
-                        className="ant-btn-outline ant-btn-primary"
-                        size="large"
-                        icon={<img src={mathPlusIcon} style={{ marginRight: 8 }} alt="" />}
-                    >
-                        Thêm mới phiếu điều chỉnh
-                    </Button>
-                </Link>
+              <Link to={`${UrlConfig.CUSTOMER2}-adjustments/create`}>
+                <Button
+                  className="ant-btn-outline ant-btn-primary"
+                  size="large"
+                  icon={<img src={mathPlusIcon} style={{ marginRight: 8 }} alt="" />}
+                >
+                  Thêm mới phiếu điều chỉnh
+                </Button>
+              </Link>
             }
           </>
         }
@@ -255,7 +256,7 @@ const PointAdjustment = () => {
             params={params}
             onFilter={onFilter}
           />
-
+          
           <CustomTable
             bordered
             isLoading={isLoading}

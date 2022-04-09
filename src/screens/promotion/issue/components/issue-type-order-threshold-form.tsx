@@ -115,7 +115,7 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                             rules={[
                                 {
                                     required: isLimitUsage,
-                                    message: "Mã được sử dụng không được để trống",
+                                    message: "Giới hạn số lần có thể sử dụng mã giảm giá không được để trống",
                                 },
                                 {
                                     type: 'number',
@@ -157,7 +157,7 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                             rules={[
                                 {
                                     required: isLimitUsagePerCustomer,
-                                    message: "Mã được sử dụng không được để trống",
+                                    message: "Giới hạn số lượng mỗi khách được sử dụng không được để trống",
                                 },
                                 {
                                     type: 'number',
