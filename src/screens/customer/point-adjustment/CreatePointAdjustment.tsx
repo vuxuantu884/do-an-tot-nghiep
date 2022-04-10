@@ -58,29 +58,26 @@ const POINT_ADD_REASON = [
 ];
 const POINT_SUBTRACT_REASON = ["Trừ điểm bù", "Khác"];
 
-const MONEY_ADD_REASON = ["Tặng tiền tích lũy", "Khác"];
-const MONEY_SUBTRACT_REASON = ["Trừ tiền tích lũy", "Khác"];
-
 const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 const CreatePointAdjustment = () => {
   const history = useHistory();
   const query = useQuery();
   const paramCustomerIds = query.get("customer_ids");
-  
+
   const formRef = createRef<FormInstance>();
   const dispatch = useDispatch();
 
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [selectedCustomers, setSelectedCustomers] = useState<any[]>([]);
-  const [type, setType] = useState<string>(query.get("type") as any);
+  const [type, setType] = useState<string>(query.get("type") || "ADD");
   const [keyword, setKeyword] = useState<string>("");
   const [fieldName, setFieldName] = useState<string>("");
 
   const initFormValues = {
     type: type,
     reason: "Khác",
-    value_change: 1,
+    point_change: 1,
     note: null,
     search: "",
     name: ""
@@ -102,7 +99,7 @@ const CreatePointAdjustment = () => {
         ids: customerIds,
         search_type: "SIMPLE"
       }
-      
+
       dispatch(getCustomerListAction(params, callBackGetCustomerList));
     }
   }, [callBackGetCustomerList, dispatch, paramCustomerIds]);
@@ -112,7 +109,7 @@ const CreatePointAdjustment = () => {
     const newSelectedCustomers = selectedCustomers.filter(item => item.id !== customer.id);
     setSelectedCustomers(newSelectedCustomers);
   };
-  
+
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -144,11 +141,11 @@ const CreatePointAdjustment = () => {
       align: "center",
       render: (value: any, item: any, index: number) => (
         value ?
-        <NumberFormat
-          value={value}
-          displayType={"text"}
-          thousandSeparator={true}
-        /> : 0
+          <NumberFormat
+            value={value}
+            displayType={"text"}
+            thousandSeparator={true}
+          /> : 0
       ),
     },
     {
@@ -209,6 +206,7 @@ const CreatePointAdjustment = () => {
   const onUpdateEnd = useCallback(
     (data: any) => {
       formRef.current?.resetFields();
+      setType("ADD");
       setSelectedCustomers([]);
       dispatch(hideLoading());
       showSuccess("Tạo mới phiếu điều chỉnh thành công");
@@ -228,7 +226,7 @@ const CreatePointAdjustment = () => {
         return;
       }
 
-      if (values.value_change === 0) {
+      if (values.point_change === 0) {
         showError("Giá trị điều chỉnh phải lớn hơn 0");
         return;
       }
@@ -242,7 +240,7 @@ const CreatePointAdjustment = () => {
         customer_ids: customerIds,
         note: values.note,
         reason: values.reason,
-        value_change: values.value_change,
+        point_change: values.point_change,
         type: values.type,
         name: values.name,
       }
@@ -276,7 +274,7 @@ const CreatePointAdjustment = () => {
     [formRef]
   );
 
-  
+
   const goBack = () => {
     if (paramCustomerIds?.length) {
       history.replace(`${UrlConfig.CUSTOMER}`)
@@ -292,6 +290,7 @@ const CreatePointAdjustment = () => {
       return false;
     }
   }, [fieldName, selectedCustomers.length]);
+
 
   return (
     <StyledCreatePointAdjustment>
@@ -313,258 +312,230 @@ const CreatePointAdjustment = () => {
         extra={<></>}
       >
         <AuthWrapper acceptPermissions={createPointAdjustmentPermission} passThrough>
-            {(allowed: boolean) => (allowed ?
-              <Card
-                title="THÔNG TIN ĐIỀU CHỈNH"
-              >
-                <div className="create-point-adjustments">
-                  <Form
-                    onFinish={onFinish}
-                    initialValues={initFormValues}
-                    layout="vertical"
-                    ref={formRef}
-                  >
-                    <Row className="row">
-                      <Col span={17}>
-                        <div className="row-label">
-                          <span>Tên phiếu điều chỉnh </span>
-                          <span className="text-error">*</span>
-                        </div>
-                        <div className="row-content">
-                          <Item
-                            name="name"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vui lòng nhập tên phiếu điều chỉnh",
-                              },
-                            ]}
-                          >
-                            <Input
-                              onChange={onChangeName}
-                              onBlur={onBlur}
-                              maxLength={255}
-                              placeholder="Nhập tên phiếu điều chỉnh"
-                            />
-                          </Item>
-                        </div>
-                      </Col>
-                    </Row>
-
-                    <Row className="row">
-                      <Col span={8}>
-                        <div className="row-label">
-                          Kiểu điều chỉnh <span className="text-error">*</span>
-                        </div>
-                        <div className="row-content">
-                          <Item
-                            name="type"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vui lòng chọn kiểu điều chỉnh",
-                              },
-                            ]}
-                          >
-                            <Select
-                              placeholder="Chọn kiểu điều chỉnh"
-                              style={{ width: "100%" }}
-                              onChange={onChangeType}
-                            >
-                             <Select.Option key="ADD_POINT" value="ADD_POINT">
-                              Tặng điểm tích lũy
-                              </Select.Option>
-                            
-                              <Select.Option key="SUBTRACT_POINT" value="SUBTRACT_POINT">
-                              Trừ điểm tích lũy
-                              </Select.Option>
-                            
-                              <Select.Option key="ADD_MONEY" value="ADD_MONEY">
-                              Tặng tiền tích lũy
-                              </Select.Option>
-                            
-                              <Select.Option key="SUBTRACT_MONEY" value="SUBTRACT_MONEY">
-                              Trừ tiền tích lũy
-                              </Select.Option>
-                            </Select>
-                          </Item>
-                        </div>
-                      </Col>
-                      <Col span={1} />
-                      <Col span={8}>
-                        <div className="row-label">
-                          Lý do điều chỉnh <span className="text-error">*</span>
-                        </div>
-                        <div className="row-content">
-                          <Item
-                            name="reason"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vui lòng chọn lý do điều chỉnh",
-                              },
-                            ]}
-                          >
-                            <Select
-                              placeholder="Chọn lý do điều chỉnh"
-                              style={{ width: "100%" }}
-                            >
-                              {type === "ADD_POINT" && 
-                                POINT_ADD_REASON.map((reason, idx) => (
-                                  <Select.Option key={idx} value={reason}>
-                                    {reason}
-                                  </Select.Option>
-                                ))
-                              }
-
-                              {type === "SUBTRACT_POINT" && 
-                                  POINT_SUBTRACT_REASON.map((reason, idx) => (
-                                    <Select.Option key={idx} value={reason}>
-                                      {reason}
-                                    </Select.Option>
-                                  ))
-                              }
-
-                              {type === "ADD_MONEY" && 
-                                MONEY_ADD_REASON.map((reason, idx) => (
-                                  <Select.Option key={idx} value={reason}>
-                                    {reason}
-                                  </Select.Option>
-                                ))
-                              }
-
-                              {type === "SUBTRACT_MONEY" && 
-                                MONEY_SUBTRACT_REASON.map((reason, idx) => (
-                                  <Select.Option key={idx} value={reason}>
-                                    {reason}
-                                  </Select.Option>
-                                ))
-                              }
-                            </Select>
-                          </Item>
-                        </div>
-                      </Col>
-                    </Row>
-                    <Row className="row">
-                      <Col span={8}>
-                        <div className="row-label">
-                          Giá trị <span className="text-error">*</span>
-                        </div>
-                        <div className="row-content">
-                          <Item
-                            name="value_change"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vui lòng nhập giá trị",
-                              },
-                            ]}
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                              placeholder="Nhập giá trị"
-                              min="0"
-                              max="1000000000"
-                            />
-                          </Item>
-                        </div>
-                      </Col>
-                      <Col span={1} />
-                      <Col span={8}>
-                        <div className="row-label">Ghi chú</div>
-                        <div className="row-content">
-                          <Item name="note">
-                            <Input placeholder="Nhập ghi chú" />
-                          </Item>
-                        </div>
-                      </Col>
-                    </Row>
-
-                    <Row className="row">
-                      <Col span={17}>
-                        <div className="row-label">
-                          <span>Khách hàng </span>
-                          <span className="text-error">*</span>
-                        </div>
-                        <div className="row-content">
-                          <Item
-                            name="search"
-                            rules={[
-                              {
-                                message: "",
-                              },
-                            ]}
-                          >
-                            <AutoComplete
-                              className="dropdown-rule"
-                              allowClear
-                              notFoundContent={
-                                customers.length === 0
-                                  ? "Không có bản ghi nào"
-                                  : undefined
-                              }
-                              onSearch={fetchCustomer}
-                              options={transformCustomers}
-                              onSelect={onSelect}
-                              onChange={onChange}
-                              placeholder="Tìm kiếm theo mã khách hàng, tên, SĐT khách hàng"
-                              value={keyword}
-                            />
-                          </Item>
-                        </div>
-                      </Col>
-                    </Row>
-
-                    <Row>
-                      <Col span={24}>
-                        <CustomTable
-                          bordered
-                          dataSource={selectedCustomers}
-                          columns={columns}
-                          pagination={false}
-                          rowKey={(item: any) => item.id}
-                        />
-                      </Col>
-                    </Row>
-
-                    <StyledFooterAction>
-                      <div className="footer-action">
-                        <Button
-                          onClick={goBack}
-                          type="text"
-                          className="go-back-button"
+          {(allowed: boolean) => (allowed ?
+            <Card
+              title="THÔNG TIN ĐIỀU CHỈNH"
+            >
+              <div className="create-point-adjustments">
+                <Form
+                  onFinish={onFinish}
+                  initialValues={initFormValues}
+                  layout="vertical"
+                  ref={formRef}
+                >
+                  <Row className="row">
+                    <Col span={17}>
+                      <div className="row-label">
+                        <span>Tên phiếu điều chỉnh </span>
+                        <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="name"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập tên phiếu điều chỉnh",
+                            },
+                          ]}
                         >
+                          <Input
+                            onChange={onChangeName}
+                            onBlur={onBlur}
+                            maxLength={255}
+                            placeholder="Nhập tên phiếu điều chỉnh"
+                          />
+                        </Item>
+                      </div>
+                    </Col>
+                  </Row>
+
+                  <Row className="row">
+                    <Col span={8}>
+                      <div className="row-label">
+                        Kiểu điều chỉnh <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="type"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn kiểu điều chỉnh",
+                            },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Chọn kiểu điều chỉnh"
+                            style={{ width: "100%" }}
+                            onChange={onChangeType}
+                          >
+                            <Select.Option key="ADD" value="ADD">
+                              Tăng
+                            </Select.Option>
+                            <Select.Option key="SUBTRACT" value="SUBTRACT">
+                              Giảm
+                            </Select.Option>
+                          </Select>
+                        </Item>
+                      </div>
+                    </Col>
+                    <Col span={1} />
+                    <Col span={8}>
+                      <div className="row-label">
+                        Lý do điều chỉnh <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="reason"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn lý do điều chỉnh",
+                            },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Chọn lý do điều chỉnh"
+                            style={{ width: "100%" }}
+                          >
+                            {type === "ADD" &&
+                              POINT_ADD_REASON.map((reason, idx) => (
+                                <Select.Option key={idx} value={reason}>
+                                  {reason}
+                                </Select.Option>
+                              ))}
+                            {type === "SUBTRACT" &&
+                              POINT_SUBTRACT_REASON.map((reason, idx) => (
+                                <Select.Option key={idx} value={reason}>
+                                  {reason}
+                                </Select.Option>
+                              ))}
+                          </Select>
+                        </Item>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row className="row">
+                    <Col span={8}>
+                      <div className="row-label">
+                        Giá trị <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="point_change"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập giá trị",
+                            },
+                          ]}
+                        >
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            placeholder="Nhập giá trị"
+                            min="0"
+                            max="1000000000"
+                          />
+                        </Item>
+                      </div>
+                    </Col>
+                    <Col span={1} />
+                    <Col span={8}>
+                      <div className="row-label">Ghi chú</div>
+                      <div className="row-content">
+                        <Item name="note">
+                          <Input placeholder="Nhập ghi chú" />
+                        </Item>
+                      </div>
+                    </Col>
+                  </Row>
+
+                  <Row className="row">
+                    <Col span={17}>
+                      <div className="row-label">
+                        <span>Khách hàng </span>
+                        <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="search"
+                          rules={[
+                            {
+                              message: "",
+                            },
+                          ]}
+                        >
+                          <AutoComplete
+                            className="dropdown-rule"
+                            allowClear
+                            notFoundContent={
+                              customers.length === 0
+                                ? "Không có bản ghi nào"
+                                : undefined
+                            }
+                            onSearch={fetchCustomer}
+                            options={transformCustomers}
+                            onSelect={onSelect}
+                            onChange={onChange}
+                            placeholder="Tìm kiếm theo mã khách hàng, tên, SĐT khách hàng"
+                            value={keyword}
+                          />
+                        </Item>
+                      </div>
+                    </Col>
+                  </Row>
+
+                  <Row>
+                    <Col span={24}>
+                      <CustomTable
+                        bordered
+                        dataSource={selectedCustomers}
+                        columns={columns}
+                        pagination={false}
+                        rowKey={(item: any) => item.id}
+                      />
+                    </Col>
+                  </Row>
+
+                  <StyledFooterAction>
+                    <div className="footer-action">
+                      <Button
+                        onClick={goBack}
+                        type="text"
+                        className="go-back-button"
+                      >
                           <span>
                             <img style={{ marginRight: "10px" }} src={arrowBack} alt="" />
                             <span>Quay lại</span>
                           </span>
-                        </Button>
-                        
-                        <div className="confirm-button">
-                          <Button
-                            onClick={goBack}
-                            style={{ marginRight: 10 }}
-                            type="default"
-                          >
-                            Huỷ
-                          </Button>
+                      </Button>
 
-                          <Button
-                            type="primary"
-                            onClick={() => { formRef.current?.submit() }}
-                            disabled={checkDisableCreateButton()}
-                          >
-                            Thêm mới
-                          </Button>
-                        </div>
+                      <div className="confirm-button">
+                        <Button
+                          onClick={goBack}
+                          style={{ marginRight: 10 }}
+                          type="default"
+                        >
+                          Huỷ
+                        </Button>
+
+                        <Button
+                          type="primary"
+                          onClick={() => { formRef.current?.submit() }}
+                          disabled={checkDisableCreateButton()}
+                        >
+                          Thêm mới
+                        </Button>
                       </div>
-                    </StyledFooterAction>
-                  </Form>
-                </div>
-              </Card>
-              : <NoPermission />)}
-          </AuthWrapper>
+                    </div>
+                  </StyledFooterAction>
+                </Form>
+              </div>
+            </Card>
+            : <NoPermission />)}
+        </AuthWrapper>
       </ContentContainer>
     </StyledCreatePointAdjustment>
   );

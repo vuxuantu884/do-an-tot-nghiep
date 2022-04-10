@@ -66,9 +66,8 @@ export const subtractLoyaltyPointService = (customerId: number, params: UpdateLo
   return BaseAxios.post(`${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/subtract-instant`, params);
 };
 
-
-export const getLoyaltyAdjustMoneyService = (customerId: number): Promise<BaseResponse<LoyaltyPoint>> => {
-  return BaseAxios.get(`${ApiConfig.LOYALTY}/adjustments/customers/${customerId}`);
+export const getLoyaltyAdjustPointService = (customerId: number): Promise<BaseResponse<LoyaltyPoint>> => {
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/transactions/customer/${customerId}/admin`);
 };
 
 export const getPointAdjustmentListService = (query: any): Promise<BaseResponse<any>> => {
