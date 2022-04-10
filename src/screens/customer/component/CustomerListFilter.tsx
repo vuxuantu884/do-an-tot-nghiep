@@ -150,13 +150,13 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const [initPublicAccounts, setInitPublicAccounts] = useState<Array<AccountResponse>>([]);
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
   const [accountDataFiltered, setAccountDataFiltered] = useState<Array<AccountResponse>>([]);
-  
+
   // handle select date
   const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
   const [lastOrderDateClick, setLastOrderDateClick] = useState("");
 
   //---Handle Source---\\
-  
+
   const sourceInputRef = useRef()
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
@@ -168,9 +168,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   );
 
   useEffect(() => {
-		dispatch(getListSourceRequest((response) => {
-			setAllSources(response)
-		}));
+    dispatch(getListSourceRequest((response) => {
+      setAllSources(response)
+    }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -190,17 +190,17 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }, [dispatch, userReducer.account?.account_jobs]);
 
   const getOrderSources = useCallback(async() => {
-		let result:SourceResponse[];
+    let result:SourceResponse[];
     result= await sortSources(allSources, departmentIds)
-		return result
-	}, [allSources, departmentIds]);
+    return result
+  }, [allSources, departmentIds]);
 
   useEffect(() => {
-		getOrderSources().then((response) => {
-			const sortedSources =  response;
-			setInitListSource(sortedSources)
-			setListSource(sortedSources)
-		});
+    getOrderSources().then((response) => {
+      const sortedSources =  response;
+      setInitListSource(sortedSources)
+      setListSource(sortedSources)
+    });
   }, [getOrderSources]);
 
   const updatePublicAccounts = (data: PageResponse<AccountResponse> | false) => {
@@ -292,7 +292,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     if (dateConvert !== date_from_first_start) {
       setFirstOrderDateClick("");
     }
-    
+
     setFirstDateStart(date)
   }
 
@@ -303,7 +303,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     if (dateConvert !== date_to_first_end) {
       setFirstOrderDateClick("");
     }
-    
+
 
     setFirstDateEnd(date)
   }
@@ -330,7 +330,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     setLastDateEnd(date)
   }
 
-  
+
   const handleRemoveValueFirstDateStart = () => {
     setFirstDateStart(null);
     handleRemoveButtonFirstDateActive()
@@ -387,7 +387,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     handleDateFilterParam(initialValues.last_order_time_from, initialValues.last_order_time_to, setLastOrderDateClick);
 
   }, [formCustomerFilter, handleStaffCodesFilterParam, initialValues]);
-  
+
   // initialization birth day
   const initDateList = () => {
     const dateList: Array<any> = [];
@@ -551,7 +551,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         default:
           break;
-      }      
+      }
 
       switch (type) {
         case "firstOrderDate":
@@ -1169,8 +1169,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         (isNullOrUndefined(initialValues.number_of_days_without_purchase_from)
           ? ""
           : formatCurrency(
-              initialValues.number_of_days_without_purchase_from
-            )) +
+            initialValues.number_of_days_without_purchase_from
+          )) +
         " - " +
         (isNullOrUndefined(initialValues.number_of_days_without_purchase_to)
           ? ""
@@ -1189,16 +1189,16 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let firstOrderDateFiltered =
         (initialValues.first_order_time_from
           ? ConvertUtcToLocalDate(
-              initialValues.first_order_time_from,
-              "DD-MM-YYYY"
-            )
+            initialValues.first_order_time_from,
+            "DD-MM-YYYY"
+          )
           : "") +
         " - " +
         (initialValues.first_order_time_to
           ? ConvertUtcToLocalDate(
-              initialValues.first_order_time_to,
-              "DD-MM-YYYY"
-            )
+            initialValues.first_order_time_to,
+            "DD-MM-YYYY"
+          )
           : "");
       list.push({
         key: "first_order_date",
@@ -1214,16 +1214,16 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       let lastOrderDateFiltered =
         (initialValues.last_order_time_from
           ? ConvertUtcToLocalDate(
-              initialValues.last_order_time_from,
-              "DD-MM-YYYY"
-            )
+            initialValues.last_order_time_from,
+            "DD-MM-YYYY"
+          )
           : "") +
         " - " +
         (initialValues.last_order_time_to
           ? ConvertUtcToLocalDate(
-              initialValues.last_order_time_to,
-              "DD-MM-YYYY"
-            )
+            initialValues.last_order_time_to,
+            "DD-MM-YYYY"
+          )
           : "");
       list.push({
         key: "last_order_date",
@@ -1341,11 +1341,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "day_of_birth":
           onFilter &&
-            onFilter({
-              ...params,
-              day_of_birth_from: null,
-              day_of_birth_to: null,
-            });
+          onFilter({
+            ...params,
+            day_of_birth_from: null,
+            day_of_birth_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             day_of_birth_from: null,
             day_of_birth_to: null,
@@ -1353,11 +1353,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "month_of_birth":
           onFilter &&
-            onFilter({
-              ...params,
-              month_of_birth_from: null,
-              month_of_birth_to: null,
-            });
+          onFilter({
+            ...params,
+            month_of_birth_from: null,
+            month_of_birth_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             month_of_birth_from: null,
             month_of_birth_to: null,
@@ -1365,11 +1365,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "year_of_birth":
           onFilter &&
-            onFilter({
-              ...params,
-              year_of_birth_from: null,
-              year_of_birth_to: null,
-            });
+          onFilter({
+            ...params,
+            year_of_birth_from: null,
+            year_of_birth_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             year_of_birth_from: null,
             year_of_birth_to: null,
@@ -1401,11 +1401,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "total_order":
           onFilter &&
-            onFilter({
-              ...params,
-              total_finished_order_from: null,
-              total_finished_order_to: null,
-            });
+          onFilter({
+            ...params,
+            total_finished_order_from: null,
+            total_finished_order_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             total_finished_order_from: null,
             total_finished_order_to: null,
@@ -1413,11 +1413,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "accumulated_amount":
           onFilter &&
-            onFilter({
-              ...params,
-              total_paid_amount_from: null,
-              total_paid_amount_to: null,
-            });
+          onFilter({
+            ...params,
+            total_paid_amount_from: null,
+            total_paid_amount_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             total_paid_amount_from: null,
             total_paid_amount_to: null,
@@ -1425,11 +1425,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "total_refunded_order":
           onFilter &&
-            onFilter({
-              ...params,
-              total_returned_order_from: null,
-              total_returned_order_to: null,
-            });
+          onFilter({
+            ...params,
+            total_returned_order_from: null,
+            total_returned_order_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             total_returned_order_from: null,
             total_returned_order_to: null,
@@ -1437,11 +1437,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "remain_amount":
           onFilter &&
-            onFilter({
-              ...params,
-              remain_amount_to_level_up_from: null,
-              remain_amount_to_level_up_to: null,
-            });
+          onFilter({
+            ...params,
+            remain_amount_to_level_up_from: null,
+            remain_amount_to_level_up_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             remain_amount_to_level_up_from: null,
             remain_amount_to_level_up_to: null,
@@ -1449,11 +1449,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "average_order_amount":
           onFilter &&
-            onFilter({
-              ...params,
-              average_order_amount_from: null,
-              average_order_amount_to: null,
-            });
+          onFilter({
+            ...params,
+            average_order_amount_from: null,
+            average_order_amount_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             average_order_amount_from: null,
             average_order_amount_to: null,
@@ -1461,11 +1461,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "total_refunded_amount":
           onFilter &&
-            onFilter({
-              ...params,
-              total_returned_amount_from: null,
-              total_returned_amount_to: null,
-            });
+          onFilter({
+            ...params,
+            total_returned_amount_from: null,
+            total_returned_amount_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             total_returned_amount_from: null,
             total_returned_amount_to: null,
@@ -1481,11 +1481,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "days_without_purchase":
           onFilter &&
-            onFilter({
-              ...params,
-              number_of_days_without_purchase_from: null,
-              number_of_days_without_purchase_to: null,
-            });
+          onFilter({
+            ...params,
+            number_of_days_without_purchase_from: null,
+            number_of_days_without_purchase_to: null,
+          });
           formCustomerFilter?.setFieldsValue({
             number_of_days_without_purchase_from: null,
             number_of_days_without_purchase_to: null,
@@ -1496,22 +1496,22 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           setFirstDateStart(null);
           setFirstDateEnd(null);
           onFilter &&
-            onFilter({
-              ...params,
-              first_order_time_from: null,
-              first_order_time_to: null,
-            });
+          onFilter({
+            ...params,
+            first_order_time_from: null,
+            first_order_time_to: null,
+          });
           break;
         case "last_order_date":
           setLastOrderDateClick("");
           setLastDateStart(null);
           setLastDateEnd(null);
           onFilter &&
-            onFilter({
-              ...params,
-              last_order_time_from: null,
-              last_order_time_to: null,
-            });
+          onFilter({
+            ...params,
+            last_order_time_from: null,
+            last_order_time_to: null,
+          });
           break;
         case "point":
           onFilter && onFilter({ ...params, point_from: null, point_to: null });
@@ -1520,7 +1520,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             point_to: null,
           });
           break;
-          
+
         default:
           break;
       }
@@ -1567,47 +1567,47 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       const day_of_birth_from = values.day_of_birth_from
         ? values.day_of_birth_from
         : values.day_of_birth_to
-        ? START_DAY
-        : TODAY_VALUE;
+          ? START_DAY
+          : TODAY_VALUE;
       const day_of_birth_to = values.day_of_birth_to
         ? values.day_of_birth_to
         : values.day_of_birth_from
-        ? END_DAY
-        : TODAY_VALUE;
+          ? END_DAY
+          : TODAY_VALUE;
 
       const month_of_birth_from = values.month_of_birth_from
         ? values.month_of_birth_from
         : values.month_of_birth_to
-        ? START_MONTH
-        : THIS_MONTH_VALUE;
+          ? START_MONTH
+          : THIS_MONTH_VALUE;
       const month_of_birth_to = values.month_of_birth_to
         ? values.month_of_birth_to
         : values.month_of_birth_from
-        ? END_MONTH
-        : THIS_MONTH_VALUE;
+          ? END_MONTH
+          : THIS_MONTH_VALUE;
 
       const year_of_birth_from = values.year_of_birth_from
         ? values.year_of_birth_from
         : values.year_of_birth_to
-        ? START_YEAR
-        : THIS_YEAR;
+          ? START_YEAR
+          : THIS_YEAR;
       const year_of_birth_to = values.year_of_birth_to
         ? values.year_of_birth_to
         : THIS_YEAR;
 
       const startDate = new Date(
         month_of_birth_from?.toString() +
-          "/" +
-          day_of_birth_from?.toString() +
-          "/" +
-          year_of_birth_from?.toString()
+        "/" +
+        day_of_birth_from?.toString() +
+        "/" +
+        year_of_birth_from?.toString()
       );
       const endDate = new Date(
         month_of_birth_to?.toString() +
-          "/" +
-          day_of_birth_to?.toString() +
-          "/" +
-          year_of_birth_to?.toString()
+        "/" +
+        day_of_birth_to?.toString() +
+        "/" +
+        year_of_birth_to?.toString()
       );
 
       return startDate <= endDate;
@@ -1715,20 +1715,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const actionList = [
     {
       name: "Tặng điểm",
-      type: "ADD_POINT",
+      type: "ADD",
     },
     {
       name: "Trừ điểm",
-      type: "SUBTRACT_POINT",
-    },
-
-    {
-      name: "Tặng tiền tích lũy",
-      type: "ADD_MONEY",
-    },
-    {
-      name: "Trừ tiền tích lũy",
-      type: "SUBTRACT_MONEY",
+      type: "SUBTRACT",
     },
   ];
 
@@ -1773,22 +1764,22 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   };
 
   const handleSearchOrderSources = useCallback((value:string) => {
-		if(value.length > 1) {
-		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
-			 let query = {
-					name: value,
+    if(value.length > 1) {
+      handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
+        let query = {
+          name: value,
           active: true
-			 }
-			 getSourcesWithParamsService(query).then((response) => {
-				 setListSource(response.data.items)
-			 }).catch((error) => {
-				 console.log('getSourcesWithParamsService fail', error)
-			 })
-		 })
-		} else {
-			setListSource(initListSource)
-		}
-	}, [initListSource]);
+        }
+        getSourcesWithParamsService(query).then((response) => {
+          setListSource(response.data.items)
+        }).catch((error) => {
+          console.log('getSourcesWithParamsService fail', error)
+        })
+      })
+    } else {
+      setListSource(initListSource)
+    }
+  }, [initListSource]);
 
   return (
     <StyledCustomerFilter>
@@ -2055,7 +2046,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   name="store_ids"
                   label={<b>Cửa hàng</b>}
                   className="left-filter">
-                   <TreeStore listStore={listStore}  placeholder="Chọn cửa hàng"/>
+                  <TreeStore listStore={listStore}  placeholder="Chọn cửa hàng"/>
                 </Form.Item>
 
                 <div className="center-filter">
@@ -2538,8 +2529,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               </div>
 
               <div className="base-filter-row">
-                <Form.Item className="left-filter" 
-                 label={<b>Ngày mua đầu</b>}>
+                <Form.Item className="left-filter"
+                           label={<b>Ngày mua đầu</b>}>
                   <FilterDateCustomerCustom
                     dateType="firstOrderDate"
                     clickOptionDate={clickOptionDate}
