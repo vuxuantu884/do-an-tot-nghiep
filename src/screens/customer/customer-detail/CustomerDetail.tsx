@@ -73,7 +73,7 @@ const CustomerDetail = () => {
   const [loyaltyCard, setLoyaltyCard] = React.useState<any>();
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
     Array<LoyaltyUsageResponse>
-  >([]);
+    >([]);
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
 
   const actions: Array<MenuAction> = [
@@ -85,14 +85,14 @@ const CustomerDetail = () => {
       id: 2,
       name: "Trừ điểm",
     },
-    {
-      id: 3,
-      name: "Tặng tiền tích lũy",
-    },
-    {
-      id: 4,
-      name: "Trừ tiền tích lũy",
-    },
+    // {
+    //   id: 3,
+    //   name: "Tặng tiền tích lũy",
+    // },
+    // {
+    //   id: 4,
+    //   name: "Trừ tiền tích lũy",
+    // },
   ];
 
 
@@ -111,7 +111,7 @@ const CustomerDetail = () => {
     if (!allowViewCustomerDetail) {
       return;
     }
-    
+
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
       dispatch(LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"]}, updateLoyaltyCard));
@@ -120,12 +120,12 @@ const CustomerDetail = () => {
     }
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customer, allowViewCustomerDetail, updateLoyaltyCard]);
-  
+
   React.useEffect(() => {
     if (!allowViewCustomerDetail) {
       return;
     }
-    
+
     if (history.location.hash) {
       switch (history.location.hash) {
         case "#history":
@@ -232,7 +232,7 @@ const CustomerDetail = () => {
         name: "Cửa hàng mua cuối",
         value: purchaseIfo?.store_of_last_order || null,
       },
-      
+
       {
         name: "Số tiền cần nâng hạng",
         value:
@@ -245,21 +245,21 @@ const CustomerDetail = () => {
             : null
       },
       {
-        name: 
-            <div className="average-value">
-              <span>Giá trị trung bình</span>
-              <Tooltip
-                overlay="GTTB = Tiền tích lũy/Tổng đơn hàng"
-                placement="top"
-                color="blue"
-              >
-                <img
-                  src={warningCircleIcon}
-                  style={{ marginLeft: 5, cursor: "pointer" }}
-                  alt=""
-                />
-              </Tooltip>
-            </div>,
+        name:
+          <div className="average-value">
+            <span>Giá trị trung bình</span>
+            <Tooltip
+              overlay="GTTB = Tiền tích lũy/Tổng đơn hàng"
+              placement="top"
+              color="blue"
+            >
+              <img
+                src={warningCircleIcon}
+                style={{ marginLeft: 5, cursor: "pointer" }}
+                alt=""
+              />
+            </Tooltip>
+          </div>,
         value:
           purchaseIfo?.average_order_value ?
             <NumberFormat
@@ -282,8 +282,8 @@ const CustomerDetail = () => {
     const _detail = [
       {
         name: "Điểm hiện tại",
-        value: 
-          loyaltyPoint?.point ? 
+        value:
+          loyaltyPoint?.point ?
             <NumberFormat
               value={loyaltyPoint.point}
               displayType={"text"}
@@ -313,7 +313,7 @@ const CustomerDetail = () => {
     if (!allowViewCustomerDetail) {
       return;
     }
-    
+
     dispatch(getCustomerDetailAction(params.id, setCustomer));
   }, [allowViewCustomerDetail, dispatch, params, setCustomer]);
 
@@ -389,24 +389,20 @@ const CustomerDetail = () => {
       switch (menuId) {
         case 1:
           history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD_POINT&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD&customer_ids=${customer?.id}`
           );
           break;
         case 2:
           history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT_POINT&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT&customer_ids=${customer?.id}`
           );
           break;
-        case 3:
-          history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD_MONEY&customer_ids=${customer?.id}`
-          );
-          break;
-        case 4:
-          history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT_MONEY&customer_ids=${customer?.id}`
-          );
-          break;
+        // case 3:
+        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
+        //   break;
+        // case 4:
+        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
+        //   break;
       }
     },
     [customer, history]
@@ -417,11 +413,11 @@ const CustomerDetail = () => {
       <ContentContainer
         title="Thông tin chi tiết"
         extra={allowViewCustomerDetail &&
-          <ActionButton
-            type="default"
-            menu={actions}
-            onMenuClick={onMenuClick}
-          />
+            <ActionButton
+                type="default"
+                menu={actions}
+                onMenuClick={onMenuClick}
+            />
         }
       >
         <AuthWrapper acceptPermissions={viewCustomerDetailPermission} passThrough>

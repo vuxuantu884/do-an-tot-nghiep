@@ -33,13 +33,13 @@ import {
   getLoyaltyProgramDetail,
   getLoyaltyRate,
   getLoyaltyUsage,
+  getLoyaltyAdjustPointService,
   searchLoyaltyProgramList,
   subtractLoyaltyPointService,
   updateLoyaltyProgram,
   getPointAdjustmentListService,
   getPointAdjustmentDetailService,
-  createCustomerPointAdjustmentService,
-  getLoyaltyAdjustMoneyService
+  createCustomerPointAdjustmentService
 } from "service/loyalty/loyalty.service";
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
@@ -542,11 +542,11 @@ function* subtractLoyaltyPoint(action: YodyAction) {
   }
 }
 
-function* getLoyaltyAdjustMoneySaga(action: YodyAction) {
+function* getLoyaltyAdjustPointSaga(action: YodyAction) {
   const { customerId, setData, onError } = action.payload;
   try {
     const response: BaseResponse<LoyaltyPoint> = yield call(
-      getLoyaltyAdjustMoneyService,
+      getLoyaltyAdjustPointService,
       customerId,
     );
     switch (response.code) {
@@ -665,7 +665,7 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyPointsType.GET_LOYALTY_POINT, getloyaltyPoint);
   yield takeLatest(LoyaltyPointsType.ADD_LOYALTY_POINT, addLoyaltyPoint);
   yield takeLatest(LoyaltyPointsType.SUBTRACT_LOYALTY_POINT, subtractLoyaltyPoint);
-  yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_MONEY, getLoyaltyAdjustMoneySaga);
+  yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, getLoyaltyAdjustPointSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, getPointAdjustmentListSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL, getPointAdjustmentDetailSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.CREATE_CUSTOMER_POINT_ADJUSTMENT, createCustomerPointAdjustmentSaga);
