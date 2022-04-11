@@ -55,11 +55,11 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo cửa hàng",
-    query: `SHOW customers, orders, ordered_item_quantity, gross_sales, returned_item_quantity, returns, discounts, net_quantity, net_sales, average_order_value 
-    BY pos_location_department_lv2,pos_location_name   
-    FROM sales  
-    WHERE channel_provider_name IN ('POS') 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
+    query: `SHOW transfer_payments, card_payments, point_payments, discounts, cash_payments, total_sales 
+    BY pos_location_name 
+    FROM sales 
+    WHERE sale_area IN ('Khối KD Offline')
+    SINCE ${TODAY} UNTIL ${TODAY} ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_SALES],
     cube: "sales",
     iconImg: "cua-hang.svg",
