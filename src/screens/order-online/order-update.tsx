@@ -122,6 +122,7 @@ import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
+import {ECOMMERCE_CHANNEL} from "../ecommerce/common/commonAction";
 
 // let typeButton = "";
 type PropTypes = {
@@ -714,6 +715,11 @@ ShippingServiceConfigDetailResponseModel[]
 				getAmountPaymentRequest(payments) -
 				(promotion?.value || 0);
 		}
+
+		if (isEcommerceOrder && ecommerceShipment && values?.fulfillments && values.fulfillments.length > 0) {
+			values.fulfillments[0].shipment = ecommerceShipment;
+		}
+
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
@@ -948,6 +954,43 @@ ShippingServiceConfigDetailResponseModel[]
 		});
 	}, []);
 
+	// handle for ecommerce order
+	const [isEcommerceOrder, setIsEcommerceOrder] = useState(false);
+	const [ecommerceShipment, setEcommerceShipment] = useState<any>();
+
+	const handleEcommerceOrder = (orderData: any) => {
+		const orderChannel = orderData?.channel?.toLowerCase() || "";
+		const isEcommerce = ECOMMERCE_CHANNEL.includes(orderChannel);
+		setIsEcommerceOrder(isEcommerce);
+
+		// latest fulfillment
+		const fulfillment = orderData?.fulfillments ? orderData.fulfillments[0] : null;
+
+		if (isEcommerce && fulfillment && fulfillment.shipment) {
+			const shipment = fulfillment.shipment;
+			let newEcommerceShipment = {
+				cod: shipment.cod,
+				shipping_fee_informed_to_customer: shipment.shipping_fee_informed_to_customer,
+				shipping_fee_paid_to_three_pls: shipment.shipping_fee_paid_to_three_pls,
+				delivery_service_provider_code: shipment.delivery_service_provider_code,
+				delivery_service_provider_id: shipment.delivery_service_provider_id,
+				delivery_service_provider_name: shipment.delivery_service_provider_name,
+				delivery_service_provider_type: shipment.delivery_service_provider_type,
+				delivery_transport_type: shipment.delivery_transport_type,
+				office_time: shipment.office_time,
+				requirements: shipment.requirements,
+				requirements_name: shipment.requirements_name,
+				sender_address: shipment.sender_address,
+				sender_address_id: shipment.sender_address_id,
+				service: shipment.service,
+				tracking_code: shipment.tracking_code,
+			}
+
+			setEcommerceShipment(newEcommerceShipment);
+		}
+	}
+	// end handle for ecommerce order
+
 	const fetchData = () => {
 		dispatch(
 			OrderDetailAction(id, async (res) => {
@@ -958,6 +1001,7 @@ ShippingServiceConfigDetailResponseModel[]
 				};
 				const { customer_id } = response;
 				setOrderDetail(response);
+				handleEcommerceOrder(response);
 				if (customer_id) {
 					dispatch(
 						getCustomerDetailAction(customer_id, (responseCustomer) => {
@@ -2535,6 +2579,9 @@ ShippingServiceConfigDetailResponseModel[]
 														shippingServiceConfig={shippingServiceConfig}
 														orderConfig={orderConfig}
 														OrderDetail={OrderDetail}
+														isOrderUpdate={true}
+														isEcommerceOrder={isEcommerceOrder}
+														ecommerceShipment={ecommerceShipment}
 													/>
 											)}
 									</Card>
