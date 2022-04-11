@@ -109,6 +109,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   )
   const [form] = Form.useForm();
   const [isError, setError] = useState(false);
+  const [isPrint, setIsPrint] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
@@ -530,7 +531,9 @@ ShippingServiceConfigDetailResponseModel[]
           setTimeout(() => {
             isUserCanCreateOrder.current = true;
           }, 1000);
-          handlePrintOrderReturnOrExchange(response.id, printType.return);
+          if(isPrint) {
+            handlePrintOrderReturnOrExchange(response.id, printType.return);
+          }
           setListReturnProducts([]);
           setTimeout(() => {
             history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
@@ -928,12 +931,14 @@ ShippingServiceConfigDetailResponseModel[]
 				isUserCanCreateOrder.current = true;
 			}, 1000);
       dispatch(hideLoading());
-      handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange);
+      if(isPrint) {
+        handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange);
+      }
       setTimeout(() => {
         history.push(`${UrlConfig.ORDER}/${value.id}`);
       }, 1000);
     },
-    [dispatch, handlePrintOrderReturnOrExchange, history, printType.returnAndExchange]
+    [dispatch, handlePrintOrderReturnOrExchange, history, isPrint, printType.returnAndExchange]
   );
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -1338,8 +1343,22 @@ ShippingServiceConfigDetailResponseModel[]
           </Form>
         </div>
         <ReturnBottomBar
-          onReturn={onReturn}
-          onReturnAndExchange={() => onReturnAndExchange()}
+          onReturn={() => {
+            setIsPrint(false)
+            onReturn()
+          }}
+          onReturnAndPrint={() => {
+            setIsPrint(true)
+            onReturn()
+          }}
+          onReturnAndExchange={() => {
+            setIsPrint(false)
+            onReturnAndExchange()
+          }}
+          onReturnAndExchangeAndPrint={() => {
+            setIsPrint(true)
+            onReturnAndExchange()
+          }}
           onCancel={() => handleCancel()}
           isCanExchange={isCanExchange}
           isExchange={isExchange}
