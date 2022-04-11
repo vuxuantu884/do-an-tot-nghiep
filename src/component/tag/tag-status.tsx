@@ -2,8 +2,11 @@ import {Tag, TagProps} from "antd";
 import React from "react";
 import {TagStatusStyle} from "./tag-status.style";
 import classnames from "classnames";
+
+declare const TagTypes: ["nomarl", "success", "danger", "primary", "warning", "secondary"];
+export declare type TagType = typeof TagTypes[number];
 interface TagStatusProps extends TagProps {
-  type?: "nomarl" | "success" | "danger" | "primary" | "warning" | "secondary" | string;
+  type?: TagType | string;
   children: React.ReactNode;
   isOutline?: boolean;
   icon?: string | undefined;
