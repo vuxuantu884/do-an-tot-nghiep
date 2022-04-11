@@ -59,8 +59,8 @@ const createCustomerPointAdjustmentAction = (params: CreateCustomerPointAdjustme
   return BaseAction(LoyaltyPointsAdjustmentType.CREATE_CUSTOMER_POINT_ADJUSTMENT, { params, successCallback, failCallback });
 }
 
-const getLoyaltyAdjustPointAction = (customerId: number, setData: (data: any) => void, onError: () => void) => {
-  return BaseAction(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, { customerId, setData, onError });
+const getLoyaltyAdjustMoneyAction = (customerId: number, setData: (data: any) => void, onError: () => void) => {
+  return BaseAction(LoyaltyPointsType.GET_LOYALTY_ADJUST_MONEY, { customerId, setData, onError });
 }
 
 const getPointAdjustmentListAction = (query: any, callback: (data: BaseResponse<any>) => void) => {
@@ -83,8 +83,8 @@ export {
   getLoyaltyPoint,
   addLoyaltyPoint,
   subtractLoyaltyPoint,
-  getLoyaltyAdjustPointAction,
   getPointAdjustmentListAction,
   getPointAdjustmentDetailAction,
   createCustomerPointAdjustmentAction,
+  getLoyaltyAdjustMoneyAction,
 };
