@@ -4,6 +4,7 @@ import React from "react";
 
 const WarrantyHistotyList = React.lazy(() => import("screens/warranty/history-list"));
 const CreateWarranty = React.lazy(() => import("screens/warranty/create/index"));
+const ReadWarranty = React.lazy(() => import("screens/warranty/read/index"));
 const warrantyRoute: Array<RouteMenu> = [
     {
         path: `${UrlConfig.WARRANTY}`,
@@ -28,7 +29,21 @@ const warrantyRoute: Array<RouteMenu> = [
                 subMenu: [],
                 permissions: [],
 
-            }],
+            },
+            {
+                path: `${UrlConfig.WARRANTY}/:id`,
+                exact: true,
+                title: "Xem phiếu bảo hành",
+                icon: "icon-dot",
+                component: ReadWarranty,
+                key: "warranty-histoty-list",
+                isShow: true,
+                header: null,
+                subMenu: [],
+                permissions: [],
+
+            }
+        ],
 
     }
 
