@@ -214,7 +214,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
           </div>
         }
         extra={
-          <Button
+          isEditDetail && <Button
             onClick={ShowPaymentModal}
             style={{
               alignItems: "center",

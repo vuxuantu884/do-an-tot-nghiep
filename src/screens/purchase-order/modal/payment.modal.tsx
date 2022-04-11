@@ -255,8 +255,8 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                 </div>
               }
             >
-              <CustomInputChange dataPercent={poData.total_payment} placeholder="0" />
-            </Item>
+              <CustomInputChange dataPercent={poData.total_payment} placeholder="0" remainPayment={Math.round(remainPayment)}/>
+            </Item>           
           </Col>
           <Col xs={24} lg={12}>
             <Item name="reference" label="Số tham chiếu">

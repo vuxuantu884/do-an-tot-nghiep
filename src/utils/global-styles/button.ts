@@ -137,8 +137,8 @@ export const globalCssCustomButton = css`
     }
   }
   .ant-btn-background-ghost.ant-btn-primary {
-    color: ${primaryColor};
-    border-color: ${primaryColor};
+    color: ${primaryColor} !important;
+    border-color: ${primaryColor} !important;
     background: transparent;
     &:hover {
       background: #f3f3ff !important;
