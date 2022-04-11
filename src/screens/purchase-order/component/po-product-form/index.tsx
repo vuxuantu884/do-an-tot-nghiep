@@ -317,7 +317,7 @@ const POProductForm = ({
       },
     },
     {
-      title: "Mã vải", width: 80,
+      title: "Mã màu", width: 80,
       dataIndex: "clothCode",
     },
     {

@@ -1,8 +1,9 @@
-import { Form, Row, Space } from "antd";
-import React, { useCallback, lazy } from "react";
+import { Form, FormInstance, Row, Space } from "antd";
 import classNames from "classnames";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { POField } from "model/purchase-order/po-field";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import React, { lazy, useCallback } from "react";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import POProgressView from "../po-progress-view";
 
 const TabAll = lazy(() => import("./tab1"))
@@ -19,6 +20,7 @@ type POInventoryViewProps = {
   tabs: Array<any>;
   activeTab: number;
   selectTabChange: (id: number) => void;
+  form: FormInstance;
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
@@ -33,6 +35,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
     tabs,
     activeTab,
     selectTabChange,
+    form
   } = props;
   const getComponent = useCallback(
     (id: number) => {
@@ -49,13 +52,25 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
     },
     [code, confirmDraft, confirmInventory, onSuccess, poId]
   );
+
+  const getExpectReceiptDate = () => {
+    const procument_items: Array<PurchaseProcument> = form.getFieldValue(
+      POField.procurements
+    );
+    if (procument_items?.length > 0 && procument_items[0]) {
+      return ConvertUtcToLocalDate(procument_items[0].expect_receipt_date, DATE_FORMAT.DDMMYYY)
+    } else {
+      return "-";
+    }
+  }
+
   return (
     <React.Fragment>
       <Form.Item
         noStyle
         shouldUpdate={(prev, current) =>
           prev[POField.planned_quantity] !==
-            current[POField.planned_quantity] &&
+          current[POField.planned_quantity] &&
           prev[POField.receipt_quantity] !== current[POField.receipt_quantity]
         }
       >
@@ -98,6 +113,9 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
               </div>
             ))}
           </Space>
+          <div style={{marginLeft: "auto"}}>
+            <p>Ngày nhận dự kiến: <b>{getExpectReceiptDate()}</b></p>
+          </div>
         </div>
       </Row>
       {tabs.map((item) => (

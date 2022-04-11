@@ -378,6 +378,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       <div>
         {status && status !== POStatus.DRAFT ? (
           <POInventoryView
+            form={formMain}
             tabs={TAB}
             activeTab={activeTab}
             selectTabChange={(id) => setActiveTab(id)}
