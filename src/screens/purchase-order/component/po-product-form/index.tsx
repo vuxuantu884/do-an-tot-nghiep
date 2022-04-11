@@ -485,7 +485,7 @@ const POProductForm = ({
           rowKey={(record: PODataSourceGrid) => record.color}
           footer={() => {            
             const amount: number = getTotalPriceOfAllLineItem(poLineItemGridValue);
-            formMain.setFieldsValue({[POField.total]: amount - (amount * taxRate) / 100});
+            formMain.setFieldsValue({[POField.total]: amount + (amount * taxRate) / 100});
             return (
               <Row className="footer">
                 <Col span={14} />
