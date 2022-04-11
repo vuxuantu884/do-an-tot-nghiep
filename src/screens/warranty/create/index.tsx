@@ -16,7 +16,7 @@ import AccountCustomSearchSelect from 'component/custom/AccountCustomSearchSelec
 import { AccountResponse } from 'model/account/account.model';
 import { searchAccountPublicAction } from 'domain/actions/account/account.action';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { OrderModel } from 'model/order/order.model';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import { PageResponse } from 'model/base/base-metadata.response';
@@ -24,6 +24,9 @@ import HistoryPurchaseModal from './HistoryPurchase.modal';
 import { DATE_FORMAT } from 'utils/DateUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import { StyledComponent } from './index.styles';
+import { WarrantyFormType, WarrantyItemType } from 'model/warranty/warranty.model';
+import { createWarrantyAction, getWarrantyReasonsAction } from 'domain/actions/warranty/warranty.action';
+import { showSuccess } from 'utils/ToastUtils';
 
 type Props = {}
 
@@ -47,6 +50,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 
 function CreateWarranty(props: Props) {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [warrantyForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -76,6 +80,7 @@ function CreateWarranty(props: Props) {
 
   const [warrantyItems, setWarrantyItems] = useState<Array<any>>([]);
   const [noneItems, setNoneItems] = useState(false);
+  const [reasons, setReasons] = useState<Array<any>>([]);
   const autoCompleteRef = useRef<any>(null);
 
   const initialFormValueWarranty ={
@@ -199,6 +204,7 @@ function CreateWarranty(props: Props) {
                 dispatch(getCustomerOrderHistoryAction({ customer_id: data.id }, updateOrderHistoryData));
                 setHadCustomer(true);
                 warrantyForm.setFieldsValue({
+                  customer_id: data.id,
                   customer: data.full_name,
                   customer_mobile: data.phone,
                   customer_address: data.full_address
@@ -220,7 +226,15 @@ function CreateWarranty(props: Props) {
 
   const addItemsWarranty = useCallback((item:any) => {
     console.log(item);
-    let newWarrantyItems = [...warrantyItems, item]
+    let newWarrantyItems = [...warrantyItems,
+      {
+        ...item,
+        type: null,
+        reason_id: null,
+        fee: 0,
+        customer_fee: 0,
+      }
+    ]
     newWarrantyItems = newWarrantyItems.map((i, index) => {
       return {
         ...i,
@@ -288,45 +302,29 @@ function CreateWarranty(props: Props) {
       },
       {
         title: "Trạng thái",
-        key: "status",
-        render: (item) => {
+        key: "type",
+        render: (value: string, record: any) => {
           return (
-            <div className="inner">
-              <CustomSelect
-                allowClear
-                optionFilterProp="children"
-                showSearch
-                showArrow
-                notFoundContent="Không tìm thấy kết quả"
-                placeholder="Trạng thái sản phẩm"
-                style={{ width: "100%" }}
-                getPopupContainer={(trigger) => trigger.parentNode}
-                maxTagCount="responsive">
-                {/* <Option value="">Hình thức vận chuyển</Option> */}
-                  <CustomSelect.Option key={1} value={1}>
-                    Tiếp nhận
-                  </CustomSelect.Option>
-              </CustomSelect>
-              <br />
-              <CustomSelect
-                allowClear
-                optionFilterProp="children"
-                showSearch
-                showArrow
-                notFoundContent="Không tìm thấy kết quả"
-                placeholder="Loại bảo hành"
-                style={{ width: "100%" }}
-                getPopupContainer={(trigger) => trigger.parentNode}
-                maxTagCount="responsive">
-                {/* <Option value="">Hình thức vận chuyển</Option> */}
-                  <CustomSelect.Option key={1} value={1}>
-                    6 tháng
-                  </CustomSelect.Option>
-                  <CustomSelect.Option key={2} value={2}>
-                    Trọn đời
-                  </CustomSelect.Option>
-              </CustomSelect>
-            </div>
+            <CustomSelect
+              allowClear
+              optionFilterProp="children"
+              showSearch
+              showArrow
+              notFoundContent="Không tìm thấy kết quả"
+              placeholder="Loại bảo hành"
+              style={{ width: "100%" }}
+              getPopupContainer={(trigger) => trigger.parentNode}
+              maxTagCount="responsive"
+              value={record.type}
+              onChange={(value) => onChangeItem(value, "type", record.index)}
+            >
+                <CustomSelect.Option key={"WARRANTY"} value={WarrantyItemType.WARRANTY}>
+                  Bảo hành
+                </CustomSelect.Option>
+                <CustomSelect.Option key={"REPAIR"} value={WarrantyItemType.REPAIR}>
+                  Sửa chữa
+                </CustomSelect.Option>
+            </CustomSelect>
           )
         },
         visible: true,
@@ -335,7 +333,7 @@ function CreateWarranty(props: Props) {
       {
         title: "Lý do",
         key: "reasons",
-        render: (item) => {
+        render: (value: string, record: any) => {
           return (
             <div className="inner">
               <CustomSelect
@@ -347,11 +345,16 @@ function CreateWarranty(props: Props) {
                 placeholder="Lý do"
                 style={{ width: "100%" }}
                 getPopupContainer={(trigger) => trigger.parentNode}
-                maxTagCount="responsive">
+                maxTagCount="responsive"
+                value={record.reason_id}
+                onChange={(value) => onChangeItem(value, "reason_id", record.index)}
+              >
                 {/* <Option value="">Hình thức vận chuyển</Option> */}
-                  <CustomSelect.Option key={1} value={1}>
-                    Lý do
+                {reasons.map((reason) => (
+                  <CustomSelect.Option key={reason.id} value={reason.id}>
+                    {reason.name}
                   </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </div>
           )
@@ -375,18 +378,22 @@ function CreateWarranty(props: Props) {
         title: "Ghi chú",
         key: "note",
         render: (value: string, record: any) => {
-          return <Input placeholder='Ghi chú' />
+          return  <Input
+                    placeholder='Ghi chú'
+                    value={record.note}
+                    onChange={(e) => onChangeItem(e.target.value, "note", record.index)}
+                  />
         },
         visible: true,
         width: 100
       },
       {
         title: "Phí thực tế",
-        key: "fee1",
+        key: "fee",
         render: (value: string, record: any) => {
           return <NumberInput
-                  value={record.fee1}
-                  onChange={(value) => onChangeItem(value, "fee1", record.index)}
+                  value={record.fee}
+                  onChange={(value) => onChangeItem(value, "fee", record.index)}
                 />
         },
         visible: true,
@@ -397,8 +404,8 @@ function CreateWarranty(props: Props) {
         key: "fee2",
         render: (value: string, record: any) => {
           return <NumberInput
-                  value={record.fee2}
-                  onChange={(value) => onChangeItem(value, "fee2", record.index)}
+                  value={record.customer_fee}
+                  onChange={(value) => onChangeItem(value, "customer_fee", record.index)}
                 />
         },
         visible: true,
@@ -419,7 +426,7 @@ function CreateWarranty(props: Props) {
         visible: true,
         width: 100
       },
-    ], [deleteItemsWarranty, onChangeItem]
+    ], [deleteItemsWarranty, onChangeItem, reasons]
   );
   const onPageChange = useCallback(
     (page, limit) => {
@@ -434,11 +441,28 @@ function CreateWarranty(props: Props) {
   );
 
   const handleSubmit = (values: any) => {
-    console.log(values);
     if (warrantyItems.length) {
-      setNoneItems(false)
+      setNoneItems(false);
+      const body = {
+        ...values,
+        line_items: warrantyItems.map(i => {
+          return {
+            ...i,
+            expenses: [{
+              reason_id: i.reason_id
+            }]
+          }
+        }),
+      }
+      console.log(body);
+      dispatch(createWarrantyAction(body, (data: any) => {
+        if (data) {
+          showSuccess("Thêm mới bảo hành thành công")
+          history.push(`${UrlConfig.WARRANTY}`)
+        }
+      }))
     } else {
-      setNoneItems(true)
+      setNoneItems(true);
     }
   };
 
@@ -448,6 +472,7 @@ function CreateWarranty(props: Props) {
       setAccountData(data.items);
     }));
     dispatch(StoreGetListAction(setStore));
+    dispatch(getWarrantyReasonsAction((data:any) => setReasons(data.items)));
   }, [dispatch]);
 
   return (
@@ -528,6 +553,8 @@ function CreateWarranty(props: Props) {
                 </AutoComplete>}
                 {hadCustomer &&
                   <>
+                    <Form.Item name="customer_id" hidden>
+                    </Form.Item>
                     <Form.Item name="customer">
                       <Input 
                         readOnly
@@ -572,7 +599,7 @@ function CreateWarranty(props: Props) {
                     getPopupContainer={trigger => trigger.parentNode}
                   >
                     {listStore?.map((item) => (
-                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                      <CustomSelect.Option key={item.id} value={item.id}>
                         {item.name}
                       </CustomSelect.Option>
                     ))}
@@ -620,8 +647,27 @@ function CreateWarranty(props: Props) {
                     }}
                   />
                 </Form.Item>
-                <Form.Item name="delivery_method">
-                  
+                <Form.Item
+                  name="type"
+                  rules={[{ required: true, message: 'Chọn hình thức trả khách' }]}
+                >
+                  <CustomSelect
+                    allowClear
+                    optionFilterProp="children"
+                    showSearch
+                    showArrow
+                    notFoundContent="Không tìm thấy kết quả"
+                    placeholder="Hình thức trả khách"
+                    style={{ width: "100%" }}
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                    maxTagCount="responsive">
+                      <CustomSelect.Option key={"SHIPPING"} value={WarrantyFormType.SHIPPING}>
+                        Giao trả hàng tận nhà khách
+                      </CustomSelect.Option>
+                      <CustomSelect.Option key={"STORE"} value={WarrantyFormType.STORE}>
+                        Khách đến cửa hàng lấy
+                      </CustomSelect.Option>
+                  </CustomSelect>
                 </Form.Item>
               </Card>
             </Col>
@@ -652,7 +698,7 @@ function CreateWarranty(props: Props) {
                   }}
                   dataSource={warrantyItems}
                   columns={columnsWarrantyItems}
-                  rowKey={(item: any) => item.code}
+                  rowKey={(item: any) => item.index}
                 />
               </Card>
             </Col>
