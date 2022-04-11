@@ -144,7 +144,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
 
   return (
     <Modal
-      title={purchasePayment ? "Sửa yêu cầu hoàn tiền " : "Tạo thanh toán "}
+      title={purchasePayment ? "Sửa yêu cầu hoàn tiền " : "Tạo thanh toán mới"}
       visible={visible}
       centered
       cancelText="Hủy"

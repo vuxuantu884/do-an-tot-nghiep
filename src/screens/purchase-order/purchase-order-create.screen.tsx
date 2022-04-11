@@ -188,7 +188,7 @@ const POCreateScreen: React.FC = () => {
         data.line_items = newDataItems
         data.trade_discount_amount = trade_discount_amount
         data.payment_discount_amount = payment_discount_amount
-        data.total = Math.round(untaxed_amount - (untaxed_amount * taxRate) / 100)
+        data.total = Math.round(untaxed_amount + (untaxed_amount * taxRate) / 100)
         data.untaxed_amount = untaxed_amount
         data.tax_lines = tax_lines
       }
