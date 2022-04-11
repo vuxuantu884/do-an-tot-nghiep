@@ -14,6 +14,7 @@ type PropType = {
   handleCreateShipment?: () => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   isLoading?: boolean;
+  isOrderUpdate?: boolean;
 };
 
 const { Panel } = Collapse;
@@ -26,6 +27,7 @@ function ShipmentMethodEcommerce(props: PropType) {
     handleCreateShipment,
     setShippingFeeInformedToCustomer,
     isLoading,
+    isOrderUpdate,
   } = props;
 
   useEffect(() => {
@@ -207,7 +209,7 @@ function ShipmentMethodEcommerce(props: PropType) {
         </div>
       }
 
-      {ecommerceShipment &&
+      {ecommerceShipment && !isOrderUpdate &&
         <div style={{marginTop: 20}}>
           <Button
             type="primary"
