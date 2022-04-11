@@ -898,8 +898,7 @@ console.log('isLineItemChanging', isLineItemChanging)
 						price={l.price}
 						index={index}
 						discountRate={l.discount_items[0]?.rate ? l.discount_items[0]?.rate : 0}
-						discountValue={l.discount_items[0]?.value ? l.discount_items[0]?.value : 0}
-						totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
+						discountAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
 						items={items}
 						handleCardItems={(_items) => onDiscountItem(_items, index)}
 						// disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
@@ -1107,11 +1106,12 @@ console.log('isLineItemChanging', isLineItemChanging)
 	//   items.splice(position, 0, lineItem);
 	// };
 
+	/**
+  * nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
+  */
 	const checkIfReplaceDiscountLineItem = (item: OrderLineItemRequest, newDiscountValue: number) => {
 		if(item.discount_items[0] && !item.discount_items[0].promotion_id) {
-			if(item.discount_items[0].value > newDiscountValue) {
-				return false;
-			}
+			return false;
 		}
 		if(newDiscountValue >= 0) {
 			return true;
@@ -1679,11 +1679,15 @@ console.log('items', items)
 				} else {
 					let variantItems = _items.filter((item) => item.variant_id === newV);
 					let firstIndex = 0;
-					variantItems[firstIndex].quantity += 1;
-					variantItems[firstIndex].line_amount_after_line_discount +=
-						variantItems[firstIndex].price -
-						variantItems[firstIndex].discount_items[0]?.amount *
-						variantItems[firstIndex].quantity;
+					let selectedItem = variantItems[firstIndex];
+					selectedItem.quantity += 1;
+					selectedItem.line_amount_after_line_discount +=
+						selectedItem.price -
+						selectedItem.discount_items[0]?.amount *
+						selectedItem.quantity;
+					selectedItem.discount_items.forEach(single => {
+						single.amount = single.value * selectedItem.quantity;
+					})
 					calculateChangeMoney(_items);
 				}
 			}
@@ -2139,7 +2143,7 @@ console.log('items', items)
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, orderSourceId, isShouldUpdateDiscountRef]);
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2156,7 +2160,7 @@ console.log('items', items)
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, orderSourceId, isShouldUpdateDiscountRef]);
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
 
 	// đợi 3s cho load trang xong thì sẽ update trong trường hợp clone, update
 	useEffect(() => {
