@@ -432,8 +432,8 @@ export const getSourcesEcommerceService = (): Promise<
 export const getChannelsService = (
   typeId: number
 ): Promise<BaseResponse<ChannelResponse[]>> => {
-  let link = `${ApiConfig.ORDER}/channels/types`;
-  if (typeId !== null) link = `${ApiConfig.CORE}/channels/types?type_id=${typeId}`;
+  let link = `${ApiConfig.CORE}/channels`;
+  if (typeId !== null) link = `${ApiConfig.CORE}/channels?type_id=${typeId}`;
   return BaseAxios.get(link);
 };
 /**
