@@ -1,7 +1,7 @@
 import Color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 export const AnalyticsStyle = styled.div`
-padding-top: 20px;
+
 .ant-table-summary {
       display: table-header-group;
 }
