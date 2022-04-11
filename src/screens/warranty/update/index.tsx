@@ -16,7 +16,7 @@ import AccountCustomSearchSelect from 'component/custom/AccountCustomSearchSelec
 import { AccountResponse } from 'model/account/account.model';
 import { searchAccountPublicAction } from 'domain/actions/account/account.action';
 import moment from 'moment';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { OrderModel } from 'model/order/order.model';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import { PageResponse } from 'model/base/base-metadata.response';
@@ -25,10 +25,13 @@ import { DATE_FORMAT } from 'utils/DateUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import { StyledComponent } from './index.styles';
 import { WarrantyFormType, WarrantyItemType } from 'model/warranty/warranty.model';
-import { createWarrantyAction, getWarrantyReasonsAction } from 'domain/actions/warranty/warranty.action';
+import { createWarrantyAction, getDetailsWarrantyAction, getWarrantyReasonsAction } from 'domain/actions/warranty/warranty.action';
 import { showSuccess } from 'utils/ToastUtils';
 
-type Props = {}
+type Props = {};
+type WarrantyParam = {
+	id: string;
+};
 
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
@@ -51,6 +54,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 function CreateWarranty(props: Props) {
   const dispatch = useDispatch();
   const history = useHistory();
+  let { id } = useParams<WarrantyParam>();
   const [warrantyForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -478,6 +482,50 @@ function CreateWarranty(props: Props) {
     dispatch(getWarrantyReasonsAction((data:any) => setReasons(data.items)));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (id) {
+      dispatch(getDetailsWarrantyAction(id, (data:any) => {
+        warrantyForm.setFieldsValue({
+          store_id: data.store_id,
+          assignee_code: data.assignee_code,
+          appointment_date: data.appointment_date,
+          delivery_method: data.delivery_method
+        });
+        dispatch(
+          getCustomerDetailAction(
+            data.customer_id,
+            (data: CustomerResponse | null) => {
+              if (data) {
+                console.log('data', data)
+                setTableLoading(true);
+                setParams({
+                  ...params,
+                  customer_id: data.id
+                })
+                dispatch(getCustomerOrderHistoryAction({ customer_id: data.id }, updateOrderHistoryData));
+                setHadCustomer(true);
+                warrantyForm.setFieldsValue({
+                  customer_id: data.id,
+                  customer: data.full_name,
+                  customer_mobile: data.phone,
+                  customer_address: data.full_address
+                })
+              }
+            }
+          )
+        );
+        const lineItems = data.line_items.map((item:any) => {
+          return {
+            ...item,
+            reason_id: item.expenses[0].reason_id
+          }
+        });
+        setWarrantyItems(lineItems);
+      }))
+    }
+      
+  }, [dispatch, id, params, updateOrderHistoryData, warrantyForm]);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -682,7 +730,7 @@ function CreateWarranty(props: Props) {
               orderHistoryData={orderHistoryData}
               onPageChange={onPageChange}
               onOk={() => setVisibleHistory(false)}
-              onClick={(item) => addItemsWarranty(item)}
+              onClick={(item:any) => addItemsWarranty(item)}
             />
             <Col md={24}>
               <Card

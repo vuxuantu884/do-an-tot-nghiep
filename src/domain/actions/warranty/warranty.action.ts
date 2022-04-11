@@ -9,7 +9,7 @@ export const getWarrantiesAction = (
 };
 
 export const getDetailsWarrantyAction = (
-  id: number,
+  id: string,
   setData: (data: any) => void
 ) => {
   return BaseAction(WarrantyType.GET_DETAILS_WARRANTY_REQUEST, { id, setData });
