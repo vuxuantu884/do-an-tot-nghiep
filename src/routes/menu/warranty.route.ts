@@ -4,7 +4,7 @@ import React from "react";
 
 const WarrantyHistotyList = React.lazy(() => import("screens/warranty/history-list"));
 const CreateWarranty = React.lazy(() => import("screens/warranty/create/index"));
-const ReadWarranty = React.lazy(() => import("screens/warranty/read/index"));
+const ReadWarranty = React.lazy(() => import("screens/warranty/WarrantyDetail/WarrantyDetail"));
 const warrantyRoute: Array<RouteMenu> = [
     {
         path: `${UrlConfig.WARRANTY}`,

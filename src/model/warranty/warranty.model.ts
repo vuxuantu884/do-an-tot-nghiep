@@ -19,6 +19,11 @@ export enum WarrantyItemStatus {
     FINISH = "FINISH",
 }
 
+export enum WarrantyReturnStatus {
+    RECEIVED = "RECEIVED",
+    UNRECEIVED = "UNRECEIVED",
+}
+
 export enum WarrantyItemType {
     WARRANTY = "WARRANTY",
     REPAIR = "REPAIR",
@@ -52,7 +57,7 @@ export interface WarrantyListRequest {
     customer?: string;
     warranty_status?: WarrantyStatus;
     financial_status?: WarrantyFinancialStatus;
-    status?: WarrantyItemStatus;
+    return_status?: WarrantyReturnStatus;
     type?: WarrantyItemType;
     warranty_type?: WarrantyFormType;
     warranty_center_ids?: number[];
@@ -80,6 +85,7 @@ export interface WarrantyModel extends BaseObject {
     total_amount: number;
     type: WarrantyFormType;
     line_items: WarrantyItemModel[];
+    return_status: WarrantyReturnStatus;
 }
 
 export interface WarrantyItemModel extends BaseObject {
@@ -92,10 +98,11 @@ export interface WarrantyItemModel extends BaseObject {
     sku: string;
     warranty_center_id: number;
     warranty_center: string;
-    purchase_date: Date;
     note: Date;
-    appointment_date: Date;
-    amount: number;
+    fixing_date: Date;
+    fixed_date: Date;
+    price: number;
+    customer_fee: number;
     status: WarrantyItemStatus;
     type: WarrantyItemType;
     expenses: WarrantyExpense[];

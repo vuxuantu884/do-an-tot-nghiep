@@ -6,7 +6,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 // import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { createWarranty, getWarranties, getWarrantyID, getWarrantyReasons } from "service/warranty/warranty.service";
+import { createWarrantyService, getWarrantiesService, getWarrantyDetailService, getWarrantyReasonsService } from "service/warranty/warranty.service";
 import { WarrantyType } from "domain/types/warranty.type";
 import { showError } from "utils/ToastUtils";
 
@@ -14,7 +14,7 @@ function* GetDataWarranties(action: YodyAction) {
   let { setData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
-      getWarranties
+      getWarrantiesService
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -36,7 +36,7 @@ function* GetDetailsWarranty(action: YodyAction) {
   let { id, setData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
-      getWarrantyID,
+      getWarrantyDetailService,
       id
     );
     switch (response.code) {
@@ -58,7 +58,7 @@ function* CreateWarranty(action: YodyAction) {
   
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
-      createWarranty,
+      createWarrantyService,
       body
     );
     switch (response.code) {
@@ -82,7 +82,7 @@ function* GetWarrantyReasons(action: YodyAction) {
   let { setData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
-      getWarrantyReasons
+      getWarrantyReasonsService
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
