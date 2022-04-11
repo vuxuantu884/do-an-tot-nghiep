@@ -54,7 +54,6 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     isChangeAfterBlur = true,
   } = props;
   const [data, setData] = useState<string>('');
-  console.log('props.max', props.max)
   const onChangeText = useCallback(
     (e) => {
       let newValue: string = e.target.value;
