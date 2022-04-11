@@ -98,7 +98,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     const checkIfOrderStepIsUnshipped = () => {
       return  orderDetail?.fulfillment_status === "unshipped"
     };
-    if(checkIfOrderIsFinalized() || checkIfOrderHasNoFFM() || !checkIfOrderStepIsUnshipped()) {
+    const checkIfOrderHasFulfillmentUnshipped = () => {
+      return (orderDetail?.fulfillments?.some(ffm => ffm.status === FulFillmentStatus.UNSHIPPED)) 
+    };
+    if(checkIfOrderIsFinalized() || checkIfOrderHasNoFFM() || !checkIfOrderStepIsUnshipped() || checkIfOrderHasFulfillmentUnshipped()) {
       return false;
     }
     return true
