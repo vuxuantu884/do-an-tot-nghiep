@@ -961,7 +961,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         {filters &&
           filters.map((filter: any, index) => {
             return (
-              <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
+              <Tag style={{ marginBottom: 20 }} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
                 {filter.name}: {filter.value}
               </Tag>
             );
