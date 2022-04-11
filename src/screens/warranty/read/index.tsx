@@ -1,12 +1,37 @@
 import { Button, Card, Col, Form, Input, Row } from 'antd'
+import BaseResponse from 'base/base.response'
 import ContentContainer from 'component/container/content.container'
 import TagStatus from 'component/tag/tag-status'
 import UrlConfig from 'config/url.config'
-import React from 'react'
+import { WarrantyModel } from 'model/warranty/warranty.model'
+import React, { useCallback, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { RouterProps, useParams } from 'react-router-dom'
+import { getWarrantyID } from 'service/warranty/warranty.service'
+import { callApiNative } from 'utils/ApiUtils'
 import { ReadWarrantyStyle } from './index.style'
-type Props = {}
+type Props = RouterProps & {
+
+}
 
 function ReadWarranty(props: Props) {
+    const { id } = useParams<{ id: string }>();
+
+    const dispatch = useDispatch()
+    const [warranty, setWarranty] = React.useState<WarrantyModel>();
+
+    const fetchWarranty = useCallback(async (id: string | number) => {
+        const response: BaseResponse<WarrantyModel> = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getWarrantyID, +id);
+        if (response.data) {
+            setWarranty(response.data)
+        }
+    }, [dispatch])
+
+    useEffect(() => {
+        if (id) {
+            fetchWarranty(id);
+        }
+    }, [id, fetchWarranty])
     return (
         <ContentContainer
             title='Phiếu bảo hành'
@@ -32,7 +57,9 @@ function ReadWarranty(props: Props) {
                             title={<div>Khách hàng</div>}
                             extra={<TagStatus type='success'>Đã nhận hàng</TagStatus>}
                         >
-                            <div>Nguyễn Văn A</div>
+                            <div>{warranty?.customer}</div>
+                            <div>{warranty?.customer_mobile}</div>
+                            <div>{warranty?.customer_address}</div>
                         </Card>
                         <Card
                             title={"Thông tin"}
@@ -42,15 +69,15 @@ function ReadWarranty(props: Props) {
                                 <tbody>
                                     <tr>
                                         <td>Cửa hàng</td>
-                                        <td><b>Cửa hàng 1</b></td>
+                                        <td><b>{warranty?.store}</b></td>
                                     </tr>
                                     <tr>
                                         <td>Người tạo</td>
-                                        <td><b>Nguyễn vân A</b></td>
+                                        <td><b></b></td>
                                     </tr>
                                     <tr>
                                         <td>Nhân viên tiếp nhận</td>
-                                        <td><b>YD-12345 - Nguyễn vân A</b></td>
+                                        <td><b></b></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -70,7 +97,7 @@ function ReadWarranty(props: Props) {
                             </Form.Item>
                         </Card>
                         <Card title="Sản phẩm">
-                            
+
                         </Card>
                     </Col>
 
