@@ -540,16 +540,20 @@ ShippingServiceConfigDetailResponseModel[]
           if(isPrint) {
             handlePrintOrderReturnOrExchange(response.id, printType.return).then(() => {
               setListReturnProducts([]);
+              dispatch(hideLoading())
               setTimeout(() => {
                 history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
               }, 500);
             })
           } else {
             setListReturnProducts([]);
+            dispatch(hideLoading())
             setTimeout(() => {
               history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
             }, 500);
           }
+        }, () => {
+          dispatch(hideLoading())
         })
       );
     }
@@ -593,6 +597,8 @@ ShippingServiceConfigDetailResponseModel[]
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           resolve(response)
+        }, () => {
+          dispatch(hideLoading())
         })
       );
     })
@@ -747,6 +753,9 @@ ShippingServiceConfigDetailResponseModel[]
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
+          if(!valuesResult) {
+            return;
+          }
           valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code") || recentAccountCode.accountCode;
@@ -856,7 +865,8 @@ ShippingServiceConfigDetailResponseModel[]
 			setTimeout(() => {
 				isUserCanCreateOrder.current = true
 			}, 5000);
-			return values
+      showError("Không được thao tác liên tiếp! Vui lòng đợi 5 giây!")
+			return
 		}
 		isUserCanCreateOrder.current = false;
     let lstFulFillment = createFulFillmentRequest(values);

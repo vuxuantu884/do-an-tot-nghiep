@@ -39,7 +39,7 @@ function* getOrderReturnDetailsSaga(action: YodyAction) {
 }
 
 function* createOrderReturnSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { params, handleData, handleError } = action.payload;
   try {
     // yield put(showLoading());
     let response: BaseResponse<any> = yield call(
@@ -50,9 +50,11 @@ function* createOrderReturnSaga(action: YodyAction) {
 			handleData(response.data);
       showSuccess("Tạo đơn trả hàng thành công!");
 		} else {
+      handleError()
 			yield put(fetchApiErrorAction(response, "Tạo đơn trả hàng"));
 		}
   } catch (error) {
+    handleError()
     console.log("error", error);
     showError("Có lỗi khi tạo đơn trả hàng! Vui lòng thử lại sau!");
   } finally {
