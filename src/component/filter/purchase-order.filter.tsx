@@ -429,6 +429,10 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
       let data = formBaseFilter.getFieldsValue(true);
+      data = {
+        ...data,
+        ...values
+      }
       onFilter && onFilter(data);
     },
     [formBaseFilter, onFilter]
