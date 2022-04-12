@@ -6,7 +6,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 // import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { createWarrantyService, getWarrantiesService, getWarrantyDetailService, getWarrantyReasonsService } from "service/warranty/warranty.service";
+import { createWarrantyService, getWarrantiesService, getWarrantyDetailService, getWarrantyReasonsService, updateWarranty } from "service/warranty/warranty.service";
 import { WarrantyType } from "domain/types/warranty.type";
 import { showError } from "utils/ToastUtils";
 
