@@ -102,14 +102,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const printType =  {
     return: "order_return",
     returnAndExchange: "order_exchange",
-
   }
+  let isPrint = false;
   const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )
   const [form] = Form.useForm();
   const [isError, setError] = useState(false);
-  const [isPrint, setIsPrint] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
@@ -1344,19 +1343,19 @@ ShippingServiceConfigDetailResponseModel[]
         </div>
         <ReturnBottomBar
           onReturn={() => {
-            setIsPrint(false)
+            isPrint= false;
             onReturn()
           }}
           onReturnAndPrint={() => {
-            setIsPrint(true)
+            isPrint= true;
             onReturn()
           }}
           onReturnAndExchange={() => {
-            setIsPrint(false)
+            isPrint= false;
             onReturnAndExchange()
           }}
           onReturnAndExchangeAndPrint={() => {
-            setIsPrint(true)
+            isPrint= true;
             onReturnAndExchange()
           }}
           onCancel={() => handleCancel()}
