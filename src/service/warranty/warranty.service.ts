@@ -13,20 +13,20 @@ export const getWarrantiesService = (query?: GetWarrantiesParamModel): Promise<B
 }
 
 export const getWarrantyDetailService = (id: number): Promise<BaseResponse<any>> => {
-  return BaseAxios.get(`${ApiConfig.WARRANTY}/${id}`);
+  return BaseAxios.get(`${ApiConfig.WARRANTY}/cards/${id}`);
 }
 
 export const createWarrantyService = (body: any): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(`${ApiConfig.WARRANTY}`, body);
+  return BaseAxios.post(`${ApiConfig.WARRANTY}/warranties`, body);
 }
 
 export const getWarrantyReasonsService = (): Promise<BaseResponse<any>> => {
-  return BaseAxios.get(`${ApiConfig.WARRANTY}/reasons`);
+  return BaseAxios.get(`${ApiConfig.WARRANTY}/warranties/reasons`);
 }
 export const updateWarranty = (id: string, body: any): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(`${ApiConfig.WARRANTY}/${id}`, body);
+  return BaseAxios.put(`${ApiConfig.WARRANTY}/warranties/${id}`, body);
 }
 
 export const updateWarrantyDetailService = (id: number, body: WarrantyModel): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(`${ApiConfig.WARRANTY}/${id}`, body);
+  return BaseAxios.put(`${ApiConfig.WARRANTY}/warranties/${id}`, body);
 }

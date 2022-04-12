@@ -87,6 +87,8 @@ export interface WarrantyModel extends BaseObject {
     type: WarrantyFormType;
     line_items: WarrantyItemModel[];
     return_status: WarrantyReturnStatus;
+    purchase_date: Date | null;
+    appointment_date: Date | null;
 }
 
 export interface WarrantyItemModel extends BaseObject {

@@ -21,6 +21,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useHistory, withRouter } from "react-router-dom";
 import { formatCurrency, generateQuery, goToTopPage } from "utils/AppUtils";
+import { WARRANTY_STATUS } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import FeeModal from "./components/fee-modal";
 import NoteModal from "./components/note-modal";
@@ -61,17 +62,6 @@ function WarrantyHistoryList(props: PropTypes) {
   const rowClicked = (record: any, index: number) => {
     rowSelected.current = { record, index };
   };
-
-  const warrantyTypes = [
-    {
-      name: "Sửa",
-      value: WarrantyItemType.REPAIR
-    },
-    {
-      name: "Bảo hành",
-      value: WarrantyItemType.WARRANTY
-    }
-  ] 
 
   const initQuery: GetWarrantiesParamModel = {
     page: 1,
@@ -188,27 +178,29 @@ function WarrantyHistoryList(props: PropTypes) {
             {TAB_STATUS.map(({ key, name }) => {
               return (
                 <TabPane tab={name} key={key}>
-                  <WarrantyFilter actions={[]} params={query} stores={stores} isLoading={false} onFilter={onFilter} onMenuClick={() =>{}} onShowColumnSetting={() =>{}} warrantyTypes={warrantyTypes} />
+                  <WarrantyFilter actions={[]} params={query} stores={stores} isLoading={false} onFilter={onFilter} onMenuClick={() =>{}} onShowColumnSetting={() =>{}} />
                   <CustomTable
                     isRowSelection
+                    rowSelectionWidth={"3.5%"}
                     dataSource={warranties}
+                    bordered
                     columns={[
                       {
                         title: "ID",
                         dataIndex: "id",
                         align: "center",
-                        width: "10%",
+                        width: "6%",
                         render: (id, record: WarrantyItemModel) => {
                           return (
                             record?.warranty?.id ? (
-                              <div>
+                              <div className="columnId">
                                 <Link to={`${UrlConfig.WARRANTY}/${record.warranty.id}`}>{id}</Link>
                                 <br />
-                                <span>
+                                <div>
                                   {record?.created_date
                                     ? moment(record?.created_date).format(formatDate)
                                     : "-"}
-                                </span>
+                                </div>
                               </div>
                             ) : null
                           );
@@ -216,10 +208,10 @@ function WarrantyHistoryList(props: PropTypes) {
                       },
                       {
                         title: "Khách hàng",
-                        align: "center",
+                        align: "left",
                         dataIndex: "customer",
                         key: "customer",
-                        width: "15%",
+                        width: "13%",
                         render: (value, record: WarrantyItemModel) => {
                           return (
                             <div>
@@ -234,7 +226,7 @@ function WarrantyHistoryList(props: PropTypes) {
                         title: "Sản phẩm",
                         dataIndex: "product",
                         key: "lineItem",
-                        width: "15%",
+                        width: "13%",
                         render: (value, record: WarrantyItemModel) => {
                           // let result = record.line_items.map((lineItem, index) => {
                           //   return (
@@ -250,15 +242,22 @@ function WarrantyHistoryList(props: PropTypes) {
                         title: "Loại",
                         dataIndex: "type",
                         key: "type",
+                        width: "9%",
+                        render: (value, record: WarrantyItemModel) => {
+                          let result = WARRANTY_STATUS.find(single => single.code === record.type);
+                          return <div>{result ? result.name : "-"}</div>;
+                        }
                       },
                       {
                         title: "Phí",
                         dataIndex: "fee",
                         key: "fee",
+                        width: "7%",
                         render: (id, record: WarrantyItemModel, index) => {
                           if (record.price) {
                             return (
                               <div
+                                className="fee"
                                 onClick={() => {
                                   rowClicked(record, index);
                                   setIsFeeModalVisible(true);
@@ -283,6 +282,7 @@ function WarrantyHistoryList(props: PropTypes) {
                         title: "Lý do",
                         dataIndex: "reason",
                         key: "reason",
+                        width: "8.5%",
                         render: (value, record: WarrantyItemModel, index) => {
                           return renderReason(record);
                         },
@@ -291,6 +291,7 @@ function WarrantyHistoryList(props: PropTypes) {
                         title: "Hẹn trả",
                         dataIndex: "appointment_date",
                         key: "appointment_date",
+                        width: "7%",
                         render: (value, record: WarrantyItemModel, index) => {
                           return record?.appointment_date
                             ? moment(record?.appointment_date).format(DATE_FORMAT.DDMMYYY)
@@ -301,6 +302,7 @@ function WarrantyHistoryList(props: PropTypes) {
                         title: "Trạng thái",
                         dataIndex: "status",
                         key: "status",
+                        width: "9%",
                         render: (id, record: WarrantyItemModel, index) => {
                           return (
                             <div
@@ -316,8 +318,15 @@ function WarrantyHistoryList(props: PropTypes) {
                         },
                       },
                       {
+                        title: "Người sửa",
+                        dataIndex: "created_name",
+                        key: "created_name",
+                        width: "12%",
+                      },
+                      {
                         title: "Ghi chú",
-                        width: "10%",
+                        width: "7%",
+                        align: "center",
                         render: (id, record: WarrantyItemModel, index) => {
                           return (
                             <Button
@@ -333,10 +342,12 @@ function WarrantyHistoryList(props: PropTypes) {
                       },
                       {
                         title: "",
-                        width: "5%",
+                        width: "3.5%",
+                        align: "center",
                         render: (text, record: WarrantyItemModel) => {
                           return (
-                            <Dropdown.Button
+                            <Dropdown
+                            trigger={["click"]}
                               overlay={
                                 <Menu>
                                   <Menu.Item
@@ -368,10 +379,12 @@ function WarrantyHistoryList(props: PropTypes) {
                                   </Menu.Item>
                                 </Menu>
                               }
-                              icon={
-                                <img src={MoreAction} alt="" style={{ verticalAlign: "super" }} />
-                              }
-                            />
+                              >
+                                <Button
+                                  type="text"
+                                  icon={<img src={MoreAction} alt=""></img>}
+                                ></Button>
+                              </Dropdown>
                           );
                         },
                       },
@@ -405,12 +418,6 @@ function WarrantyHistoryList(props: PropTypes) {
         visible={isStatusModalVisible}
         onCancel={() => setIsStatusModalVisible(false)}
         onOk={handleOkStatusModal}
-      />
-      <ModalDeleteConfirm
-        visible={isDeleteConfirmVisible}
-        onCancel={() => setIsDeleteConfirmVisible(false)}
-        onOk={handleOkDeleteModal}
-
       />
       <ModalDeleteConfirm
         visible={isDeleteConfirmVisible}

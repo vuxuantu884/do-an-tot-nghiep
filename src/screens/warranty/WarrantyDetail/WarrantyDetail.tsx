@@ -236,8 +236,8 @@ function ReadWarranty(props: PropTypes) {
                   <Col span={8}>Ngày mua hàng:</Col>
                   <Col span={16}>
                     <b>
-                      {warranty?.line_items[0].fixing_date
-                        ? moment(warranty?.line_items[0].fixing_date).format(formatDate)
+                      {warranty?.purchase_date
+                        ? moment(warranty?.purchase_date).format(formatDate)
                         : "-"}
                     </b>
                   </Col>
@@ -246,8 +246,8 @@ function ReadWarranty(props: PropTypes) {
                   <Col span={8}>Ngày hẹn trả:</Col>
                   <Col span={16}>
                     <b>
-                      {warranty?.line_items[0].fixed_date
-                        ? moment(warranty?.line_items[0].fixed_date).format(formatDate)
+                      {warranty?.appointment_date
+                        ? moment(warranty?.appointment_date).format(formatDate)
                         : "-"}
                     </b>
                   </Col>

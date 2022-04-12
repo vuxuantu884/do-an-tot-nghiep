@@ -12,6 +12,7 @@ import { GetWarrantiesParamModel, WarrantyItemType } from "model/warranty/warran
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
+import { WARRANTY_STATUS } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 
 type PropTypes = {
@@ -22,14 +23,10 @@ type PropTypes = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
-  warrantyTypes: {
-    name: string;
-    value: WarrantyItemType;
-  }[]
 };
 
 function WarrantyFilter(props: PropTypes): JSX.Element {
-  const { stores, params, actions, onMenuClick, onFilter, onShowColumnSetting, isLoading, warrantyTypes } = props;
+  const { stores, params, actions, onMenuClick, onFilter, onShowColumnSetting, isLoading} = props;
 
   console.log('params', params)
   const loadingFilter = useMemo(() => {
@@ -91,7 +88,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form form={formSearch} initialValues={initialValues} layout="inline" onFinish={onFinish}>
             <div style={{ width: "100%" }}>
-              <Row gutter={12}>
+              <Row>
                 <Col span={6}>
                   <Form.Item name="store_ids">
                     <CustomSelect
@@ -139,8 +136,8 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       placeholder="Loại"
                       notFoundContent="Không tìm thấy kết quả">
-                      {warrantyTypes.map((item, index) => (
-                        <Select.Option key={index} value={item.value}>
+                      {WARRANTY_STATUS.map((item, index) => (
+                        <Select.Option key={index} value={item.code}>
                           {item.name}
                         </Select.Option>
                       ))}

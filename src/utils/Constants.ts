@@ -1,3 +1,5 @@
+import { WarrantyItemType } from "model/warranty/warranty.model";
+
 export const VietNamId = 233;
 export const PO_FORM_TEMPORARY = 'po-form-temporary';
 
@@ -384,3 +386,14 @@ export const DELIVERY_SERVICE_PROVIDER_CODE = {
   ghn: "ghn",
   vtp: "vtp"
 }
+
+export const WARRANTY_STATUS = [
+  {
+    code: WarrantyItemType.WARRANTY,
+    name: "Bảo hành",
+  },
+  {
+    code: WarrantyItemType.REPAIR,
+    name: "Sửa chữa",
+  },
+]
