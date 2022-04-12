@@ -82,6 +82,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
   }, [stepsStatusValue]);
 
   const isShowButtonCancelFFMAndUpdate = useMemo(() => {
+    const sortedFulfillment = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments) : [];
     const checkIfOrderIsFinalized = () => {
       return orderDetail?.status !== OrderStatus.FINALIZED
     };
@@ -89,7 +90,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
       if(!orderDetail || !orderDetail?.fulfillments || orderDetail?.fulfillments.length === 0) {
         return true
       }
-      const sortedFulfillment = sortFulfillments(orderDetail.fulfillments);
       if(sortedFulfillment[0].status === FulFillmentStatus.RETURNED || sortedFulfillment[0].status === FulFillmentStatus.CANCELLED || sortedFulfillment[0].status === FulFillmentStatus.RETURNING) {
         return true
       }
@@ -98,7 +98,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     const checkIfOrderStepIsUnshipped = () => {
       return  orderDetail?.fulfillment_status === "unshipped"
     };
-    if(checkIfOrderIsFinalized() || checkIfOrderHasNoFFM() || !checkIfOrderStepIsUnshipped()) {
+    const checkIfOrderFulfillmentHasNoShipment = () => {
+      return  !sortedFulfillment[0]?.shipment
+    };
+    if(checkIfOrderIsFinalized() || checkIfOrderHasNoFFM() || !checkIfOrderStepIsUnshipped() || checkIfOrderFulfillmentHasNoShipment()) {
       return false;
     }
     return true

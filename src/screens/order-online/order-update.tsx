@@ -400,7 +400,7 @@ ShippingServiceConfigDetailResponseModel[]
 		let shipmentRequest = createShipmentRequest(value);
 		let request: FulFillmentRequest = {
 			store_id: value.store_id,
-			account_code: userReducer.account?.code,
+			account_code: OrderDetail?.account_code,
 			assignee_code: value.assignee_code,
 			delivery_type: "",
 			stock_location_id: null,
@@ -1082,7 +1082,7 @@ ShippingServiceConfigDetailResponseModel[]
 						...initialForm,
 						customer_note: response.customer_note,
 						source_id: response.source_id,
-						account_code: isSplit ==="true" && userReducer.account?.code ? userReducer.account?.code : response.account_code,
+						account_code: response.account_code,
 						assignee_code: response.assignee_code,
 						store_id: response.store_id,
 						items: responseItems,

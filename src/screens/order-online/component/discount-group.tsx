@@ -11,8 +11,7 @@ type DiscountGroupProps = {
   price: number;
   index: number;
   discountRate: number;
-  discountValue: number;
-  totalAmount: number;
+  discountAmount: number;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (_items: Array<OrderLineItemRequest>) => void;
   disabled?: boolean;
@@ -57,17 +56,18 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 			let _itemDiscount = _item.discount_items[0];
       let _price = _items[props.index].price;
       if (selected === MoneyType.MONEY) {
-				if(_itemDiscount.value === v) {
+				if(_itemDiscount.amount === v) {
 					return;
 				}
-        if(_price < v) {
+        if(_items[props.index].amount < v) {
 					showError("Chiết khấu không lớn hơn giá sản phẩm!");
-          _itemDiscount.value = 0;
+          _itemDiscount.amount = 0;
           _itemDiscount.rate = 0;
           return;
 				}
-        _itemDiscount.value = v;
-        _itemDiscount.rate = (v / _price) * 100;
+        _itemDiscount.amount = v;
+        _itemDiscount.rate = (v / _items[props.index].amount) * 100;
+        _itemDiscount.value = (v / _items[props.index].quantity);
        
       } else {
 				if(_itemDiscount.rate === v) {
@@ -80,7 +80,6 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
         _itemDiscount.value = Math.round((v * _price) / 100);
         _itemDiscount.rate = v;
       }
-			_itemDiscount.amount =  _itemDiscount.value * _item.quantity;
 			_item.discount_value = getLineItemDiscountValue(_item);
 			_item.discount_amount = getLineItemDiscountAmount(_item);
 			_item.discount_rate = getLineItemDiscountRate(_item);
@@ -120,7 +119,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 					value={
             selected === MoneyType.PERCENT
               ? props.discountRate
-              : Math.round(props.discountValue)
+              : Math.round(props.discountAmount)
           }
 				/>
       </Input.Group>
@@ -129,7 +128,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           <Text type="danger">
             {selected === MoneyType.MONEY
 							? (Math.round(props.discountRate * 100) / 100) + "%"
-              : formatCurrency(props.discountValue)}
+              : formatCurrency(props.discountAmount)}
           </Text>
         </div>
       )}

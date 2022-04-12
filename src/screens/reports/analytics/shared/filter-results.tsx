@@ -155,7 +155,7 @@ function FilterResults({ properties, form }: Props) {
 
   return (
     <div>
-      <Button icon={<FilterOutlined />} onClick={handleActive}>
+      <Button icon={<FilterOutlined />} onClick={handleActive} type="primary" ghost>
         Lọc kết quả
       </Button>
       <FilterAdvancedDrawer width={"400px"} visible={visible} onClose={handleCancel} onSubmit={handleSubmit} onClearFilter={handleClearFilter}>

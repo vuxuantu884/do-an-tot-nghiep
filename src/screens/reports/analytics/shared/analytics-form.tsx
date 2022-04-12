@@ -349,7 +349,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
           onFinishFailed={handleFinishFailed}
           form={form}
           name="report-form-base">
-          <Card bodyStyle={{ paddingBottom: 0, paddingTop: 0 }} title="Bộ lọc">
+          <Card bodyStyle={{ paddingBottom: 0, paddingTop: 10 }} title="">
             <div className="group-report-type">
               {/* <Row> */}
               {/* since - until */}

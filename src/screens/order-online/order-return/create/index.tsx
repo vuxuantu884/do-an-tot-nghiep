@@ -109,6 +109,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   )
   const [form] = Form.useForm();
   const [isError, setError] = useState(false);
+  const [isPrint, setIsPrint] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
@@ -228,6 +229,13 @@ ShippingServiceConfigDetailResponseModel[]
     content: () => printElementRef.current,
   });
 
+  const recentAccountCode = useMemo(() => {
+    return {
+      accountCode: userReducer.account?.code,
+      accountFullName: userReducer.account?.full_name
+    }
+  }, [userReducer.account?.code, userReducer.account?.full_name])
+
   const initialForm: OrderRequest = useMemo(() => {
     return {
       action: "", //finalized
@@ -281,14 +289,14 @@ ShippingServiceConfigDetailResponseModel[]
           returnMoneyNote: undefined,
         },
       ],
-      account_code: OrderDetail?.account_code,
-      assignee_code: OrderDetail?.assignee_code || null,
+      account_code: recentAccountCode.accountCode,
+      assignee_code: !isOrderFromPOS(OrderDetail) ? recentAccountCode.accountCode :  OrderDetail?.assignee_code,
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
     }
-  }, [OrderDetail?.account_code, OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, listPaymentMethodsReturnToCustomer?.id])
+  }, [OrderDetail, initialForm, listPaymentMethodsReturnToCustomer?.id, recentAccountCode.accountCode])
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -515,14 +523,17 @@ ShippingServiceConfigDetailResponseModel[]
         total: totalAmountReturnProducts,
         total_discount: getTotalOrderDiscount(discounts),
         total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
+        account_code: recentAccountCode.accountCode,
       };
-      // return;
+      console.log('orderDetailResult', orderDetailResult);
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           setTimeout(() => {
             isUserCanCreateOrder.current = true;
           }, 1000);
-          handlePrintOrderReturnOrExchange(response.id, printType.return);
+          if(isPrint) {
+            handlePrintOrderReturnOrExchange(response.id, printType.return);
+          }
           setListReturnProducts([]);
           setTimeout(() => {
             history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
@@ -726,7 +737,7 @@ ShippingServiceConfigDetailResponseModel[]
           let valuesResult = onFinish(values);
           valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
-          values.account_code = form.getFieldValue("account_code") || OrderDetail.account_code;
+          values.account_code = form.getFieldValue("account_code") || recentAccountCode.accountCode;
           values.assignee_code = form.getFieldValue("assignee_code") || OrderDetail.assignee_code;
           values.coordinator_code = form.getFieldValue("coordinator_code") || OrderDetail.coordinator_code;
           values.marketer_code = form.getFieldValue("marketer_code") || OrderDetail.marketer_code;
@@ -920,12 +931,14 @@ ShippingServiceConfigDetailResponseModel[]
 				isUserCanCreateOrder.current = true;
 			}, 1000);
       dispatch(hideLoading());
-      handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange);
+      if(isPrint) {
+        handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange);
+      }
       setTimeout(() => {
         history.push(`${UrlConfig.ORDER}/${value.id}`);
       }, 1000);
     },
-    [dispatch, handlePrintOrderReturnOrExchange, history, printType.returnAndExchange]
+    [dispatch, handlePrintOrderReturnOrExchange, history, isPrint, printType.returnAndExchange]
   );
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -1330,8 +1343,22 @@ ShippingServiceConfigDetailResponseModel[]
           </Form>
         </div>
         <ReturnBottomBar
-          onReturn={onReturn}
-          onReturnAndExchange={() => onReturnAndExchange()}
+          onReturn={() => {
+            setIsPrint(false)
+            onReturn()
+          }}
+          onReturnAndPrint={() => {
+            setIsPrint(true)
+            onReturn()
+          }}
+          onReturnAndExchange={() => {
+            setIsPrint(false)
+            onReturnAndExchange()
+          }}
+          onReturnAndExchangeAndPrint={() => {
+            setIsPrint(true)
+            onReturnAndExchange()
+          }}
           onCancel={() => handleCancel()}
           isCanExchange={isCanExchange}
           isExchange={isExchange}

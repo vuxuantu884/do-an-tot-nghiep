@@ -761,7 +761,7 @@ console.log('listSource', listSource)
         (initialValues.exported_on_max ? initialValues.exported_on_max : "??");
       list.push({
         key: "exported_on",
-        name: "Ngày dự kiến nhận hàng",
+        name: "Ngày giao hàng cho HVC",
         value: <React.Fragment>{textExportedOnDate}</React.Fragment>,
       });
     }
