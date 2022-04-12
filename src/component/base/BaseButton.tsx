@@ -16,7 +16,12 @@ function BaseButton<T extends ElementType = typeof Button>({
   const Component = as || Button;
   return (
     <>
-      <Component size={size} type={type} {...props}>
+      <Component
+        size={size}
+        type={type}
+        {...props}
+        style={{ display: "flex", alignItems: "center", ...props.style }}
+      >
         <span style={{ marginLeft: props.icon ? "8px" : 0 }}>{children}</span>
       </Component>
     </>

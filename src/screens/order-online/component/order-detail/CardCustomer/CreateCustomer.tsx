@@ -252,8 +252,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       ] : null;
 
       let piece: any = {
-        full_name: values.full_name.trim(),
-        phone: values.phone,
+        full_name: values.full_name?.trim(),
+        phone: values.phone?.trim(),
         city_id: area ? area.city_id : null,
         city: customer_district.city_name,
         district_id: values.district_id,

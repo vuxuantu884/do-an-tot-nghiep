@@ -1,46 +1,65 @@
-import { Button, Row, Col, Form, Input } from "antd";
-import POSupplierForm from "./component/po-supplier-form";
+import { Button, Col, Form, Input, Row } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import POProductForm from "./component/po-product.form";
-import POInventoryForm from "./component/po-inventory.form";
-import POInfoForm from "./component/po-info.form";
-import { useDispatch } from "react-redux";
-import React, { useCallback, useEffect, useState } from "react";
 import { AppConfig } from "config/app.config";
-import {useHistory} from "react-router-dom";
-import {
-  PO_FORM_TEMPORARY,
-  POStatus,
-  ProcumentStatus,
-  VietNamId,
-} from "utils/Constants";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { PoCreateAction } from "domain/actions/po/po.action";
-import { showError, showSuccess } from "utils/ToastUtils";
-
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction,
+  DistrictGetByCountryAction
 } from "domain/actions/content/content.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
+import { PoCreateAction } from "domain/actions/po/po.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-// import POStep from "./component/po-step";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { ConvertDateToUtc } from "utils/DateUtils";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
+import {
+  POStatus, ProcumentStatus,
+  VietNamId
+} from "utils/Constants";
+import { ConvertDateToUtc } from "utils/DateUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { ProductResponse } from "../../model/product/product.model";
+import { combineLineItemToSubmitData, getTotalPriceOfAllLineItem, POUtils, validateLineItem } from "../../utils/POUtils";
+import POInfoForm from "./component/po-info.form";
+import POInventoryForm from "./component/po-inventory.form";
+import PoProductContainer from "./component/po-product-form/po-product-container";
 import POStep from "./component/po-step/po-step";
+import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
-import BottomBarContainer from "component/container/bottom-bar.container";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import {useLocalStorage} from "react-use";
+import PurchaseOrderProvider from "./provider/purchase-order.provider";
 
-let initPurchaseOrder = {
+
+const POProductFormOld = React.lazy(() => import("./component/po-product.form"));
+const POProductFormNew = React.lazy(() => import("./component/po-product-form"));
+
+export type DataSourceType = {
+  totalPrice: number;
+  vat: number;
+  items: ({
+    [key: string]: any,
+    sizes: string[],
+    variant_id: string[],
+    product_id: number,
+    cloth_code: number,
+    price: number,
+    barcode: string,
+    sku: string,
+    isValid: boolean,
+  } & ProductResponse)[];
+};
+
+const initPurchaseOrder = {
   line_items: [],
   policy_price_code: AppConfig.import_price,
   untaxed_amount: 0,
@@ -89,8 +108,7 @@ const POCreateScreen: React.FC = () => {
   const history = useHistory();
   const [formMain] = Form.useForm();
 
-  const [value, , remove] = useLocalStorage<typeof initPurchaseOrder>(PO_FORM_TEMPORARY);
-  const [formInitial, setFormInitial] = useState(value || initPurchaseOrder)
+  const [formInitial] = useState(initPurchaseOrder)
 
   const [statusAction, setStatusAction] = useState<string>("");
   const [listPaymentConditions, setListPaymentConditions] = useState<
@@ -102,45 +120,108 @@ const POCreateScreen: React.FC = () => {
   const [loadingDraftButton, setLoadingDraftButton] = useState(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
 
-  useEffect(() => {
-    if(value) {
-      setFormInitial(value)
-    }
-  }, [value])
+  //context 
+  const { taxRate, poLineItemGridChema, poLineItemGridValue, isGridMode } = useContext(PurchaseOrderCreateContext);
 
   const createCallback = useCallback(
     (result: PurchaseOrder) => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
-      } else {
-        setLoadingSaveButton(false);
-        setLoadingDraftButton(false);
+      }else {
+        // setLoadingSaveButton(false);
+        // setLoadingDraftButton(false);
+        throw new Error("Lỗi khi lưu dữ liệu");
       }
     },
     [history]
   );
 
-  const onFinish = useCallback(
-    (data: PurchaseOrder) => {
-      if (data.line_items.length === 0) {
+  const onFinish = (data: PurchaseOrder) => {
+    try {
+      //TH chọn 1 mã 7
+      data.is_grid_mode = isGridMode;
+      if (isGridMode) {
+        const isValid = validateLineItem(poLineItemGridValue);
+        if (!isValid) {
+          throw new Error("");
+        }
+        const newDataItems: any = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
+
+        const untaxed_amount = Math.round(getTotalPriceOfAllLineItem(poLineItemGridValue))
+        const tax_lines = [
+          {
+            rate: taxRate,
+            amount: Math.round((untaxed_amount * taxRate) / 100)
+          }
+        ]
+
+        const trade_discount_rate = formMain.getFieldValue(
+          POField.trade_discount_rate
+        );
+        const trade_discount_value = formMain.getFieldValue(
+          POField.trade_discount_value
+        );
+        const payment_discount_rate = formMain.getFieldValue(
+          POField.payment_discount_rate
+        );
+        const payment_discount_value = formMain.getFieldValue(
+          POField.trade_discount_value
+        );
+        const trade_discount_amount = POUtils.getTotalDiscount(
+          untaxed_amount,
+          trade_discount_rate,
+          trade_discount_value
+        );
+
+        const total_after_tax = POUtils.getTotalAfterTax(
+          untaxed_amount,
+          trade_discount_amount,
+          tax_lines
+        );
+        const payment_discount_amount = POUtils.getTotalDiscount(
+          total_after_tax,
+          payment_discount_rate,
+          payment_discount_value
+        );
+
+        data.line_items = newDataItems
+        data.trade_discount_amount = trade_discount_amount
+        data.payment_discount_amount = payment_discount_amount
+        data.total = Math.round(untaxed_amount + (untaxed_amount * taxRate) / 100)
+        data.untaxed_amount = untaxed_amount
+        data.tax_lines = tax_lines
+      }
+
+      //TH chọn nhiều mã
+      if (Array.isArray(data.line_items) && data.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
         const y =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
         showError("Vui lòng thêm sản phẩm");
-        return;
+        throw new Error("");
       }
+
+      // validate giá nhập     
+      const isNotValidPrice = data.line_items.some(item => {
+        return !item.price
+      })
+      if (isNotValidPrice) {
+        showError("Vui lòng nhập giá nhập cho sản phẩm")
+        throw new Error("");
+      }
+
       const dataClone = { ...data, status: statusAction };
       //validate expect_receipt_date and store_id
-      let isValidReceiptDateAndStore = true;
-      dataClone.procurements.forEach((element) => {
-        if (!element.expect_receipt_date || !element.store_id) {
-          isValidReceiptDateAndStore = false;
-        }
-      });
-      if (isValidReceiptDateAndStore && dataClone.procurements.length > 0) {
+      // let isValidReceiptDateAndStore = true;
+      // dataClone.procurements.forEach((element) => {
+      //   if (!element.expect_receipt_date || !element.store_id) {
+      //     isValidReceiptDateAndStore = false;
+      //   }
+      // });
+      if ( dataClone.procurements.length > 0) {
         switch (dataClone.status) {
           case POStatus.DRAFT:
             setLoadingDraftButton(true);
@@ -152,14 +233,18 @@ const POCreateScreen: React.FC = () => {
 
         dispatch(PoCreateAction(dataClone, createCallback));
       } else {
-        showError("Vui lòng chọn đầy đủ ngày nhận và kho nhập");
-        return;
+        showError("Vui lòng chọn đầy đủ ngày nhận");
+        throw new Error("Vui lòng nhập đầy đủ thông tin sản phẩm");
       }
-    },
-    [createCallback, dispatch, statusAction]
-  );
+    } catch (error) {
+      setLoadingSaveButton(false);
+      setLoadingDraftButton(false);
+    } finally {
+    }
+  };
 
-  const onFinishFailed = ({ errorFields }: { errorFields: any }) => {
+
+  const onFinishFailed = ({ errorFields }: any) => {
     setStatusAction("");
     const element: any = document.getElementById(
       errorFields[0].name.join("")
@@ -174,7 +259,7 @@ const POCreateScreen: React.FC = () => {
   const createPurchaseOrder = (status: string) => {
     setStatusAction(status);
     formMain.submit();
-    remove()
+    // remove()
   }
 
   useEffect(() => {
@@ -182,9 +267,8 @@ const POCreateScreen: React.FC = () => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
+  }, [dispatch]);
 
-    return () => remove()
-  }, [dispatch, remove]);
 
   return (
     <ContentContainer
@@ -230,7 +314,20 @@ const POCreateScreen: React.FC = () => {
               listDistrict={listDistrict}
               formMain={formMain}
             />
-            <POProductForm isEdit={false} formMain={formMain} />
+            <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
+              {
+                (isCodeSeven) => (
+                  isCodeSeven ? (
+                    <POProductFormNew
+                      formMain={formMain}
+                      isEditMode={true}
+                    />
+                  ) : (
+                    <POProductFormOld isCodeSeven={isCodeSeven} isEdit={false} formMain={formMain} />
+                  )
+                )
+              }
+            </PoProductContainer>
             <POInventoryForm
               isEdit={false}
               now={now}
@@ -278,23 +375,28 @@ const POCreateScreen: React.FC = () => {
                 Tạo nháp
               </Button>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
-              <Button
-                disabled={loadingDraftButton}
-                type="primary"
-                className="create-button-custom"
-                loading={loadingSaveButton}
-                onClick={() => createPurchaseOrder(POStatus.FINALIZED)}
-              >
-                Tạo và xác nhận
-              </Button>
+                <Button
+                  disabled={loadingDraftButton}
+                  type="primary"
+                  className="create-button-custom"
+                  loading={loadingSaveButton}
+                  onClick={() => createPurchaseOrder(POStatus.FINALIZED)}
+                >
+                  Tạo và xác nhận
+                </Button>
               </AuthWrapper>
             </React.Fragment>
           }
         />
-
       </Form>
     </ContentContainer>
   );
 };
 
-export default POCreateScreen;
+// export default POCreateScreen;
+const POCreateWithProvider = (props: any) => (
+  <PurchaseOrderProvider>
+    <POCreateScreen {...props} />
+  </PurchaseOrderProvider>
+)
+export default POCreateWithProvider;

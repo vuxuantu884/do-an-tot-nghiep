@@ -358,6 +358,7 @@
   color: #222222;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-right: 30px;
   &-result {
     font-weight: 500;
@@ -424,6 +425,7 @@
   height: 60px;
   margin-bottom: 10px;
   margin-top: 10px;
+  align-items: center;
   .active {
     border: 1px solid #2a2a86;
     border-bottom: none;

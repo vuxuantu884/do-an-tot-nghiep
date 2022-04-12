@@ -55,6 +55,7 @@ const UrlConfig = {
   ANALYTIC_SALES:`/analytics/sales`,
   ANALYTIC_FINACE:`/analytics/finance`,
   ANALYTIC_CUSTOMER:`/analytics/customers`,
+  WARRANTY:`/warranty`,
 };
 
 export const ProductTabUrl = {

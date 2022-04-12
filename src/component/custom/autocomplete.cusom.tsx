@@ -94,6 +94,7 @@ export default class CustomAutoComplete extends Component<
         dropdownClassName={this.props.dropdownClassName}
         onSearch={this.onSearch}
         options={this.props.options}
+        allowClear
 				defaultActiveFirstOption = {this.props.defaultActiveFirstOption ? this.props.defaultActiveFirstOption : true}
         dropdownRender={(menu) => (
           <div className="dropdown-custom">

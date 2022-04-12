@@ -1138,6 +1138,7 @@ const OrderDuplicate: React.FC = () => {
             onClearFilter={() => onClearFilter()}
             listShippers={listShippers}
             initSubStatus={listOrderProcessingStatus}
+            isHideTab={true}
           />
           <CustomTable
             isRowSelection

@@ -1,28 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
   Form,
   FormInstance,
-  Input,
-  Modal,
+  Input, Modal,
   Radio,
-  Row,
+  Row
 } from "antd";
-import React, { useCallback, useEffect, useRef } from "react";
+import CustomInputChange from "component/custom/custom-input-change";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import NumberInput from "component/custom/number-input.custom";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
-import moment from "moment";
-import { POCreatePaymentModalStyled } from "./styles";
+import { POField } from "model/purchase-order/po-field";
 import {
   PurchasePayments,
-  PurchasePaymentsCreate,
+  PurchasePaymentsCreate
 } from "model/purchase-order/purchase-payment.model";
-import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { POField } from "model/purchase-order/po-field";
-import CustomInputChange from "component/custom/custom-input-change";
+import moment from "moment";
+import React, { useCallback, useEffect, useRef } from "react";
+import { formatCurrency } from "utils/AppUtils";
+import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
+import { POCreatePaymentModalStyled } from "./styles";
 
 const initPOCreatePaymentValue = {
   payment_method_code: "",
@@ -146,7 +144,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
 
   return (
     <Modal
-      title={purchasePayment ? "Sửa yêu cầu hoàn tiền " : "Tạo thanh toán "}
+      title={purchasePayment ? "Sửa yêu cầu hoàn tiền " : "Tạo thanh toán mới"}
       visible={visible}
       centered
       cancelText="Hủy"
@@ -256,7 +254,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                   </div>
                 }
               >
-                <CustomInputChange dataPercent={totalPayment} placeholder="0" />
+                <CustomInputChange totalPayment={totalPayment} placeholder="0" remainPayment={Math.round(remainPaymentNumber)}/>
               </Item>
             </Col>
             <Col xs={24} lg={12}>

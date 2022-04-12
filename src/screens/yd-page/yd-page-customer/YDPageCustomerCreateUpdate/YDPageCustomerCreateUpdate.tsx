@@ -189,6 +189,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
       birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       status: status,
       city_id: cityId,
+      phone: values.phone?.trim(),
     };
     dispatch(CreateCustomer({ ...new CustomerModel(), ...customerCreateParams }, setResultCreate));
   };
@@ -198,6 +199,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
       birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       status: status,
       city_id: cityId,
+      phone: values.phone?.trim(),
       version: customer.version,
     };
     dispatch(UpdateCustomer(customer?.id, customerUpdateParams, setResultUpdate));
@@ -297,7 +299,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                 },
               ]}>
               <Input
-                disabled={true}
+                disabled={true}   // Nhập số điện thoại ở thêm mới số điện thoại
                 placeholder="Nhập số điện thoại"
 								className="phone-disabled"
               />

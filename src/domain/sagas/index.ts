@@ -42,6 +42,7 @@ import { collectionSaga } from "./product/collection.saga";
 import { OrderDuplicateSaga } from "./order/order-duplicate.saga";
 import { importSaga } from "./core/import.saga";
 import bankAccountSagas from "./bank/bank-account.saga";
+import { warrantySaga } from "./warranty/warranty.saga";
 
 function* rootSaga() {
   yield all([
@@ -87,7 +88,8 @@ function* rootSaga() {
     moduleSaga(),
     OrderDuplicateSaga(),
     importSaga(),
-    bankAccountSagas()
+    bankAccountSagas(),
+    warrantySaga()
   ]);
 }
 
