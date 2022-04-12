@@ -14,6 +14,7 @@ import reports from "./reports.route";
 import { ODERS_PERMISSIONS } from 'config/permissions/order.permission';
 import offlineOrdersRoute from './offline-orders.route';
 import webAppRoute from "./web-app.route";
+import warrantyRoute from './warranty.route';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
@@ -171,6 +172,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: webAppRoute,
+  },
+  {
+    path: UrlConfig.WARRANTY,
+    exact: true,
+    title: "Bảo hành",
+    icon: 'icon-warranty',
+    component: null,
+    key: "warranty",
+    isShow: true,
+    header: null,
+    subMenu: warrantyRoute,
   },
   {
     path: "/setting",
