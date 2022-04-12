@@ -33,6 +33,7 @@ import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {StyledComponent} from "./styles";
 import {VietNamId} from "utils/Constants";
+import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
 
 type CreateCustomerProps = {
   newCustomerInfo?: YDpageCustomerRequest;
@@ -229,7 +230,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       const area = areaList.find((area: any) => area.id.toString() === values.district_id.toString());
       const area_ward = wards.find((ward:any) => ward.id.toString() === values.ward_id.toString());
 
-      values.full_name = values.full_name.trim();
+      values.full_name = values.full_name?.trim();
 
       let shipping_addresses: CustomerShippingAddress[] | null = [
         {
@@ -237,7 +238,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           is_default: true,
           default: true,
           name: values.full_name,
-          phone: values.phone,
+          phone: values.phone?.trim(),
           country_id: VietNamId,
           city_id: area ? area.city_id : null,
           city: area?.city_name,
@@ -250,8 +251,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       ];
 
       const customerParams = {
-        full_name: values.full_name.trim(),
-        phone: values.phone,
+        full_name: values.full_name?.trim(),
+        phone: values.phone?.trim(),
         city_id: area ? area.city_id : null,
         city: area?.city_name,
         district_id: values.district_id,
@@ -279,7 +280,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         ],
         shipping_addresses: shipping_addresses,
       };
-      
+
       dispatch(
         CustomerCreateAction(
           { ...new CustomerModel(), ...customerParams },
@@ -373,12 +374,20 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   required: true,
                   message: "Vui lòng nhập Số điện thoại",
                 },
+                {
+                  pattern: RegUtil.PHONE,
+                  message: "Số điện thoại chưa đúng định dạng",
+                },
               ]}
               name="phone"
               //label="Số điện thoại"
             >
-              <Input
+              <InputPhoneNumber
+                style={{ borderRadius: 5, width: "100%" }}
+                minLength={9}
+                maxLength={15}
                 placeholder="Nhập số điện thoại"
+                defaultValue={newCustomerInfo?.phone}
                 prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
               />
             </Form.Item>
