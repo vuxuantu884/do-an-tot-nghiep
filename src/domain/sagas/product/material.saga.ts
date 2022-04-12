@@ -42,12 +42,12 @@ function* materialGetSaga(action: YodyAction) {
 }
 
 function* materialSearchAllSaga(action: YodyAction) {
-  const { query, setData } = action.payload;
+  const { setData } = action.payload;
   try {
 
     let response: BaseResponse<PageResponse<MaterialResponse>> = yield call(
       getMaterialApi,
-      query
+      {limit: 500}
     );
 
     switch (response.code) {
