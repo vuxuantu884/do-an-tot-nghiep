@@ -7,7 +7,7 @@ import { CustomerSearchQuery } from 'model/query/customer.query';
 import { CustomerSearchSo, getCustomerDetailAction, getCustomerOrderHistoryAction } from 'domain/actions/customer/customer.action';
 import { useDispatch } from 'react-redux';
 import { CustomerResponse } from 'model/response/customer/customer.response';
-import { handleDelayActionWhenInsertTextInSearchInput } from 'utils/AppUtils';
+import { findAvatar, findPrice, handleDelayActionWhenInsertTextInSearchInput } from 'utils/AppUtils';
 import imageDefault from "assets/icon/img-default.svg";
 import CustomSelect from 'component/custom/select.custom';
 import { StoreGetListAction } from 'domain/actions/core/store.action';
@@ -26,7 +26,11 @@ import NumberInput from 'component/custom/number-input.custom';
 import { StyledComponent } from './index.styles';
 import { WarrantyFormType, WarrantyItemType } from 'model/warranty/warranty.model';
 import { createWarrantyAction, getWarrantyReasonsAction } from 'domain/actions/warranty/warranty.action';
-import { showSuccess } from 'utils/ToastUtils';
+import { showError, showSuccess } from 'utils/ToastUtils';
+import { VariantResponse } from 'model/product/product.model';
+import imgDefault from "assets/icon/img-default.svg";
+import { AppConfig } from 'config/app.config';
+import { searchVariantsOrderRequestAction } from 'domain/actions/product/products.action';
 
 type Props = {}
 
@@ -80,9 +84,137 @@ function CreateWarranty(props: Props) {
   });
 
   const [warrantyItems, setWarrantyItems] = useState<Array<any>>([]);
-  const [noneItems, setNoneItems] = useState(false);
+  // const [noneItems, setNoneItems] = useState(false);
+  const [searchProducts, setSearchProducts] = useState(false);
+  const [keySearchVariant, setKeySearchVariant] = useState("");
+  const [resultSearchVariant, setResultSearchVariant] = useState<
+		PageResponse<VariantResponse>
+	>({
+		metadata: {
+			limit: 0,
+			page: 1,
+			total: 0,
+		},
+		items: [],
+	});
+  
+  const renderSearchVariant = (item: VariantResponse) => {
+		let avatar = findAvatar(item.variant_images);
+		return (
+			<Row>
+				<Col
+					span={4}
+					style={{
+						alignItems: "center",
+						justifyContent: "center",
+						display: "flex",
+						padding: "4px 6px",
+					}}
+				>
+					<img
+						src={avatar === "" ? imgDefault : avatar}
+						alt="anh"
+						placeholder={imgDefault}
+						style={{ width: "50%", borderRadius: 5 }}
+					/>
+				</Col>
+				<Col span={14}>
+					<div style={{ padding: "5px 0" }}>
+						<span
+							className="searchDropdown__productTitle"
+							style={{ color: "#37394D" }}
+							title={item.name}
+						>
+							{item.name}
+						</span>
+						<div style={{ color: "#95A1AC" }}>{item.sku}</div>
+					</div>
+				</Col>
+				<Col span={6}>
+					<div style={{ textAlign: "right", padding: "0 20px" }}>
+						<div style={{ display: "inline-block", textAlign: "right" }}>
+							<Col style={{ color: "#222222" }}>
+								{`${findPrice(item.variant_prices, AppConfig.currency)} `}
+								<span
+									style={{
+										color: "#737373",
+										textDecoration: "underline",
+										textDecorationColor: "#737373",
+									}}
+								>
+									đ
+								</span>
+							</Col>
+							<div style={{ color: "#737373" }}>
+								Có thể bán:
+								<span
+									style={{
+										color:
+											(item.available === null ? 0 : item.available) > 0
+												? "#2A2A86"
+												: "rgba(226, 67, 67, 1)",
+									}}
+								>
+									{` ${item.available === null ? 0 : item.available}`}
+								</span>
+							</div>
+						</div>
+					</div>
+				</Col>
+			</Row>
+		);
+	};
+
+  
+  const onChangeProductSearch = useCallback(
+		async (value: string) => {
+			setKeySearchVariant(value);
+			
+			if (value.length >=3) {
+				setSearchProducts(true);
+			} else {
+				setSearchProducts(false);
+			}
+			const handleSearchProduct = () => {
+				if (value.trim()) {
+					(async () => {
+						try {
+							await dispatch(
+								searchVariantsOrderRequestAction({info: value}, (data) => {
+									setResultSearchVariant(data);
+									setSearchProducts(false);
+								}, () => {
+									setSearchProducts(false);
+								})
+							);
+						} catch {
+							setSearchProducts(false);
+						}
+					})();
+				} else {
+					setSearchProducts(false);
+				}
+			};
+			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefProduct, () =>
+				handleSearchProduct()
+			);
+		},
+		[dispatch]
+	);
+  const convertResultSearchVariant = useMemo(() => {
+		let options: any[] = [];
+		resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+			options.push({
+				label: renderSearchVariant(item),
+				value: item.id ? item.id.toString() : "",
+			});
+		});
+		return options;
+	}, [resultSearchVariant]);
+
   const [reasons, setReasons] = useState<Array<any>>([]);
-  const autoCompleteRef = useRef<any>(null);
+  const autoCompleteRefCustomer = useRef<any>(null);
+  const autoCompleteRefProduct = useRef<any>(null);
 
   const initialFormValueWarranty ={
     customer_id: "",
@@ -150,11 +282,11 @@ function CreateWarranty(props: Props) {
 				
         dispatch(CustomerSearchSo(initQueryCustomer, (response) => {
 					setResultSearch(response);
-          console.log('response', response)
+          
 				}));
         setSearchCustomer(false);
       };
-      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefCustomer, () => handleSearch());
     },
     [dispatch]
   );
@@ -163,20 +295,6 @@ function CreateWarranty(props: Props) {
     (data) => {
       setTableLoading(false);
       if (data) {
-        console.log('data', data);
-        // const items = data.items
-        // // .filter((order:any) => order.status === "finished")
-        // .map((order:any) => {
-        //   return {
-        //     ...order,
-        //     items: order.items.map((item:any) => {
-        //       return {
-        //         ...item,
-        //         warranty: 0,
-        //       }
-        //     })
-        //   }
-        // })
         setOrderHistoryData(data);
       }
     },
@@ -196,7 +314,6 @@ function CreateWarranty(props: Props) {
             resultSearch[index].id,
             (data: CustomerResponse | null) => {
               if (data) {
-                console.log('data', data)
                 setTableLoading(true);
                 setParams({
                   ...params,
@@ -226,7 +343,6 @@ function CreateWarranty(props: Props) {
   }
 
   const addItemsWarranty = useCallback((item:any) => {
-    console.log(item);
     let newWarrantyItems = [...warrantyItems,
       {
         ...item,
@@ -243,12 +359,28 @@ function CreateWarranty(props: Props) {
       }
     });
     setWarrantyItems(newWarrantyItems);
-    setNoneItems(false);
   }, [warrantyItems]);
 
+  const onSearchVariantSelect = useCallback(
+		(value) => {
+			setKeySearchVariant("");
+      // eslint-disable-next-line eqeqeq
+      const indexSearch = resultSearchVariant.items.findIndex((s) => s.id == value);
+      const item = resultSearchVariant.items[indexSearch];
+      const itemWarranty = {
+        sku: item.sku,
+        variant_id: item.id,
+			  product_id: item.product.id,
+			  variant: item.name,
+        variant_barcode: item.barcode,
+        product_type: item.product.product_type,
+        product_code: item.product.code,
+      }
+      addItemsWarranty(itemWarranty);
+		},
+		[addItemsWarranty, resultSearchVariant.items]
+	);
   const deleteItemsWarranty = useCallback((item:any) => {
-    console.log('warrantyItems', [...warrantyItems])
-    console.log("item.index", item.index);
     let newWarrantyItems = [...warrantyItems]
     newWarrantyItems.splice(item.index, 1)
     newWarrantyItems = newWarrantyItems.map((i, index) => {
@@ -257,12 +389,7 @@ function CreateWarranty(props: Props) {
         index
       }
     });
-    console.log("newWarrantyItems", newWarrantyItems);
-
     setWarrantyItems(newWarrantyItems);
-    if (!newWarrantyItems.length) {
-      setNoneItems(false)
-    }
   }, [warrantyItems]);
 
   const onChangeItem = useCallback(
@@ -313,11 +440,12 @@ function CreateWarranty(props: Props) {
               showArrow
               notFoundContent="Không tìm thấy kết quả"
               placeholder="Loại bảo hành"
-              style={{ width: "100%" }}
               getPopupContainer={(trigger) => trigger.parentNode}
               maxTagCount="responsive"
               value={record.type}
               onChange={(value) => onChangeItem(value, "type", record.index)}
+              style={{  width: "100%"}}
+              className={record.type ? "" : "non-select"}
             >
                 <CustomSelect.Option key={"WARRANTY"} value={WarrantyItemType.WARRANTY}>
                   Bảo hành
@@ -336,28 +464,27 @@ function CreateWarranty(props: Props) {
         key: "reasons",
         render: (value: string, record: any) => {
           return (
-            <div className="inner">
-              <CustomSelect
-                allowClear
-                optionFilterProp="children"
-                showSearch
-                showArrow
-                notFoundContent="Không tìm thấy kết quả"
-                placeholder="Lý do"
-                style={{ width: "100%" }}
-                getPopupContainer={(trigger) => trigger.parentNode}
-                maxTagCount="responsive"
-                value={record.reason_id}
-                onChange={(value) => onChangeItem(value, "reason_id", record.index)}
-              >
-                {/* <Option value="">Hình thức vận chuyển</Option> */}
-                {reasons.map((reason) => (
-                  <CustomSelect.Option key={reason.id} value={reason.id}>
-                    {reason.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </div>
+            <CustomSelect
+              allowClear
+              optionFilterProp="children"
+              showSearch
+              showArrow
+              notFoundContent="Không tìm thấy kết quả"
+              placeholder="Lý do"
+              getPopupContainer={(trigger) => trigger.parentNode}
+              maxTagCount="responsive"
+              value={record.reason_id}
+              onChange={(value) => onChangeItem(value, "reason_id", record.index)}
+              style={{  width: "100%" }}
+              className={record.reason_id ? "" : "non-select"}
+            >
+              {/* <Option value="">Hình thức vận chuyển</Option> */}
+              {reasons.map((reason) => (
+                <CustomSelect.Option key={reason.id} value={reason.id}>
+                  {reason.name}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>
           )
         },
         visible: true,
@@ -402,7 +529,7 @@ function CreateWarranty(props: Props) {
       },
       {
         title: "Phí báo khách",
-        key: "fee2",
+        key: "customer_fee",
         render: (value: string, record: any) => {
           return <NumberInput
                   value={record.customer_fee}
@@ -420,12 +547,15 @@ function CreateWarranty(props: Props) {
           return (
           <Button
             onClick={() => deleteItemsWarranty(record)}
-            style={{ color: "#E24343" }}
+            style={{ color: "#E24343", marginBottom: 10 }}
             icon={<DeleteOutlined />}
+            type="link"
+            size="large"
           />)
         },
         visible: true,
-        width: 100
+        align: "center",
+        width: 80
       },
     ], [deleteItemsWarranty, onChangeItem, reasons]
   );
@@ -443,29 +573,39 @@ function CreateWarranty(props: Props) {
 
   const handleSubmit = (values: any) => {
     if (warrantyItems.length) {
-      setNoneItems(false);
-      const body = {
-        ...values,
-        line_items: warrantyItems.map(i => {
-          return {
-            ...i,
-            expenses: [{
-              reason_id: i.reason_id
-            }]
-          }
-        }),
-      }
-      console.log(body);
-      setCreateLoading(true);
-      dispatch(createWarrantyAction(body, (data: any) => {
-        if (data) {
-          showSuccess("Thêm mới bảo hành thành công")
-          history.push(`${UrlConfig.WARRANTY}`)
+      let typeOK = true;
+      let reasonIdOK = true;
+      warrantyItems.forEach(item => {
+        !item.type && (typeOK = false);
+        !item.reason_id && (reasonIdOK = false);
+      })
+      !typeOK && showError("Chọn trạng thái bảo hành");
+      !reasonIdOK && showError("Chọn lý do bảo hành");
+      if (typeOK && reasonIdOK) {
+        const body = {
+          ...values,
+          line_items: warrantyItems.map(i => {
+            return {
+              ...i,
+              expenses: [{
+                reason_id: i.reason_id
+              }]
+            }
+          }),
         }
-        setCreateLoading(false);
-      }))
+        console.log(body);
+        setCreateLoading(true);
+        dispatch(createWarrantyAction(body, (data: any) => {
+          if (data) {
+            showSuccess("Thêm mới bảo hành thành công")
+            history.push(`${UrlConfig.WARRANTY}`)
+          }
+          setCreateLoading(false);
+        }))
+      }
+      
     } else {
-      setNoneItems(true);
+      showError("Chọn sản phẩm bảo hành");
     }
   };
 
@@ -475,7 +615,7 @@ function CreateWarranty(props: Props) {
       setAccountData(data.items);
     }));
     dispatch(StoreGetListAction(setStore));
-    dispatch(getWarrantyReasonsAction((data:any) => setReasons(data.items)));
+    dispatch(getWarrantyReasonsAction(setReasons));
   }, [dispatch]);
 
   return (
@@ -509,7 +649,7 @@ function CreateWarranty(props: Props) {
             <Col md={12}>
               <Card
                 title="Khách hàng"
-                style={{ height: 320}}
+                style={{ height: 340}}
                 extra={(hadCustomer &&
                   <>
                     <Button
@@ -534,7 +674,7 @@ function CreateWarranty(props: Props) {
                   }
                   id="search_customer"
                   value={keySearchCustomer}
-                  ref={autoCompleteRef}
+                  ref={autoCompleteRefCustomer}
                   onSelect={searchCustomerSelect}
                   dropdownClassName="search-layout-customer dropdown-search-header"
                   dropdownMatchSelectWidth={456}
@@ -584,7 +724,7 @@ function CreateWarranty(props: Props) {
               </Card>
             </Col>
             <Col md={12}>
-              <Card title="Thông tin bảo hành" style={{ height: 320}}>
+              <Card title="Thông tin bảo hành" style={{ height: 340}}>
                 <Form.Item
                   name="store_id"
                   rules={[{ required: true, message: 'Chọn cửa hàng tiếp nhận bảo hành' }]}
@@ -688,7 +828,42 @@ function CreateWarranty(props: Props) {
               <Card
                 title="Sản phẩm bảo hành"
                 extra={[
-                  noneItems && <span style={{ color: "#ff4d4f"}}>Chọn sản phẩm bảo hành *</span>
+                  <AutoComplete
+                    notFoundContent={
+                      keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                    }
+                    id="search_product"
+                    value={keySearchVariant}
+                    ref={autoCompleteRefProduct}
+                    onSelect={onSearchVariantSelect}
+                    dropdownClassName="search-layout dropdown-search-header"
+                    dropdownMatchSelectWidth={456}
+                    className="w-100"
+                    onSearch={onChangeProductSearch}
+                    options={convertResultSearchVariant}
+                    maxLength={255}
+                    
+                    defaultActiveFirstOption
+                    dropdownRender={(menu) => (
+                      <div>
+                        {menu}
+                      </div>
+                    )}
+                  >
+                    <Input
+                      size="middle"
+                      className="yody-search"
+                      placeholder="Tìm sản phẩm"
+                      prefix={
+                        searchProducts ? (
+                          <LoadingOutlined style={{ color: "#2a2a86" }} />
+                        ) : (
+                          <SearchOutlined style={{ color: "#ABB4BD" }} />
+                        )
+                      }
+                      style={{ width: 500}}
+                    />
+                  </AutoComplete>
                 ]}
               >
                 <CustomTable
@@ -735,4 +910,4 @@ function CreateWarranty(props: Props) {
   )
 }
 
-export default CreateWarranty
+export default CreateWarranty;

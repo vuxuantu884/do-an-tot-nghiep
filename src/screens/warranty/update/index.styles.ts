@@ -1,6 +1,16 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
+  .ant-picker {
+    border-radius: 2px;
+  }
+  .non-select {
+    .ant-select {
+      .ant-select-selector {
+        border-color: #E24343;
+      }
+    }
+  }
   .bottomBar {
     position: fixed;
     text-align: right;
