@@ -20,6 +20,9 @@ export const createWarrantyService = (body: any): Promise<BaseResponse<any>> => 
 export const getWarrantyReasonsService = (): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.WARRANTY}/reasons`);
 }
+export const updateWarranty = (id: string, body: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.put(`${ApiConfig.WARRANTY}/${id}`, body);
+}
 
 export const updateWarrantyDetailService = (id: number, body: WarrantyModel): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.WARRANTY}/${id}`, body);
