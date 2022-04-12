@@ -41,7 +41,7 @@ function* getOrderReturnDetailsSaga(action: YodyAction) {
 function* createOrderReturnSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
   try {
-    yield put(showLoading());
+    // yield put(showLoading());
     let response: BaseResponse<any> = yield call(
       createOrderReturnService,
       params
@@ -56,7 +56,7 @@ function* createOrderReturnSaga(action: YodyAction) {
     console.log("error", error);
     showError("Có lỗi khi tạo đơn trả hàng! Vui lòng thử lại sau!");
   } finally {
-    yield put(hideLoading());
+    // yield put(hideLoading());
   }
 }
 
@@ -127,7 +127,7 @@ function* orderRefundSaga(action: YodyAction) {
 function* createOrderExchangeSaga(action: YodyAction) {
   const { params, handleData, handleError } = action.payload;
   try {
-    yield put(showLoading());
+    // yield put(showLoading());
     let response: BaseResponse<any> = yield call(
       createOrderExchangeService,
       params
@@ -144,7 +144,7 @@ function* createOrderExchangeSaga(action: YodyAction) {
     handleError();
     showError("Có lỗi khi tạo đơn đổi hàng! Vui lòng thử lại sau!");
   } finally {
-    yield put(hideLoading());
+    // yield put(hideLoading());
   }
 }
 
