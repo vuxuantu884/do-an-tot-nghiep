@@ -254,7 +254,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                   </div>
                 }
               >
-                <CustomInputChange dataPercent={totalPayment} placeholder="0" remainPayment={Math.round(remainPaymentNumber)}/>
+                <CustomInputChange totalPayment={totalPayment} placeholder="0" remainPayment={Math.round(remainPaymentNumber)}/>
               </Item>
             </Col>
             <Col xs={24} lg={12}>

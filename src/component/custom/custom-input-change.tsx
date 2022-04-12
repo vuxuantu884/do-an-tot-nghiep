@@ -8,7 +8,7 @@ interface CustomInputChangeProps {
   placeholder?: string;
   value?: number;
   onChange?: (value: number) => void;
-  dataPercent: number;
+  totalPayment: number;
   remainPayment: number;
 }
 
@@ -24,9 +24,9 @@ const InputStyle = styled.div`
 const CustomInputChange: React.FC<CustomInputChangeProps> = (
   props: CustomInputChangeProps
 ) => {
-  const { remainPayment = 0, value, onChange } = props;
+  const { remainPayment = 0, value, onChange, totalPayment } = props;
   const [selected, setSelected] = useState(MoneyType.PERCENT);
-  const [data, setData] = useState<number>();
+  const [data, setData] = useState<number>(0);
 
   const handleChangeSelect = (value: string) => {
     setSelected(value);
@@ -38,7 +38,7 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
     let money = value || 0;
     if (typeof value === "number") {
       if (selected === MoneyType.PERCENT && typeof remainPayment === "number" && remainPayment > 0) {
-        money = (value * remainPayment) / 100
+        money = (value * totalPayment) / 100
       } else if (selected === MoneyType.PERCENT) {
         money = 0
       }
@@ -46,6 +46,36 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
 
     onChange?.(money);
     setData(value || 0);
+  }
+
+  const getMaxInput = () => {
+    if (selected === MoneyType.PERCENT && remainPayment > 0 && totalPayment > 0) {
+      return (remainPayment / totalPayment) * 100;
+    } else if (selected === MoneyType.MONEY) {
+      return remainPayment;
+    } else {
+      return 0;
+    }
+  }
+
+  const getMoneyLabel = () => {
+    let label: number | string = 0;
+
+    if (selected === MoneyType.MONEY && value && remainPayment) {
+      label = ((data / totalPayment) * 100).toFixed(2) + " %";
+    } else if (value && selected === MoneyType.PERCENT) {
+      label = formatCurrency(value);
+    }
+
+    return label;
+  }
+
+  const formatPayment = (value: number) => {
+    if (selected === MoneyType.PERCENT) {
+      return Number.parseFloat(value+"").toFixed(2);
+    } else {
+      return formatCurrency(value);
+    }
   }
 
   return (
@@ -73,20 +103,14 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
           onChange={(e) => {
             handleChangeInput(e);
           }}
-          formatter={(value?: number) => formatCurrency(value||0)}
-          max={selected === MoneyType.PERCENT ? 100 : remainPayment}
+          formatter={(value?: number) => formatPayment(value || 0)}
+          max={getMaxInput()}
           value={data}
         />
       </Input.Group>
       <div style={{ textAlign: 'right', marginRight: 15 }}>
         <Typography.Text type="danger">
-          {selected === MoneyType.MONEY
-            ? (value && remainPayment
-              ? (value / remainPayment) * 100
-              : 0
-            ).toFixed(1) + " %"
-            : formatCurrency(value ?? 0)}
-
+          {getMoneyLabel()}
         </Typography.Text>
       </div>
 

@@ -308,7 +308,7 @@ const PODetailScreen: React.FC = () => {
           value.line_items = newDataItems
           value.trade_discount_amount = trade_discount_amount
           value.payment_discount_amount = payment_discount_amount
-          value.total = Math.round(untaxed_amount - (untaxed_amount * taxRate) / 100)
+          value.total = Math.round(untaxed_amount + (untaxed_amount * taxRate) / 100)
           value.untaxed_amount = untaxed_amount
           value.tax_lines = tax_lines
         
@@ -916,6 +916,7 @@ const PODetailScreen: React.FC = () => {
             <POInfoForm
               isEdit={true}
               isEditDetail={isEditDetail}
+              formMain={formMain}
             />
             <ActionPurchaseOrderHistory
               actionLog={actionLog}
