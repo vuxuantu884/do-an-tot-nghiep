@@ -444,7 +444,6 @@ ShippingServiceConfigDetailResponseModel[]
   const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
     const orderIds = [orderId];
     return new Promise((resolve, reject) => {
-      dispatch(showLoading())
       getPrintOrderReturnContentService(orderIds, printType).then(response => {
         if (isFetchApiSuccessful(response)) {
           console.log('response', response)
@@ -457,7 +456,6 @@ ShippingServiceConfigDetailResponseModel[]
         }
       }).finally(() => {
         resolve("")
-        dispatch(hideLoading())
       })
     })
 
@@ -533,6 +531,7 @@ ShippingServiceConfigDetailResponseModel[]
         account_code: recentAccountCode.accountCode,
       };
       console.log('orderDetailResult', orderDetailResult);
+      dispatch(showLoading())
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           setTimeout(() => {
@@ -781,6 +780,7 @@ ShippingServiceConfigDetailResponseModel[]
                 return;
               }
               console.log('orderDetailResult', orderDetailResult)
+              dispatch(showLoading())
               handleDispatchReturnAndExchange(orderDetailResult).then((response: any) => {
                 valuesResult.order_return_id = response.id;
                 let lstDiscount = createDiscountRequest();
