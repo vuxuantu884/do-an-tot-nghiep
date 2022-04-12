@@ -12,7 +12,7 @@ import { CreateOrderReturnContext } from "contexts/order-return/create-order-ret
 import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
-import { hideLoading } from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionCreateOrderExchange,
@@ -439,18 +439,26 @@ ShippingServiceConfigDetailResponseModel[]
       }
     }) || null
   };
+  
 
   const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
     const orderIds = [orderId];
-
-    getPrintOrderReturnContentService(orderIds, printType).then(response => {
-      if (isFetchApiSuccessful(response)) {
-        console.log('response', response)
-        setPrintContent(response.data[0].html_content);
-        if(handlePrint)handlePrint();
-      } else {
-        handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
-      }
+    return new Promise((resolve, reject) => {
+      dispatch(showLoading())
+      getPrintOrderReturnContentService(orderIds, printType).then(response => {
+        if (isFetchApiSuccessful(response)) {
+          console.log('response', response)
+          setPrintContent(response.data[0].html_content);
+          if(handlePrint) {
+            handlePrint();
+          }
+        } else {
+          handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
+        }
+      }).finally(() => {
+        resolve("")
+        dispatch(hideLoading())
+      })
     })
 
   }, [dispatch, handlePrint]);
@@ -531,12 +539,18 @@ ShippingServiceConfigDetailResponseModel[]
             isUserCanCreateOrder.current = true;
           }, 1000);
           if(isPrint) {
-            handlePrintOrderReturnOrExchange(response.id, printType.return);
+            handlePrintOrderReturnOrExchange(response.id, printType.return).then(() => {
+              setListReturnProducts([]);
+              setTimeout(() => {
+                history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+              }, 500);
+            })
+          } else {
+            setListReturnProducts([]);
+            setTimeout(() => {
+              history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+            }, 500);
           }
-          setListReturnProducts([]);
-          setTimeout(() => {
-            history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
-          }, 1000);
         })
       );
     }
@@ -929,15 +943,19 @@ ShippingServiceConfigDetailResponseModel[]
       setTimeout(() => {
 				isUserCanCreateOrder.current = true;
 			}, 1000);
-      dispatch(hideLoading());
       if(isPrint) {
-        handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange);
+        handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange).then(() => {
+          setTimeout(() => {
+            history.push(`${UrlConfig.ORDER}/${value.id}`);
+          }, 500);
+        });
+      } else {
+        setTimeout(() => {
+          history.push(`${UrlConfig.ORDER}/${value.id}`);
+        }, 500);
       }
-      setTimeout(() => {
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
-      }, 1000);
     },
-    [dispatch, handlePrintOrderReturnOrExchange, history, isPrint, printType.returnAndExchange]
+    [handlePrintOrderReturnOrExchange, history, printType.returnAndExchange]
   );
 
   const createShipmentRequest = (value: OrderRequest) => {
