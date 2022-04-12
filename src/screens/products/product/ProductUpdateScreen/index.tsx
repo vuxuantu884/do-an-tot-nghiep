@@ -1124,7 +1124,7 @@ const ProductDetailScreen: React.FC = () => {
                   </Card>
                 </Col>
                 <Col span={24} md={6}>
-                  <Card className="card" title="Ảnh" hidden>
+                  <Card className="card" title="Ảnh">
                     <div className="padding-20">
                       <div className="a-container">
                         <Item
