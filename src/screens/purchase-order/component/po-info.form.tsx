@@ -80,9 +80,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
 
             <RowDetail title="Merchandiser" value={`${merchans_code && merchans_code.toUpperCase()} - ${formMain.getFieldValue(POField.merchandiser)}`} />
 
-            <RowDetail title="QC" value={`${qc && qc_code ? `${qc_code.toUpperCase() - qc}` : ""}`} />
+            <RowDetail title="QC" value={`${qc && qc_code ? `${qc_code.toUpperCase()} - ${qc}` : ""}`} />
 
-            <RowDetail title="Thiết kế" value={`${designer_code && designer ? `${designer_code.toUpperCase() - designer}` : ""}`} />
+            <RowDetail title="Thiết kế" value={`${designer_code && designer ? `${designer_code.toUpperCase()} - ${designer}` : ""}`} />
 
             <RowDetail title="Mã tham chiếu" value={formMain.getFieldValue(POField.reference)} />
 

@@ -14,7 +14,7 @@ import useFetchStores from "hook/useFetchStores";
 import useFetchWarranties from "hook/useFetchWarranties";
 import {
   GetWarrantiesParamModel,
-  WarrantyItemModel, WarrantyItemType, WarrantyStatus
+  WarrantyItemModel, WarrantyStatus
 } from "model/warranty/warranty.model";
 import moment from "moment";
 import React, { useCallback, useRef, useState } from "react";

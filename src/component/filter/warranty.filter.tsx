@@ -8,7 +8,7 @@ import CustomFilter from "component/table/custom.filter";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { GetWarrantiesParamModel, WarrantyItemType } from "model/warranty/warranty.model";
+import { GetWarrantiesParamModel } from "model/warranty/warranty.model";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
