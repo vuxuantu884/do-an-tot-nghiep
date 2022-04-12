@@ -65,7 +65,7 @@ import { colorDetailApi } from "service/product/color.service";
 import { callApiNative } from "utils/ApiUtils";
 import {
   convertCategory,
-  formatCurrency, formatCurrencyForProduct,
+  formatCurrencyForProduct,
   Products,
   replaceFormatString,
 } from "utils/AppUtils";
@@ -1005,8 +1005,6 @@ const ProductCreateScreen: React.FC = () => {
                       <Input.Group compact>
                         <Item name="length" noStyle>
                           <NumberInput
-                            format={(a) => formatCurrency(a)}
-                            replace={(a) => replaceFormatString(a)}
                             maxLength={6}
                             isFloat
                             style={{ width: "calc((100% - 100px) / 3)" }}
@@ -1015,8 +1013,6 @@ const ProductCreateScreen: React.FC = () => {
                         </Item>
                         <Item name="width" noStyle>
                           <NumberInput
-                            format={(a) => formatCurrency(a)}
-                            replace={(a) => replaceFormatString(a)}
                             maxLength={6}
                             isFloat
                             style={{ width: "calc((100% - 100px) / 3)" }}
@@ -1025,8 +1021,6 @@ const ProductCreateScreen: React.FC = () => {
                         </Item>
                         <Item name="height" noStyle>
                           <NumberInput
-                            format={(a) => formatCurrency(a)}
-                            replace={(a) => replaceFormatString(a)}
                             maxLength={6}
                             isFloat
                             placeholder="Cao"
@@ -1069,8 +1063,6 @@ const ProductCreateScreen: React.FC = () => {
                           noStyle
                         >
                           <NumberInput
-                            format={(a) => formatCurrency(a)}
-                            replace={(a) => replaceFormatString(a)}
                             maxLength={6}
                             isFloat
                             placeholder="Khối lượng"
