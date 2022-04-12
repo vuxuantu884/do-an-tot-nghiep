@@ -22,6 +22,14 @@ export const createWarrantyAction = (
   return BaseAction(WarrantyType.CREATE_WARRANTY_REQUEST, { body, setData });
 };
 
+export const updateWarrantyAction = (
+  id: string,
+  body: any,
+  setData: (data: any) => void
+) => {
+  return BaseAction(WarrantyType.UPDATE_WARRANTY_REQUEST, { id, body, setData });
+};
+
 
 export const getWarrantyReasonsAction = (
   setData: (data: Array<any>) => void

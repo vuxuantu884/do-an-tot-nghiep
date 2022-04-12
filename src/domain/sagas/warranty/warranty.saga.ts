@@ -6,7 +6,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 // import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { createWarrantyService, getWarrantiesService, getWarrantyDetailService, getWarrantyReasonsService } from "service/warranty/warranty.service";
+import { createWarrantyService, getWarrantiesService, getWarrantyDetailService, getWarrantyReasonsService, updateWarranty } from "service/warranty/warranty.service";
 import { WarrantyType } from "domain/types/warranty.type";
 import { showError } from "utils/ToastUtils";
 
@@ -70,6 +70,34 @@ function* CreateWarranty(action: YodyAction) {
         break;
       default:
         setData(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (e) {
+    setData(false);
+  }
+}
+
+function* UpdateWarranty(action: YodyAction) {
+  let { id, body, setData } = action.payload;
+  console.log('UpdateWarranty', body);
+  
+  try {
+    let response: BaseResponse<PageResponse<any>> = yield call(
+      updateWarranty,
+      id,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setData(false);
+        response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (e) {
@@ -105,6 +133,7 @@ export function* warrantySaga() {
   yield takeLatest(WarrantyType.GET_DATA_WARRANTIES_REQUEST, GetDataWarranties);
   yield takeLatest(WarrantyType.GET_DETAILS_WARRANTY_REQUEST, GetDetailsWarranty);
   yield takeLatest(WarrantyType.CREATE_WARRANTY_REQUEST, CreateWarranty);
+  yield takeLatest(WarrantyType.UPDATE_WARRANTY_REQUEST, UpdateWarranty);
   yield takeLatest(WarrantyType.GET_WARRANTY_REASONS_REQUEST, GetWarrantyReasons);
   
 }

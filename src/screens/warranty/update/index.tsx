@@ -25,7 +25,7 @@ import { DATE_FORMAT } from 'utils/DateUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import { StyledComponent } from './index.styles';
 import { WarrantyFormType, WarrantyItemType } from 'model/warranty/warranty.model';
-import { createWarrantyAction, getDetailsWarrantyAction, getWarrantyReasonsAction } from 'domain/actions/warranty/warranty.action';
+import { updateWarrantyAction, getDetailsWarrantyAction, getWarrantyReasonsAction } from 'domain/actions/warranty/warranty.action';
 import { showSuccess } from 'utils/ToastUtils';
 
 type Props = {};
@@ -51,10 +51,11 @@ const initQueryCustomer: CustomerSearchQuery = {
 };
 
 
-function CreateWarranty(props: Props) {
+function UpdateWarranty(props: Props) {
   const dispatch = useDispatch();
   const history = useHistory();
   let { id } = useParams<WarrantyParam>();
+  const isFirstLoad = useRef(true);
   const [warrantyForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -461,9 +462,9 @@ function CreateWarranty(props: Props) {
       }
       console.log(body);
       setCreateLoading(true);
-      dispatch(createWarrantyAction(body, (data: any) => {
+      dispatch(updateWarrantyAction(id, body, (data: any) => {
         if (data) {
-          showSuccess("Thêm mới bảo hành thành công")
+          showSuccess("Cập nhật bảo hành thành công")
           history.push(`${UrlConfig.WARRANTY}`)
         }
         setCreateLoading(false);
@@ -483,46 +484,49 @@ function CreateWarranty(props: Props) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (id) {
-      dispatch(getDetailsWarrantyAction(id, (data:any) => {
-        warrantyForm.setFieldsValue({
-          store_id: data.store_id,
-          assignee_code: data.assignee_code,
-          appointment_date: data.appointment_date,
-          delivery_method: data.delivery_method
-        });
-        dispatch(
-          getCustomerDetailAction(
-            data.customer_id,
-            (data: CustomerResponse | null) => {
-              if (data) {
-                console.log('data', data)
-                setTableLoading(true);
-                setParams({
-                  ...params,
-                  customer_id: data.id
-                })
-                dispatch(getCustomerOrderHistoryAction({ customer_id: data.id }, updateOrderHistoryData));
-                setHadCustomer(true);
-                warrantyForm.setFieldsValue({
-                  customer_id: data.id,
-                  customer: data.full_name,
-                  customer_mobile: data.phone,
-                  customer_address: data.full_address
-                })
+    if (isFirstLoad.current) {
+      if (id) {
+        dispatch(getDetailsWarrantyAction(id, (data:any) => {
+          warrantyForm.setFieldsValue({
+            store_id: data.store_id,
+            assignee_code: data.assignee_code,
+            appointment_date: data.appointment_date,
+            delivery_method: data.delivery_method
+          });
+          dispatch(
+            getCustomerDetailAction(
+              data.customer_id,
+              (data: CustomerResponse | null) => {
+                if (data) {
+                  console.log('data', data)
+                  setTableLoading(true);
+                  setParams({
+                    ...params,
+                    customer_id: data.id
+                  })
+                  dispatch(getCustomerOrderHistoryAction({ customer_id: data.id }, updateOrderHistoryData));
+                  setHadCustomer(true);
+                  warrantyForm.setFieldsValue({
+                    customer_id: data.id,
+                    customer: data.full_name,
+                    customer_mobile: data.phone,
+                    customer_address: data.full_address
+                  })
+                }
               }
+            )
+          );
+          const lineItems = data.line_items.map((item:any) => {
+            return {
+              ...item,
+              reason_id: item.expenses[0].reason_id
             }
-          )
-        );
-        const lineItems = data.line_items.map((item:any) => {
-          return {
-            ...item,
-            reason_id: item.expenses[0].reason_id
-          }
-        });
-        setWarrantyItems(lineItems);
-      }))
+          });
+          setWarrantyItems(lineItems);
+        }))
+      }
     }
+    isFirstLoad.current = false;
       
   }, [dispatch, id, params, updateOrderHistoryData, warrantyForm]);
 
@@ -783,4 +787,4 @@ function CreateWarranty(props: Props) {
   )
 }
 
-export default CreateWarranty
+export default UpdateWarranty;
