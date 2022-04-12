@@ -1,5 +1,11 @@
 import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import iconPrint from "assets/icon/Print.svg";
+// import { display } from "html2canvas/dist/types/css/property-descriptors/display";
+// import 'assets/css/_sale-order.scss';
+import iconReturn from "assets/icon/return.svg";
+import search from "assets/img/search.svg";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -7,7 +13,7 @@ import {
   getListSubStatusAction,
   getTrackingLogFulfillmentAction,
   setSubStatusAction,
-  updateOrderPartial,
+  updateOrderPartial
 } from "domain/actions/order/order.action";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -16,9 +22,7 @@ import { OrderExtraModel, OrderModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   DeliveryServiceResponse,
-  OrderLineItemResponse,
-  OrderPaymentResponse,
-  ShipmentResponse,
+  OrderLineItemResponse, ShipmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -37,17 +41,16 @@ import {
   isNormalTypeVariantItem,
   isOrderFromPOS,
   isOrderFromSaleChannel,
-  sortFulfillments,
+  sortFulfillments
 } from "utils/AppUtils";
 import {
-  COD,
-  FACEBOOK,
+  COD, DELIVERY_SERVICE_PROVIDER_CODE, FACEBOOK,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
   POS,
   ShipmentMethod,
-  SHOPEE,
+  SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
@@ -56,29 +59,22 @@ import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
+import IconPaymentBank from "./images/chuyen-khoan.svg";
+import IconPaymentCod from "./images/cod.svg";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
 import IconTrackingCode from "./images/iconTrackingCode.svg";
 import iconWeight from "./images/iconWeight.svg";
-import IconPaymentBank from "./images/chuyen-khoan.svg";
 import IconPaymentCard from "./images/paymentCard.svg";
-import IconPaymentCod from "./images/cod.svg";
-import IconPaymentCash from "./images/tien-mat.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
-import IconPaymentReturn from "./images/tien-hoan.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
+import IconPaymentReturn from "./images/tien-hoan.svg";
+import IconPaymentCash from "./images/tien-mat.svg";
 import InventoryTable from "./InventoryTable";
-import search from "assets/img/search.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-// import { display } from "html2canvas/dist/types/css/property-descriptors/display";
-// import 'assets/css/_sale-order.scss';
-import iconReturn from "assets/icon/return.svg";
-import iconPrint from "assets/icon/Print.svg";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import {DELIVERY_SERVICE_PROVIDER_CODE} from "utils/Constants";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -252,25 +248,29 @@ function OrdersTable(props: PropTypes) {
     return html;
   };
 
-  const renderOrderTotalPayment = (orderDetail: OrderModel) => {
-    const totalPayment = getOrderTotalPaymentAmount(orderDetail.payments);
-    return (
-      <React.Fragment>
-        {/* <div className="orderTotalPaymentAmount">
-          <Tooltip title="Tổng tiền thanh toán">
-            {formatCurrency(totalPayment)}
-          </Tooltip>
-        </div> */}
-        {!isShowOfflineOrder ? (
-          <div className="orderTotalLeftAmount">
-            <Tooltip title="Tiền còn thiếu">
-              {formatCurrency(orderDetail.total - totalPayment)}
+  const renderOrderTotalPayment = useCallback(
+    (orderDetail: OrderModel) => {
+      const totalPayment = getOrderTotalPaymentAmount(orderDetail.payments);
+      return (
+        <React.Fragment>
+          {/* <div className="orderTotalPaymentAmount">
+            <Tooltip title="Tổng tiền thanh toán">
+              {formatCurrency(totalPayment)}
             </Tooltip>
-          </div>
-        ) : null}
-      </React.Fragment>
-    );
-  };
+          </div> */}
+          {!isShowOfflineOrder ? (
+            <div className="orderTotalLeftAmount">
+              <Tooltip title="Tiền còn thiếu">
+                {formatCurrency(orderDetail.total - totalPayment)}
+              </Tooltip>
+            </div>
+          ) : null}
+        </React.Fragment>
+      );
+    },
+    [isShowOfflineOrder],
+  )
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
     let html = null;
@@ -317,7 +317,7 @@ function OrdersTable(props: PropTypes) {
         </React.Fragment>
       );
     },
-    [renderOrderPaymentMethods]
+    [renderOrderPaymentMethods, renderOrderTotalPayment]
   );
 
   const renderShippingAddress = (orderDetail: OrderModel) => {
