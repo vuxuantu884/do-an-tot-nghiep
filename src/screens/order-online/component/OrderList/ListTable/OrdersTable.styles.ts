@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
+import {borderColor, dangerColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
 let quantityWidth = 48;
 const massWidth = 100;
 let priceWidth = 82;
@@ -495,6 +495,10 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     }
     .orderTotalPaymentAmount {
       color: ${successColor};
+      font-weight: 500;
+    }
+    .orderTotalLeftAmount {
+      color: ${dangerColor};
       font-weight: 500;
     }
     .ant-table-selection-column {

@@ -252,13 +252,23 @@ function OrdersTable(props: PropTypes) {
     return html;
   };
 
-  const renderOrderTotalPayment = (payments: OrderPaymentResponse[]) => {
+  const renderOrderTotalPayment = (orderDetail: OrderModel) => {
+    const totalPayment = getOrderTotalPaymentAmount(orderDetail.payments);
     return (
-      <div className="orderTotalPaymentAmount">
-        <Tooltip title="Tổng tiền thanh toán">
-          {formatCurrency(getOrderTotalPaymentAmount(payments))}
-        </Tooltip>
-      </div>
+      <React.Fragment>
+        {/* <div className="orderTotalPaymentAmount">
+          <Tooltip title="Tổng tiền thanh toán">
+            {formatCurrency(totalPayment)}
+          </Tooltip>
+        </div> */}
+        {!isShowOfflineOrder ? (
+          <div className="orderTotalLeftAmount">
+            <Tooltip title="Tiền còn thiếu">
+              {formatCurrency(orderDetail.total - totalPayment)}
+            </Tooltip>
+          </div>
+        ) : null}
+      </React.Fragment>
     );
   };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -302,7 +312,7 @@ function OrdersTable(props: PropTypes) {
     (orderDetail: OrderModel) => {
       return (
         <React.Fragment>
-          {renderOrderTotalPayment(orderDetail.payments)}
+          {renderOrderTotalPayment(orderDetail)}
           {renderOrderPaymentMethods(orderDetail)}
         </React.Fragment>
       );
