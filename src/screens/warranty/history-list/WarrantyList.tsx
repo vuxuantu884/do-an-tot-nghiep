@@ -86,9 +86,10 @@ function WarrantyHistoryList(props: PropTypes) {
   const [query, setQuery] = useState<GetWarrantiesParamModel>(initQuery);
   const stores = useFetchStores();
 
-  const getWarranties = useFetchWarranties(query, location, countForceFetchData, setQuery);
+  const getWarranties = useFetchWarranties(initQuery, location, countForceFetchData, setQuery);
   const {warranties, metadata} = getWarranties;
   console.log("warranties", warranties);
+  console.log("query", query);
 
   const handleOkFeeModal = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     setIsFeeModalVisible(false);

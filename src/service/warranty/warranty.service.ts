@@ -9,7 +9,7 @@ import { generateQuery } from "utils/AppUtils";
 
 export const getWarrantiesService = (query?: GetWarrantiesParamModel): Promise<BaseResponse<PageResponse<WarrantyModel>>> => {
   const params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.WARRANTY}/histories?${params}`);
+  return BaseAxios.get(`${ApiConfig.WARRANTY}/cards?${params}`);
 }
 
 export const getWarrantyDetailService = (id: number): Promise<BaseResponse<any>> => {

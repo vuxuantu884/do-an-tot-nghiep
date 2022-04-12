@@ -1,6 +1,6 @@
 import { SettingOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Select } from "antd";
-import CustomDatePicker from "component/custom/date-picker.custom";
+import CustomDatePicker from "component/custom/new-date-picker.custom";
 import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/warranty.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
@@ -9,7 +9,7 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { GetWarrantiesParamModel, WarrantyItemType } from "model/warranty/warranty.model";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -43,13 +43,11 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
     [onMenuClick]
   );
 
-  const initialValues: GetWarrantiesParamModel = useMemo(() => {
+  const initialValues = useMemo(() => {
     return {
       ...params,
-      ids: Array.isArray(params.ids) ? params.ids.map(i => Number(i)) : [Number(params.ids)],
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
-      from_created_date: params.from_appointment_date,
-      from_appointment_date: params.from_appointment_date,
+      ids: Array.isArray(params.ids) ? params.ids.map(i => Number(i)) : (params.ids),
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : Number(params.store_ids),
     };
   }, [params]);
 
@@ -81,6 +79,11 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
     return newData;
   }, [stores, userReducer.account]);
 
+  useEffect(() => {
+    formSearch.setFieldsValue(initialValues)
+  }, [formSearch, initialValues])
+  
+
   return (
     <StyledComponent>
       {renderTabHeader()}
@@ -90,7 +93,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
             <div style={{ width: "100%" }}>
               <Row gutter={12}>
                 <Col span={6}>
-                  <Form.Item name="store_id">
+                  <Form.Item name="store_ids">
                     <CustomSelect
                       className="select-with-search"
                       showSearch
@@ -112,18 +115,18 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item name="fromDate">
+                  <Form.Item name="from_created_date">
                     <CustomDatePicker
                       placeholder="Ngày tiếp nhận"
-                      format={DATE_FORMAT.DDMMYYY}
+                      format={DATE_FORMAT.DD_MM_YYYY}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item name="toDate">
+                  <Form.Item name="to_created_date">
                     <CustomDatePicker
                       placeholder="Đến ngày"
-                      format={DATE_FORMAT.DDMMYYY}
+                      format={DATE_FORMAT.DD_MM_YYYY}
                     />
                   </Form.Item>
                 </Col>
