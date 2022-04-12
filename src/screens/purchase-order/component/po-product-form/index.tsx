@@ -1,4 +1,4 @@
-import { Col, Divider, FormInstance, Input, Row, Skeleton, Table } from "antd";
+import { Col, Divider, FormInstance, Input, InputNumber, Row, Skeleton, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { flatMapDeep, uniq } from "lodash";
 import debounce from "lodash/debounce";
@@ -357,21 +357,23 @@ const POProductForm = ({
              * Nếu là trường hợp xem thì sẽ hiển thị số lượng
              * Nếu ô bị disable thì ở màn hình read hiển thị null
              */
-            return isEditMode ? <NumberInput min={0}
-              value={quantityOfSize}
-              disabled={!!value.disabled || !variantId}
-              onChange={(value: number | null) => {
-                if (!value) {
-                  value = 0;
+            return isEditMode ? (
+              <InputNumber
+                className="size-input"
+                size="small"
+                min={0}
+                maxLength={10}
+                value={quantityOfSize}
+                disabled={!!value.disabled || !variantId}
+                onChange={(value: number) => {
+                  if (variantId) {
+                    onChangeQuantity(value, record.color, variantId, schemaIndex);
+                  } else {
+                    showError("Ô nhập số lượng không hợp lệ")
+                  }
                 }
-                if (variantId) {
-                  onChangeQuantity(value, record.color, variantId, schemaIndex);
-                } else {
-                  showError("Ô nhập số lượng không hợp lệ")
                 }
-              }
-              }
-            /> : (!value.disabled && formatCurrency(quantityOfSize))
+              />) : (!value.disabled && formatCurrency(quantityOfSize))
           }
         }
       })
@@ -404,11 +406,13 @@ const POProductForm = ({
         right: '4px'
       }}>
         <p>Đơn giá</p>
-        {isEditMode && <NumberInput min={0}
-          onChange={(value) => onChangePriceHeader(value || 0)}
-          format={(a: string) => formatCurrency(a)}
-          replace={(a: string) => replaceFormatString(a)}
-        />}
+        {isEditMode &&
+          <NumberInput min={0}
+            onChange={(value) => onChangePriceHeader(value || 0)}
+            format={(a: string) => formatCurrency(a)}
+            replace={(a: string) => replaceFormatString(a)}
+          />
+        }
       </div>,
       dataIndex: "color",
       width: 120,
@@ -474,7 +478,7 @@ const POProductForm = ({
       {!isEmpty(poLineItemGridChema) && !isEmpty(poLineItemGridValue) ? (
         <Table
           loading={isSelecttingProduct}
-          className="product-table"
+          className="product-table-new"
           rowClassName="product-table-row"
           tableLayout="fixed"
           bordered
@@ -483,9 +487,9 @@ const POProductForm = ({
           dataSource={transformDataSource()}
           columns={columns}
           rowKey={(record: PODataSourceGrid) => record.color}
-          footer={() => {            
+          footer={() => {
             const amount: number = getTotalPriceOfAllLineItem(poLineItemGridValue);
-            formMain.setFieldsValue({[POField.total]: amount + (amount * taxRate) / 100});
+            formMain.setFieldsValue({ [POField.total]: amount + (amount * taxRate) / 100 });
             return (
               <Row className="footer">
                 <Col span={14} />
