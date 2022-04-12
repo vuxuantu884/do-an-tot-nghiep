@@ -171,36 +171,9 @@ export const HistoryPurchaseStyled = styled.div`
     }
   }
 	
-	.orderStatus {
-		.inner {
-			height: 100%;
-		}
-		.single {
-			padding: 10px;
-			&:not(:last-child) {
-				border-bottom: 1px solid ${borderColor};
-			}
-		}
-	}
-	.shipmentType {
-		.icon {
-			margin-right: 5px;
-		}
-		.single {
-			&:not(:last-child) {
-				margin-bottom: 5px;
-			}
-			img {
-				max-width: 100%;
-				margin-right: 5px;
-				position: relative;
-				top: -2px;
-				&.iconShipping {
-					top: 0
-				}
-			}
-		}
-	}
+  .inner {
+    width: 100%;
+  }
   
 `;
 

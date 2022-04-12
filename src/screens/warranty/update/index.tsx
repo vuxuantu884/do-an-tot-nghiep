@@ -759,14 +759,12 @@ function UpdateWarranty(props: Props) {
                     </Form.Item>
                     <Form.Item name="customer_mobile">
                       <Input
-                        readOnly
                         placeholder="Nhập số điện thoại người nhận"
                         prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
                     <Form.Item name="customer_address">
                       <Input
-                        readOnly
                         placeholder="Địa chỉ"
                         prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                       />

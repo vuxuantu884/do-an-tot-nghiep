@@ -97,7 +97,7 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
         dataIndex: "items",
         key: "productNameQuantityPrice",
         className: "productNameQuantityPrice",
-        render: (items: Array<OrderLineItemResponse>) => {
+        render: (items: Array<OrderLineItemResponse>, record) => {
           return (
             <div className="items">
               {items.map((item, i) => {
@@ -124,12 +124,14 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
                       />
                     </div>
                     <div className="price priceWidth">
-                      <Button
-                        icon={<AiOutlinePlusCircle size={24} />}
-                        className="dropdown-custom-add-new"
-                        type="link"
-                        onClick={() => onClick(item)}
-                      />
+                      <Tooltip title={record.status !== "finished" ? "Sản phẩm chưa được bán hoặc đã đổi trả" : "Thêm sản phẩm bảo hành"}>
+                        <Button
+                          icon={<AiOutlinePlusCircle size={24} />}
+                          type="link"
+                          disabled={record.status !== "finished"}
+                          onClick={() => onClick(item)}
+                        />
+                      </Tooltip>
                     </div>
                   </div>
                 );
