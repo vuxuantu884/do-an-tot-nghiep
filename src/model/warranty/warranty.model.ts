@@ -1,3 +1,4 @@
+import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 
 export enum WarrantyStatus {
@@ -89,8 +90,7 @@ export interface WarrantyModel extends BaseObject {
 }
 
 export interface WarrantyItemModel extends BaseObject {
-    id: number;
-    code: string;
+    appointment_date: Date;
     product_id: number;
     product: string;
     variant_id: number;
@@ -106,4 +106,39 @@ export interface WarrantyItemModel extends BaseObject {
     status: WarrantyItemStatus;
     type: WarrantyItemType;
     expenses: WarrantyExpense[];
+    warranty: WarrantyModel;
+}
+
+export interface GetWarrantiesParamModel extends BaseQuery {
+    ids?: number[];
+    store_ids?: number[];
+    customer_ids?: number[];
+    customer?: string;
+    warranty_status?: WarrantyStatus;
+    financial_status?: WarrantyFinancialStatus;
+    status?: WarrantyStatus;
+    return_status?: any;
+    from_created_date: string|null;
+    from_appointment_date: string|null;
+    type: WarrantyItemType|null;
+}
+
+export interface WarrantyGetModel extends BaseObject {
+    appointment_date: Date;
+    customer_fee: number;
+    expenses: [{id: 1, code: "dBYTrN4D8rmx", reason_id: 1, reason: "LÝ DO KHÁC"}]
+    note: string;
+    price: number;
+    product: string;
+    product_id: number;
+    purchase_date: Date;
+    sku: string;
+    status: WarrantyStatus;
+    type: WarrantyFormType;
+    variant: string;
+    variant_id: number;
+    version: number;
+    warranty: any;
+    warranty_center: string;
+    warranty_center_id: string;
 }

@@ -41,6 +41,7 @@ function ReadWarranty(props: PropTypes) {
   const { id } = useParams<{ id: string }>();
 
   const dispatch = useDispatch();
+  const [textResult, setTextResult] = useState("Đang tải ...")
   const [warranty, setWarranty] = React.useState<WarrantyModel>();
   console.log("id", id);
   console.log("warranty", warranty);
@@ -93,6 +94,7 @@ function ReadWarranty(props: PropTypes) {
           setWarranty(response.data);
         } else {
           handleFetchApiError(response, "Chi tiết phiếu bảo hàng", dispatch);
+          setTextResult("Không tìm thấy phiếu bảo hành!")
         }
       });
     },
@@ -314,7 +316,7 @@ function ReadWarranty(props: PropTypes) {
             </Col>
           </Row>
         ) : (
-          "Không tìm thấy phiếu bảo hành!"
+          textResult
         )}
       </StyledComponent>
     </ContentContainer>

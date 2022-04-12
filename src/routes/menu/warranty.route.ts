@@ -2,7 +2,7 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-const WarrantyHistotyList = React.lazy(() => import("screens/warranty/history-list"));
+const WarrantyHistoryList = React.lazy(() => import("screens/warranty/history-list/WarrantyList"));
 const CreateWarranty = React.lazy(() => import("screens/warranty/create/index"));
 const ReadWarranty = React.lazy(() => import("screens/warranty/WarrantyDetail/WarrantyDetail"));
 const warrantyRoute: Array<RouteMenu> = [
@@ -11,8 +11,8 @@ const warrantyRoute: Array<RouteMenu> = [
         exact: true,
         title: "Lịch sử bảo hành",
         icon: "icon-dot",
-        component: WarrantyHistotyList,
-        key: "warranty-histoty-list",
+        component: WarrantyHistoryList,
+        key: "warranty-history-list",
         isShow: true,
         header: null,
         permissions: [],
