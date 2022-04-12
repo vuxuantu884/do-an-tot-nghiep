@@ -15,6 +15,7 @@ import { RegUtil } from "utils/RegUtils";
 import "moment/locale/vi";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
 import CustomInput from "screens/customer/common/customInput";
+import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
 
 import { SearchOutlined } from "@ant-design/icons";
 import { GENDER_OPTIONS } from "utils/Constants";
@@ -24,6 +25,7 @@ const { Option } = Select;
 const CustomerGeneralInfo = (props: any) => {
   const {
     form,
+    customer,
     status,
     setStatus,
     areas,
@@ -198,12 +200,13 @@ const CustomerGeneralInfo = (props: any) => {
             ]}
             className="left-item"
           >
-            <Input
+            <InputPhoneNumber
               disabled={isLoading}
               style={{ borderRadius: 5, width: "100%" }}
               minLength={9}
               maxLength={15}
               placeholder="Nhập số điện thoại"
+              defaultValue={customer?.phone}
             />
           </Form.Item>
 
