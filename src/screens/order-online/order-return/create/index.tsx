@@ -96,6 +96,7 @@ type PropTypes = {
 
 let typeButton = "";
 let order_return_id: number = 0;
+let isPrint = false;
 
 const ScreenReturnCreate = (props: PropTypes) => {
   const isUserCanCreateOrder = useRef(true);
@@ -103,7 +104,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return: "order_return",
     returnAndExchange: "order_exchange",
   }
-  let isPrint = false;
   const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )
