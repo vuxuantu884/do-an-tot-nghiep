@@ -70,14 +70,6 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
     return label;
   }
 
-  const formatPayment = (value: number) => {
-    if (selected === MoneyType.PERCENT) {
-      return Number.parseFloat(value+"").toFixed(2);
-    } else {
-      return formatCurrency(value);
-    }
-  }
-
   return (
     <InputStyle>
       <Input.Group
@@ -97,13 +89,12 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
         </Select>
         <InputNumber<number>
           style={{ textAlign: 'right', width: '100%' }}
-          step={selected === MoneyType.MONEY ? 1 : 0.01}
           placeholder={props.placeholder}
           min={0}
           onChange={(e) => {
             handleChangeInput(e);
           }}
-          formatter={(value?: number) => formatPayment(value || 0)}
+          formatter={(value?: number) => formatCurrency(value || 0)}
           max={getMaxInput()}
           value={data}
         />
