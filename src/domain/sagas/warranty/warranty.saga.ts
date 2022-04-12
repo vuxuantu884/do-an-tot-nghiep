@@ -114,18 +114,18 @@ function* GetWarrantyReasons(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        setData(false);
+        setData([]);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (e) {
-    setData(false);
+    setData([]);
   }
 }
 
