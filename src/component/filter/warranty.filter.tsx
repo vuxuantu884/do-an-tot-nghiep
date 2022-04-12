@@ -1,6 +1,5 @@
 import { SettingOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Select } from "antd";
-import search from "assets/img/search.svg";
+import { Button, Col, Form, Input, Row, Select } from "antd";
 import CustomDatePicker from "component/custom/date-picker.custom";
 import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/warranty.filter.styles";
@@ -10,9 +9,8 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { GetWarrantiesParamModel, WarrantyItemType } from "model/warranty/warranty.model";
-import React, { createRef, useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { searchVariantsApi } from "service/product/product.service";
 import { haveAccess } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -30,15 +28,14 @@ type PropTypes = {
   }[]
 };
 
-const { Item } = Form;
-
 function WarrantyFilter(props: PropTypes): JSX.Element {
   const { stores, params, actions, onMenuClick, onFilter, onShowColumnSetting, isLoading, warrantyTypes } = props;
+
+  console.log('params', params)
   const loadingFilter = useMemo(() => {
     return !!isLoading;
   }, [isLoading]);
-  const formSearchRef = createRef<FormInstance>();
-
+  const [formSearch] = Form.useForm();
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -46,17 +43,28 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
     [onMenuClick]
   );
 
-  const initialValues = useMemo(() => {
+  const initialValues: GetWarrantiesParamModel = useMemo(() => {
     return {
       ...params,
-      // store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
-      // source_ids: Array.isArray(params.source_ids) ? params.source_ids.map(i => Number(i)) : [Number(params.source_ids)]
+      ids: Array.isArray(params.ids) ? params.ids.map(i => Number(i)) : [Number(params.ids)],
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
+      from_created_date: params.from_appointment_date,
+      from_appointment_date: params.from_appointment_date,
     };
   }, [params]);
+
+  console.log('initialValues', initialValues)
 
   const renderTabHeader = () => {};
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
+  const onFinish = useCallback(
+    (values) => {
+      onFilter && onFilter(values);
+    },
+    [onFilter]
+  );
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -78,23 +86,10 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
       {renderTabHeader()}
       <div className="warranty-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form ref={formSearchRef} initialValues={initialValues} layout="inline">
+          <Form form={formSearch} initialValues={initialValues} layout="inline" onFinish={onFinish}>
             <div style={{ width: "100%" }}>
               <Row gutter={12}>
-                <Col span={4}>
-                  <Item name="search_term" className="input-search">
-                    <Input
-                      prefix={<img src={search} alt="" />}
-                      placeholder="ID đơn hàng, tên, sđt khách hàng"
-                      onBlur={(e) => {
-                        formSearchRef?.current?.setFieldsValue({
-                          search_term: e.target.value.trim(),
-                        });
-                      }}
-                    />
-                  </Item>
-                </Col>
-                <Col span={4}>
+                <Col span={6}>
                   <Form.Item name="store_id">
                     <CustomSelect
                       className="select-with-search"
@@ -111,8 +106,8 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                     </CustomSelect>
                   </Form.Item>
                 </Col>
-                <Col span={4}>
-                  <Form.Item name="id">
+                <Col span={6}>
+                  <Form.Item name="ids">
                     <Input type="text" placeholder="ID"/>
                   </Form.Item>
                 </Col>

@@ -57,6 +57,7 @@ function WarrantyHistoryList(props: PropTypes) {
   const [isStatusModalVisible, setIsStatusModalVisible] = React.useState(false);
   const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = React.useState(false);
   const [confirmDeleteSubTitle, setConfirmDeleteSubTitle] = useState<React.ReactNode>("");
+  const [countForceFetchData, setCountForceFetchData] = useState(0)
   const rowClicked = (record: any, index: number) => {
     rowSelected.current = { record, index };
   };
@@ -82,10 +83,10 @@ function WarrantyHistoryList(props: PropTypes) {
     type: null,
     warranty_status: WarrantyStatus.NEW,
   };
-  const [query] = useState<GetWarrantiesParamModel>(initQuery);
+  const [query, setQuery] = useState<GetWarrantiesParamModel>(initQuery);
   const stores = useFetchStores();
 
-  const getWarranties = useFetchWarranties(query, location);
+  const getWarranties = useFetchWarranties(query, location, countForceFetchData, setQuery);
   const {warranties, metadata} = getWarranties;
   console.log("warranties", warranties);
 
@@ -123,10 +124,33 @@ function WarrantyHistoryList(props: PropTypes) {
       query.page = page;
       query.limit = size;
       let queryParam = generateQuery(query);
+      setQuery(query);
       history.push(`${location.pathname}?${queryParam}`);
       goToTopPage()
     },
     [history, location.pathname, query]
+  );
+
+  const forceFetchData = useCallback(() => {
+    setCountForceFetchData(countForceFetchData+1)
+  }, [countForceFetchData]);
+
+  const onFilter = useCallback(
+    (values) => {
+      let newParams = { ...query, ...values, page: 1 };
+      setQuery(newParams);
+      let currentParam = generateQuery(query);
+      let queryParam = generateQuery(newParams);
+      if (currentParam === queryParam) {
+        forceFetchData();
+      } else {
+        history.push(`${location.pathname}?${queryParam}`);
+      }
+      // setSelectedRow([]);
+      // setSelectedRowKeys([]);
+      // setSelectedRowCodes([]);
+    },
+    [forceFetchData, history, location.pathname, query]
   );
 
   return (
@@ -163,7 +187,7 @@ function WarrantyHistoryList(props: PropTypes) {
             {TAB_STATUS.map(({ key, name }) => {
               return (
                 <TabPane tab={name} key={key}>
-                  <WarrantyFilter actions={[]} params={query} stores={stores} isLoading={false} onFilter={() => {}} onMenuClick={() =>{}} onShowColumnSetting={() =>{}} warrantyTypes={warrantyTypes} />
+                  <WarrantyFilter actions={[]} params={query} stores={stores} isLoading={false} onFilter={onFilter} onMenuClick={() =>{}} onShowColumnSetting={() =>{}} warrantyTypes={warrantyTypes} />
                   <CustomTable
                     isRowSelection
                     dataSource={warranties}
@@ -175,15 +199,17 @@ function WarrantyHistoryList(props: PropTypes) {
                         width: "10%",
                         render: (id, record: WarrantyItemModel) => {
                           return (
-                            <div>
-                              <Link to={`${UrlConfig.WARRANTY}/${record.warranty.id}`}>{id}</Link>
-                              <br />
-                              <span>
-                                {record?.created_date
-                                  ? moment(record?.created_date).format(formatDate)
-                                  : "-"}
-                              </span>
-                            </div>
+                            record?.warranty?.id ? (
+                              <div>
+                                <Link to={`${UrlConfig.WARRANTY}/${record.warranty.id}`}>{id}</Link>
+                                <br />
+                                <span>
+                                  {record?.created_date
+                                    ? moment(record?.created_date).format(formatDate)
+                                    : "-"}
+                                </span>
+                              </div>
+                            ) : null
                           );
                         },
                       },
@@ -196,9 +222,9 @@ function WarrantyHistoryList(props: PropTypes) {
                         render: (value, record: WarrantyItemModel) => {
                           return (
                             <div>
-                              <b>{record.warranty.customer}</b>
+                              <b>{record?.warranty?.customer}</b>
                               <br />
-                              <span>{record.warranty.customer_mobile}</span>
+                              <span>{record?.warranty?.customer_mobile}</span>
                             </div>
                           );
                         },
