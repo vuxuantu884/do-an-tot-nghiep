@@ -265,6 +265,24 @@ const POProductForm = ({
 
   }
 
+  const sumOfQty = useMemo((): number => {
+    let sum = 0;
+    poLineItemGridValue.forEach((valueLine: Map<string, POLineItemGridValue>) => {
+      const mapIterator = valueLine.values();
+      const mapLength = valueLine.size;
+      for (let i = 0; i < mapLength; i++) {
+        const { sizeValues } = mapIterator.next().value;
+        if (sizeValues.length > 0) {
+          for (let index = 0; index < sizeValues.length; index++) {
+            const element = sizeValues[index];
+            sum += element.quantity;
+          }
+        }
+      }
+    })
+    return Number(sum);
+  }, [poLineItemGridValue])
+
   const columns: ColumnsType<any> = [
     {
       title: "Mã SP",
@@ -379,7 +397,10 @@ const POProductForm = ({
       })
     },
     {
-      title: "Tổng SL",
+      title: <div>Tổng SL
+        <br />
+        ({sumOfQty})
+      </div>,
       align: "center",
       dataIndex: "color",
       width: 100,
@@ -405,7 +426,7 @@ const POProductForm = ({
         left: '4px',
         right: '4px'
       }}>
-        <p>Đơn giá</p>
+        <p>Giá nhập</p>
         {isEditMode &&
           <NumberInput min={0}
             onChange={(value) => onChangePriceHeader(value || 0)}
