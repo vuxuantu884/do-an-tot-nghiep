@@ -1,17 +1,20 @@
 import { Card, Form, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
-import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order/order.action";
+import { setSubStatusAction } from "domain/actions/order/order.action";
 import {
-	FulFillmentResponse,
-	OrderResponse,
-	OrderReturnReasonDetailModel,
-	OrderSubStatusResponse
+  FulFillmentResponse,
+  OrderResponse,
+  OrderReturnReasonDetailModel,
+  OrderSubStatusResponse
 } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import {
+  getOrderProcessingStatusService
+} from "service/order/order-processing-status.service";
 import { getOrderReasonService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, isOrderFromSaleChannel, sortFulfillments } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
+import { FulFillmentStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { showError, showWarning } from "utils/ToastUtils";
 
 type PropType = {
@@ -43,7 +46,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     order_return: "order_return",
   };
   const {
-    status,
+    // status,
     orderId,
     fulfillments,
     subStatusCode,
@@ -223,38 +226,51 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     }
   };
 
+  // useEffect(() => {
+  //   const listFulfillmentMapSubStatus = {
+  //     packed: {
+  //       fulfillmentStatus: "packed",
+  //       subStatus: "packed",
+  //     },
+  //     finalized: {
+  //       fulfillmentStatus: ORDER_SUB_STATUS.shipping,
+  //       subStatus: ORDER_SUB_STATUS.shipping,
+  //     },
+  //   };
+  //   if (status) {
+  //     let resultStatus = status;
+  //     if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
+  //       switch (fulfillments[0].status) {
+  //         case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
+  //           resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
+  //           break;
+  //         case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
+  //           resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
+  //           break;
+  //         default:
+  //           break;
+  //       }
+  //     }
+  //     dispatch(
+  //       getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
+  //         setInitOrderSubStatus(data);
+  //       })
+  //     );
+  //   }
+  // }, [ORDER_SUB_STATUS.shipping, dispatch, fulfillments, status]);
+
   useEffect(() => {
-    const listFulfillmentMapSubStatus = {
-      packed: {
-        fulfillmentStatus: "packed",
-        subStatus: "packed",
-      },
-      finalized: {
-        fulfillmentStatus: ORDER_SUB_STATUS.shipping,
-        subStatus: ORDER_SUB_STATUS.shipping,
-      },
-    };
-    if (status) {
-      let resultStatus = status;
-      if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
-        switch (fulfillments[0].status) {
-          case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
-            resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
-            break;
-          case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
-            resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
-            break;
-          default:
-            break;
-        }
+    getOrderProcessingStatusService({
+      sort_type: "asc",
+      sort_column: "display_order"
+    }).then(response => {
+      if (isFetchApiSuccessful(response)) {
+        setInitOrderSubStatus(response.data.items);
+      } else {
+        handleFetchApiError(response, "Danh sách trạng thái phụ", dispatch);
       }
-      dispatch(
-        getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
-          setInitOrderSubStatus(data);
-        })
-      );
-    }
-  }, [ORDER_SUB_STATUS.shipping, dispatch, fulfillments, status]);
+    })
+  }, [dispatch])
 
   useEffect(() => {
     if (valueSubStatusCode) {
