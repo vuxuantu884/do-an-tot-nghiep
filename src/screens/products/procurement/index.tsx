@@ -1,14 +1,17 @@
-import { Card, Tabs } from "antd";
+import { Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router-dom";
-import TabCurrent from "./tabs/TabCurrent";
-import TabSevenDays from "./tabs/TabSevenDays";
+// import TabCurrent from "./tabs/TabCurrent";
+// import TabSevenDays from "./tabs/TabSevenDays";
 import TabList from "./tabs/TabList/index";
 import TabLogs from "./tabs/TabLogs";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import ButtonCreate from "component/header/ButtonCreate";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 const {TabPane} = Tabs;
 const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
@@ -38,6 +41,15 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
           name: "Phiếu nhập kho",
         },
       ]}
+      extra={
+        <Row>
+          <Space>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
+              <ButtonCreate child="Tạo phiếu nhập kho" path={`${UrlConfig.PROCUREMENT}/create`} />
+            </AuthWrapper>
+          </Space>
+        </Row>
+      }
     >
       <Card className="card-tab">
         <Tabs
@@ -49,12 +61,13 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
           }}
           renderTabBar={RenderTabBar}
         >
-          <TabPane tab="Hàng về hôm nay" key={ProcurementTabUrl.TODAY}>
+          {/* Do cải tiến PO và Procurement nên tạm thời k sử dụng 2 tabs này */}
+          {/* <TabPane tab="Hàng về hôm nay" key={ProcurementTabUrl.TODAY}>
             <TabCurrent />
           </TabPane>
           <TabPane tab="Hàng về 7 ngày" key={ProcurementTabUrl.SEVEN_DAYS}>
             <TabSevenDays />
-          </TabPane>
+          </TabPane> */}
           <TabPane tab="Danh sách phiếu nhập kho" key={ProcurementTabUrl.ALL}>
             <TabList />
           </TabPane>
