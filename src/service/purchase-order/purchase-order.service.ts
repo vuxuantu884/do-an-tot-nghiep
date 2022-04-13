@@ -146,3 +146,11 @@ export const getProcumentLogsService = (
     `${ApiConfig.PURCHASE_ORDER}/procurements/logs?${params}`,
   );
 };
+
+export const listPurchaseOrderApi = (
+  query: PurchaseOrderQuery
+): Promise<BaseResponse<PageResponse<PurchaseOrderQuery>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/list?ids=${query.ids}`
+  );
+};
