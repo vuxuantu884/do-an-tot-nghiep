@@ -90,6 +90,7 @@ export interface PurchaseOrderQuery extends BaseQuery {
   supplier_note?: string;
   tags?: string;
   reference?: string;
+  ids?: string
 }
 export interface PurchaseOrderPrint {
   purchaseOrderId: number;
