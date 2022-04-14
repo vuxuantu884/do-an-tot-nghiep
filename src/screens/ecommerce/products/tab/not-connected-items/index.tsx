@@ -263,6 +263,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         {
           core_variant: ecommerceItem.core_variant,
           core_variant_id: ecommerceItem.core_variant_id,
+          barcode: ecommerceItem.barcode,
           core_sku: ecommerceItem.core_sku,
           variant_prices: null,
           core_price: ecommerceItem.core_price,
@@ -277,6 +278,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       const connectItem = {
         id: ecommerceItem.id,
         core_variant_id: ecommerceItem.core_variant_id,
+        barcode: ecommerceItem.barcode,
         core_sku: ecommerceItem.core_sku,
         core_variant: ecommerceItem.core_variant,
         core_price: ecommerceItem.core_price,
@@ -313,6 +315,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       const connectProductSelected = {
         id: productSelected.id,
         core_variant_id: productSelected.core_variant_id,
+        barcode: productSelected.barcode,
         core_sku: productSelected.core_sku,
         core_variant: productSelected.core_variant,
         core_price: productSelected.core_price,
@@ -410,6 +413,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         id: ecommerceItem.id,
         core_variant_id: itemSelected && itemSelected.id,
         core_product_id: itemSelected && itemSelected.product_id,
+        barcode: itemSelected?.barcode,
       };
 
       setProductSelected(productSelectedData);
@@ -417,6 +421,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       const connectItem = {
         id: ecommerceItem.id,
         core_variant_id: productSelectedData.core_variant_id,
+        barcode: productSelectedData.barcode,
         core_sku: productSelectedData.core_sku,
         core_variant: productSelectedData.core_variant,
         core_price: productSelectedData.core_price,
