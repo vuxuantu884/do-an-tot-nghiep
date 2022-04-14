@@ -1,20 +1,18 @@
 import { Card, Form, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import { setSubStatusAction } from "domain/actions/order/order.action";
+import useChangeOrderSubStatus from "hook/subStatus/useChangeOrderSubStatus";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import {
   FulFillmentResponse,
   OrderResponse,
-  OrderReturnReasonDetailModel,
-  OrderSubStatusResponse
+  OrderReturnReasonDetailModel
 } from "model/response/order/order.response";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  getOrderProcessingStatusService
-} from "service/order/order-processing-status.service";
 import { getOrderReasonService } from "service/order/return.service";
-import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, isOrderFromSaleChannel, sortFulfillments } from "utils/AppUtils";
-import { FulFillmentStatus, ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
+import { FulFillmentStatus, SHIPPING_TYPE } from "utils/Constants";
 import { showError, showWarning } from "utils/ToastUtils";
 
 type PropType = {
@@ -54,8 +52,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     OrderDetailAllFulfillment,
   } = props;
   const dispatch = useDispatch();
-  const [initOrderSubStatus, setInitOrderSubStatus] = useState<OrderSubStatusResponse[]>([]);
-  const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>([]);
   const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
   const [isShowReason, setIsShowReason] = useState(false);
@@ -71,6 +67,15 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
     OrderReturnReasonDetailModel[]
   >([]);
+  const [isShouldChangeSubStatus, setIsShouldChangeSubStatus] = useState(false)
+
+  const getChangeOrderSubStatus =useChangeOrderSubStatus(orderId || 0, valueSubStatusCode||"", isShouldChangeSubStatus, () => {}, () => {})
+
+  const subStatuses = useGetOrderSubStatuses()
+
+  const {isShowModalConfirmCancel, isShowModalConfirmOutOfStock} = getChangeOrderSubStatus
+  console.log('isShowModalConfirmCancel', isShowModalConfirmCancel)
+  console.log('isShowModalConfirmOutOfStock', isShowModalConfirmOutOfStock)
 
   const sortedFulfillments = useMemo(() => {
     if (!OrderDetailAllFulfillment?.fulfillments) {
@@ -86,17 +91,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       return sort.filter((single) => single.status && !returnStatus.includes(single.status));
     }
   }, [OrderDetailAllFulfillment?.fulfillments]);
-
-  const handleOrderSubStatus = useCallback(
-    (sub_status_code: string) => {
-      if (!OrderDetailAllFulfillment?.fulfillments) {
-        return;
-      }
-      let result = [...initOrderSubStatus];
-      setListOrderSubStatus(result);
-    },
-    [OrderDetailAllFulfillment?.fulfillments, initOrderSubStatus]
-  );
 
   const changeSubStatusCode = (sub_status_code: string, reasonId?: number, subReasonRequireWarehouseChange?: number) => {
     if (orderId) {
@@ -189,102 +183,9 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     if (!orderId) {
       return;
     }
-    if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
-      if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
-        handleIfRequireWareHouseChange(sub_status_code)
-      } else {
-        changeSubStatusCode(sub_status_code);
-      }
-      return;
-    }
-    if(isOrderFromSaleChannel(OrderDetailAllFulfillment)) {
-      return true;
-    }
-    let isChange = true;
-    switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
-      // giao hàng hvc, tự giao hàng
-      case ShipmentMethod.EXTERNAL_SERVICE:
-      case ShipmentMethod.EMPLOYEE:
-        isChange = handleIfOrderStatusWithPartner(sub_status_code);
-        break;
-      // nhận tại cửa hàng
-      case ShipmentMethod.PICK_AT_STORE:
-        isChange = handleIfOrderStatusPickAtStore(sub_status_code);
-        break;
-      default:
-        break;
-    }
-    if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
-      isChange = false;
-      handleIfRequireWareHouseChange(sub_status_code);
-    }
-    if (isChange) {
-      isChange = handleIfOrderStatusOther(sub_status_code);
-    }
-    if (isChange) {
-      changeSubStatusCode(sub_status_code);
-    }
+    setIsShouldChangeSubStatus(true)
+    setValueSubStatusCode(sub_status_code);
   };
-
-  // useEffect(() => {
-  //   const listFulfillmentMapSubStatus = {
-  //     packed: {
-  //       fulfillmentStatus: "packed",
-  //       subStatus: "packed",
-  //     },
-  //     finalized: {
-  //       fulfillmentStatus: ORDER_SUB_STATUS.shipping,
-  //       subStatus: ORDER_SUB_STATUS.shipping,
-  //     },
-  //   };
-  //   if (status) {
-  //     let resultStatus = status;
-  //     if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
-  //       switch (fulfillments[0].status) {
-  //         case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
-  //           resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
-  //           break;
-  //         case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
-  //           resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
-  //           break;
-  //         default:
-  //           break;
-  //       }
-  //     }
-  //     dispatch(
-  //       getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
-  //         setInitOrderSubStatus(data);
-  //       })
-  //     );
-  //   }
-  // }, [ORDER_SUB_STATUS.shipping, dispatch, fulfillments, status]);
-
-  useEffect(() => {
-    getOrderProcessingStatusService({
-      sort_type: "asc",
-      sort_column: "display_order"
-    }).then(response => {
-      if (isFetchApiSuccessful(response)) {
-        setInitOrderSubStatus(response.data.items);
-      } else {
-        handleFetchApiError(response, "Danh sách trạng thái phụ", dispatch);
-      }
-    })
-  }, [dispatch])
-
-  useEffect(() => {
-    if (valueSubStatusCode) {
-      handleOrderSubStatus(valueSubStatusCode);
-    } else {
-      setListOrderSubStatus(initOrderSubStatus);
-    }
-  }, [
-    handleOrderSubStatus,
-    valueSubStatusCode,
-    OrderDetailAllFulfillment?.fulfillments,
-    fulfillments,
-    initOrderSubStatus,
-  ]);
 
   useEffect(() => {
     if (subStatusCode) {
@@ -324,8 +225,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         value={valueSubStatusCode}
 				disabled = {isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
         key={Math.random()}>
-        {listOrderSubStatus &&
-          listOrderSubStatus.map((single) => {
+        {subStatuses &&
+          subStatuses.map((single) => {
             return (
               <Select.Option value={single.code} key={single.code}>
                 {single.sub_status}

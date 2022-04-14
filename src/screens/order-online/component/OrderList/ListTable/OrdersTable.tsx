@@ -15,6 +15,7 @@ import {
   setSubStatusAction,
   updateOrderPartial
 } from "domain/actions/order/order.action";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
@@ -139,6 +140,9 @@ function OrdersTable(props: PropTypes) {
   // useState(false);
 
   // console.log('isVisiblePopup', isVisiblePopup)
+
+  const subStatuses = useGetOrderSubStatuses();
+  console.log('subStatuses', subStatuses)
 
   itemResult = data.items;
   metadataResult = data.metadata;
@@ -1069,7 +1073,7 @@ function OrdersTable(props: PropTypes) {
                   </div>
 
                   {/* {record.sub_status ? record.sub_status : "-"} */}
-                  {record.sub_status_code ? (
+                  {subStatuses ? (
                     <Select
                       style={{ width: "100%" }}
                       placeholder="Chọn trạng thái xử lý đơn"
@@ -1078,7 +1082,7 @@ function OrdersTable(props: PropTypes) {
                         option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
                       notFoundContent="Không tìm thấy trạng thái xử lý đơn"
-                      value={selected}
+                      value={record.sub_status_code}
                       onClick={() => {
                         setTypeAPi(type.subStatus);
                         setSelectedOrder(record);
@@ -1110,11 +1114,11 @@ function OrdersTable(props: PropTypes) {
                           })
                         );
                       }}>
-                      {recordStatuses &&
-                        recordStatuses.map((single: any, index: number) => {
+                      {subStatuses &&
+                        subStatuses.map((single: any, index: number) => {
                           return (
                             <Select.Option value={single.code} key={index}>
-                              {single.name}
+                              {single.sub_status}
                             </Select.Option>
                           );
                         })}
@@ -1593,62 +1597,6 @@ function OrdersTable(props: PropTypes) {
             }
           })
         );
-      }
-    } else if (typeAPi === type.subStatus) {
-      if (selectedOrder) {
-        const orderId = selectedOrder.id;
-        const statusCode = selectedOrder.status;
-        if (!statusCode) {
-          return;
-        }
-        if (orderId) {
-          const listFulfillmentMapSubStatus = {
-            packed: {
-              fulfillmentStatus: "packed",
-              subStatus: "packed",
-            },
-            finalized: {
-              fulfillmentStatus: ORDER_SUB_STATUS.shipping,
-              subStatus: ORDER_SUB_STATUS.shipping,
-            },
-          };
-          let resultStatus = statusCode;
-          if (statusCode) {
-            if (statusCode === OrderStatus.FINALIZED && selectedOrder?.fulfillments && selectedOrder?.fulfillments?.length > 0) {
-              const sortedFulfillments = sortFulfillments(selectedOrder?.fulfillments);
-              switch (sortedFulfillments[0].status) {
-                case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
-                  resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
-                  break;
-                case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
-                  resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
-                  break;
-                default:
-                  break;
-              }
-            }
-          }
-          dispatch(showLoading())
-          dispatch(
-            getListSubStatusAction(resultStatus, (response) => {
-              const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
-              if (index > -1) {
-                let dataResult: dataExtra = { ...data };
-                dataResult.items[index].statuses = response
-                  .map((single) => {
-                    return {
-                      name: single.sub_status,
-                      code: single.code,
-                    };
-                  });
-                setData(dataResult);
-                dispatch(hideLoading())
-              }
-            },
-              () => dispatch(hideLoading())
-            )
-          );
-        }
       }
     } else if (typeAPi === type.setSubStatus) {
     }
