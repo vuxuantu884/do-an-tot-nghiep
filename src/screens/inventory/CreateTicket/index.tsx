@@ -678,7 +678,12 @@ const CreateTicket: FC = () => {
       },
     },
     {
-      title: "Số lượng",
+      title: <div>
+        <div>Số lượng</div>
+        <div className="text-center">
+          {getTotalQuantity()}
+        </div>
+      </div>,
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
