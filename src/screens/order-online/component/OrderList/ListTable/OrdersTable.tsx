@@ -1172,34 +1172,56 @@ function OrdersTable(props: PropTypes) {
       {
         title: "Ghi chú",
         className: "notes",
-        render: (value: string, record: OrderModel) => (
-          <div className="orderNotes">
-            <div className="inner">
-              <div className="single">
-                <EditNote
-                  note={record.customer_note}
-                  title="Khách hàng: "
-                  color={primaryColor}
-                  onOk={(newNote) => {
-                    editNote(newNote, "customer_note", record.id, record);
-                  }}
-                // isDisable={record.status === OrderStatus.FINISHED}
-                />
-              </div>
-              <div className="single">
-                <EditNote
-                  note={record.note}
-                  title="Nội bộ: "
-                  color={primaryColor}
-                  onOk={(newNote) => {
-                    editNote(newNote, "note", record.id, record);
-                  }}
-                // isDisable={record.status === OrderStatus.FINISHED}
-                />
+        render: (value: string, record: OrderModel) => {
+          const noteReturnPay=record.order_return_origin?.total;
+          const noteReturnPayCustomer=record.total- (record.order_return_origin?.total?record.order_return_origin?.total:0);
+          return (
+            <div className="orderNotes">
+              <div className="inner">
+                <div className="single">
+                  <EditNote
+                    note={record.customer_note}
+                    title="Khách hàng: "
+                    color={primaryColor}
+                    onOk={(newNote) => {
+                      editNote(newNote, "customer_note", record.id, record);
+                    }}
+                  // isDisable={record.status === OrderStatus.FINISHED}
+                  />
+                </div>
+                <div className="single">
+                  <EditNote
+                  
+                    // note={`Đơn trả: ${noteReturnPay} ${noteReturnPayCustomer>0?` ,Khách trả lại :${noteReturnPayCustomer}`:` ,Trả lại khách: ${(noteReturnPayCustomer*-1)}`} ${record.note}`}
+                    note={`${record.note}`}
+                    title="Nội bộ: "
+                    color={primaryColor}
+                    onOk={(newNote) => {
+                      editNote(newNote, "note", record.id, record);
+                    }}
+                    defaultNote={record.order_return_origin&&(
+                      <React.Fragment>
+                        {noteReturnPay && (
+                          <div className="textSmall">Đơn trả: {formatCurrency(noteReturnPay)}</div>
+                        )}
+                        {noteReturnPayCustomer&&(
+                          <div className="textSmall">
+                            {` ${noteReturnPayCustomer>0?`, Khách trả lại :${formatCurrency(noteReturnPayCustomer)}`
+                            :noteReturnPayCustomer<0?` Trả lại khách: ${formatCurrency(noteReturnPayCustomer*-1)}`
+                            :``}`}
+                         </div>
+                        )}
+                       
+                      </React.Fragment>
+                      )
+                    }
+                  // isDisable={record.status === OrderStatus.FINISHED}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ),
+          )
+        },
         key: "note",
         visible: true,
         align: "left",
