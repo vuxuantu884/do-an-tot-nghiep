@@ -125,7 +125,6 @@ export interface AnalyticChartInfo {
 export interface AnnotationItem {
   annotation: string;
   desc: string;
-  key: string;
 }
 
 export interface AnnotationData {
