@@ -33,7 +33,7 @@ import { ProductResponse } from "../../model/product/product.model";
 import { combineLineItemToSubmitData, getTotalPriceOfAllLineItem, POUtils, validateLineItem } from "../../utils/POUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
-import PoProductContainer from "./component/po-product-form/po-product-container";
+import PoProductContainer from "./component/po-product-form-grid/po-product-container";
 import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
@@ -41,7 +41,7 @@ import PurchaseOrderProvider from "./provider/purchase-order.provider";
 
 
 const POProductFormOld = React.lazy(() => import("./component/po-product.form"));
-const POProductFormNew = React.lazy(() => import("./component/po-product-form"));
+const POProductFormNew = React.lazy(() => import("./component/po-product-form-grid"));
 
 export type DataSourceType = {
   totalPrice: number;
