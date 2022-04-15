@@ -115,7 +115,7 @@ export default function Order() {
 	const [storeId, setStoreId] = useState<number | null>(null);
 	const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
 	const [shipmentMethod, setShipmentMethod] = useState<number>(
-		ShipmentMethodOption.DELIVER_LATER
+		ShipmentMethodOption.PICK_AT_STORE
 	);
 	const [paymentMethod, setPaymentMethod] = useState<number>(
 		PaymentMethodOption.POSTPAYMENT
@@ -983,7 +983,7 @@ export default function Order() {
 				setIsLoadForm(true);
 				setShippingFeeInformedToCustomer(0);
 				setPromotion(null)
-				setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
+				setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE);
 				form.resetFields();
 			}
 		};
