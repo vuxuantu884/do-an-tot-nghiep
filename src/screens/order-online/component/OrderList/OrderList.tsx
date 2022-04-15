@@ -421,6 +421,7 @@ function OrderList(props: PropTypes) {
       exportFile({
         conditions: queryParams,
         type: "EXPORT_ORDER",
+        is_online: !isShowOfflineOrder ? "true": "false",
       })
         .then((response) => {
           if (response.code === HttpStatus.SUCCESS) {

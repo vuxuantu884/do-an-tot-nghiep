@@ -1,4 +1,4 @@
-import { Card, Col, Form, FormInstance, Row } from "antd";
+import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
@@ -51,6 +51,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
@@ -186,6 +187,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   OrderReasonModel|null
   >(null);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
+  const [isVisibleModalWarningPointRefund, setIsVisibleModalWarningPointRefund] = useState<boolean>(false);
   const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
   const [moneyRefund, setMoneyRefund] = useState(0);
@@ -529,6 +531,12 @@ ShippingServiceConfigDetailResponseModel[]
         total_discount: getTotalOrderDiscount(discounts),
         total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
+        // clear giá trị
+        reference_code: "",
+        customer_note: "",
+        note: "",
+        url: "",
+        tags: null,
       };
       console.log('orderDetailResult', orderDetailResult);
       dispatch(showLoading())
@@ -749,6 +757,12 @@ ShippingServiceConfigDetailResponseModel[]
             sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
             discounts: handleRecalculateOriginDiscount(itemsResult),
+            // clear giá trị
+            reference_code: "",
+            customer_note: "",
+            note: "",
+            url: "",
+            tags: null,
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
@@ -758,12 +772,12 @@ ShippingServiceConfigDetailResponseModel[]
           }
           valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
-          values.account_code = form.getFieldValue("account_code") || recentAccountCode.accountCode;
-          values.assignee_code = form.getFieldValue("assignee_code") || OrderDetail.assignee_code;
-          values.coordinator_code = form.getFieldValue("coordinator_code") || OrderDetail.coordinator_code;
-          values.marketer_code = form.getFieldValue("marketer_code") || OrderDetail.marketer_code;
-          values.reference_code = form.getFieldValue("reference_code") || OrderDetail.reference_code;
-          values.url = form.getFieldValue("url") || OrderDetail.url;
+          values.account_code = form.getFieldValue("account_code");
+          values.assignee_code = form.getFieldValue("assignee_code");
+          values.coordinator_code = form.getFieldValue("coordinator_code");
+          values.marketer_code = form.getFieldValue("marketer_code");
+          values.reference_code = form.getFieldValue("reference_code");
+          values.url = form.getFieldValue("url");
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
               valuesResult.order_return_id = orderReturnId;
@@ -1263,6 +1277,7 @@ ShippingServiceConfigDetailResponseModel[]
                   discountRate={discountRate}
                   isDetailPage={false}
                   orderId={orderId}
+                  setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
                 />
                 <OrderCreateProduct
                   orderAmount={orderAmount}
@@ -1416,6 +1431,42 @@ ShippingServiceConfigDetailResponseModel[]
           subTitle=""
           visible={isVisibleModalWarning}
         />
+        <Modal
+          width="35%"
+          className="modal-confirm"
+          okText={"Đồng ý"}
+          visible={isVisibleModalWarningPointRefund}
+          onCancel={() => {
+            setIsVisibleModalWarningPointRefund(false);
+          }}
+          onOk={() => {
+            setIsVisibleModalWarningPointRefund(false);
+          }}
+          footer={(
+            <Button type="primary" onClick={() =>setIsVisibleModalWarningPointRefund(false)}>
+              Đồng ý
+            </Button>
+          )}
+        >
+          <div className="modal-confirm-container">
+            <div>
+              <div
+                style={{
+                  color: "#FFFFFF",
+                  backgroundColor: "#FCAF17",
+                  fontSize: "45px",
+                }}
+                className="modal-confirm-icon"
+              >
+                <TiWarningOutline />
+              </div>
+            </div>
+            <div className="modal-confirm-right margin-left-20">
+              <div className="modal-confirm-title">{"Chú ý"}</div>
+                <div className="modal-confirm-sub-title">Đơn gốc có thể đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị lỗi điểm hoàn và tiền hoàn lại cho khách!</div>
+            </div>
+          </div>
+        </Modal>
         <div style={{display: "none"}}>
           <div className="printContent333" ref={printElementRef}>
             <div

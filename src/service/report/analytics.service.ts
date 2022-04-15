@@ -15,7 +15,7 @@ export const executeAnalyticsQueryService = (
 };
 
 export const getCustomerVisitors = (
-  params: {month: number, year: number, storeIds?: number[]},
+  params: { month: number, year: number, storeIds?: number[] },
   config?: AxiosRequestConfig
 ): Promise<BaseResponse<any>> => {
   const { month, year, storeIds } = params;
@@ -62,6 +62,7 @@ export const saveAnalyticsCustomService = (
   params: AnalyticCustomize
 ): Promise<BaseResponse<any>> => {
   params.query = removeSpacesAndEnterCharacters(params.query);
+  params.chart_query = params.chart_query ? removeSpacesAndEnterCharacters(params.chart_query) : undefined;
   return BaseAxiosApi.post(`${ApiConfig.ANALYTICS}`, params);
 };
 
