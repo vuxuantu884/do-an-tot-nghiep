@@ -2560,6 +2560,7 @@ ShippingServiceConfigDetailResponseModel[]
 													)
 											)}
 											{OrderDetail?.fulfillments && (OrderDetail?.fulfillments?.length === 0
+												|| !OrderDetail?.fulfillments[0].shipment
 												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNED
 												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.CANCELLED
 												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNING) && (
