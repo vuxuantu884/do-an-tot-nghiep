@@ -1463,7 +1463,7 @@ ShippingServiceConfigDetailResponseModel[]
             </div>
             <div className="modal-confirm-right margin-left-20">
               <div className="modal-confirm-title">{"Chú ý"}</div>
-                <div className="modal-confirm-sub-title">Đơn gốc đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị lỗi điểm hoàn và tiền hoàn lại cho khách!</div>
+                <div className="modal-confirm-sub-title">Đơn gốc có thể đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị lỗi điểm hoàn và tiền hoàn lại cho khách!</div>
             </div>
           </div>
         </Modal>
