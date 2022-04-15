@@ -4,7 +4,7 @@ import { AnalyticCube, AnnotationData } from "model/report/analytics.model";
 
 export const AnnotationDataList: AnnotationData[] = [
     {
-        alias: UrlConfig.ANALYTIC_SALES,
+        alias: UrlConfig.ANALYTIC_SALES_OFFLINE,
         cube: AnalyticCube.Sales,
         data: [
             {
@@ -75,7 +75,7 @@ export const AnnotationDataList: AnnotationData[] = [
         documentLink: 'https://hdsd-yody.gitbook.io/unicorn-free/bao-cao/huong-dan-su-dung-bao-cao-tinh-nang-co-ban'
     },
     {
-        alias: UrlConfig.ANALYTIC_SALES,
+        alias: UrlConfig.ANALYTIC_SALES_OFFLINE,
         cube: AnalyticCube.Payments,
         data: [
             {

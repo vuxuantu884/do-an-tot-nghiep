@@ -2,13 +2,14 @@ import { ExportOutlined } from '@ant-design/icons';
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
 import { AppConfig } from 'config/app.config';
-import { DETAIL_LINKS, TIME_GROUP_BY } from 'config/report/report-templates';
+import { DETAIL_LINKS, TIME_AT_OPTION, TIME_GROUP_BY } from 'config/report/report-templates';
+import UrlConfig from 'config/url.config';
 import _ from 'lodash';
-import { AnalyticChartInfo, AnalyticConditions, AnalyticQuery, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
+import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME, TimeAtOptionValue } from 'model/report/analytics.model';
 import moment from 'moment';
 import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useRouteMatch } from 'react-router-dom';
 import { executeAnalyticsQueryService } from 'service/report/analytics.service';
 import { callApiNative } from 'utils/ApiUtils';
 import { formatCurrency } from 'utils/AppUtils';
@@ -26,7 +27,7 @@ import ReportifyBarChart from './reportify-bar-chart';
 
 type Props = {
     form: FormInstance;
-    handleRQuery: (e: any) => void;
+    handleRQuery: (query: string, params: AnalyticQuery) => void;
     mode: SUBMIT_MODE;
     chartInfo?: AnalyticChartInfo;
 }
@@ -39,7 +40,8 @@ export const ReportifyFormFields = {
     properties: "properties",
     column: "column",
     chartFilter: "chart-filter",
-    orderBy: "orderBy"
+    orderBy: "orderBy",
+    timeAtOption: 'timeAtOption'
 };
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
@@ -49,6 +51,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
 
     const dispatch = useDispatch();
     const [warningChooseColumn, setWarningChooseColumn] = useState(false);
+    const { path: matchPath } = useRouteMatch();
 
     const pushSubmitAction = () => {
         form.submit()
@@ -60,7 +63,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
          */
         setWarningChooseColumn(false);
 
-        const { where, timeRange, timeGroupBy, properties, orderBy } = values
+        const { where, timeRange, timeGroupBy, properties, orderBy, timeAtOption } = values
 
         const columns = values[ReportifyFormFields.column]?.map((item: any) => ({ field: item }))
 
@@ -114,7 +117,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             }
         }
         const rowsInQueryNoTimeGroup = rowsInQuery.filter((item: string) => TIME_GROUP_BY.findIndex(timeGroupItem => timeGroupItem.value === item) === -1);
-        const parms: AnalyticQuery = {
+        const params: AnalyticQuery = {
             columns: columns,
             rows: timeGroupBy ? [timeGroupBy, ...rowsInQueryNoTimeGroup] : rowsInQueryNoTimeGroup,
             cube: values?.reportType || cubeRef.current,
@@ -124,13 +127,14 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             order_by: isOrderBy ? orderBy : [],
         } as AnalyticQuery;
 
-        const params = generateRQuery(parms)
+        const query = generateRQuery(params)
         if (mode !== SUBMIT_MODE.GET_DATA) {
-            handleRQuery(params);
+            handleRQuery(query, params);
 
         } else {
             setLoadingTable(true);
-            const response = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: params });
+            const fullParams = timeAtOption ? { q: query, options: timeAtOption } : { q: query };
+            const response = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, fullParams);
             if (response) {
                 setDataQuery(response);
             }
@@ -283,7 +287,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                     break;
             }
         }
-        
+
         if (timeFilter) {
             const { field, value } = timeFilter;
             setRelatedTimeFields(field, value[0]);
@@ -323,7 +327,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         form.submit();
     }
 
-    const handleChangeTimeGroup = (timeGroup:string) => {
+    const handleChangeTimeGroup = (timeGroup: string) => {
         // clear active filter relate time 
         TIME_GROUP_BY.forEach((item) => {
             const { value } = item;
@@ -333,303 +337,331 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
 
         const where = form.getFieldValue(ReportifyFormFields.orderBy);
         if (
-          Array.isArray(where) &&
-          where.length &&
-          TIME_GROUP_BY.some((item) => item.value === where[0][0])
+            Array.isArray(where) &&
+            where.length &&
+            TIME_GROUP_BY.some((item) => item.value === where[0][0])
         ) {
-          //reset orderBy khi chuyển nhóm thời gian.
-          form.setFieldsValue({ orderBy: [] });
+            //reset orderBy khi chuyển nhóm thời gian.
+            form.setFieldsValue({ orderBy: [] });
         }
         pushSubmitAction();
     }
     return (
-      <AnalyticsStyle>
-        <Form
-          onFinish={exportReportQuery}
-          onFinishFailed={handleFinishFailed}
-          form={form}
-          name="report-form-base">
-          <Card bodyStyle={{ paddingBottom: 0, paddingTop: 10 }} title="">
-            <div className="group-report-type">
-              {/* <Row> */}
-              {/* since - until */}
-              <Form.Item
-                label="Thời gian"
-                name={ReportifyFormFields.timeRange}
-                rules={[{ required: true, message: "Vui lòng chọn thời gian" }]}
-                labelCol={{ span: 24 }}
-                className="input-width"
-                help={false}>
-                <AnalyticsDatePicker onChange={pushSubmitAction} />
-              </Form.Item>
-              {/* from */}
-              {/* <Form.Item label="Loại báo cáo" name={ReportifyFormFields.reportType} rules={[{ required: true, message: "Vui lòng chọn loại báo cáo" }]} labelCol={{ span: 24 }} className="input-width" help={false}>
+        <AnalyticsStyle>
+            <Form
+                onFinish={exportReportQuery}
+                onFinishFailed={handleFinishFailed}
+                form={form}
+                name="report-form-base">
+                <Card bodyStyle={{ paddingBottom: 0, paddingTop: 8 }}>
+                    <div className="group-report-type">
+                        {false && cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
+                            <Form.Item
+                                label="Ghi nhận theo"
+                                name={ReportifyFormFields.timeAtOption}
+                                labelCol={{ span: 24 }}
+                                help={false}
+                                className="input-width">
+                                <Select
+                                    placeholder="Chọn giá trị ghi nhận theo"
+                                    onChange={handleChangeTimeGroup}>
+                                    {TIME_AT_OPTION.filter(item => {
+                                        if (matchPath.includes(UrlConfig.ANALYTIC_SALES_OFFLINE)) {
+                                            return item.value === TimeAtOptionValue.CompletedAt;
+                                        }
+                                        return item;
+                                    }).map(({ label, value }) => {
+                                        return (
+                                            <Select.Option key={value} value={value}>
+                                                {label}
+                                            </Select.Option>
+                                        );
+                                    })}
+                                </Select>
+                            </Form.Item>
+                        )}
+                        {/* <Row> */}
+                        {/* since - until */}
+                        <Form.Item
+                            label="Thời gian"
+                            name={ReportifyFormFields.timeRange}
+                            rules={[{ required: true, message: "Vui lòng chọn thời gian" }]}
+                            labelCol={{ span: 24 }}
+                            className="input-width"
+                            help={false}>
+                            <AnalyticsDatePicker onChange={pushSubmitAction} />
+                        </Form.Item>
+                        {/* from */}
+                        {/* <Form.Item label="Loại báo cáo" name={ReportifyFormFields.reportType} rules={[{ required: true, message: "Vui lòng chọn loại báo cáo" }]} labelCol={{ span: 24 }} className="input-width" help={false}>
                             <Select className='input-width' placeholder="Chọn loại báo cáo" onChange={pushSubmitAction}>
                                 {REPORT_TYPE.map((item: string) => {
                                     return <Select.Option key={item} value={item}>{item}</Select.Option>
                                 })}
                             </Select>
                         </Form.Item> */}
-              {/* over or by */}
-              <Form.Item
-                label="Nhóm theo"
-                name={ReportifyFormFields.timeGroupBy}
-                labelCol={{ span: 24 }}
-                help={false}>
-                <Select
-                  allowClear
-                  className="input-width"
-                  placeholder="Chọn thời gian nhóm theo"
-                  onChange={handleChangeTimeGroup}>
-                  {TIME_GROUP_BY.map(({ label, value }) => {
-                    return (
-                      <Select.Option key={value} value={value}>
-                        {label}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Form.Item>
-              {/* bộ lọc  */}
+                        {/* over or by */}
+                        <Form.Item
+                            label="Nhóm theo"
+                            name={ReportifyFormFields.timeGroupBy}
+                            labelCol={{ span: 24 }}
+                            help={false}>
+                            <Select
+                                allowClear
+                                className="input-width"
+                                placeholder="Chọn thời gian nhóm theo"
+                                onChange={handleChangeTimeGroup}>
+                                {TIME_GROUP_BY.map(({ label, value }) => {
+                                    return (
+                                        <Select.Option key={value} value={value}>
+                                            {label}
+                                        </Select.Option>
+                                    );
+                                })}
+                            </Select>
+                        </Form.Item>
+                        {/* bộ lọc  */}
 
-              <Form.Item label=" " labelCol={{ span: 24 }} colon={false} className="filter-btn">
-                {metadata && <FilterResults properties={metadata.properties} form={form} />}
-              </Form.Item>
-            </div>
-          </Card>
-          <Card
-            title="Biểu đồ"
-            extra={
-              <Form.Item name={ReportifyFormFields.chartFilter} help={false} noStyle>
-                {metadata && (
-                  <Select
-                    placeholder="Tuỳ chọn hiển thị"
-                    mode="multiple"
-                    className="input-width"
-                    showArrow
-                    maxTagCount={"responsive"}
-                    onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST )}
-                    filterOption={(input, option) => {
-                      if (option?.props.children) {
-                        return strForSearch(option.props.children.toLowerCase()).includes(strForSearch(input.toLowerCase()))
-                      }
-                      return false
-                    }
+                        <Form.Item label=" " labelCol={{ span: 24 }} colon={false} className="filter-btn">
+                            {metadata && <FilterResults properties={metadata.properties} form={form} />}
+                        </Form.Item>
+                    </div>
+                </Card>
+                <Card
+                    title="Biểu đồ"
+                    extra={
+                        <Form.Item name={ReportifyFormFields.chartFilter} help={false} noStyle>
+                            {metadata && (
+                                <Select
+                                    placeholder="Tuỳ chọn hiển thị"
+                                    mode="multiple"
+                                    className="input-width"
+                                    showArrow
+                                    maxTagCount={"responsive"}
+                                    onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST)}
+                                    filterOption={(input, option) => {
+                                        if (option?.props.children) {
+                                            return strForSearch(option.props.children.toLowerCase()).includes(strForSearch(input.toLowerCase()))
+                                        }
+                                        return false
+                                    }
+                                    }>
+                                    {Object.keys(metadata.aggregates).map((key: string) => {
+                                        const value = Object.values(metadata.aggregates)[
+                                            Object.keys(metadata.aggregates).indexOf(key)
+                                        ].name;
+                                        return (
+                                            <Select.Option
+                                                value={key}
+                                                key={key}
+                                                disabled={
+                                                    chartColumnSelected && chartColumnSelected.length >= MAX_CHART_COLUMNS
+                                                        ? chartColumnSelected.includes(key)
+                                                            ? false
+                                                            : true
+                                                        : false
+                                                }>
+                                                {value}
+                                            </Select.Option>
+                                        );
+                                    })}
+                                </Select>
+                            )}
+                        </Form.Item>
                     }>
-                    {Object.keys(metadata.aggregates).map((key: string) => {
-                      const value = Object.values(metadata.aggregates)[
-                        Object.keys(metadata.aggregates).indexOf(key)
-                      ].name;
-                      return (
-                        <Select.Option
-                          value={key}
-                          key={key}
-                          disabled={
-                            chartColumnSelected && chartColumnSelected.length >= MAX_CHART_COLUMNS
-                              ? chartColumnSelected.includes(key)
-                                ? false
-                                : true
-                              : false
-                          }>
-                          {value}
-                        </Select.Option>
-                      );
-                    })}
-                  </Select>
-                )}
-              </Form.Item>
-            }>
-            {chartDataQuery && (!chartInfo || chartInfo.showChart) && (
-              <ReportifyBarChart
-                data={chartDataQuery.result.data}
-                leftLegendName={
-                  metadata && chartColumnSelected && chartColumnSelected.length > 1
-                    ? getTranslatePropertyKey(
-                        metadata,
-                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2]
-                          .field
-                      )
-                    : undefined
-                }
-                leftTickFormat={
-                  chartColumnSelected && chartColumnSelected.length > 1
-                    ? chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2].format
-                    : undefined
-                }
-                rightLegendName={
-                  metadata
-                    ? getTranslatePropertyKey(
-                        metadata,
-                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1]
-                          .field
-                      )
-                    : undefined
-                }
-                rightTickFormat={
-                    chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1].format
-                }
-                chartColumnNumber={chartColumnSelected?.length || 0}
-              />
-            )}
-            {
-              chartInfo && !chartInfo.showChart && (
-                <em>{chartInfo.message}</em>
-              )
-            }
-          </Card>
+                    {chartDataQuery && (!chartInfo || chartInfo.showChart) && (
+                        <ReportifyBarChart
+                            data={chartDataQuery.result.data}
+                            leftLegendName={
+                                metadata && chartColumnSelected && chartColumnSelected.length > 1
+                                    ? getTranslatePropertyKey(
+                                        metadata,
+                                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2]
+                                            .field
+                                    )
+                                    : undefined
+                            }
+                            leftTickFormat={
+                                chartColumnSelected && chartColumnSelected.length > 1
+                                    ? chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2].format
+                                    : undefined
+                            }
+                            rightLegendName={
+                                metadata
+                                    ? getTranslatePropertyKey(
+                                        metadata,
+                                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1]
+                                            .field
+                                    )
+                                    : undefined
+                            }
+                            rightTickFormat={
+                                chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1].format
+                            }
+                            chartColumnNumber={chartColumnSelected?.length || 0}
+                        />
+                    )}
+                    {
+                        chartInfo && !chartInfo.showChart && (
+                            <em>{chartInfo.message}</em>
+                        )
+                    }
+                </Card>
 
-          <Card
-            title="Bảng thống kê"
-            headStyle={{ padding: "8px 20px" }}
-            extra={
-              <div>
-                {metadata && (
-                  <CustomPropertiesModal
-                    form={form}
-                    properties={metadata.properties}
-                    aggregates={metadata.aggregates}
-                    warningChooseColumn={warningChooseColumn}
-                  />
-                )}
-              </div>
-            }>
-            <ActiveFiltersStyle>
-                <ActiveFilters filters={Array.from(activeFilters)} action={handleRemoveFilter} />
-            </ActiveFiltersStyle>
+                <Card
+                    title="Bảng thống kê"
+                    headStyle={{ padding: "8px 20px" }}
+                    extra={
+                        <div>
+                            {metadata && (
+                                <CustomPropertiesModal
+                                    form={form}
+                                    properties={metadata.properties}
+                                    aggregates={metadata.aggregates}
+                                    warningChooseColumn={warningChooseColumn}
+                                />
+                            )}
+                        </div>
+                    }>
+                    <ActiveFiltersStyle>
+                        <ActiveFilters filters={Array.from(activeFilters)} action={handleRemoveFilter} />
+                    </ActiveFiltersStyle>
 
-            {dataQuery && (
-              <Table
-                dataSource={dataQuery.result.data}
-                loading={loadingTable}
-                scroll={{ x: 1000 }}
-                sticky={{ offsetScroll: 55, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
-                pagination={{
-                  defaultPageSize: 50,
-                  pageSizeOptions: ["10", "20", "30", "50", "100", "500"],
-                }}
-                sortDirections={["descend", "ascend", null]}
-                onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
-                  if (sorter.columnKey && Array.isArray(dataQuery.result.columns)) {
-                    handleSortTable(
-                      dataQuery.result.columns[Number(sorter.columnKey)].field,
-                      sorter.order
-                    );
-                  }
-                }}
-                summary={(data) => {
-                  return (
-                    <Table.Summary>
-                      <Table.Summary.Row>
-                        {dataQuery.result.columns.map(({ format }: any, index: number) => {
-                          let value: any = "-";
-                          if (format === "number") {
-                            value = dataQuery?.result?.summary[index];
-                          } else if (format === "price") {
-                            value = formatCurrency(dataQuery?.result?.summary[index]);
-                          } else if (index === 0) {
-                            value = "Tổng";
-                          }
-                          return (
-                            <Table.Summary.Cell index={index} align="center" key={index}>
-                              <b>{value}</b>
-                            </Table.Summary.Cell>
-                          );
-                        })}
-                      </Table.Summary.Row>
-                    </Table.Summary>
-                  );
-                }}>
-                {dataQuery.result.columns.map((item: any, index: number) => {
-                  const { format, field, type } = item;
-                  return (
-                    <Table.Column<any>
-                      ellipsis
-                      width={180}
-                      align="center"
-                      title={
-                        <Tooltip
-                          title={metadata ? getTranslatePropertyKey(metadata, field) : field}>
-                          {metadata ? getTranslatePropertyKey(metadata, field) : field}
-                        </Tooltip>
-                      }
-                      sorter={(a, b) => {
-                        return 0;
-                      }}
-                      sortOrder={form.getFieldValue(ReportifyFormFields.orderBy) && form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field) ? (form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field)[1]?.toLowerCase() === 'desc' ? 'descend' : 'ascend') : undefined}
-                      key={index}
-                      fixed={
-                        index === 0 && format !== "price" && format !== "number"
-                          ? "left"
-                          : undefined
-                      }
-                      render={(value, record: Array<any>) => {
-                        let data = record[index];
-                        if (!data && typeof data !== "number") {
-                          return "-";
-                        }
-                        switch (format) {
-                          case "price":
-                            data = formatCurrency(data);
-                            break;
-                          case "timestamp":
-                            data = formatReportTime(data, field);
-                            break;
-                        }
-                        const existedFilter = activeFilters.get(field);
-                        const detailLink = DETAIL_LINKS.find(
-                          ({ field: fieldKey, link }) => fieldKey === field
-                        );
-                        if (type === "property" && field !== TIME.HOUR && (!existedFilter || existedFilter.value.length > 1 || (existedFilter.value.length === 1 && existedFilter.value[0] === 'Tất cả')) ) {
-                          return (
-                            <span className="link detail-link">
-                              <span onClick={() => handleQueryColumn(item, format === 'price' ? record[index] : data)}>{data}</span>
-                              {detailLink ? (
-                                <Link
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  to={`${detailLink.link}/${data}`}>
-                                  <ExportOutlined className="external-link" />
-                                </Link>
-                              ) : (
-                                ""
-                              )}
-                            </span>
-                          );
-                        } else {
-                          return (
-                            <span className="detail-link">
-                              {data}
-                              {detailLink ? (
-                                <Link
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  to={`${detailLink.link}/${data}`}>
-                                  <ExportOutlined className="external-link" />
-                                </Link>
-                              ) : (
-                                ""
-                              )}
-                            </span>
-                          );
-                        }
-                      }}
-                    />
-                  );
-                })}
-              </Table>
-            )}
-          </Card>
-          {/* Dùng để hứng form data và warning (khi các popup chưa đc render)*/}
-          <Form.Item hidden name={["orderBy"]} />
-          <Form.Item hidden name={["where"]} />
-          <Form.Item hidden name={["properties"]} />
-          <Form.Item
-            hidden
-            name={[ReportifyFormFields.column]}
-            rules={[{ required: true, message: "Vui lòng chọn loại thống kê" }]}
-          />
-        </Form>
-      </AnalyticsStyle>
+                    {dataQuery && (
+                        <Table
+                            dataSource={dataQuery.result.data}
+                            loading={loadingTable}
+                            scroll={{ x: 1000 }}
+                            sticky={{ offsetScroll: 55, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+                            pagination={{
+                                defaultPageSize: 50,
+                                pageSizeOptions: ["10", "20", "30", "50", "100", "500"],
+                            }}
+                            sortDirections={["descend", "ascend", null]}
+                            onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
+                                if (sorter.columnKey && Array.isArray(dataQuery.result.columns)) {
+                                    handleSortTable(
+                                        dataQuery.result.columns[Number(sorter.columnKey)].field,
+                                        sorter.order
+                                    );
+                                }
+                            }}
+                            summary={(data) => {
+                                return (
+                                    <Table.Summary>
+                                        <Table.Summary.Row>
+                                            {dataQuery.result.columns.map(({ format, type }: any, index: number) => {
+                                                let value: any = "-";
+                                                if (format === FIELD_FORMAT.NumberFormat && type !== ColumnType.Measure) {
+                                                    value = dataQuery?.result?.summary[index];
+                                                } else if (format === FIELD_FORMAT.Price || (format === FIELD_FORMAT.NumberFormat && type === ColumnType.Measure)) {
+                                                    value = formatCurrency(dataQuery?.result?.summary[index]);
+                                                } else if (index === 0) {
+                                                    value = "Tổng";
+                                                }
+                                                return (
+                                                    <Table.Summary.Cell index={index} align="center" key={index}>
+                                                        <b>{value}</b>
+                                                    </Table.Summary.Cell>
+                                                );
+                                            })}
+                                        </Table.Summary.Row>
+                                    </Table.Summary>
+                                );
+                            }}>
+                            {dataQuery.result.columns.map((item: any, index: number) => {
+                                const { format, field, type } = item;
+                                return (
+                                    <Table.Column<any>
+                                        ellipsis
+                                        width={180}
+                                        align="center"
+                                        title={
+                                            <Tooltip
+                                                title={metadata ? getTranslatePropertyKey(metadata, field) : field}>
+                                                {metadata ? getTranslatePropertyKey(metadata, field) : field}
+                                            </Tooltip>
+                                        }
+                                        sorter={(a, b) => {
+                                            return 0;
+                                        }}
+                                        sortOrder={form.getFieldValue(ReportifyFormFields.orderBy) && form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field) ? (form.getFieldValue(ReportifyFormFields.orderBy).find((item: any[]) => item[0]?.toLowerCase() === field)[1]?.toLowerCase() === 'desc' ? 'descend' : 'ascend') : undefined}
+                                        key={index}
+                                        fixed={
+                                            index === 0 && format !== FIELD_FORMAT.Price && format !== FIELD_FORMAT.NumberFormat
+                                                ? "left"
+                                                : undefined
+                                        }
+                                        render={(value, record: Array<any>) => {
+                                            let data = record[index];
+                                            if (!data && typeof data !== FIELD_FORMAT.NumberFormat) {
+                                                return "-";
+                                            }
+                                            switch (format) {
+                                                case FIELD_FORMAT.Price:
+                                                    data = formatCurrency(data);
+                                                    break;
+                                                case FIELD_FORMAT.NumberFormat:
+                                                    data = type === ColumnType.Measure ? formatCurrency(data) : data;
+                                                    break;
+                                                case FIELD_FORMAT.Timestamp:
+                                                    data = formatReportTime(data, field);
+                                                    break;
+                                            }
+                                            const existedFilter = activeFilters.get(field);
+                                            const detailLink = DETAIL_LINKS.find(
+                                                ({ field: fieldKey, link }) => fieldKey === field
+                                            );
+                                            if (type === ColumnType.Property && field !== TIME.HOUR && (!existedFilter || existedFilter.value.length > 1 || (existedFilter.value.length === 1 && existedFilter.value[0] === 'Tất cả'))) {
+                                                return (
+                                                    <span className="link detail-link">
+                                                        <span onClick={() => handleQueryColumn(item, format === 'price' ? record[index] : data)}>{data}</span>
+                                                        {detailLink ? (
+                                                            <Link
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                to={`${detailLink.link}/${data}`}>
+                                                                <ExportOutlined className="external-link" />
+                                                            </Link>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </span>
+                                                );
+                                            } else {
+                                                return (
+                                                    <span className="detail-link">
+                                                        {data}
+                                                        {detailLink ? (
+                                                            <Link
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                to={`${detailLink.link}/${data}`}>
+                                                                <ExportOutlined className="external-link" />
+                                                            </Link>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </span>
+                                                );
+                                            }
+                                        }}
+                                    />
+                                );
+                            })}
+                        </Table>
+                    )}
+                </Card>
+                {/* Dùng để hứng form data và warning (khi các popup chưa đc render)*/}
+                <Form.Item hidden name={["orderBy"]} />
+                <Form.Item hidden name={["where"]} />
+                <Form.Item hidden name={["properties"]} />
+                <Form.Item
+                    hidden
+                    name={[ReportifyFormFields.column]}
+                    rules={[{ required: true, message: "Vui lòng chọn loại thống kê" }]}
+                />
+            </Form>
+        </AnalyticsStyle>
     );
 }
 

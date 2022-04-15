@@ -11,6 +11,7 @@ export const AnalyticsStyle = styled.div`
     align-items: flex-end;
     justify-content: start;
     gap: 20px;
+    flex-wrap: wrap;
 }
 .input-width{
     width: 250px;

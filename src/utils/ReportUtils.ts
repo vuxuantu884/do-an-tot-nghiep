@@ -42,12 +42,12 @@ const getRows = (rows: Array<string>) => {
 };
 
 const generateRQuery = (queryObject: AnalyticQuery) => {
+  const { columns: column, rows, cube, conditions, from, to, order_by } = queryObject;
   //validate queryObject
-  if (!queryObject.columns || !queryObject.cube) {
-    throw new Error("Query is not valid");
+  if (!column || !cube) {
+    return "";
   }
 
-  const { columns: column, rows, cube, conditions, from, to, order_by } = queryObject;
   let queryString = "SHOW";
   // column
   if (Array.isArray(column)) {
@@ -251,11 +251,38 @@ export const compare2RangeDate = (date1: moment.Moment[], date2: moment.Moment[]
 };
 
 export const removeSpacesAndEnterCharacters = (str: string) => {
-  if(str){
-  return str.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ");
-  }else{
+  if (str) {
+    return str.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ");
+  } else {
     return str;
   }
 };
 
+export const getChartQuery = (queryObject: AnalyticQuery, chartColumnSelected: string[]): string => {
+
+  if (!queryObject || chartColumnSelected.length === 0) {
+    return '';
+  }
+
+  const { conditions } = queryObject;
+  let mapperConditions;
+  if (conditions?.length) {
+    mapperConditions = conditions.map(condition => {
+      if (condition.findIndex(item => item === 'IN') !== -1) {
+        condition = [...condition.slice(0, 2), ...condition.slice(2).join("").split(",").map((item: string) => `'${item}'`).join(",")].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
+      }
+      return condition;
+    })
+  }
+  const params: AnalyticQuery = {
+    ...queryObject,
+    columns: chartColumnSelected.map(item => {
+      return { field: item }
+    }),
+    conditions: mapperConditions ? mapperConditions : conditions
+  } as AnalyticQuery;
+  const query = generateRQuery(params);
+
+  return query;
+}
 export { generateRQuery, checkArrayHasAnyValue };

@@ -40,6 +40,18 @@ export enum AnalyticCube {
   All = 'all'
 }
 
+export enum ColumnType {
+  Measure = "measure",
+  Property = "property"
+}
+
+export enum TimeAtOptionValue {
+  CreatedAt = `time:"created_at"`,
+  FinalizedAt = `time:"finalized_at"`,
+  CompletedAt = `time:"completed_at"`,
+  CancelledAt = `time:"cancelled_at"`,
+}
+
 export declare type QueryMode = "table" | "chart"
 export declare type ArrayString = Array<string>;
 export declare type ArrayAny = Array<any>;
@@ -92,6 +104,7 @@ export interface AnalyticTemplateParams {
   q: string;
   chart_q?: string;
   format?: "xls";
+  options?: string;
 }
 
 export interface AnalyticTemplateData {
@@ -103,18 +116,25 @@ export interface AnalyticTemplateData {
   iconImg: any;
   type: string;
   chartColumnSelected: string[];
+  timeAtOption: string;
+  chart_query?: string;
 }
 
 export interface AnalyticCustomizeTemplateForCreate {
   name: string;
   query: string;
   cube: string;
+  chartColumnSelected: string[];
+  timeAtOption: string;
+  chart_query?: string;
 }
 export interface AnalyticCustomize {
   id?: number;
   name: string;
   query: string;
-  cube: string;
+  group: string;
+  chart_query?: string;
+  options: string;
 }
 
 export interface AnalyticChartInfo {

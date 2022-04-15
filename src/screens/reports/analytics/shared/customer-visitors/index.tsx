@@ -1,9 +1,10 @@
-import { Button, Card, Form, Input, Select, Table, Tooltip } from "antd"
-import ContentContainer from "component/container/content.container"
-import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-visitors"
+import { Button, Card, Form, Input, Select, Table, Tooltip } from "antd";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
+import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-visitors";
 import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -12,8 +13,7 @@ import { getCustomerVisitors, updateCustomerVisitors } from "service/report/anal
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { CustomerVisitorsStyle } from "./index.style"
-import UrlConfig from "config/url.config";
+import { CustomerVisitorsStyle } from "./index.style";
 
 function CustomerVisitors() {
     const [form] = Form.useForm();
@@ -167,8 +167,8 @@ function CustomerVisitors() {
                 isLoading={loading}
                 title={'Nhập số lượng khách vào cửa hàng'}
                 breadcrumb={[{
-                    name: `Danh sách báo cáo bán hàng`,
-                    path: UrlConfig.ANALYTIC_SALES,
+                    name: `Danh sách báo cáo bán lẻ`,
+                    path: UrlConfig.ANALYTIC_SALES_OFFLINE,
                 }, { name: 'Nhập số lượng khách vào cửa hàng' }]}
             >
                 <Form form={form} name="filter-block" initialValues={initialFilterValues}>
