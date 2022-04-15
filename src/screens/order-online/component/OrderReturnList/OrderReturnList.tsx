@@ -41,10 +41,11 @@ import {StyledComponent} from "./OrderReturnList.styles";
 type PropTypes = {
   initQuery: ReturnSearchQuery;
   location: any;
+  isShowOfflineOrder: boolean;
 }
 
 function OrderReturnList(props: PropTypes) {
-  const {initQuery, location} = props;
+  const {initQuery, location, isShowOfflineOrder} = props;
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -345,6 +346,7 @@ function OrderReturnList(props: PropTypes) {
     exportFile({
       conditions: queryParams,
       type: "TYPE_EXPORT_ORDER_RETURN",
+      is_online: !isShowOfflineOrder ? "true": "false",
     })
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
