@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Select } from 'antd'
+import { Form, Input, Modal, Select } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import { ANALYTIC_TEMPLATE_GROUP, CUSTOMIZE_TEMPLATE, REPORT_NAMES } from 'config/report/report-templates';
 import UrlConfig from 'config/url.config';
@@ -29,16 +29,19 @@ function ModalCreateReport({
     const history = useHistory();
     const dispatch = useDispatch();
     const [templateList, setTemplateList] = useState<Array<AnalyticCustomizeTemplateForCreate>>([]);
-
     const onFinish = async (values: any) => {
-
         const { name, templateIndex } = values;
         const template = templateList.find((item, index) => templateIndex === index);
+        const { cube, query, timeAtOption, chart_query } = template as AnalyticCustomizeTemplateForCreate;
+        if (cube && query) {
+            const chartQuery = chart_query || '';
 
-        console.log(values)
-        if (template?.cube && template?.query) {
             const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, saveAnalyticsCustomService, {
-                query: template?.query, cube: template?.cube, name,
+                query: query,
+                group: cube,
+                name,
+                chart_query: chartQuery,
+                options: timeAtOption,
             });
             if (response) {
                 showSuccess("Tạo báo cáo thành công");
