@@ -175,6 +175,7 @@ export interface OrderSearchQuery {
   note: string | null;
   customer_note: string | null;
   tags: [];
+  marketing_campaign?: [];
   reference_code: string | null;
   search_term?: string | null;
 	services?: [];

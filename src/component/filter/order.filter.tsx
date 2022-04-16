@@ -362,6 +362,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         case "tags":
           onFilter && onFilter({ ...params, tags: [] });
           break;
+        case "marketing_campaign":
+          onFilter && onFilter({ ...params, marketing_campaign: [] });
+          break;
         case "reference_code":
           onFilter && onFilter({ ...params, reference_code: "" });
           break;
@@ -423,6 +426,7 @@ console.log('listSource', listSource)
         ? params.shipper_codes
         : [params.shipper_codes],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
+      marketing_campaign: Array.isArray(params.marketing_campaign) ? params.marketing_campaign : [params.marketing_campaign],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
@@ -1057,6 +1061,21 @@ console.log('listSource', listSource)
         value: <React.Fragment>{textStatus}</React.Fragment>,
       });
     }
+    if (initialValues.marketing_campaign.length) {
+      let textStatus = "";
+      for (let i = 0; i < initialValues.marketing_campaign.length; i++) {
+        if (i < initialValues.marketing_campaign.length - 1) {
+          textStatus = textStatus + initialValues.marketing_campaign[i] + splitCharacter;
+        } else {
+          textStatus = textStatus + initialValues.marketing_campaign[i];
+        }
+      }
+      list.push({
+        key: "marketing_campaign",
+        name: "Marketing Campaign",
+        value: <React.Fragment>{textStatus}</React.Fragment>,
+      });
+    }
 
     if (initialValues.reference_code) {
       list.push({
@@ -1068,40 +1087,7 @@ console.log('listSource', listSource)
     return list;
   }, [
     filterTagFormatted,
-    initialValues.issued_on_min,
-    initialValues.issued_on_max,
-    initialValues.finalized_on_min,
-    initialValues.finalized_on_max,
-    initialValues.completed_on_min,
-    initialValues.completed_on_max,
-    initialValues.cancelled_on_min,
-    initialValues.cancelled_on_max,
-    initialValues.expected_receive_on_min,
-    initialValues.expected_receive_on_max,
-    initialValues.exported_on_min,
-    initialValues.exported_on_max,
-    initialValues.order_status,
-    initialValues.return_status,
-    initialValues.sub_status_code,
-    initialValues.fulfillment_status,
-    initialValues.payment_status,
-    initialValues.variant_ids.length,
-    initialValues.assignee_codes.length,
-    initialValues.services.length,
-    initialValues.account_codes.length,
-    initialValues.coordinator_codes.length,
-    initialValues.marketer_codes.length,
-    initialValues.price_min,
-    initialValues.price_max,
-    initialValues.payment_method_ids,
-    initialValues.delivery_types,
-    initialValues.delivery_provider_ids,
-    initialValues.shipper_codes,
-    initialValues.channel_codes,
-    initialValues.note,
-    initialValues.customer_note,
-    initialValues.tags,
-    initialValues.reference_code,
+    initialValues,
     assigneeFound,
     listStore,
     listSources,
@@ -1838,6 +1824,19 @@ console.log('listSource', listSource)
                           </CustomSelect.Option>
                         ))}
                     </CustomSelect>
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8}>
+                  <Item name="marketing_campaign" label="Marketing Campaign">
+                    <CustomSelect
+                      mode="tags"
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      allowClear
+                      placeholder="Điền 1 hoặc nhiều tag"
+                      style={{ width: "100%" }}
+                    />
                   </Item>
                 </Col>
               </Row>
