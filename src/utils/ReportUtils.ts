@@ -14,16 +14,16 @@ const getCondistions = (conditions: AnalyticConditions) => {
     if (Array.isArray(conditionsElement) && conditionsElement.length >= 5) {
       // copy array from item 2nd to end
       const value: Array<string> = conditionsElement.slice(2);
+      
       // convert ["camel", ",", "elephant"] to "("camel", "elephant")"
-
-      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]}  (${value.join("")}) AND`;
+      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} (${value.join("")}) AND`;
     } else if (Array.isArray(conditionsElement) && conditionsElement.length === 3) {
       // check trường hợp dùng operator == != >= .... : mảng conditionsElement có độ dài bằng 3
-      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} '${conditionsElement[2]}' AND`;
+      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} ${conditionsElement[2]} AND`;
     }
   });
 
-  return whereValue.slice(0, -3);
+  return whereValue.slice(0, -4);
 };
 
 const getRows = (rows: Array<string>) => {
@@ -64,7 +64,7 @@ const generateRQuery = (queryObject: AnalyticQuery) => {
   // conditions WHERE
   if (conditions) {
     const whereValue = getCondistions(conditions);
-    queryString += whereValue ? ` WHERE ${whereValue}` : "";
+    queryString += whereValue ? ` WHERE${whereValue}` : "";
   }
   // since
   if (from) {

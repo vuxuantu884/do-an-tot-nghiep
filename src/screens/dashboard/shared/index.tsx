@@ -2,7 +2,7 @@ import Top1SVG from "assets/icon/top-1-rank-income.svg";
 import { formatCurrency } from "utils/AppUtils";
 import { currencyAbbreviation } from "utils/DashboardUtils";
 import { ChartColor } from "../index.style";
-import {DashboardContainer} from "../index.style";
+import { DashboardContainer } from "../index.style";
 
 export const CustomTooltip = (data: any) => {
     const { active, payload, label, labelName } = data;
@@ -10,12 +10,12 @@ export const CustomTooltip = (data: any) => {
     if (active && payload && payload.length) {
         return (
             <DashboardContainer>
-            <div className="monthly-chart__tooltip">
-                <p className="tooltip-title">{label}</p>
-                {payload.map((item: any) => (
-                    <span style={{ color: item?.color || "black" }}>{`${labelName[item.dataKey]} : ${formatCurrency(parseFloat(item.value).toFixed(2))}₫`}<br /></span>
-                ))}
-            </div>
+                <div className="monthly-chart__tooltip">
+                    <p className="tooltip-title">{label}</p>
+                    {payload.map((item: any) => (
+                        <span style={{ color: item?.color || "black" }}>{`${labelName[item.dataKey]} : ${formatCurrency(parseFloat(item.value).toFixed(2))}₫`}<br /></span>
+                    ))}
+                </div>
             </DashboardContainer>
         );
     }
@@ -23,11 +23,11 @@ export const CustomTooltip = (data: any) => {
     return null;
 };
 export const CustomTooltipUserRank = (data: any) => {
-    const { active, payload,label, labelName } = data;
+    const { active, payload, label, labelName } = data;
 
-    
+
     if (active && payload && payload.length) {
-         console.log(payload)
+        console.log(payload)
         return (
             <div className="monthly-chart__tooltip">
                 <p className="tooltip-title">{label}</p>
@@ -56,7 +56,6 @@ export const CustomizedYAxisTickMonthly = (props: any) => {
 export const CustomizedXAxisTickMonthly = (props: any) => {
     const { x, y, payload } = props;
     const { value } = payload;
-    console.log(typeof value);
     return (
         <g transform={`translate(${x},${y})`}>
             <text
@@ -85,4 +84,28 @@ export const CustomizedYAxisTickRankUserImcome = (props: any) => {
             </text>
         </g>
     );
+};
+
+export function TooltipContentRankChart(data: any) {
+    const { active, payload, label } = data;
+    if (active && payload && payload.length) {
+        const { description, top } = payload[0].payload;
+        return (
+            <div className="monthly-chart__tooltip">
+                <p className="tooltip-title">{top === 1 && <img src={Top1SVG} alt="top 1" />} &nbsp;{label ? label.toUpperCase() : ""}<br />
+                    {description}
+                </p>
+
+                {payload.map((item: any, index: number) => (
+                    <span style={{ color: item?.color || "black" }} key={index}>
+                        {`${typeof item.name === "string" ? (item.name + ": ") : ""}`}
+                        {`${formatCurrency(parseFloat(item.value).toFixed(2))}₫`}<br />
+                    </span>
+                ))}
+            </div>
+
+        );
+    }
+
+    return null;
 };

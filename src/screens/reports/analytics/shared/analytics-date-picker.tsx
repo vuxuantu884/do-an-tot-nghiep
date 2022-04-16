@@ -107,7 +107,6 @@ function AnalyticsDatePicker(props: Props) {
                                                     }
                                                     return dateItem;
                                                 })]);
-                                                console.log(value)
                                             }}>
                                             {item.label}
                                         </Button>
