@@ -306,11 +306,16 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
    const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
      return [
+      {
+        title: "",
+        fixed: true,
+        width: 50,
+        max: 50
+      },
        {
          title: "Kho hàng",
          dataIndex: "store_id",
          fixed: true,
-         width: 262,
          render (value) {
            return storeRef.current.get(value);
          },

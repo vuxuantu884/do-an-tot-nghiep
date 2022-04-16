@@ -13,7 +13,6 @@ export const RankChartStyle = styled.div`
     }
     &__legend {
       display: flex;
-      margin-top: 20px;
       justify-content: center;
       max-width: 500px;
     }

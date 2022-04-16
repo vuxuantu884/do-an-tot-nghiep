@@ -4,7 +4,7 @@ export const currencyAbbreviation = (value: number, format: FIELD_FORMAT | strin
   const { Price } = FIELD_FORMAT;
   switch (format) {
     case Price:
-      if(typeof value !== 'number') {
+      if (typeof value !== 'number') {
         return value;
       }
       const absValue = Math.abs(value);
@@ -18,9 +18,25 @@ export const currencyAbbreviation = (value: number, format: FIELD_FORMAT | strin
         return value.toString();
       } else {
         return value.toString() + " Đ";
-      }  
+      }
     default:
       return value.toString();
   }
-  
+
 };
+
+export const setDepartmentQuery = (departmentIdList: Array<number | string>, department: string = "pos_location_name") => {
+  let condition: any = []
+  if (departmentIdList.length > 0) {
+    // convert [1,2,3] to [1,",",2,",",3]
+    departmentIdList.forEach((item, index) => {
+      condition.push(typeof item === "string" ? `'${item}'` : item);
+      if (index !== departmentIdList.length - 1) {
+        condition.push(",");
+      }
+    })
+
+  }
+  const operator = departmentIdList.length > 1 ? "IN" : "==";
+  return [[department, operator, ...condition]];
+}
