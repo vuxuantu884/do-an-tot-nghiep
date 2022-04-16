@@ -18,7 +18,7 @@ import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory, useParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   deleteInventoryTransferAction,
   getDetailInventoryTransferAction,
@@ -68,8 +68,8 @@ import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
 import TextArea from "antd/es/input/TextArea";
-import { checkUserPermission } from "../../../utils/AuthUtil";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+// import { checkUserPermission } from "../../../utils/AuthUtil";
+// import { RootReducerType } from "../../../model/reducers/RootReducerType";
 // import moment from "moment";
 export interface InventoryParams {
   id: string;
@@ -119,13 +119,13 @@ const DetailTicket: FC = () => {
   const [form] = Form.useForm();
   const printElementRef = useRef(null);
 
-  const currentPermissions: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer.permissions
-  );
-
-  const currentStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores
-  );
+  // const currentPermissions: string[] = useSelector(
+  //   (state: RootReducerType) => state.permissionReducer.permissions
+  // );
+  //
+  // const currentStores = useSelector(
+  //   (state: RootReducerType) => state.userReducer.account?.account_stores
+  // );
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -703,7 +703,7 @@ const DetailTicket: FC = () => {
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
-            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
+            // disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
