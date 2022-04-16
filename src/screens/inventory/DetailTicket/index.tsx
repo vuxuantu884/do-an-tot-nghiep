@@ -491,6 +491,23 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dispatch,onSelectProduct, onSearchProduct]);
 
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barCode = barCode + event.key;
+        } else if (event.key === "Enter") {
+          if (barCode !== "" && event) {
+            handleSearchProduct(event.key,barCode);
+            barCode = "";
+          }
+        }
+        return;
+      }
+    },
+    [handleSearchProduct]
+  );
+
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
 
@@ -518,11 +535,13 @@ const DetailTicket: FC = () => {
   },[onSelectProduct])
 
   useEffect(() => {
-      window.addEventListener("keydown", eventKeydown);
-      return () => {
-        window.removeEventListener("keydown", eventKeydown);
-      };
-  }, [eventKeydown]);
+    window.addEventListener("keydown", eventKeydown);
+    window.addEventListener("keypress", eventKeyPress);
+    return () => {
+      window.removeEventListener("keydown", eventKeydown);
+      window.addEventListener("keypress", eventKeyPress);
+    };
+}, [eventKeyPress, eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
