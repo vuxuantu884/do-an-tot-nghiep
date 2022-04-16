@@ -360,7 +360,7 @@ function OrderReturnList(props: PropTypes) {
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }, [params, selectedRowCodes, listExportFile]);
+  }, [params, isShowOfflineOrder, selectedRowCodes, listExportFile]);
 
   const checkExportFile = useCallback(() => {
     
