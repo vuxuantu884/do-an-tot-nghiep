@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container"
 import ButtonCreate from "component/header/ButtonCreate"
 import { InventoryDefectsPermission } from "config/permissions/inventory-defects.permission"
 import UrlConfig from "config/url.config"
-import ListInventoryDefect from './ListInventoryDefect'
+import ListInventoryDefect from './components/ListInventoryDefect'
 
 
 const InventoryDefects: React.FC = () => {

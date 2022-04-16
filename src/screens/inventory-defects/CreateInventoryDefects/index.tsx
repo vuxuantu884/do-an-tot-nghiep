@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Input, Row, Select, Space, Table } from "antd"
+import { Button, Card, Col, Form, Image, Input, Row, Select, Space, Table } from "antd"
 import { Store } from "antd/lib/form/interface"
 import ContentContainer from "component/container/content.container"
 import CustomAutoComplete from "component/custom/autocomplete.cusom"
@@ -9,7 +9,6 @@ import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config"
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react"
 import { AiOutlineClose } from "react-icons/ai"
 import { Link, useHistory } from "react-router-dom"
-import imgDefIcon from "assets/img/img-def.svg";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import BottomBarContainer from "component/container/bottom-bar.container"
 import ModalConfirm from "component/modal/ModalConfirm"
@@ -22,9 +21,10 @@ import { VariantResponse } from "model/product/product.model"
 import ProductItem from "screens/purchase-order/component/product-item"
 import { showError, showSuccess } from "utils/ToastUtils"
 import { findAvatar } from "utils/AppUtils"
-import { InventoryDefectFields, InventoryItemsDefectedDetail, LineItemDefect } from "model/inventory-defects"
+import { InventoryDefectFields, LineItemDefect } from "model/inventory-defects"
 import { cloneDeep } from "lodash"
 import { createInventoryDefect } from "service/inventory/defect/index.service"
+import ImageProduct from "screens/products/product/component/image-product.component"
 
 export interface SummaryDefect {
   total_defect: number;
@@ -57,12 +57,13 @@ const InventoryDefectCreate: React.FC = () => {
     {
       title: "Ảnh",
       width: "60px",
+      align: "center",
       dataIndex: "image_url",
       render: (value: string) => {
         return (
-          <div className="product-item-image" >
-            <img src={!value ? imgDefIcon : value} alt="" className="" />
-          </div>
+          <>
+          {value ? <Image width={40} height={40} placeholder="Xem" src={value ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={value} />}
+          </>
         );
       },
     },
@@ -72,7 +73,7 @@ const InventoryDefectCreate: React.FC = () => {
       align: "center",
       className: "ant-col-info",
       dataIndex: "sku",
-      render: (value: string, record: any, index: number) => (
+      render: (value: string, record: LineItemDefect, index: number) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -85,6 +86,9 @@ const InventoryDefectCreate: React.FC = () => {
             </div>
             <div className="product-item-name">
               <span className="product-item-name-detail">{value}</span>
+            </div>
+            <div className="product-item-name">
+              <span className="product-item-name-detail">{record.variant_name}</span>
             </div>
           </div>
         </div>
@@ -187,22 +191,27 @@ const InventoryDefectCreate: React.FC = () => {
   }, [])
 
   const onFinish = async () => {
-    if (dataTable.length === 0) {
+    if (!formStoreData || dataTable.length === 0 || !formStoreData.id || !formStoreData.name) {
       showError('Chưa có sản phẩm nào được chọn')
       return
     }
     setIsLoading(true)
-    const dataSubmit: Array<InventoryItemsDefectedDetail> = dataTable.map((item: InventoryItemsDefectedDetail) => {
+    const itemsDefect = dataTable.map((item: LineItemDefect) => {
       return {
-        code: item.code,
         defect: item.defect,
         note: item.note,
         sku: item.sku,
-        store: item.store,
-        store_id: item.store_id,
-        variant_id: item.variant_id
+        code: item.code,
+        variant_id: item.variant_id,
+        product_id: item.product_id,
+        barcode: item.barcode
       }
     })
+    const dataSubmit = {
+      store_id: formStoreData.id,
+      store: formStoreData.name,
+      items: itemsDefect
+    }
     await callApiNative({ isShowError: true }, dispatch, createInventoryDefect, dataSubmit)
     setIsLoading(false)
     showSuccess("Thêm sản phẩm lỗi thành công");
@@ -215,8 +224,8 @@ const InventoryDefectCreate: React.FC = () => {
 
     data?.forEach((element: LineItemDefect) => {
       totalDefect += element.defect;
-      if(element.on_hand === null || element.on_hand === undefined) element.on_hand = 0
-      totalOnHand += element.on_hand*1 
+      if (element.on_hand === null || element.on_hand === undefined) element.on_hand = 0
+      totalOnHand += element.on_hand * 1
     });
 
     setObjSummaryTable({
@@ -244,7 +253,6 @@ const InventoryDefectCreate: React.FC = () => {
 
   const onSearch = useCallback(
     async (value: string) => {
-      // const storeId = form.getFieldValue("defect_store_id");
       if (!defectStoreIdBak) {
         showError("Vui lòng chọn cửa hàng");
         return;
@@ -293,13 +301,12 @@ const InventoryDefectCreate: React.FC = () => {
   }, [dataTable, calculatingDefectAndInventory])
 
   const onSelectProduct = useCallback(async (value: string) => {
-    const dataTemp = cloneDeep(dataTable);
     const selectedItem = variantData?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
     if (formStoreData && selectedItem) {
       let item: any = {}
-      if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
+      if (!dataTable.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
         item = {
           id: selectedItem.id,
           variant_id: selectedItem.id,
@@ -311,29 +318,31 @@ const InventoryDefectCreate: React.FC = () => {
           sku: selectedItem.sku,
           defect: 1,
           store: formStoreData.name,
-          store_id: formStoreData.id
+          store_id: formStoreData.id,
+          product_id: selectedItem.product_id
         }
         calculatingDefectAndInventory(dataTable.concat([{ ...item }]));
         setDataTable((prev: Array<LineItemDefect>) =>
           prev.concat([{ ...item }])
         );
       } else {
-        const itemExist = dataTemp.find((variant: VariantResponse) => variant.id === selectedItem.id)
-        const index = dataTemp.findIndex((variant: VariantResponse) => variant.id === selectedItem.id)
+        const dataTableClone = cloneDeep(dataTable);
+        const itemExist = dataTableClone.find((variant: LineItemDefect) => variant.id === selectedItem.id)
+        const index = dataTableClone.findIndex((variant: LineItemDefect) => variant.id === selectedItem.id)
         item = {
           ...itemExist,
           defect: itemExist.defect + 1
         }
-        const newDataTable = cloneDeep(dataTable)
-        newDataTable[index] = item
-        setDataTable(newDataTable)
-        calculatingDefectAndInventory(newDataTable);
+        // const newDataTable = cloneDeep(dataTable)
+        dataTableClone[index] = item
+        setDataTable(dataTableClone)
+        calculatingDefectAndInventory(dataTableClone);
       }
     }
   }, [dataTable, variantData, calculatingDefectAndInventory, formStoreData]);
 
   const onChangeStore = useCallback(() => {
-    const storeId = form.getFieldValue("defect_store_id");
+    const storeId = form.getFieldValue("store_id");
 
     setDefectStoreIdBak(storeId);
     setIsShowModalChangeStore(false);
@@ -371,7 +380,7 @@ const InventoryDefectCreate: React.FC = () => {
             </Col>
             <Col span={21}>
               <Form.Item
-                name="defect_store_id"
+                name="store_id"
                 label=""
                 rules={[
                   {
@@ -406,7 +415,7 @@ const InventoryDefectCreate: React.FC = () => {
                     stores.length > 0 &&
                     stores.map((item, index) => (
                       <Option
-                        key={"defects_store_id" + index}
+                        key={"store_id" + index}
                         value={item.id.toString()}
                       >
                         {item.name}

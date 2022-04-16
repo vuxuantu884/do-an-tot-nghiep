@@ -12,6 +12,8 @@ export interface LineItemDefect {
     defect: number;
     store_id: number;
     store: string;
+    product_id: string;
+    barcode?: string;
     [name: string]: DefectValue;
 }
 
@@ -23,9 +25,10 @@ export interface InventorySearchItem {
 }
 
 export interface InventoryItemsDefectedDetail {
-    id?: number; 
+    id: number; 
     code: string;
     sku: string;
+    barcode?: string;
     variant_id: number,
     variant_name?: string; 
     image_url?: string;
@@ -34,6 +37,13 @@ export interface InventoryItemsDefectedDetail {
     defect: number;
     store_id: number;
     store: string;
+    product_id: number;
+}
+
+export interface DataRequestDefectItems {
+    store: string;
+    store_id: number;
+    items: InventoryItemsDefectedDetail[]
 }
 
 
@@ -54,8 +64,10 @@ export interface InventoryDefectResponse {
     defect: number;
     note: string;
     image_url? :string;
-    on_hand: number;
-    product_id? :number;
+    on_hand?: number;
+    product_id :number;
+    barcode?: string;
+    variant_name?: string;
 }
 
 export const InventoryDefectFields = {

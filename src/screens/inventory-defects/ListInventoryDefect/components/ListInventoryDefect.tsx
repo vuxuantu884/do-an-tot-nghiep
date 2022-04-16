@@ -3,7 +3,7 @@ import CustomSelect from "component/custom/select.custom";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { InventoryDefectFields, InventoryDefectResponse, InventorySearchItem, LineItemDefect } from "model/inventory-defects";
+import { DataRequestDefectItems, InventoryDefectFields, InventoryDefectResponse, InventorySearchItem, LineItemDefect } from "model/inventory-defects";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
@@ -16,7 +16,7 @@ import { useDispatch } from "react-redux";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import { Store } from "antd/lib/form/interface";
 import EditNote from "screens/order-online/component/edit-note";
-import { deleteInventoryDefect, editInventoryDefect, getListInventoryDefect } from "service/inventory/defect/index.service";
+import { createInventoryDefect, deleteInventoryDefect, getListInventoryDefect } from "service/inventory/defect/index.service";
 import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import UrlConfig from "config/url.config";
@@ -33,8 +33,6 @@ const initQuery: InventorySearchItem = {
   store_id: null,
   condition: null,
 }
-
-
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch()
@@ -80,32 +78,53 @@ const ListInventoryDefect: React.FC = () => {
   }, [dispatch])
 
   useEffect(() => {
-    getStores()
     getInventoryDefects()
-  }, [getStores, getInventoryDefects, params])
+  }, [getInventoryDefects, params])
 
+  useEffect(() => {
+    getStores()
+  }, [getStores])
+
+  const isNumeric = (value: any) => {
+    return /^-?\d+$/.test(value);
+  }
   const editItemDefect = useCallback(async (value: any, field: string, id: number) => {
     const listDefect = cloneDeep(data.items) ?? [];
-    if (InventoryDefectFields.defect === field) {
-      if (isNaN(parseFloat(value))) {
-        showError('Bạn cần nhập số');
-        return
-      } else if (parseInt(value) <= 0) {
-        showError('Số lỗi không được nhỏ hơn 1');
-        return
-      }
-      value = parseInt(value)
-    }
     const itemObject = listDefect.find((el: InventoryDefectResponse) => el.id === id)
+    let itemEdit: any = {}
     if (itemObject && !isEmpty(itemObject)) {
-      const itemEdit: InventoryDefectResponse = {
-        ...itemObject,
-        [field]: value,
+      if (InventoryDefectFields.defect === field) {
+        if (!isNumeric(value)) {
+          showError('Bạn cần nhập số');
+          return
+        }
+        if (value <= 0) {
+          showError('Số lỗi không được nhỏ hơn 1');
+          return
+        }
+        if (itemObject.defect === value) {
+          value = 0
+        } else {
+          value = value - itemObject.defect
+        }
+        itemEdit = { ...itemObject, [field]: value }
+      } else {
+        itemEdit = { ...itemObject, [field]: value, [InventoryDefectFields.defect]: 0 }
       }
-      await callApiNative({ isShowError: true }, dispatch, editInventoryDefect, itemEdit)
+      const itemSubmit: DataRequestDefectItems = {
+        store: itemObject.store,
+        store_id: itemObject.store_id,
+        items: [itemEdit]
+      }
+      // phía BE viết chức năng update và create chung 1 api
+      const res = await callApiNative({ isShowError: true }, dispatch, createInventoryDefect, itemSubmit)
+      if (res) {
+        getInventoryDefects()
+        showSuccess('Sửa sản phẩm thành công')
+      } else {
+        showError('Sửa sản phẩm không thành công')
+      }
     }
-    getInventoryDefects()
-    showSuccess('Sửa sản phẩm thành công')
   }, [dispatch, data, getInventoryDefects])
 
   const handleDelete = useCallback(async (id: number) => {
@@ -138,7 +157,14 @@ const ListInventoryDefect: React.FC = () => {
         fixed: "left",
         visible: true,
         render: (text: string, item: InventoryDefectResponse) => {
-          return (item.product_id ? (<Link to={`${UrlConfig.VARIANTS}/${item.variant_id}`}>{text}</Link>) : (<Link to={`${UrlConfig.PRODUCT}/${item.product_id}/${UrlConfig.VARIANTS}/${item.variant_id}`}>{text}</Link>));
+          return (
+            <>
+            <div>
+              (<Link to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}>{text}</Link>);
+            </div>
+            <div>{item.variant_name}</div>
+            </>
+          )
         },
       },
       {
@@ -261,18 +287,18 @@ const ListInventoryDefect: React.FC = () => {
     [params, history]
   );
 
-  const onFinish = useCallback(async () => {
-    const skuValue = form.getFieldValue('sku')
-    const store_id = form.getFieldValue('store_id')
-    const queryString = generateQuery({ ...params, condition: skuValue, store_id })
-    await callApiNative({ isShowError: true, isShowLoading: true }, dispatch, getListInventoryDefect, queryString)
-  }, [form, dispatch, params,])
+  const onFinish = useCallback(async (value) => {
+    const newParam = { ...params, store_id: value.store_id, condition: value.condition }
+    setParams(newParam)
+    const queryParam = generateQuery(newParam)
+    history.push(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+  }, [history, params])
 
   return (
     <Card>
       <div className="custom-filter" style={{ paddingBottom: 20 }}>
         <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
-          <Item style={{ flex: 1 }} name="sku" className="input-search">
+          <Item style={{ flex: 1 }} name="condition" className="input-search">
             <Input
 
               prefix={<img src={search} alt="" />}
