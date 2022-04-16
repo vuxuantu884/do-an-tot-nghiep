@@ -106,6 +106,8 @@
     "redux-devtools-extension": "^2.13.9"
   },
   "resolutions": {
-    "react-error-overlay": "6.0.9"
+    "react-error-overlay": "6.0.9",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0"
   }
 }
