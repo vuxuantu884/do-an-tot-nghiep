@@ -107,9 +107,9 @@ const ExportModal: React.FC<ExportModalProps> = (
       {!editFields && statusExport === 1 && (
       <div>
         <p style={{ fontWeight: 500}}>Giới hạn kết quả xuất</p>
-        <Radio.Group name="radiogroup" defaultValue={selected ? 3 : 1} onChange={(e) => setOptionExport(e.target.value)}>
+        <Radio.Group name="radiogroup" defaultValue={selected ? 3 : (type === "orders" ? 2 : 1)} onChange={(e) => setOptionExport(e.target.value)}>
           <Space direction="vertical">
-            <Radio value={1}>Tất cả {text}</Radio>
+            <Radio value={1} disabled={type === "orders"}>Tất cả {text}</Radio>
             <Radio value={2}>{text1} trên trang này</Radio>
             <Radio value={3} disabled={!selected}>Các {text} được chọn</Radio>
             <Radio value={4}>{total} {text} phù hợp với điều kiện tìm kiếm hiện tại</Radio>
