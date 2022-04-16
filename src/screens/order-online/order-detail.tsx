@@ -79,7 +79,7 @@ import CardShowReturnProducts from "./order-return/components/CardShowReturnProd
 import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 
-const {Panel} = Collapse;
+const { Panel } = Collapse;
 
 type PropType = {
   id?: string;
@@ -133,9 +133,9 @@ const OrderDetail = (props: PropType) => {
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] = useState<
-  OrderReasonModel|null
+    OrderReasonModel | null
   >(null);
-  
+
   const orderCancelFulfillmentReasonArr = [
     {
       title: "Khách hàng hủy",
@@ -374,7 +374,7 @@ const OrderDetail = (props: PropType) => {
 
   const handleCancelOrder = useCallback(
     (reason_id: string, sub_reason_id: string, reason: string) => {
-      if(!OrderDetail?.id) {
+      if (!OrderDetail?.id) {
         return;
       }
       dispatch(
@@ -452,7 +452,7 @@ const OrderDetail = (props: PropType) => {
   }
 
   const cancelFulfillmentAndUpdateFromRef = useCallback(() => {
-    if(updateShipmentCardRef.current) {
+    if (updateShipmentCardRef.current) {
       updateShipmentCardRef.current.handleCancelFulfillmentAndUpdate()
     }
   }, []);
@@ -481,7 +481,7 @@ const OrderDetail = (props: PropType) => {
             "print-type": "order",
             "print-dialog": true,
           };
-          if(OrderDetail?.order_return_origin?.id) {
+          if (OrderDetail?.order_return_origin?.id) {
             params = {
               action: "print",
               ids: [OrderDetail?.order_return_origin?.id],
@@ -502,7 +502,7 @@ const OrderDetail = (props: PropType) => {
         case "change_status_rts":
           changeLazadaOrderStatus(EcommerceOrderStatus.READY_TO_SHIP);
           break;
-        case "cancelFulfillmentAndUpdate": 
+        case "cancelFulfillmentAndUpdate":
           cancelFulfillmentAndUpdateFromRef();
           break;
         default:
@@ -560,7 +560,7 @@ const OrderDetail = (props: PropType) => {
   const renderBankAccount = (payment: any) => {
     let arr = [payment.bank_account_number, payment.bank_account_holder];
     let arrResult = arr.filter(single => single);
-    if(arrResult.length > 0) {
+    if (arrResult.length > 0) {
       return ` (${arrResult.join(" - ")})`
     }
   };
@@ -588,11 +588,11 @@ const OrderDetail = (props: PropType) => {
     if (!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
-    const trackingCode =  OrderDetail?.fulfillments[0].shipment?.tracking_code;
-    const pushingStatus =  OrderDetail?.fulfillments[0].shipment?.pushing_status;
+    const trackingCode = OrderDetail?.fulfillments[0].shipment?.tracking_code;
+    const pushingStatus = OrderDetail?.fulfillments[0].shipment?.pushing_status;
     let isRequest = true;
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-    let getTrackingCode = setInterval(()=> {
+    let getTrackingCode = setInterval(() => {
       if (isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
         getOrderDetail(id).then(response => {
           if (response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
@@ -845,7 +845,7 @@ const OrderDetail = (props: PropType) => {
                     title={
                       <Space>
                         <div className="d-flex">
-                          <span className="title-card">THANH TOÁN</span>
+                          <span className="title-card">THANH TOÁNss</span>
                         </div>
                         {checkPaymentStatusToShow(OrderDetail) === -1 && (
                           <Tag className="orders-tag orders-tag-default">
@@ -921,7 +921,7 @@ const OrderDetail = (props: PropType) => {
                             ghost
                           >
                             {OrderDetail.total === SumCOD(OrderDetail) &&
-                            OrderDetail.total === totalPaid ? (
+                              OrderDetail.total === totalPaid ? (
                               ""
                             ) : (
                               <React.Fragment>
@@ -951,12 +951,12 @@ const OrderDetail = (props: PropType) => {
                                                   ? "Hoàn tiền cho khách"
                                                   : payment.payment_method}
                                               </b>
-                                              <span style={{marginLeft: 12}}>
+                                              <span style={{ marginLeft: 12 }}>
                                                 {payment.reference}
                                               </span>
-                                              {payment.bank_account_number ? renderBankAccount(payment): null}
+                                              {payment.bank_account_number ? renderBankAccount(payment) : null}
                                               {payment.payment_method_id === 5 && (
-                                                <span style={{marginLeft: 10}}>
+                                                <span style={{ marginLeft: 10 }}>
                                                   {payment.amount / 1000} điểm
                                                 </span>
                                               )}
@@ -1015,13 +1015,7 @@ const OrderDetail = (props: PropType) => {
                                     showPartialPayment={true}
                                     isVisibleUpdatePayment={isVisibleUpdatePayment}
                                     amount={
-                                      OrderDetail.total_line_amount_after_line_discount -
-                                      getAmountPayment(OrderDetail.payments) -
-                                      (OrderDetail?.discounts &&
-                                        OrderDetail?.discounts.length > 0 &&
-                                        OrderDetail?.discounts[0]?.amount
-                                        ? OrderDetail?.discounts[0].amount
-                                        : 0)
+                                      OrderDetail.total_line_amount_after_line_discount
                                     }
                                     disabled={
                                       stepsStatusValue === OrderStatus.CANCELLED ||
@@ -1034,6 +1028,7 @@ const OrderDetail = (props: PropType) => {
                                     listPaymentMethods={listPaymentMethods}
                                     form={form}
                                     isDisablePostPayment={isDisablePostPayment}
+                                    orderPayment={OrderDetail.payments}
                                   />
                                 )}
                               </Panel>
@@ -1057,25 +1052,25 @@ const OrderDetail = (props: PropType) => {
                                             COD
                                             {OrderDetail.fulfillments[0].status !==
                                               "shipped" ? (
-                                                <Tag
-                                                  className="orders-tag orders-tag-warning"
-                                                  style={{ marginLeft: 10 }}
-                                                >
-                                                  Đang chờ thu
-                                                </Tag>
-                                              ) : (
-                                                <Tag
-                                                  className="orders-tag orders-tag-success"
-                                                  style={{
-                                                    backgroundColor:
-                                                      "rgba(39, 174, 96, 0.1)",
-                                                    color: "#27AE60",
-                                                    marginLeft: 10,
-                                                  }}
-                                                >
-                                                  Đã thu COD
-                                                </Tag>
-                                              )}
+                                              <Tag
+                                                className="orders-tag orders-tag-warning"
+                                                style={{ marginLeft: 10 }}
+                                              >
+                                                Đang chờ thu
+                                              </Tag>
+                                            ) : (
+                                              <Tag
+                                                className="orders-tag orders-tag-success"
+                                                style={{
+                                                  backgroundColor:
+                                                    "rgba(39, 174, 96, 0.1)",
+                                                  color: "#27AE60",
+                                                  marginLeft: 10,
+                                                }}
+                                              >
+                                                Đã thu COD
+                                              </Tag>
+                                            )}
                                           </b>
                                           <span className="amount">
                                             {OrderDetail !== null &&
@@ -1110,8 +1105,22 @@ const OrderDetail = (props: PropType) => {
                         </div>{" "}
                       </div>
                     )}
+                    {isShowPaymentPartialPayment === false && (
+                      <div className="text-right">
+                        <Divider style={{ margin: "10px 0" }} />
+                        <Button
+                          type="primary"
+                          className="ant-btn-outline fixed-button"
+                          onClick={() => setShowPaymentPartialPayment(true)}
+                          style={{ marginTop: 10 }}
+                        // Cho sửa thanh toán đơn hàng ngay cả khi thành công
+                        >
+                          Cập nhật thanh toán
+                        </Button>
+                      </div>
+                    )}
 
-                    {(OrderDetail?.fulfillments &&
+                    {/* {(OrderDetail?.fulfillments &&
                       OrderDetail?.fulfillments.length > 0 &&
                       OrderDetail?.fulfillments[0].shipment &&
                       OrderDetail?.fulfillments[0].shipment.cod !== null) ||
@@ -1136,7 +1145,7 @@ const OrderDetail = (props: PropType) => {
                               Thanh toán
                             </Button>
                           </div>
-                        ))}
+                        ))} */}
                   </Card>
                 )}
 

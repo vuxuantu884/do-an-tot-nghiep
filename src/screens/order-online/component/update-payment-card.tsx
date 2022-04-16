@@ -6,7 +6,7 @@ import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { UpdatePaymentAction } from "domain/actions/order/order.action";
 import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { OrderResponse } from "model/response/order/order.response";
+import { OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -17,6 +17,7 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StyledComponent } from "./update-payment-card.styles";
 
 type PropType = {
+  orderPayment?:OrderPaymentResponse[];
   listPaymentMethods: PaymentMethodResponse[];
   orderDetail: OrderResponse;
   paymentMethod: number;
@@ -47,6 +48,7 @@ function UpdatePaymentCard(props: PropType) {
     paymentMethod,
     shipmentMethod,
     isDisablePostPayment,
+    orderPayment
   } = props;
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
@@ -235,6 +237,12 @@ console.log('paymentData', paymentData)
     }
   }, [createPayment, disabledActions]);
 
+  useEffect(()=>{
+    if(orderPayment){
+      let paymentResponse:any=[...orderPayment]
+      setPaymentData([...paymentResponse])
+    }
+  },[orderPayment])
   // useEffect(() => {
   //   props.setTotalPaid(totalAmountPaid);
   // }, [props, totalAmountPaid]);
