@@ -2,14 +2,12 @@ import {
   DeleteOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
-  PlusOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import {
   Button,
   Card,
-  Col,
-  Collapse,
-  Divider,
+  Col, Divider,
   Form,
   // FormInstance,
   Input,
@@ -29,18 +27,18 @@ import UrlConfig from "config/url.config";
 import {
   AccountCreateAction,
   DepartmentGetListAction,
-  PositionGetListAction,
+  PositionGetListAction
 } from "domain/actions/account/account.action";
 import { RoleGetListAction } from "domain/actions/auth/role.action";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction,
+  DistrictGetByCountryAction
 } from "domain/actions/content/content.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import useAuthorization from "hook/useAuthorization";
 import {
   AccountRequest,
-  AccountResponse,
+  AccountResponse
 } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
@@ -70,7 +68,7 @@ const initRequest = {
   full_name: "",
   phone: "",
   account_stores: [],
-  account_jobs: [],
+  account_jobs: [{}],
   address: "",
   status: "active",
   password: "",
@@ -480,14 +478,10 @@ const AccountCreateScreen: React.FC = () => {
           </Row>
         </Card>
 
-        <Collapse
-          defaultActiveKey="1"
-          className="ant-collapse-card margin-top-20"
-          expandIconPosition="right"
-        >
-          <Collapse.Panel key="1" header="Thông tin công việc">
+          <Card title="Thông tin công việc" bodyStyle={{padding:0}}>
             <div className="padding-20">
-              <List name="account_jobs">
+              <List name="account_jobs"
+              >
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, fieldKey, ...restField }, index) => (
@@ -524,6 +518,7 @@ const AccountCreateScreen: React.FC = () => {
                             label="Phòng ban"
                             name={[name, "department_id"]}
                             fieldKey={[fieldKey, "department_id"]}
+                            rules={[{ required: true, message: "Vui lòng chọn bộ phận" }]}
                           >
                             <TreeSelect
                               placeholder="Chọn phòng ban"
@@ -583,8 +578,7 @@ const AccountCreateScreen: React.FC = () => {
                 )}
               </List>
             </div>
-          </Collapse.Panel>
-        </Collapse>
+          </Card>
         <BottomBarContainer
           back="Quay lại trang danh sách"
           backAction={backAction}

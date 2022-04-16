@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from "axios";
 import BaseAxiosApi from "base/base.axios.api";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { AnalyticCustomize, AnalyticTemplateParams } from "model/report/analytics.model";
+import { AnalyticCustomize, AnalyticQueryMany, AnalyticTemplateParams } from "model/report/analytics.model";
 import qs from "query-string";
 import { removeSpacesAndEnterCharacters } from "utils/ReportUtils";
 
@@ -12,6 +12,19 @@ export const executeAnalyticsQueryService = (
 ): Promise<BaseResponse<any>> => {
   params.q = removeSpacesAndEnterCharacters(params.q);
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/query`, { params, ...config });
+};
+
+export const executeManyAnalyticsQueryService = (
+  params: AnalyticQueryMany,
+  config?: AxiosRequestConfig
+): Promise<BaseResponse<any>> => {
+  const { q } = params;
+  if (Array.isArray(q) && q.length > 0) {
+    q.forEach(item => {
+      item = removeSpacesAndEnterCharacters(item);
+    });
+  }
+  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/queries`, { params, ...config });
 };
 
 export const getCustomerVisitors = (

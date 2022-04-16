@@ -107,6 +107,11 @@ export interface AnalyticTemplateParams {
   options?: string;
 }
 
+export interface AnalyticQueryMany {
+  q: Array<string>;
+  options: Array<string>;
+}
+
 export interface AnalyticTemplateData {
   id: number;
   query: string;
@@ -159,4 +164,9 @@ export interface AnalyticTemplateGroup {
     cube: AnalyticCube;
     name: string;
   }[]
+}
+
+export interface AnalyticSampleQuery {
+  query: AnalyticQuery;
+  options: string;
 }

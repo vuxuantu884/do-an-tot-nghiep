@@ -40,7 +40,8 @@ const ApiConfig = {
   PROMOTION: `${v1}/${ServiceNames.PROMOTION_SERVICE}`,
   ANALYTICS: `${v1}/reports`,
   CUSTOMER_VISITORS: `${v1}/customer-visitors`,
-  WARRANTY: `${v1}/warranty-service`
+  WARRANTY: `${v1}/warranty-service`,
+  DASHBOARD: `${v1}/dashboard-service`,
 };
 
 export { ApiConfig };
