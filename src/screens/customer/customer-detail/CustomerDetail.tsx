@@ -21,10 +21,10 @@ import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHi
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import {
   getLoyaltyPoint,
-  // getLoyaltyUsage,
+  getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-// import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import ActionButton, { MenuAction, } from "component/table/ActionButton";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -71,9 +71,9 @@ const CustomerDetail = () => {
     null
   );
   const [loyaltyCard, setLoyaltyCard] = React.useState<any>();
-  // const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
-  //   Array<LoyaltyUsageResponse>
-  // >([]);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
 
   const actions: Array<MenuAction> = [
@@ -118,7 +118,7 @@ const CustomerDetail = () => {
     } else {
       setLoyaltyPoint(null);
     }
-    // dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customer, allowViewCustomerDetail, updateLoyaltyCard]);
   
   React.useEffect(() => {
@@ -292,11 +292,10 @@ const CustomerDetail = () => {
       },
       {
         name: "Hạng thẻ",
-        // value:
-        //   loyaltyUsageRules?.find(
-        //     (item) => item.rank_id === loyaltyPoint?.loyalty_level_id
-        //   )?.rank_name || null,
-        value: customer?.customer_level || null,
+        value:
+          loyaltyUsageRules?.find(
+            (item) => item.rank_id === loyaltyPoint?.loyalty_level_id
+          )?.rank_name || null,
       },
       {
         name: "Ngày gắn thẻ",
@@ -308,7 +307,7 @@ const CustomerDetail = () => {
       },
     ];
     setCustomerPoint(_detail);
-  }, [loyaltyPoint, customer?.customer_level, loyaltyCard]);
+  }, [loyaltyPoint, loyaltyUsageRules, loyaltyCard]);
 
   React.useEffect(() => {
     if (!allowViewCustomerDetail) {
