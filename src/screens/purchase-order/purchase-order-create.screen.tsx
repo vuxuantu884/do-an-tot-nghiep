@@ -18,6 +18,7 @@ import { StoreResponse } from "model/core/store.model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -38,7 +39,7 @@ import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import PurchaseOrderProvider from "./provider/purchase-order.provider";
-
+import {useSelector} from "react-redux";
 
 const POProductFormOld = React.lazy(() => import("./component/po-product.form"));
 const POProductFormNew = React.lazy(() => import("./component/po-product-form-grid"));
@@ -122,6 +123,9 @@ const POCreateScreen: React.FC = () => {
 
   //context 
   const { taxRate, poLineItemGridChema, poLineItemGridValue, isGridMode } = useContext(PurchaseOrderCreateContext);
+  
+  //reducer
+  const myAccountCode = useSelector((state: RootReducerType) => state.userReducer.account?.code);
 
   const createCallback = useCallback(
     (result: PurchaseOrder) => {
@@ -261,6 +265,12 @@ const POCreateScreen: React.FC = () => {
     formMain.submit();
     // remove()
   }
+
+  useEffect(() => {
+    if(myAccountCode){
+      formMain.setFieldsValue({ [POField.merchandiser_code]: myAccountCode });
+    }
+  }, [myAccountCode, formMain]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));

@@ -18,6 +18,7 @@ import {
   Progress,
   TreeSelect,
   Tag,
+  Spin,
 } from "antd";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 
@@ -73,6 +74,7 @@ import ConcatenateByExcel from "./ConcatenateByExcel";
 import { EcommerceProductTabUrl } from "config/url.config";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import {debounce} from "lodash";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -245,7 +247,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       not: false,
     });
 
-    const [keySearchVariant, setKeySearchVariant] = useState("");
+    const [isSearching, setIsSearching] = React.useState<boolean>(false);
     const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
     const [diffPriceProduct, setDiffPriceProduct] = useState<Array<any>>([]);
     const [isSaving, setIsSaving] = useState(false);
@@ -370,36 +372,39 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
     const initQueryVariant: VariantSearchQuery = {
       page: 1,
+      status: "active",
     };
 
-    const [resultSearchVariant, setResultSearchVariant] = React.useState<
-      PageResponse<VariantResponse>
-    >({
-      metadata: {
-        limit: 0,
-        page: 1,
-        total: 0,
-      },
-      items: [],
-    });
+    const [resultSearchVariant, setResultSearchVariant] = React.useState<Array<VariantResponse>>([]);
 
     const updateProductResult = (result: any) => {
-      setResultSearchVariant(result);
+      setIsSearching(false);
+      if (result?.items) {
+        setResultSearchVariant(result.items);
+      }
+    };
+
+    const handleErrorSearchProduct = () => {
+      setIsSearching(false);
     };
 
     const onChangeProductSearch = (value: string) => {
-      setKeySearchVariant(value);
-      initQueryVariant.info = value;
-      dispatch(
-        searchVariantsOrderRequestAction(initQueryVariant, updateProductResult)
-      );
+      if (value?.length >= 3) {
+        initQueryVariant.info = value;
+        setIsSearching(true);
+        setResultSearchVariant([]);
+        dispatch(
+          searchVariantsOrderRequestAction(initQueryVariant, updateProductResult, handleErrorSearchProduct)
+        );
+      }
     };
 
+    const handleOnSearchProduct = debounce((value: string) => {
+      onChangeProductSearch(value);
+    }, 800);
+
     const onSearchVariantSelect = (idItemSelected: any) => {
-      const itemSelected =
-        resultSearchVariant &&
-        resultSearchVariant.items &&
-        resultSearchVariant.items.find((item) => item.id === idItemSelected);
+      const itemSelected = resultSearchVariant?.find((item) => item.id === idItemSelected);
 
       const productSelectedData = {
         core_variant: itemSelected && itemSelected.name,
@@ -434,7 +439,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
       updateConnectItemList(newConnectItems);
       setIsInputSearchProductFocus(false);
-      setKeySearchVariant("");
       autoCompleteRef.current?.blur();
     };
 
@@ -462,18 +466,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                 </span>
               </div>
 
-              <div className="sku-and-stock">
-                <span className="item-sku">{item.sku}</span>
-
-                <span className="item-inventory">
-                  {"Có thể bán: "}
-                  <span
-                    style={{ color: item.inventory > 0 ? "#2A2A86" : "red" }}
-                  >
-                    {item.inventory || "0"}
-                  </span>
-                </span>
-              </div>
+              <div className="item-sku">{item.sku}</div>
             </div>
           </div>
         </StyledProductListDropdown>
@@ -482,7 +475,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
     const convertResultSearchVariant = useMemo(() => {
       let options: any[] = [];
-      resultSearchVariant.items.forEach(
+      resultSearchVariant?.forEach(
         (item: VariantResponse) => {
           options.push({
             label: renderSearchVariant(item),
@@ -497,18 +490,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       <StyledYodyProductColumn>
         {(!productSelected || !productSelected.id) && (
           <AutoComplete
-            notFoundContent={
-              keySearchVariant.length >= 3
-                ? "Không tìm thấy sản phẩm"
-                : undefined
-            }
+            notFoundContent={isSearching ? <Spin size="small"/> : "Không tìm thấy sản phẩm"}
             id="search_product"
-            value={keySearchVariant}
             ref={autoCompleteRef}
             onSelect={onSearchVariantSelect}
             dropdownClassName="search-layout dropdown-search-header"
             dropdownMatchSelectWidth={360}
-            onSearch={onChangeProductSearch}
+            onSearch={handleOnSearchProduct}
             options={convertResultSearchVariant}
             maxLength={255}
             open={isInputSearchProductFocus}
@@ -734,7 +722,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      let dataQuery :any = {}
+      let dataQuery :any;
       switch (tag.key) {
         case "shop_ids":
           dataQuery = {
