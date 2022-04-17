@@ -79,6 +79,8 @@ import CardShowReturnProducts from "./order-return/components/CardShowReturnProd
 import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import moment from "moment";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const { Panel } = Collapse;
 
@@ -759,17 +761,23 @@ const OrderDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
-  const checkIsPaymentUpdate=useMemo(()=>{
+  const [allowUpdatePayment] = useAuthorization({
+    //
+    acceptPermissions: [ODERS_PERMISSIONS.UPDATE_PAYMENT],
+  });
+
+  const checkIsPaymentUpdate = useMemo(() => {
     let fromDate = moment(new Date()).format("yyyy-MM-DD 07:00");
     let toDate =moment(new Date().setHours(24)).format("yyyy-MM-DD 07:01");
-    let orderdate=moment(OrderDetail?.finished_on);
+    let orderdate = moment(OrderDetail?.finished_on);
 
-    // console.log("checkTodate",toDate,fromDate,orderdate);
-    if(moment(fromDate)>= orderdate) return false;
-    if(moment(toDate)<=orderdate) return false;
+    console.log("checkTodate", toDate, fromDate, orderdate);
+    //if (!allowUpdatePayment && (moment(fromDate) >= orderdate || moment(toDate) <= orderdate)===false) return false;
+    if (!allowUpdatePayment  && (moment(fromDate) >= orderdate || moment(toDate) <= orderdate)) return false;
     return true;
-  },[OrderDetail?.finished_on])
-  
+    
+  }, [OrderDetail?.finished_on, allowUpdatePayment])
+
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -892,8 +900,7 @@ const OrderDetail = (props: PropType) => {
                           <b>
                             {(OrderDetail?.fulfillments &&
                               OrderDetail?.fulfillments.length > 0 &&
-                              OrderDetail?.fulfillments[0].status === "shipped" &&
-                              formatCurrency(customerNeedToPayValue)) ||
+                              OrderDetail?.fulfillments[0].status === "shipped") ||
                               formatCurrency(getAmountPayment(OrderDetail.payments))}
                           </b>
                         </Col>
@@ -1117,7 +1124,7 @@ const OrderDetail = (props: PropType) => {
                         </div>{" "}
                       </div>
                     )}
-                    {isShowPaymentPartialPayment === false && OrderDetail?.source!=="ShopeePay Balance" && checkIsPaymentUpdate && (
+                    {isShowPaymentPartialPayment === false && OrderDetail?.source !== "ShopeePay Balance" && checkIsPaymentUpdate && (
                       <div className="text-right">
                         <Divider style={{ margin: "10px 0" }} />
                         <Button

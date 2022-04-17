@@ -155,6 +155,9 @@ console.log('paymentData', paymentData)
     setShowPaymentPartialPayment && setShowPaymentPartialPayment(false);
   };
 
+  console.log("paymentData 111",paymentData)
+  console.log("orderPayment 111",orderPayment)
+
 	const renderFullPaymentMethod = () => {
 		return (
       <div className="create-order-payment 222">
