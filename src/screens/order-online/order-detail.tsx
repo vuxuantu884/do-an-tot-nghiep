@@ -80,6 +80,8 @@ import CardShowReturnProducts from "./order-return/components/CardShowReturnProd
 import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import moment from "moment";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const { Panel } = Collapse;
 
@@ -760,17 +762,22 @@ const OrderDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
-  const checkIsPaymentUpdate=useMemo(()=>{
-    let fromDate = convertFromStringToDate(moment(new Date().setHours(-24)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.format("yyyy-MM-DD 07:00");
-    let toDate =convertFromStringToDate(new Date(),"yyyy-MM-dd'T'HH:mm:ss'Z'")?.format("yyyy-MM-DD 07:01");
-    let orderdate=moment(OrderDetail?.finished_on);
+  const [allowUpdatePayment] = useAuthorization({
+    //
+    acceptPermissions: [ODERS_PERMISSIONS.UPDATE_PAYMENT],
+  });
 
-    console.log("checkTodate",toDate,fromDate,orderdate);
-    if(moment(fromDate)>= orderdate) return false;
-    if(moment(toDate)<=orderdate) return false;
-    return true;
-  },[OrderDetail?.finished_on])
-  
+  const checkIsPaymentUpdate = useMemo(() => {
+    let fromDate = convertFromStringToDate(moment(new Date().setHours(-24)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.format("yyyy-MM-DD 07:00");
+    let toDate = convertFromStringToDate(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.format("yyyy-MM-DD 07:01");
+    let orderdate = moment(OrderDetail?.finished_on);
+
+    console.log("checkTodate", toDate, fromDate, orderdate);
+    // if (moment(fromDate) >= orderdate || moment(toDate) <= orderdate) return false;
+    // if (moment(toDate) <= orderdate) return false;
+    return allowUpdatePayment && !(moment(fromDate) >= orderdate || moment(toDate) <= orderdate);
+  }, [OrderDetail?.finished_on, allowUpdatePayment])
+
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -1118,7 +1125,7 @@ const OrderDetail = (props: PropType) => {
                         </div>{" "}
                       </div>
                     )}
-                    {isShowPaymentPartialPayment === false && OrderDetail?.source!=="ShopeePay Balance" && checkIsPaymentUpdate && (
+                    {isShowPaymentPartialPayment === false && OrderDetail?.source !== "ShopeePay Balance" && checkIsPaymentUpdate && (
                       <div className="text-right">
                         <Divider style={{ margin: "10px 0" }} />
                         <Button
