@@ -900,7 +900,8 @@ const OrderDetail = (props: PropType) => {
                           <b>
                             {(OrderDetail?.fulfillments &&
                               OrderDetail?.fulfillments.length > 0 &&
-                              OrderDetail?.fulfillments[0].status === "shipped") ||
+                              OrderDetail?.fulfillments[0].status === "shipped" &&
+                              formatCurrency(customerNeedToPayValue)) ||
                               formatCurrency(getAmountPayment(OrderDetail.payments))}
                           </b>
                         </Col>
