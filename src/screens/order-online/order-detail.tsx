@@ -44,7 +44,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
 import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-  checkPaymentAll,
+  // checkPaymentAll,
   checkPaymentStatusToShow,
   formatCurrency,
   generateQuery,
@@ -1105,7 +1105,7 @@ const OrderDetail = (props: PropType) => {
                         </div>{" "}
                       </div>
                     )}
-                    {isShowPaymentPartialPayment === false && (
+                    {isShowPaymentPartialPayment === false && OrderDetail?.source!=="ShopeePay Balance" &&(
                       <div className="text-right">
                         <Divider style={{ margin: "10px 0" }} />
                         <Button
