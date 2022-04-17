@@ -59,6 +59,7 @@ import {
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
+  POS,
   ShipmentMethodOption
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -772,11 +773,12 @@ const OrderDetail = (props: PropType) => {
     let orderdate = moment(OrderDetail?.finished_on);
 
     console.log("checkTodate", toDate, fromDate, orderdate);
-    //if (!allowUpdatePayment && (moment(fromDate) >= orderdate || moment(toDate) <= orderdate)===false) return false;
+
+    if(OrderDetail?.source_code !== POS.source_code && OrderDetail?.status=== OrderStatus.FINISHED) return false;
     if (!allowUpdatePayment  && (moment(fromDate) >= orderdate || moment(toDate) <= orderdate)) return false;
     return true;
     
-  }, [OrderDetail?.finished_on, allowUpdatePayment])
+  }, [OrderDetail?.finished_on, OrderDetail?.source_code, OrderDetail?.status, allowUpdatePayment])
 
   return (
     <ContentContainer
