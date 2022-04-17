@@ -87,7 +87,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const renderWhenReturnCustomerNeedToPay = () => {
     return (
-      <>
+      <React.Fragment>
         <OrderCreatePayments
           setPaymentMethod={setPaymentMethod}
           payments={payments}
@@ -98,8 +98,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
           loyaltyRate={loyaltyRate}
           isDisablePostPayment={isDisablePostPayment}
           listPaymentMethod={listPaymentMethods}
+          isOrderReturnFromPOS
         />
-      </>
+      </React.Fragment>
     );
   };
 
