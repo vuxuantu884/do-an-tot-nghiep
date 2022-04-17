@@ -70,10 +70,11 @@ function PosOrders(props: PropTypes) {
     note: null,
     customer_note: null,
     tags: [],
+    marketing_campaign: [],
     reference_code: null,
     search_term: "",
 		services: [],
-    channel_codes: []
+    channel_codes: [],
   };
 
   return (
