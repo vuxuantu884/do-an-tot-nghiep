@@ -1339,6 +1339,7 @@ ShippingServiceConfigDetailResponseModel[]
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                     isDisablePostPayment={isDisablePostPayment}
+                    isOrderReturnFromPOS = {isOrderFromPOS(OrderDetail)}
                   />
                 )}
                 {isExchange && (
