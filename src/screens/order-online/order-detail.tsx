@@ -46,7 +46,6 @@ import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order
 import {
   // checkPaymentAll,
   checkPaymentStatusToShow,
-  convertFromStringToDate,
   formatCurrency,
   generateQuery,
   getAmountPayment,
@@ -761,11 +760,11 @@ const OrderDetail = (props: PropType) => {
   }, [dispatch]);
 
   const checkIsPaymentUpdate=useMemo(()=>{
-    let fromDate = convertFromStringToDate(moment(new Date().setHours(-24)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.format("yyyy-MM-DD 07:00");
-    let toDate =convertFromStringToDate(new Date(),"yyyy-MM-dd'T'HH:mm:ss'Z'")?.format("yyyy-MM-DD 07:01");
+    let fromDate = moment(new Date()).format("yyyy-MM-DD 07:00");
+    let toDate =moment(new Date().setHours(24)).format("yyyy-MM-DD 07:01");
     let orderdate=moment(OrderDetail?.finished_on);
 
-    console.log("checkTodate",toDate,fromDate,orderdate);
+    // console.log("checkTodate",toDate,fromDate,orderdate);
     if(moment(fromDate)>= orderdate) return false;
     if(moment(toDate)<=orderdate) return false;
     return true;
@@ -1126,6 +1125,8 @@ const OrderDetail = (props: PropType) => {
                           className="ant-btn-outline fixed-button"
                           onClick={() => setShowPaymentPartialPayment(true)}
                           style={{ marginTop: 10 }}
+                        // Cho sửa thanh toán đơn hàng ngay cả khi thành công
+                        // Cho sửa thanh toán đơn hàng ngay cả khi thành công
                         // Cho sửa thanh toán đơn hàng ngay cả khi thành công
                         >
                           Cập nhật thanh toán
