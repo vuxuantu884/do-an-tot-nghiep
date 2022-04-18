@@ -1,5 +1,5 @@
 import UrlConfig from "config/url.config";
-import { AnalyticTemplateData, TimeAtOptionValue } from "model/report/analytics.model";
+import { AnalyticCube, AnalyticTemplateData, TimeAtOptionValue } from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -22,7 +22,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online')    
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nhan-vien.svg",
     id: 1,
@@ -44,7 +44,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online')    
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nhan-vien.svg",
     id: 2,
@@ -66,7 +66,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online')     
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nhan-vien.svg",
     id: 3,
@@ -88,7 +88,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 4,
@@ -110,7 +110,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 5,
@@ -132,7 +132,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 6,
@@ -154,7 +154,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 7,
@@ -176,7 +176,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 8,
@@ -198,7 +198,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 9,
@@ -214,7 +214,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   //   WHERE sale_area IN ('Khối KD Online') 
   //   SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
   //   ORDER BY total_sales DESC `,
-  //   cube: "sales",
+  //   cube: AnalyticCube.Sales,
   //   alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
   //   iconImg: "nguon-ban-hang.svg",
   //   id: 10,
@@ -230,7 +230,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   //   WHERE sale_area IN ('Khối KD Online') 
   //   SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
   //   ORDER BY total_sales DESC `,
-  //   cube: "sales",
+  //   cube: AnalyticCube.Sales,
   //   alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
   //   iconImg: "nguon-ban-hang.svg",
   //   id: 11,
@@ -253,7 +253,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "san-pham.svg",
     id: 12,
@@ -269,7 +269,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "san-pham.svg",
     id: 13,
@@ -285,7 +285,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
         WHERE sale_area IN ('Khối KD Online') 
         SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
         ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "khach-hang.svg",
     id: 14,

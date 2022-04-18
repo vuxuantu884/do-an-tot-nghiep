@@ -322,7 +322,7 @@ export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
   [UrlConfig.ANALYTIC_SALES_OFFLINE]: [
     {
       name: 'Nhóm báo cáo bán hàng',
-      cube: AnalyticCube.Sales,
+      cube: AnalyticCube.OfflineSales,
     },
     // {
     //   name: 'Nhóm báo cáo thanh toán',

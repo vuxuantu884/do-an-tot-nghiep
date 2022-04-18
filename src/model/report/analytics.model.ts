@@ -37,7 +37,8 @@ export enum AnalyticCube {
   Sales = 'sales',
   Payments = 'payments',
   Costs = 'costs',
-  All = 'all'
+  All = 'all',
+  OfflineSales = 'offline_sales',
 }
 
 export enum ColumnType {
@@ -156,7 +157,7 @@ export interface AnnotationData {
   data: AnnotationItem[];
   documentLink: string;
   alias: string;
-  cube: AnalyticCube;
+  cubes: AnalyticCube[];
 }
 
 export interface AnalyticTemplateGroup {

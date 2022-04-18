@@ -44,7 +44,7 @@ function UpdateAnalytics() {
         return REPORT_TEMPLATES.find((item) => item.id === templateId) || {} as AnalyticTemplateData;
     }, [templateId])
 
-    const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cube === CURRENT_REPORT_TEMPLATE.cube);
+    const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cubes.includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube));
 
     cubeRef.current = CURRENT_REPORT_TEMPLATE.cube;
 
