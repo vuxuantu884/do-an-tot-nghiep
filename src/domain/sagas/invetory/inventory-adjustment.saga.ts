@@ -100,12 +100,13 @@ function* createInventoryAdjustmentSaga(action: YodyAction) {
 }
 
 function* updateItemOnlineInventorySaga(action: YodyAction) {
-  let {id, data, onResult} = action.payload;
+  let {id, lineId, data, onResult} = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       updateItemOnlineInventoryApi,
       id,
+      lineId,
       data
     );
     switch (response.code) {
