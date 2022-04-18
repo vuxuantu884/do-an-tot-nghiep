@@ -179,9 +179,7 @@ function CreateAnalytics() {
             formCloneReport.setFieldsValue({ name: `${report.name} nhân bản` })
 
             cubeRef.current = report.group;
-            // update after BE deploy prod - htm
-            // const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.query, options: report.options } : { q: report.query };
-            const fullParams = { q: report.query };
+            const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.query, options: report.options } : { q: report.query };
             const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullParams);
             if (response) {
                 const { columns, rows, conditions, from, to, order_by: orderBy } = response.query;
@@ -199,7 +197,7 @@ function CreateAnalytics() {
                     [ReportifyFormFields.timeGroupBy]: timeGroup,
                     [ReportifyFormFields.where]: whereValue,
                     [ReportifyFormFields.orderBy]: orderBy,
-                    // [ReportifyFormFields.timeAtOption]: report.options
+                    [ReportifyFormFields.timeAtOption]: report.options
 
                 })
 
