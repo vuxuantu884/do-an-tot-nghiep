@@ -13,7 +13,7 @@ import { DashboardContext } from '../provider/dashboard-provider';
 
 function useFetchBRAverageOrder() {
     const dispatch = useDispatch();
-    const { setDataSrcBusinessResultCard, deparmentIdList } = useContext(DashboardContext)
+    const { setDataSrcBusinessResultCard, deparmentIdList, showMyData } = useContext(DashboardContext)
 
     const [isFetchingAverageOrder, setIsFetchingAverageOrder] = useState<boolean>(false);
 
@@ -22,11 +22,16 @@ function useFetchBRAverageOrder() {
             setIsFetchingAverageOrder(true);
             const params: AnalyticQueryMany = { q: [], options: [] };
 
+            const { condition, isSeeMyData, myCode } = showMyData;
+            // Data từ bộ lọc bộ phận
+            const locationCondition = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
+            // Data từ bộ lọc xem dữ liệu của tôi
+            const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
 
             [BUSINESS_RESULT_AVG_ORDER_VALUE_TODAY_QUERY,
                 BUSINESS_RESULT_AVG_ORDER_VALUE_CURRENT_MONTH_QUERY].forEach((item: AnalyticSampleQuery) => {
                     // lọc theo cửa hàng 
-                    item.query.conditions = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
+                    item.query.conditions = [...locationCondition, userCondition];
                     const q = generateRQuery(item.query);
                     params.q.push(q);
                     params.options.push(item.options || "");
@@ -48,7 +53,7 @@ function useFetchBRAverageOrder() {
             })
         }
         fetchAverageOrder()
-    }, [dispatch, setDataSrcBusinessResultCard, deparmentIdList])
+    }, [dispatch, setDataSrcBusinessResultCard, deparmentIdList, showMyData])
 
     return { isFetchingAverageOrder }
 }
