@@ -355,7 +355,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 name="report-form-base">
                 <Card bodyStyle={{ paddingBottom: 0, paddingTop: 8 }}>
                     <div className="group-report-type">
-                        {false && cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
+                        {cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
                             <Form.Item
                                 label="Ghi nhận theo"
                                 name={ReportifyFormFields.timeAtOption}
