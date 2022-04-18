@@ -495,33 +495,33 @@ const UpdateTicket: FC = () => {
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
-    let countError = 0;
-    let arrError: Array<string> = [];
-    dataTable?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        arrError.push(`${index + 1}`);
-        countError++;
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-
-    if (countError > 0) {
-      showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-      return;
-    }
+    // let countError = 0;
+    // let arrError: Array<string> = [];
+    // dataTable?.forEach((element: VariantResponse, index: number) => {
+    //   const thisInput = document.getElementById(`item-quantity-${index}`);
+    //   if (!element.transfer_quantity) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (element.transfer_quantity === 0) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (
+    //     element.transfer_quantity > (element.available ? element.available : 0)
+    //   ) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     arrError.push(`${index + 1}`);
+    //     countError++;
+    //   } else {
+    //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+    //   }
+    // });
+    //
+    // if (countError > 0) {
+    //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
+    //   return;
+    // }
 
     if (CopyId || stateImport) {
       const dataCreate: any= {}
@@ -614,37 +614,37 @@ const UpdateTicket: FC = () => {
     }
   },[CopyId, createCallback, dataTable, dispatch, initDataForm, stateImport, stores]);
 
-  const checkError = (index: number) => {
-    const dataLineItems = dataTable;
-    const thisInput = document.getElementById(`item-quantity-${index}`);
-    if (dataLineItems[index].transfer_quantity === 0) {
-      showError("Số lượng phải lớn hơn 0");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else if (
-      dataLineItems[index].transfer_quantity >
-      (dataLineItems[index].available ? dataLineItems[index].available : 0)
-    ) {
-      showError("Không đủ tồn kho gửi");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else {
-      if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-    }
-
-    dataLineItems?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-  };
+  // const checkError = (index: number) => {
+  //   const dataLineItems = dataTable;
+  //   const thisInput = document.getElementById(`item-quantity-${index}`);
+  //   if (dataLineItems[index].transfer_quantity === 0) {
+  //     showError("Số lượng phải lớn hơn 0");
+  //     if (thisInput) thisInput.style.borderColor = "red";
+  //   } else if (
+  //     dataLineItems[index].transfer_quantity >
+  //     (dataLineItems[index].available ? dataLineItems[index].available : 0)
+  //   ) {
+  //     showError("Không đủ tồn kho gửi");
+  //     if (thisInput) thisInput.style.borderColor = "red";
+  //   } else {
+  //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+  //   }
+  //
+  //   dataLineItems?.forEach((element: VariantResponse, index: number) => {
+  //     const thisInput = document.getElementById(`item-quantity-${index}`);
+  //     if (!element.transfer_quantity) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else if (element.transfer_quantity === 0) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else if (
+  //       element.transfer_quantity > (element.available ? element.available : 0)
+  //     ) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else {
+  //       if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+  //     }
+  //   });
+  // };
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
@@ -662,24 +662,24 @@ const UpdateTicket: FC = () => {
     );
   };
 
-  const isError = useMemo(()=>{
-   const fromId =  form.getFieldValue("from_store_id");
-
-    if (!fromId || (!initDataForm && !toStoreData) ||  (fromId === toStoreData?.id))  return true
-
-    let error = false;
-
-    if (dataTable.length === 0) {
-      return true
-    }
-
-    dataTable?.forEach((element: VariantResponse) => {
-      if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
-        error= true
-      }
-    });
-    return error;
-  },[form, toStoreData, dataTable, initDataForm])
+  // const isError = useMemo(()=>{
+  //  const fromId =  form.getFieldValue("from_store_id");
+  //
+  //   if (!fromId || (!initDataForm && !toStoreData) ||  (fromId === toStoreData?.id))  return true
+  //
+  //   let error = false;
+  //
+  //   if (dataTable.length === 0) {
+  //     return true
+  //   }
+  //
+  //   dataTable?.forEach((element: VariantResponse) => {
+  //     if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
+  //       error= true
+  //     }
+  //   });
+  //   return error;
+  // },[form, toStoreData, dataTable, initDataForm])
 
   useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
@@ -838,9 +838,9 @@ const UpdateTicket: FC = () => {
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}
-            onBlur={() => {
-              checkError(index);
-            }}
+            // onBlur={() => {
+            //   checkError(index);
+            // }}
           />
         </React.Fragment>
       ),
@@ -1164,7 +1164,7 @@ const UpdateTicket: FC = () => {
                   {(!CopyId || !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
 
                   <Button
-                    disabled={isError || isLoading}
+                    disabled={isLoading}
                     htmlType={"submit"}
                     type="primary"
                     loading={isLoading}
