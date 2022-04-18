@@ -19,7 +19,11 @@ const getCondistions = (conditions: AnalyticConditions) => {
       whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} (${value.join("")}) AND`;
     } else if (Array.isArray(conditionsElement) && conditionsElement.length === 3) {
       // check trường hợp dùng operator == != >= .... : mảng conditionsElement có độ dài bằng 3
-      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} ${conditionsElement[2]} AND`;
+      let value = conditionsElement[2];
+      if(typeof conditionsElement[2] === "string"){
+        value = `'${conditionsElement[2]}'`;
+      }
+      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} ${value} AND`;
     }
   });
 
