@@ -68,8 +68,8 @@ const UpdateTicket: FC = () => {
     []
   );
 
-  const dataFileExcel = ['https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_40262b05-2164-4e50-9763-3b7807e8ecb9_original.xls',
-  'https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_63f04682-c041-4d14-9d8c-5fe24b4fe7f2_original.xlsx']
+  const dataFileExcel = ['https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_327a5d28-35ad-4bd1-a78f-1a7e34a53645_original.xls',
+  'https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_d51d5a2c-0470-4ff4-854b-afa19e709ff9_original.xlsx']
 
   // get store
   useEffect(() => {
