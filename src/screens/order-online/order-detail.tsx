@@ -776,8 +776,8 @@ const OrderDetail = (props: PropType) => {
 
     if(!allowUpdatePayment) 
     {
-      if(OrderDetail?.source_code !== POS.source_code && OrderDetail?.status=== OrderStatus.FINISHED) return false;
       if (moment(fromDate) >= orderdate || moment(toDate) <= orderdate) return false;
+      if(OrderDetail?.source_code !== POS.source_code && OrderDetail?.status=== OrderStatus.FINISHED) return false;
     }
     
     return true;
@@ -1143,7 +1143,7 @@ const OrderDetail = (props: PropType) => {
                         // Cho sửa thanh toán đơn hàng ngay cả khi thành công
                         // Cho sửa thanh toán đơn hàng ngay cả khi thành công
                         >
-                          Cập nhật thanh toán
+                          Thanh toán
                         </Button>
                       </div>
                     )}
