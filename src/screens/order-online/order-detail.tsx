@@ -774,8 +774,12 @@ const OrderDetail = (props: PropType) => {
 
     console.log("checkTodate", toDate, fromDate, orderdate);
 
-    if(OrderDetail?.source_code !== POS.source_code && OrderDetail?.status=== OrderStatus.FINISHED) return false;
-    if (!allowUpdatePayment  && (moment(fromDate) >= orderdate || moment(toDate) <= orderdate)) return false;
+    if(!allowUpdatePayment) 
+    {
+      if(OrderDetail?.source_code !== POS.source_code && OrderDetail?.status=== OrderStatus.FINISHED) return false;
+      if (moment(fromDate) >= orderdate || moment(toDate) <= orderdate) return false;
+    }
+    
     return true;
     
   }, [OrderDetail?.finished_on, OrderDetail?.source_code, OrderDetail?.status, allowUpdatePayment])
