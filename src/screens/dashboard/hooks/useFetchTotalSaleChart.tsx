@@ -16,7 +16,7 @@ type AccumulateData = { sum: number, count: number, day: string }
 
 function useFetchChartBusinessResult() {
     const dispatch = useDispatch();
-    const { setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList } = useContext(DashboardContext)
+    const { setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList, showMyData } = useContext(DashboardContext)
     const [isFetchingChartData, setIsFetchingChartData] = useState<boolean>(false);
 
     useEffect(() => {
@@ -25,8 +25,14 @@ function useFetchChartBusinessResult() {
         const fetchChartData = async () => {
             setIsFetchingChartData(true);
             const params: AnalyticQueryMany = { q: [], options: [] };
+
+            const { condition, isSeeMyData, myCode } = showMyData;
+            // Data từ bộ lọc bộ phận
+            const locationCondition = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
+            // Data từ bộ lọc xem dữ liệu của tôi
+            const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
             BUSINESS_RESULT_CHART_TEMPLATE.forEach((item: AnalyticSampleQuery) => {
-                item.query.conditions = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
+                item.query.conditions = [...locationCondition, userCondition];
                 const q = generateRQuery(item.query);
                 params.q.push(q);
                 params.options.push(item.options || "");
@@ -76,7 +82,7 @@ function useFetchChartBusinessResult() {
         }
 
         fetchChartData();
-    }, [dispatch, setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList]);
+    }, [dispatch, setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList, showMyData]);
 
     return { isFetchingChartData };
 }

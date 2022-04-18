@@ -4,7 +4,7 @@ import React, { useContext } from 'react';
 import CompareMonthlyChartArea from '../chart/compare-monthly-chart-area';
 import useFetchBRAverageOrder from '../hooks/useFetchAverageOrder';
 import useFetchChartBusinessResult from '../hooks/useFetchTotalSaleChart';
-import useFetchBusinessResultComplete from '../hooks/useFetchTotalSaleComplated';
+import useFetchBusinessResultComplete from '../hooks/useFetchTotalSaleCompleted';
 import { DashboardContext } from '../provider/dashboard-provider';
 import BusinessCard from "./business-card";
 type Props = {}

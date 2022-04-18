@@ -217,6 +217,20 @@ export const DashboardContainer = styled.div`
     }
     }
     
-  }
- 
+  } 
 `;
+
+export const ShowMyDataStyle = styled.div`
+  padding: 0 10px;
+  margin-bottom: 5px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 360px;
+.ant-radio-group {
+  display: grid;
+  grid-template-columns: repeat( 2,minmax(180px,1fr) );  
+  column-gap: 20px;
+  row-gap: 5px;
+}
+`

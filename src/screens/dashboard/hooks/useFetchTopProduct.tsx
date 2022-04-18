@@ -15,14 +15,20 @@ import { DashboardContext } from '../provider/dashboard-provider';
 
 function useFetchTopProduct() {
     const dispatch = useDispatch();
-    const { setDataSrcTopProduct, deparmentIdList } = React.useContext(DashboardContext);
+    const { setDataSrcTopProduct, deparmentIdList, showMyData } = React.useContext(DashboardContext);
 
     const [isFetching, setIsFetching] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchTopProduct = async () => {
             setIsFetching(true);
-            TOP_SALES_PRODUCT_TEMPLATE.query.conditions = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
+            const { condition, isSeeMyData, myCode } = showMyData;
+            // Data từ bộ lọc bộ phận
+            const locationCondition = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
+            // Data từ bộ lọc xem dữ liệu của tôi
+            const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
+            
+            TOP_SALES_PRODUCT_TEMPLATE.query.conditions =  [...locationCondition, userCondition];
             const q = generateRQuery(TOP_SALES_PRODUCT_TEMPLATE.query);
             const response: AnalyticDataQuery = await callApiNative({ notifyAction: "HIDE_ALL" },
                 dispatch, executeAnalyticsQueryService, { q });
@@ -44,7 +50,7 @@ function useFetchTopProduct() {
             setDataSrcTopProduct(listTopSale);
         }
         fetchTopProduct();
-    }, [dispatch, setDataSrcTopProduct, deparmentIdList]);
+    }, [dispatch, setDataSrcTopProduct, deparmentIdList, showMyData]);
 
     return { isFetching }
 }
