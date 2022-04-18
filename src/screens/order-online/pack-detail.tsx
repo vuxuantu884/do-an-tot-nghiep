@@ -150,6 +150,7 @@ const PackDetail: React.FC = () => {
                       on_hand: productOnHand? productOnHand.on_hand : undefined,
                     });
   
+                    
                     ///
                   });
                 }
