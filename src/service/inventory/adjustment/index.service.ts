@@ -31,6 +31,29 @@ const createInventorAdjustmentGetApi = (
   return BaseAxios.post(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment`, data);
 };
 
+const deleteLineItem = (
+  adjustmentId: number,
+  variantId: number
+): Promise<BaseResponse<string>> => {
+  let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/lines-item/${variantId}`;
+  return BaseAxios.delete(link);
+};
+
+const addLineItem = (
+  adjustmentId: number,
+  data: any
+): Promise<BaseResponse<string>> => {
+  let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/lines-item`;
+  return BaseAxios.post(link, data);
+};
+
+const getTotalOnHand = (
+  adjustmentId: number
+): Promise<BaseResponse<string>> => {
+  let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/lines-item/total-on-hand`;
+  return BaseAxios.get(link);
+};
+
 const updateItemOnlineInventoryApi = (
   id: number,
   lineId: number,
@@ -39,13 +62,6 @@ const updateItemOnlineInventoryApi = (
   return BaseAxios.put(
     `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item/${lineId}`,
     data
-  );
-};
-
-
-const updateOnlineInventoryApi = (id: number): Promise<BaseResponse<string>> => {
-  return BaseAxios.put(
-    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/audit/${id}`
   );
 };
 
@@ -60,6 +76,11 @@ const updateReasonItemOnlineInventoryApi = (
   );
 };
 
+const updateOnlineInventoryApi = (id: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.put(
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/audit/${id}`
+  );
+};
 
 const adjustInventoryApi = (id: number): Promise<BaseResponse<string>> => {
   return BaseAxios.put(
@@ -114,5 +135,8 @@ export {
   getLinesItemAdjustmentApi,
   updateInventorAdjustmentApi,
   getVariantHasOnHandByStoreApi,
-  updateReasonItemOnlineInventoryApi
+  deleteLineItem,
+  addLineItem,
+  getTotalOnHand,
+  updateReasonItemOnlineInventoryApi,
 };

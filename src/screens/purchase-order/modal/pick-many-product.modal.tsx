@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import CustomPagination from "component/table/CustomPagination";
 import ProductItem from "../component/product-item";
 import { inventoryGetVariantByStoreAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import debounce from "lodash/debounce";
 
 type PickManyProductModalType = {
   visible: boolean;
@@ -106,6 +107,10 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     }
   }, [props.selected, props.visible]);
 
+  const searchVariantDebounce = debounce((e) => {
+    setQuery({ ...query, info: e.target.value });
+  }, 300);
+
   return (
     <Modal
       visible={props.visible}
@@ -118,16 +123,14 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         props.onCancel && props.onCancel();
       }}
       onOk={() => {
+        if (selection.length === 0) return;
         props.onSave && props.onSave(selection);
         setSelection([]);
       }}
       title="Chọn nhiều sản phẩm"
     >
       <Input
-        value={query.info}
-        onChange={(e) => {
-          setQuery({ ...query, info: e.target.value });
-        }}
+        onChange={(e) => searchVariantDebounce(e)}
         size="middle"
         className="yody-search"
         placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch"
@@ -180,7 +183,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
           />
         </div>
       ) : (
-        <Skeleton loading={true} active avatar></Skeleton>
+        <Skeleton loading={true} active avatar/>
       )}
     </Modal>
   );

@@ -30,7 +30,6 @@ import {StoreResponse} from "model/core/store.model";
 import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import {DATE_FORMAT} from "utils/DateUtils";
-import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "screens/inventory-adjustment/constants";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Panel} = Collapse;
@@ -104,7 +103,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   );
 
   const loadingFilter = useMemo(() => {
-    return isLoading ? true : false;
+    return !!isLoading;
   }, [isLoading]);
 
   const formRef = createRef<FormInstance>();
@@ -253,9 +252,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
+      console.log(e, tag)
       switch (tag.key) {
         case "status":
           onFilter && onFilter({...params, status: []});
+          break;
+        case "audit_type":
+          onFilter && onFilter({...params, audit_type: []});
           break;
         case "total_variant":
           onFilter &&
@@ -301,6 +304,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               to_adjusted_date: null,
             });
           break;
+
         default:
           break;
       }
@@ -932,19 +936,15 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             getPopupContainer={(trigger) => trigger.parentNode}
                           >
                             {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => {
-                              if (item.value === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
-                                return (
-                                  <CustomSelect.Option
-                                    style={{width: "100%"}}
-                                    key={index.toString()}
-                                    value={item.value}
-                                  >
-                                    {item.name}
-                                  </CustomSelect.Option>
-                                );
-                              } else {
-                                return null;
-                              }
+                              return (
+                                <CustomSelect.Option
+                                  style={{width: "100%"}}
+                                  key={index.toString()}
+                                  value={item.value}
+                                >
+                                  {item.name}
+                                </CustomSelect.Option>
+                              );
                             })}
                           </CustomSelect>
                         </Item>
@@ -959,7 +959,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       </div>
       <div className="order-filter-tags">
         {filters &&
-          filters.map((filter: any, index) => {
+          filters.map((filter: any) => {
             return (
               <Tag style={{ marginBottom: 20 }} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
                 {filter.name}: {filter.value}

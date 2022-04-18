@@ -25,7 +25,7 @@ import TextArea from "antd/es/input/TextArea";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import excelIcon from "assets/icon/icon-excel.svg";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   inventoryGetSenderStoreAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
@@ -42,6 +42,7 @@ import BaseAxios from "base/base.axios";
 import { showError } from "utils/ToastUtils";
 import MyStoreSelect from "component/custom/select-search/my-store-select";
 import { strForSearch } from "utils/StringUtils";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -61,7 +62,7 @@ const UpdateTicket: FC = () => {
   const history = useHistory();
 
   const onResult = useCallback(
-    (result: InventoryTransferDetailItem | false) => {
+    () => {
 
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,9 +150,21 @@ const UpdateTicket: FC = () => {
 
   },[stores]);
 
+  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
+
   useEffect(() => {
+    if (stores.length === 0) return;
+    if (myStores?.length === 1) {
+      stores.forEach((element) => {
+        if (element.id === myStores[0].store_id) {
+          form.setFieldsValue({
+            from_store_id: element.id
+          });
+        }
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [stores]);
 
   return (
     <StyledWrapper>

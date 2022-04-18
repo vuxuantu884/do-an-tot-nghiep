@@ -1,57 +1,55 @@
-import React, {createRef, FC, useCallback, useEffect, useMemo, useState} from "react";
+import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
 import "./index.scss";
-import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER, InventoryTabUrl } from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import {Button, Card, Col, Form, Input, Row, Select, Space, Upload, Empty} from "antd";
+import { Button, Card, Col, Empty, Form, Input, Row, Select, Space, Upload } from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
-import {SearchOutlined, UploadOutlined} from "@ant-design/icons";
+import { SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {Store} from "model/inventory/transfer";
-import {
-  InventoryAdjustmentDetailItem,
-  LineItemAdjustment,
-} from "model/inventoryadjustment";
+import { Store } from "model/inventory/transfer";
+import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
 
-import {PageResponse} from "model/base/base-metadata.response";
-import {VariantImage, VariantResponse} from "model/product/product.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { VariantImage, VariantResponse } from "model/product/product.model";
 import PickManyProductModal from "../../purchase-order/modal/pick-many-product.modal";
 import ProductItem from "../../purchase-order/component/product-item";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
-import {UploadRequestOption} from "rc-upload/lib/interface";
-import {UploadFile} from "antd/es/upload/interface";
-import {findAvatar, formatCurrency, replaceFormatString} from "utils/AppUtils";
-import {useHistory} from "react-router";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { UploadRequestOption } from "rc-upload/lib/interface";
+import { UploadFile } from "antd/es/upload/interface";
+import { findAvatar, formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
-import {ConvertFullAddress} from "utils/ConvertAddress";
+import { ConvertFullAddress } from "utils/ConvertAddress";
 import CustomSelect from "component/custom/select.custom";
-import {searchAccountPublicAction} from "domain/actions/account/account.action";
-import {AccountResponse} from "model/account/account.model";
 import NumberInput from "component/custom/number-input.custom";
-import _, {parseInt} from "lodash";
-import {createInventoryAdjustmentAction, getVariantHasOnHandByStoreAction} from "domain/actions/inventory/inventory-adjustment.action";
-import {Link} from "react-router-dom";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import _, { parseInt } from "lodash";
+import {
+  createInventoryAdjustmentAction,
+  getVariantHasOnHandByStoreAction,
+} from "domain/actions/inventory/inventory-adjustment.action";
+import { Link } from "react-router-dom";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import CustomDatePicker from "component/custom/date-picker.custom";
-import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "../constants";
-import {AiOutlineClose} from "react-icons/ai";
+import { INVENTORY_AUDIT_TYPE_CONSTANTS } from "../constants";
+import { AiOutlineClose } from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
-import {DATE_FORMAT} from "utils/DateUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import moment from "moment";
-import SelectPaging from "component/custom/SelectPaging";
-import CustomPagination from "component/table/CustomPagination";
 import TextEllipsis from "component/table/TextEllipsis";
+import debounce from "lodash/debounce";
+import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
 
-const {Option} = Select;
+const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
 
@@ -78,7 +76,7 @@ const CreateInventoryAdjustment: FC = () => {
   const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment>>(
     [] as Array<LineItemAdjustment>
   );
-  const [data, setData] = useState<PageResponse<VariantResponse>>({
+  const [, setData] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -93,10 +91,6 @@ const CreateInventoryAdjustment: FC = () => {
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
-  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: { limit: 20, page: 1, total: 0 }
-  });
   const [auditType, setAuditType] = useState<string>(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
   const [adjustStoreIdBak, setAdjustStoreIdBak] = useState<number | null>(null);
 
@@ -116,6 +110,10 @@ const CreateInventoryAdjustment: FC = () => {
       key: "partly",
       name: "Một phần",
     },
+    {
+      key: "total",
+      name: "Toàn bộ",
+    },
   ];
 
   const [query, setQuery] = useState<SearchQueryVariant>({
@@ -125,29 +123,11 @@ const CreateInventoryAdjustment: FC = () => {
     store_ids: 0,
   });
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setAccounts(data);
-  }, []);
-
-  const getAccounts = useCallback((code: string, page: number) => {
-    dispatch(
-      searchAccountPublicAction(
-        { info: code, page: page, status: "active" },
-        setDataAccounts
-      )
-    );
-  }, [dispatch, setDataAccounts]);
-
-
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
-    console.log('1')
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
-    data.audited_by  = data.audited_by ?? [];
+    data.audited_bys = data.audited_bys ?? [];
 
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
     if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
@@ -195,22 +175,20 @@ const CreateInventoryAdjustment: FC = () => {
   const onChangeAuditType = useCallback(
     (auditType: string) => {
       setAuditType(auditType);
-      //const storeId = form.getFieldValue("adjusted_store_id") as number;
-      if (auditType ===  INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
-        setAuditType(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
-        //dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
-      }
     },
     []
   );
 
   // get store
   useEffect(() => {
-    dispatch(searchAccountPublicAction({}, setDataAccounts));
     dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
-  }, [dispatch, auditType, setDataAccounts, query, form]);
+  }, [dispatch, auditType, query, form]);
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
+
+  const onSearchProductDebounce = debounce((key: string) => {
+    onSearchProduct(key);
+  }, 300);
 
   const onSearchProduct = (value: string) => {
     const storeId = form.getFieldValue("adjusted_store_id");
@@ -237,7 +215,7 @@ const CreateInventoryAdjustment: FC = () => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+    resultSearch?.items?.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -274,26 +252,26 @@ const CreateInventoryAdjustment: FC = () => {
   const onSelectProduct = useCallback((value: string) => {
     const dataTemp = [...dataTable];
     const selectedItem = resultSearch?.items?.find(
-      (variant: VariantResponse) => variant.id.toString() === value
+      (variant: VariantResponse) => variant.id.toString() === value,
     );
 
     const variantPrice = selectedItem &&
-                         selectedItem.variant_prices &&
-                         selectedItem.variant_prices[0] &&
-                         selectedItem.variant_prices[0].retail_price;
+      selectedItem.variant_prices &&
+      selectedItem.variant_prices[0] &&
+      selectedItem.variant_prices[0].retail_price;
 
     const item = {...selectedItem,
       variant_name: selectedItem.name ?? selectedItem.variant_name,
       real_on_hand: 0,
       on_hand: selectedItem.on_hand ?? 0,
-      price: variantPrice ?? 0
-    }
+      price: variantPrice ?? 0,
+    };
 
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      drawColumns(dataTable.concat([{...item}]));
+      drawColumns(dataTable.concat([{ ...item }]));
 
       setDataTable((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...item}])
+        prev.concat([{ ...item }]),
       );
       setSearchVariant((prev: Array<LineItemAdjustment>) =>
         prev.concat([{...item}])
@@ -354,13 +332,15 @@ const CreateInventoryAdjustment: FC = () => {
             if (index !== -1) {
               fileList[index].status = "done";
               fileList[index].url = data[0];
-              let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+              let fileCurrent: Array<string> = form.getFieldValue("list_attached_files");
               if (!fileCurrent) {
                 fileCurrent = [];
               }
-              fileCurrent.push(data[0]);
-              let newFileCurrent = [...fileCurrent];
-              form.setFieldsValue({attached_files: newFileCurrent});
+              let newFileCurrent = [
+                ...fileCurrent,
+                data[0]
+              ];
+              form.setFieldsValue({list_attached_files: newFileCurrent});
             }
           } else {
             fileList.splice(index, 1);
@@ -380,14 +360,14 @@ const CreateInventoryAdjustment: FC = () => {
     let index = fileList.findIndex((item) => item.uid === data.uid);
     if (index !== -1) {
       fileList.splice(index, 1);
-      let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+      let fileCurrent: Array<string> = form.getFieldValue("list_attached_files");
       if (!fileCurrent) {
         fileCurrent = [];
       } else {
         fileCurrent.splice(index, 1);
       }
       let newFileCurrent = [...fileCurrent];
-      form.setFieldsValue({attached_files: newFileCurrent});
+      form.setFieldsValue({list_attached_files: newFileCurrent});
     }
     setFileList([...fileList]);
   };
@@ -435,7 +415,7 @@ const CreateInventoryAdjustment: FC = () => {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_images",
-      render: (value: Array<VariantImage>, record: string[]) => {
+      render: (value: Array<VariantImage>) => {
         let avatar = undefined;
         if (value) {
           avatar = findAvatar(value);
@@ -452,7 +432,7 @@ const CreateInventoryAdjustment: FC = () => {
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: VariantResponse, index: number) => {
+      render: (value: string, record: VariantResponse) => {
         const storeId = form.getFieldValue("adjusted_store_id");
         return (
           <div>
@@ -478,7 +458,7 @@ const CreateInventoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>{formatCurrency(objSummaryTable.TotalOnHand)}</div>
+            <div>({formatCurrency(objSummaryTable.TotalOnHand)})</div>
           </>
         );
       },
@@ -494,7 +474,7 @@ const CreateInventoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn thực tế</div>
-            <div>{formatCurrency(objSummaryTable.TotalRealOnHand)}</div>
+            <div>({formatCurrency(objSummaryTable.TotalRealOnHand)})</div>
           </>
         );
       },
@@ -506,17 +486,17 @@ const CreateInventoryAdjustment: FC = () => {
           <>
           { auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY &&
             <NumberInput
-            isFloat={false}
-            id={`item-real-${index}`}
-            min={0}
-            maxLength={12}
-            value={value}
-            format={(a: string) => formatCurrency(a)}
-            replace={(a: string) =>
-              replaceFormatString(a)
-            }
+              isFloat={false}
+              id={`item-real-${index}`}
+              min={0}
+              maxLength={12}
+              value={value}
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) =>
+                replaceFormatString(a)
+              }
             onChange={(quantity) => {
-              onRealQuantityChange(quantity, row, index);
+              onRealQuantityChange(quantity, row);
             }}
           />
         }
@@ -529,7 +509,7 @@ const CreateInventoryAdjustment: FC = () => {
           <>
             <div>Thừa/Thiếu</div>
             <Row align="middle" justify="center">
-              {objSummaryTable.TotalExcess === 0 ? (
+              {objSummaryTable.TotalExcess === 0 || !objSummaryTable.TotalExcess ? (
                 ""
               ) : (
                 <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTable.TotalExcess)}</div>
@@ -574,8 +554,8 @@ const CreateInventoryAdjustment: FC = () => {
             <Button
               onClick={() => onDeleteItem(row.id)}
               className="product-item-delete"
-              icon={<AiOutlineClose  color="red" />}
-          />
+              icon={<AiOutlineClose color="red" />}
+            />
           }
         </>
       }
@@ -631,7 +611,7 @@ const CreateInventoryAdjustment: FC = () => {
   );
 
   const onRealQuantityChange = useCallback(
-    (quantity: number | null, row: LineItemAdjustment, index: number) => {
+    (quantity: number | null, row: LineItemAdjustment) => {
       const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
 
       dataTableClone.forEach((item) => {
@@ -641,7 +621,7 @@ const CreateInventoryAdjustment: FC = () => {
           item.real_on_hand = quantity;
           item.variant_id = item.id;
           item.variant_name = item.name;
-          let totalDiff = 0;
+          let totalDiff: number;
           totalDiff = quantity - item.on_hand;
           if (totalDiff === 0) {
             item.on_hand_adj = null;
@@ -671,61 +651,50 @@ const CreateInventoryAdjustment: FC = () => {
     [dataTable, keySearch, form, searchVariant, onEnterFilterVariant]
   );
 
-  const onSearchVariant = React.useMemo(()=>
-    _.debounce((keySearch: string) => {
-      setIsLoadingTable(true);
-      onEnterFilterVariant(null);
-    }, 300),
-    [onEnterFilterVariant]
-  )
+  const onSearchVariant = (key: string) => {
+    let temps = [...dataTable];
+    const keyLowerCase = key ? key.toLocaleLowerCase() : key;
 
-  const onChangeKeySearch = useCallback((keySearch)=>{
+    let dataSearch = [
+      ...temps.filter((e: LineItemAdjustment) => {
+        return (
+          e.on_hand === parseInt(keyLowerCase) ||
+          e.variant_name?.toLocaleLowerCase().includes(keyLowerCase) ||
+          e.sku?.toLocaleLowerCase().includes(keyLowerCase) ||
+          e.code?.toLocaleLowerCase().includes(keyLowerCase) ||
+          e.barcode?.toLocaleLowerCase().includes(keyLowerCase)
+        );
+      }),
+    ];
+
+    drawColumns(dataSearch);
+    setSearchVariant(dataSearch);
+  }
+
+  const onChangeKeySearch = (key: string) => {
+    onSearchVariant(key);
+  }
+
+  const clickSearch = () => {
     onSearchVariant(keySearch);
-  },[onSearchVariant]);
-
-  const onSearchVariantỌnHand = React.useMemo(()=>
-    _.debounce((key: string) => {
-      setIsLoadingTable(true);
-      const params = {
-        store_adj: form.getFieldValue("adjusted_store_id"),
-        condition: key ? key.toLocaleLowerCase(): keySearch.toLocaleLowerCase()};
-      dispatch(getVariantHasOnHandByStoreAction(params, onResultGetVariant));
-    }, 300),
-    [dispatch,onResultGetVariant, form,keySearch]
-  )
-
-  const onChangeKeyVariantOnHand = useCallback((keySearch)=>{
-    onSearchVariantỌnHand(keySearch);
-  },[onSearchVariantỌnHand]);
+  }
 
   const onChangeStore = useCallback(()=>{
     const storeId = form.getFieldValue("adjusted_store_id");
 
     setAdjustStoreIdBak(storeId);
     setIsShowModalChangeStore(false);
-    setQuery({...query, store_ids: storeId});
+    setQuery({ ...query, store_ids: storeId });
 
     if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
       setDataTable([]);
       drawColumns([]);
       setSearchVariant([]);
-    }else{
-      dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
+    } else {
+      dispatch(getVariantHasOnHandByStoreAction({ store_adj: storeId }, onResultGetVariant));
     }
 
   },[form,query,auditType, onResultGetVariant,dispatch, drawColumns]);
-
-  const onPageChange = useCallback(
-    (page, size) => {
-      const params = {
-        page: page,
-        limit: size,
-        store_adj: form.getFieldValue("adjusted_store_id"),
-        condition: keySearch.toLocaleLowerCase()};
-      dispatch(getVariantHasOnHandByStoreAction(params, onResultGetVariant));
-    },
-    [keySearch, dispatch, onResultGetVariant, form]
-  );
 
   return (
       <ContentContainer
@@ -781,7 +750,6 @@ const CreateInventoryAdjustment: FC = () => {
                           showArrow
                           optionFilterProp="children"
                           showSearch={false}
-                          allowClear={true}
                           value={auditType}
                           onChange={(value: string) => {
                             onChangeAuditType(value);
@@ -789,7 +757,7 @@ const CreateInventoryAdjustment: FC = () => {
                         >
                           {Array.isArray(lstAudiTypes) &&
                             lstAudiTypes.length > 0 &&
-                            lstAudiTypes.map((item, index) => (
+                            lstAudiTypes.map((item) => (
                               <Option key={item.key} value={item.key}>
                                 {item.name}
                               </Option>
@@ -824,7 +792,7 @@ const CreateInventoryAdjustment: FC = () => {
                         optionFilterProp="children"
                         showSearch
                         allowClear={true}
-                        onChange={(value: number, option) => {
+                        onChange={(value: number) => {
                           if (adjustStoreIdBak && value !== adjustStoreIdBak) {
                             setIsShowModalChangeStore(true);
                           } else {
@@ -834,7 +802,7 @@ const CreateInventoryAdjustment: FC = () => {
                           const store = stores.find(
                             (e) => e.id.toString() === value?.toString()
                           );
-                          store && store !== null
+                          store
                             ? setFormStoreData(store)
                             : setFormStoreData(null);
                         }}
@@ -855,7 +823,7 @@ const CreateInventoryAdjustment: FC = () => {
                 </Row>
                 {formStoreData && (
                   <Row gutter={24}>
-                    <Col span={3}></Col>
+                    <Col span={3}/>
                     <Col span={21}>
                       <div style={{ wordBreak: "break-word"}}>
                         <strong>{formStoreData.name}: </strong>
@@ -871,7 +839,7 @@ const CreateInventoryAdjustment: FC = () => {
                 bordered={false}
                 className={"product-detail"}
               >
-                  <>
+                <>
                   {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ?
                     <>
                     <Input.Group className="display-flex">
@@ -879,9 +847,9 @@ const CreateInventoryAdjustment: FC = () => {
                           id="#product_search_variant"
                           dropdownClassName="product"
                           placeholder="Thêm sản phẩm vào phiếu kiểm"
-                          onSearch={onSearchProduct}
+                          onSearch={(key: string) => onSearchProductDebounce(key)}
                           dropdownMatchSelectWidth={456}
-                          style={{width: "100%"}}
+                          style={{ width: "100%" }}
                           showAdd={true}
                           textAdd="Thêm mới sản phẩm"
                           onSelect={onSelectProduct}
@@ -890,7 +858,7 @@ const CreateInventoryAdjustment: FC = () => {
                           onClickAddNew={() => {
                             window.open(
                               `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                              "_blank"
+                              "_blank",
                             );
                           }}
                         />
@@ -902,7 +870,7 @@ const CreateInventoryAdjustment: FC = () => {
                             }
                             setVisibleManyProduct(true);
                           }}
-                          style={{width: 132, marginLeft: 10}}
+                          style={{ width: 132, marginLeft: 10 }}
                           icon={<img src={PlusOutline} alt="" />}
                         >
                           &nbsp;&nbsp; Chọn nhiều
@@ -918,8 +886,8 @@ const CreateInventoryAdjustment: FC = () => {
                           placeholder="Tìm kiếm sản phẩm trong phiếu"
                           addonAfter={
                             <SearchOutlined
-                              onClick={onChangeKeySearch}
-                              style={{color: "#2A2A86"}}
+                              onClick={clickSearch}
+                              style={{ color: "#2A2A86" }}
                             />
                           }
                         />
@@ -937,48 +905,11 @@ const CreateInventoryAdjustment: FC = () => {
                             : dataTable
                         }
                       />
-                    </> :
-                      <>
-                       <Input.Group className="display-flex">
-                        <Input
-                          name="key_search"
-                          onChange={(e) => {
-                            setKeySearch(e.target.value);
-                            onChangeKeyVariantOnHand(e.target.value);
-                          }}
-                          style={{marginLeft: 8}}
-                          placeholder="Tìm kiếm sản phẩm trong phiếu"
-                          addonAfter={
-                            <SearchOutlined
-                              onClick={()=>{onChangeKeyVariantOnHand(null)}}
-                              style={{color: "#2A2A86"}}
-                            />
-                          }
-                        />
-                      </Input.Group>
-                        <CustomTable
-                          className="product-table"
-                          rowClassName="product-table-row"
-                          tableLayout="fixed"
-                          columns={defaultColumns}
-                          pagination={false}
-                          loading={isLoadingTable}
-                          dataSource={data.items}
-                        />
-                        <CustomPagination
-                          pagination={{
-                            showSizeChanger: true,
-                            pageSize: data.metadata.limit,
-                            current: data.metadata.page,
-                            total: data.metadata.total,
-                            onChange: onPageChange,
-                            onShowSizeChange: onPageChange,
-                            pageSizeOptions: ["10","50","100"]
-                          }}
-                      />
-                     </>
+                    </> : <>
+                      <div className="text-center">Thông tin sản phẩm sẽ được hiển thị khi tạo xong phiếu</div>
+                    </>
                   }
-                  </>
+                </>
                 {!auditType ? (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
                 ) : null}
@@ -1019,7 +950,7 @@ const CreateInventoryAdjustment: FC = () => {
                 </Form.Item>
 
                 <Form.Item
-                  name="audited_by"
+                  name="audited_bys"
                   label={<b>Người kiểm</b>}
                   labelCol={{span: 24, offset: 0}}
                   colon={false}
@@ -1028,31 +959,11 @@ const CreateInventoryAdjustment: FC = () => {
                       message: "Vui lòng chọn người kiểm",
                   }]}
                 >
-                  <SelectPaging
+                  <AccountSearchPaging
                     mode="multiple"
-                    metadata={accounts.metadata}
-                    showSearch={false}
-                    allowClear
                     placeholder="Chọn người kiểm"
-                    searchPlaceholder="Tìm kiếm người kiểm"
-                    notFoundContent="Không tìm thấy kết quả"
                     style={{width: "100%"}}
-                    optionFilterProp="children"
-                    maxTagCount="responsive"
-                    getPopupContainer={(trigger) => trigger.parentNode}
-                    onPageChange={(key, page) => getAccounts(key, page)}
-                    onSearch={(key) => getAccounts(key, 1)}
-                  >
-                    {accounts.items.map((item, index) => (
-                      <SelectPaging.Option
-                        style={{width: "100%"}}
-                        key={index.toString()}
-                        value={item.code.toString()}
-                      >
-                        {`${item.code} - ${item.full_name}`}
-                      </SelectPaging.Option>
-                    ))}
-                  </SelectPaging>
+                  />
                 </Form.Item>
               </Card>
               <Card title={"GHI CHÚ"} bordered={false} className={"note"}>
@@ -1082,7 +993,7 @@ const CreateInventoryAdjustment: FC = () => {
                     <Button icon={<UploadOutlined />}>Chọn file</Button>
                   </Upload>
                 </Form.Item>
-                <Form.Item noStyle hidden name="attached_files">
+                <Form.Item noStyle hidden name="list_attached_files">
                   <Input />
                 </Form.Item>
               </Card>
@@ -1142,7 +1053,7 @@ const CreateInventoryAdjustment: FC = () => {
                 const store = stores.find(
                   (e) => e.id.toString() === adjustStoreIdBak?.toString()
                 );
-                store && store !== null
+                store
                   ? setFormStoreData(store)
                   : setFormStoreData(null);
 

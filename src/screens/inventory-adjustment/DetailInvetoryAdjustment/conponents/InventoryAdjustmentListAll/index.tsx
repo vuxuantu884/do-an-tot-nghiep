@@ -1,37 +1,38 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {
   InventoryAdjustmentDetailItem,
   LineItemAdjustment,
 } from "model/inventoryadjustment";
-import {Col, Input, Radio, Row, Space, Table, Tooltip} from "antd";
+import {Col, Input, Row, Space, Table} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import {PurchaseOrderLineItem} from "model/purchase-order/purchase-item.model";
 import {Link} from "react-router-dom";
 import { InventoryTabUrl } from "config/url.config";
 import {useDispatch} from "react-redux";
-import {getLinesItemAdjustmentAction} from "domain/actions/inventory/inventory-adjustment.action";
-import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
-import {CodepenOutlined, InfoCircleOutlined, PieChartOutlined, SearchOutlined, UserSwitchOutlined} from "@ant-design/icons";
+import {
+  getLinesItemAdjustmentAction,
+  updateReasonItemOnlineInventoryAction,
+} from "domain/actions/inventory/inventory-adjustment.action";
+import {showSuccess} from "utils/ToastUtils";
+import {
+  INVENTORY_AUDIT_TYPE_CONSTANTS,
+  STATUS_INVENTORY_ADJUSTMENT_CONSTANTS,
+} from "screens/inventory-adjustment/constants";
+import {SearchOutlined} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import _ from "lodash";
-import { callApiNative } from "utils/ApiUtils";
-import { updateReasonItemOnlineInventoryApi } from "service/inventory/adjustment/index.service";
-import EditNote from "screens/order-online/component/edit-note";
+import { formatCurrency } from "../../../../../utils/AppUtils";
+const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
   idNumber: number,
+  objSummaryTableByAuditTotal: any,
 };
-
-const arrTypeNote = [
-  {key: 1,value: "XNK sai quy trình"},
-  {key: 2,value: "Sai trạng thái đơn hàng"},
-  {key: 3,value: "Thất thoát"},
-]
 
 export interface Summary {
   TotalExcess: number | 0;
@@ -50,8 +51,8 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       total: 0,
     },
     items: [],
-  }); 
-  
+  });
+
 
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
@@ -63,22 +64,22 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   const [keySearch, setKeySearch] = useState<string>("");
   const dispatch = useDispatch();
 
-  const {data, idNumber} = props;
+  const {data, idNumber, objSummaryTableByAuditTotal} = props;
 
 
   //phân quyền
   const [allowUpdate] = useAuthorization({
     acceptPermissions: [InventoryAdjustmentPermission.update],
-  }); 
+  });
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment>) => {
     let totalExcess = 0,
       totalMiss = 0,
       totalQuantity = 0,
       totalReal = 0;
-    data?.forEach((element: LineItemAdjustment) => {
+    data.length > 0 && data?.forEach((element: LineItemAdjustment) => {
       totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
+      totalReal += parseInt(element.real_on_hand ? element.real_on_hand.toString() : '0') ?? 0;
       let on_hand_adj = element.on_hand_adj ?? 0;
       if (on_hand_adj > 0) {
         totalExcess += on_hand_adj;
@@ -96,54 +97,6 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     });
   }, []);
 
-  const onResultDataTable = useCallback(
-    (result: PageResponse<LineItemAdjustment> | false) => {
-      if (result) { 
-        setDataLinesItem({...result}); 
-      }
-    },
-    []
-  );
-
-  const getLinesItemAdjustment= useCallback((page: number,size: number, keySearch: string|null)=>{
-    dispatch(
-      getLinesItemAdjustmentAction(
-        idNumber,
-        `page=${page}&limit=${size}&type=total&condition=${keySearch?.toString()}`,
-        onResultDataTable
-      )
-    );
-  },[idNumber,  dispatch, onResultDataTable]);
-
-  const onChangeReason = (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
-    row.note = value;  
-
-    dataItems.items.forEach((e)=>{
-      if (e.variant_id === row.id) {
-        e.note = row.note;
-      }
-    }); 
-
-    setDataLinesItem({...dataItems});
-  }
-  const handleNoteChange = useCallback(async (index:number, newValue: string,item: LineItemAdjustment) => {
-    const value = newValue;
-    if (value && value.indexOf('##') !== -1) {
-      return;
-    }
-   
-    item.note = value ?? "";
-    if (item.note) {
-      item.note = item.note.substring(item.note.lastIndexOf("#")+1,item.note.length);
-    }
-    
-    const res = await callApiNative({isShowError: false},dispatch,updateReasonItemOnlineInventoryApi,data?.id ?? 0,item.id,item);
-    
-    if (res) {
-      onChangeReason(item.note, item, dataLinesItem);
-    }
-  },[dataLinesItem,dispatch,data]);
-
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -155,7 +108,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_image",
-      render: (value: string, record: any) => {
+      render: (value: string) => {
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
@@ -168,7 +121,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -191,7 +144,9 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>{objSummaryTable.TotalOnHand}</div>
+            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
+              ? formatCurrency(objSummaryTable.TotalOnHand)
+              : formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
         );
       },
@@ -207,7 +162,9 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tồn thực tế</div>
-            <div>{objSummaryTable.TotalRealOnHand}</div>
+            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
+              ? formatCurrency(objSummaryTable.TotalRealOnHand)
+              : formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
       },
@@ -223,99 +180,140 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Thừa/Thiếu</div>
-            <Row align="middle" justify="center">
-              {objSummaryTable.TotalExcess === 0 ? (
-                ""
-              ) : (
-                <div style={{color: "#27AE60"}}>+{objSummaryTable.TotalExcess}</div>
-              )}
-              {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
-                <Space>/</Space>
-              ) : (
-                ""
-              )}
-              {objSummaryTable.TotalMiss === 0 ? (
-                ""
-              ) : (
-                <div style={{color: "red"}}>-{objSummaryTable.TotalMiss}</div>
-              )}
-            </Row>
+            {data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ? (
+              <Row align="middle" justify="center">
+                {objSummaryTable.TotalExcess === 0 || !objSummaryTable.TotalExcess ? (
+                  ""
+                ) : (
+                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTable.TotalExcess)}</div>
+                )}
+                {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
+                  <Space>/</Space>
+                ) : (
+                  ""
+                )}
+                {objSummaryTable.TotalMiss === 0 ? (
+                  ""
+                ) : (
+                  <div style={{ color: "red" }}>-{formatCurrency(objSummaryTable.TotalMiss)}</div>
+                )}
+              </Row>
+            ) : (
+              <Row align="middle" justify="center">
+                {objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess ? (
+                  ""
+                ) : (
+                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</div>
+                )}
+                {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
+                  <Space>/</Space>
+                ) : (
+                  ""
+                )}
+                {objSummaryTableByAuditTotal.totalMissing === 0 ? (
+                  ""
+                ) : (
+                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
+                )}
+              </Row>
+            )}
           </>
         );
       },
       align: "center",
       width: 200,
-      render: (value, item, index: number) => {
+      render: (value, item) => {
         if (!item.on_hand_adj && item.on_hand_adj === 0) {
           return null;
         }
         if (item.on_hand_adj && item.on_hand_adj < 0) {
           return <div style={{color: "red"}}>{item.on_hand_adj}</div>;
         } else {
-          return <div style={{color: "green"}}>+{item.on_hand_adj}</div>;
+          return <div style={{color: "green"}}>{item.on_hand_adj ? `+${item.on_hand_adj}` : ''}</div>;
         }
       },
     },
     {
-      title: <div>
-        Lý do <Tooltip title={
-        <div>
-          <div>1.XNK sai quy trình</div>
-          <div>2.Sai trạng thái đơn hàng</div>
-          <div>3.Thất thoát</div>
-        </div>
-      }><InfoCircleOutlined type="primary" color="primary" /></Tooltip>
-      </div>,
+      title: "Lý do",
       dataIndex: "note",
       align: "left",
       width: 200,
       render: (value: string, row: LineItemAdjustment, index: number) => {
-        let note = `${index}#${value}`;
-        let tooltip = null;
-        
-        if (!arrTypeNote.find(e=>e.value === value)) {
-          note = `${index}##${value}`;
-          tooltip= value;
-        }
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
-            <Radio.Group value={note} buttonStyle="solid" onChange={(e)=>{
-              handleNoteChange(index,e.target.value,row);
-            }}>
-              <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
-                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[0].value}`}>
-                  <UserSwitchOutlined />
-                </Radio.Button>
-              </Tooltip>
-               <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
-                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[1].value}`}>
-                  <CodepenOutlined />
-                </Radio.Button>
-              </Tooltip>
-               <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
-                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[2].value}`}>
-                  <PieChartOutlined />
-                </Radio.Button>
-              </Tooltip>
-               <Tooltip placement="topLeft" title={tooltip}>
-                <Radio.Button
-                  style={{paddingLeft: 8,paddingRight:8}}
-                  value={`${index}##${value}`}>
-                  <EditNote
-                    note={tooltip}
-                    title=""
-                    onOk={(newNote) => {
-                      handleNoteChange(index,newNote,row);
-                    }}
-                /></Radio.Button>
-              </Tooltip>
-          </Radio.Group>
+            <TextArea
+              placeholder="Lý do lệch tồn"
+              id={`item-reason-${index}`}
+              value={value ? value : ""}
+              maxLength={250}
+              onChange={(e) => {
+                onChangeReason(e.target.value, row, dataLinesItem);
+              }}
+            />
           );
         }
         return value || "";
       },
     },
   ];
+
+  const onResultDataTable = useCallback(
+    (result: PageResponse<LineItemAdjustment> | false) => {
+      if (result) {
+        setDataLinesItem({...result});
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+    []
+  );
+
+  const getLinesItemAdjustment = useCallback((page: number,size: number, keySearch: string|null)=>{
+    setTimeout(() => {
+      dispatch(
+        getLinesItemAdjustmentAction(
+          idNumber,
+          `page=${page}&limit=${size}&type=total&condition=${keySearch?.toString()}`,
+          onResultDataTable
+        )
+      );
+    }, 0);
+  },[idNumber, dispatch, onResultDataTable]);
+
+  const debounceChangeReason = useMemo(()=>
+  _.debounce((row: LineItemAdjustment)=>{
+
+    const newData = {
+      real_on_hand: row.real_on_hand,
+      note: row.note,
+    };
+
+    dispatch(
+      updateReasonItemOnlineInventoryAction(data?.id, row.id, newData, (result) => {
+        if (result) {
+          showSuccess("Nhập lý do thành công.");
+        }
+      })
+    );
+
+}, 500),
+[data?.id, dispatch]
+);
+
+const onChangeReason = useCallback(
+  (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
+    row.note = value;
+
+    dataItems.items.forEach((e)=>{
+      if (e.variant_id === row.id) {
+        e.note = row.note;
+      }
+    });
+
+    setDataLinesItem({...dataItems});
+    debounceChangeReason(row);
+  },
+  [debounceChangeReason]
+);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -340,16 +338,16 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
 
   const onChangeKeySearch = useCallback((code: string)=>{
     debounceSearchVariant(code);
-  },[debounceSearchVariant]); 
+  },[debounceSearchVariant]);
 
   useEffect(() => {
-    getLinesItemAdjustment(1,30, "");
-  }, [getLinesItemAdjustment]);
+    getLinesItemAdjustment(dataLinesItem.metadata.page,dataLinesItem.metadata.limit, "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  }, []);
 
   useEffect(() => {
     drawColumns(dataLinesItem.items);
   }, [dataLinesItem, drawColumns]);
-
 
   return (
     <>
@@ -362,7 +360,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
               onChange={(e) => {
                 setKeySearch(e.target.value);
                 onChangeKeySearch(e.target.value);
-              }} 
+              }}
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -374,7 +372,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
                 <SearchOutlined
                   onClick={() => {
                   }}
-                  style={{color: "#2A2A86"}} 
+                  style={{color: "#2A2A86"}}
                 />
               }
             />
@@ -388,7 +386,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         style={{paddingTop: 16}}
         pagination={false}
         columns={defaultColumns}
-        dataSource={dataLinesItem.items} 
+        dataSource={dataLinesItem.items}
       />
       <CustomPagination
        pagination={{

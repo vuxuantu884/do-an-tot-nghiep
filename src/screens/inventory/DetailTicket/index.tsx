@@ -1247,7 +1247,7 @@ const DetailTicket: FC = () => {
                     </Col>
                     <Col span={24}>
                       <span className="text-focus">
-                        {data.attached_files?.map(
+                        {Array.isArray(data.attached_files) && data.attached_files.length > 0 && data.attached_files?.map(
                           (link: string, index: number) => {
                             return (
                               <a
