@@ -5,7 +5,7 @@ import { AnalyticCube, AnnotationData } from "model/report/analytics.model";
 export const AnnotationDataList: AnnotationData[] = [
     {
         alias: UrlConfig.ANALYTIC_SALES_OFFLINE,
-        cube: AnalyticCube.Sales,
+        cubes: [AnalyticCube.Sales, AnalyticCube.OfflineSales],
         data: [
             {
                 annotation: 'SL hàng bán ra',
@@ -76,7 +76,7 @@ export const AnnotationDataList: AnnotationData[] = [
     },
     {
         alias: UrlConfig.ANALYTIC_SALES_OFFLINE,
-        cube: AnalyticCube.Payments,
+        cubes: [AnalyticCube.Payments],
         data: [
             {
                 annotation: 'Tiền đã thanh toán',
@@ -115,7 +115,7 @@ export const AnnotationDataList: AnnotationData[] = [
     },
     {
         alias: UrlConfig.ANALYTIC_FINACE,
-        cube: AnalyticCube.Costs,
+        cubes: [AnalyticCube.Costs],
         data: [
             {
                 annotation: 'SL hàng bán ra',

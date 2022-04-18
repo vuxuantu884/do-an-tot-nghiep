@@ -40,8 +40,8 @@ function CreateAnalytics() {
     const [isVisibleAnnotation, setIsVisibleAnnotation] = React.useState(false);
 
     const currentAnnotation: AnnotationData | undefined = useMemo(() => {
-        return AnnotationDataList.find((item) => item.cube === dataQuery?.query.cube);
-    }, [dataQuery?.query.cube])
+        return AnnotationDataList.find((item) => dataQuery && item.cubes.includes(dataQuery.query.cube as AnalyticCube));
+    }, [dataQuery])
 
     const handleRQuery = useCallback(async (rQuery: string, params: AnalyticQuery) => {
         console.log(rQuery)
@@ -179,7 +179,7 @@ function CreateAnalytics() {
             formCloneReport.setFieldsValue({ name: `${report.name} nhân bản` })
 
             cubeRef.current = report.group;
-            const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.query, options: report.options } : { q: report.query };
+            const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.query, options: report.options } : { q: report.query };
             const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullParams);
             if (response) {
                 const { columns, rows, conditions, from, to, order_by: orderBy } = response.query;
@@ -284,7 +284,7 @@ function CreateAnalytics() {
                     conditions: mapperConditions ? mapperConditions : conditions
                 } as AnalyticQuery;
                 const query = generateRQuery(params);
-                const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
+                const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, fullParams);
                 if (response) {
                     const { columns, data } = response.result;

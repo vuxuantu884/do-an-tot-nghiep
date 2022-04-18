@@ -3,13 +3,12 @@ import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
 import { AppConfig } from 'config/app.config';
 import { DETAIL_LINKS, TIME_AT_OPTION, TIME_GROUP_BY } from 'config/report/report-templates';
-import UrlConfig from 'config/url.config';
 import _ from 'lodash';
-import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME, TimeAtOptionValue } from 'model/report/analytics.model';
+import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
 import moment from 'moment';
 import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useRouteMatch } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { executeAnalyticsQueryService } from 'service/report/analytics.service';
 import { callApiNative } from 'utils/ApiUtils';
 import { formatCurrency } from 'utils/AppUtils';
@@ -51,7 +50,6 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
 
     const dispatch = useDispatch();
     const [warningChooseColumn, setWarningChooseColumn] = useState(false);
-    const { path: matchPath } = useRouteMatch();
 
     const pushSubmitAction = () => {
         form.submit()
@@ -365,12 +363,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                 <Select
                                     placeholder="Chọn giá trị ghi nhận theo"
                                     onChange={handleChangeTimeGroup}>
-                                    {TIME_AT_OPTION.filter(item => {
-                                        if (matchPath.includes(UrlConfig.ANALYTIC_SALES_OFFLINE)) {
-                                            return item.value === TimeAtOptionValue.CompletedAt;
-                                        }
-                                        return item;
-                                    }).map(({ label, value }) => {
+                                    {TIME_AT_OPTION.map(({ label, value }) => {
                                         return (
                                             <Select.Option key={value} value={value}>
                                                 {label}
