@@ -16,7 +16,7 @@ import {
   getVariantHasOnHandByStoreApi,
   updateInventorAdjustmentApi,
   updateItemOnlineInventoryApi,
-  updateOnlineInventoryApi,
+  updateOnlineInventoryApi, updateReasonItemOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
 import {InventoryAdjustmentDetailItem} from "model/inventoryadjustment";
 import { callApiSaga } from "utils/ApiUtils";
@@ -126,6 +126,37 @@ function* updateItemOnlineInventorySaga(action: YodyAction) {
     // showError("Có lỗi vui lòng thử lại sau");
   }
 }
+
+function* updateReasonItemOnlineInventorySaga(action: YodyAction) {
+  let {id, lineId, data, onResult} = action.payload;
+
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      updateReasonItemOnlineInventoryApi,
+      id,
+      lineId,
+      data
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
+
 function* updateOnlineInventorySaga(action: YodyAction) {
   let {id, onResult} = action.payload;
 
@@ -263,6 +294,10 @@ export function* inventoryAdjustmentSaga() {
   yield takeLatest(
     InventoryType.UPDATE_ITEM_ONLINE_INVENTORY,
     updateItemOnlineInventorySaga
+  );
+  yield takeLatest(
+    InventoryType.UPDATE_REASON_ITEM_ONLINE_INVENTORY,
+    updateReasonItemOnlineInventorySaga
   );
   yield takeLatest(InventoryType.UPDATE_ONLINE_INVENTORY, updateOnlineInventorySaga);
   yield takeLatest(InventoryType.UPDATE_ADJUSTMENT_INVENTORY, adjustInventorySaga);

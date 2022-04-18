@@ -61,6 +61,20 @@ const updateItemOnlineInventoryAction = (
   });
 };
 
+const updateReasonItemOnlineInventoryAction = (
+  id: number,
+  lineId: number,
+  data: Partial<LineItemAdjustment>,
+  onResult: (data: LineItemAdjustment) => void
+) => {
+  return BaseAction(InventoryType.UPDATE_REASON_ITEM_ONLINE_INVENTORY, {
+    id,
+    lineId,
+    data,
+    onResult,
+  });
+};
+
 const updateOnlineInventoryAction = (
   id: number,
   onResult: (data: Array<StoreResponse>) => void
@@ -135,5 +149,6 @@ export {
   InventoryAdjustmentGetPrintContentAction,
   getLinesItemAdjustmentAction,
   updateInventoryAdjustmentAction,
-  getVariantHasOnHandByStoreAction
+  getVariantHasOnHandByStoreAction,
+  updateReasonItemOnlineInventoryAction
 };

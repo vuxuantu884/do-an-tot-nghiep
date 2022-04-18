@@ -18,6 +18,7 @@ export const ImportStatusWrapper = styled.div`
       padding: 10px 15px;
       margin-top: 30px;
       background-color: #F5F5F5;
+      max-width: 100%;
 
       ul {
         list-style: none;
@@ -34,5 +35,12 @@ export const ImportStatusWrapper = styled.div`
         }
       }
     }
+  }
+  
+  .ant-upload-list-item-name {
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    width: 200px;
   }
 `;
