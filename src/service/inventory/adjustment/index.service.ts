@@ -33,13 +33,15 @@ const createInventorAdjustmentGetApi = (
 
 const updateItemOnlineInventoryApi = (
   id: number,
+  lineId: number,
   data: LineItemAdjustment
 ): Promise<BaseResponse<string>> => {
   return BaseAxios.put(
-    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item`,
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item/${lineId}`,
     data
   );
 };
+
 
 const updateOnlineInventoryApi = (id: number): Promise<BaseResponse<string>> => {
   return BaseAxios.put(

@@ -1,8 +1,8 @@
 import React, {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
-import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload, Form} from "antd";
+import UrlConfig, {InventoryTabUrl} from "config/url.config";
+import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload, Form, AutoComplete} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
@@ -27,7 +27,6 @@ import {Link} from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryAdjustmentTimeLine from "./conponents/InventoryAdjustmentTimeLine";
 import {VariantResponse} from "model/product/product.model";
-import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import {showError, showSuccess} from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
@@ -55,7 +54,7 @@ import {HttpStatus} from "config/http-status.config";
 import {UploadRequestOption} from "rc-upload/lib/interface";
 import InventoryTransferExportModal from "./conponents/ExportModal";
 import {useReactToPrint} from "react-to-print";
-import {generateQuery} from "utils/AppUtils";
+import {generateQuery, handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
 import purify from "dompurify";
 import {AccountResponse} from "model/account/account.model";
 import {searchAccountPublicAction} from "domain/actions/account/account.action";
@@ -74,9 +73,13 @@ import useAuthorization from "hook/useAuthorization";
 import TextArea from "antd/es/input/TextArea";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
+import { RefSelectProps } from "antd/lib/select";
+import { callApiNative } from "utils/ApiUtils";
+import { getLinesItemAdjustmentApi } from "service/inventory/adjustment/index.service";
 
 const {TabPane} = Tabs;
 
+let barCode = "";
 export interface InventoryParams {
   id: string;
 }
@@ -110,11 +113,13 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const productSearchRef = createRef<CustomAutoComplete>();
+  const productSearchRef = React.useRef<any>(null);
+  const productAutoCompleteRef = createRef<RefSelectProps>();
 
   const {id} = useParams<InventoryParams>();
   const idNumber = parseInt(id);
   const [keySearch, setKeySearch] = useState<string>("");
+  const [textSearch, setTextSearch] = useState<string>("");
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
 
@@ -171,26 +176,28 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
-  const onSearchProduct = (value: string) => {
-    const storeId = data?.adjusted_store_id;
-    if (!storeId) {
-      showError("Vui lòng chọn kho gửi");
-      return;
-    } else if (value.trim() !== "" && value.length >= 3) {
-      dispatch(
-        inventoryGetVariantByStoreAction(
-          {
-            status: "active",
-            limit: 10,
-            page: 1,
-            store_ids: storeId,
-            info: value.trim(),
-          },
-          setResultSearch
-        )
-      );
-    }
-  };
+  const onSearch = useCallback((value: string)=>{
+    setTextSearch(value);
+  },[setTextSearch]);
+
+  const onSearchProduct = useCallback(
+    (value: string) => {
+      const storeId = form.getFieldValue("from_store_id");
+      if (value.trim() !== "" && value.length >= 3) {
+        dispatch(
+          inventoryGetVariantByStoreAction(
+            {
+              status: "active",
+              limit: 10,
+              page: 1,
+              store_ids: storeId,
+              info: value.trim(),
+            },
+            setResultSearch
+          )
+        );
+      }
+  },[dispatch, setResultSearch, form]);
 
   let textTag = "";
   let classTag = "";
@@ -247,7 +254,6 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const onResultDataTable = useCallback(
     (result: PageResponse<LineItemAdjustment> | false) => {
-      setTableLoading(true);
       if (result) {
         setDatalinesItem({...result});
         drawColumns(result?.items);
@@ -259,15 +265,10 @@ const DetailInvetoryAdjustment: FC = () => {
   );
 
   const onSelectProduct = useCallback(
-    (value: string) => {
-      const dataTemp = [...dataLinesItem.items];
-      let selectedItem = resultSearch?.items?.find(
-        (variant: VariantResponse) => variant.id.toString() === value
-      );
-
-      if ( !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
-      ) {
-        const variantPrice =
+    (value: string,item: LineItemAdjustment) => {
+      let selectedItem = {...item};
+      
+      const variantPrice =
         selectedItem &&
         selectedItem.variant_prices &&
         selectedItem.variant_prices[0] &&
@@ -275,9 +276,8 @@ const DetailInvetoryAdjustment: FC = () => {
 
         selectedItem = {
           ...selectedItem,
-          variant_id: selectedItem.id,
           variant_name: selectedItem.variant_name ?? selectedItem.name,
-          real_on_hand: 0,
+          real_on_hand: (selectedItem.real_on_hand ?? 0) + 1,
           on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
           on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),
           price: variantPrice ?? 0,
@@ -285,23 +285,27 @@ const DetailInvetoryAdjustment: FC = () => {
         };
 
         setHasError(false);
+console.log('selectedItem',selectedItem);
 
         dispatch(
-          updateItemOnlineInventoryAction(idNumber, selectedItem, (result) => {
+          updateItemOnlineInventoryAction(idNumber, selectedItem.id, selectedItem, (result) => {
             if (result) {
               dispatch(
                 getLinesItemAdjustmentAction(
                   idNumber,
-                  `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+                  `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}&condition=${keySearch?.toLocaleLowerCase()}`,
                   onResultDataTable
                 )
               );
             }
           })
         );
-      }
+      
+      setTextSearch("");
+      barCode="";
+      setResultSearch([]);
     },
-    [dataLinesItem.items, resultSearch, keySearch, idNumber, dispatch, onResultDataTable]
+    [dispatch, idNumber, dataLinesItem.metadata.page, dataLinesItem.metadata.limit, keySearch, onResultDataTable]
   );
 
   const onPickManyProduct = useCallback(
@@ -331,7 +335,7 @@ const DetailInvetoryAdjustment: FC = () => {
 
       arrayUnique.forEach((item) => {
         dispatch(
-          updateItemOnlineInventoryAction(idNumber, item, () => {
+          updateItemOnlineInventoryAction(idNumber,item.id, item, () => {
             if (result) {
               dispatch(
                 getLinesItemAdjustmentAction(
@@ -932,10 +936,9 @@ const onChangeNote = useCallback(
       }
       if (!data || (data === undefined || !data.id)) {
         return null;
-      }
-
+      } 
       dispatch(
-        updateItemOnlineInventoryAction(data.id, row, (result: LineItemAdjustment) => {
+        updateItemOnlineInventoryAction(data.id,row.id, row, (result: LineItemAdjustment) => {
           if (result) {
             showSuccess("Nhập tồn thực tế thành công.");
             onEnterFilterVariant(keySearch);
@@ -951,6 +954,84 @@ const onChangeNote = useCallback(
   const onChangeRealOnHand = useCallback((item: LineItemAdjustment, realOnHand: number)=>{
     debounceChangeRealOnHand(item, realOnHand);
   },[debounceChangeRealOnHand]);
+
+  const onSelect = useCallback(async(o,obj:any)=>{
+    const res = await callApiNative({isShowLoading: true},dispatch,getLinesItemAdjustmentApi,data?.id ?? 0,`condition=${obj.label.props.data.barcode}`);
+    if (res && res.items && res.items.length === 0) {
+      return;
+    }
+    onSelectProduct(o,res.items[0]);
+  },[data?.id,dispatch, onSelectProduct])
+
+  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
+    if (keyCode === "Enter" && code){
+      setTextSearch("");
+      barCode = "";
+      
+      const res = await callApiNative({isShowLoading: true},dispatch,getLinesItemAdjustmentApi,data?.id ?? 0,`condition=${code}`);
+      if (res && res.items && res.items.length > 0) {
+        onSelectProduct(res.items[0].id.toString(),res.items[0]);
+      }
+    }
+    else{
+      const txtSearchProductElement: any =
+        document.getElementById("product_search_variant");
+
+      onSearchProduct(txtSearchProductElement?.value);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[dispatch,onSelectProduct, onSearchProduct, form,data]);
+
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barCode = barCode + event.key;
+        } else if (event.key === "Enter") {
+          if (barCode !== "" && event) {
+            handleSearchProduct(event.key,barCode);
+            barCode = "";
+          }
+        }
+        return;
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const eventKeydown = useCallback(
+    (event: KeyboardEvent) => {
+
+     if (event.target instanceof HTMLInputElement) {
+       if (event.target.id === "product_search_variant") {
+         if (event.key !== "Enter")
+         {
+           barCode = barCode + event.key;
+         }
+         
+         handleDelayActionWhenInsertTextInSearchInput(
+           productAutoCompleteRef,
+           () => handleSearchProduct(event.key, barCode),
+           400
+         );
+         return;
+       }
+     }
+
+   },
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   [handleSearchProduct]
+ );
+
+  useEffect(() => {
+    window.addEventListener("keydown", eventKeydown);
+    window.addEventListener("keypress", eventKeyPress);
+    return () => {
+      window.removeEventListener("keydown", eventKeydown);
+      window.addEventListener("keypress", eventKeyPress);
+    };
+}, [eventKeyPress, eventKeydown]);
 
   return (
     <StyledWrapper>
@@ -1043,25 +1124,32 @@ const onChangeNote = useCallback(
                         acceptPermissions={[InventoryAdjustmentPermission.update]}
                       >
                         <Input.Group style={{paddingTop: 16}} className="display-flex">
-                          <CustomAutoComplete
-                            id="#product_search_variant"
-                            dropdownClassName="product"
-                            placeholder="Thêm sản phẩm vào phiếu kiểm"
-                            onSearch={onSearchProduct}
-                            dropdownMatchSelectWidth={456}
-                            style={{width: "100%"}}
-                            showAdd={true}
-                            textAdd="Thêm mới sản phẩm"
-                            onSelect={onSelectProduct}
+                          <AutoComplete
+                            notFoundContent={
+                              textSearch.length >= 3
+                                ? "Không tìm thấy sản phẩm"
+                                : undefined
+                            }
+                            value={textSearch}
+                            ref={productAutoCompleteRef}
+                            onSelect={(value: string,e: any)=>{onSelect(value,e)}}
+                            style={{ width: "100%" }}
+                            dropdownClassName="product dropdown-search-header"
+                            dropdownMatchSelectWidth={635}
+                            className="w-100 searchProductId"
+                            onSearch={onSearch}
                             options={renderResult}
-                            ref={productSearchRef}
-                            onClickAddNew={() => {
-                              window.open(
-                                `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                                "_blank"
-                              );
-                            }}
-                          />
+                            defaultActiveFirstOption
+                            id="product_search_variant"
+                          >
+                            <Input
+                              size="middle"
+                              className="yody-search"
+                              placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                              prefix={<i className="icon-search icon" />}
+                              ref={productSearchRef}
+                            />
+                          </AutoComplete>
                           <Button
                             onClick={() => {
                               setVisibleManyProduct(true);
@@ -1070,6 +1158,7 @@ const onChangeNote = useCallback(
                             style={{width: 132, marginLeft: 10}}
                             icon={<img src={PlusOutline} alt="" />}
                           >
+
                             &nbsp;&nbsp; Chọn nhiều
                           </Button>
 
