@@ -55,7 +55,11 @@ function useFetchTopSaleByShop() {
                     return 0;
                 }
             }).slice(0, MAX_TOP_RANK);
-            listTopSale[0].top = 1;
+
+            if(listTopSale.length){
+                listTopSale[0].top = 1;
+            }
+
             setTopSale((prevState: Map<string, DashboardTopSale[]>) => {
                 const newState = new Map(prevState);
                 newState.set(TOP_CHARTS_KEY.TOP_SHOP_SALES, listTopSale);

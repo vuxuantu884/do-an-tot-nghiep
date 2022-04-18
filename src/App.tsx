@@ -14,10 +14,8 @@ import SplashScreen from "./screens/splash.screen";
 
 function App() {
   const dispatch = useDispatch();
-  console.log('process.env', process.env)
   const isLoad = useSelector(
     (state: RootReducerType) => {
-      console.log('stateLog', state)
       return state.userReducer.isLoad
     }
   );
