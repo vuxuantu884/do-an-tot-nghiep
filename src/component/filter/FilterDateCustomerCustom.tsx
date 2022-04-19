@@ -1,6 +1,9 @@
+import React, {useMemo} from "react";
 import { Button, DatePicker } from "antd";
-import { CloseOutlined, SettingOutlined, SwapRightOutlined } from "@ant-design/icons";
+import {  SettingOutlined } from "@ant-design/icons";
 import { StyledSelectDateFilter } from "component/filter/StyledFilterComponent";
+import rightArrow from "assets/icon/right-arrow.svg";
+import {DATE_FORMAT, formatDateFilter} from "utils/DateUtils";
 
 type SelectDateFilterProps = {
   dateType: string
@@ -8,10 +11,8 @@ type SelectDateFilterProps = {
   dateSelected: string;
   startDate: any;
   endDate: any;
-  handleRemoveValueDateStart: () => void;
-  handleRemoveValueDateEnd: () => void;
-  handleGetDateStart: (date: any) => void;
-  handleGetDateEnd: (date: any) => void;
+  handleSelectDateStart: (date: any) => void;
+  handleSelectDateEnd: (date: any) => void;
 };
 
 const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
@@ -23,12 +24,17 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
     dateSelected,
     startDate,
     endDate,
-    handleRemoveValueDateStart,
-    handleRemoveValueDateEnd,
-    handleGetDateStart,
-    handleGetDateEnd
+    handleSelectDateStart,
+    handleSelectDateEnd
   } = props;
 
+  const startDateValue = useMemo(() => {
+    return startDate ? formatDateFilter(startDate) : null;
+  }, [startDate]);
+
+  const endDateValue = useMemo(() => {
+    return endDate ? formatDateFilter(endDate) : null;
+  }, [endDate]);
 
   return (
     <StyledSelectDateFilter>
@@ -79,64 +85,36 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
           </Button>
         </div>
 
-        <span style={{ margin: "10px 0" }}>
+        <div style={{ marginBottom: 5 }}>
           <SettingOutlined style={{ marginRight: "5px" }} />
           Tùy chọn khoảng thời gian:
-        </span>
+        </div>
         
-        <div className="buy-customer-box">
-          <div
-            className={
-              `buy-customer-box-start 
-              ${startDate !== null 
-                && startDate !== undefined 
-                && 'buy-customer-box-suffix'
-              }`
-            }
-          >
+        <div className="date-picker-styled">
+          <div className="date-picker-select">
             <DatePicker
-                allowClear={false}
-                className="buy-start-customer"
-                placeholder="Ngày bắt đầu"
-                format="DD-MM-YYYY"
-                value={startDate}
-                onChange={(date) => handleGetDateStart(date)}
-              />
-              <span 
-               className="buy-customer-box-start-close"
-               onClick={handleRemoveValueDateStart}
-              >
-              <CloseOutlined />
-              </span>
+              allowClear
+              placeholder="Ngày bắt đầu"
+              format={DATE_FORMAT.DD_MM_YYYY}
+              value={startDateValue}
+              onChange={handleSelectDateStart}
+            />
           </div>
 
           <div style={{ padding: "0px 5px" }}>
-            <SwapRightOutlined />
+            <img src={rightArrow} alt="" />
           </div>
 
-            <div className={
-              `buy-customer-box-end 
-              ${endDate !== null 
-                && endDate !== undefined 
-                && 'buy-customer-box-suffix'
-              }`
-            }>
-              <DatePicker
-                allowClear={false}
-                className="buy-end-customer"
-                placeholder="Ngày kết thúc"
-                format="DD-MM-YYYY"
-                value={endDate}
-                onChange={(date) => handleGetDateEnd(date)}
-              />
-              <span 
-               className="buy-customer-box-start-close"
-               onClick={handleRemoveValueDateEnd}
-              >
-              <CloseOutlined />
-              </span>
-            </div>
-         </div>
+          <div className="date-picker-select">
+            <DatePicker
+              allowClear
+              placeholder="Ngày kết thúc"
+              format={DATE_FORMAT.DD_MM_YYYY}
+              value={endDateValue}
+              onChange={handleSelectDateEnd}
+            />
+          </div>
+        </div>
         
       </div>
     </StyledSelectDateFilter>
