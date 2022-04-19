@@ -78,6 +78,9 @@ export interface HistoryInventoryResponse extends BaseObject{
   retail_price: number;
   total: number;
   total_discount: number;
+  quantity: number;
+  action: string;
+  on_hand: number
 }
 
 export interface HistoryInventoryQuery extends BaseQuery {
@@ -90,6 +93,7 @@ export interface HistoryInventoryQuery extends BaseQuery {
   variant_id?: number,
   to_quantity?: number,
   from_quantity?: number,
+  ids?: string
 }
 
 

@@ -1,4 +1,4 @@
-import { Card, Tabs } from "antd";
+import { Button, Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
@@ -11,6 +11,7 @@ import { generateQuery } from "utils/AppUtils";
 import { getQueryParams } from "utils/useQuery";
 import AllTab from "./tab/all.tab";
 import HistoryTab from "./tab/history.tab";
+import exportIcon from "assets/icon/export.svg";
 
 const { TabPane } = Tabs;
 
@@ -21,6 +22,7 @@ const InventoryScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const {path} = useRouteMatch();
+  const [vExportProduct,setVExportProduct] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
@@ -59,6 +61,21 @@ const InventoryScreen: React.FC = () => {
           name: "Danh sách tồn kho",
         },
       ]}
+      extra={
+        activeTab === InventoryTabUrl.HISTORIES &&
+        <Row>
+          <Space>
+              <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                  onClick={() => {setVExportProduct(true)}}
+                >
+                  Xuất file
+              </Button>
+          </Space>
+        </Row>
+      }
     >
       <Card style={{ padding: 0 }} className="card-tab">
         <Tabs
@@ -71,7 +88,7 @@ const InventoryScreen: React.FC = () => {
             <AllTab stores={stores} current={activeTab} />
           </TabPane>
           <TabPane tab="Lịch sử tồn kho" key={InventoryTabUrl.HISTORIES}>
-            <HistoryTab stores={stores} current={activeTab} />
+            <HistoryTab vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} stores={stores} current={activeTab} />
           </TabPane>
         </Tabs>
       </Card>
