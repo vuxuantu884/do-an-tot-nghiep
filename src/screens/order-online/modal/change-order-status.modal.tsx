@@ -1,10 +1,9 @@
 import { Button, Modal, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
-import { ChangeOrderStatusHtmlModel } from "model/order/order.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { borderColor } from "utils/global-styles/variables";
-import {StyledComponent} from "./change-order-status.moda.styles"
+import { StyledComponent } from "./change-order-status.moda.styles";
 
 type PropTypes = {
   visible: boolean;

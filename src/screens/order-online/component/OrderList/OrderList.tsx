@@ -22,7 +22,6 @@ import {
 } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
-import { cloneDeep, reject } from "lodash";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -47,7 +46,6 @@ import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService, setSubStatusService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful, isFulfillmentCancelled } from "utils/AppUtils";
-import { OrderStatus } from "utils/Constants";
 import { dangerColor, successColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
 import { showError, showSuccess } from "utils/ToastUtils";

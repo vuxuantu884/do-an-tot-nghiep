@@ -9,12 +9,8 @@ import search from "assets/img/search.svg";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  getListSubStatusAction,
-  getTrackingLogFulfillmentAction,
-  setSubStatusAction,
-  updateOrderPartial
+  getTrackingLogFulfillmentAction, updateOrderPartial
 } from "domain/actions/order/order.action";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
