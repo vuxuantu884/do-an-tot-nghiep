@@ -4,10 +4,11 @@ import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-visitors";
 import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { getCustomerVisitors, updateCustomerVisitors } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
@@ -32,6 +33,8 @@ function CustomerVisitors() {
     const [loadingTable, setLoadingTable] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [isFilter, setIsFilter] = useState<boolean>(true);
+
+    const myStores: any = useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
 
     const currentYear = moment().year();
     const currentMonth = moment().month() + 1;
@@ -59,16 +62,24 @@ function CustomerVisitors() {
     useEffect(() => {
         dispatch(getListStoresSimpleAction((stores) => {
             const storeIds = localStorage.getItem(LocalStorageKey.CustomerVisitorsStore);
-            if (storeIds?.length) {
+            if (storeIds && JSON.parse(storeIds).length) {
                 const validatedStoreIds = JSON.parse(storeIds).filter((storeId: number) => stores.findIndex((item) => item.id === +storeId) !== -1);
                 form.setFieldsValue({
                     [CustomerVisitorsFilter.StoreIds]: validatedStoreIds,
                 })
+                
+            } else {
+                if (myStores?.length) {
+                    form.setFieldsValue({
+                        [CustomerVisitorsFilter.StoreIds]: myStores.map((item: any) => item.store_id),
+                    })
+                }
+
             }
             setLoading(false);
             setStores(stores);
         }));
-    }, [dispatch, form]);
+    }, [dispatch, form, myStores]);
 
     useEffect(() => {
         const fetchCustomerVisitors = async () => {

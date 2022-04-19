@@ -31,13 +31,21 @@ export const AnalyticsStyle = styled.div`
 }
 
 .external-link {
-    display:none;
+    visibility: hidden;
+    display: inline-block;
+    margin-left: 0.5rem;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(216, 216, 234, 1);
+    border-radius: 4px;
 }
 
 .detail-link:hover {
     .external-link {
-        display: inline-block;
-        margin-left: 0.25rem;
+        visibility: visible;
+        :hover {
+            background-color: rgba(216, 216, 234, 0.75);
+        }
     }
 }
 
