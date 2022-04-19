@@ -25,5 +25,16 @@ export const StyledSelectDateFilter = styled.div`
         background-color: #2a2a86;
       }
     }
+	  
+	  .date-picker-styled {
+      display: flex;
+      align-items: center;
+		  .date-picker-select {
+			  flex-grow: 1;
+			  .ant-picker {
+				  width: 100%;
+			  }
+		  }
+	  }
   }
 `;

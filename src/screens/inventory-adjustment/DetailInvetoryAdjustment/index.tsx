@@ -1,20 +1,15 @@
-import React, {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {StyledWrapper} from "./styles";
+import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { StyledWrapper } from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
-import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload, Form} from "antd";
+import UrlConfig, { BASE_NAME_ROUTER, InventoryTabUrl } from "config/url.config";
+import { Button, Card, Col, Form, Input, Row, Space, Tabs, Tag, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
-import {
-  PaperClipOutlined,
-  PrinterOutlined,
-  SearchOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import {useHistory, useParams} from "react-router";
-import {useDispatch} from "react-redux";
+import { useHistory, useParams } from "react-router";
+import { useDispatch } from "react-redux";
 import {
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
@@ -26,17 +21,17 @@ import {
 import {Link} from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryAdjustmentTimeLine from "./conponents/InventoryAdjustmentTimeLine";
-import {VariantResponse} from "model/product/product.model";
+import { VariantResponse } from "model/product/product.model";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
-import _, {parseInt} from "lodash";
+import _, { parseInt } from "lodash";
 import {
   INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
   STATUS_INVENTORY_ADJUSTMENT,
 } from "../ListInventoryAdjustment/constants";
-import {PageResponse} from "model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import InventoryAdjustmentHistory from "./conponents/InventoryAdjustmentHistory";
 import InventoryAdjustmentListAll from "./conponents/InventoryAdjustmentListAll";
 import {
@@ -48,25 +43,25 @@ import {
   updateItemOnlineInventoryAction,
   updateOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {INVENTORY_AUDIT_TYPE_CONSTANTS, STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
-import {HttpStatus} from "config/http-status.config";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { INVENTORY_AUDIT_TYPE_CONSTANTS, STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "../constants";
+import { HttpStatus } from "config/http-status.config";
 
-import {UploadRequestOption} from "rc-upload/lib/interface";
+import { UploadRequestOption } from "rc-upload/lib/interface";
 import InventoryTransferExportModal from "./conponents/ExportModal";
-import {useReactToPrint} from "react-to-print";
-import {generateQuery} from "utils/AppUtils";
+import { useReactToPrint } from "react-to-print";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import purify from "dompurify";
-import {AccountResponse} from "model/account/account.model";
-import {searchAccountPublicAction} from "domain/actions/account/account.action";
-import {StyledComponent} from "screens/products/product/component/RowDetail/style";
+import { AccountResponse } from "model/account/account.model";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { StyledComponent } from "screens/products/product/component/RowDetail/style";
 import ModalConfirm from "component/modal/ModalConfirm";
-import {StoreResponse} from "model/core/store.model";
-import {ConvertFullAddress} from "utils/ConvertAddress";
-import {UploadFile} from "antd/lib/upload/interface";
+import { StoreResponse } from "model/core/store.model";
+import { ConvertFullAddress } from "utils/ConvertAddress";
+import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import {importFile, exportFile, getFile} from "service/other/import.inventory.service";
-import {ImportResponse} from "model/other/files/export-model";
+import { exportFile, getFile, importFile } from "service/other/import.inventory.service";
+import { ImportResponse } from "model/other/files/export-model";
 import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
@@ -74,8 +69,10 @@ import useAuthorization from "hook/useAuthorization";
 import TextArea from "antd/es/input/TextArea";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
+import { callApiNative } from "utils/ApiUtils";
+import { addLineItem, deleteLineItem, getTotalOnHand } from "service/inventory/adjustment/index.service";
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 
 export interface InventoryParams {
   id: string;
@@ -105,6 +102,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [data, setData] = useState<InventoryAdjustmentDetailItem>();
+  const [dataTab, setDataTab] = useState<any>();
   const [isShowConfirmAdited, setIsShowConfirmAdited] = useState<boolean>(false);
   const [isShowConfirmAdj, seIsShowConfirmAdj] = useState<boolean>(false);
 
@@ -117,6 +115,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const [keySearch, setKeySearch] = useState<string>("");
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [isReRender, setIsReRender] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState("");
   const printElementRef = useRef(null);
@@ -157,6 +156,13 @@ const DetailInvetoryAdjustment: FC = () => {
     TotalRealOnHand: 0,
   });
 
+  const [objSummaryTableByAuditTotal, setObjSummaryTableByAuditTotal] = useState<any>({
+    onHand: 0,
+    realOnHand: 0,
+    totalExcess: 0,
+    totalMissing: 0,
+  });
+
   //phân quyền
   const [allowUpdate] = useAuthorization({
     acceptPermissions: [InventoryAdjustmentPermission.update],
@@ -168,6 +174,13 @@ const DetailInvetoryAdjustment: FC = () => {
     }
     setAccounts(data.items);
   }, []);
+
+  useEffect(() => {
+    if (accounts.length === 0 || !data) return;
+
+    dispatch(searchAccountPublicAction({ codes: data.audited_bys?.join(',') }, setDataAccounts));
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  }, [JSON.stringify(accounts), data]);
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
@@ -186,14 +199,14 @@ const DetailInvetoryAdjustment: FC = () => {
             store_ids: storeId,
             info: value.trim(),
           },
-          setResultSearch
+          setResultSearch,
         )
       );
     }
   };
 
-  let textTag = "";
-  let classTag = "";
+  let textTag: string;
+  let classTag: string;
   switch (data?.status) {
     case STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status:
       textTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.name;
@@ -211,10 +224,10 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+    resultSearch?.items?.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
-        value: item.id.toString(),
+        value: JSON.stringify(item),
       });
     });
     return options;
@@ -247,111 +260,129 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const onResultDataTable = useCallback(
     (result: PageResponse<LineItemAdjustment> | false) => {
-      setTableLoading(true);
+      setTableLoading(false);
       if (result) {
         setDatalinesItem({...result});
         drawColumns(result?.items);
         setHasError(false);
-        setTableLoading(false);
       }
     },
     [drawColumns]
   );
 
+  const addItemApi = async (adjustmentId: number, data: any) => {
+    return await callApiNative(
+      { isShowError: false },
+      dispatch,
+      addLineItem,
+      adjustmentId,
+      data
+    );
+  };
+
+  const formatLineItemsData = (value: any) => {
+    let variantPrice = value &&
+      value.variant_prices &&
+      value.variant_prices[0] &&
+      value.variant_prices[0].retail_price;
+
+    const {
+      sku,
+      barcode,
+      id,
+      name,
+      variant_images,
+      product,
+      weight,
+      weight_unit
+    } = value;
+
+    return {
+      sku,
+      barcode,
+      variant_name: name || value.variant_name,
+      variant_id: id || value.variant_id,
+      variant_image: variant_images && variant_images.length > 0 ? variant_images[0] : '',
+      product_name: product ? product.name : value.product_name,
+      product_id: product ? product.id : value.product_id,
+      weight,
+      weight_unit,
+      real_on_hand: 0,
+      on_hand_adj: 0 - (value.on_hand ?? 0),
+      price: variantPrice ? variantPrice : value.price,
+      on_hand: value.on_hand ?? 0
+    }
+  }
+
   const onSelectProduct = useCallback(
     (value: string) => {
-      const dataTemp = [...dataLinesItem.items];
-      let selectedItem = resultSearch?.items?.find(
-        (variant: VariantResponse) => variant.id.toString() === value
-      );
+      let newValues = JSON.parse(value);
 
-      if ( !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
-      ) {
-        const variantPrice =
-        selectedItem &&
-        selectedItem.variant_prices &&
-        selectedItem.variant_prices[0] &&
-        selectedItem.variant_prices[0].retail_price;
+      const newData = formatLineItemsData(newValues);
 
-        selectedItem = {
-          ...selectedItem,
-          variant_id: selectedItem.id,
-          variant_name: selectedItem.variant_name ?? selectedItem.name,
-          real_on_hand: 0,
-          on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
-          on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),
-          price: variantPrice ?? 0,
-          on_hand: selectedItem.on_hand ?? 0
-        };
+      const data = {
+        line_items: [newData],
+      };
 
-        setHasError(false);
+      setHasError(false);
 
+      addItemApi(idNumber, data).then((res) => {
+        if (!res) return;
+        setTableLoading(true);
         dispatch(
-          updateItemOnlineInventoryAction(idNumber, selectedItem, (result) => {
-            if (result) {
-              dispatch(
-                getLinesItemAdjustmentAction(
-                  idNumber,
-                  `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
-                  onResultDataTable
-                )
-              );
-            }
-          })
+          getLinesItemAdjustmentAction(
+            idNumber,
+            `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}&condition=${keySearch?.toLocaleLowerCase()}`,
+            onResultDataTable,
+          ),
         );
-      }
+
+        getTotalOnHandApi().then((res) => {
+          if (!res) return;
+          setObjSummaryTableByAuditTotal(res);
+        });
+      })
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
     [dataLinesItem.items, resultSearch, keySearch, idNumber, dispatch, onResultDataTable]
   );
 
   const onPickManyProduct = useCallback(
     (result: Array<VariantResponse>) => {
       const newResult = result?.map((item) => {
-        const variantPrice =
-        item &&
-        item.variant_prices &&
-        item.variant_prices[0] &&
-        item.variant_prices[0].retail_price;
-
-        return {
-          ...item,
-          variant_id: item.id,
-          variant_name: item.variant_name ?? item.name,
-          real_on_hand: 0,
-          on_hand_adj: 0 - (item.on_hand ?? 0),
-          on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
-          on_hand: item.on_hand ?? 0,
-          price: variantPrice
-        };
+        return formatLineItemsData(item);
       });
-      const dataTemp = [...dataLinesItem.items, ...newResult];
 
-      const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
       setTableLoading(true);
 
-      arrayUnique.forEach((item) => {
-        dispatch(
-          updateItemOnlineInventoryAction(idNumber, item, () => {
-            if (result) {
-              dispatch(
-                getLinesItemAdjustmentAction(
-                  idNumber,
-                  `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
-                  onResultDataTable
-                )
-              );
-            }
-          })
-        );
-      });
+      const data = {
+        line_items: newResult,
+      };
 
-      setTableLoading(false);
-      setHasError(false);
-      setVisibleManyProduct(false);
+      addItemApi(idNumber, data).then((res) => {
+        if (!res) return;
+        setTableLoading(true);
+        dispatch(
+          getLinesItemAdjustmentAction(
+            idNumber,
+            `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}&condition=${keySearch?.toLocaleLowerCase()}`,
+            onResultDataTable,
+          ),
+        );
+
+        getTotalOnHandApi().then((res) => {
+          if (!res) return;
+          setObjSummaryTableByAuditTotal(res);
+        });
+
+        setTableLoading(false);
+        setHasError(false);
+        setVisibleManyProduct(false);
+      });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
     [dispatch, keySearch, idNumber, dataLinesItem.items, onResultDataTable]
   );
-
   const pageBreak = "<div class='pageBreak'></div>";
   const printContentCallback = useCallback(
     (printContent) => {
@@ -367,7 +398,8 @@ const DetailInvetoryAdjustment: FC = () => {
     [handlePrint]
   );
 
-  const onBeforeUpload = useCallback((file) => {}, []);
+  const onBeforeUpload = useCallback(() => {
+  }, []);
 
   const onCustomRequest = (options: UploadRequestOption<any>) => {
     const {file} = options;
@@ -402,26 +434,29 @@ const DetailInvetoryAdjustment: FC = () => {
       files.push(file);
       dispatch(
         inventoryUploadFileAction({files: files}, (data: false | Array<string>) => {
-          let index = fileListUpdate.findIndex((item) => item.uid === uuid);
+          let newFileListUpdate = [...fileListUpdate];
+          let index = newFileListUpdate.findIndex((item) => item.uid === uuid);
           if (!!data) {
             if (index !== -1) {
-              fileListUpdate[index].status = "done";
-              fileListUpdate[index].url = data[0];
-              let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+              newFileListUpdate[index].status = "done";
+              newFileListUpdate[index].url = data[0];
+              let fileCurrent: Array<string> = form.getFieldValue("list_attached_files");
               if (!fileCurrent) {
                 fileCurrent = [];
               }
-              fileCurrent.push(data[0]);
-              let newFileCurrent = [...fileCurrent];
-              form.setFieldsValue({attached_files: newFileCurrent});
+              let newFileCurrent = [
+                ...fileCurrent,
+                data[0]
+              ];
+              form.setFieldsValue({list_attached_files: newFileCurrent});
 
-              updateAdjustment();
+              updateAdjustment(true);
             }
           } else {
-            fileListUpdate.splice(index, 1);
+            newFileListUpdate.splice(index, 1);
             showError("Upload file không thành công");
           }
-          setFileListUpdate([...fileListUpdate]);
+          setFileListUpdate(newFileListUpdate);
         })
       );
     }
@@ -454,13 +489,15 @@ const DetailInvetoryAdjustment: FC = () => {
       title: "STT",
       align: "center",
       width: "70px",
-      render: (value: string, record: VariantResponse, index: number) => index + 1,
+      render: (value, row, index) => {
+        return <span>{(dataLinesItem.metadata.page - 1) * dataLinesItem.metadata.limit + index + 1}</span>;
+      },
     },
     {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_image",
-      render: (value: string, record: any) => {
+      render: (value: string) => {
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
@@ -473,7 +510,7 @@ const DetailInvetoryAdjustment: FC = () => {
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: VariantResponse, index: number) => (
+      render: (value: string, record: VariantResponse) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -496,7 +533,9 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>{objSummaryTable.TotalOnHand}</div>
+            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
+              ? formatCurrency(objSummaryTable.TotalOnHand)
+              : formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
         );
       },
@@ -512,23 +551,23 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn thực tế</div>
-            <div>{objSummaryTable.TotalRealOnHand}</div>
+            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
+              ? formatCurrency(objSummaryTable.TotalRealOnHand)
+              : formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
       },
       dataIndex: "real_on_hand",
       align: "center",
       width: 100,
-      render: (value, row: LineItemAdjustment, index: number) => {
+      render: (value, row: LineItemAdjustment) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate) {
           return (
             <NumberInput
               min={0}
               maxLength={12}
               value={value}
-              onChange={(value) => {
-                onChangeRealOnHand(row, value ?? 0);
-              }}
+              onBlur={(e:any) => debounceChangeRealOnHand(row, e.target.value !== '' ? e.target.value : 0)}
             />
           );
         } else {
@@ -541,36 +580,56 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Thừa/Thiếu</div>
-            <Row align="middle" justify="center">
-              {objSummaryTable.TotalExcess === 0 ? (
-                ""
-              ) : (
-                <div style={{color: "#27AE60"}}>+{objSummaryTable.TotalExcess}</div>
-              )}
-              {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
-                <Space>/</Space>
-              ) : (
-                ""
-              )}
-              {objSummaryTable.TotalMiss === 0 ? (
-                ""
-              ) : (
-                <div style={{color: "red"}}>-{objSummaryTable.TotalMiss}</div>
-              )}
-            </Row>
+            {data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ? (
+              <Row align="middle" justify="center">
+                {objSummaryTable.TotalExcess === 0 || !objSummaryTable.TotalExcess ? (
+                  ""
+                ) : (
+                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTable.TotalExcess)}</div>
+                )}
+                {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
+                  <Space>/</Space>
+                ) : (
+                  ""
+                )}
+                {objSummaryTable.TotalMiss === 0 || !objSummaryTable.TotalExcess ? (
+                  ""
+                ) : (
+                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTable.TotalMiss)}</div>
+                )}
+              </Row>
+            ) : (
+              <Row align="middle" justify="center">
+                {(objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess) ? (
+                  ""
+                ) : (
+                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</div>
+                )}
+                {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
+                  <Space>/</Space>
+                ) : (
+                  ""
+                )}
+                {(objSummaryTableByAuditTotal.totalMissing === 0 || !objSummaryTableByAuditTotal.totalMissing) ? (
+                  ""
+                ) : (
+                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
+                )}
+              </Row>
+            )}
           </>
         );
       },
       align: "center",
-      width: 200,
-      render: (value, item, index: number) => {
+      width: 150,
+      render: (value, item) => {
         if (!item.on_hand_adj || item.on_hand_adj === 0) {
           return null;
         }
         if (item.on_hand_adj && item.on_hand_adj < 0) {
-          return <div style={{color: "red"}}>{item.on_hand_adj}</div>;
+          return <div style={{ color: "red" }}>{item.on_hand_adj}</div>;
         } else {
-          return <div style={{color: "green"}}>+{item.on_hand_adj}</div>;
+          return <div style={{ color: "green" }}>+{item.on_hand_adj}</div>;
         }
       },
     },
@@ -581,12 +640,13 @@ const DetailInvetoryAdjustment: FC = () => {
       render: (value: string, row) => {
         return <>
           {
-           data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL &&
-          <Button
-            onClick={() => onDeleteItem(row.id)}
-            className="item-delete"
-            icon={<AiOutlineClose color="red" />}
-          />
+            data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL &&
+              row.on_hand === 0 &&
+            <Button
+              onClick={() => onDeleteItem(Number(id), row.id)}
+              className="item-delete"
+              icon={<AiOutlineClose color="red" />}
+            />
           }
         </>
       }
@@ -610,31 +670,36 @@ const DetailInvetoryAdjustment: FC = () => {
         dispatch(
           getLinesItemAdjustmentAction(
             idNumber,
-            `page=1&limit=30&condition=`,
+            `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}`,
             onResultDataTable
           )
         );
       }
     },
-    [idNumber, form, onResultDataTable, dispatch]
+    [form, dispatch, idNumber, dataLinesItem.metadata.page, dataLinesItem.metadata.limit, onResultDataTable]
   );
 
   const updateAdjustment = React.useMemo(() =>
-  _.debounce(() => {
+  _.debounce((isUpdateFile = false) => {
     const dataUpdate = {...data,
-                     note: form.getFieldValue('note'),
-                     version: form.getFieldValue('version'),
-                     line_items: dataLinesItem.items,
-                     attached_files: form.getFieldValue('attached_files')} as InventoryAdjustmentDetailItem;
+      note: form.getFieldValue('note'),
+      version: form.getFieldValue('version'),
+      line_items: dataLinesItem.items,
+      list_attached_files: form.getFieldValue('list_attached_files')} as InventoryAdjustmentDetailItem;
 
     if (data && dataUpdate) {
       dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, (res)=>{
-        onResult(res);
         showSuccess("Cập nhật phiếu kiểm kho thành công");
+        if (isUpdateFile) {
+          setData({
+            ...data,
+            list_attached_files: res.list_attached_files
+          });
+        }
       }));
     }
   }, 500),
-  [dispatch, data, form, dataLinesItem,  onResult]
+  [dispatch, data, form, dataLinesItem]
 )
 
 const onChangeNote = useCallback(
@@ -675,7 +740,6 @@ const onChangeNote = useCallback(
 
   const onEnterFilterVariant = useCallback(
     (code: string) => {
-      setTableLoading(true);
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
@@ -712,7 +776,7 @@ const onChangeNote = useCallback(
 
         if (item.id === row.id) {
           item.real_on_hand = quantity;
-          let totalDiff = 0;
+          let totalDiff: number;
           totalDiff = quantity - item.on_hand;
           if (totalDiff === 0) {
             item.on_hand_adj = null;
@@ -752,6 +816,7 @@ const onChangeNote = useCallback(
 
   const onPageChange = useCallback(
     (page, size) => {
+      setTableLoading(true);
       setDatalinesItem({
         ...dataLinesItem,
         metadata: {...dataLinesItem.metadata, page: page, limit: size},
@@ -768,10 +833,11 @@ const onChangeNote = useCallback(
     [dataLinesItem, dispatch, idNumber, keySearch, onResultDataTable]
   );
 
-  const debounceSearchVariant = useMemo(()=>
-    _.debounce((code: string)=>{
-      onEnterFilterVariant(code);
-   }, 300),
+  const debounceSearchVariant = useMemo(() =>
+      _.debounce((code: string) => {
+        setTableLoading(true);
+        onEnterFilterVariant(code);
+      }, 300),
    [onEnterFilterVariant]
    );
 
@@ -791,7 +857,7 @@ const onChangeNote = useCallback(
           setListExportFile([...listExportFile, response.data.code]);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
@@ -847,7 +913,7 @@ const onChangeNote = useCallback(
           setListJobImportFile([...listJobImportFile, response.data.code]);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
@@ -882,12 +948,46 @@ const onChangeNote = useCallback(
     }
   }, [dispatch, idNumber, listJobImportFile, onResult, statusImport]);
 
-  const onDeleteItem = useCallback(
-    (variantId: number) => {
+  const onDeleteItem = async (adjustmentId: number, variantId: number) => {
+    const response = await callApiNative(
+      { isShowError: false },
+      dispatch,
+      deleteLineItem,
+      adjustmentId,
+      variantId,
+    );
 
-    },
-    []
-  );
+    if (response.code !== HttpStatus.SUCCESS) return;
+    dispatch(
+      getLinesItemAdjustmentAction(
+        idNumber,
+        `page=1&limit=30`,
+        onResultDataTable,
+      )
+    );
+  };
+
+  const getTotalOnHandApi = async () => {
+    return await callApiNative(
+      { isShowError: false },
+      dispatch,
+      getTotalOnHand,
+      Number(id),
+    );
+  }
+
+  useEffect(() => {
+    getTotalOnHandApi().then((res) => {
+      if (!res) return;
+      setObjSummaryTableByAuditTotal({
+        onHand: res.onHand || 0,
+        realOnHand: res.realOnHand || 0,
+        totalExcess: res.totalExcess || 0,
+        totalMissing: res.totalMissing || 0,
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  }, [isReRender]);
 
   useEffect(() => {
     if (
@@ -904,7 +1004,24 @@ const onChangeNote = useCallback(
 
   useEffect(() => {
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
-  }, [idNumber, onResult, dispatch]);
+    try {
+      const interval = setInterval(async () => {
+        setData((data) => {
+          if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING || !data) {
+            dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
+          }
+
+          return data;
+        })
+      }, 5000);
+
+      return () => clearInterval(interval);
+    } catch(e) {
+      console.log(e);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  }, [idNumber, onResult, dispatch, isReRender]);
 
   useEffect(()=>{
     dispatch(searchAccountPublicAction({}, setDataAccounts));
@@ -912,45 +1029,48 @@ const onChangeNote = useCallback(
 
   const debounceChangeRealOnHand = useMemo(()=>
   _.debounce((row: LineItemAdjustment, realOnHand: number)=>{
-      if (row.real_on_hand && row.real_on_hand === realOnHand) {
-        return;
-      }
-      onRealQuantityChange(realOnHand, row);
-      let value = realOnHand;
-      row.real_on_hand = value ?? 0;
-      let totalDiff = 0;
-      totalDiff = value - row.on_hand;
-      if (totalDiff === 0) {
-        row.on_hand_adj = null;
-        row.on_hand_adj_dis = null;
-      } else if (row.on_hand < value) {
-        row.on_hand_adj = totalDiff;
-        row.on_hand_adj_dis = `+${totalDiff}`;
-      } else if (row.on_hand > value) {
-        row.on_hand_adj = totalDiff;
-        row.on_hand_adj_dis = `${totalDiff}`;
-      }
-      if (!data || (data === undefined || !data.id)) {
-        return null;
-      }
+    if (row.real_on_hand === realOnHand && realOnHand !== 0) {
+      return;
+    }
+    onRealQuantityChange(realOnHand, row);
+    let value = realOnHand;
+    row.real_on_hand = realOnHand;
+    let totalDiff: number;
+    totalDiff = value - row.on_hand;
+    if (totalDiff === 0) {
+      row.on_hand_adj = null;
+      row.on_hand_adj_dis = null;
+    } else if (row.on_hand < value) {
+      row.on_hand_adj = totalDiff;
+      row.on_hand_adj_dis = `+${totalDiff}`;
+    } else if (row.on_hand > value) {
+      row.on_hand_adj = totalDiff;
+      row.on_hand_adj_dis = `${totalDiff}`;
+    }
+    if (!data || (!data.id)) {
+      return null;
+    }
 
-      dispatch(
-        updateItemOnlineInventoryAction(data.id, row, (result: LineItemAdjustment) => {
-          if (result) {
-            showSuccess("Nhập tồn thực tế thành công.");
-            onEnterFilterVariant(keySearch);
-            const version = form.getFieldValue('version');
-            form.setFieldsValue({version: version + 1});
+    dispatch(
+      updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
+        if (result) {
+          showSuccess("Nhập tồn thực tế thành công.");
+          const version = form.getFieldValue("version");
+          form.setFieldsValue({ version: version + 1 });
+
+          if (data.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
+            getTotalOnHandApi().then((res) => {
+              if (!res) return;
+              setObjSummaryTableByAuditTotal(res);
+            });
           }
-        })
-      );
+        }
+      }),
+    );
     },300),
- [data,dispatch,onRealQuantityChange,onEnterFilterVariant, form, keySearch]
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+ [data, dispatch, onRealQuantityChange, onEnterFilterVariant, form, keySearch]
  );
-
-  const onChangeRealOnHand = useCallback((item: LineItemAdjustment, realOnHand: number)=>{
-    debounceChangeRealOnHand(item, realOnHand);
-  },[debounceChangeRealOnHand]);
 
   return (
     <StyledWrapper>
@@ -1023,14 +1143,20 @@ const onChangeNote = useCallback(
                         activeKey={activeTab}
                         onChange={(active) => setActiveTab(active)}
                       >
-                        <TabPane tab={`Thừa/Thiếu (${data?.total_variant_deviant ?? 0})`} key="1">
+                        <TabPane tab={`Thừa/Thiếu (${dataTab?.total_variant_deviant ?? 0})`} key="1">
                           <InventoryAdjustmentHistory
+                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
                             data={data}
+                            setDataTab={(value: number) => setDataTab({
+                              ...dataTab,
+                              total_variant_deviant: value
+                            })}
                             idNumber={idNumber}
                           />
                         </TabPane>
-                        <TabPane tab={`Tất cả (${data?.total_variant ?? 0})`} key="2">
+                        <TabPane tab={`Tất cả (${dataLinesItem.metadata.total ?? 0})`} key="2">
                           <InventoryAdjustmentListAll
+                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
                             idNumber={idNumber}
                             data={data}
                           />
@@ -1042,14 +1168,14 @@ const onChangeNote = useCallback(
                       <AuthWrapper
                         acceptPermissions={[InventoryAdjustmentPermission.update]}
                       >
-                        <Input.Group style={{paddingTop: 16}} className="display-flex">
+                        <Input.Group style={{ paddingTop: 16 }} className="display-flex">
                           <CustomAutoComplete
                             id="#product_search_variant"
                             dropdownClassName="product"
                             placeholder="Thêm sản phẩm vào phiếu kiểm"
                             onSearch={onSearchProduct}
                             dropdownMatchSelectWidth={456}
-                            style={{width: "100%"}}
+                            style={{ width: "100%" }}
                             showAdd={true}
                             textAdd="Thêm mới sản phẩm"
                             onSelect={onSelectProduct}
@@ -1058,7 +1184,7 @@ const onChangeNote = useCallback(
                             onClickAddNew={() => {
                               window.open(
                                 `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                                "_blank"
+                                "_blank",
                               );
                             }}
                           />
@@ -1067,7 +1193,7 @@ const onChangeNote = useCallback(
                               setVisibleManyProduct(true);
                               return;
                             }}
-                            style={{width: 132, marginLeft: 10}}
+                            style={{ width: 132, marginLeft: 10 }}
                             icon={<img src={PlusOutline} alt="" />}
                           >
                             &nbsp;&nbsp; Chọn nhiều
@@ -1080,24 +1206,31 @@ const onChangeNote = useCallback(
                               setKeySearch(e.target.value);
                               onChangeKeySearch(e.target.value);
                             }}
-                            style={{marginLeft: 8}}
+                            style={{ marginLeft: 8 }}
                             placeholder="Tìm kiếm sản phẩm trong phiếu"
                             addonAfter={
                               <SearchOutlined
-                                onClick={()=>{onChangeKeySearch(keySearch)}}
-                                style={{color: "#2A2A86"}}
+                                onClick={() => {
+                                  onChangeKeySearch(keySearch);
+                                }}
+                                style={{ color: "#2A2A86" }}
                               />
                             }
                           />
                         </Input.Group>
                       </AuthWrapper>
+                      {data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING && (
+                        <div className="text-center font-weight-500 margin-top-20">
+                          Đang xử lý sản phẩm cần kiểm kho, vui lòng đợi giây lát...
+                        </div>
+                      )}
                       <CustomTable
                         isLoading={tableLoading}
                         tableLayout="fixed"
-                        style={{paddingTop: 20}}
+                        style={{ paddingTop: 20 }}
                         columns={defaultColumns}
                         pagination={false}
-                        sticky={{offsetScroll: 5, offsetHeader: 55}}
+                        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
                         dataSource={dataLinesItem.items}
                         rowKey={(item: LineItemAdjustment) => item.id}
                       />
@@ -1110,8 +1243,7 @@ const onChangeNote = useCallback(
                           onChange: onPageChange,
                           onShowSizeChange: onPageChange,
                         }}
-                      >
-                      </CustomPagination>
+                      />
                     </Card>
                   )
                 }
@@ -1129,12 +1261,12 @@ const onChangeNote = useCallback(
                       label="Người tạo"
                       value={`${data?.created_name} - ${data.created_by}`}
                     />
-                    <RenderRowInfo label="Người kiểm" value="" />
+                    <div>Người kiểm <span style={{ marginLeft: 6 }}>:</span></div>
                     {
                       <StyledComponent>
                         <Row className="audit_by">
                           <Col span={24}>
-                            {data.audited_by?.map((item: string) => {
+                            {data.audited_bys?.map((item: string) => {
                               return (
                                 <RenderItemAuditBy
                                   key={item?.toString()}
@@ -1167,7 +1299,7 @@ const onChangeNote = useCallback(
                   >
                     <Col span={24}>
                       <span className="text-focus">
-                        {data.attached_files?.map((link: string, index: number) => {
+                        {Array.isArray(data.list_attached_files) && data.list_attached_files.length > 0 && data.list_attached_files?.map((link: string, index: number) => {
                           return (
                             <a
                               key={index}
@@ -1203,7 +1335,7 @@ const onChangeNote = useCallback(
                       }
                       </Form.Item>
 
-                    <Form.Item noStyle hidden name="attached_files">
+                    <Form.Item noStyle hidden name="list_attached_files">
                       <Input />
                     </Form.Item>
                     <Form.Item noStyle hidden name="version">
@@ -1215,13 +1347,13 @@ const onChangeNote = useCallback(
             </Row>
           </Form>
             <div style={{display: "none"}}>
-              <Upload fileList={fileList}></Upload>
+              <Upload fileList={fileList} />
               <div className="printContent" ref={printElementRef}>
                 <div
                   dangerouslySetInnerHTML={{
                     __html: purify.sanitize(printContent),
                   }}
-                ></div>
+                />
               </div>
             </div>
             <BottomBarContainer
@@ -1236,7 +1368,8 @@ const onChangeNote = useCallback(
               }
               rightComponent={
                 <Space>
-                  {data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
+                  {(data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status
+                    && data.status !== STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <AuthWrapper
                       acceptPermissions={[InventoryAdjustmentPermission.print]}
                     >
@@ -1252,7 +1385,8 @@ const onChangeNote = useCallback(
                       </Button>
                     </AuthWrapper>
                   )}
-                  {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
+                  {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
+                    data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <>
                       <AuthWrapper
                         acceptPermissions={[InventoryAdjustmentPermission.import]}
@@ -1264,7 +1398,8 @@ const onChangeNote = useCallback(
                           onChange={onChangeFile}
                           customRequest={onCustomRequest}
                         >
-                          <Button icon={<UploadOutlined />}>Nhập excel</Button>
+                          <Button disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status}
+                                  icon={<UploadOutlined />}>Nhập excel</Button>
                         </Upload>
                       </AuthWrapper>
                       <AuthWrapper
@@ -1279,6 +1414,7 @@ const onChangeNote = useCallback(
                             setShowExportModal(true);
                             onExport();
                           }}
+                          disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status}
                         >
                           Xuất excel
                         </Button>
@@ -1292,7 +1428,7 @@ const onChangeNote = useCallback(
                             setIsShowConfirmAdited(true);
                           }}
                           loading={isLoading}
-                          disabled={hasError || isLoading}
+                          disabled={hasError || isLoading || data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status}
                         >
                           Hoàn thành kiểm
                         </Button>
@@ -1343,6 +1479,7 @@ const onChangeNote = useCallback(
                   setListJobImportFile([]);
                   setStatusImport(STATUS_IMPORT_EXPORT.DEFAULT);
                   setFileList([]);
+                  setIsReRender(!isReRender);
                 }}
                 importProgress={importProgress && importProgress}
                 statusImport={statusImport}

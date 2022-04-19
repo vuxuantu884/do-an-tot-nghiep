@@ -132,9 +132,9 @@ const TreeStore = (props: Props) => {
         )}
 
         {
-            stores?.map((departmentItem: any) => {
+            stores?.map((departmentItem: any, index) => {
                 return (
-                    <React.Fragment>
+                    <React.Fragment key={index}>
                         <TreeSelect.TreeNode
                             key={`${_.find(listStore, ["department", departmentItem[0]])?.code || ''}`}
                             value={`${_.find(listStore, ["department", departmentItem[0]])?.code || ''}`}

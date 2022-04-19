@@ -404,6 +404,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
   const onPageChange = useCallback(
     (page, size) => {
+      console.log(page, size)
       params.page = page;
       params.limit = size;
       setParams({...params});
@@ -500,7 +501,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }, []);
 
   //get list
-  useEffect(() => {    
+  useEffect(() => {
     if (stores?.length === 0) return;
     if (Array.isArray(accountStores) && accountStores?.length === 1) {
       stores?.forEach((element) => {
@@ -523,7 +524,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }, [accountStores, dispatch, setSearchResult, stores]);
 
   useEffect(() => {
-    if (accountStoresSelected !== 'SECOND_SEARCH') return;
     dispatch(getListInventoryTransferAction(params, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, setSearchResult, params]);

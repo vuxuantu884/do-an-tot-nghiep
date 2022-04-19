@@ -9,12 +9,18 @@ import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { TYPE_EXPORT } from "screens/products/constants";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showWarning } from "utils/ToastUtils";
 import { getQueryParams } from "utils/useQuery";
+import InventoryHisExport from "../component/InventoryHisExport";
 import HistoryInventoryFilter from "../filter/history.filter";
-import { TabProps } from "./tab.props";
+import * as XLSX from 'xlsx';
+import moment from "moment";
+import { callApiNative } from "utils/ApiUtils";
+import { inventoryGetHistoryApi } from "service/inventory";
 
 enum DocumentType {
   PURCHASE_ORDER = "purchase_order",
@@ -24,12 +30,14 @@ enum DocumentType {
   INVENTORY_TRANSFER = "inventory_transfer",
   INVENTORY_ADJUSTMENT = "inventory_adjustment",
 }
+let firstLoad = true;
 
-const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
-  const { stores } = props;
+const HistoryTab: React.FC<any> = (props) => {
+  const { stores,vExportProduct,setVExportProduct } = props;
   const history = useHistory();
   const query = new URLSearchParams(history.location.hash.substring(2));
   const dispatch = useDispatch();
+  const [totalItems,setTotalItems] = useState<number>(0)
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<HistoryInventoryResponse>>({
@@ -64,6 +72,10 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       if (result) {
         setLoading(false);
         setData(result);
+        if (firstLoad) {
+          setTotalItems(result.metadata.total);
+        }
+        firstLoad = false;
       }
     },
     []
@@ -194,12 +206,9 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
            {item.account_code ?
             <div>
                 <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}>
-                  {item.account_code}
+                  {item.account}
                 </Link>
             </div> : ""}
-            <div>
-              {item.account ?? ""}
-            </div>
           </>
         );
       }
@@ -249,7 +258,103 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       debouncedSearch(keyword)
     },
     [debouncedSearch]
-  )
+  );
+
+  const convertItemExport = (item: HistoryInventoryResponse) => {
+    return {
+      [`Sản phẩm`]: item.name,
+      [`Mã sản phẩm`]: item.sku,
+      [`Mã chứng từ`]: item.code,
+      [`Thao tác`]: item.action,
+      [`Thời gian`]: ConvertUtcToLocalDate(item.transaction_date),
+      [`SL thay đổi`]: item.quantity.toString(),
+      [`Tồn trong kho`]: item.on_hand.toString(),
+      [`Kho hàng`]: item.store,
+      [`Người sửa`]: item.account,
+      [`Mã người sửa`]: item.account_code,
+    };
+  }
+
+  const getItemsByCondition = useCallback(async (type: string) => {
+    let res: any; 
+    let items: Array<HistoryInventoryResponse> = [];
+    const limit = 50;
+    let times = 0;
+    switch (type) {
+      case TYPE_EXPORT.page:
+        res = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, params);
+        items = res.items;
+        break;
+      case TYPE_EXPORT.selected:
+        items = selected;
+        break;
+      case TYPE_EXPORT.all:
+       const roundAll = Math.round(data.metadata.total / limit);
+       times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
+
+        for (let index = 1; index <= times; index++) {
+          const output = document.getElementById("processExport"); 
+          if (output) output.innerHTML=items.length.toString();
+          
+          const res1 = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, {...params,page: index,limit:limit});
+          items= items.concat(res1.items);
+        }
+        break;
+      case TYPE_EXPORT.allin:
+        if (!totalItems || totalItems===0) {
+          break;
+        }
+        const roundAllin = Math.round(totalItems / limit);
+        times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
+        for (let index = 1; index <= times; index++) {
+          const output = document.getElementById("processExport"); 
+          if (output) output.innerHTML=items.length.toString();
+          
+          const res1 = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, {...params,page: index,limit:limit});
+          items= items.concat(res1.items);
+        }
+        break;
+      default:
+        break;
+    }
+    return items;
+  },[dispatch,selected,params,data,totalItems])  
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      let dataExport: any = [];
+      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
+        showWarning("Bạn chưa chọn lịch sử tồn nào để xuất file");
+        setVExportProduct(false);
+        return;
+      }
+
+      const res = await getItemsByCondition(typeExport);
+      if (res && res.length === 0) {
+        showWarning("Không có sản phẩm nào đủ điều kiện");
+        return;
+      }
+      for (let i = 0; i < res.length; i++) {
+        const e = res[i];
+        const item = convertItemExport(e);
+        dataExport.push(item);
+      }
+
+      let worksheet = XLSX.utils.json_to_sheet(dataExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      const today = moment(new Date(), 'YYYY/MM/DD');
+
+      const month = today.format('M');
+      const day   = today.format('D');
+      const year  = today.format('YYYY');
+      XLSX.writeFile(workbook, `inventory_history_${day}_${month}_${year}.xlsx`);
+      setVExportProduct(false);
+    },
+    Cancel: () => {
+      setVExportProduct(false);
+    },
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -296,6 +401,11 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
           setColumn(data);
         }}
         data={columns}
+      />
+     <InventoryHisExport
+        onCancel={actionExport.Cancel}
+        onOk={actionExport.Ok}
+        visible={vExportProduct}
       />
     </div>
   )

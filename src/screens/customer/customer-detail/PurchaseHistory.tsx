@@ -62,7 +62,7 @@ const initQuery: any = {
 
 function PurchaseHistory(props: PurchaseHistoryProps) {
   const { customer } = props;
-  
+
   const history = useHistory()
   const location = useLocation()
 
@@ -163,7 +163,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
   const updateOrderReturnedList = useCallback(
     (data: PageResponse<ReturnModel> | false) => {
-      setTableLoading(false);      
+      setTableLoading(false);
       if (!!data && !variantsQuery) {
         setOrderReturnedList(data.items);
       }else {
@@ -181,7 +181,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   }, [customer?.id, dispatch, orderHistoryQueryParams.variant_ids, updateOrderReturnedList]);
   // end get order returned
 
-  
+
 
 
   const [orderHistoryData, setOrderHistoryData] = useState<
@@ -235,8 +235,8 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   const orderHistoryList = useCallback(() => {
     const newOrderHistoryList = orderReturnedList.map((order: any) => {
       const unifiedCode = order.code ? order.code : order.code_order_return
-      const unifiedTotalAmount = order.total_line_amount_after_line_discount 
-      ? order.total_line_amount_after_line_discount 
+      const unifiedTotalAmount = order.total_line_amount_after_line_discount
+      ? order.total_line_amount_after_line_discount
       : order.total_amount
 
       return {
@@ -251,7 +251,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     orderMapOrderHistory.length && orderMapOrderHistory.sort((a, b) => {
       return (b.created_date < a.created_date) ? -1 : ((b.created_date > a.created_date) ? 1 : 0);
     });
- 
+
     return orderMapOrderHistory;
   }, [orderHistoryData?.items, orderReturnedList]);
   // end handle get purchase history
@@ -268,7 +268,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     if (values.variant_ids.length) {
       setOrderReturnedList([])
     }
-    
+
   }, [history, location.pathname, orderHistoryQueryParams])
 
   useEffect(() => {
@@ -321,7 +321,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
       dispatch(getCustomerOrderHistoryAction(newParams, updateOrderHistoryData));
       setTableLoading(true);
-    }  
+    }
   }
 
   useEffect(() => {
@@ -330,7 +330,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     })
 
     setVariantsQuery(query.get("variant_ids"))
-    
+
   }, [formOrderHistoryFilter, orderHistoryQueryParams, query]);
 
 
@@ -349,7 +349,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     let queryParam = generateQuery(initQuery);
     history.push(`${location.pathname}?${queryParam}`);
   }
-  
+
 
   const paymentIcons = [
     {
@@ -527,7 +527,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               <div>
                 {
                   !item.code_order_return
-                  ?  
+                  ?
                   <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
                    {value}
                   </Link>
@@ -735,12 +735,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               <div className="inner">
                 {
                   record.code_order_return
-                  &&  
+                  &&
                   <div className="order-reason">
                    <span className="order-reason-heading">Lý do trả:</span>
                    <span className="order-reason-content">{record.reason}</span>
                   </div>
-                  
+
                 }
                 <div className="single order-note">
                   <EditNote
@@ -800,7 +800,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   ? "#27AE60"
                   : "#E24343",
             };
-    
+
             return (
               <>
               {
@@ -860,7 +860,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
               {
                 record.code_order_return
-                &&  
+                &&
                 <div style={{ textAlign: "center" }}>
                   <div>
                     <div>
@@ -875,7 +875,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                       : ""}
                     </div>
                   </div>
-                  
+
                   <div>
                     <strong>Tiền: </strong>
                     <span style={{ color: `${payment_status.color}` }}>
@@ -891,7 +891,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           align: "left",
           width: 120,
         },
-        
+
         {
           title: "Vận chuyển",
           key: "shipment.type",
@@ -1172,8 +1172,8 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             <Link
               target="_blank"
               to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
-              {record.account 
-                && record.account_code 
+              {record.account
+                && record.account_code
                 && `${record.account_code} - ${record.account}`
               }
             </Link>
