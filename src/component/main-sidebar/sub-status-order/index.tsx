@@ -1,7 +1,7 @@
 import { Card, Form, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
+import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import { setSubStatusAction } from "domain/actions/order/order.action";
-import useChangeOrderSubStatus from "hook/subStatus/useChangeOrderSubStatus";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import {
   FulFillmentResponse,
@@ -11,8 +11,14 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
-import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, sortFulfillments } from "utils/AppUtils";
-import { FulFillmentStatus, SHIPPING_TYPE } from "utils/Constants";
+import {
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isOrderFinishedOrCancel,
+  sortFulfillments
+} from "utils/AppUtils";
+import { FulFillmentStatus } from "utils/Constants";
+import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
 import { showError, showWarning } from "utils/ToastUtils";
 
 type PropType = {
@@ -26,23 +32,6 @@ type PropType = {
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const ORDER_SUB_STATUS = {
-    first_call_attempt: "first_call_attempt",
-    second_call_attempt: "second_call_attempt",
-    third_call_attempt: "third_call_attempt",
-    awaiting_coordinator_confirmation: "awaiting_coordinator_confirmation",
-    awaiting_saler_confirmation: "awaiting_saler_confirmation",
-    coordinator_confirmed: "coordinator_confirmed",
-    merchandise_picking: "merchandise_picking",
-    require_warehouse_change: "require_warehouse_change",
-    merchandise_packed: "merchandise_packed",
-    awaiting_shipper: "awaiting_shipper",
-    shipping: "shipping",
-    shipped: "shipped",
-    canceled: "canceled",
-    fourHour_delivery: "4h_delivery",
-    order_return: "order_return",
-  };
   const {
     // status,
     orderId,
@@ -52,30 +41,24 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     OrderDetailAllFulfillment,
   } = props;
   const dispatch = useDispatch();
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
   const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
   const [isShowReason, setIsShowReason] = useState(false);
-  
+
   const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<
     number | undefined
   >(undefined);
 
-  const [reasonId, setReasonId] = useState<
-    number | undefined
-  >(undefined);
+  const [reasonId, setReasonId] = useState<number | undefined>(undefined);
 
   const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
     OrderReturnReasonDetailModel[]
   >([]);
-  const [isShouldChangeSubStatus, setIsShouldChangeSubStatus] = useState(false)
+  const [isShouldChangeSubStatus, setIsShouldChangeSubStatus] = useState(false);
 
-  const getChangeOrderSubStatus =useChangeOrderSubStatus(orderId || 0, valueSubStatusCode||"", isShouldChangeSubStatus, () => {}, () => {})
+  const subStatuses = useGetOrderSubStatuses();
 
-  const subStatuses = useGetOrderSubStatuses()
-
-  const {isShowModalConfirmCancel, isShowModalConfirmOutOfStock} = getChangeOrderSubStatus
-  console.log('isShowModalConfirmCancel', isShowModalConfirmCancel)
-  console.log('isShowModalConfirmOutOfStock', isShowModalConfirmOutOfStock)
 
   const sortedFulfillments = useMemo(() => {
     if (!OrderDetailAllFulfillment?.fulfillments) {
@@ -92,7 +75,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     }
   }, [OrderDetailAllFulfillment?.fulfillments]);
 
-  const changeSubStatusCode = (sub_status_code: string, reasonId?: number, subReasonRequireWarehouseChange?: number) => {
+  const changeSubStatusCode = (
+    sub_status_code: string,
+    reasonId?: number,
+    subReasonRequireWarehouseChange?: number
+  ) => {
     if (orderId) {
       dispatch(
         setSubStatusAction(
@@ -107,64 +94,10 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           },
           undefined,
           reasonId,
-          subReasonRequireWarehouseChange,
+          subReasonRequireWarehouseChange
         )
       );
     }
-  };
-
-  const handleIfOrderStatusWithPartner = (sub_status_code: string) => {
-    let isChange = true;
-    return isChange;
-  };
-
-  const handleIfOrderStatusPickAtStore = (sub_status_code: string) => {
-    let isChange = true;
-    return isChange;
-  };
-
-  const handleIfOrderStatusOther = (sub_status_code: string) => {
-    let isChange = true;
-    switch (sub_status_code) {
-      case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
-        const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
-        if (
-          !sortedFulfillments[0]?.shipment ||
-          (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status))
-        ) {
-          isChange = true;
-        } else {
-          isChange = false;
-          showError("Bạn chưa hủy đơn giao hàng!");
-        }
-        break;
-      }
-      case ORDER_SUB_STATUS.coordinator_confirmed: {
-        const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
-        if (
-          (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status)) ||
-          !sortedFulfillments[0]?.shipment
-        ) {
-          isChange = false;
-          showError("Chưa có hình thức vận chuyển!");
-        } else {
-          isChange = true;
-        }
-        break;
-      }
-      case ORDER_SUB_STATUS.fourHour_delivery: {
-        if (sortedFulfillments[0]?.shipment?.service !== SHIPPING_TYPE.DELIVERY_4H) {
-          isChange = false;
-          showError("Chưa chọn giao hàng 4h!");
-        } else {
-          isChange = true;
-        }
-        break;
-      }
-      default:
-        break;
-    }
-    return isChange;
   };
 
   // xử lý khi đổi kho hàng
@@ -183,8 +116,17 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     if (!orderId) {
       return;
     }
-    setIsShouldChangeSubStatus(true)
-    setValueSubStatusCode(sub_status_code);
+    if(sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
+      
+    }else {
+      setIsShouldChangeSubStatus(true);
+      setToSubStatusCode(sub_status_code);
+
+    }
+  };
+
+  const changeSubStatusCallback = (value: string) => {
+    setValueSubStatusCode(value)
   };
 
   useEffect(() => {
@@ -206,12 +148,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   }, [dispatch]);
 
   useEffect(() => {
-    if(subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
+    if (subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
       setIsShowReason(true);
-      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id)
+      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id);
     }
-  }, [ORDER_SUB_STATUS.require_warehouse_change, OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
-  
+  }, [OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
 
   return (
     <Card title="Xử lý đơn hàng">
@@ -223,7 +164,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
-				disabled = {isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
+        disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
         key={Math.random()}>
         {subStatuses &&
           subStatuses.map((single) => {
@@ -255,14 +196,14 @@ function SubStatusOrder(props: PropType): React.ReactElement {
                 option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
               onChange={(value: number) => {
-                if(!value) {
+                if (!value) {
                   showError("Vui lòng chọn lý do đổi kho hàng chi tiết!");
                   return;
                 }
                 setSubReasonRequireWarehouseChange(value);
                 changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change, reasonId, value);
               }}
-							disabled = {isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
+              disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
               value={subReasonRequireWarehouseChange}
               notFoundContent="Không tìm thấy lý do đổi kho hàng">
               {subReasonsRequireWarehouseChange &&
@@ -277,6 +218,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           </Form.Item>
         </div>
       ) : null}
+
+      <SubStatusChange
+        orderId={orderId}
+        toSubStatus={toSubStatusCode}
+        isShouldChangeSubStatus={isShouldChangeSubStatus}
+        changeSubStatusCallback={changeSubStatusCallback}
+      />
     </Card>
   );
 }

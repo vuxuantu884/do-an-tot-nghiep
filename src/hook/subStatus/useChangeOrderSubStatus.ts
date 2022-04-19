@@ -6,10 +6,11 @@ function useChangeOrderSubStatus(
   orderId: number,
   toSubStatus: string,
 	isShouldChangeSubStatus: boolean,
+	isConfirmedChangeSubStatus: boolean,
   callbackSuccessFunction: () => void,
   callbackFailFunction: () => void
 ) {
-  const [isShowModalConfirmCancel, setIsShowModalConfirmCancel] = useState(false);
+  const [isShowModalConfirmCancelOrder, setIsShowModalConfirmCancelOrder] = useState(false);
   const [isShowModalConfirmOutOfStock, setIsShowModalConfirmOutOfStock] = useState(false);
   const dispatch = useDispatch();
 
@@ -19,7 +20,7 @@ function useChangeOrderSubStatus(
 			let isChange = false;
 			if (cancelArr.includes(toSubStatus)) {
 				isChange = false;
-				setIsShowModalConfirmCancel(true);
+				setIsShowModalConfirmCancelOrder(true);
 			} else if (toSubStatus === "out_of_stock") {
 				isChange = false;
 				setIsShowModalConfirmOutOfStock(true);
@@ -38,31 +39,41 @@ function useChangeOrderSubStatus(
 			}
 			let isChange = checkIfCanChange();
 			console.log('444')
-			if (isChange) {
+			if (isChange || isConfirmedChangeSubStatus) {
 				if (orderId) {
 					console.log('55')
 				  dispatch(
 				    setSubStatusAction(
 				      orderId,
 				      toSubStatus,
-				      () => callbackSuccessFunction(),
-				      () => callbackFailFunction()
+				      () => {
+								// setIsShowModalConfirmCancelOrder(false)
+								// setIsShowModalConfirmOutOfStock(false)
+								callbackSuccessFunction()
+							},
+				      () => {
+								// setIsShowModalConfirmCancelOrder(false)
+								// setIsShowModalConfirmOutOfStock(false)
+								callbackFailFunction()
+							}
 				    )
 				  );
 				}
 			}
 		},
-		[callbackFailFunction, callbackSuccessFunction, checkIfCanChange, dispatch, orderId, toSubStatus],
+		[callbackFailFunction, callbackSuccessFunction, checkIfCanChange, dispatch, isConfirmedChangeSubStatus, isShouldChangeSubStatus, orderId, toSubStatus],
 	)
 
 	useEffect(() => {
 		changeOrderSubStatus()
-	}, [changeOrderSubStatus])
+	}, [changeOrderSubStatus, isConfirmedChangeSubStatus])
 	
 
   return {
-    isShowModalConfirmCancel,
+    isShowModalConfirmCancelOrder,
     isShowModalConfirmOutOfStock,
+		setIsShowModalConfirmCancelOrder,
+		setIsShowModalConfirmOutOfStock,
     handleChange: changeOrderSubStatus,
   };
 }

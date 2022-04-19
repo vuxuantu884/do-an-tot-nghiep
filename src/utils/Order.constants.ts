@@ -23,8 +23,14 @@ export const ORDER_RETURN_HISTORY = [
   },
 ];
 
-export const  DISCOUNT_VALUE_TYPE = {
+export const DISCOUNT_VALUE_TYPE = {
   percentage: "PERCENTAGE",
   fixedAmount: "FIXED_AMOUNT",
   fixedPrice: "FIXED_PRICE",
-}
+};
+
+export const SUB_STATUS_CANCEL_CODE = [
+  "customer_cancelled",
+  "system_cancelled",
+  "delivery_service_cancelled",
+];
