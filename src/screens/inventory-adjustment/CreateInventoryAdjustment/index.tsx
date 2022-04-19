@@ -10,7 +10,7 @@ import { SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
@@ -48,6 +48,7 @@ import moment from "moment";
 import TextEllipsis from "component/table/TextEllipsis";
 import debounce from "lodash/debounce";
 import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
 
 const { Option } = Select;
 
@@ -180,9 +181,14 @@ const CreateInventoryAdjustment: FC = () => {
   );
 
   // get store
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   useEffect(() => {
+    form.setFieldsValue({
+      audited_date: new Date(),
+      audited_bys: userReducer && userReducer.account ? [userReducer.account.code] : []
+    });
     dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
-  }, [dispatch, auditType, query, form]);
+  }, [dispatch, auditType, query, form, userReducer]);
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
