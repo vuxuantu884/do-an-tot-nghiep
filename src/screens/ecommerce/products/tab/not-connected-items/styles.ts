@@ -97,19 +97,9 @@ export const StyledProductListDropdown = styled.div`
         }
       }
 
-      .sku-and-stock {
-        display: flex;
-        justify-content: space-between;
+      .item-sku {
         margin-top: 5px;
-
-        .item-sku {
-          width: 200px;
-          color: #95a1ac;
-        }
-
-        .item-inventory {
-          color: #737373;
-        }
+        color: #95a1ac;
       }
     }
   }

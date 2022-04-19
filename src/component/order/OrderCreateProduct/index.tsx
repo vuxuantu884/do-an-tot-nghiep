@@ -2271,12 +2271,12 @@ console.log('items', items)
 					<Col md={8}>
 						<Form.Item
 							name="store_id"
-							rules={!isCreateReturn && isExchange ? [
+							rules={[
 								{
-									required: true,
+									required: !(isCreateReturn && !isExchange),
 									message: "Vui lòng chọn cửa hàng!",
 								},
-							] : undefined}
+							]}
 						>
 							<CustomSelect
 								className="select-with-search"

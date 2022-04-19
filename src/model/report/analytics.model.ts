@@ -37,7 +37,20 @@ export enum AnalyticCube {
   Sales = 'sales',
   Payments = 'payments',
   Costs = 'costs',
-  All = 'all'
+  All = 'all',
+  OfflineSales = 'offline_sales',
+}
+
+export enum ColumnType {
+  Measure = "measure",
+  Property = "property"
+}
+
+export enum TimeAtOptionValue {
+  CreatedAt = `time:"created_at"`,
+  FinalizedAt = `time:"finalized_at"`,
+  CompletedAt = `time:"completed_at"`,
+  CancelledAt = `time:"cancelled_at"`,
 }
 
 export declare type QueryMode = "table" | "chart"
@@ -92,6 +105,12 @@ export interface AnalyticTemplateParams {
   q: string;
   chart_q?: string;
   format?: "xls";
+  options?: string;
+}
+
+export interface AnalyticQueryMany {
+  q: Array<string>;
+  options: Array<string>;
 }
 
 export interface AnalyticTemplateData {
@@ -103,18 +122,25 @@ export interface AnalyticTemplateData {
   iconImg: any;
   type: string;
   chartColumnSelected: string[];
+  timeAtOption: string;
+  chart_query?: string;
 }
 
 export interface AnalyticCustomizeTemplateForCreate {
   name: string;
   query: string;
   cube: string;
+  chartColumnSelected: string[];
+  timeAtOption: string;
+  chart_query?: string;
 }
 export interface AnalyticCustomize {
   id?: number;
   name: string;
   query: string;
-  cube: string;
+  group: string;
+  chart_query?: string;
+  options: string;
 }
 
 export interface AnalyticChartInfo {
@@ -125,14 +151,13 @@ export interface AnalyticChartInfo {
 export interface AnnotationItem {
   annotation: string;
   desc: string;
-  key: string;
 }
 
 export interface AnnotationData {
   data: AnnotationItem[];
   documentLink: string;
   alias: string;
-  cube: AnalyticCube;
+  cubes: AnalyticCube[];
 }
 
 export interface AnalyticTemplateGroup {
@@ -140,4 +165,9 @@ export interface AnalyticTemplateGroup {
     cube: AnalyticCube;
     name: string;
   }[]
+}
+
+export interface AnalyticSampleQuery {
+  query: AnalyticQuery;
+  options: string;
 }

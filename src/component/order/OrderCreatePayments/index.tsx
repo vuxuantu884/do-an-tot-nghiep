@@ -20,6 +20,7 @@ type PropTypes = {
   shipmentMethod: number;
   levelOrder?: number;
   updateOrder?: boolean;
+  isOrderReturnFromPOS?: boolean;
   loyaltyRate?: LoyaltyRateResponse | null;
   isDisablePostPayment?: boolean;
   listPaymentMethod: PaymentMethodResponse[];
@@ -63,6 +64,7 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
     setPayments,
     setPaymentMethod,
     orderDetail,
+    isOrderReturnFromPOS,
   } = props;
 
   const changePaymentMethod = (value: number) => {
@@ -96,11 +98,11 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
             disabled={levelOrder > 2 || isOrderFinishedOrCancel(orderDetail)}
           >
             <Space size={20}>
-              <Radio value={PaymentMethodOption.COD}>COD</Radio>
+              <Radio value={PaymentMethodOption.COD} disabled={isOrderReturnFromPOS}>COD</Radio>
               <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
               <Radio
                 value={PaymentMethodOption.POSTPAYMENT}
-                disabled={isDisablePostPayment}
+                disabled={isDisablePostPayment || isOrderReturnFromPOS}
               >
                 Chưa xác định
               </Radio>

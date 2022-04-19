@@ -40,7 +40,6 @@ import { callApiNative } from "utils/ApiUtils";
 import { getAccountDetail } from "service/accounts/account.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import { AccountStoreResponse } from "model/account/account.model";
-import { RegUtil } from "utils/RegUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
@@ -216,7 +215,7 @@ const CreateTicket: FC = () => {
 
     if (item)
       selectedItem = item;
-
+      
     if (
       !dataTemp.some(
         (variant: VariantResponse) => variant.sku === selectedItem.sku
@@ -232,8 +231,6 @@ const CreateTicket: FC = () => {
       })
       setDataTable(dataTemp);
     }
-    setKeySearch("");
-    barCode="";
     setResultSearch([]);
 
     form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
@@ -557,19 +554,16 @@ const CreateTicket: FC = () => {
 
   const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
     if (keyCode === "Enter" && code){
-      barCode ="";
       setKeySearch("");
-
-      if (RegUtil.BARCODE_NUMBER.test(code)) {
-        const storeId = form.getFieldValue("from_store_id");
-        if (!storeId) {
-          showError("Vui lòng chọn kho gửi");
-          return;
-        }
-        let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
-        if (res && res.items && res.items.length > 0) {
-          onSelectProduct(res.items[0].id.toString(),res.items[0]);
-        }
+      barCode = "";
+      const storeId = form.getFieldValue("from_store_id");
+      if (!storeId) {
+        showError("Vui lòng chọn kho gửi");
+        return;
+      }
+      let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
+      if (res && res.items && res.items.length > 0) {
+        onSelectProduct(res.items[0].id.toString(),res.items[0]);
       }
     }
     else{
@@ -581,18 +575,41 @@ const CreateTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dispatch,onSelectProduct, onSearchProduct, form]);
 
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barCode = barCode + event.key;
+        } else if (event.key === "Enter") {
+          if (barCode !== "" && event) {
+            handleSearchProduct(event.key,barCode);
+            barCode = "";
+          }
+        }
+        return;
+      }
+    },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      dispatch,
+    ]
+  );
+
   const eventKeydown = useCallback(
      (event: KeyboardEvent) => {
 
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
-          if (event.key !== "Enter" && event.key !== "Shift")
+          if (event.key !== "Enter")
+          {
             barCode = barCode + event.key;
-
+          }
+          
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
             () => handleSearchProduct(event.key, barCode),
-            600
+            400
           );
           return;
         }
@@ -609,10 +626,12 @@ const CreateTicket: FC = () => {
 
   useEffect(() => {
       window.addEventListener("keydown", eventKeydown);
+      window.addEventListener("keypress", eventKeyPress);
       return () => {
         window.removeEventListener("keydown", eventKeydown);
+        window.addEventListener("keypress", eventKeyPress);
       };
-  }, [eventKeydown]);
+  }, [eventKeyPress, eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -678,7 +697,12 @@ const CreateTicket: FC = () => {
       },
     },
     {
-      title: "Số lượng",
+      title: <div>
+        <div>Số lượng</div>
+        <div className="text-center">
+          {getTotalQuantity()}
+        </div>
+      </div>,
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",

@@ -65,6 +65,7 @@ type PropTypes = {
 };
 
 function OrderList(props: PropTypes) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const EXPORT_IDs = {
     allOrders: 1,
     ordersOnThisPage: 2,
@@ -421,6 +422,7 @@ function OrderList(props: PropTypes) {
       exportFile({
         conditions: queryParams,
         type: "EXPORT_ORDER",
+        is_online: !isShowOfflineOrder ? "true": "false",
       })
         .then((response) => {
           if (response.code === HttpStatus.SUCCESS) {
@@ -435,15 +437,7 @@ function OrderList(props: PropTypes) {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [
-      params,
-      selectedRowCodes,
-      EXPORT_IDs.allOrders,
-      EXPORT_IDs.ordersOnThisPage,
-      EXPORT_IDs.selectedOrders,
-      EXPORT_IDs.ordersFound,
-      listExportFile,
-    ]
+    [params, isShowOfflineOrder, EXPORT_IDs, selectedRowCodes, listExportFile]
   );
   const checkExportFile = useCallback(() => {
 

@@ -21,10 +21,10 @@ export interface EcommerceShopInventoryDto {
 export interface EcommerceResponse extends BaseObject {
   name: String; // tên gian hàng
   ecommerce: String; //tên sàn
-  ecommerce_id: Number; //id sàn
+  ecommerce_id: number; //id sàn
   ecommerce_shop: String; //tên sàn
   email: String; //email shop
-  store_id: Number; // id cửa hàng
+  store_id: number; // id cửa hàng
   store: String; // tên cửa hàng
   assign_account_code: String; // mã người phụ trách /vd: YD23123
   assign_account: String; // tên người phụ trách

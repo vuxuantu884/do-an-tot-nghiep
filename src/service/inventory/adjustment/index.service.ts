@@ -47,6 +47,18 @@ const updateOnlineInventoryApi = (id: number): Promise<BaseResponse<string>> => 
   );
 };
 
+const updateReasonItemOnlineInventoryApi = (
+  id: number,
+  lineId: number,
+  data: LineItemAdjustment
+): Promise<BaseResponse<string>> => {
+  return BaseAxios.put(
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item/${lineId}/update-note`,
+    data
+  );
+};
+
+
 const adjustInventoryApi = (id: number): Promise<BaseResponse<string>> => {
   return BaseAxios.put(
     `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/adjust/${id}`
@@ -100,4 +112,5 @@ export {
   getLinesItemAdjustmentApi,
   updateInventorAdjustmentApi,
   getVariantHasOnHandByStoreApi,
+  updateReasonItemOnlineInventoryApi
 };

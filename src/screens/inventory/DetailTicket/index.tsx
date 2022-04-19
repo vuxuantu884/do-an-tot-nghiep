@@ -68,6 +68,9 @@ import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
 import TextArea from "antd/es/input/TextArea";
+// import { checkUserPermission } from "../../../utils/AuthUtil";
+// import { RootReducerType } from "../../../model/reducers/RootReducerType";
+// import { getAccountDetail } from "../../../service/accounts/account.service";
 // import moment from "moment";
 export interface InventoryParams {
   id: string;
@@ -113,9 +116,18 @@ const DetailTicket: FC = () => {
     [] as Array<VariantResponse>
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  // const [isHavePermissionQuickBalance, setIsHavePermissionQuickBalance] = useState<boolean>(false);
 
   const [form] = Form.useForm();
   const printElementRef = useRef(null);
+
+  // const currentPermissions: string[] = useSelector(
+  //   (state: RootReducerType) => state.permissionReducer.permissions
+  // );
+  //
+  // const currentStores = useSelector(
+  //   (state: RootReducerType) => state.userReducer.account?.account_stores
+  // );
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -164,6 +176,15 @@ const DetailTicket: FC = () => {
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
+
+        // callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
+        //   if (res) {
+        //     setIsHavePermissionQuickBalance(res.user_name === result.created_name);
+        //     return;
+        //   }
+        //
+        //   setIsHavePermissionQuickBalance(true);
+        // });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -481,6 +502,23 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dispatch,onSelectProduct, onSearchProduct]);
 
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barCode = barCode + event.key;
+        } else if (event.key === "Enter") {
+          if (barCode !== "" && event) {
+            handleSearchProduct(event.key,barCode);
+            barCode = "";
+          }
+        }
+        return;
+      }
+    },
+    [handleSearchProduct]
+  );
+
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
 
@@ -508,11 +546,13 @@ const DetailTicket: FC = () => {
   },[onSelectProduct])
 
   useEffect(() => {
-      window.addEventListener("keydown", eventKeydown);
-      return () => {
-        window.removeEventListener("keydown", eventKeydown);
-      };
-  }, [eventKeydown]);
+    window.addEventListener("keydown", eventKeydown);
+    window.addEventListener("keypress", eventKeyPress);
+    return () => {
+      window.removeEventListener("keydown", eventKeydown);
+      window.addEventListener("keypress", eventKeyPress);
+    };
+}, [eventKeyPress, eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -558,7 +598,12 @@ const DetailTicket: FC = () => {
       ),
     },
     {
-      title: "Số lượng",
+      title: <div>
+        <div>SL</div>
+        <div className="text-center">
+          {data?.total_quantity}
+        </div>
+      </div>,
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
@@ -688,6 +733,7 @@ const DetailTicket: FC = () => {
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
+            // disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
@@ -1068,7 +1114,7 @@ const DetailTicket: FC = () => {
                         )}}
                       />
                       {
-                         data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  (
+                         data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
                           <div className="inventory-transfer-action">
                             <AuthWrapper
                               acceptPermissions={[InventoryTransferPermission.receive]}

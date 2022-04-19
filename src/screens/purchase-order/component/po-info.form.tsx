@@ -41,7 +41,6 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
         })
       }
     }
-    props.formMain?.setFieldsValue({ [POField.merchandiser_code]: userReducer.account?.code })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(merchans)])
 

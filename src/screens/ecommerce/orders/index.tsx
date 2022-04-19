@@ -257,13 +257,16 @@ const EcommerceOrders: React.FC = () => {
       }
       switch (optionExport) {
         case EXPORT_IDs.allOrders:
-          newParams = {};
-          newParams.channel_codes = ALL_CHANNEL;
+          newParams = {
+            channel_codes: ALL_CHANNEL
+          };
           break;
         case EXPORT_IDs.ordersOnThisPage:
           break;
         case EXPORT_IDs.selectedOrders:
-          newParams.code = selectedRowCodes;
+          newParams = {
+            code: selectedRowCodes
+          };
           break;
         case EXPORT_IDs.ordersFound:
           delete newParams.page;
@@ -273,6 +276,7 @@ const EcommerceOrders: React.FC = () => {
           break;
       }
 
+      newParams.is_online = true;
       let queryParams = generateQuery(newParams);
       exportFile({
         conditions: queryParams,

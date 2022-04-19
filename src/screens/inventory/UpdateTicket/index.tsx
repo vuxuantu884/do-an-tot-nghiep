@@ -560,7 +560,7 @@ const UpdateTicket: FC = () => {
           variant_image: item.variant_image,
           product_name: item.product_name,
           product_id: item.product_id,
-          available: item.available - item.transfer_quantity,
+          available: item.available,
           transfer_quantity: item.transfer_quantity,
           amount: item.price * item.transfer_quantity,
           price: item.price,
@@ -808,12 +808,17 @@ const UpdateTicket: FC = () => {
       dataIndex: "available",
       align: "center",
       width: 100,
-      render: (value, record) => {
-        return value ? CopyId ? record.available - record.transfer_quantity : value : 0;
+      render: (value) => {
+        return value || 0;
       },
     },
     {
-      title: "Số lượng",
+      title: <div>
+        <div>Số lượng</div>
+        <div className="text-center">
+          {getTotalQuantity()}
+        </div>
+      </div>,
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",

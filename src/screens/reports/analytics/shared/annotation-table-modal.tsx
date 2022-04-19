@@ -29,7 +29,7 @@ function AnnotationTableModal({
                 </a>
             </Button>
         ]} width={800}>
-            <Table columns={AnnotationColumns} dataSource={annotationData} pagination={false} scroll={{ y: 500 }}></Table>
+            <Table columns={AnnotationColumns} dataSource={annotationData} pagination={false} scroll={{ y: 500 }} key="annotation"/>
         </Modal>
     )
 }
