@@ -68,6 +68,7 @@ export interface InventoryDefectResponse {
     product_id :number;
     barcode?: string;
     variant_name?: string;
+    name?: string
 }
 
 export const InventoryDefectFields = {

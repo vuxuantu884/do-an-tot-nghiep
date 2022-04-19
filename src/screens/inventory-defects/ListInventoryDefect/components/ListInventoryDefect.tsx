@@ -7,7 +7,6 @@ import { DataRequestDefectItems, InventoryDefectFields, InventoryDefectResponse,
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import search from "assets/img/search.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import { primaryColor } from "utils/global-styles/variables";
@@ -26,6 +25,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { cloneDeep, isEmpty } from "lodash";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { VariantResponse } from "model/product/product.model";
+import TextEllipsis from "component/table/TextEllipsis";
 
 const initQuery: InventorySearchItem = {
   page: 1,
@@ -139,11 +140,16 @@ const ListInventoryDefect: React.FC = () => {
         title: "Ảnh",
         align: "center",
         width: 70,
-        fixed: "left",
-        render: (value, item: InventoryDefectResponse) => {
+        render: (value: VariantResponse) => {
+          let url = null;
+          value.variant_images?.forEach((item) => {
+              if (item.product_avatar) {
+                url = item.url;
+              }
+            });
           return (
             <>
-              {item.image_url ? <Image width={40} height={40} placeholder="Xem" src={item.image_url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={item.image_url} />}
+              {url ? <Image width={40} height={40} placeholder="Xem" src={url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={url} />}
             </>
           );
         },
@@ -153,16 +159,18 @@ const ListInventoryDefect: React.FC = () => {
         title: "Sản phẩm",
         width: 200,
         dataIndex: "sku",
-        align: 'center',
+        align: 'left',
         fixed: "left",
         visible: true,
-        render: (text: string, item: InventoryDefectResponse) => {
+        render: (value: string, item: InventoryDefectResponse) => {
           return (
             <>
             <div>
-              (<Link to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}>{text}</Link>);
+              <div>{value}</div>
             </div>
-            <div>{item.variant_name}</div>
+              <Link to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}>
+                <TextEllipsis value={item?.name ?? ""} line={1}></TextEllipsis>
+              </Link>
             </>
           )
         },
@@ -233,6 +241,7 @@ const ListInventoryDefect: React.FC = () => {
         width: 100,
         dataIndex: "created_date",
         visible: true,
+        align: "center",
         render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
       },
       {
@@ -296,18 +305,13 @@ const ListInventoryDefect: React.FC = () => {
 
   return (
     <Card>
-      <div className="custom-filter" style={{ paddingBottom: 20 }}>
+      <div className="custom-filter" style={{paddingBottom: 20}}>
         <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
           <Item style={{ flex: 1 }} name="condition" className="input-search">
             <Input
 
               prefix={<img src={search} alt="" />}
               placeholder="Tìm kiếm theo mã vạch, sku, tên sản phẩm"
-            // onBlur={(e) => {
-            //   formSearchRef?.current?.setFieldsValue({
-            //     code: e.target.value.trim(),
-            //   });
-            // }}
             />
           </Item>
           <Item name="store_id">
@@ -341,12 +345,13 @@ const ListInventoryDefect: React.FC = () => {
         </Form>
       </div>
       <CustomTable
+        className="small-padding"
         bordered
         isLoading={loadingTable}
         pagination={false}
         dataSource={data.items}
-        scroll={{ x: 1200 }}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+        scroll={{x: "max-content"}}
+        sticky={{offsetScroll: 5, offsetHeader: 55}}
         columns={columnFinal}
         rowKey={(item: LineItemDefect) => item.id}
       />
