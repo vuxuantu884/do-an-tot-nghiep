@@ -3,21 +3,11 @@ import CustomSelect from "component/custom/select.custom";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import { setSubStatusAction } from "domain/actions/order/order.action";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-import {
-  FulFillmentResponse,
-  OrderResponse,
-  OrderReturnReasonDetailModel
-} from "model/response/order/order.response";
-import React, { useEffect, useMemo, useState } from "react";
+import { OrderResponse, OrderReturnReasonDetailModel } from "model/response/order/order.response";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
-import {
-  handleFetchApiError,
-  isFetchApiSuccessful,
-  isOrderFinishedOrCancel,
-  sortFulfillments
-} from "utils/AppUtils";
-import { FulFillmentStatus } from "utils/Constants";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel } from "utils/AppUtils";
 import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
 import { showError, showWarning } from "utils/ToastUtils";
 
@@ -25,7 +15,6 @@ type PropType = {
   subStatusCode?: string | undefined;
   status?: string | null;
   orderId?: number;
-  fulfillments?: FulFillmentResponse[] | null;
   handleUpdateSubStatus: () => void;
   setReload: (value: boolean) => void;
   OrderDetailAllFulfillment?: OrderResponse | null;
@@ -35,7 +24,6 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const {
     // status,
     orderId,
-    fulfillments,
     subStatusCode,
     handleUpdateSubStatus,
     OrderDetailAllFulfillment,
@@ -55,25 +43,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
     OrderReturnReasonDetailModel[]
   >([]);
-  const [isShouldChangeSubStatus, setIsShouldChangeSubStatus] = useState(false);
 
   const subStatuses = useGetOrderSubStatuses();
-
-
-  const sortedFulfillments = useMemo(() => {
-    if (!OrderDetailAllFulfillment?.fulfillments) {
-      return [];
-    } else {
-      const returnStatus = [
-        FulFillmentStatus.RETURNED,
-        FulFillmentStatus.CANCELLED,
-        FulFillmentStatus.RETURNING,
-      ];
-      let sort = sortFulfillments(OrderDetailAllFulfillment?.fulfillments);
-      // bỏ trạng thái fulfillment đã hủy
-      return sort.filter((single) => single.status && !returnStatus.includes(single.status));
-    }
-  }, [OrderDetailAllFulfillment?.fulfillments]);
 
   const changeSubStatusCode = (
     sub_status_code: string,
@@ -116,17 +87,15 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     if (!orderId) {
       return;
     }
-    if(sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
-      
-    }else {
-      setIsShouldChangeSubStatus(true);
+    if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
+      handleIfRequireWareHouseChange(sub_status_code);
+    } else {
       setToSubStatusCode(sub_status_code);
-
     }
   };
 
   const changeSubStatusCallback = (value: string) => {
-    setValueSubStatusCode(value)
+    setValueSubStatusCode(value);
   };
 
   useEffect(() => {
@@ -222,7 +191,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       <SubStatusChange
         orderId={orderId}
         toSubStatus={toSubStatusCode}
-        isShouldChangeSubStatus={isShouldChangeSubStatus}
+        setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
       />
     </Card>

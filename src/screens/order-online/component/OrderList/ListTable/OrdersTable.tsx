@@ -6,6 +6,7 @@ import iconPrint from "assets/icon/Print.svg";
 // import 'assets/css/_sale-order.scss';
 import iconReturn from "assets/icon/return.svg";
 import search from "assets/img/search.svg";
+import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -130,6 +131,9 @@ function OrdersTable(props: PropTypes) {
     subStatus: "subStatus",
     setSubStatus: "setSubStatus",
   };
+
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
+
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
 
   const [typeAPi, setTypeAPi] = useState("");
@@ -294,7 +298,7 @@ function OrdersTable(props: PropTypes) {
         }
       );
       return (
-        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`}>
+        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={payment.id}>
           {payment.amount < 0 ? (
             <Tooltip title="Hoàn tiền">
               <img src={selectedPayment?.icon} alt="" />
@@ -449,6 +453,21 @@ function OrdersTable(props: PropTypes) {
           <strong>[D]</strong>
         </div>
       )
+    }
+  };
+
+  const changeSubStatusCallback = (value: string) => {
+    const index = data.items?.findIndex(
+      (single) => single.id === selectedOrder?.id
+    );
+    if (index > -1) {
+      let dataResult: dataExtra = { ...data };
+      // selected = value;
+      dataResult.items[index].sub_status_code = value;
+      dataResult.items[index].sub_status = subStatuses?.find(
+        (single) => single.code === value
+      )?.sub_status;
+      setData(dataResult);
     }
   };
 
@@ -644,7 +663,7 @@ function OrdersTable(props: PropTypes) {
             <div className="items">
               {items.map((item, i) => {
                 return (
-                  <div className="item custom-td" key={item.variant_id}>
+                  <div className="item custom-td" key={i}>
                     <div className="product productNameWidth 2">
                       <div className="inner">
                         <Link
@@ -1097,22 +1116,7 @@ function OrdersTable(props: PropTypes) {
                         if (!isChange) {
                           return;
                         }
-                        dispatch(
-                          setSubStatusAction(record.id, value, () => {
-                            const index = data.items?.findIndex(
-                              (single) => single.id === record.id
-                            );
-                            if (index > -1) {
-                              let dataResult: dataExtra = { ...data };
-                              // selected = value;
-                              dataResult.items[index].sub_status_code = value;
-                              dataResult.items[index].sub_status = recordStatuses?.find(
-                                (single) => single.code === value
-                              )?.name;
-                              setData(dataResult);
-                            }
-                          })
-                        );
+                        setToSubStatusCode(value);
                       }}>
                       {subStatuses &&
                         subStatuses.map((single: any, index: number) => {
@@ -1645,6 +1649,12 @@ function OrdersTable(props: PropTypes) {
         footer={() => renderFooter()}
         isShowPaginationAtHeader
         rowSelectionWidth = {30}
+      />
+      <SubStatusChange
+        orderId={selectedOrder?.id}
+        toSubStatus={toSubStatusCode}
+        setToSubStatusCode={setToSubStatusCode}
+        changeSubStatusCallback={changeSubStatusCallback}
       />
     </StyledComponent>
   );

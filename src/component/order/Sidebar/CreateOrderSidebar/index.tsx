@@ -33,8 +33,16 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 function CreateOrderSidebar(props: PropType): JSX.Element {
-  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, storeId, updateOrder} =
-    props;
+  const {
+    onChangeTag,
+    tags,
+    customerId,
+    orderDetail,
+    listOrderSubStatus,
+    form,
+    storeId,
+    updateOrder,
+  } = props;
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
 
@@ -44,13 +52,17 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 
   return (
     <StyledComponent>
-      <CreateOrderSidebarOrderInformation form={form} orderDetail={orderDetail} storeId={storeId} updateOrder={updateOrder} />
+      <CreateOrderSidebarOrderInformation
+        form={form}
+        orderDetail={orderDetail}
+        storeId={storeId}
+        updateOrder={updateOrder}
+      />
       {listOrderSubStatus && (
         <SubStatusOrder
           subStatusCode={orderDetail?.sub_status_code}
           status={orderDetail?.status}
           orderId={orderDetail?.id}
-          fulfillments={orderDetail?.fulfillments}
           handleUpdateSubStatus={handleUpdateSubStatus}
           setReload={() => {}}
           OrderDetailAllFulfillment={orderDetail}
@@ -59,11 +71,9 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
       <Card title="THÔNG TIN BỔ SUNG">
         <CreateOrderSidebarOrderExtraInformation onChangeTag={onChangeTag} tags={tags} />
       </Card>
-			{customerId && (
-				<SidebarOrderHistory customerId={customerId} />
-			)}
+      {customerId && <SidebarOrderHistory customerId={customerId} />}
     </StyledComponent>
   );
-};
+}
 
 export default CreateOrderSidebar;

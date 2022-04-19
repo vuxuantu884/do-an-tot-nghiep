@@ -8,13 +8,13 @@ import { StyledComponent } from "./SubStatusChange.styles";
 type PropTypes = {
   orderId?: number;
   toSubStatus?: string;
-  isShouldChangeSubStatus: boolean;
   changeSubStatusCallback: (value: string) => void;
+  setToSubStatusCode: (value: string | undefined) => void;
 };
 
 let isConfirmedChangeSubStatus = false;
 function SubStatusChange(props: PropTypes): JSX.Element {
-  const { orderId, toSubStatus, isShouldChangeSubStatus, changeSubStatusCallback } = props;
+  const { orderId, toSubStatus, changeSubStatusCallback, setToSubStatusCode } = props;
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [subText, setSubText] = useState("");
 
@@ -42,15 +42,13 @@ function SubStatusChange(props: PropTypes): JSX.Element {
     return isChange;
   }, [toSubStatus]);
 
-  const resetValues = () => {
+  const resetValues = useCallback(() => {
     setIsShowModalConfirm(false);
     isConfirmedChangeSubStatus = false;
-  };
+    setToSubStatusCode(undefined);
+  }, [setToSubStatusCode]);
 
   const changeOrderSubStatus = useCallback(() => {
-    if (!isShouldChangeSubStatus) {
-      return;
-    }
     if (!toSubStatus) {
       return;
     }
@@ -64,9 +62,11 @@ function SubStatusChange(props: PropTypes): JSX.Element {
             () => {
               resetValues();
               changeSubStatusCallback(toSubStatus);
+              setToSubStatusCode(undefined);
             },
             () => {
               resetValues();
+              setToSubStatusCode(undefined);
             }
           )
         );
@@ -76,14 +76,19 @@ function SubStatusChange(props: PropTypes): JSX.Element {
     changeSubStatusCallback,
     checkIfCanChange,
     dispatch,
-    isShouldChangeSubStatus,
     orderId,
+    resetValues,
+    setToSubStatusCode,
     toSubStatus,
   ]);
 
   useEffect(() => {
-    changeOrderSubStatus();
-  }, [changeOrderSubStatus]);
+    if (toSubStatus) {
+      changeOrderSubStatus();
+    } else {
+      setIsShowModalConfirm(false);
+    }
+  }, [changeOrderSubStatus, toSubStatus]);
 
   return (
     <StyledComponent>

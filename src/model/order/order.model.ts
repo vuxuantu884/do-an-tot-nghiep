@@ -297,3 +297,9 @@ export interface FulfillmentsOrderPackQuery{
 }
 
 export type OrderSourceTypeModel = "offline" | "online" | null ;
+
+export type ChangeOrderStatusHtmlModel = {
+  id: number;
+  isSuccess: boolean;
+  text: string;
+}

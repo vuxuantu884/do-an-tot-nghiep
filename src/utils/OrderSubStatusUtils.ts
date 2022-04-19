@@ -14,6 +14,9 @@ export const ORDER_SUB_STATUS = {
   canceled: "canceled",
   fourHour_delivery: "4h_delivery",
   order_return: "order_return",
+  het_hang: "het_hang",
+  returning: "returning",
+  returned: "returned",
 };
 export const ORDER_RETURN_SUB_STATUS = {
   returning: {
