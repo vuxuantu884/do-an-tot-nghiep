@@ -4,6 +4,7 @@ import { useContext } from "react";
 import BusinessResult from "./business-result";
 import RankHorizontalChart from "./chart/rank-hirizontal-chart";
 import RankVerticalChart from "./chart/rank-vertical-chart";
+import DashboardFilter from "./filter/index";
 import Greeting from "./greeting";
 import useFetchTopProduct from "./hooks/useFetchTopProduct";
 import useFetchTopSaleByDepartment from "./hooks/useFetchTopSaleByDepartment";
@@ -12,29 +13,18 @@ import useFetchTopSaleByStaff from "./hooks/useFetchTopSaleByStaff";
 import { DashboardContainer } from "./index.style";
 import ImcomeGroupTab from "./product/product-business-result";
 import DashboardPrivider, { DashboardContext } from "./provider/dashboard-provider";
-import DepartmentSelect from "./shared/department-select";
-
-const Dashboard = () => { 
+const Dashboard = () => {
   const { topSale, dataSrcTopProduct } = useContext(DashboardContext);
 
   useFetchTopSaleByStaff();
   useFetchTopSaleByShop();
   useFetchTopSaleByDepartment();
   useFetchTopProduct();
- 
+  
   return (
     <DashboardContainer>
       <Greeting />
-      <Card>
-        <div className="dashboard-filter">
-          <h1 className="title">BỘ LỌC</h1>
-          {/* <DateFilterSelect className="select-filter" /> */}
-          <DepartmentSelect className="select-filter" />
-          {/* <Checkbox checked={isSeeMyData} onChange={handleChangeSeeMyData}>
-            Xem dữ liệu của tôi
-          </Checkbox> */}
-        </div>
-      </Card>
+      <DashboardFilter />
 
       <BusinessResult />
       <Card title="BẢNG THI ĐUA">

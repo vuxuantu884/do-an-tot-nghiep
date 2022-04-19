@@ -1,8 +1,5 @@
 import { AnalyticSampleQuery } from "model/report/analytics.model";
-export interface MonthIncomeQuery {
-  departmentId?: number;
-  isSeeMyData?: boolean;
-} 
+ 
 export interface Warehouse {
   name: string;
   id: number;
@@ -26,7 +23,7 @@ export interface OrderStatus {
   income: number;
   rate: number;
 }
-//========================================================================================
+//=================================REFACTOR=======================================================
 export enum BusinessResultChartKey {
   CURRENT_MONTH = "CURRENT_MONTH",
   AVERAGE_OF_LAST_3_MONTH = "AVERAGE_OF_LAST_3_MONTH",
@@ -67,4 +64,10 @@ export interface DashboardTopProduct {
   total_sales: number;
   net_quantity: number;
   description?: string;
+}
+
+export interface DashboardShowMyData {
+  isSeeMyData: boolean;
+  condition?: string;
+  myCode?: string;
 }
