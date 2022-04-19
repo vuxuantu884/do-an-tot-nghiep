@@ -26,8 +26,8 @@ function IncomeBox(props: IncomeBoxProps) {
                 <Skeleton.Input size={"small"} />
             </> :
                 <>
-                    <span className='value'>{type === "percent" ? value : formatCurrency(value)}</span>
-                    <span className='conclusion'><span>Luỹ kế tháng: </span><b>{formatCurrency(monthlyAccumulated)}</b></span>
+                    <span className='value'>{type === "percent" ? value + "%" : formatCurrency(value)}</span>
+                    <span className='conclusion'><span>Luỹ kế tháng: </span><b>{type === "percent" ? monthlyAccumulated + "%" : formatCurrency(monthlyAccumulated)}</b></span>
                 </>
         }
     </div >

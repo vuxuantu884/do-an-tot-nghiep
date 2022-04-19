@@ -9,7 +9,7 @@ import { ChartColor } from "../index.style";
 import { CustomizedXAxisTickMonthly, CustomizedYAxisTickMonthly } from "../shared";
 
 
-function CompareMonthlyChartArea(props: BusinessResultChart) {
+function TotalSaleByMonthChartArea(props: BusinessResultChart) {
   const { monthTotalSalesOverDay, totalSalesToday } = props;
 
   return (
@@ -103,4 +103,4 @@ function TooltipContent(data: any) {
 
   return null;
 };
-export default CompareMonthlyChartArea;
+export default TotalSaleByMonthChartArea;

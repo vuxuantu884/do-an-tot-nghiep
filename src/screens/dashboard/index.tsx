@@ -20,7 +20,7 @@ const Dashboard = () => {
   useFetchTopSaleByShop();
   useFetchTopSaleByDepartment();
   useFetchTopProduct();
-
+  
   return (
     <DashboardContainer>
       <Greeting />
