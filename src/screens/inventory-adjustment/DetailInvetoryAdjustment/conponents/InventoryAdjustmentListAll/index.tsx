@@ -3,7 +3,7 @@ import {
   InventoryAdjustmentDetailItem,
   LineItemAdjustment,
 } from "model/inventoryadjustment";
-import {Col, Input, Row, Space, Table} from "antd";
+import {Col, Input, Radio, Row, Space, Table, Tooltip} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import {PurchaseOrderLineItem} from "model/purchase-order/purchase-item.model";
 import {Link} from "react-router-dom";
@@ -18,7 +18,7 @@ import {
   INVENTORY_AUDIT_TYPE_CONSTANTS,
   STATUS_INVENTORY_ADJUSTMENT_CONSTANTS,
 } from "screens/inventory-adjustment/constants";
-import {SearchOutlined} from "@ant-design/icons";
+import {CodepenOutlined, InfoCircleOutlined, PieChartOutlined, SearchOutlined, UserSwitchOutlined} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
@@ -26,7 +26,15 @@ import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import _ from "lodash";
 import { formatCurrency } from "../../../../../utils/AppUtils";
-const {TextArea} = Input;
+import EditNote from "screens/order-online/component/edit-note";
+import { callApiNative } from "utils/ApiUtils";
+import { updateReasonItemOnlineInventoryApi } from "service/inventory/adjustment/index.service";
+
+const arrTypeNote = [
+  {key: 1,value: "XNK sai quy trình"},
+  {key: 2,value: "Sai trạng thái đơn hàng"},
+  {key: 3,value: "Thất thoát"},
+]
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
@@ -96,6 +104,60 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       TotalRealOnHand: totalReal,
     });
   }, []);
+
+  const debounceChangeReason = useMemo(()=>
+  _.debounce((row: LineItemAdjustment)=>{
+
+    const newData = {
+      real_on_hand: row.real_on_hand,
+      note: row.note,
+    };
+
+    dispatch(
+      updateReasonItemOnlineInventoryAction(data?.id, row.id, newData, (result) => {
+        if (result) {
+          showSuccess("Nhập lý do thành công.");
+        }
+      })
+    );
+
+}, 500),
+[data?.id, dispatch]
+);
+
+  const onChangeReason = useCallback(
+    (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
+      row.note = value;
+  
+      dataItems.items.forEach((e)=>{
+        if (e.variant_id === row.id) {
+          e.note = row.note;
+        }
+      });
+  
+      setDataLinesItem({...dataItems});
+      debounceChangeReason(row);
+    },
+    [debounceChangeReason]
+  );
+
+  const handleNoteChange = useCallback(async (index:number, newValue: string,item: LineItemAdjustment) => {
+    const value = newValue;
+    if (value && value.indexOf('##') !== -1) {
+      return;
+    }
+   
+    item.note = value ?? "";
+    if (item.note) {
+      item.note = item.note.substring(item.note.lastIndexOf("#")+1,item.note.length);
+    }
+    
+    const res = await callApiNative({isShowError: false},dispatch, updateReasonItemOnlineInventoryApi,data?.id ?? 0,item.id,item);
+    
+    if (res) {
+      onChangeReason(item.note, item, dataLinesItem);
+    }
+  },[dispatch, data?.id, onChangeReason, dataLinesItem]);
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -234,22 +296,60 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       },
     },
     {
-      title: "Lý do",
+      title: <div>
+        Lý do <Tooltip title={
+        <div>
+          <div>1.XNK sai quy trình</div>
+          <div>2.Sai trạng thái đơn hàng</div>
+          <div>3.Thất thoát</div>
+        </div>
+      }><InfoCircleOutlined type="primary" color="primary" /></Tooltip>
+      </div>,
       dataIndex: "note",
       align: "left",
-      width: 200,
-      render: (value: string, row: LineItemAdjustment, index: number) => {
+      width: 225,
+      render: (value, row: LineItemAdjustment, index: number) => {
+        let note = `${index}#${value}`;
+        let tooltip = null;
+
+        if (!arrTypeNote.find(e=>e.value === value)) {
+          note = `${index}##${value}`;
+          tooltip= value;
+        }
+
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
-            <TextArea
-              placeholder="Lý do lệch tồn"
-              id={`item-reason-${index}`}
-              value={value ? value : ""}
-              maxLength={250}
-              onChange={(e) => {
-                onChangeReason(e.target.value, row, dataLinesItem);
-              }}
-            />
+            <Radio.Group value={note} buttonStyle="solid" onChange={(e)=>{
+              handleNoteChange(index,e.target.value,row);
+            }}>
+              <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
+                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[0].value}`}>
+                  <UserSwitchOutlined />
+                </Radio.Button>
+              </Tooltip>
+               <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
+                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[1].value}`}>
+                  <CodepenOutlined />
+                </Radio.Button>
+              </Tooltip>
+               <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
+                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[2].value}`}>
+                  <PieChartOutlined />
+                </Radio.Button>
+              </Tooltip>
+               <Tooltip placement="topLeft" title={tooltip}>
+                <Radio.Button
+                  style={{paddingLeft: 8,paddingRight:8}}
+                  value={`${index}##${value}`}>
+                  <EditNote
+                    note={tooltip}
+                    title=""
+                    onOk={(newNote) => {
+                      handleNoteChange(index,newNote,row);
+                    }}
+                /></Radio.Button>
+              </Tooltip>
+          </Radio.Group>
           );
         }
         return value || "";
@@ -278,42 +378,6 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       );
     }, 0);
   },[idNumber, dispatch, onResultDataTable]);
-
-  const debounceChangeReason = useMemo(()=>
-  _.debounce((row: LineItemAdjustment)=>{
-
-    const newData = {
-      real_on_hand: row.real_on_hand,
-      note: row.note,
-    };
-
-    dispatch(
-      updateReasonItemOnlineInventoryAction(data?.id, row.id, newData, (result) => {
-        if (result) {
-          showSuccess("Nhập lý do thành công.");
-        }
-      })
-    );
-
-}, 500),
-[data?.id, dispatch]
-);
-
-const onChangeReason = useCallback(
-  (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
-    row.note = value;
-
-    dataItems.items.forEach((e)=>{
-      if (e.variant_id === row.id) {
-        e.note = row.note;
-      }
-    });
-
-    setDataLinesItem({...dataItems});
-    debounceChangeReason(row);
-  },
-  [debounceChangeReason]
-);
 
   const onPageChange = useCallback(
     (page, size) => {
