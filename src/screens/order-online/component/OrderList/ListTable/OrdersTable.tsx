@@ -32,14 +32,10 @@ import {
   copyTextToClipboard,
   formatCurrency,
   getOrderTotalPaymentAmount,
-  getTotalQuantity,
-  getValidateChangeOrderSubStatus,
-  handleFetchApiError,
+  getTotalQuantity, handleFetchApiError,
   isFetchApiSuccessful,
   isNormalTypeVariantItem,
-  isOrderFromPOS,
-  isOrderFromSaleChannel,
-  sortFulfillments
+  isOrderFromPOS, sortFulfillments
 } from "utils/AppUtils";
 import {
   COD, DELIVERY_SERVICE_PROVIDER_CODE, FACEBOOK,
@@ -1108,10 +1104,10 @@ function OrdersTable(props: PropTypes) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
                           return;
                         }
-                        let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
-                        if (!isChange) {
-                          return;
-                        }
+                        // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
+                        // if (!isChange) {
+                        //   return;
+                        // }
                         setToSubStatusCode(value);
                       }}>
                       {subStatuses &&

@@ -45,9 +45,8 @@ import ChangeOrderStatusModal from "screens/order-online/modal/change-order-stat
 import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService, setSubStatusService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
-import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful, isFulfillmentCancelled } from "utils/AppUtils";
+import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { dangerColor, successColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -494,102 +493,106 @@ function OrderList(props: PropTypes) {
     return html;
   };
 
-  const checkIfOrderHasFulfillmentAndNoShipment = (order: OrderResponse) => {
-    if(order.fulfillments && !order.fulfillments[0].shipment) {
-      return true;
-    }
-    return false;
-  };
+  // ko validate nữa
+  // const checkIfOrderHasFulfillmentAndNoShipment = (order: OrderResponse) => {
+  //   if(order.fulfillments && !order.fulfillments[0].shipment) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
 
-  const checkIfOrderHasFulfillmentAndShipment = (order: OrderResponse) => {
-    if(order.fulfillments?.some(single => !isFulfillmentCancelled(single) && single.shipment )) {
-      return true;
-    }
-    return false;
-  };
+  // ko validate nữa
+  // const checkIfOrderHasFulfillmentAndShipment = (order: OrderResponse) => {
+  //   if(order.fulfillments?.some(single => !isFulfillmentCancelled(single) && single.shipment )) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
 
-  const getTextResultWhenCannotChange = (order: OrderResponse, toStatus: string) => {
-    let subStatusName = listOrderProcessingStatus.find(single => single.code === toStatus)?.sub_status
-    return `Đơn ở trạng thái ${order.sub_status}, Bạn không được đổi sang trạng thái ${subStatusName}`
-  };
+  // ko validate nữa
+  // const getTextResultWhenCannotChange = (order: OrderResponse, toStatus: string) => {
+  //   let subStatusName = listOrderProcessingStatus.find(single => single.code === toStatus)?.sub_status
+  //   return `Đơn ở trạng thái ${order.sub_status}, Bạn không được đổi sang trạng thái ${subStatusName}`
+  // };
 
-  const handleIfIsChange = (order: OrderResponse, toStatus: string) => {
-    let isCanChange = false;
-    switch (order.sub_status_code) {
-      // chờ xác nhận
-      case ORDER_SUB_STATUS.awaiting_coordinator_confirmation:
-        if(checkIfOrderHasFulfillmentAndNoShipment(order)) {
-          // đang xác nhận và chờ xử lý
-          if(toStatus === ORDER_SUB_STATUS.coordinator_confirmed || toStatus === ORDER_SUB_STATUS.awaiting_saler_confirmation) {
-            isCanChange = true;
-          }
-        } else if(checkIfOrderHasFulfillmentAndShipment(order)) {
-          isCanChange = true;
-        }
-        break;
-      // chờ xử lý
-      case ORDER_SUB_STATUS.awaiting_saler_confirmation:
-        if(checkIfOrderHasFulfillmentAndNoShipment(order)) {
-          // chờ xử lý
-          if(toStatus === ORDER_SUB_STATUS.awaiting_coordinator_confirmation ) {
-            isCanChange = true;
-          }
-        } else if(checkIfOrderHasFulfillmentAndShipment(order)) {
-          isCanChange = true;
-        }
-        break;
-       // đã xác nhận
-       case ORDER_SUB_STATUS.coordinator_confirmed:
-        if(checkIfOrderHasFulfillmentAndShipment(order)) {
-          isCanChange = true;
-        }
-        break;
-      // đổi kho hàng
-      case ORDER_SUB_STATUS.require_warehouse_change:
-        if(order.fulfillments?.some(single => !isFulfillmentCancelled(single))) {
-          isCanChange = true;
-        }
-        break;
-      // hết hàng
-      case ORDER_SUB_STATUS.het_hang:
-        isCanChange = false;
-        // hủy đơn hàng
-        // alert("Hủy đơn hàng")
-        break;
-      // đã đóng gói
-      case ORDER_SUB_STATUS.merchandise_packed:
-        isCanChange = false;
-        if(toStatus === ORDER_SUB_STATUS.canceled) {
-          // hủy fulfillment
-          // alert("Hủy fulfillment")
-        }
-        break;
-      // Chờ thu gom
-      case ORDER_SUB_STATUS.awaiting_shipper:
-        isCanChange = true;
-        break;  
-      // Thành công
-      case ORDER_SUB_STATUS.shipped:
-        isCanChange = true;
-        break; 
-      // Đang hoàn
-      case ORDER_SUB_STATUS.returning:
-        if(toStatus === ORDER_SUB_STATUS.returned) {
-          isCanChange = true;
-        } 
-        break;  
-      // Đã hoàn
-      case ORDER_SUB_STATUS.returned:
-        isCanChange = true;
-        break; 
-      default:
-        break;
-    }
-    return {
-      isCanChange,
-      textResult: isCanChange ? "Thành công" : getTextResultWhenCannotChange(order, toStatus)
-    }
-  }
+  // ko validate nữa
+  // const handleIfIsChange = (order: OrderResponse, toStatus: string) => {
+  //   let isCanChange = false;
+  //   switch (order.sub_status_code) {
+  //     // chờ xác nhận
+  //     case ORDER_SUB_STATUS.awaiting_coordinator_confirmation:
+  //       if(checkIfOrderHasFulfillmentAndNoShipment(order)) {
+  //         // đang xác nhận và chờ xử lý
+  //         if(toStatus === ORDER_SUB_STATUS.coordinator_confirmed || toStatus === ORDER_SUB_STATUS.awaiting_saler_confirmation) {
+  //           isCanChange = true;
+  //         }
+  //       } else if(checkIfOrderHasFulfillmentAndShipment(order)) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //     // chờ xử lý
+  //     case ORDER_SUB_STATUS.awaiting_saler_confirmation:
+  //       if(checkIfOrderHasFulfillmentAndNoShipment(order)) {
+  //         // chờ xử lý
+  //         if(toStatus === ORDER_SUB_STATUS.awaiting_coordinator_confirmation ) {
+  //           isCanChange = true;
+  //         }
+  //       } else if(checkIfOrderHasFulfillmentAndShipment(order)) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //      // đã xác nhận
+  //      case ORDER_SUB_STATUS.coordinator_confirmed:
+  //       if(checkIfOrderHasFulfillmentAndShipment(order)) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //     // đổi kho hàng
+  //     case ORDER_SUB_STATUS.require_warehouse_change:
+  //       if(order.fulfillments?.some(single => !isFulfillmentCancelled(single))) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //     // hết hàng
+  //     case ORDER_SUB_STATUS.het_hang:
+  //       isCanChange = false;
+  //       // hủy đơn hàng
+  //       // alert("Hủy đơn hàng")
+  //       break;
+  //     // đã đóng gói
+  //     case ORDER_SUB_STATUS.merchandise_packed:
+  //       isCanChange = false;
+  //       if(toStatus === ORDER_SUB_STATUS.canceled) {
+  //         // hủy fulfillment
+  //         // alert("Hủy fulfillment")
+  //       }
+  //       break;
+  //     // Chờ thu gom
+  //     case ORDER_SUB_STATUS.awaiting_shipper:
+  //       isCanChange = true;
+  //       break;  
+  //     // Thành công
+  //     case ORDER_SUB_STATUS.shipped:
+  //       isCanChange = true;
+  //       break; 
+  //     // Đang hoàn
+  //     case ORDER_SUB_STATUS.returning:
+  //       if(toStatus === ORDER_SUB_STATUS.returned) {
+  //         isCanChange = true;
+  //       } 
+  //       break;  
+  //     // Đã hoàn
+  //     case ORDER_SUB_STATUS.returned:
+  //       isCanChange = true;
+  //       break; 
+  //     default:
+  //       break;
+  //   }
+  //   return {
+  //     isCanChange,
+  //     textResult: isCanChange ? "Thành công" : getTextResultWhenCannotChange(order, toStatus)
+  //   }
+  // }
 
   const changeStatus = (id: number, toStatus: string, reason_id = 0, sub_reason_id = 0, ) => {
     return new Promise((resolve, reject) => {
@@ -627,7 +630,11 @@ function OrderList(props: PropTypes) {
     }
     let currentOrder =selectedRow[i];
     
-    let {isCanChange, textResult} = handleIfIsChange(currentOrder, toStatus);
+    // let {isCanChange, textResult} = handleIfIsChange(currentOrder, toStatus);
+
+    // Không validate nữa
+    let isCanChange = true;
+    let textResult = "";
 
     if(isCanChange) {
       // setIsLoadingSetSubStatus(true);
