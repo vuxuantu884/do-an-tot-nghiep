@@ -241,12 +241,6 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
         <Form.Item
           label={isOrderFromPOS(orderDetail) ? "Chuyên viên tư vấn" : "Nhân viên bán hàng"}
           name="assignee_code"
-          rules={[
-            {
-              required: true,
-              message: isOrderFromPOS(orderDetail) ? "Vui lòng chọn nhân viên tư vấn" : "Vui lòng chọn nhân viên bán hàng",
-            },
-          ]}
         >
           <AccountCustomSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
