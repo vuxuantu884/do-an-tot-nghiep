@@ -177,10 +177,7 @@ const TabProduct: React.FC<any> = (props) => {
       firstLoad = false;
     }
     setTableLoading(false);
-  }, []);
-
-  console.log('totalVariant',totalVariant);
-  
+  }, []);  
 
   const onResultUpdateSaleable = useCallback(
     (success: Array<VariantResponse>, error: Array<VariantResponse>, isException) => {
@@ -517,7 +514,9 @@ const TabProduct: React.FC<any> = (props) => {
     switch (type) {
       case TYPE_EXPORT.page:
         res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, params);
-        items = res.items;
+        if (res) {
+          items = res.items;
+        }
         break;
       case TYPE_EXPORT.selected:
         const ids = selected.map(e => e.id);
@@ -525,26 +524,32 @@ const TabProduct: React.FC<any> = (props) => {
         items = res.items;
         break;
       case TYPE_EXPORT.all:
-        times= Math.round(data.metadata.total / limit);
+        const roundAll = Math.round(data.metadata.total / limit);
+        times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
         for (let index = 1; index <= times; index++) {
           const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
-          const res1 = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
-          items= items.concat(res1.items);
+          const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
+          if (res) {
+            items= items.concat(res.items);
+          }
         }
         break;
       case TYPE_EXPORT.allin:
         if (!totalVariant || totalVariant===0) {
           break;
         }
-        times= Math.round(totalVariant / limit);
+        const roundAllin = Math.round(totalVariant / limit);
+        times = roundAllin < (totalVariant / limit) ? roundAllin + 1 : roundAllin;
         for (let index = 1; index <= times; index++) {
           const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
-          const res1 = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
-          items= items.concat(res1.items);
+          const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
+          if (res) {
+            items= items.concat(res.items);
+          }
         }
         break;
       default:
