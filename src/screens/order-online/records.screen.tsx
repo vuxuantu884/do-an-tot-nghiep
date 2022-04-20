@@ -103,7 +103,7 @@ const PackSupportScreen: React.FC = () => {
             <Space size={12} style={{marginLeft: "10px"}}>
               <ButtonCreate
                 size="small" 
-                path={`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-create`}
+                path={`${UrlConfig.DELIVERY_RECORDS}/create`}
                 disabled={!allowCreateGoodsReceipt}
               />
             </Space>

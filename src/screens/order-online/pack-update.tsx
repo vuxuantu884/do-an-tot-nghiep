@@ -424,11 +424,12 @@ const PackUpdate: React.FC = () => {
             path: UrlConfig.ORDER,
           },
           {
-            name: "Hỗ trợ đóng gói",
-            path: UrlConfig.PACK_SUPPORT,
+            name: "Biên bản bàn giao",
+            path: UrlConfig.DELIVERY_RECORDS,
           },
           {
             name: `Biên bản bàn giao: ${PackId}`,
+            path: `${UrlConfig.DELIVERY_RECORDS}/${PackId}`
           },
           {
             name: "Thêm đơn hàng",

@@ -262,7 +262,7 @@ const PackDetail: React.FC = () => {
           handleExportExcelOrderPack();
           break;
         case 4:
-          history.push(`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${PackId}`);
+          history.push(`${UrlConfig.DELIVERY_RECORDS}/${PackId}/update`);
           break;
         default:
           break;
