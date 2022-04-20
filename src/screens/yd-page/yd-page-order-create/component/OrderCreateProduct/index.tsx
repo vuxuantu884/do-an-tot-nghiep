@@ -1295,6 +1295,14 @@ function OrderCreateProduct(props: PropType) {
 			autoCompleteRef.current?.blur();
 			setIsInputSearchProductFocus(false);
 			setKeySearchVariant("");
+			setResultSearchVariant({
+				metadata: {
+					limit: 0,
+					page: 1,
+					total: 0,
+				},
+				items: [],
+			});
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[items, resultSearchVariant.items, promotion, isAutomaticDiscount, couponInputText, autoCompleteRef, splitLine, handleApplyDiscount, handleApplyCouponWhenInsertCoupon]
