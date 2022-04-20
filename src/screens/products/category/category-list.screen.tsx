@@ -116,7 +116,12 @@ const Category = () => {
     },
     {
       title: "Người tạo",
-      dataIndex: "created_name",
+      render: (item: CategoryView) => {
+       return item.created_name ?
+            <div>
+              <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
+            </div> :"---"
+      },
     },
   ];
   const onFinish = useCallback(
