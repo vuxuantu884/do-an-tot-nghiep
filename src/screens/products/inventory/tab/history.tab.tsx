@@ -271,7 +271,6 @@ const HistoryTab: React.FC<any> = (props) => {
       [`Tồn trong kho`]: item.on_hand.toString(),
       [`Kho hàng`]: item.store,
       [`Người sửa`]: item.account,
-      [`Mã người sửa`]: item.account_code,
     };
   }
 
@@ -324,7 +323,7 @@ const HistoryTab: React.FC<any> = (props) => {
     Ok: async (typeExport: string) => {
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
-        showWarning("Bạn chưa chọn lịch sử tồn nào để xuất file");
+        showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
         setVExportProduct(false);
         return;
       }

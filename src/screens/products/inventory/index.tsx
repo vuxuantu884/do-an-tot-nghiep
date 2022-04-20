@@ -23,6 +23,7 @@ const InventoryScreen: React.FC = () => {
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const {path} = useRouteMatch();
   const [vExportProduct,setVExportProduct] = useState(false);
+  const [vExportInventory,setVExportInventory] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
@@ -62,7 +63,7 @@ const InventoryScreen: React.FC = () => {
         },
       ]}
       extra={
-        activeTab === InventoryTabUrl.HISTORIES &&
+        activeTab === InventoryTabUrl.HISTORIES ?
         <Row>
           <Space>
               <Button
@@ -74,7 +75,19 @@ const InventoryScreen: React.FC = () => {
                   Xuất file
               </Button>
           </Space>
-        </Row>
+        </Row> :
+        <Row>
+        <Space>
+            <Button
+                className="light"
+                size="large"
+                icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                onClick={() => {setVExportInventory(true)}}
+              >
+                Xuất file
+            </Button>
+        </Space>
+      </Row>
       }
     >
       <Card style={{ padding: 0 }} className="card-tab">
@@ -85,7 +98,7 @@ const InventoryScreen: React.FC = () => {
           renderTabBar={RenderTabBar}
         >
           <TabPane tab="Tồn kho" key={InventoryTabUrl.ALL}>
-            <AllTab stores={stores} current={activeTab} />
+            <AllTab vExportInventory={vExportInventory} setVExportInventory={setVExportInventory} stores={stores} current={activeTab} />
           </TabPane>
           <TabPane tab="Lịch sử tồn kho" key={InventoryTabUrl.HISTORIES}>
             <HistoryTab vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} stores={stores} current={activeTab} />

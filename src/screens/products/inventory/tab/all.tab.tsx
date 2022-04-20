@@ -17,7 +17,7 @@ import {
   InventoryResponse,
   InventoryVariantListQuery,
 } from "model/inventory";
-import { InventoryColumnField } from "model/inventory/field";
+import { InventoryColumnField, InventoryExportField } from "model/inventory/field";
 import { FilterConfig, FilterConfigRequest } from "model/other";
 import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -28,16 +28,23 @@ import {Link, useHistory} from "react-router-dom";
 import { getInventoryConfigService } from "service/inventory";
 import {formatCurrency, generateQuery, Products} from "utils/AppUtils";
 import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
-import { showError } from "utils/ToastUtils";
+import { showError, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
-import {TabProps} from "./tab.props";
 import "./index.scss"
+import InventoryExport from "../component/InventoryExport";
+import { TYPE_EXPORT } from "screens/products/constants";
+import * as XLSX from 'xlsx';
+import moment from "moment";
+import { callApiNative } from "utils/ApiUtils";
+import { searchVariantsInventoriesApi } from "service/product/product.service";
 
 type ConfigColumnInventory = {
   Columns: Array<ICustomTableColumType<InventoryResponse>>,
   ColumnDrill: Array<ICustomTableColumType<InventoryResponse>>
 }
+
+let firstLoad = true;
 export interface SummaryInventory {
   Sum_Total: number | 0;
   Sum_On_hand: number | 0;
@@ -51,11 +58,12 @@ export interface SummaryInventory {
   Sum_Shipping: number | 0;
 }
 
-const AllTab: React.FC<TabProps> = (props: TabProps) => {
-  const {stores} = props;
+const AllTab: React.FC<any> = (props) => {
+  const { stores,vExportInventory,setVExportInventory } = props;
   const history = useHistory();
   const pageSizeOptions: Array<string> =["50","100"];
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
+  const [totalItems, setTotalItems] = useState<number>(0);
 
   const query = useQuery();
 
@@ -473,6 +481,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       setInventiryVariant(new Map());
       setData(result);
       setExpandRow([]);
+      if (firstLoad) {
+        setTotalItems(result.metadata.total);
+      }
+      firstLoad = false;
     }
   }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
@@ -612,7 +624,116 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       dispatch(createConfigInventoryAction(config));
     }
 
-}, [dispatch,account?.code, lstConfig]);
+  }, [dispatch,account?.code, lstConfig]);
+
+  const convertItemExport = (item: InventoryResponse) => {
+      const objPrice = Products.findPrice(item.variant_prices, AppConfig.currency);
+      const price = formatCurrency(objPrice ? objPrice.retail_price : 0);
+
+    return {
+      [InventoryExportField[InventoryColumnField.variant_name]]: item.name,
+      [InventoryExportField[InventoryColumnField.sku]]: item.sku,
+      [InventoryExportField[InventoryColumnField.variant_prices]]: price,
+      [InventoryExportField[InventoryColumnField.total_stock]]: item.total_stock ? item.total_stock : null,
+      [InventoryExportField[InventoryColumnField.on_hand]]: item.on_hand ? item.on_hand : null,
+      [InventoryExportField[InventoryColumnField.available]]: item.available ? item.available : null,
+      [InventoryExportField[InventoryColumnField.committed]]: item.committed ? item.committed : null,
+      [InventoryExportField[InventoryColumnField.on_hold]]: item.on_hold ? item.on_hold : null,
+      [InventoryExportField[InventoryColumnField.defect]]: item.defect ? item.defect : null,
+      [InventoryExportField[InventoryColumnField.in_coming]]: item.in_coming ? item.in_coming : null,
+      [InventoryExportField[InventoryColumnField.transferring]]: item.transferring ? item.transferring : null,
+      [InventoryExportField[InventoryColumnField.on_way]]: item.on_way ? item.on_way : null,
+      [InventoryExportField[InventoryColumnField.shipping]]: item.shipping ? item.shipping : null,
+    };
+  }
+
+  const getItemsByCondition = useCallback(async (type: string) => {
+    let res: any; 
+    let items: Array<InventoryResponse> = [];
+    const limit = 50;
+    let times = 0;
+    switch (type) {
+      case TYPE_EXPORT.page:
+        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,limit: params.limit ?? 50});
+        if (res) {
+          items= items.concat(res.items);
+        }
+        break;
+      case TYPE_EXPORT.selected:
+        items = selected;
+        break;
+      case TYPE_EXPORT.all:
+       const roundAll = Math.round(data.metadata.total / limit);
+       times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
+
+        for (let index = 1; index <= times; index++) {
+          const output = document.getElementById("processExport"); 
+          if (output) output.innerHTML=items.length.toString();
+          
+          const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
+          if (res) {
+            items= items.concat(res.items);
+          }
+        }
+        
+        break;
+      case TYPE_EXPORT.allin:
+        if (!totalItems || totalItems===0) {
+          break;
+        }
+        const roundAllin = Math.round(totalItems / limit);
+        times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
+        for (let index = 1; index <= times; index++) {
+          const output = document.getElementById("processExport"); 
+          if (output) output.innerHTML=items.length.toString();
+          
+           const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
+           if (res) {
+            items= items.concat(res.items);
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    return items;
+  },[dispatch,selected,params,data,totalItems])
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      let dataExport: any = [];
+      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
+        showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
+        setVExportInventory(false);
+        return;
+      }
+
+      const res = await getItemsByCondition(typeExport);
+      if (res && res.length === 0) {
+        showWarning("Không có sản phẩm nào đủ điều kiện");
+        return;
+      }
+      for (let i = 0; i < res.length; i++) {
+        const e = res[i];
+        const item = convertItemExport(e);
+        dataExport.push(item);
+      }
+
+      let worksheet = XLSX.utils.json_to_sheet(dataExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      const today = moment(new Date(), 'YYYY/MM/DD');
+
+      const month = today.format('M');
+      const day   = today.format('D');
+      const year  = today.format('YYYY');
+      XLSX.writeFile(workbook, `inventory_${day}_${month}_${year}.xlsx`);
+      setVExportInventory(false);
+    },
+    Cancel: () => {
+      setVExportInventory(false);
+    },
+  }
 
   useEffect(()=>{
     getConfigColumnInventory();
@@ -738,6 +859,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
           onSaveConfigColumn(data, columnsInRow);
         }}
         data={columns}
+      />
+       <InventoryExport
+        onCancel={actionExport.Cancel}
+        onOk={actionExport.Ok}
+        visible={vExportInventory}
       />
     </div>
   );
