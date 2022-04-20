@@ -79,7 +79,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
   useEffect(() => {
     formSearch.setFieldsValue(initialValues)
   }, [formSearch, initialValues])
-  
+
 
   return (
     <StyledComponent>

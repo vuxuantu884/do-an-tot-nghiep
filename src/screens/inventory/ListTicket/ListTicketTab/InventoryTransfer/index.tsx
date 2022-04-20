@@ -35,7 +35,7 @@ import {
   PaperClipOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 
 import {formatCurrency, generateQuery} from "utils/AppUtils";
@@ -51,6 +51,8 @@ import {PrinterInventoryTransferResponseModel} from "model/response/printer.resp
 import {actionFetchPrintFormByInventoryTransferIds} from "domain/actions/printer/printer.action";
 import {InventoryTransferPermission} from "config/permissions/inventory-transfer.permission";
 import useAuthorization from "hook/useAuthorization";
+import { callApiNative } from "../../../../../utils/ApiUtils";
+import { searchAccountPublicApi } from "../../../../../service/accounts/account.service";
 const {TextArea} = Input;
 
 const ACTIONS_INDEX = {
@@ -88,10 +90,11 @@ type InventoryTransferTabProps = {
   accountStores?: Array<AccountStoreResponse>,
   stores?: Array<Store>,
   accounts?: Array<AccountResponse>,
+  setAccounts?: (e: any) => any,
 };
 
 const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: InventoryTransferTabProps) => {
-  const { accountStores, stores, accounts } = props;
+  const { accountStores, stores, accounts, setAccounts } = props;
   const history = useHistory();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
@@ -429,6 +432,19 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     []
   );
 
+  const getAccounts = async (codes: string) => {
+    const initSelectedResponse = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      searchAccountPublicApi,
+      {
+        codes
+      }
+    );
+
+    setAccounts && setAccounts(initSelectedResponse.items);
+  }
+
   const onFilter = useCallback(
     (values) => {
       let newParams = {...params, ...values, page: 1};
@@ -436,7 +452,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
       history.push(`${UrlConfig.INVENTORY_TRANSFERS}?${queryParam}`);
+      getAccounts(newParams.created_by).then();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, params]
   );
 
