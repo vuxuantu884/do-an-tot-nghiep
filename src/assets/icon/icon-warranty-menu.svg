@@ -1,12 +1,10 @@
-<svg id="Component_120_20" data-name="Component 120 – 20" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <rect id="Rectangle_204" data-name="Rectangle 204" width="24" height="24" fill="rgba(255,255,255,0)"/>
-    <g id="vuesax_linear_medal-star" data-name="vuesax/linear/medal-star" transform="translate(-682.011 -250.011)">
-      <g id="medal-star" transform="translate(684 252)">
-        <path id="Vector" d="M11.68,5.84A5.8,5.8,0,0,1,6.716,11.6a5.148,5.148,0,0,1-1.752,0A5.836,5.836,0,1,1,11.68,5.84Z" transform="translate(4.171 1.669)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <path id="Vector-2" data-name="Vector" d="M16.077,4.647,14.7,4.972a.819.819,0,0,0-.617.617l-.292,1.226a.835.835,0,0,1-1.452.342L8.36,2.586l-3.98,4.58a.835.835,0,0,1-1.452-.342L2.637,5.6a.831.831,0,0,0-.617-.617L.643,4.655a.837.837,0,0,1-.4-1.4L3.5,0A5.828,5.828,0,0,0,7.484,2.52a5.032,5.032,0,0,0,.876.075,5.032,5.032,0,0,0,.876-.075A5.828,5.828,0,0,0,13.224,0l3.254,3.254A.831.831,0,0,1,16.077,4.647Z" transform="translate(1.651 10.762)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <path id="Vector-3" data-name="Vector" d="M3.249.4l.492.984a.6.6,0,0,0,.4.292l.893.15c.567.092.7.509.292.918l-.692.692a.591.591,0,0,0-.142.509l.2.859c.159.676-.2.943-.8.584L3.057,4.9a.585.585,0,0,0-.551,0l-.834.492c-.6.35-.959.092-.8-.584l.2-.859A.626.626,0,0,0,.93,3.437L.237,2.745c-.409-.409-.275-.818.292-.918l.893-.15a.608.608,0,0,0,.392-.292L2.306.4C2.548-.133,2.982-.133,3.249.4Z" transform="translate(7.246 4.589)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <path id="Vector-4" data-name="Vector" d="M0,0H20.023V20.023H0Z" fill="none" opacity="0"/>
-      </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+  <g id="vuesax_linear_medal-star" data-name="vuesax/linear/medal-star" transform="translate(-684 -252)">
+    <g id="medal-star" transform="translate(684 252)">
+      <path id="Vector" d="M10.5,5.25a5.215,5.215,0,0,1-4.463,5.183,4.628,4.628,0,0,1-1.575,0A5.246,5.246,0,1,1,10.5,5.25Z" transform="translate(3.75 1.5)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      <path id="Vector-2" data-name="Vector" d="M14.453,4.178l-1.238.292a.736.736,0,0,0-.555.555l-.263,1.1a.75.75,0,0,1-1.3.308L7.515,2.325,3.938,6.442a.75.75,0,0,1-1.305-.308l-.262-1.1a.747.747,0,0,0-.555-.555L.578,4.185a.752.752,0,0,1-.36-1.26L3.143,0A5.239,5.239,0,0,0,6.728,2.265a4.524,4.524,0,0,0,.787.067A4.524,4.524,0,0,0,8.3,2.265,5.239,5.239,0,0,0,11.888,0l2.925,2.925A.747.747,0,0,1,14.453,4.178Z" transform="translate(1.485 9.675)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      <path id="Vector-3" data-name="Vector" d="M2.921.36l.443.885a.543.543,0,0,0,.36.263l.8.135c.51.082.63.458.262.825l-.622.622a.531.531,0,0,0-.128.458l.18.772c.142.607-.18.847-.72.525L2.748,4.4a.526.526,0,0,0-.5,0l-.75.442c-.54.315-.862.083-.72-.525l.18-.772A.563.563,0,0,0,.836,3.09L.213,2.467c-.367-.367-.248-.735.262-.825l.8-.135a.547.547,0,0,0,.352-.263L2.073.36C2.291-.12,2.681-.12,2.921.36Z" transform="translate(6.514 4.125)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      <path id="Vector-4" data-name="Vector" d="M0,0H18V18H0Z" fill="none" opacity="0"/>
     </g>
-  </svg>
-  
+  </g>
+</svg>
