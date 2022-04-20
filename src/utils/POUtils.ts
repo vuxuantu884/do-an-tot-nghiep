@@ -431,7 +431,9 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
    * dánh sách các variant của sản phẩm
    */
   const mappingColorAndSize = product.variants.map((variant: VariantResponse) => {
+    const lineItemId = line_items?.find((lineItem) => lineItem.variant_id === variant.id)?.id;
     return {
+      lineItemId: lineItemId,
       color: variant.color ?? variant.sku.split("-")[0],
       size: variant.size ?? variant.sku.split("-")[0],
       variantId: variant.id,
@@ -443,7 +445,6 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
       barcode: variant.barcode,
       product_type: product.product_type,
       unit: product.unit,
-
     }
   })
 
@@ -512,6 +513,7 @@ export const combineLineItemToSubmitData = (
         const qty = value.sizeValues.find(item => item.size === pair.size)?.quantity || 0;
         const amount = qty * value.price
         newDataItems.push({
+          id: pair.lineItemId,
           //Dữ liệu cơ bản thì lấy từ schema
           variant_id: pair.variantId,
           variant: pair.variant,

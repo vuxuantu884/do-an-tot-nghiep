@@ -72,7 +72,7 @@ import { checkUserPermission } from "../../../utils/AuthUtil";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
 // import { checkUserPermission } from "../../../utils/AuthUtil";
 // import { RootReducerType } from "../../../model/reducers/RootReducerType";
-// import { getAccountDetail } from "../../../service/accounts/account.service";
+import { getAccountDetail } from "../../../service/accounts/account.service";
 // import moment from "moment";
 export interface InventoryParams {
   id: string;
@@ -118,7 +118,7 @@ const DetailTicket: FC = () => {
     [] as Array<VariantResponse>
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  // const [isHavePermissionQuickBalance, setIsHavePermissionQuickBalance] = useState<boolean>(false);
+  const [isHavePermissionQuickBalance, setIsHavePermissionQuickBalance] = useState<boolean>(false);
 
   const [form] = Form.useForm();
   const printElementRef = useRef(null);
@@ -179,14 +179,14 @@ const DetailTicket: FC = () => {
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
 
-        // callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
-        //   if (res) {
-        //     setIsHavePermissionQuickBalance(res.user_name === result.created_name);
-        //     return;
-        //   }
-        //
-        //   setIsHavePermissionQuickBalance(true);
-        // });
+        callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
+          if (res) {
+            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase());
+            return;
+          }
+
+          setIsHavePermissionQuickBalance(true);
+        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1315,13 +1315,15 @@ const DetailTicket: FC = () => {
                             Kiểm kho theo sản phẩm
                           </Button>
                         </AuthWrapper>
-                        <AuthWrapper
-                          acceptPermissions={[InventoryTransferPermission.balance]}
-                        >
-                          <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
-                            Cân bằng nhanh
-                          </Button>
-                        </AuthWrapper>
+                        {isHavePermissionQuickBalance && (
+                          <AuthWrapper
+                            acceptPermissions={[InventoryTransferPermission.balance]}
+                          >
+                            <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
+                              Cân bằng nhanh
+                            </Button>
+                          </AuthWrapper>
+                        )}
                       </>
                     )
                   }
