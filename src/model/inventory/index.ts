@@ -1,6 +1,6 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
-import { ProductResponse } from "model/product/product.model";
+import { ProductResponse, VariantPricesResponse } from "model/product/product.model";
 
 
 export interface InventoryResponse extends BaseObject {
@@ -27,6 +27,7 @@ export interface InventoryResponse extends BaseObject {
   retail_price: number;
   import_price: number;
   product: ProductResponse | null,
+  variant_prices:Array<VariantPricesResponse>,
 }
 
 export interface InventoryQuery extends BaseQuery {
