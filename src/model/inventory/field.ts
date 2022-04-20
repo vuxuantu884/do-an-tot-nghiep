@@ -80,7 +80,11 @@ const AllInventoryMappingField = {
 }
 
 const InventoryColumnField = {
-  retail_price: 'retail_price',
+  variant_name: 'variant_name',
+  sku: 'sku',
+  category: 'category',
+  variant_prices: 'variant_prices',
+  total_stock: 'total_stock',
   on_hand: 'on_hand',
   available: 'available',
   committed: 'committed',
@@ -90,7 +94,22 @@ const InventoryColumnField = {
   transferring: 'transferring',
   on_way: 'on_way',
   shipping: 'shipping',
-  total_stock: 'total_stock'
+}
+
+const InventoryExportField = {
+  [InventoryColumnField.variant_name]: 'Sản phẩm',
+  [InventoryColumnField.sku]: 'Mã sản phẩm',
+  [InventoryColumnField.variant_prices]: 'Giá bán',
+  [InventoryColumnField.total_stock]: 'Tổng tồn',
+  [InventoryColumnField.on_hand]: 'Tồn trong kho',
+  [InventoryColumnField.available]: 'Có thể bán',
+  [InventoryColumnField.committed]: 'Đang giao dịch',
+  [InventoryColumnField.on_hold]: 'Tạm giữ',
+  [InventoryColumnField.defect]: 'Hàng lỗi',
+  [InventoryColumnField.in_coming]: 'Chờ nhập',
+  [InventoryColumnField.transferring]: 'Hàng chuyển đến',
+  [InventoryColumnField.on_way]: 'Hàng chuyển đi',
+  [InventoryColumnField.shipping]: 'Đang giao',
 }
 
 const HistoryInventoryMappingField = {
@@ -108,4 +127,5 @@ export {InventoryQueryField,
    HistoryInventoryMappingField,
    AvdAllFilter,
    AllInventoryMappingField,
+   InventoryExportField,
    InventoryColumnField};
