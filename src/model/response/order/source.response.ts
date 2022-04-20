@@ -7,6 +7,7 @@ export interface SourceResponse extends BaseObject {
   department_id: number | null;
   department: string | null;
   department_h3?: string | null;
+  department_h4?: string | null;
   default: boolean;
 }
 

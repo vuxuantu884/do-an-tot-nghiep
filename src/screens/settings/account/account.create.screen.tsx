@@ -50,7 +50,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import TreeStore from "component/tree-node/tree-store";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { convertDistrict } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -394,7 +394,13 @@ const AccountCreateScreen: React.FC = () => {
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item name="store_ids" label="Cửa hàng">
-                <TreeStore name="store_ids" formRef={formRef} listStore={listStore} />
+                <TreeStore
+                  form={formRef}
+                  name="store_ids"
+                  placeholder="Chọn cửa hàng"
+                  listStore={listStore}
+                  style={{ width: "100%" }}
+                />
               </Form.Item>
             </Col>
           </Row>
