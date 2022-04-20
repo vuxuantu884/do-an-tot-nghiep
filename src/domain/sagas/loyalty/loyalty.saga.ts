@@ -33,17 +33,18 @@ import {
   getLoyaltyProgramDetail,
   getLoyaltyRate,
   getLoyaltyUsage,
-  getLoyaltyAdjustPointService,
   searchLoyaltyProgramList,
   subtractLoyaltyPointService,
   updateLoyaltyProgram,
   getPointAdjustmentListService,
   getPointAdjustmentDetailService,
-  createCustomerPointAdjustmentService
+  createCustomerPointAdjustmentService,
+  getLoyaltyAdjustMoneyService
 } from "service/loyalty/loyalty.service";
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
   const { file, name, callback } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<any>> = yield call(
       loyaltyCardUploadApi,
@@ -66,6 +67,8 @@ function* uploadLoyaltyCardSaga(action: YodyAction) {
   } catch (error) {
     callback(null);
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -539,11 +542,11 @@ function* subtractLoyaltyPoint(action: YodyAction) {
   }
 }
 
-function* getLoyaltyAdjustPointSaga(action: YodyAction) {
+function* getLoyaltyAdjustMoneySaga(action: YodyAction) {
   const { customerId, setData, onError } = action.payload;
   try {
     const response: BaseResponse<LoyaltyPoint> = yield call(
-      getLoyaltyAdjustPointService,
+      getLoyaltyAdjustMoneyService,
       customerId,
     );
     switch (response.code) {
@@ -662,7 +665,7 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyPointsType.GET_LOYALTY_POINT, getloyaltyPoint);
   yield takeLatest(LoyaltyPointsType.ADD_LOYALTY_POINT, addLoyaltyPoint);
   yield takeLatest(LoyaltyPointsType.SUBTRACT_LOYALTY_POINT, subtractLoyaltyPoint);
-  yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, getLoyaltyAdjustPointSaga);
+  yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_MONEY, getLoyaltyAdjustMoneySaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, getPointAdjustmentListSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL, getPointAdjustmentDetailSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.CREATE_CUSTOMER_POINT_ADJUSTMENT, createCustomerPointAdjustmentSaga);

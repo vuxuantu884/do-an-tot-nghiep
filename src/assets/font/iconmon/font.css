@@ -70,6 +70,14 @@
     content: url("assets/icon/menu-ecommerce.svg");
 }
 
+.icon-web-app:before {
+    content: url("assets/icon/web_app.svg");
+}
+
 .icon-YDpage:before {
     content: url("assets/icon/menu-yd-page.svg");
+}
+
+.icon-warranty:before {
+    content: url("assets/icon/icon-warranty-menu.svg");
 }

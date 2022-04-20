@@ -36,6 +36,7 @@ import {
 	SearchBarCode,
 	searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
+import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -104,7 +105,7 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
 	storeId: number | null;
 	items?: Array<OrderLineItemRequest>;
 	shippingFeeInformedToCustomer: number | null;
@@ -142,6 +143,7 @@ type PropType = {
 	setShippingFeeInformedToCustomer?:(value:number | null)=>void;
 	countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
 	shipmentMethod: number; 
+	isExchange?: boolean; 
 	listStores: StoreResponse[];
 };
 
@@ -152,6 +154,7 @@ const initQueryVariant: VariantSearchQuery = {
 	page: 1,
 	saleable: true,
 };
+
 
 /**
  * component dùng trong trang tạo đơn, update đơn hàng, đổi trả đơn hàng
@@ -195,11 +198,12 @@ const initQueryVariant: VariantSearchQuery = {
  * customer: thông tin khách hàng, để apply coupon
  *
  */
-function OrderCreateProduct(props: PropType) {
+function OrderCreateProduct(props: PropTypes) {
+	let isQuantityIsSame = false;
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
-	const QUANTITY_DELAY_TIME = 800;
+	const QUANTITY_DELAY_TIME = 1000;
 	const {
 		form,
 		items,
@@ -228,7 +232,8 @@ function OrderCreateProduct(props: PropType) {
 		countFinishingUpdateCustomer,
 		isCreateReturn,
 		shipmentMethod,
-		listStores
+		listStores,
+		isExchange
 	} = props;
 
 	const orderCustomer= useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
@@ -275,16 +280,18 @@ function OrderCreateProduct(props: PropType) {
 	const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
 	const lineItemDiscountInputTimeoutRef: MutableRefObject<any> = useRef();
 
+	const [isLineItemChanging, setIsLineItemChanging] = useState(false)
+
 	const [storeArrayResponse, setStoreArrayResponse] =
 		useState<Array<StoreResponse> | null>([]);
 
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
 	// const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
-
-	const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
-	const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
-
+console.log('props.updateOrder', props.updateOrder)
+	const isShouldUpdateCouponRef = useRef(orderDetail|| props.updateOrder ? false : true);
+	const isShouldUpdateDiscountRef = useRef(orderDetail|| props.updateOrder ? false : true);
+console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
 
@@ -529,7 +536,11 @@ function OrderCreateProduct(props: PropType) {
 		if (items) {
 			let _items = _.cloneDeep(items)
 			if (value === _items[index].quantity) {
+				setIsLineItemChanging(false)
 				return;
+			}
+			if(value === 0 || !value) {
+				value = 1
 			}
 			let _item = _items[index];
 			_item.quantity = Number(value == null ? "0" : value.toString().replace(".", ""));
@@ -555,7 +566,12 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
-	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
+	const onDiscountItem = (_items: Array<OrderLineItemRequest>, index: number) => {
+		// nhập chiết khấu tay thì clear chương trình chiết khấu
+		if(_items[index].discount_items && _items[index].discount_items[0]) {
+			_items[index].discount_items[0].promotion_id = undefined;
+			_items[index].discount_items[0].reason = "";
+		}
 		handleDelayCalculateWhenChangeOrderInput(lineItemDiscountInputTimeoutRef, _items, false);
 	};
 
@@ -728,6 +744,13 @@ function OrderCreateProduct(props: PropType) {
 			);
 		},
 	};
+console.log('isLineItemChanging', isLineItemChanging)
+	const isOtherLineItemIsChanged = () => {
+		if(isLineItemChanging) {
+			return true;
+		}
+		return false
+	};
 
 	const AmountColumn = {
 		title: () => (
@@ -742,6 +765,7 @@ function OrderCreateProduct(props: PropType) {
 		width: "9%",
 		align: "right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
+			console.log('lgg', l)
 			return (
 				<div className="yody-pos-qtt">
 					<NumberInput
@@ -749,6 +773,13 @@ function OrderCreateProduct(props: PropType) {
 						replace={(a: string) => replaceFormatString(a)}
 						style={{ textAlign: "right", fontWeight: 500, color: "#222222" }}
 						value={l.quantity}
+						onBlur={() => {
+							if(isQuantityIsSame) {
+								setIsLineItemChanging(true)
+							} else {
+								setIsLineItemChanging(false)
+							}
+						}}
 						onChange={(value) => {
 							// let maxQuantityToApplyDiscount = l?.maxQuantityToApplyDiscount;
 							// if (
@@ -764,13 +795,21 @@ function OrderCreateProduct(props: PropType) {
 							//   value = maxQuantityToApplyDiscount;
 							//   return;
 							// }
+							if(!items) {
+								return;
+							}
+							if(isQuantityIsSame && value === l.quantity) {
+								isQuantityIsSame = false
+							} else {
+								isQuantityIsSame = true
+							}
 							onChangeQuantity(value, index);
 						}}
 						// max={l.maxQuantityToApplyDiscount}
 						min={1}
 						maxLength={4}
 						minLength={0}
-						disabled={levelOrder > 3}
+						disabled={levelOrder > 3 || isLoadingDiscount || isOtherLineItemIsChanged()}
 						isChangeAfterBlur = {false}
 					/>
 				</div>
@@ -821,6 +860,9 @@ function OrderCreateProduct(props: PropType) {
 						maxLength={14}
 						minLength={0}
 						value={l.price}
+						onBlur={() => {
+							setIsLineItemChanging(true)
+						}}
 						onChange={(value) => {
 							onChangePrice(value, index);
 						}}
@@ -832,6 +874,7 @@ function OrderCreateProduct(props: PropType) {
 							promotion !== null ||
 							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin) || 
 							isLoadingDiscount
+							|| isOtherLineItemIsChanged()
 						}
 					/>
 				</div>
@@ -855,10 +898,9 @@ function OrderCreateProduct(props: PropType) {
 						price={l.price}
 						index={index}
 						discountRate={l.discount_items[0]?.rate ? l.discount_items[0]?.rate : 0}
-						discountValue={l.discount_items[0]?.value ? l.discount_items[0]?.value : 0}
-						totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
+						discountAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
 						items={items}
-						handleCardItems={onDiscountItem}
+						handleCardItems={(_items) => onDiscountItem(_items, index)}
 						// disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
 						disabled={
 							levelOrder > 3
@@ -1064,6 +1106,19 @@ function OrderCreateProduct(props: PropType) {
 	//   items.splice(position, 0, lineItem);
 	// };
 
+	/**
+  * nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
+  */
+	const checkIfReplaceDiscountLineItem = (item: OrderLineItemRequest, newDiscountValue: number) => {
+		if(item.discount_items[0] && !item.discount_items[0].promotion_id) {
+			return false;
+		}
+		if(newDiscountValue >= 0) {
+			return true;
+		}
+		return false;
+	};
+console.log('items', items)
 	const calculateDiscount = (
 		_item: OrderLineItemRequest,
 		_highestValueSuggestDiscount: any
@@ -1086,7 +1141,7 @@ function OrderCreateProduct(props: PropType) {
 				? item.price - highestValueSuggestDiscount.value
 				: 0;
 		}
-		if (value >= 0) {
+		if (checkIfReplaceDiscountLineItem(item, value)) {
 			value = Math.min(value, item.price);
 			value = Math.round(value);
 			let rate = Math.round((value / item.price) * 100 * 100) / 100;
@@ -1096,8 +1151,8 @@ function OrderCreateProduct(props: PropType) {
 				rate,
 				value,
 				amount: value * item.quantity,
-				reason: highestValueSuggestDiscount.title,
-				promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
+				reason: value > 0 ? highestValueSuggestDiscount.title : "",
+				promotion_id: value > 0 ? highestValueSuggestDiscount.price_rule_id || undefined: undefined,
 			};
 			let itemResult = {
 				..._item,
@@ -1168,15 +1223,15 @@ function OrderCreateProduct(props: PropType) {
 		items: OrderLineItemRequest[] | undefined
 	) => {
 		if (!items) {
-			return null;
+			return promotion;
 		}
 		if (checkingDiscountResponse.data.suggested_discounts === null || checkingDiscountResponse.data.suggested_discounts.length === 0) {
-			return null;
+			return promotion;
 		}
 		let discountOrder = checkingDiscountResponse.data.suggested_discounts[0];
 		if (discountOrder) {
 			if (!discountOrder?.value) {
-				return null;
+				return promotion;
 			}
 			let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
 			let discountAmount =  getTotalDiscountOrder(checkingDiscountResponse.data, items);
@@ -1209,10 +1264,10 @@ function OrderCreateProduct(props: PropType) {
 					}
 				}
 			} else {
-				return null;
+				return promotion;
 			}
 		}
-		return null;
+		return promotion;
 	};
 
 
@@ -1303,7 +1358,7 @@ function OrderCreateProduct(props: PropType) {
 		console.log('items', items)
 		setIsLoadingDiscount(true);
 		dispatch(changeIsLoadingDiscountAction(true));
-		removeCoupon()
+		// removeCoupon()
 		// handleRemoveAllAutomaticDiscount();
 		let params: DiscountRequestModel = {
 			order_id: orderDetail?.id || null,
@@ -1351,7 +1406,7 @@ function OrderCreateProduct(props: PropType) {
 						}
 					} else if(isOrderHasDiscountLineItems(response.data)) {
 							let result = getApplyDiscountLineItem(response, items);
-							calculateChangeMoney(result, null)
+							calculateChangeMoney(result, promotion)
 					} else if(isOrderHasDiscountOrder(response.data)) {
 						let itemsAfterRemove = items.map(single => {
 							removeDiscountItem(single)
@@ -1407,7 +1462,7 @@ function OrderCreateProduct(props: PropType) {
 		if (!_items || _items?.length === 0 || !coupon) {
 			return;
 		}
-		handleRemoveAllDiscount();
+		handleRemoveAllAutomaticDiscount();
 		coupon = coupon.trim();
 		if (!isAutomaticDiscount) {
 			let params: DiscountRequestModel = {
@@ -1586,7 +1641,6 @@ function OrderCreateProduct(props: PropType) {
 									})
 								}
 								calculateChangeMoney(_items, promotionResult)
-								showSuccess("Thêm coupon thành công!");
 							}
 					} else {
 						calculateChangeMoney(_items)
@@ -1625,11 +1679,15 @@ function OrderCreateProduct(props: PropType) {
 				} else {
 					let variantItems = _items.filter((item) => item.variant_id === newV);
 					let firstIndex = 0;
-					variantItems[firstIndex].quantity += 1;
-					variantItems[firstIndex].line_amount_after_line_discount +=
-						variantItems[firstIndex].price -
-						variantItems[firstIndex].discount_items[0]?.amount *
-						variantItems[firstIndex].quantity;
+					let selectedItem = variantItems[firstIndex];
+					selectedItem.quantity += 1;
+					selectedItem.line_amount_after_line_discount +=
+						selectedItem.price -
+						selectedItem.discount_items[0]?.amount *
+						selectedItem.quantity;
+					selectedItem.discount_items.forEach(single => {
+						single.amount = single.value * selectedItem.quantity;
+					})
 					calculateChangeMoney(_items);
 				}
 			}
@@ -1878,8 +1936,12 @@ function OrderCreateProduct(props: PropType) {
 				transportService, form, setShippingFeeInformedToCustomer
 				);
 		}
+		setIsLineItemChanging(false)
 	};
 
+	const storeIdLogin = useGetStoreIdFromLocalStorage()
+
+	
 	const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
 		if (listStores && listStores.length) {
@@ -1898,7 +1960,7 @@ function OrderCreateProduct(props: PropType) {
 
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
 			if (storeId && userReducer.account) {
-				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
+				if (newData.map((single) => single.id).indexOf(storeId) === -1) {
 					let initStore = listStores.find((single) => single.id === storeId)
 					if (initStore) {
 						newData.push(initStore);
@@ -1906,21 +1968,31 @@ function OrderCreateProduct(props: PropType) {
 				}
 			}
 		}
-		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
+		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu đã có ở local storage thì ưu tiên lấy, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
 		if (newData && newData[0]?.id) {
 			if (!storeId) {
-				setStoreId(newData[0].id);
+				if(storeIdLogin && isCreateReturn) {
+					setStoreId(storeIdLogin);
+				} else if(!isCreateReturn) {
+					const hubOnlineStoreId = 78;
+					setStoreId(hubOnlineStoreId);
+					// setStoreId(newData[0].id);
+				}
 			}
 		}
 		return newData;
-	}, [listStores, setStoreId, storeId, userReducer.account]);
+	}, [isCreateReturn, listStores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
 
+	console.log('dataCanAccess', dataCanAccess)
+	
 	useEffect(() => {
-		if(isCreateReturn && dataCanAccess[0]?.id) {
-			setStoreId(dataCanAccess[0].id);
+		if(isCreateReturn ) {
+			if(storeIdLogin) {
+				setStoreId(storeIdLogin);
+			} 
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dataCanAccess, isCreateReturn])
+	}, [storeIdLogin, isCreateReturn])
 	
 
 	const onUpdateData = useCallback(
@@ -1980,7 +2052,6 @@ function OrderCreateProduct(props: PropType) {
 			})
 		}
 		// calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
-		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
 
 	const handleRemoveAllDiscount = async () => {
@@ -2072,7 +2143,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyDiscount(items);
 			} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
 
 	/**
 	 * gọi lại api couponInputText khi thay đổi số lượng item
@@ -2088,12 +2159,16 @@ function OrderCreateProduct(props: PropType) {
 			handleApplyCouponWhenInsertCoupon(couponInputText, items);
 		}
 
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+
+	// đợi 3s cho load trang xong thì sẽ update trong trường hợp clone, update
+	useEffect(() => {
 		setTimeout(() => {
 			isShouldUpdateCouponRef.current = true;
 			isShouldUpdateDiscountRef.current = true;
-		}, 1000);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countFinishingUpdateCustomer, storeId, orderSourceId]);
+		}, 3000);
+	}, []);
 
 	useEffect(() => {
 		if (items && items.length === 0) {
@@ -2124,7 +2199,7 @@ function OrderCreateProduct(props: PropType) {
 						</Form.Item>
 						<Form.Item name="automatic_discount" valuePropName="checked">
 							<Checkbox
-								disabled={levelOrder > 3 || isLoadingDiscount || typeof(promotion?.discount_code) === "string"}
+								disabled={levelOrder > 3 || isLoadingDiscount}
 								value={isAutomaticDiscount}
 								onChange={(e) => {
 									if (e.target.checked) {
@@ -2136,7 +2211,7 @@ function OrderCreateProduct(props: PropType) {
 										handleRemoveAllAutomaticDiscount();
 										setIsAutomaticDiscount(false);
 										if (items) {
-											calculateChangeMoney(items, null)
+											calculateChangeMoney(items, promotion)
 										}
 									}
 								}}
@@ -2198,7 +2273,7 @@ function OrderCreateProduct(props: PropType) {
 							name="store_id"
 							rules={[
 								{
-									required: true,
+									required: !(isCreateReturn && !isExchange),
 									message: "Vui lòng chọn cửa hàng!",
 								},
 							]}

@@ -11,6 +11,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import { OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-over-context";
 import { ICustomTableColumType } from "component/table/CustomTable";
+import { formatCurrency } from "utils/AppUtils";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
@@ -19,13 +20,14 @@ type AddOrderInReportProps = {
   onMenuClick?: (index: number) => void;
   handleAddOrder: (code: string) => void;
   formSearchOrderRef: any;
+  codes: Array<String>
 };
 const { Item } = Form;
 
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef } = props;
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, codes } = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
@@ -34,31 +36,17 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   const [isOrderPack, setIsOrderPack] = useState<string[]>([]);
 
   const addReportHandOverContextData = useContext(AddReportHandOverContext);
-  // const orderListResponse= addReportHandOverContextData?.orderListResponse;
   const setOrderListResponse = addReportHandOverContextData?.setOrderListResponse;
-  //
-  // const handleSearchOrder = useCallback(() => {
-  //   formSearchOrderRef.current?.validateFields(["search_term"]);
-  //   let search_term: any = formSearchOrderRef.current?.getFieldValue(["search_term"]);
-  //   if (search_term) {
-  //     formSearchOrderRef.current?.resetFields();
-  //     handleAddOrder(search_term);
-  //   }
-  //   else {
-  //     showWarning("Vui lòng nhập mã đơn hàng");
-  //   }
-  // }, [formSearchOrderRef, handleAddOrder]);
 
   const handSubmit = useCallback((value: any) => {
-    console.log(value)
     if (value.search_term && value.search_term.length > 0) {
-      //formSearchOrderRef.current?.resetFields();
       handleAddOrder(value.search_term?.toUpperCase());
     }
     else {
       showWarning("Vui lòng nhập mã đơn hàng");
     }
   }, [handleAddOrder])
+
 
   const onMenuClickExt = useCallback(
     (index: number) => {
@@ -73,7 +61,10 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           isOrderPack.forEach((value) => {
             console.log(value);
             let indexOrder = orderListResponseCopy.findIndex((p) => p.code === value);
-            if (indexOrder !== -1) orderListResponseCopy.splice(indexOrder, 1);
+            if (indexOrder !== -1) {
+              orderListResponseCopy.splice(indexOrder, 1);
+              codes.splice(indexOrder, 1);
+            }
           })
           console.log("orderListResponseCopy2", orderListResponseCopy)
           setOrderListResponse([...orderListResponseCopy]);
@@ -83,18 +74,17 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           break;
       }
     },
-    [setOrderListResponse, setIsOrderPack, isOrderPack, orderListResponse]
+    [isOrderPack, orderListResponse, setOrderListResponse, codes]
   );
 
-  console.log("isOrderPack", isOrderPack)
+  console.log("isOrderPack", formSearchOrderRef)
 
   useEffect(() => {
     if (orderListResponse.length > 0) {
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
       orderListResponse.forEach(function (order, index) {
         let fulfillmentPacked = order.fulfillments.filter((ffm) =>
-          ffm.status !== 'returned' && ffm.status !== 'returning'
-          && ffm.status !== 'cancelled' && ffm.status !== 'splitted');
+          ffm.status !== 'returned' && ffm.status !== 'returning' && ffm.status !== 'splitted');
         // console.log('fulfillmentPacked', fulfillmentPacked)
         if (fulfillmentPacked.length > 0) {
           let product: VariantModel[] = [];
@@ -143,8 +133,9 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
 
       });
       setPackOrderProductList(result);
+      formSearchOrderRef.current?.resetFields();
     }
-  }, [orderListResponse]);
+  }, [formSearchOrderRef, orderListResponse]);
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
     {
@@ -152,7 +143,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       align: "center",
       render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
         return (
-          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`}>
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`} style={{whiteSpace:"nowrap"}}>
             {l.order_code}
           </Link>
         );
@@ -185,7 +176,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           <div className="items">
             {items.map((item, i) => {
               return (
-                <div className="item custom-td">
+                <div key={i.toString()} className="item custom-td">
                   <div className="product productNameWidth">
                     <Link
                       target="_blank"
@@ -198,7 +189,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     <span>{item.quantity}</span>
                   </div>
                   <div className="price priceWidth">
-                    <span>{item.price}</span>
+                    <span>{formatCurrency(item.price ? item.price : 0)}</span>
                   </div>
                 </div>
               );
@@ -210,65 +201,19 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       align: "left",
       width: "25%",
     },
-    // {
-    //   title: "Sản phẩm",
-    //   render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
-    //     return (
-    //       <div
-    //         className="w-100"
-    //         style={{
-    //           overflow: "hidden",
-    //           display: "flex",
-    //           flexDirection: "column",
-    //         }}
-    //       >
-    //         <div className="d-flex align-items-center">
-    //           <div
-    //             style={{
-    //               width: "calc(100% - 32px)",
-    //               float: "left",
-    //             }}
-    //           >
-    //             <div className="yody-pos-sku">
-    //               <Link
-    //                 target="_blank"
-    //                 to={`${UrlConfig.PRODUCT}/${l.product}/variants/${l.variant_id}`}
-    //               >
-    //                 {l.sku}
-    //               </Link>
-    //             </div>
-    //             <div className="yody-pos-varian">
-    //               <Tooltip title={l.product} className="yody-pos-varian-name">
-    //                 <span>{l.product}</span>
-    //               </Tooltip>
-    //             </div>
-    //           </div>
-    //         </div>
-    //       </div>
-    //     );
-    //   },
-    // },
-    // {
-    //   title: "Giá",
-    //   key: "price",
-    //   dataIndex: "price",
-    // },
-    // {
-    //   title: "Số lượng",
-    //   dataIndex: "quantity",
-    //   key: "quantity",
-    // },
     {
       title: "Cước phí",
       dataIndex: "ship_price",
       key: "ship_price",
-      align: "center"
+      align: "center",
+      render: (value) => formatCurrency(value),
     },
     {
       title: "Tổng thu",
       dataIndex: "total_price",
       key: "total_price",
-      align: "center"
+      align: "center",
+      render: (value) => formatCurrency(value),
     },
   ];
 
@@ -277,6 +222,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     onChange: (selectedRowKeys: React.Key[], selectedRows: GoodsReceiptsInfoOrderModel[]) => {
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       let order_code: string[] = selectedRows.map((p) => p.order_code);
+      console.log(order_code);
       setIsOrderPack(order_code);
     }
   };
@@ -296,7 +242,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     <Input
                       style={{ width: "100%" }}
                       prefix={<img src={search} alt="" />}
-                      placeholder="Mã đơn hàng"
+                      placeholder="ID đơn hàng/Mã vận đơn"
                     />
                   </Item>
 
@@ -329,7 +275,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               type: "checkbox",
               ...rowSelection,
             }}
-            rowKey={(item: any) => item.order_code}
+            rowKey={(item) => item.order_code}
           />
         </div>
 

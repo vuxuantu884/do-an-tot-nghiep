@@ -1,3 +1,4 @@
+import { GoodsReceiptsResponse } from 'model/response/pack/pack.response';
 import { PackFulFillmentResponse } from 'model/response/order/order.response';
 export interface PackModel{
   store_id?:number|null;
@@ -68,8 +69,12 @@ export interface GoodsReceiptsSearhModel{
   order_cancel:number;//đơn hủy 
   order_moving_complete:number;//đơn hoàn chuyển
   order_success:number;//đơn thành công
-  order_complete:number;//đơn hoàn
+  order_complete?:number;//đơn hoàn
   account_create:string;//người tạo
+  description?:string; //ghi chú
+  ecommerce_id?:number;
+  note?:string;
+  goods_receipts:GoodsReceiptsResponse
 }
 
 export interface GoodsReceiptsInfoOrderModel{
@@ -108,6 +113,8 @@ export interface GoodsReceiptsOrderListModel{
   key:number;
   order_id:number;
   order_code:string;
+  ffm_code?:string;
+  tracking_code?:string
   customer_name:string;
   total_quantity:number;
   total_price:number;
@@ -115,6 +122,7 @@ export interface GoodsReceiptsOrderListModel{
   card_number:number;
   sub_status?: string;
   note:string|null;
+  customer_note?:string|null;
   items:Array<FulfillmentsItemModel>;
 }
 

@@ -3,6 +3,7 @@ import { getToken } from "utils/LocalStorageUtils";
 import { AppConfig } from "../config/app.config";
 import { showError } from "../utils/ToastUtils";
 import { HttpStatus } from "../config/http-status.config";
+const ACCESS_TOKEN = "access_token";
 
 export function getAxiosBase(config: AxiosRequestConfig) {
   const BaseAxios = axios.create({
@@ -14,6 +15,8 @@ export function getAxiosBase(config: AxiosRequestConfig) {
 
   BaseAxios.interceptors.request.use(
     function (request: AxiosRequestConfig) {
+      // thêm version git commit để check xem user có update code mới nhất ko
+      request.headers['X-Client-Git-Version'] = `${process.env.REACT_APP_GIT_COMMIT_HASH ? process.env.REACT_APP_GIT_COMMIT_HASH : "no-git-commit-hash"}`
       const token = getToken();
       if (token != null) {
         request.headers["Authorization"] = `Bearer ${token}`;
@@ -27,7 +30,6 @@ export function getAxiosBase(config: AxiosRequestConfig) {
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
-      AppConfig.runMode === "development" && console.log(response.data);
 
       /**
        * Thông báo lỗi
@@ -45,6 +47,8 @@ export function getAxiosBase(config: AxiosRequestConfig) {
         /**
          * Record api 401 để check lỗi tự đăng xuất
          */
+          localStorage.removeItem(ACCESS_TOKEN);
+          window.location.replace('/admin/login');
           console.warn("Lỗi xác thực: \n", response?.config);
           return response;
         default:

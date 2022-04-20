@@ -1,5 +1,6 @@
 import { FilterOutlined } from "@ant-design/icons";
 import { Button, FormInstance, Select } from "antd";
+import { fieldsTypeNumber } from "config/report";
 import _ from "lodash";
 import { AnalyticDataQuery, AnalyticProperties } from "model/report/analytics.model";
 import React, { useContext, useMemo, useState } from "react";
@@ -7,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { executeAnalyticsQueryService } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
 import { getTranslatePropertyKey, transformDateRangeToString } from "utils/ReportUtils";
-import { fullTextSearch } from "utils/StringUtils";
+import { searchNumberString } from "utils/StringUtils";
 import FilterAdvancedDrawer from "../../../../component/filter/filter-advanced-drawer";
 import FilterAdvancedItem from "../../../../component/filter/filter-advanced-item";
 import FilterAdvancedList from "../../../../component/filter/filter-advanced-list";
@@ -43,9 +44,9 @@ function FilterResults({ properties, form }: Props) {
     if (metadata && !_.isEmpty(timeRange) && cubeRef.current) {
       let firstAggregate = Object.keys(metadata.aggregates)[0]
 
-      const query = `SHOW ${firstAggregate} BY ${propertyField} FROM ${cubeRef.current} 
-      WHERE ${propertyField} ${keySearch ? " == '~" + keySearch + "'" : " != '' "} 
-      SINCE ${timeRange?.from} UNTIL ${timeRange?.to} ORDER BY ${propertyField} ASC`;
+      const query = `SHOW ${firstAggregate} BY ${propertyField} FROM ${cubeRef.current} ` + 
+      (!fieldsTypeNumber.includes(propertyField) ? `WHERE ${propertyField} ${keySearch ? " == '~" + keySearch + "'" : " != '' "} `: '') +
+      `SINCE ${timeRange?.from} UNTIL ${timeRange?.to} ORDER BY ${propertyField} ASC`;
       const response: AnalyticDataQuery = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
       if (response) {
         const data = response?.result.data.map((item: Array<any>) => ({ label: item[0], value: item[0] }))
@@ -144,7 +145,7 @@ function FilterResults({ properties, form }: Props) {
           handleSelectAllOptions(item.key, value)
         }}
         // onSearch={_.debounce((keySearch) => getOptionData(index, item.key, keySearch), AppConfig.TYPING_TIME_REQUEST)} 
-        filterOption={(input, option) => fullTextSearch(input, option?.value)
+        filterOption={(input, option) => searchNumberString(input, option?.value)
         }
         options={[{ label: "Tất cả", value: "" }, ...optionList]}
         loading={loadingInputs.includes(index)}
@@ -154,7 +155,7 @@ function FilterResults({ properties, form }: Props) {
 
   return (
     <div>
-      <Button icon={<FilterOutlined />} onClick={handleActive}>
+      <Button icon={<FilterOutlined />} onClick={handleActive} type="primary" ghost>
         Lọc kết quả
       </Button>
       <FilterAdvancedDrawer width={"400px"} visible={visible} onClose={handleCancel} onSubmit={handleSubmit} onClearFilter={handleClearFilter}>

@@ -62,6 +62,8 @@ export interface PurchaseOrder extends BaseObject {
   qc_code:string;
   designer?:string;
   designer_code?:string;
+  is_grid_mode: boolean;
+  reference?: string;
 }
 
 export interface PurchaseOrderQuery extends BaseQuery {
@@ -88,6 +90,7 @@ export interface PurchaseOrderQuery extends BaseQuery {
   supplier_note?: string;
   tags?: string;
   reference?: string;
+  ids?: string
 }
 export interface PurchaseOrderPrint {
   purchaseOrderId: number;
@@ -100,3 +103,80 @@ export interface ProcumentLogQuery extends BaseQuery {
   created_date_from?: Date,
   created_date_to?: Date,
 }
+
+/**
+ * Mapping size và màu sắc cho việc validate, hiển thị line-item
+ */
+ export interface POPairSizeColor {
+  lineItemId?: number;
+  size: string;
+  color: string;
+  variantId: number;
+  sku: string;
+  product_id: number;
+  product: string;
+  variant: string; // variant name
+  barcode: string;
+  product_type: string;
+  unit: string;
+}
+export interface POLineItemColor {
+  clothCode: string;
+  color: string;
+  lineItemPrice?: number; // Giá của line-item : giá nhập| init lần đầu để mapping sang Object value. không dùng 
+}
+export interface POLineItemGridSchema {
+  productId: number;
+  productName: string;
+  productCode: string;
+  baseSize: string[];
+  baseColor: POLineItemColor[];
+  mappingColorAndSize: Array<POPairSizeColor> // key: size, value: danh sách màu của size đó | key: color, value: danh sách size của màu đó
+  variantIdList: number[];
+}
+// số lượng của size theo màu
+export interface POPairSizeQuantity {
+  size: string,
+  quantity: number;
+  variantId: number | null;
+}
+// Dùng trong Map<color, POLineItemGridValue>[]
+export declare type POLineItemGridValue = {
+  /**
+   * {
+   * price: 200000,//giá nhập
+   * sizeValues : [
+   *  {
+   *    size: "M",
+   *    quantity: "9",
+   *    variantId: 1009
+   *  }
+   * ]
+   */
+  price: number;
+  sizeValues: Array<POPairSizeQuantity>
+}
+
+export interface PODataSourceProduct {
+  productId: number;
+  productCode: string;
+  productName: string;
+  clothCode: string;
+  color: string;
+  lineItemPrice: number; // Giá nhập dùng chung cho 3 size:
+  schemaIndex: number;
+}
+
+export interface PODataSourceVariantItemGrid {
+  variantId: number;
+  disabled: boolean;
+  productId: number;
+  productCode: string;
+  productName: string;
+  schemaIndex: number;
+}
+export interface PODataSourceSize {
+  [key: string]: PODataSourceVariantItemGrid;
+}
+
+export type PODataSourceGrid = PODataSourceProduct & PODataSourceSize;

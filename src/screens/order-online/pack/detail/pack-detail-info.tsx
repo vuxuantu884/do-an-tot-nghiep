@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {DeleteOutlined, DownloadOutlined, VerticalAlignBottomOutlined} from "@ant-design/icons";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {Button, Card, Col, Dropdown, Row, Space, Table,Menu} from "antd";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import {GoodsReceiptsFileModel} from "model/pack/pack.model";
@@ -15,6 +17,7 @@ type PackDetailInfoProps = {
 };
 
 const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {packDetail, packFile,handleDownLoad,handleDeleteFile} = props;
 
   const actionColumn = (handleDownLoad: any, handleDeleteFile: any) => {
@@ -89,7 +92,7 @@ const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProp
     };
     return _actionColumn;
   };
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const column: Array<ICustomTableColumType<GoodsReceiptsFileModel>> = [
     {
       title: "File",
@@ -190,7 +193,7 @@ const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProp
         </Col>
         <Col md={10}></Col>
       </Row>
-      <div style={{borderBottom: "1px dashed #E5E5E5", margin: "14px 14px"}}></div>
+      {/* <div style={{borderBottom: "1px dashed #E5E5E5", margin: "14px 14px"}}></div>
       <div className="title-note-file">
         <p>
           {" "}
@@ -206,7 +209,7 @@ const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProp
           (File 20MB: jpg, jpeg, gif, png, doc, docx, xml, csv, xls, xlsx).
         </span>
       </Row>
-        <Table dataSource={packFile} columns={column} pagination={false} className="row-padding t1-margin"/>
+      <Table dataSource={packFile} columns={column} pagination={false} className="row-padding t1-margin"/> */}
     </Card>
   );
 };

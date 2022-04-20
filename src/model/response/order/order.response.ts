@@ -501,7 +501,7 @@ export interface ChannelTypeResponse{
 
 export interface ChannelsResponse extends BaseObject{
   name:string;
-  channel_type:ChannelTypeResponse;
+  channel_type: ChannelTypeResponse;
 }
 
 export interface PackFulFillmentResponse extends FulFillmentResponse{

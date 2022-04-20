@@ -27,7 +27,7 @@ import {
   confirmDraftOrderService,
   createDeliveryMappedStoreService,
   createShippingOrderService,
-  deleteDeliveryMappedStoreService,
+  deleteDeliveryMappedStoreService, getAllSources,
   getChannelApi,
   getChannelsService,
   getDeliveryMappedStoresService,
@@ -322,6 +322,23 @@ function* getDataSource(action: YodyAction) {
     let response: BaseResponse<PageResponse<Array<SourceResponse>>> = yield call(getSources);
     if (isFetchApiSuccessful(response)) {
       setData(response.data.items);
+    } else {
+      yield put(fetchApiErrorAction(response, "Danh sách nguồn đơn hàng"));
+    }
+  } catch (error) {
+    showError("Có lỗi khi lấy dữ liệu danh sách nguồn đơn hàng! Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* getDataAllSource(action: YodyAction) {
+  let { setData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<PageResponse<Array<SourceResponse>>> = yield call(getAllSources);
+    if (isFetchApiSuccessful(response)) {
+      setData(response.data);
     } else {
       yield put(fetchApiErrorAction(response, "Danh sách nguồn đơn hàng"));
     }
@@ -647,14 +664,13 @@ function* orderConfigSaga(action: YodyAction) {
 }
 
 function* getFulfillmentsSaga(action: YodyAction) {
-  const { code, store_id, delivery_service_provider_id, setData } = action.payload;
+  const { request, setData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
       getFulfillmentsApi,
-      code,
-      store_id,
-      delivery_service_provider_id
+      request
+      
     );
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
@@ -681,7 +697,7 @@ function* putFulfillmentsSagaPack(action: YodyAction) {
   } catch (error) {
     console.log(error);
     showError("Có lỗi khi cập nhật fulfillment! Vui lòng thử lại sau!");
-  } 
+  }
   finally {
     yield put(hideLoading());
   }
@@ -853,6 +869,7 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CREATE_FPAGE_ORDER_REQUEST, orderFpageCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
+  yield takeLatest(OrderType.GET_LIST_ALL_SOURCE_REQUEST, getDataAllSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
   yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
   yield takeLatest(OrderType.REPUSH_FULFILLMENT, rePushFulFillmentSaga);

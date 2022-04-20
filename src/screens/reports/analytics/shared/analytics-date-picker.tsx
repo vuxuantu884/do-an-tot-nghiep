@@ -16,56 +16,97 @@ function AnalyticsDatePicker(props: Props) {
         {
             label: 'Hôm nay',
             value: [moment().startOf("day"), moment()],
+            selected: false
         },
         {
             label: 'Hôm qua',
             value: [moment().subtract(1, 'days').startOf("day"), moment().subtract(1, 'days')],
+            selected: false
         },
         {
             label: 'Tuần này',
-            value: [moment().startOf("week"), moment()],
+            value: [moment().startOf("isoWeek"), moment()],
+            selected: false
+        },
+        {
+            label: 'Tuần trước',
+            value: [moment().subtract(1, 'week').startOf("isoWeek"), moment().subtract(1, 'week').endOf("isoWeek")],
+            selected: false
         },
         {
             label: 'Tháng này',
             value: [moment().startOf("month"), moment()],
+            selected: false
         },
         {
-            label: '1 tháng trước',
-            value: [moment().subtract(1, 'months').startOf("day"), moment()],
+            label: 'Tháng trước',
+            value: [moment().subtract(1, 'months').startOf("month"), moment().subtract(1, 'months').endOf("month")],
+            selected: false
         },
-        {
-            label: '6 tháng trước',
-            value: [moment().subtract(6, 'months').startOf("day"), moment()],
-        },
+        // {
+        //     label: '6 tháng trước',
+        //     value: [moment().subtract(6, 'months').startOf("day"), moment()],
+        //     selected: false
+        // },
         {
             label: 'Năm nay',
             value: [moment().startOf("year"), moment()],
+            selected: false
         },
         {
             label: 'Năm trước',
             value: [moment().startOf("year").subtract(1, "year"), moment().endOf("year").subtract(1, "year")],
+            selected: false
         }
     ];
 
     const [open, setOnOpen] = React.useState(false);
+    const [stateTimeList, setStateTimeList] = React.useState<any[]>([]);
     return (
         <RangePicker className='input-width'
             allowClear={false}
             format={DATE_FORMAT.DDMMYYY}
             open={open}
-            onOpenChange={(open) => setOnOpen(open)}
+            onOpenChange={(open) => {
+                if (!stateTimeList.length) {
+                    const selectedIdx = FIXED_DATE_LIST.findIndex(timeItem => compare2RangeDate(timeItem.value, value));
+                    if (selectedIdx !== -1) {
+                        FIXED_DATE_LIST[selectedIdx].selected = true;
+                    }
+                    setStateTimeList([...FIXED_DATE_LIST]);
+                } else {
+                    const selectedGroup = FIXED_DATE_LIST.filter(timeItem => compare2RangeDate(timeItem.value, value));
+                    if (selectedGroup.length) {
+                        const selectedIdx = stateTimeList.findIndex(item => item.selected && (selectedGroup.findIndex(timeItem => timeItem.label === item.label) !== -1));
+                        if (selectedIdx === -1) {
+                            setStateTimeList([...FIXED_DATE_LIST.map((item) => ({...item, selected: item.label === selectedGroup[0].label ? true : false}))]);
+                        }
+                    } else {
+                        setStateTimeList([...FIXED_DATE_LIST.map(item => ({...item, selected: false}))]);
+                    }
+                }
+                setOnOpen(open)
+            }}
             panelRender={(originPanel: React.ReactNode) => {
                 return (
-                    <AnalyticsDatePickerStyle>
+                    open && <AnalyticsDatePickerStyle>
                         <div className='picker-panel'>
                             {
-                                FIXED_DATE_LIST.map((item, index) => {
+                                stateTimeList.map((item, index) => {
                                     return (
-                                        <Button className={`picker-panel__item  ${compare2RangeDate(item.value, value) ? 'ant-btn-primary' : ""}`} key={index}
+                                        <Button className={`picker-panel__item  ${item.selected ? 'ant-btn-primary' : ""}`} key={index}
                                             onClick={() => {
                                                 onChange(item.value);
                                                 setOnOpen(false)
-                                                console.log(value)
+                                                item.selected = true
+                                                setStateTimeList((prevState) => [...prevState.map((dateItem) => {
+                                                    if (dateItem.label === item.label) {
+                                                        dateItem.selected = true;
+                                                    } else {
+                                                        dateItem.selected = false;
+                                                    }
+                                                    return dateItem;
+                                                })]);
                                             }}>
                                             {item.label}
                                         </Button>

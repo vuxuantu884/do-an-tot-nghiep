@@ -1,26 +1,30 @@
-import { Button, Card, Col, Input, Row,Form, FormInstance } from 'antd';
-import ContentContainer from 'component/container/content.container';
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import { useDispatch } from 'react-redux';
+import {useHistory} from "react-router-dom";
+import {Button, Card, Col, Input, Row, Form, FormInstance, Modal} from 'antd';
+import {showError, showSuccess} from 'utils/ToastUtils';
+import {isNullOrUndefined} from "utils/AppUtils";
 import UrlConfig from 'config/url.config';
-import React, { createRef, useCallback, useMemo, useRef, useState } from 'react'
-import './upload-loyalty-cards.scss'
+import {HttpStatus} from "config/http-status.config";
+import BaseResponse from "base/base.response";
+import ContentContainer from 'component/container/content.container';
+import { uploadFileCreateLoyaltyCard } from 'domain/actions/loyalty/release/loyalty-release.action';
+import {getLoyaltyCardReleaseJobsApi} from "service/loyalty/release/loyalty-card-release.service";
+import ProcessCreateCardReleaseModal from "screens/customer/loyalty-card/upload/ProcessCreateCardReleaseModal";
 import uploadIcon from "assets/icon/upload.svg";
 import boldUploadIcon from "assets/icon/upload-2.svg";
 import paperClip from "assets/icon/paper-clip.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
-import {  showSuccess, showWarning } from 'utils/ToastUtils';
-import { useDispatch } from 'react-redux';
-import { uploadFileCreateLoyaltyCard } from 'domain/actions/loyalty/release/loyalty-release.action';
-import ErrorLogs from '../component/error-logs/ErrorLogs';
-import { LoyaltyCardReleaseResponse } from 'model/response/loyalty/release/loyalty-card-release.response';
-import { hideLoading, showLoading } from 'domain/actions/loading.action';
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import './upload-loyalty-cards.scss'
 
 const UploadLoyaltyCardRelease = () => {
   const [file, setFile] = useState<File>()
   const uploadRef = useRef<any>()
   const dispatch = useDispatch()
+  const history = useHistory();
   const { Item } = Form;
   const formRef = createRef<FormInstance>();
-  const [response, setResponse] = useState<LoyaltyCardReleaseResponse>()
   const initFormValues = useMemo(() => {
     return {
       name: ''
@@ -37,29 +41,116 @@ const UploadLoyaltyCardRelease = () => {
     }
   }
 
-  const callback = useCallback((data: any) => {
-    dispatch(hideLoading())
-    if (data) {
-      showSuccess('Tạo đợt phát hành thành công')
-      formRef.current?.resetFields()
-      setFile(undefined)
-      setResponse(data)
-    }
-  }, [formRef, dispatch])
+  // process export modal
+  const [isVisibleProcessModal, setIsVisibleProcessModal] = useState(false);
+  const [processId, setProcessId] = useState(null);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [isInvalidFile, setIsInvalidFile] = useState<boolean>(false);
 
-  const onCloseErrorLogModal = useCallback(() => {
-    setResponse(undefined)
+  const [processPercent, setProcessPercent] = useState<number>(0);
+  const [processData, setProcessData] = useState<any>(null);
+
+  const resetProgress = () => {
+    setProcessId(null);
+    setProcessPercent(0);
+    setProcessData(null);
+  }
+  
+  const onOKProgress = () => {
+    resetProgress();
+    setIsVisibleProcessModal(false);
+    if (!isInvalidFile) {
+      formRef.current?.resetFields();
+      setFile(undefined);
+      history.replace(`${UrlConfig.CUSTOMER_CARDS}`);
+    }
+  }
+  
+  const onCancelProcess = () => {
+    setIsVisibleExitProcessModal(true);
+  }
+
+  const getProgressImportFile = useCallback(() => {
+    let getImportProcessPromise: Promise<BaseResponse<any>> = getLoyaltyCardReleaseJobsApi(processId);
+
+    Promise.all([getImportProcessPromise]).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+          setProcessData(response.data);
+          if (response.data && response.data.finish) {
+            if (response.data.api_error) {
+              resetProgress();
+              showError(`${response.data.api_error}`);
+              setIsInvalidFile(true);
+              setProcessData({...processData, errors_msg: `\n${response.data.api_error}`});
+            } else {
+              setProcessPercent(100);
+              setProcessId(null);
+              showSuccess("Hoàn thành tạo mới đợt phát hành!");
+            }
+            setProcessId(null);
+            setIsDownloading(false);
+          } else {
+            if (response.data?.total > 0) {
+              const percent = Math.floor((response.data.total_success + response.data.total_error) / response.data.total * 100);
+              setProcessPercent(percent >= 100 ? 99 : percent);
+            }
+          }
+        }
+      });
+    })
+    .catch(() => {
+      showError("Có lỗi xảy ra, vui lòng thử lại sau");
+    });
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [processId]);
+
+  useEffect(() => {
+    if (processPercent === 100 || !processId) {
+      return;
+    }
+    getProgressImportFile();
+    const getFileInterval = setInterval(getProgressImportFile, 3000);
+    return () => clearInterval(getFileInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProgressImportFile, processId]);
+
+  // handle exit process modal
+  const [isVisibleExitProcessModal, setIsVisibleExitProcessModal] = useState<boolean>(false);
+
+  const onCancelExitProcess = () => {
+    setIsVisibleExitProcessModal(false);
+  }
+
+  const onOkExitProcess = () => {
+    resetProgress();
+    setIsVisibleExitProcessModal(false);
+    setIsVisibleProcessModal(false);
+  };
+  // end handle exit process modal
+
+  const uploadFileCallback = useCallback((data: any) => {
+    if (data) {
+      setIsDownloading(true);
+      setProcessId(data.id);
+      setIsVisibleProcessModal(true);
+    }
   }, [])
 
   const onFinish = useCallback((values) => {
-    if (!file || !values.name) {
-      showWarning('Thông tin đợt phát hành chưa đầy đủ')
+    if (!values.name) {
+      showError('Vui lòng nhập tên đợt phát hành.');
       return;
     }
-    dispatch(showLoading())
-    dispatch(uploadFileCreateLoyaltyCard(file, values.name, callback))
+    if (!file) {
+      showError('Vui lòng chọn file tải lên.');
+      return;
+    }
+    setIsInvalidFile(false);
+    dispatch(uploadFileCreateLoyaltyCard(file, values.name, uploadFileCallback))
   },
-    [callback, dispatch, file]
+    [uploadFileCallback, dispatch, file]
   );
 
   return (
@@ -72,7 +163,7 @@ const UploadLoyaltyCardRelease = () => {
         },
         {
           name: "Phát hành thẻ",
-          path: `${UrlConfig.CUSTOMER2}-cards`,
+          path: `${UrlConfig.CUSTOMER_CARDS}`,
         },
         {
           name: "Thêm mới đợt phát hành"
@@ -157,15 +248,37 @@ const UploadLoyaltyCardRelease = () => {
           </div>
         </Form>
       </Card>
-      <ErrorLogs
-        visible={response !== undefined}
-        onOk={onCloseErrorLogModal}
-        okText="Thoát"
-        errors={response?.errors}
-        success={response?.success || 0}
-        fail={response?.fail || 0}
-        onCancel={onCloseErrorLogModal}
-      />
+
+      {isVisibleProcessModal &&
+        <ProcessCreateCardReleaseModal
+          visible={isVisibleProcessModal}
+          onCancel={onCancelProcess}
+          onOk={onOKProgress}
+          processData={processData}
+          progressPercent={processPercent}
+          isDownloading={isDownloading}
+        />
+      }
+      {isVisibleExitProcessModal &&
+        <Modal
+          width="600px"
+          centered
+          visible={isVisibleExitProcessModal}
+          title=""
+          maskClosable={false}
+          onCancel={onCancelExitProcess}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          onOk={onOkExitProcess}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img src={DeleteIcon} alt="" />
+            <div style={{ marginLeft: 15 }}>
+              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tiến trình tạo mới đợt phát hành không?</strong>
+            </div>
+          </div>
+        </Modal>
+      }
     </ContentContainer>
   )
 }

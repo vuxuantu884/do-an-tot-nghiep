@@ -6,6 +6,7 @@ export interface SourceResponse extends BaseObject {
   reference_url: string | null;
   department_id: number | null;
   department: string | null;
+  department_h3?: string | null;
   default: boolean;
 }
 

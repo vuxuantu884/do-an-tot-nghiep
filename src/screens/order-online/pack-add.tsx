@@ -30,7 +30,10 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const formSearchOrderRef = createRef<FormInstance>();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
+  const [isLoading,setIsLoading]= useState(false);
+
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [codes, setCodes] = useState<Array<String>>([]);
   const [orderListResponse, setOrderListResponse] = useState<OrderConcernGoodsReceiptsResponse[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
@@ -72,36 +75,38 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     }
   ];
 
-  const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest) => {
-    console.log(param)
-    if (param) {
 
+
+  const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest) => {
+    if (param) {
       dispatch(
         getOrderConcernGoodsReceipts(
           param,
           (data: OrderConcernGoodsReceiptsResponse[]) => {
             let dataAdd: OrderConcernGoodsReceiptsResponse[] = [];
             if (data.length > 0) {
-              data.forEach(function (item, index) {
-
-                let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
-                if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
-                if(item.fulfillment_status !== 'returned' && item.fulfillment_status !== 'returning'
-                && item.fulfillment_status !== 'cancelled' && item.fulfillment_status !== 'splitted') {
-                  dataAdd.push(item);
-                }
-              });
+              data.forEach(function (item, index) {dataAdd.push(item);});
 
               if(dataAdd.length === 0) {
                 showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
               } else {
-                dataAdd.forEach((item) => orderListResponse.push(item));
+                let newCodes: Array<string> = [];
+                dataAdd.forEach((item) => {
+                  let findIndex = orderListResponse.findIndex(response => response.id === item.id);
+                  if(findIndex === -1) {
+                    orderListResponse.unshift(item)
+                    param.order_codes  && newCodes.push(param.order_codes);
+                  } else {
+                    showError("Đơn hàng đã tồn tại không thể thêm vào biên bản bàn giao");
+                  }
+                });
+                setCodes([...codes, ...newCodes]);
                 setOrderListResponse([...orderListResponse]);
               }
             } else {
               showError("Không tìm thấy đơn hàng");
             }
-            formSearchOrderRef.current?.resetFields();
+            
             
           }
         )
@@ -110,7 +115,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     else {
       showWarning("Vui lòng nhập mã đơn hàng");
     }
-  }, [dispatch, orderListResponse, setOrderListResponse, formSearchOrderRef]);
+  }, [codes, dispatch, orderListResponse]);
 
   const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLBodyElement) {
@@ -140,11 +145,12 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     if (!store_id || !delivery_service_provider_id || !channel_id || !receipt_type_id)
       return;
 
-    let param = {
+    let param:GoodsReceiptsAddOrderRequest = {
       order_codes: order_codes,
       store_id: store_id,
       delivery_service_provider_id: delivery_service_provider_id,
-      channel_id: channel_id
+      channel_id: channel_id,
+      receipt_type_id:receipt_type_id
     }
     handleAddOrder(param)
   }, [goodsReceiptsForm, handleAddOrder])
@@ -184,7 +190,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const handSubmit = useCallback(
     (value: any) => {
 
-      let orderCode: string[] = orderListResponse.map((p) => p.code);
+      setIsLoading(true)
 
       let store_name = listStores.find(
         (data) => data.id === value.store_id
@@ -205,7 +211,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         (data) => data.id === value.receipt_type_id
       )?.name;
 
-      console.log(listThirdPartyLogistics)
       let param: any = {
         ...value,
         store_name: store_name,
@@ -215,20 +220,21 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         delivery_service_name: delivery_service_name,
         delivery_service_type: "",
         receipt_type_name: receipt_type_name,
-        codes: orderCode
+        codes: codes,
       };
 
       dispatch(
         createGoodsReceipts(param, (value: GoodsReceiptsResponse) => {
           if (value) {
             showSuccess("Thêm biên bản bàn giao thành công");
-            console.log(value.id)
+            
             history.push(`${UrlConfig.DELIVERY_RECORDS}/${value.id}`);
           }
+          setIsLoading(false)
         })
       );
     },
-    [orderListResponse, listStores, listThirdPartyLogistics, listGoodsReceiptsType, dispatch, listChannels, history]
+    [listStores, listThirdPartyLogistics, listGoodsReceiptsType, codes, dispatch, listChannels, history]
   );
 
   const onOkPress = useCallback(() => {
@@ -244,9 +250,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
         break;
     }
   }
-
-  console.log("orderListResponse",orderListResponse)
-
+  console.log('formSearchOrderRef1', formSearchOrderRef.current)
   return (
     <AddReportHandOverContext.Provider value={addReportHandOverContextData}>
       <ContentContainer
@@ -346,6 +350,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                       }}
                       disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
+                      <Select.Option key={-1} value={-1}>Tự giao hàng</Select.Option>
                       {listThirdPartyLogistics.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
                           {item.name}
@@ -423,7 +428,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                       disabled={orderListResponse && orderListResponse.length>0?true:false}
                     >
                       <Select.Option key={-1} value={-1}>
-                        Mặc định
+                        Biên bản tự tạo
                       </Select.Option>
                       {listChannels.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
@@ -439,6 +444,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
 
           <AddOrderInReport
             orderListResponse={orderListResponse}
+            codes={codes}
             setOrderListResponse={setOrderListResponse}
             menu={actions}
             onMenuClick={onMenuClick}
@@ -446,7 +452,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
             formSearchOrderRef={formSearchOrderRef}
           />
 
-          <AddOrderBottombar onOkPress={onOkPress} />
+          <AddOrderBottombar onOkPress={onOkPress} isLoading={isLoading}/>
         </StyledComponent>
 
 

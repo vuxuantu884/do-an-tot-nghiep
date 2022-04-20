@@ -5,14 +5,16 @@ import {
   SwapRightOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import search from "assets/img/search.svg";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import CustomSelectWithButtonCheckAll from "component/custom/select-with-button-check-all.custom";
 import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import TreeStore from "component/tree-node/tree-store";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
@@ -34,12 +36,12 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
-import { getSourcesWithParamsService } from "service/order/order.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { POS } from "utils/Constants";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
+import { fullTextSearch } from "utils/StringUtils";
+import TreeSource from "../treeSource";
 
 type PropTypes = {
   params: OrderSearchQuery;
@@ -61,6 +63,7 @@ type PropTypes = {
   onClearFilter?: () => void;
   setListSource?: (values: SourceResponse[]) => void;
   setListOrderProcessingStatus?: (values: OrderProcessingStatusModel[]) => void;
+  isShowOfflineOrder?: boolean;
 };
 
 type ListFilterTagTypes = {
@@ -107,23 +110,34 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onClearFilter,
     onFilter,
     onShowColumnSetting,
-    setListSource,
     setListOrderProcessingStatus,
+    isShowOfflineOrder,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
   const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
   const loadingFilter = useMemo(() => {
-    return isLoading ? true : false;
+    return !!isLoading;
   }, [isLoading]);
 
   const dateFormat = "DD-MM-YYYY";
 
-  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
+  const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
+  const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
 
-  const status = bootstrapReducer.data?.order_main_status.filter(
-    (single) => single.value !== "splitted"
-  );
+const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
+
+const status = bootstrapReducer.data?.order_main_status.filter(
+  (single) => single.value !== "splitted"
+);
+
+  useEffect(() => {
+    setSelectedSubStatusCodes(initSubStatus?.map(single => single.code) || []);
+  }, [initSubStatus])
+
+  // useEffect(() => {
+  //   setShowStatusCodes(status?.map(single => single.value) || []);
+  // }, [status])
 
   const fulfillmentStatus = useMemo(
     () => [
@@ -205,9 +219,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         setAssigneeFound(response.data.items);
       });
     }
-    if (params.created_by && params.created_by?.length > 0) {
+    if (params.account_codes && params.account_codes?.length > 0) {
       searchAccountApi({
-        codes: params.created_by,
+        codes: params.account_codes,
       }).then((response) => {
         setAccountFound(response.data.items);
       });
@@ -228,7 +242,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
   }, [
     params.assignee_codes,
-    params.created_by,
+    params.account_codes,
     params.marketer_codes,
     params.coordinator_codes,
   ]);
@@ -289,6 +303,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           onFilter &&
             onFilter({ ...params, expected_receive_on_min: null, expected_receive_on_max: null });
           break;
+        case "exported":
+          setExportedClick("");
+          onFilter &&
+            onFilter({ ...params, exported_on_min: null, exported_on_max: null });
+          break;
         case "order_status":
           onFilter && onFilter({ ...params, order_status: [] });
           break;
@@ -304,8 +323,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "assignee_codes":
           onFilter && onFilter({ ...params, assignee_codes: [] });
           break;
-        case "created_by":
-          onFilter && onFilter({ ...params, created_by: [] });
+        case "account_codes":
+          onFilter && onFilter({ ...params, account_codes: [] });
           break;
         case "coordinator_codes":
           onFilter && onFilter({ ...params, coordinator_codes: [] });
@@ -343,6 +362,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "tags":
           onFilter && onFilter({ ...params, tags: [] });
           break;
+        case "marketing_campaign":
+          onFilter && onFilter({ ...params, marketing_campaign: [] });
+          break;
         case "reference_code":
           onFilter && onFilter({ ...params, reference_code: "" });
           break;
@@ -368,7 +390,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   const [completedClick, setCompletedClick] = useState("");
   const [cancelledClick, setCancelledClick] = useState("");
   const [expectedClick, setExpectedClick] = useState("");
-
+  const [exportedClick, setExportedClick] = useState("");
+console.log('listSource', listSource)
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);
@@ -376,8 +399,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   const initialValues = useMemo(() => {
     return {
       ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids.map(i => Number(i)) : [Number(params.source_ids)],
       order_status: Array.isArray(params.order_status)
         ? params.order_status
         : [params.order_status],
@@ -403,13 +426,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         ? params.shipper_codes
         : [params.shipper_codes],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
+      marketing_campaign: Array.isArray(params.marketing_campaign) ? params.marketing_campaign : [params.marketing_campaign],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
-      created_by: Array.isArray(params.created_by)
-        ? params.created_by
-        : [params.created_by],
+      account_codes: Array.isArray(params.account_codes)
+        ? params.account_codes
+        : [params.account_codes],
       channel_codes: Array.isArray(params.channel_codes)
         ? params.channel_codes
         : [params.channel_codes],
@@ -445,10 +469,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.order_status.length > numberTagShorten,
       },
-			created_by: {
-        data: initialValues.created_by,
+			account_codes: {
+        data: initialValues.account_codes,
         isShorten: isShortenFilterTag,
-        isCanShorten: initialValues.created_by.length > numberTagShorten,
+        isCanShorten: initialValues.account_codes.length > numberTagShorten,
       },
 			assignee_codes: {
         data: initialValues.assignee_codes,
@@ -484,6 +508,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           "cancelled_on_max",
           "expected_receive_on_min",
           "expected_receive_on_max",
+          "exported_on_min",
+          "exported_on_max",
         ])
         .forEach((field) => {
           if (field.errors.length) {
@@ -593,7 +619,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						</Link>
 					);
 				});
-      } else if (type === "created_by") {
+      } else if (type === "account_codes") {
         result = mappedArrayResult.map((single, index) => {
           return (
             <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
@@ -635,7 +661,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (filterTagFormatted?.store_ids?.data && filterTagFormatted.store_ids?.data?.length) {
       let mappedStores = listStore?.filter((store) =>
         filterTagFormatted.store_ids.data?.some(
-          (single: string) => single.toString() === store.id.toString()
+          (single: number) => single === store.id
         )
       );
       let text = getFilterString(
@@ -656,7 +682,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (filterTagFormatted?.source_ids?.data && filterTagFormatted.source_ids?.data?.length) {
       let mappedSources = listSources?.filter((source) =>
         filterTagFormatted.source_ids.data?.some(
-          (single: string) => single === source.id.toString()
+          (single: number) => single === source.id
         )
       );
       let text = getFilterString(
@@ -730,6 +756,17 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         key: "expected",
         name: "Ngày dự kiến nhận hàng",
         value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
+      });
+    }
+    if (initialValues.exported_on_min || initialValues.exported_on_max) {
+      let textExportedOnDate =
+        (initialValues.exported_on_min ? initialValues.exported_on_min : "??") +
+        " ~ " +
+        (initialValues.exported_on_max ? initialValues.exported_on_max : "??");
+      list.push({
+        key: "exported_on",
+        name: "Ngày giao hàng cho HVC",
+        value: <React.Fragment>{textExportedOnDate}</React.Fragment>,
       });
     }
     if (initialValues.order_status.length) {
@@ -867,18 +904,18 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (initialValues.created_by.length) {
+    if (initialValues.account_codes.length) {
       let text = getFilterString(
         accountFound,
         "full_name",
         UrlConfig.ACCOUNTS,
         "code",
-        "created_by",
-				filterTagFormatted.created_by.isCanShorten,
-        filterTagFormatted.created_by.isShorten
+        "account_codes",
+				filterTagFormatted.account_codes.isCanShorten,
+        filterTagFormatted.account_codes.isShorten
       );
       list.push({
-        key: "created_by",
+        key: "account_codes",
         name: "Nhân viên tạo đơn",
         value: text,
       });
@@ -1024,6 +1061,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         value: <React.Fragment>{textStatus}</React.Fragment>,
       });
     }
+    if (initialValues.marketing_campaign.length) {
+      let textStatus = "";
+      for (let i = 0; i < initialValues.marketing_campaign.length; i++) {
+        if (i < initialValues.marketing_campaign.length - 1) {
+          textStatus = textStatus + initialValues.marketing_campaign[i] + splitCharacter;
+        } else {
+          textStatus = textStatus + initialValues.marketing_campaign[i];
+        }
+      }
+      list.push({
+        key: "marketing_campaign",
+        name: "Marketing Campaign",
+        value: <React.Fragment>{textStatus}</React.Fragment>,
+      });
+    }
 
     if (initialValues.reference_code) {
       list.push({
@@ -1035,38 +1087,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     return list;
   }, [
     filterTagFormatted,
-    initialValues.issued_on_min,
-    initialValues.issued_on_max,
-    initialValues.finalized_on_min,
-    initialValues.finalized_on_max,
-    initialValues.completed_on_min,
-    initialValues.completed_on_max,
-    initialValues.cancelled_on_min,
-    initialValues.cancelled_on_max,
-    initialValues.expected_receive_on_min,
-    initialValues.expected_receive_on_max,
-    initialValues.order_status,
-    initialValues.return_status,
-    initialValues.sub_status_code,
-    initialValues.fulfillment_status,
-    initialValues.payment_status,
-    initialValues.variant_ids.length,
-    initialValues.assignee_codes.length,
-    initialValues.services.length,
-    initialValues.created_by.length,
-    initialValues.coordinator_codes.length,
-    initialValues.marketer_codes.length,
-    initialValues.price_min,
-    initialValues.price_max,
-    initialValues.payment_method_ids,
-    initialValues.delivery_types,
-    initialValues.delivery_provider_ids,
-    initialValues.shipper_codes,
-    initialValues.channel_codes,
-    initialValues.note,
-    initialValues.customer_note,
-    initialValues.tags,
-    initialValues.reference_code,
+    initialValues,
     assigneeFound,
     listStore,
     listSources,
@@ -1138,6 +1159,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     setVisible(false);
     setRerender(false);
   };
+
+  const renderTabHeader = () => {
+    if(isShowOfflineOrder) {
+      return null
+    }
+    if(!isHideTab) {
+      return (
+        <div className="order-options">
+          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+            <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
+            <Radio.Button value="true">Đơn hàng online</Radio.Button>
+            <Radio.Button value="false">Đơn hàng offline</Radio.Button>
+          </Radio.Group>
+        </div>
+      )
+    }
+  };
+
   useLayoutEffect(() => {
     window.addEventListener("resize", () => setVisible(false));
   }, []);
@@ -1146,8 +1185,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     formSearchRef.current?.setFieldsValue({
       search_term: params.search_term,
       variant_ids: params.variant_ids,
+      tracking_codes: params.tracking_codes,
     });
-  }, [formSearchRef, params.search_term, params.variant_ids]);
+  }, [formSearchRef, params.search_term, params.tracking_codes, params.variant_ids]);
 
   useEffect(() => {
     if (params.variant_ids && params.variant_ids.length) {
@@ -1201,32 +1241,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     return <React.Fragment>{filter.value}</React.Fragment>;
   };
 
-  useEffect(() => {
-    if (initialValues.source_ids) {
-      const params = {
-        ids: initialValues.source_ids,
-      };
-      getSourcesWithParamsService(params).then((response) => {
-        if (isFetchApiSuccessful(response)) {
-          setListSource && setListSource([...response.data.items]);
-        } else {
-          handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
-        }
-      });
-    }
-  }, [dispatch, initialValues.source_ids, setListSource]);
-
   return (
     <StyledComponent>
-      {!isHideTab && (
-        <div className="order-options">
-          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
-            <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
-            <Radio.Button value="true">Đơn hàng online</Radio.Button>
-            <Radio.Button value="false">Đơn hàng offline</Radio.Button>
-          </Radio.Group>
-        </div>
-      )}
+      {renderTabHeader()}
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form
@@ -1235,12 +1252,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
             initialValues={initialValues}
             layout="inline">
             <div style={{ width: "100%" }}>
-              <Row gutter={20}>
-                <Col span={12}>
+              <Row gutter={12}>
+                <Col span={isShowOfflineOrder ? 12 : 8}>
                   <Item name="search_term" className="input-search">
                     <Input
                       prefix={<img src={search} alt="" />}
-                      placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+                      placeholder="ID đơn hàng, tên, sđt khách hàng"
                       onBlur={(e) => {
                         formSearchRef?.current?.setFieldsValue({
                           search_term: e.target.value.trim(),
@@ -1249,9 +1266,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                <Col span={12}>
+                <Col span={isShowOfflineOrder ? 12 : 8}>
                   {rerenderSearchVariant && (
-                    <Item name="variant_ids">
+                    <Item name="variant_ids" style={{marginRight: 0}}>
                       <DebounceSelect
                         mode="multiple"
                         showArrow
@@ -1267,6 +1284,22 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     </Item>
                   )}
                 </Col>
+                {isShowOfflineOrder ? null : (
+                  <Col span={8}>
+                    <Item name="tracking_codes" className="input-search">
+                      <Input
+                        prefix={<img src={search} alt="" />}
+                        placeholder="Mã vận đơn"
+                        onBlur={(e) => {
+                          formSearchRef?.current?.setFieldsValue({
+                            tracking_codes: e.target.value.trim(),
+                          });
+                        }}
+                      />
+                    </Item>
+                  </Col>
+
+                )}
               </Row>
             </div>
             <div className="buttonGroup">
@@ -1276,7 +1309,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
               <Button icon={<FilterOutlined />} onClick={openFilter}>
                 Thêm bộ lọc
               </Button>
-              <Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
+              <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} />
             </div>
           </Form>
         </CustomFilter>
@@ -1293,69 +1326,27 @@ function OrdersFilter(props: PropTypes): JSX.Element {
               <Row gutter={20}>
                 <Col span={8} xxl={8}>
                   <Item name="store_ids" label="Kho cửa hàng">
-                    {/* <CustomSelect
-										mode="multiple"
-										showArrow allowClear
-										showSearch
-										placeholder="Cửa hàng"
-										notFoundContent="Không tìm thấy kết quả"
-										style={{
-											width: '100%'
-										}}
-										optionFilterProp="children"
-										getPopupContainer={trigger => trigger.parentNode}
-										maxTagCount='responsive'
-									>
-										{listStore?.map((item) => (
-											<CustomSelect.Option key={item.id} value={item.id.toString()}>
-												{item.name}
-											</CustomSelect.Option>
-										))}
-									</CustomSelect> */}
-                    <TreeStore listStore={listStore} placeholder="Cửa hàng" />
+                    <TreeStore
+                      name="store_ids"
+                      placeholder="Cửa hàng"
+                      listStore={listStore}
+                      style={{ width: "100%" }}
+                    />
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
                   <Item name="source_ids" label="Nguồn đơn hàng">
-                    <CustomSelect
-                      mode="multiple"
-                      style={{ width: "100%" }}
-                      showArrow
-                      allowClear
-                      showSearch
+                    <TreeSource
                       placeholder="Nguồn đơn hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive"
-                      onSearch={(value) => {
-                        if (value.length > 1) {
-                          const params = {
-                            name: value,
-                            limit: 200,
-                          };
-                          getSourcesWithParamsService(params).then((response) => {
-                            if (isFetchApiSuccessful(response)) {
-                              setListSource && setListSource(response.data.items);
-                            } else {
-                              handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
-                            }
-                          });
-                        }
-                      }}>
-                      {listSources.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.id.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                      name="source_ids"
+                      listSource={listSource}
+                    />
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày tạo đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày tạo đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="issued_on_min"
                     fieldNameTo="issued_on_max"
@@ -1367,7 +1358,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 </Col>
                 <Col span={8} xxl={8}>
                   <Item name="sub_status_code" label="Trạng thái xử lý đơn">
-                    <CustomSelect
+                    <CustomSelectWithButtonCheckAll
                       mode="multiple"
                       showArrow
                       allowClear
@@ -1380,13 +1371,33 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       maxTagCount="responsive"
                       onBlur={() =>
                         setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus)
-                      }>
+                      }
+                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
+                        if(e.target.checked) {
+                          formRef.current?.setFieldsValue({
+                            sub_status_code: selectedSubStatusCodes
+                          })
+                        } else {
+                          formRef.current?.setFieldsValue({
+                            sub_status_code: undefined
+                          })
+                        }
+                      }}
+                      getCurrentValue={() => {
+                        return formRef.current?.getFieldValue("sub_status_code")
+                      }}
+                      allValues={subStatus}
+                      onSearch = {(value) => {
+                        const showed = initSubStatus.filter(single => fullTextSearch(value, single.sub_status)).map(gg => gg.code)
+                        setSelectedSubStatusCodes(showed)
+                      }}
+                    >
                       {subStatus?.map((item: any) => (
                         <CustomSelect.Option key={item.id} value={item.code.toString()}>
                           {item.sub_status}
                         </CustomSelect.Option>
                       ))}
-                    </CustomSelect>
+                    </CustomSelectWithButtonCheckAll>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1411,7 +1422,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày duyệt đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày duyệt đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="finalized_on_min"
                     fieldNameTo="finalized_on_max"
@@ -1446,7 +1459,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="created_by" label="Nhân viên tạo đơn">
+                  <Item name="account_codes" label="Nhân viên tạo đơn">
                     <AccountCustomSearchSelect
                       placeholder="Tìm theo họ tên hoặc mã nhân viên"
                       dataToSelect={accountData}
@@ -1459,7 +1472,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày huỷ đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày huỷ đơn</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="cancelled_on_min"
                     fieldNameTo="cancelled_on_max"
@@ -1507,7 +1522,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <p>Ngày hoàn tất đơn</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày thành công</label>
+                  </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="completed_on_min"
                     fieldNameTo="completed_on_max"
@@ -1543,14 +1560,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-
                 <Col span={8} xxl={8}>
-                  <p>Ngày dự kiến nhận hàng</p>
+                  <div className="ant-form-item-label">
+                    <label>Ngày giao hàng cho HVC</label>
+                  </div>
                   <CustomFilterDatePicker
-                    fieldNameFrom="expected_receive_on_min"
-                    fieldNameTo="expected_receive_on_max"
-                    activeButton={expectedClick}
-                    setActiveButton={setExpectedClick}
+                    fieldNameFrom="exported_on_min"
+                    fieldNameTo="exported_on_max"
+                    activeButton={exportedClick}
+                    setActiveButton={setExportedClick}
                     format={dateFormat}
                     formRef={formRef}
                   />
@@ -1599,17 +1617,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="tags" label="Tags">
-                    <CustomSelect
-                      mode="tags"
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      allowClear
-                      placeholder="Điền 1 hoặc nhiều tag"
-                      style={{ width: "100%" }}></CustomSelect>
-                  </Item>
+                  <div className="ant-form-item-label">
+                    <label>Ngày dự kiến nhận hàng</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="expected_receive_on_min"
+                    fieldNameTo="expected_receive_on_max"
+                    activeButton={expectedClick}
+                    setActiveButton={setExpectedClick}
+                    format={dateFormat}
+                    formRef={formRef}
+                  />
                 </Col>
+                
                 <Col span={8} xxl={8}>
                   <Item name="note" label="Ghi chú nội bộ">
                     <Input.TextArea
@@ -1627,16 +1647,25 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="reference_code" label="Mã tham chiếu">
-                    <Input placeholder="Tìm kiếm theo mã tham chiếu" />
+                  <Item name="tags" label="Tags">
+                    <CustomSelect
+                      mode="tags"
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      allowClear
+                      placeholder="Điền 1 hoặc nhiều tag"
+                      style={{ width: "100%" }}
+                    />
                   </Item>
                 </Col>
-                <Col span={8} xxl={8}></Col>
-                <Col span={8} xxl={8}></Col>
-                <Col span={8} xxl={8}></Col>
+                
+                <Col span={8} xxl={8}/>
+                <Col span={8} xxl={8}/>
+                <Col span={8} xxl={8}/>
                 <Col span={8} xxl={8}>
                   <Item name="order_status" label="Trạng thái tiến trình đơn hàng">
-                    <CustomSelect
+                  <CustomSelectWithButtonCheckAll
                       mode="multiple"
                       allowClear
                       showSearch
@@ -1646,13 +1675,35 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       optionFilterProp="children"
                       showArrow
                       getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
+                      maxTagCount="responsive"
+                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
+                        if(e.target.checked && status) {
+                          formRef.current?.setFieldsValue({
+                            order_status: showedStatusCodes.length > 0 ? showedStatusCodes : status.map(single => single.value)
+                          })
+                        } else {
+                          formRef.current?.setFieldsValue({
+                            order_status: undefined
+                          })
+                        }
+                      }}
+                      getCurrentValue={() => {
+                        return formRef.current?.getFieldValue("order_status")
+                      }}
+                      allValues={status}
+                      onSearch = {(value) => {
+                        if(status) {
+                          const showed = (status|| []).filter(single => fullTextSearch(value, single.name)).map(gg => gg.value)
+                          setShowStatusCodes(showed)
+                        }
+                      }}
+                    >
                       {status?.map((item) => (
                         <CustomSelect.Option key={item.value} value={item.value.toString()}>
                           {item.name}
                         </CustomSelect.Option>
                       ))}
-                    </CustomSelect>
+                    </CustomSelectWithButtonCheckAll>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1680,21 +1731,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item label="Đơn tự giao hàng">
-                    <div className="button-option-1">
-                      {serviceListVariables.map((single) => (
-                        <Button
-                          key={single.value}
-                          onClick={() => handleSelectServices(single.value)}
-                          className={services.includes(single.value) ? "active" : "deactive"}>
-                          {single.title}
-                        </Button>
-                      ))}
-                    </div>
+                  <Item name="reference_code" label="Mã tham chiếu">
+                    <Input placeholder="Tìm kiếm theo mã tham chiếu" />
                   </Item>
                 </Col>
+                
                 <Col span={8} xxl={8}>
-                  <p>Tổng tiền</p>
+                  <div className="ant-form-item-label">
+                    <label>Tổng tiền</label>
+                  </div>
                   <div className="date-range" style={{ display: "flex", alignItems: "center" }}>
                     <Item name="price_min" style={{ width: "45%", marginBottom: 0 }}>
                       <InputNumber
@@ -1745,6 +1790,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
+                  <Item label="Đơn tự giao hàng">
+                    <div className="button-option-1">
+                      {serviceListVariables.map((single) => (
+                        <Button
+                          key={single.value}
+                          onClick={() => handleSelectServices(single.value)}
+                          className={services.includes(single.value) ? "active" : "deactive"}>
+                          {single.title}
+                        </Button>
+                      ))}
+                    </div>
+                  </Item>
+                </Col>
+                
+                <Col span={8} xxl={8}>
                   <Item name="channel_codes" label="Kênh bán hàng">
                     <CustomSelect
                       mode="multiple"
@@ -1764,6 +1824,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                           </CustomSelect.Option>
                         ))}
                     </CustomSelect>
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8}>
+                  <Item name="marketing_campaign" label="Marketing Campaign">
+                    <CustomSelect
+                      mode="tags"
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      allowClear
+                      placeholder="Điền 1 hoặc nhiều tag"
+                      style={{ width: "100%" }}
+                    />
                   </Item>
                 </Col>
               </Row>

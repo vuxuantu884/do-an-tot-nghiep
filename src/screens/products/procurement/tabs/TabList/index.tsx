@@ -196,6 +196,16 @@ const TabList: React.FC = () => {
         },
       },
       {
+        title: "Mã tham chiếu",
+        dataIndex: "purchase_order",
+        fixed: "left",
+        width: 120,
+        visible: true,
+        render: (value) => {
+          return (value?.reference)
+        },
+      },
+      {
         title: "Nhà cung cấp",
         dataIndex: "purchase_order",
         visible: true,
@@ -497,7 +507,7 @@ const TabList: React.FC = () => {
       if (value !== null) {
         showSuccess("Xác nhận nhập kho thành công");
         setLoadingRecive(false);
-        setIsDetail(true);
+        setVisibleConfirm(false);
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },

@@ -25,7 +25,7 @@ import TextArea from "antd/es/input/TextArea";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import excelIcon from "assets/icon/icon-excel.svg";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   inventoryGetSenderStoreAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
@@ -42,6 +42,7 @@ import BaseAxios from "base/base.axios";
 import { showError } from "utils/ToastUtils";
 import MyStoreSelect from "component/custom/select-search/my-store-select";
 import { strForSearch } from "utils/StringUtils";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -61,15 +62,15 @@ const UpdateTicket: FC = () => {
   const history = useHistory();
 
   const onResult = useCallback(
-    (result: InventoryTransferDetailItem | false) => {
+    () => {
 
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  const dataFileExcel = ['https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_40262b05-2164-4e50-9763-3b7807e8ecb9_original.xls',
-  'https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_63f04682-c041-4d14-9d8c-5fe24b4fe7f2_original.xlsx']
+  const dataFileExcel = ['https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_327a5d28-35ad-4bd1-a78f-1a7e34a53645_original.xls',
+  'https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_d51d5a2c-0470-4ff4-854b-afa19e709ff9_original.xlsx']
 
   // get store
   useEffect(() => {
@@ -149,9 +150,21 @@ const UpdateTicket: FC = () => {
 
   },[stores]);
 
+  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
+
   useEffect(() => {
+    if (stores.length === 0) return;
+    if (myStores?.length === 1) {
+      stores.forEach((element) => {
+        if (element.id === myStores[0].store_id) {
+          form.setFieldsValue({
+            from_store_id: element.id
+          });
+        }
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [stores]);
 
   return (
     <StyledWrapper>

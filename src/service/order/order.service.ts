@@ -2,7 +2,7 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import {ApiConfig} from "config/api.config";
 import {PageResponse} from "model/base/base-metadata.response";
-import {OrderModel, OrderSearchQuery, StoreBankAccountNumberModel, StoreBankAccountNumbersQueryModel} from "model/order/order.model";
+import {FulfillmentsOrderPackQuery, OrderModel, OrderSearchQuery, StoreBankAccountNumberModel, StoreBankAccountNumbersQueryModel} from "model/order/order.model";
 import {ReturnModel, ReturnSearchQuery} from "model/order/return.model";
 import {ShipmentModel, ShipmentSearchQuery} from "model/order/shipment.model";
 import {
@@ -84,7 +84,11 @@ export const getReturnApi = (
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse[]>> => {
-  return BaseAxios.get(`${ApiConfig.CORE}/sources?limit=200`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources?limit=1000`);
+};
+
+export const getAllSources = (): Promise<BaseResponse<SourceResponse[]>> => {
+  return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
 };
 
 export const getPaymentMethod = (): Promise<
@@ -318,7 +322,7 @@ export const setSubStatusService = (
   }
   return BaseAxios.put(
     `${ApiConfig.ORDER}/orders/${order_id}/sub_status/${statusCode}`,
-    queryParams 
+    queryParams
   );
 };
 
@@ -372,12 +376,8 @@ export const getOrderConfig = (): Promise<any> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders-config`);
 };
 
-export const getFulfillmentsApi = (code: string, store_id:number, delivery_service_provider_id:number): Promise<BaseResponse<any>> => {
-  const queryString = generateQuery({
-    code:code,
-    store_id,
-    delivery_service_provider_id:delivery_service_provider_id
-  });
+export const getFulfillmentsApi = (request:FulfillmentsOrderPackQuery): Promise<BaseResponse<any>> => {
+  const queryString = generateQuery({...request});
   let link = `${ApiConfig.ORDER}/fulfillments/packing?${queryString}`;
   return BaseAxios.get(link);
 };
@@ -432,8 +432,8 @@ export const getSourcesEcommerceService = (): Promise<
 export const getChannelsService = (
   typeId: number
 ): Promise<BaseResponse<ChannelResponse[]>> => {
-  let link = `${ApiConfig.ORDER}/channels/types`;
-  if (typeId !== null) link = `${ApiConfig.CORE}/channels/types?type_id=${typeId}`;
+  let link = `${ApiConfig.CORE}/channels`;
+  if (typeId !== null) link = `${ApiConfig.CORE}/channels?type_id=${typeId}`;
   return BaseAxios.get(link);
 };
 /**

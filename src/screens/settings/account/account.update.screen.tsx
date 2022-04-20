@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   Col,
-  Collapse,
   Divider,
   Form,
   FormInstance,
@@ -50,11 +49,11 @@ import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } f
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/tree-node/tree-store";
 import { convertDistrict } from "utils/AppUtils";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { PASSWORD_RULES } from "./account.rules";
 
 const { Item } = Form;
@@ -489,14 +488,18 @@ const AccountUpdateScreen: React.FC = () => {
           </Row>
         </Card>
 
-        <Collapse
-          defaultActiveKey="1"
-          className="ant-collapse-card margin-top-20"
-          expandIconPosition="right"
-        >
-          <Collapse.Panel key="1" header="Thông tin công việc">
+        <Card title="Thông tin công việc" bodyStyle={{padding:0}}>
             <div className="padding-20">
-              <Form.List name="account_jobs">
+              <Form.List name="account_jobs"  rules={[{
+                validator: (rule, value, callback) => {
+                  if (value.length === 0) {
+                    showError("Vui lòng chọn công việc");
+                    callback("Vui lòng chọn công việc");
+                  } else {
+                    callback();
+                  }
+                },
+              }]}>
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, fieldKey, ...restField }, index) => (
@@ -530,6 +533,7 @@ const AccountUpdateScreen: React.FC = () => {
                             label="Phòng ban"
                             name={[name, "department_id"]}
                             fieldKey={[fieldKey, "department_id"]}
+                            rules={[{ required: true, message: "Vui lòng chọn bộ phận" }]}
                           >
                             <TreeSelect
                               placeholder="Chọn phòng ban"
@@ -589,8 +593,8 @@ const AccountUpdateScreen: React.FC = () => {
                 )}
               </Form.List>
             </div>
-          </Collapse.Panel>
-        </Collapse>
+          </Card>
+        {/* </Collapse> */}
         <BottomBarContainer
           back="Quay lại"
           backAction={backAction}

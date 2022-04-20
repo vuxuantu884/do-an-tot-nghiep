@@ -33,6 +33,8 @@ import React, {createRef, useCallback, useEffect, useMemo, useState} from "react
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { showError, showSuccess } from "utils/ToastUtils";
+import {RegUtil} from "utils/RegUtils";
+import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
 import {StyledComponent} from "./styles";
 
 type UpdateCustomerProps = {
@@ -77,16 +79,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
   const [visibleModalChangeAddress, setVisibleModalChangeAddress] = useState(false)
 
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
-    []
-  );
+  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
+  const [loadingWardList, setLoadingWardList] = React.useState<boolean>(false);
 
   //const [shippingDistrictId, setShippingDistrictId] = React.useState<any>(null);
 
   const getWardByDistrictId = useCallback(
     (districtId: number) => {
       if (districtId) {
-        dispatch(WardGetByDistrictAction(districtId, setShippingWards));
+        setLoadingWardList(true);
+        dispatch(WardGetByDistrictAction(Number(districtId), (wardResponse) => {
+          setShippingWards(wardResponse);
+          setLoadingWardList(false);
+        }));
       }
     },
     [dispatch]
@@ -159,7 +164,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         name: value.name,
         district_id: value.district_id,
         city_id: area ? area.city_id : null,
-        phone: value.phone,
+        phone: value.phone?.trim(),
         ward_id: value.ward_id,
         full_address: value.full_address,
         is_default: true,
@@ -333,17 +338,21 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   message: "Vui lòng nhập Số điện thoại",
                 },
                 {
-                  whitespace: true,
-                  message: "Vui lòng nhập Số điện thoại",
+                  pattern: RegUtil.PHONE,
+                  message: "Số điện thoại chưa đúng định dạng",
                 },
               ]}
               name="phone"
             >
-              <Input
-                placeholder="Nhập số điện thoại"
-                prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
+              <InputPhoneNumber
                 disabled={disableInput}
+                style={{ borderRadius: 5, width: "100%" }}
                 onChange={() => setVisibleBtnUpdate(true)}
+                minLength={9}
+                maxLength={15}
+                placeholder="Nhập số điện thoại"
+                defaultValue={initialFormValues?.phone}
+                prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
               />
             </Form.Item>
           </Col>
@@ -413,6 +422,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 className="select-with-search"
                 showSearch
                 allowClear
+                loading={loadingWardList}
                 optionFilterProp="children"
                 style={{ width: "100%" }}
                 placeholder={
@@ -424,7 +434,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 onChange={() => {
                   setVisibleBtnUpdate(true);
                 }}
-                disabled={disableInput}
+                disabled={disableInput || loadingWardList}
               >
                 {shippingWards.map((ward: any) => (
                   <Select.Option key={ward.id} value={ward.id}>

@@ -48,7 +48,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       render: (value: string, i: GoodsReceiptsTotalProductModel) => {
         return (
           <React.Fragment>
-            <Link target="_blank"   to={`#`}>
+            <Link target="_blank"   to={`#`} style={{whiteSpace:"nowrap"}}>
               {value}
             </Link>
           </React.Fragment>

@@ -16,6 +16,7 @@ const UrlConfig = {
   STORE: `/stores`,
   ROLES: `/roles`,
   ORDER: `/orders`,
+  OFFLINE_ORDERS: `/offline-orders`,
   ORDERS_RETURN: `/order-returns`,
   SPLIT_ORDERS: `/split-orders`,
   ORDER_PROCESSING_STATUS: `/order-processing-status`,
@@ -26,12 +27,16 @@ const UrlConfig = {
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
+  CUSTOMER_CARDS: `/customer-cards`,
   SHIPMENTS: `/shipments`,
   SHIPMENTS_FAILED: `/shipments-failed`,
   YD_PAGE: `/yd-page`,
   YDPAGE: `/YDpage`,
   ECOMMERCE: "/ecommerce",
   ECOMMERCE_PRODUCTS: "/ecommerce-products",
+  WEB_APP: "/web-app",
+  WEB_APP_PRODUCTS: "/web-app-products",
+  WEB_APP_CONFIGS: "/web-app-configs",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
   PROCUREMENT: "/procurements",
@@ -47,10 +52,12 @@ const UrlConfig = {
   BANK_ACCOUNT:`/bank-account`,
   REPORTS:`/reports`,
   ANALYTICS:`/analytics`,
-  ANALYTIC_SALES:`/analytics/sales`,
+  ANALYTIC_SALES_OFFLINE:`/analytics/sales-offline`,
+  ANALYTIC_SALES_ONLINE:`/analytics/sales-online`,
   ANALYTIC_FINACE:`/analytics/finance`,
   ANALYTIC_CUSTOMER:`/analytics/customers`,
-  INVENTORY_DEFECTS: `/inventory-defects`
+  INVENTORY_DEFECTS: `/inventory-defects`,
+  WARRANTY:`/warranty`,
 };
 
 export const ProductTabUrl = {
@@ -93,6 +100,17 @@ export const EcommerceProductTabUrl = {
   TOTAL_ITEM: UrlConfig.ECOMMERCE_PRODUCTS + "/total-item",
   CONNECTED: UrlConfig.ECOMMERCE_PRODUCTS + "/connected-item",
   NOT_CONNECTED: UrlConfig.ECOMMERCE_PRODUCTS + "/not-connected-item",
+};
+
+export const WebAppProductTabUrl = {
+  TOTAL_ITEM: UrlConfig.WEB_APP_PRODUCTS + "/total-item",
+  CONNECTED: UrlConfig.WEB_APP_PRODUCTS + "/connected-item",
+  NOT_CONNECTED: UrlConfig.WEB_APP_PRODUCTS + "/not-connected-item",
+};
+
+export const WebAppConfigTabUrl = {
+  SHOP_LIST: UrlConfig.WEB_APP_CONFIGS + "/shop-list",
+  CONFIG_SHOP: UrlConfig.WEB_APP_CONFIGS + "/config-shop",
 };
 
 export const BASE_NAME_ROUTER = "/admin";

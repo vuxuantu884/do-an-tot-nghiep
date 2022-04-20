@@ -15,6 +15,7 @@ const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateT
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
 const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
+const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
 
 //PO
 const PurchaseOrderListScreen = React.lazy(
@@ -126,7 +127,8 @@ export const inventory: Array<RouteMenu> = [
     ],
   },
   {
-    path: `${ProcurementTabUrl.TODAY}`,
+    // path: `${ProcurementTabUrl.TODAY}`,
+    path: `${UrlConfig.PROCUREMENT}`,
     exact: true,
     title: "Nhập kho",
     icon: "icon-dot",
@@ -136,6 +138,18 @@ export const inventory: Array<RouteMenu> = [
     header: null,
     permissions: [PurchaseOrderPermission.procurements_read],
     subMenu: [
+      {
+        path: `${UrlConfig.PROCUREMENT}/create`,
+        exact: true,
+        title: "Tạo phiếu nhập kho",
+        icon: "icon-dot",
+        component: ProcurementCreateScreen,
+        key: "submenu251",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.procurements_create],
+        subMenu: [],
+      },
       {
         path: `${ProcurementTabUrl.ALL}`,
         exact: true,
@@ -148,30 +162,31 @@ export const inventory: Array<RouteMenu> = [
         permissions: [PurchaseOrderPermission.procurements_read],
         subMenu: [],
       },
-      {
-        path: `${ProcurementTabUrl.TODAY}`,
-        exact: true,
-        title: "Nhập kho",
-        icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu25",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_read],
-        subMenu: [],
-      },
-      {
-        path: `${ProcurementTabUrl.SEVEN_DAYS}`,
-        exact: true,
-        title: "Nhập kho",
-        icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu25",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_read],
-        subMenu: [],
-      },
+      // Do cải tiến PO và Procurement nên tạm thời k sử dụng 2 tabs này
+      // {
+      //   path: `${ProcurementTabUrl.TODAY}`,
+      //   exact: true,
+      //   title: "Nhập kho",
+      //   icon: "icon-dot",
+      //   component: ProcurementScreen,
+      //   key: "submenu25",
+      //   isShow: true,
+      //   header: null,
+      //   permissions: [PurchaseOrderPermission.procurements_read],
+      //   subMenu: [],
+      // },
+      // {
+      //   path: `${ProcurementTabUrl.SEVEN_DAYS}`,
+      //   exact: true,
+      //   title: "Nhập kho",
+      //   icon: "icon-dot",
+      //   component: ProcurementScreen,
+      //   key: "submenu25",
+      //   isShow: true,
+      //   header: null,
+      //   permissions: [PurchaseOrderPermission.procurements_read],
+      //   subMenu: [],
+      // },
       {
         path: `${ProcurementTabUrl.LOGS}`,
         exact: true,

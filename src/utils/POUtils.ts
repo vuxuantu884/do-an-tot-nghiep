@@ -1,16 +1,23 @@
+import { FormInstance } from "antd";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
-import { VariantResponse } from "model/product/product.model";
+import { uniqBy } from "lodash";
+import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { CostLine } from "model/purchase-order/cost-line.model";
+import { POField } from "model/purchase-order/po-field";
 import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
+import { POLineItemColor, POLineItemGridSchema, POLineItemGridValue, POPairSizeColor, POPairSizeQuantity } from "model/purchase-order/purchase-order.model";
 import {
   PurchaseProcumentLineItem,
   PurchaseProcument,
+  PurchaseProcurementViewDraft
 } from "model/purchase-order/purchase-procument";
+import { QUANTITY_PROCUREMENT_UNIT, QuickInputQtyProcurementLineItem } from "screens/purchase-order/provider/purchase-order.provider";
 import { Products } from "./AppUtils";
+import { showError } from "./ToastUtils";
 
 const POUtils = {
   convertVariantToLineitem: (
@@ -171,7 +178,7 @@ const POUtils = {
         amount_after_discount -
         (amount_after_discount / total) * tradeDiscountValue;
     }
-    item.tax_rate = (tax_rate && tax_rate.toString()  !=="") ? parseInt(tax_rate.toString()) :  item.tax_rate;
+    item.tax_rate = (tax_rate && tax_rate.toString() !== "") ? parseInt(tax_rate.toString()) : item.tax_rate;
     let tax = parseFloat(
       ((amount_after_discount * item.tax_rate) / 100).toFixed(2)
     );
@@ -331,7 +338,7 @@ const POUtils = {
     procuments: Array<PurchaseProcument>,
     data: Array<PurchaseOrderLineItem>
   ) => {
-    let newProcuments: Array<PurchaseProcument> = []; 
+    let newProcuments: Array<PurchaseProcument> = [];
     procuments.forEach((item) => {
       let newProcumentLineItem = [...item.procurement_items];
       item.procurement_items.forEach((procumentItem, indexItem) => {
@@ -376,4 +383,214 @@ const POUtils = {
   },
 };
 
+
+/**
+ * Bảng chọn sản phẩm dạng Grid
+ */
+export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "READ_UPDATE", line_items?: Array<PurchaseOrderLineItem>): POLineItemGridSchema {
+  /**
+  * Build schema cho grid
+  */
+
+  /**
+   * danh sách tất cả màu sắc của sản phẩm, nếu sản phẩm nào không có màu thì dùng tên của variant đó làm màu
+   */
+  const tempVariant = [...product.variants];
+  tempVariant.forEach((variant: VariantResponse) => {
+    if (!variant.color) {
+      variant.color = variant.sku;
+    }
+    if (!variant.size) {
+      variant.size = variant.sku;
+    }
+  })
+  const baseColor: Array<POLineItemColor> = uniqBy(tempVariant, "color").map((item: VariantResponse) => {
+    let price = 0;
+    if (mode === "CREATE" && item.variant_prices?.length > 0 && item.variant_prices[0]?.import_price) {
+      price = item.variant_prices[0].import_price
+    } else if (mode === "READ_UPDATE" && line_items && line_items.length > 0) {
+      price = line_items.find((lineItem) => lineItem.variant_id === item.id)?.price || 0;
+    }
+
+    return {
+      color: item.color.trim(),
+      clothCode: item.sku.split("-")[1],
+      lineItemPrice: price,// giá nhập, không có thì mặc định là 0
+    };
+
+  });
+
+  /**
+   * danh sách tất cả size của sản phẩm, nếu sản phẩm nào không có size thì dùng tên của variant đó làm size
+   */
+  const baseSize = uniqBy(tempVariant, "size").map((item: VariantResponse) => {
+    return item.size.trim();
+  });
+
+  /**
+   * dánh sách các variant của sản phẩm
+   */
+  const mappingColorAndSize = product.variants.map((variant: VariantResponse) => {
+    const lineItemId = line_items?.find((lineItem) => lineItem.variant_id === variant.id)?.id;
+    return {
+      lineItemId: lineItemId,
+      color: variant.color ?? variant.sku.split("-")[0],
+      size: variant.size ?? variant.sku.split("-")[0],
+      variantId: variant.id,
+      sku: variant.sku,
+      variant: variant.name,
+      product_id: product.id,
+      product: product.name,
+
+      barcode: variant.barcode,
+      product_type: product.product_type,
+      unit: product.unit,
+    }
+  })
+
+  const variantIdList = product.variants.map((item: VariantResponse) => {
+    return item.id;
+  });
+
+  return {
+    productId: product.id,
+    productName: product.name,
+    productCode: product.code,
+    baseColor,
+    baseSize,
+    mappingColorAndSize,
+    variantIdList
+  }
+}
+
+export function initValueLineItem(poLineItemGridSchema: POLineItemGridSchema, line_items?: Array<PurchaseOrderLineItem>): Map<string, POLineItemGridValue> {
+  const map = new Map<string, POLineItemGridValue>();
+  poLineItemGridSchema.baseColor.forEach((c: POLineItemColor) => {
+    const sizeOfColor: POPairSizeColor[] = poLineItemGridSchema.mappingColorAndSize.filter(item => item.color === c.color);
+    const initSizeValue: any = sizeOfColor.reduce((prev: Array<POPairSizeQuantity>, current: POPairSizeColor) => {
+      return [
+        ...prev,
+        {
+          variantId: current.variantId,
+          size: current.size,
+          quantity: line_items?.find(item => item.variant_id === current.variantId)?.quantity ?? 0,
+        }
+      ] as Array<POPairSizeQuantity>;
+    }, [] as Array<POPairSizeQuantity>);
+
+    map.set(c.color, {
+      price: c.lineItemPrice || 0,
+      sizeValues: initSizeValue,
+    });
+  })
+  return map;
+}
+
+export const getTotalPriceOfAllLineItem = (poLineItemGridValue: Array<Map<string, POLineItemGridValue>>) => {
+  let amount: number = 0;
+  poLineItemGridValue.forEach((productLine: Map<string, POLineItemGridValue>) => {
+    const mapIterator = productLine.values();
+    const mapLength = productLine.size;
+    for (let i = 0; i < mapLength; i++) {
+      const value: POLineItemGridValue = mapIterator.next().value;
+      amount += value.price * value.sizeValues.reduce((acc, cur) => acc + cur.quantity, 0);
+    }
+  })
+  return amount;
+}
+
+export const combineLineItemToSubmitData = (
+  poLineItemGridValue: Array<Map<string, POLineItemGridValue>>,
+  poLineItemGridChema: Array<POLineItemGridSchema>,
+  taxRate: number
+) => {
+  const newDataItems: any = [];
+  poLineItemGridValue.forEach((item: Map<string, POLineItemGridValue>, index: number) => {
+    poLineItemGridChema[index].mappingColorAndSize.forEach((pair: POPairSizeColor) => {
+      const value: POLineItemGridValue | undefined = item.get(pair.color);
+
+      if (value) {
+        const qty = value.sizeValues.find(item => item.size === pair.size)?.quantity || 0;
+        const amount = qty * value.price
+        newDataItems.push({
+          id: pair.lineItemId,
+          //Dữ liệu cơ bản thì lấy từ schema
+          variant_id: pair.variantId,
+          variant: pair.variant,
+          product_id: pair.product_id,
+          sku: pair.sku,
+          product: pair.product,
+          barcode: pair.barcode,
+
+          // Dữ liệu nhập liệu thì lấy thì value object
+          quantity: qty,
+          price: value.price,
+          purchase_order_id: null,
+          tax: (amount * taxRate) / 100,
+          tax_rate: taxRate,
+          amount: amount, // Tổng tiền
+          line_amount_after_line_discount: qty * value.price, // Tổng tiền sau giảm giá, hiện tại chưa có nên để bằng amount
+
+        });
+      }
+    })
+  });
+  return newDataItems;
+}
+
+export const validateLineItem = (poLineItemGridValue: Array<Map<string, POLineItemGridValue>>) => {
+  if (poLineItemGridValue.length === 0) {
+    showError("Vui lòng thêm sản phẩm");
+    return false;
+  }
+  /**
+   * Validate xem đã nhập giá nhập chưa
+   * poLineItemGridValue : mảng các Map chưa số lượng sản phẩm của từng size theo màu
+   */
+  return !poLineItemGridValue.some(item => {
+    const mapIterator = item.values();
+    const length = item.size;
+    // Lọc theo độ dài của Map
+    for (let i = 0; i < length; i++) {
+      const value: POLineItemGridValue = mapIterator.next().value;
+      // với mỗi màu tương ứng 1 row trong grid, nếu giá nhập chưa có thì báo lỗi
+      if (!value.price) {
+        showError("Vui lòng nhập đơn giá sản phẩm");
+        return true;
+      }
+    }
+    return false;
+  })
+}
+
+export const setProcurementLineItemById =
+  (formMain: FormInstance,
+    variantIdList: number[],
+    inputValue: number,
+    quickInputQtyProcurementLineItem: QuickInputQtyProcurementLineItem) => {
+    const procurements: Array<PurchaseProcurementViewDraft> = formMain.getFieldValue(POField.procurements);
+
+    procurements.forEach((procurement: PurchaseProcurementViewDraft, index) => {
+      /**
+       * Lấy giá trị từ mảng quickInputQtyProcurementLineItem
+       * kiểm nếu 
+       */
+      const { unit, value } = quickInputQtyProcurementLineItem[index];
+      variantIdList.forEach((variantId: number) => {
+      const mappingProcurementItem = procurement.procurement_items.find((item) => item.id === variantId);
+      if (mappingProcurementItem) {
+        if (unit === QUANTITY_PROCUREMENT_UNIT.PERCENT) {
+          mappingProcurementItem.quantity = Math.ceil(inputValue * value / 100);
+        } else {
+          mappingProcurementItem.quantity = inputValue;
+        }
+      }
+    })
+    })
+
+    //update lại giá trị vừa đc khởi tạo
+    formMain.setFieldsValue({
+      [POField.procurements]: [...procurements],
+    });
+  }
 export { POUtils };

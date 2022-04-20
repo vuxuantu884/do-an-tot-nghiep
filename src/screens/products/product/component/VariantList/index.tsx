@@ -104,7 +104,8 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
           let avatar = Products.findAvatar(item.variant_images);
           let variantName = item.sku;
           if (item.sku && productData) {
-            variantName = item.sku?.replace(productData.code, "");
+            variantName = item.name?.replace(productData.name, "");
+            variantName = variantName.replace('- ','');
           }
           return (
             <List.Item

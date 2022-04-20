@@ -532,6 +532,9 @@ const StoreUpdateScreen: React.FC = () => {
                     <Item
                       label="Diện tích cửa hàng (m²)"
                       name="square"
+                      rules={[
+                        {required: true, message: "Vui lòng nhập diện tích cửa hàng"},
+                      ]}
                       >
                       <Input placeholder="Nhập diện tích cửa hàng" />
                     </Item>

@@ -27,7 +27,7 @@ import iconDelete from "assets/icon/deleteIcon.svg";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   isDetailPage?: boolean;
   isExchange?: boolean;
   isStepExchange?: boolean;
@@ -46,7 +46,7 @@ type PropType = {
   setListReturnProducts: ((listReturnProducts: ReturnProductModel[]) => void) | undefined
 };
 
-function CardReturnProducts(props: PropType) {
+function CardReturnProducts(props: PropTypes) {
   const {
     isDetailPage = false,
     isExchange = false,
@@ -96,7 +96,7 @@ function CardReturnProducts(props: PropType) {
         >
           Trả toàn bộ sản phẩm
         </Checkbox>
-        <Button onClick={() => {setStoreReturnModalVisible(true)}} style={{marginLeft: 20}}>Chọn cửa hàng trả</Button>
+        <Button type="primary" id="selectStoreReturn" ghost onClick={() => {setStoreReturnModalVisible(true)}} style={{marginLeft: 20}}>Chọn cửa hàng trả</Button>
       </React.Fragment>
     );
   };

@@ -16,6 +16,7 @@ type PropType = {
   totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
   isDisablePostPayment: boolean;
+  isOrderReturnFromPOS: boolean;
   returnMoneyType?: string;
 	returnOrderInformation: {
 		totalAmountReturn: number;
@@ -45,6 +46,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
     setPayments,
     setReturnMoneyType,
     setPaymentMethod,
+    isOrderReturnFromPOS,
   } = props;
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
@@ -87,7 +89,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const renderWhenReturnCustomerNeedToPay = () => {
     return (
-      <>
+      <React.Fragment>
         <OrderCreatePayments
           setPaymentMethod={setPaymentMethod}
           payments={payments}
@@ -98,8 +100,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
           loyaltyRate={loyaltyRate}
           isDisablePostPayment={isDisablePostPayment}
           listPaymentMethod={listPaymentMethods}
+          isOrderReturnFromPOS = {isOrderReturnFromPOS}
         />
-      </>
+      </React.Fragment>
     );
   };
 

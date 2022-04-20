@@ -29,6 +29,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
+  OrderPaymentResponse,
   // DeliveryServiceResponse,
   OrderResponse,
   StoreCustomResponse,
@@ -597,7 +598,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.payments = payments.filter((payment) => payment.amount > 0);
+      values.payments = payments.filter((payment) => payment.amount !== 0);
       values.total = getTotalAmount(values.items);
       if (
         values?.fulfillments &&
@@ -715,6 +716,27 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
     setAccounts(data.items);
   }, []);
+
+  const mergePaymentData = (payments: OrderPaymentResponse[]) => {
+    let result: OrderPaymentResponse[] = [];
+    payments.forEach(payment => {
+      let existing = result.filter(function (v, i) {
+        return v.payment_method_code === payment.payment_method_code;
+      });
+      if (existing.length) {
+        let existingIndex = result.indexOf(existing[0]);
+        if (result[existingIndex].payment_method_code === PaymentMethodCode.POINT) {
+          result[existingIndex].point = (result[existingIndex]?.point || 0) + (payment?.point || 0);
+        }
+        result[existingIndex].paid_amount = result[existingIndex].paid_amount + payment.paid_amount;
+        result[existingIndex].amount = result[existingIndex].amount + payment.amount;
+        result[existingIndex].return_amount = result[existingIndex].return_amount + payment.return_amount;
+      } else {
+        result.push(payment);
+      }
+    })
+    return result;
+  };
 
   useEffect(() => {
     if (storeId != null) {
@@ -866,9 +888,20 @@ export default function Order(props: OrdersCreatePermissionProps) {
               ) {
                 setPaymentMethod(PaymentMethodOption.COD);
               }
+
               if (response.payments && response.payments?.length > 0) {
                 setPaymentMethod(PaymentMethodOption.PREPAYMENT);
-                new_payments = response.payments;
+                // clone có tiền thừa thì xóa
+                new_payments = mergePaymentData(response.payments.map(payment => {
+                  if (payment.return_amount) {
+                    return {
+                      ...payment,
+                      amount: payment.paid_amount,
+                      return_amount: 0,
+                    }
+                  }
+                  return { ...payment };
+                }));
                 setPayments(new_payments);
               }
 
@@ -1157,7 +1190,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       return [
         {
           name: "Mã đơn hàng",
-          value:  
+          value:
             <Link target="_blank" to={`${UrlConfig.ORDER}/${listNewOrder.id}`}>
               {listNewOrder.code}
             </Link>,
@@ -1174,7 +1207,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
           key: "finished_on",
         },
         {
-          name: "Nhân viên lên đơn:",
+          name: "Nhân viên bán hàng:",
           value: 
               <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${listNewOrder.account_code}`}>
                 {`${listNewOrder.assignee_code} - ${listNewOrder.assignee}`}
@@ -1184,9 +1217,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
         {
           name: "Nhân viên Marketing:",
           value: <span>
-                  {listNewOrder.marketer_code 
-                    && listNewOrder.marketer 
-                    ? `${listNewOrder.marketer_code} - ${listNewOrder.marketer}` 
+                  {listNewOrder.marketer_code
+                    && listNewOrder.marketer
+                    ? `${listNewOrder.marketer_code} - ${listNewOrder.marketer}`
                     : "_-_"
                   }
                  </span>,
@@ -1194,7 +1227,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         },
         {
           name: "Người mua:",
-          value: 
+          value:
               <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${listNewOrder.customer_id}`}>
                   {`${listNewOrder.customer} - ${listNewOrder.customer_phone_number}`}
               </Link>,
@@ -1294,12 +1327,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
     TotalPriceColumn,
   ];
 
-  const handleCreatOrder = () => {
+  const onCloseOrderCreatedModal = () => {
     setIsShowOrderModal(false)
-  }
-
-  const handleCancelOrder = () => {
-    setIsShowOrderModal(false);
   }
 
   return (
@@ -1459,8 +1488,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
         title="Đơn hàng đã được tạo thành công"
         visible={isShowOrderModal}
         okText="Thoát"
-        onOk={handleCreatOrder}
-        onCancel={handleCancelOrder}
+        onOk={onCloseOrderCreatedModal}
+        onCancel={onCloseOrderCreatedModal}
         cancelButtonProps={{ style: { display: 'none' } }}
       >
         	<Row

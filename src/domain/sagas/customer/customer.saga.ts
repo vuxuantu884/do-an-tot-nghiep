@@ -28,11 +28,14 @@ import {
   importCustomerService,
   getCustomerOrderHistoryApi,
   getCustomerOrderReturnHistoryApi,
+  getCustomerActivityLogApi,
+  getCustomerActivityLogDetailApi,
 } from "service/customer/customer.service";
-import { CustomerType } from "domain/types/customer.type";
 import {showError} from "utils/ToastUtils";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { isFetchApiSuccessful } from "utils/AppUtils";
+import {callApiSaga} from "utils/ApiUtils";
+import { CustomerType } from "domain/types/customer.type";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
@@ -82,6 +85,7 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
 
 function* getCustomerList(action: YodyAction) {
   const { query, setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       getCustomers,
@@ -102,6 +106,8 @@ function* getCustomerList(action: YodyAction) {
   } catch (error) {
     setData(false);
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -135,6 +141,7 @@ function* getCustomerByPhone(action: YodyAction) {
 
 function* CustomerDetail(action: YodyAction) {
   const { id, setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getDetailCustomer,
@@ -153,12 +160,15 @@ function* CustomerDetail(action: YodyAction) {
     }
   } catch (error) {
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 // get customer's order history
 function* getCustomerOrderHistorySaga(action: YodyAction) {
   const { queryParams, callback } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderHistoryApi, queryParams );
     switch (response.code) {
@@ -172,12 +182,15 @@ function* getCustomerOrderHistorySaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {}
+  } catch (error) {} finally {
+    yield put(hideLoading());
+  }
 }
 
-// get customer's order history
+// get customer's order return history
 function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
   const { customer_id, callback } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderReturnHistoryApi, customer_id );
     switch (response.code) {
@@ -191,11 +204,26 @@ function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {}
+  } catch (error) {} finally {
+    yield put(hideLoading());
+  }
+}
+
+// get customer's activity log
+function* getCustomerActivityLogSaga(action: YodyAction) {
+  const { queryParams, callback } = action.payload;
+  yield callApiSaga({notifyAction: "SHOW_ALL"}, callback, getCustomerActivityLogApi, queryParams);
+}
+
+// get customer's activity log detail
+function* getCustomerActivityLogDetailSaga(action: YodyAction) {
+  const { log_id, callback } = action.payload;
+  yield callApiSaga({notifyAction: "SHOW_ALL"}, callback, getCustomerActivityLogDetailApi, log_id);
 }
 
 function* CustomerGroups(action: YodyAction) {
   const { setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerGroups
@@ -207,11 +235,14 @@ function* CustomerGroups(action: YodyAction) {
 		}
   } catch (error) {
     showError("Có lỗi khi lấy danh sách nhóm khách hàng. Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* CustomerLevels(action: YodyAction) {
   const { setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerLevels
@@ -229,11 +260,14 @@ function* CustomerLevels(action: YodyAction) {
     }
   } catch (error) {
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* CustomerTypes(action: YodyAction) {
   const { setData } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerTypes
@@ -251,6 +285,8 @@ function* CustomerTypes(action: YodyAction) {
     }
   } catch (error) {
     // showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -647,6 +683,8 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.CUSTOMER_DETAIL, CustomerDetail);
   yield takeLatest(CustomerType.CUSTOMER_ORDER_HISTORY, getCustomerOrderHistorySaga);
   yield takeLatest(CustomerType.CUSTOMER_ORDER_RETURN_HISTORY, getCustomerOrderReturnHistorySaga);
+  yield takeLatest(CustomerType.CUSTOMER_ACTIVITY_LOG, getCustomerActivityLogSaga);
+  yield takeLatest(CustomerType.CUSTOMER_ACTIVITY_LOG_DETAIL, getCustomerActivityLogDetailSaga);
   yield takeLatest(CustomerType.CREATE_CUSTOMER, CreateCustomer);
   yield takeLatest(CustomerType.UPDATE_CUSTOMER, UpdateCustomer);
   yield takeLatest(CustomerType.CUSTOMER_GROUPS, CustomerGroups);

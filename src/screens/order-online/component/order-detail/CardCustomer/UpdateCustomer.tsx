@@ -35,9 +35,9 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
+import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -45,9 +45,7 @@ import CustomerShippingAddressOrder from "./customer-shipping";
 
 type UpdateCustomerProps = {
   areas: any;
-  wards: any;
   groups: any;
-  handleChangeArea: any;
   handleChangeCustomer: any;
   customerItem: any;
   shippingAddress: ShippingAddress | any;
@@ -66,9 +64,7 @@ type UpdateCustomerProps = {
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const {
     areas,
-    wards,
     groups,
-    handleChangeArea,
     handleChangeCustomer,
     customerItem,
     shippingAddress,
@@ -84,6 +80,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     form,
   } = props;
 
+  const fullAddressRef = useRef()
+
   const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
 
   const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
@@ -97,7 +95,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
-
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
   const newAreas = useMemo(() => {
@@ -108,25 +106,96 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
-          .toLowerCase(),
+          .toLowerCase()
+          .replace("tinh ", "")
+          .replace("tp. ", ""),
         district_name_normalize: area.name.normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
-          .toLowerCase(),
+          .toLowerCase()
+          .replace("quan ", "")
+          .replace("huyen ", "")
+          // .replace("thanh pho ", "")
+          .replace("thi xa ", ""),
       }
     })
   }, [areas]);
 
-  //const [customerFormLoading, setCustomerFormLoading] = useState(false);
+  const getWards = useCallback(
+    (value: number | undefined) => {
+      if (value) {
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRefCustomer.current?.getFieldValue("full_address");
+          if (value) {
+            const newValue = value.normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+              .toLowerCase();
+
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase()
+                .replace("phuong ", "")
+                .replace("xa ", ""),
+              }
+            });
+            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
+            formRefCustomer.current?.setFieldsValue({
+              ward_id: findWard ? findWard.id : null,
+            })
+
+          }
+          setWards(data);
+        }));
+      }
+    },
+    [dispatch, formRefCustomer]
+  );
 
   const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, setShippingWards));
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
+          if (value) {
+            const newValue = value.normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+              .toLowerCase();
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase()
+                .replace("phuong ", "")
+                .replace("xa ", ""),
+              }
+            });
+            let district = document.getElementsByClassName("inputDistrictUpdateCustomer")[0].textContent;
+            console.log('district', district)
+            const foundWard = findWard(district, newWards, newValue);
+            console.log('foundWard', foundWard)
+            formRefCustomer.current?.setFieldsValue({
+              shipping_addresses_ward_id: foundWard ? foundWard.id : null,
+            })
+          }
+          setShippingWards(data);
+        }));
+
       }
     },
-    [dispatch]
+    [dispatch, formRefCustomer]
   );
 
   //properties
@@ -231,6 +300,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     }
   }, [dispatch, shippingAddress]);
 
+  useEffect(() => {
+    if (customerItem.district_id) {
+      dispatch(WardGetByDistrictAction(customerItem.district_id, setWards));
+    }
+  }, [dispatch, customerItem.district_id]);
+
   const handleSubmit = useCallback(
     (value: any) => {
       //return;
@@ -246,7 +321,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       let shipping_district = newAreas.find((area: any) => area.id === value.shipping_addresses_district_id);
       let shipping_ward=shippingWards.find((ward:any)=>ward.id===value.shipping_addresses_ward_id)
       let customer_district = newAreas.find((area: any) => area.id === value.district_id);
-      let customer_ward=wards.find((ward:any)=>ward.id===value.ward_id);
+      let customer_ward= wards.find((ward:any)=>ward.id===value.ward_id);
 
       let paramShipping = {
         ...shippingAddress,
@@ -289,7 +364,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           district:customer_district.name,
           phone: value.phone,
           ward_id: value.ward_id,
-          ward:customer_ward.name,
+          ward: customer_ward?.name,
           card_number: value.card_number,
           full_address: value.full_address,
           gender: GENDER_OPTIONS.findIndex((p)=>p.value===value.gender)===-1?null:value.gender,
@@ -345,13 +420,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {
-    const newValue = value.normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/Đ/g, "D")
-      .toLowerCase();
-      
-    const findArea = newAreas.find((area: any) => newValue.indexOf(area.city_name_normalize) > -1 && newValue.indexOf(area.district_name_normalize) > -1);
+    const findArea = handleFindArea(value, newAreas)
+    console.log('findArea', findArea)
     if (findArea) {
       switch (type) {
         case "full_address":
@@ -360,7 +430,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               district_id: findArea.id,
               ward_id: null
             })
-            handleChangeArea(findArea.id);
+            getWards(findArea.id);
           }
           break;
         case "shipping_addresses_full_address":
@@ -374,60 +444,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           break;
         default: break;
       }
-      
-    }
-  }, [formRefCustomer, getShippingWards, handleChangeArea, newAreas]);
 
-  useEffect(() => {
-    const value = formRefCustomer.current?.getFieldValue("full_address");
-    if (value) {
-      const newValue = value.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-        .toLowerCase();
-        
-      const newWards = wards.map((ward: any) => {
-        return {
-          ...ward,
-          ward_name_normalize: ward.name.normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .toLowerCase(),
-        }
-      });
-      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      formRefCustomer.current?.setFieldsValue({
-        ward_id: findWard ? findWard.id : null,
-      })
     }
-  }, [formRefCustomer, wards]);
+  }, [formRefCustomer, getShippingWards, getWards, newAreas]);
 
-  useEffect(() => {
-    const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
-    if (value) {
-      const newValue = value.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-        .toLowerCase();
-      const newWards = shippingWards.map((ward: any) => {
-        return {
-          ...ward,
-          ward_name_normalize: ward.name.normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .toLowerCase(),
-        }
-      });
-      const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-      formRefCustomer.current?.setFieldsValue({
-        shipping_addresses_ward_id: findWard ? findWard.id : null,
-      })
-    }
-  }, [formRefCustomer, shippingWards]);
 
   useEffect(() => {
     customerForm.resetFields();
@@ -482,6 +502,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     message: "Vui lòng chọn khu vực",
                   },
                 ]}
+                className="inputDistrictUpdateCustomer"
               >
                 <Select
                   className="select-with-search"
@@ -801,11 +822,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           }
                           style={{ width: "100%" }}
                           onChange={(value) => {
-
                             let values = formRefCustomer.current?.getFieldsValue();
                             values.ward_id = null;
                             formRefCustomer.current?.setFieldsValue(values);
-                            handleChangeArea(value);
+                            getWards(Number(value));
                             setVisibleBtnUpdate(true);
                           }}
                           optionFilterProp="children"
@@ -901,7 +921,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         <Input
                           placeholder="Địa chỉ"
                           prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                          onChange={(e) => checkAddress("full_address", e.target.value)}
+                          onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                            checkAddress("full_address", e.target.value)
+                          },500)}
                         />
                       </Form.Item>
                     </Col>
@@ -955,7 +977,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         ]}
                       >
                         <DatePicker
-                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : moment("01/01/1991", "DD/MM/YYYY")} 
+                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : undefined}
                           style={{ width: "100%" }}
                           placeholder="Chọn ngày sinh"
                           format={"DD/MM/YYYY"}
@@ -964,6 +986,15 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           }
                           onChange={() => {
                             setVisibleBtnUpdate(true);
+                          }}
+                          onMouseLeave={() => {
+                            const elm = document.getElementById("customer_update_birthday");
+                            const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
+                            if (newDate) {
+                              formRefCustomer.current?.setFieldsValue({
+                                birthday: newDate
+                              })
+                            }
                           }}
                         />
                       </Form.Item>

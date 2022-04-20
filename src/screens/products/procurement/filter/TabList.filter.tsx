@@ -6,7 +6,7 @@ import BaseFilter from "component/filter/base.filter";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import ButtonSetting from "component/table/ButtonSetting";
 import UrlConfig from "config/url.config";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
+// import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -35,6 +35,7 @@ import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelect
 import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
 import { callApiNative } from "../../../../utils/ApiUtils";
 import { supplierGetApi } from "../../../../service/core/supplier.service";
+import { getStoreApi } from "service/inventory/transfer/index.service";
 
 const { Item } = Form;
 
@@ -114,7 +115,14 @@ function TabListFilter(props: ProcurementFilterProps) {
 
   useEffect(() => {
     dispatch(SupplierGetAllAction((suppliers) => setAllSupplier(suppliers)))
-    dispatch(getListStoresSimpleAction((stores) =>  setAllStore(stores)));
+    // dispatch(getListStoresSimpleAction((stores) => setAllStore(stores)));
+    const getStores = async () => {
+      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, { status: "active", simple: true })
+      if (res) {
+        setAllStore(res)
+      }
+    }
+    getStores()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -140,6 +148,7 @@ function TabListFilter(props: ProcurementFilterProps) {
           const findSupplier = allSupplier?.find(supplier => +supplier.id === +item.valueId)
           return {...item, valueName: findSupplier?.name}
         case ProcurementFilterAdvanceEnum.stores:
+        case ProcurementFilterBasicEnum.store_ids:
           if(isArray(item.valueId)) {
             const filterStore = allStore?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
             if(filterStore)
@@ -212,6 +221,7 @@ function TabListFilter(props: ProcurementFilterProps) {
       [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers?.toString()?.split(',').map((x: string) => parseInt(x)),
       [ProcurementFilterBasicEnum.content]: paramsUrl.content,
       [ProcurementFilterBasicEnum.merchandisers]: paramsUrl.merchandisers?.toString()?.split(','),
+      [ProcurementFilterBasicEnum.store_ids]: paramsUrl.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
     })
     formAdvanced.setFieldsValue({
       ...filters,
@@ -245,7 +255,15 @@ function TabListFilter(props: ProcurementFilterProps) {
             <Input
               prefix={<img src={search} alt="" />}
               allowClear
-              placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng"
+              placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng, Mã tham chiếu"
+            />
+          </Item>
+          <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 200 }}>
+            <TreeStore
+              form={formBase}
+              name={ProcurementFilterBasicEnum.store_ids}
+              placeholder="Chọn kho nhận"
+              listStore={allStore}
             />
           </Item>
           <Item className="suppliers">
@@ -305,7 +323,7 @@ function TabListFilter(props: ProcurementFilterProps) {
                   />;
                   break;
                 case ProcurementFilterAdvanceEnum.stores:
-                  component = <TreeStore name={field} form={formAdvanced} listStore={allStore}/>;
+                  component = <TreeStore placeholder="Chọn kho nhận" name={field} form={formAdvanced} listStore={allStore} />;
                   break;
                 case ProcurementFilterAdvanceEnum.status:
                   component = (

@@ -46,7 +46,8 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: ["sleep", "30"]
+                command:
+                - sleep 30
           ports:
             - name: http
               containerPort: 80

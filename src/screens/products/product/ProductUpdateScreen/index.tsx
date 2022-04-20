@@ -65,7 +65,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
   convertCategory,
-  formatCurrency, formatCurrencyForProduct,
+  formatCurrencyForProduct,
   Products,
   replaceFormatString,
   scrollAndFocusToDomElement,
@@ -80,6 +80,7 @@ import ModalPickAvatar from "../component/ModalPickAvatar";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
 import VariantList from "../component/VariantList";
 import { ProductParams } from "../ProductDetailScreen";
+import AddVariantsModal from "./add-variants-modal";
 import { StyledComponent } from "./styles";
 
 const {Item} = Form;
@@ -656,6 +657,7 @@ const ProductDetailScreen: React.FC = () => {
           tempActive = activeRow;
           setModalConfirm({
             onOk: () => {
+
               setModalConfirm({visible: false});
               form.submit();
             },
@@ -715,13 +717,33 @@ const ProductDetailScreen: React.FC = () => {
         }
       }
     },
-    [form,variantId]
+    [form, variantId]
   );
 
+  /**
+   * Thêm sản phẩm 
+   */
+  const handleSubmitAddVariant = (values:any)=>{
+      onFinish(values);
+     
+  }
+
+  /**
+   * Focus vào sản phẩm vừa thêm từ modal
+   */
+  const focusLastestVariant = ()=>{
+    setChange(true);
+    const variants = form.getFieldValue("variants");
+    if(Array.isArray(variants) && variants.length > 0){
+     setActive(variants.length-1);
+  }
+  }
 
   useEffect(() => {
+    if(!isChange){
     dispatch(productGetDetail(idNumber, onResult));
-  }, [dispatch, idNumber, onResult]);
+    }
+  }, [dispatch, idNumber, onResult, isChange]);
 
   useEffect(() => {
     if (data) {
@@ -779,7 +801,6 @@ const ProductDetailScreen: React.FC = () => {
             layout="vertical"
             // onFinishFailed={handleSubmitFail}
             onFinishFailed={({ errorFields }: any) => {
-              console.log("valfdf", errorFields)
               const element: any = document.getElementById(
                 errorFields[0].name.join("")
               );
@@ -1103,7 +1124,7 @@ const ProductDetailScreen: React.FC = () => {
                   </Card>
                 </Col>
                 <Col span={24} md={6}>
-                  <Card className="card" title="Ảnh" hidden>
+                  <Card className="card" title="Ảnh">
                     <div className="padding-20">
                       <div className="a-container">
                         <Item
@@ -1185,64 +1206,8 @@ const ProductDetailScreen: React.FC = () => {
                         productData={data}
                       />
                     </Item>
-                    <Divider />
-                    <Form.List name="variants">
-                      {(fields, {add, remove}) => {
-                        const currentVariantList = form.getFieldValue("variants");
-                        //check already have new item
-                        let hasNewItem = currentVariantList?.some(
-                          (element: VariantResponse) => !element.id
-                        );
-
-                        const newItem: any = {
-                          id: null,
-                          variant_images: [],
-                          name: data.name,
-                          status: "active",
-                          barcode: "",
-                          color_id: null,
-                          composite: false,
-                          composites: [],
-                          product_id: idNumber,
-                          saleable: true,
-                          size: null,
-                          sku: data.code,
-                          variant_prices: [
-                            {
-                              retail_price: "",
-                              currency_code: AppConfig.currency,
-                              import_price: "",
-                              wholesale_price: "",
-                              cost_price: "",
-                              tax_percent: 0,
-                            },
-                          ],
-                          length_unit:
-                            lengthUnitList && lengthUnitList.length > 0
-                              ? lengthUnitList[0].value
-                              : "",
-                          weight_unit:
-                            weightUnitList && weightUnitList.length > 0
-                              ? weightUnitList[0].value
-                              : "",
-                        };
-                        return (
-                          <Button
-                            disabled={hasNewItem}
-                            onClick={() => {
-                              add(newItem, 0);
-                              setChange(true);
-                              setActive(0);
-                              setFieldList([]);
-                            }}
-                            type="link"
-                            icon={<PlusOutlined />}
-                          >
-                            Thêm phiên bản
-                          </Button>
-                        );
-                      }}
-                    </Form.List>
+                    <Divider />                    
+                    <AddVariantsModal form={form} onFinish={handleSubmitAddVariant} onOk={focusLastestVariant}/>
                   </Col>
                   <Col className="right" span={24} md={17}>
                     <Form.List name="variants">
@@ -1287,8 +1252,8 @@ const ProductDetailScreen: React.FC = () => {
                                   <Form.Item
                                     noStyle
                                     shouldUpdate={(prevValues, currentValues) =>
-                                      prevValues.variants[active].id !==
-                                      currentValues.variants[active].id
+                                      prevValues.variants[active]?.id !==
+                                      currentValues.variants[active]?.id
                                     }
                                   >
                                     {({getFieldValue}) => {
@@ -1513,7 +1478,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     />
                                                   </Item>
                                                 </Col>
-                                                <Col md={3}>
+                                                <Col md={4}>
                                                   <Item
                                                     label="Thuế"
                                                     name={[name, "tax_percent"]}
@@ -1590,8 +1555,6 @@ const ProductDetailScreen: React.FC = () => {
                                               onChange={onChange}
                                               isFloat
                                               maxLength={6}
-                                              format={(a) => formatCurrency(a)}
-                                              replace={(a) => replaceFormatString(a)}
                                               style={{
                                                 width: "calc((100% - 100px) / 3)",
                                               }}
@@ -1603,8 +1566,6 @@ const ProductDetailScreen: React.FC = () => {
                                               onChange={onChange}
                                               isFloat
                                               maxLength={6}
-                                              format={(a) => formatCurrency(a)}
-                                              replace={(a) => replaceFormatString(a)}
                                               style={{
                                                 width: "calc((100% - 100px) / 3)",
                                               }}
@@ -1616,8 +1577,6 @@ const ProductDetailScreen: React.FC = () => {
                                               onChange={onChange}
                                               isFloat
                                               maxLength={6}
-                                              format={(a) => formatCurrency(a)}
-                                              replace={(a) => replaceFormatString(a)}
                                               placeholder="Cao"
                                               style={{
                                                 width: "calc((100% - 100px) / 3)",
@@ -1665,8 +1624,6 @@ const ProductDetailScreen: React.FC = () => {
                                               onChange={onChange}
                                               isFloat
                                               maxLength={6}
-                                              format={(a) => formatCurrency(a)}
-                                              replace={(a) => replaceFormatString(a)}
                                               placeholder="Khối lượng"
                                               style={{
                                                 width: "calc(100% - 100px)",

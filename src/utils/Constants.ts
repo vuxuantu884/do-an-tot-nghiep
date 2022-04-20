@@ -1,5 +1,7 @@
+import { WarrantyItemType } from "model/warranty/warranty.model";
+
 export const VietNamId = 233;
-export const PO_FORM_TEMPORARY = 'po-form-temporary';
+// export const PO_FORM_TEMPORARY = 'po-form-temporary';
 
 export const optionAllCities = {
   name: "Tất cả tỉnh thành",
@@ -193,6 +195,11 @@ export const ProcumentStatus = {
   CANCELLED: "cancelled",
 };
 
+export const TypeModalPo = {
+  CONFIRM: "confirm",
+  INVENTORY: "inventory",
+};
+
 export const PoPaymentStatus = {
   DRAFT: "draft",
   UNPAID: "unpaid",
@@ -376,4 +383,17 @@ export const PRODUCT_TYPE = {
 
 export const DELIVERY_SERVICE_PROVIDER_CODE = {
   ghtk: "ghtk",
+  ghn: "ghn",
+  vtp: "vtp"
 }
+
+export const WARRANTY_STATUS = [
+  {
+    code: WarrantyItemType.WARRANTY,
+    name: "Bảo hành",
+  },
+  {
+    code: WarrantyItemType.REPAIR,
+    name: "Sửa chữa",
+  },
+]

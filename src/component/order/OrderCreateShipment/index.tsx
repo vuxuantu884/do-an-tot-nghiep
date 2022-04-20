@@ -67,6 +67,7 @@ type PropType = {
   handleCancelCreateShipment?: () => void;
   ecommerceShipment? : EcommerceDeliveryResponse | null;
   isEcommerceOrder?: boolean;
+  isOrderUpdate?: boolean;
 	OrderDetail?: OrderResponse | null;
 	orderConfig:  OrderConfigResponseModel | null;
 };
@@ -129,6 +130,7 @@ function OrderCreateShipment(props: PropType) {
     handleCancelCreateShipment,
     ecommerceShipment,
     isEcommerceOrder,
+    isOrderUpdate,
     OrderDetail,
     isOrderReturnFromPOS,
   } = props;
@@ -363,10 +365,11 @@ function OrderCreateShipment(props: PropType) {
           handleCreateShipment={handleCreateShipment}
           setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
           isLoading={creating}
+          isOrderUpdate={isOrderUpdate}
         />
       }
 
-      {!isEcommerceOrder &&
+      {(!isEcommerceOrder)&&
         <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>

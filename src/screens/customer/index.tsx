@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {Link, useHistory, useLocation} from "react-router-dom";
-import { Card, Button, Modal, Radio, Space, Progress } from "antd";
+import { Card, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import {ConvertTimestampToDate, ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
 import { getCustomerListAction } from "domain/actions/customer/customer.action";
@@ -41,15 +41,16 @@ import {
   StyledCustomer,
   StyledCustomerExtraButton,
 } from "screens/customer/customerStyled";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { generateQuery } from "utils/AppUtils";
-import { exportFile, getFile } from "service/other/export.service";
-import { HttpStatus } from "config/http-status.config";
+import {
+  generateQuery,
+  isNullOrUndefined,
+} from "utils/AppUtils";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
-import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 import {getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import NumberFormat from "react-number-format";
+import ExportCustomerFile from "screens/customer/export-file/ExportCustomerFile";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -82,6 +83,7 @@ const Customer = () => {
     () => ({
       page: 1,
       limit: 30,
+      search_type: "LIST",
       request: "",
       gender: null,
       customer_group_ids: [],
@@ -155,16 +157,17 @@ const Customer = () => {
       dataIndex: "code",
       visible: true,
       fixed: "left",
+      // align: "center",
       render: (value: string, item: any) => (
-        <Link to={`/customers/${item.id}`}>{value}</Link>
+        <Link to={`/customers/${item.id}`}>{value ? value : item.id}</Link>
       ),
-      width: 90,
+      width: 130,
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
       visible: true,
-      width: 150,
+      width: 160,
       render: (value: string, item: any) => (
         <span className="customer-name-textoverflow">{item.full_name}</span>
       ),
@@ -173,105 +176,177 @@ const Customer = () => {
       title: "SĐT",
       dataIndex: "phone",
       visible: true,
-      width: 90,
+      width: 120,
+      align: "center",
     },
     {
       title: "Giới tính",
       dataIndex: "gender",
+      visible: true,
+      width: 80,
+      align: "center",
       render: (value: any) => (
         <div>
-          {LIST_GENDER &&
-            LIST_GENDER?.find((item) => item.value === value)?.name}
+          {LIST_GENDER?.find((item) => item.value === value)?.name}
         </div>
       ),
+    },
+    {
+      title: "Ngày sinh",
+      dataIndex: "birthday",
       visible: true,
-      width: 60,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
+    },
+    {
+      title: "Điểm",
+      dataIndex: "point",
+      visible: true,
+      width: 100,
+      align: "center",
+      render: (value: any) => (
+        <div style={{ textAlign: "right" }}>
+          {!isNullOrUndefined(value) ?
+            <NumberFormat
+              value={value}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : ""
+          }
+        </div>
+      )
+    },
+    {
+      title: "Hạng thẻ",
+      dataIndex: "customer_level",
+      visible: true,
+      width: 90,
+      align: "center",
     },
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
       visible: true,
       width: 150,
+      align: "center",
     },
     {
-      title: "Email",
-      dataIndex: "email",
+      title: "Tiền tích lũy",
+      dataIndex: "total_paid_amount",
       visible: true,
-      width: 150,
+      width: 120,
+      align: "center",
+      render: (value: any) => (
+        <div style={{ textAlign: "right" }}>
+          {!isNullOrUndefined(value) ?
+            <NumberFormat
+              value={value}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : ""
+          }
+        </div>
+      )
+    },
+    {
+      title: "Ngày mua đầu",
+      dataIndex: "first_order_time",
+      visible: true,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
+    },
+    {
+      title: "Ngày mua cuối",
+      dataIndex: "last_order_time",
+      visible: true,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
       visible: true,
       width: 150,
+      align: "center",
     },
     {
       title: "Nhân viên phụ trách",
-      dataIndex: "responsible_staff",
+      // dataIndex: "responsible_staff",
       visible: true,
-      width: 150,
-    },
-    {
-      title: "Hạng thẻ",
-      dataIndex: "customer_level",
-      visible: true,
-      width: 100,
-    },
-    {
-      title: "Ngày sinh",
-      dataIndex: "birthday",
-      visible: true,
-      width: 80,
-      render: (value: string) => (
-        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
+      width: 180,
+      align: "center",
+      render: (item: any) => {
+        const staff = (item.responsible_staff_code ? item.responsible_staff_code + " - " : "") + (item.responsible_staff ? item.responsible_staff  : "");
+        return (
+          <div>{staff}</div>
+        )
+      },
     },
     {
       title: "Ngày cưới",
       dataIndex: "wedding_date",
       visible: true,
-      width: 80,
+      width: 110,
+      align: "center",
       render: (value: string) => (
         <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
       ),
     },
     {
-      title: "website/facebook",
-      dataIndex: "website",
+      title: "Mã số thẻ",
+      dataIndex: "card_number",
       visible: false,
       width: 150,
+      align: "center",
     },
     {
       title: "Ngày kích hoạt thẻ",
-      dataIndex: "",
+      dataIndex: "assigned_date",
       visible: false,
-      width: 150,
+      width: 110,
+      align: "center",
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "Cửa hàng kích hoạt",
-      dataIndex: "",
+      dataIndex: "assigned_store",
       visible: false,
       width: 150,
+      align: "center",
     },
     {
-      title: "Mã số thẻ",
-      dataIndex: "",
+      title: "Email",
+      dataIndex: "email",
+      visible: true,
+      width: 200,
+    },
+    {
+      title: "website/facebook",
+      dataIndex: "website",
       visible: false,
-      width: 150,
+      width: 200,
     },
     {
       title: "Đơn vị",
       dataIndex: "company",
       visible: false,
-      width: 150,
-    },
-    {
-      title: "Điểm hiện tại",
-      width: 100,
-      dataIndex: "",
-      visible: false,
+      width: 200,
     },
   ]);
+
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -332,8 +407,14 @@ const Customer = () => {
     (values: CustomerSearchQuery) => {
       const newParams = { ...params, ...values, page: 1 };
       const queryParam = generateQuery(newParams);
-      history.push(`${location.pathname}?${queryParam}`);
+      const currentParam = generateQuery(params);
+      if (currentParam === queryParam) {
+        getCustomerList(newParams);
+      } else {
+        history.push(`${location.pathname}?${queryParam}`);
+      }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, location.pathname, params]
   );
 
@@ -355,6 +436,10 @@ const Customer = () => {
     const dataQuery: CustomerSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
+      first_order_time_from: queryParamsParsed.first_order_time_from,
+      first_order_time_to: queryParamsParsed.first_order_time_to,
+      last_order_time_from: queryParamsParsed.last_order_time_from,
+      last_order_time_to: queryParamsParsed.last_order_time_to,
     };
     setParams(dataQuery);
     getCustomerList(dataQuery);
@@ -363,120 +448,14 @@ const Customer = () => {
 
   // handle export file
   const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
-  const [isVisibleWarningExportModal, setIsVisibleWarningExportModal] =
-    useState(false);
-  const [exportAll, setExportAll] = useState(true);
-  const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
 
   const handleExportFile = () => {
-    setExportProgress(0);
     setIsVisibleExportModal(true);
-  };
-
-  const onChangeExportOption = (e: any) => {
-    setExportAll(e.target.value);
-  };
-
-  // warning export 10k customers
-  const onOkWarningExportModal = () => {
-    setIsVisibleWarningExportModal(false);
-  };
-
-  const onCancelWarningExportModal = () => {
-    setIsVisibleWarningExportModal(false);
-    cancelExportModal();
-  };
-
-  const onOkExportModal = () => {
-    if (exportAll && data?.metadata.total >= 10000) {
-      setIsVisibleWarningExportModal(true);
-    } else {
-      okExportModal();
-    }
-  };
-
-  const okExportModal = () => {
-    let newParams = { ...params };
-    if (exportAll) {
-      newParams.limit = undefined;
-      newParams.page = undefined;
-    }
-    const exportParams = generateQuery(newParams);
-
-    exportFile({
-      conditions: exportParams,
-      type: "EXPORT_CUSTOMER",
-    })
-      .then((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          setIsVisibleProgressModal(true);
-          cancelExportModal();
-          setExportCodeList([...exportCodeList, response.data.code]);
-        }
-      })
-      .catch(() => {
-        showError("Có lỗi xảy ra, vui lòng thử lại sau");
-      });
   };
 
   const cancelExportModal = () => {
     setIsVisibleExportModal(false);
-    setExportAll(true);
   };
-
-  // process export modal
-  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
-  const [exportProgress, setExportProgress] = useState<number>(0);
-
-  const onCancelProgressModal = () => {
-    setExportCodeList([]);
-    setIsVisibleProgressModal(false);
-  };
-
-  const checkExportFile = useCallback(() => {
-    let getFilePromises = exportCodeList.map((code) => {
-      return getFile(code);
-    });
-
-    Promise.all(getFilePromises).then((responses) => {
-      responses.forEach((response) => {
-        if (
-          response.code === HttpStatus.SUCCESS &&
-          response.data &&
-          response.data.total > 0
-        ) {
-          if (!!response.data.url) {
-            const newExportCode = exportCodeList.filter((item) => {
-              return item !== response.data.code;
-            });
-            setExportCodeList(newExportCode);
-            setExportProgress(100);
-            setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
-            window.open(response.data.url);
-          } else {
-            if (response.data.num_of_record >= response.data.total) {
-              setExportProgress(99);
-            } else {
-              const percent = Math.floor(
-                (response.data.num_of_record / response.data.total) * 100
-              );
-              setExportProgress(percent);
-            }
-          }
-        }
-      });
-    });
-  }, [exportCodeList]);
-
-  useEffect(() => {
-    if (exportProgress === 100 || exportCodeList.length === 0) return;
-
-    checkExportFile();
-
-    const getFileInterval = setInterval(checkExportFile, 3000);
-    return () => clearInterval(getFileInterval);
-  }, [checkExportFile, exportProgress, exportCodeList]);
   // end handle export file
 
   // handle import file
@@ -560,12 +539,12 @@ const Customer = () => {
                   isRowSelection
                   bordered
                   isLoading={isLoading}
-                  scroll={{ x: 2000 }}
+                  scroll={{ x: 0 }}
                   sticky={{ offsetScroll: 5, offsetHeader: 55 }}
                   pagination={{
-                    pageSize: data.metadata.limit,
-                    total: data.metadata.total,
-                    current: data.metadata.page,
+                    pageSize: data.metadata?.limit,
+                    total: data.metadata?.total,
+                    current: data.metadata?.page,
                     showSizeChanger: true,
                     onChange: onPageChange,
                     onShowSizeChange: onPageChange,
@@ -591,77 +570,12 @@ const Customer = () => {
           />
         }
 
-        {/* Export customer data */}
-        <Modal
-          centered
-          width="600px"
-          visible={isVisibleExportModal}
-          title="Xuất excel dữ liệu khách hàng"
-          okText="Xuất dữ liệu"
-          cancelText="Đóng"
-          onCancel={cancelExportModal}
-          onOk={onOkExportModal}
-          maskClosable={false}>
-          <Radio.Group onChange={onChangeExportOption} value={exportAll}>
-            <Space direction="vertical">
-              <Radio value={false}>Tải trang hiện tại</Radio>
-              <Radio value={true}>Tải tất cả các trang</Radio>
-            </Space>
-          </Radio.Group>
-        </Modal>
-
-        {/* Warning export customer data */}
-        <Modal
-          centered
-          width="600px"
-          visible={isVisibleWarningExportModal}
-          title=""
-          closable={false}
-          maskClosable={false}
-          footer={
-            <StyledModalFooter>
-              <Button danger onClick={onCancelWarningExportModal}>
-                Thoát
-              </Button>
-
-              <Button type="primary" onClick={onOkWarningExportModal}>
-                Đồng ý
-              </Button>
-            </StyledModalFooter>
-          }>
-          <div>
-            Để đảm bảo hệ thống và tốc độ tải dữ liệu, xin vui lòng xuất dưới{" "}
-            <b>10.000</b> khách hàng.
-          </div>
-          <div>Xin cảm ơn!</div>
-        </Modal>
-
-        {/* Progress export customer data */}
-        <Modal
-          onCancel={onCancelProgressModal}
-          visible={isVisibleProgressModal}
-          title="Xuất file"
-          centered
-          width={600}
-          footer={[
-            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-              Thoát
-            </Button>,
-          ]}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 15 }}>
-              Đang tạo file, vui lòng đợi trong giây lát
-            </div>
-            <Progress
-              type="circle"
-              strokeColor={{
-                "0%": "#108ee9",
-                "100%": "#87d068",
-              }}
-              percent={exportProgress}
-            />
-          </div>
-        </Modal>
+        <ExportCustomerFile
+          isVisibleExportModal={isVisibleExportModal}
+          cancelExportModal={cancelExportModal}
+          customerData={data}
+          params={params}
+        />
 
         <ModalSettingColumn
           visible={showSettingColumn}

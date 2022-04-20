@@ -18,7 +18,7 @@ import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory, useParams } from "react-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteInventoryTransferAction,
   getDetailInventoryTransferAction,
@@ -68,6 +68,11 @@ import { getVariantByBarcode } from "service/product/variant.service";
 import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
 import { InventoryResponse } from "model/inventory";
 import TextArea from "antd/es/input/TextArea";
+import { checkUserPermission } from "../../../utils/AuthUtil";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
+// import { checkUserPermission } from "../../../utils/AuthUtil";
+// import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { getAccountDetail } from "../../../service/accounts/account.service";
 // import moment from "moment";
 export interface InventoryParams {
   id: string;
@@ -113,9 +118,18 @@ const DetailTicket: FC = () => {
     [] as Array<VariantResponse>
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [isHavePermissionQuickBalance, setIsHavePermissionQuickBalance] = useState<boolean>(false);
 
   const [form] = Form.useForm();
   const printElementRef = useRef(null);
+
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions
+  );
+
+  const currentStores = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores
+  );
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -164,6 +178,15 @@ const DetailTicket: FC = () => {
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
+
+        callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
+          if (res) {
+            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase());
+            return;
+          }
+
+          setIsHavePermissionQuickBalance(true);
+        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -267,7 +290,7 @@ const DetailTicket: FC = () => {
       available: selectedItem.available ?? 0,
       amount: variantPrice,
       price: variantPrice,
-      transfer_quantity: 1,
+      transfer_quantity: 0,
       real_quantity: 1,
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
@@ -481,6 +504,23 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dispatch,onSelectProduct, onSearchProduct]);
 
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barCode = barCode + event.key;
+        } else if (event.key === "Enter") {
+          if (barCode !== "" && event) {
+            handleSearchProduct(event.key,barCode);
+            barCode = "";
+          }
+        }
+        return;
+      }
+    },
+    [handleSearchProduct]
+  );
+
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
 
@@ -508,11 +548,13 @@ const DetailTicket: FC = () => {
   },[onSelectProduct])
 
   useEffect(() => {
-      window.addEventListener("keydown", eventKeydown);
-      return () => {
-        window.removeEventListener("keydown", eventKeydown);
-      };
-  }, [eventKeydown]);
+    window.addEventListener("keydown", eventKeydown);
+    window.addEventListener("keypress", eventKeyPress);
+    return () => {
+      window.removeEventListener("keydown", eventKeydown);
+      window.addEventListener("keypress", eventKeyPress);
+    };
+}, [eventKeyPress, eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -558,7 +600,12 @@ const DetailTicket: FC = () => {
       ),
     },
     {
-      title: "Số lượng",
+      title: <div>
+        <div>SL</div>
+        <div className="text-center">
+          {data?.total_quantity}
+        </div>
+      </div>,
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
@@ -597,13 +644,13 @@ const DetailTicket: FC = () => {
     {
       title: "STT",
       align: "center",
-      width: "70px",
+      width: "50px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
         index + 1,
     },
     {
       title: "Ảnh",
-      width: "60px",
+      width: "50px",
       dataIndex: "variant_image",
       render: (value: string) => {
         return (
@@ -615,7 +662,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: "Sản phẩm",
-      width: "200px",
+      width: "150px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem) => (
@@ -651,8 +698,13 @@ const DetailTicket: FC = () => {
       },
     },
     {
-      title: "Số lượng",
-      width: 100,
+      title: <div>
+        <div>SL</div>
+        <div className="text-center">
+          {data?.total_quantity}
+        </div>
+      </div>,
+      width: 40,
       align: "center",
       dataIndex: "transfer_quantity",
     },
@@ -671,13 +723,19 @@ const DetailTicket: FC = () => {
       },
     },
     {
-      title: "Thực nhận",
+      title: <div>
+        <div>Thực nhận</div>
+        <div className="text-center">
+          {getTotalRealQuantity()}
+        </div>
+      </div>,
       dataIndex: "real_quantity",
       align: "center",
-      width: 100,
+      width: 70,
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
@@ -688,7 +746,7 @@ const DetailTicket: FC = () => {
             className={value && value < row.transfer_quantity
               ? 'border-red'
               : value && value > row.transfer_quantity
-                ? 'border-orange'
+                ? 'border-red'
                 : ''}
           />
         }
@@ -700,7 +758,7 @@ const DetailTicket: FC = () => {
     {
       title: "Lệch",
       align: "center",
-      width: 200,
+      width: 100,
       render: (item, row: LineItem) => {
         const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
         if (totalDifference) {
@@ -717,7 +775,7 @@ const DetailTicket: FC = () => {
     {
       title: "",
       fixed: dataTable?.length !== 0 && "right",
-      width: 50,
+      width: 40,
       dataIndex: "transfer_quantity",
       render: (value: string, row, index) => {
         if (
@@ -822,7 +880,8 @@ const DetailTicket: FC = () => {
     );
 
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-  }, [dispatch, idNumber, onResult]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateNote = (key: string) => {
     updateNoteApi(key);
@@ -1057,7 +1116,7 @@ const DetailTicket: FC = () => {
                         )}}
                       />
                       {
-                         data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  (
+                         data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
                           <div className="inventory-transfer-action">
                             <AuthWrapper
                               acceptPermissions={[InventoryTransferPermission.receive]}
@@ -1190,7 +1249,7 @@ const DetailTicket: FC = () => {
                     </Col>
                     <Col span={24}>
                       <span className="text-focus">
-                        {data.attached_files?.map(
+                        {Array.isArray(data.attached_files) && data.attached_files.length > 0 && data.attached_files?.map(
                           (link: string, index: number) => {
                             return (
                               <a
@@ -1256,13 +1315,15 @@ const DetailTicket: FC = () => {
                             Kiểm kho theo sản phẩm
                           </Button>
                         </AuthWrapper>
-                        <AuthWrapper
-                          acceptPermissions={[InventoryTransferPermission.balance]}
-                        >
-                          <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
-                            Cân bằng nhanh
-                          </Button>
-                        </AuthWrapper>
+                        {isHavePermissionQuickBalance && (
+                          <AuthWrapper
+                            acceptPermissions={[InventoryTransferPermission.balance]}
+                          >
+                            <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
+                              Cân bằng nhanh
+                            </Button>
+                          </AuthWrapper>
+                        )}
                       </>
                     )
                   }

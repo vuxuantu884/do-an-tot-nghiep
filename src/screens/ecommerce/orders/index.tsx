@@ -62,9 +62,11 @@ import { HttpStatus } from "config/http-status.config";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {
+  batchShippingAction,
   downloadPrintForm,
   exitEcommerceJobsAction,
   exitProgressDownloadEcommerceAction,
+  getAddressByShopIdAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { changeEcommerceOrderStatus } from "domain/actions/ecommerce/ecommerce.actions";
 import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
@@ -85,7 +87,15 @@ import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-
 import queryString from "query-string";
 import { EcommerceOrderList, EcommerceOrderStatus } from "model/request/ecommerce.request";
 import { EcommerceChangeOrderStatusReponse, ChangeOrderStatusErrorLine, ChangeOrderStatusErrorLineType } from "model/response/ecommerce/ecommerce.response";
+import { ErrorMessageBatchShipping, ShopAddressByShopId } from "model/ecommerce/ecommerce.model";
+import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
+import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
+import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
 
+const BATCHING_SHIPPING_TYPE = {
+  SELECTED: "SELECTED",
+  FILTERED: "FILTERED"
+}
 
 const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
@@ -171,6 +181,22 @@ const EcommerceOrders: React.FC = () => {
     ordersFound: 4,
   };
 
+  //report shopee preparation product
+  const [showReportPreparationModal, setShowReportPreparationModal] = useState(false)
+  const [showPreparationModal, setShowPreparationModal] = useState(false)
+  const [conFirmPreparationShopeeProduct, setConfirmPreparationShopeeProduct] = useState(false);
+  const [showButtonConfirm, setIsShowButtonConfirm] = useState(true);
+  const [isReportShopeeSelected, setReportShopeeSelected] = useState(true);
+  const [isReportShopeeFilter, setReportShopeeFilter] = useState(true);
+  const [ecommerceShopAddress, setEcommerceShopAddress] = useState<any>([]);
+  const [ecommerceShopListByAddress, setEcommerceShopListByAddress] = useState<any>([]);
+  const [shopeePreparationData, setShopeePreparationData] = useState<Array<ErrorMessageBatchShipping>>([]);
+  const [listShopPickUpAddress, setListShopPickUpAddress] = useState<Array<any>>([]);
+  const [listShopOrderList, setListShopOrderList] = useState<Array<any>>([]);
+  const [orderSuccessMessage, setOrderSuccessMessage] = useState<any>([]);
+  const [orderErrorMessage, setOrderErrorMessage] = useState<any>([]);
+  const [batchShippingType, setBatchShippingType] = useState("");
+  
   //export order
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -208,6 +234,8 @@ const EcommerceOrders: React.FC = () => {
     items: [],
   });
 
+  const [successDeliveryNote, setSuccessDeliveryNote] = useState<Array<string>>([]);
+  
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
@@ -229,13 +257,16 @@ const EcommerceOrders: React.FC = () => {
       }
       switch (optionExport) {
         case EXPORT_IDs.allOrders:
-          newParams = {};
-          newParams.channel_codes = ALL_CHANNEL;
+          newParams = {
+            channel_codes: ALL_CHANNEL
+          };
           break;
         case EXPORT_IDs.ordersOnThisPage:
           break;
         case EXPORT_IDs.selectedOrders:
-          newParams.code = selectedRowCodes;
+          newParams = {
+            code: selectedRowCodes
+          };
           break;
         case EXPORT_IDs.ordersFound:
           delete newParams.page;
@@ -245,6 +276,7 @@ const EcommerceOrders: React.FC = () => {
           break;
       }
 
+      newParams.is_online = true;
       let queryParams = generateQuery(newParams);
       exportFile({
         conditions: queryParams,
@@ -339,6 +371,49 @@ const EcommerceOrders: React.FC = () => {
     },
     []
   );
+
+  const handleBatchShippingShopeeProduct = (data: Array<ErrorMessageBatchShipping>) => {
+    setShopeePreparationData(data)
+  }
+
+  const handlePreparationShopeeProductModal = () => {
+    setConfirmPreparationShopeeProduct(true)
+    setIsShowButtonConfirm(true)
+    setBatchShippingType("")
+    setShowPreparationModal(false)
+
+    switch(batchShippingType) {
+      case "SELECTED":
+        setListShopPickUpAddress([])
+        dispatch(
+          batchShippingAction({
+            shipping_order_list: listShopOrderList,
+            list_shop_pickup: null,
+            search_query: null,
+          }, handleBatchShippingShopeeProduct
+        ))
+        break;
+      case "FILTERED":
+        setListShopOrderList([])
+        const convertChannelCodeToArr = Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes]
+        const convertEcommerceShopIdToArr = Array.isArray(params.ecommerce_shop_ids) ? params.ecommerce_shop_ids : [params.ecommerce_shop_ids]
+        dispatch(
+          batchShippingAction({
+            shipping_order_list: null,
+            list_shop_pickup: listShopPickUpAddress,
+            search_query: { ...params, channel_codes: convertChannelCodeToArr,  ecommerce_shop_ids: convertEcommerceShopIdToArr},
+          }, handleBatchShippingShopeeProduct
+        ))
+        break;
+      default:
+        return
+
+    }
+  }
+
+  const handleConfirmPreparationShopeeProductModal = () => {
+    setConfirmPreparationShopeeProduct(false)
+  }
 
   const getEcommerceOrderList = useCallback(() => {
     const requestParams = { ...params };
@@ -747,10 +822,13 @@ const EcommerceOrders: React.FC = () => {
   ]);
 
   const onSelectTableRow = useCallback((selectedRowTable) => {
+    setReportShopeeSelected(false)
     setSelectedRow(selectedRowTable);
     const newSelectedRow = selectedRowTable.filter((row: any) => {
       return row !== undefined;
     });
+    
+    setSelectedRow(newSelectedRow);
 
     const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowIds);
@@ -789,7 +867,95 @@ const EcommerceOrders: React.FC = () => {
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);
 
+  const handleGetAddressByShopId = (data: ShopAddressByShopId) => {
+    setEcommerceShopAddress(data)
+  }
 
+  const [referenceCodeByShopAddress, setReferenceCodeByShopAddress] = useState<Array<any>>([]);
+
+  const handleReportPreparationShopeeProductModal = () => {
+    const shopIds : any[] = [];
+    selectedRow.length && selectedRow.map(
+      item => (item.ecommerce_shop_id !== null && shopIds.includes(item.ecommerce_shop_id))
+      ? "" : shopIds.push(item.ecommerce_shop_id)
+    );
+
+
+    shopIds.forEach((id: any) => {
+      const checkReferenceCode = selectedRow.filter((ref) => ref.ecommerce_shop_id === id);
+      const listReferenceCodeByAddress = checkReferenceCode.map((item) => item.reference_code)
+
+      const orderListShopByAddress = {
+        shop_id: id,
+        order_list: listReferenceCodeByAddress
+      }
+      setReferenceCodeByShopAddress((prev: any) => [...prev, orderListShopByAddress])
+    })
+  
+    if (batchShippingType === BATCHING_SHIPPING_TYPE.FILTERED) {
+      const queryParam = { ...params };
+      queryParam.page = null;
+      queryParam.limit = null;
+      queryParam.channel_codes = [];
+      const generateQueryParam = generateQuery(queryParam);
+      if (!generateQueryParam) {
+        showError("Chưa áp dụng bộ lọc sản phẩm. Vui lòng kiểm tra lại.");
+        setShowReportPreparationModal(false)
+        setShowPreparationModal(false)
+        setBatchShippingType("")
+      }else {
+        setShowReportPreparationModal(false)
+        setShowPreparationModal(true)
+      }
+    }
+
+    switch(batchShippingType) {
+      case "SELECTED":
+        setShowPreparationModal(true)
+        dispatch(
+          getAddressByShopIdAction(
+          {
+            shop_ids: shopIds,
+          },
+          handleGetAddressByShopId
+          )
+        );
+        break;
+      case "FILTERED":  
+        if (!params.ecommerce_shop_ids.length) {
+          setShowPreparationModal(false)
+          setConfirmPreparationShopeeProduct(true)
+
+          const convertChannelCodeToArr = Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes]
+          const convertEcommerceShopIdToArr = Array.isArray(params.ecommerce_shop_ids) ? params.ecommerce_shop_ids : [params.ecommerce_shop_ids]
+
+          dispatch(
+            batchShippingAction({
+              shipping_order_list: null,
+              list_shop_pickup: [],
+              search_query: { ...params, channel_codes: convertChannelCodeToArr,  ecommerce_shop_ids: convertEcommerceShopIdToArr},
+            }, handleBatchShippingShopeeProduct
+          ))
+          return
+        }else {
+          setShowPreparationModal(true)
+        }
+        dispatch(
+          getAddressByShopIdAction(
+          {
+            shop_ids: params.ecommerce_shop_ids,
+          },
+          handleGetAddressByShopId
+          )
+        );
+        break;
+      default:
+        return;
+    }
+    setShowReportPreparationModal(false)
+  }
+
+  
   // handle process modal
   const [isVisibleProcessModal, setIsVisibleProcessModal] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -848,6 +1014,9 @@ const EcommerceOrders: React.FC = () => {
             setIsProcessing(false);
             setCommonProcessId(null);
             setCommonProcessPercent(100);
+            
+            setSuccessDeliveryNote(responseData.success_list ? responseData.success_list.split(",") : []);
+            
             if (!responseData.api_error) {
               showSuccess(`${processMessage.success}`);
             } else {
@@ -884,13 +1053,28 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(false);
     }
   }, [isVisibleProcessModal]);
+  
+  const handleChangeEcommerceOrderStatusToPicked = () => {
+    const orderPickedList: Array<any> = [];
+    successDeliveryNote?.forEach((referenceCode) => {
+      const order = selectedRow?.find((row) => row.reference_code?.toString().toUpperCase() === referenceCode?.toString().toUpperCase());
+      if (order) {
+        orderPickedList.push(order);
+      }
+    });
+    handleChangeOrderStatusToPicked(orderPickedList);
+  }
 
-  const okPrintEcommerceDeliveryNote = () => {
+  const okPrintEcommerceDeliveryNote = (isPick: boolean) => {
     setIsVisibleProcessModal(false);
     // setIsPrintEcommerceDeliveryNote(false);
     if (commonProcessData?.url) {
       showSuccess("Tải phiếu giao hàng sàn thành công!");
       window.open(commonProcessData?.url);
+
+      if (isPick) {
+        handleChangeEcommerceOrderStatusToPicked();
+      }
     } else {
       showError("Tải phiếu giao hàng sàn thất bại!");
     }
@@ -912,7 +1096,7 @@ const EcommerceOrders: React.FC = () => {
       setIsVisibleProcessModal(true);
       setIsProcessing(true);
       setProcessMessage({
-        success: "Tải dữ liệu phiếu giao hàng sàn thành công!",
+        success: "Đã tải dữ liệu phiếu giao hàng sàn.",
       })
 
       setExitProcessModal({
@@ -976,17 +1160,17 @@ const EcommerceOrders: React.FC = () => {
   }, [selectedRowKeys, data?.items, dispatch])
 
   // change order status to picked
-  const handleChangeOrderStatusToPicked = useCallback(() => {
-    let ids: number[] = [];
-    selectedRow?.forEach((row) =>
-      row?.fulfillments?.forEach((single) => {
-        ids.push(single?.id);
+  const handleChangeOrderStatusToPicked = useCallback((orderList) => {
+    const fulfillmentIds: Array<number> = [];
+    orderList?.forEach((row: any) =>
+      row?.fulfillments?.forEach((single: any) => {
+        fulfillmentIds.push(single?.id);
       })
     );
 
-    if (ids?.length) {
+    if (fulfillmentIds?.length) {
       dispatch(showLoading());
-      changeOrderStatusToPickedService(ids)
+      changeOrderStatusToPickedService(fulfillmentIds)
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             showSuccess("Đã chuyển trạng thái xử lý đơn hàng.")
@@ -1001,11 +1185,9 @@ const EcommerceOrders: React.FC = () => {
           dispatch(hideLoading());
         });
     }
-  }, [dispatch, selectedRow]);
+  }, [dispatch]);
   
   const handlePrintEcommerceDeliveryNote = useCallback(() => {
-    handleChangeOrderStatusToPicked();
-
     if (selectedRowKeys?.length > 0) {
       let order_list: any = [];
       selectedRowKeys.forEach(idSelected => {
@@ -1025,7 +1207,7 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(true);
       dispatch(downloadPrintForm({order_list}, downloadEcommerceDeliveryNote))
     }
-  }, [selectedRowKeys, handleChangeOrderStatusToPicked, dispatch, downloadEcommerceDeliveryNote, data?.items]);
+  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
   // handle print ecommerce delivery note
 
   // handle print yody delivery note
@@ -1045,10 +1227,25 @@ const EcommerceOrders: React.FC = () => {
   );
 
   const handlePrintShipment = () => {
-    handleChangeOrderStatusToPicked();
+    handleChangeOrderStatusToPicked(selectedRow);
     printAction("shipment");
   }
   // end handle print yody delivery note
+
+  //handle preparation shopee product
+  const handlePreparationShopeeProduct = () => {
+    setShowReportPreparationModal(true)
+    const queryParam = { ...params };
+      queryParam.page = null;
+      queryParam.limit = null;
+      queryParam.channel_codes = [];
+      const generateQueryParam = generateQuery(queryParam);
+      if (generateQueryParam) {
+        setReportShopeeFilter(false)
+       
+      }
+
+  }
 
   const handleExportOrder = () => {
     if (listExportFile.length) {
@@ -1106,6 +1303,16 @@ const EcommerceOrders: React.FC = () => {
     }
   ];
   // end handle action button
+
+  const shopeeActions = [
+    {
+      id: "shopee_ready_create_product",
+      name: "Báo shopee chuẩn bị hàng",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length && !params,
+      onClick: handlePreparationShopeeProduct
+    }
+  ]
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -1175,9 +1382,13 @@ const EcommerceOrders: React.FC = () => {
       dispatch(getListSourceRequest(setListSource));
       dispatch(PaymentMethodGetList(setListPaymentMethod));
       dispatch(StoreGetListAction(setStore));
+
       dispatch(
         actionFetchListOrderProcessingStatus(
-          {},
+          {
+            sort_type: "asc",
+            sort_column: "display_order",
+          },
           (data: OrderProcessingStatusResponseModel) => {
             setListOrderProcessingStatus(data.items);
           }
@@ -1303,11 +1514,24 @@ const EcommerceOrders: React.FC = () => {
     }
   }
 
+  //get amout order success when preparation shopee
+  useEffect(() => {
+    const listOrderErrorMessage: any[] = []
+    shopeePreparationData?.length && shopeePreparationData?.filter((order) => order.error !== "" && listOrderErrorMessage.push(order.message))
+    setOrderErrorMessage(listOrderErrorMessage)
+  }, [shopeePreparationData]);
+
+  useEffect(() => {
+    const listOrderSuccessMessage: any[] = []
+    shopeePreparationData?.length && shopeePreparationData?.filter((order) => order.error === "" && listOrderSuccessMessage.push(order.message))
+    setOrderSuccessMessage(listOrderSuccessMessage)
+  }, [shopeePreparationData]);
+
   useEffect(() => {
     let dataQuery: EcommerceOrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
-    };
+    };    
     setPrams(dataQuery);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch,setSearchResult, location.search]);
@@ -1350,20 +1574,21 @@ const EcommerceOrders: React.FC = () => {
           {(allowed: boolean) => (allowed ?
             <Card>
               <EcommerceOrderFilter
-                actions={actions}
-                shopeeActions={[]}
-                lazadaActions={lazadaActions}
-                onFilter={onFilter}
-                isLoading={tableLoading}
-                params={params}
-                listSource={listSource}
-                listStore={listStore}
-                accounts={accounts}
-                deliveryService={deliveryServices}
-                listPaymentMethod={listPaymentMethod}
-                subStatus={listOrderProcessingStatus}
-                onShowColumnSetting={() => setShowSettingColumn(true)}
-                onClearFilter={() => onClearFilter()}
+                 actions={actions}
+                 shopeeActions={shopeeActions}
+                 lazadaActions={lazadaActions}
+                 onFilter={onFilter}
+                 isLoading={tableLoading}
+                 params={params}
+                 listSource={listSource}
+                 listStore={listStore}
+                 accounts={accounts}
+                 deliveryService={deliveryServices}
+                 listPaymentMethod={listPaymentMethod}
+                 subStatus={listOrderProcessingStatus}
+                 setEcommerceShopListByAddress={setEcommerceShopListByAddress}
+                 onClearFilter={() => onClearFilter()}
+ 
               />
 
               <CustomTable
@@ -1420,7 +1645,8 @@ const EcommerceOrders: React.FC = () => {
           <PrintEcommerceDeliveryNoteProcess
             visible={isPrintEcommerceDeliveryNote && isVisibleProcessModal}
             isProcessing={isProcessing}
-            onOk={okPrintEcommerceDeliveryNote}
+            onOk={() => okPrintEcommerceDeliveryNote(false)}
+            onPrintAndPick={() => okPrintEcommerceDeliveryNote(true)}
             onCancel={cancelPrintEcommerceDeliveryNote}
             processData={commonProcessData}
             processPercent={commonProcessPercent}
@@ -1490,6 +1716,61 @@ const EcommerceOrders: React.FC = () => {
             exportProgress={exportProgress}
             statusExport={statusExport}
             selected={!!selectedRowCodes.length}
+          />
+        )}
+
+        {showReportPreparationModal && (
+            <ReportPreparationShopeeProductModal
+                title="Báo Shopee chuẩn bị hàng"
+                visible={showReportPreparationModal}
+                onOk={handleReportPreparationShopeeProductModal}
+                onCancel={() => {setShowReportPreparationModal(false)}}
+                okText="Xác nhận"
+                cancelText="Hủy"
+                params={params}
+                total={data.metadata.total}
+                showButtonConfirm={showButtonConfirm}
+                setIsShowButtonConfirm={setIsShowButtonConfirm}
+                isReportShopeeSelected={isReportShopeeSelected}
+                isReportShopeeFilter={isReportShopeeFilter}
+                selectedRow={selectedRow}
+                BATCHING_SHIPPING_TYPE={BATCHING_SHIPPING_TYPE}
+                batchShippingType={batchShippingType}
+                setBatchShippingType={setBatchShippingType}
+            />
+        )}
+
+        {showPreparationModal && (
+            <PreparationShopeeProductModal
+                title="Chuẩn bị hàng"
+                visible={showPreparationModal}
+                onOk={handlePreparationShopeeProductModal}
+                onCancel={() => {
+                  setShowPreparationModal(false)
+                }}
+                okText="Xác nhận" 
+                cancelText="Hủy"
+                referenceCodeByShopAddress={referenceCodeByShopAddress}
+                ecommerceShopAddress={ecommerceShopAddress}
+                ecommerceShopListByAddress={ecommerceShopListByAddress}
+                listShopOrderList={listShopOrderList}
+                setListShopOrderList={setListShopOrderList}
+                listShopPickUpAddress={listShopPickUpAddress}
+                setListShopPickUpAddress={setListShopPickUpAddress}
+            />
+        )}
+
+        {conFirmPreparationShopeeProduct && (
+          <ConfirmPreparationShopeeProductModal
+             title="Báo Shopee chuẩn bị hàng"
+             visible={conFirmPreparationShopeeProduct}
+             onOk={handleConfirmPreparationShopeeProductModal}
+             onCancel={() => setConfirmPreparationShopeeProduct(false)}
+             okText="Xác nhận"
+             cancelText="Hủy"
+             shopeePreparationData={shopeePreparationData}
+             orderSuccessMessage={orderSuccessMessage}
+             orderErrorMessage={orderErrorMessage}
           />
         )}
       </ContentContainer>

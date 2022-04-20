@@ -82,6 +82,8 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
                   placeholder="Nhập số điện thoại mới"
                   allowClear
                   onChange={onNewPhoneChange}
+                  minLength={9}
+                  maxLength={15}
                 />
               </Form.Item>
               <Button

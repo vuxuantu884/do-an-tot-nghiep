@@ -1,19 +1,19 @@
-import { Button, Card, Form, Input, Select, Table, Tooltip } from "antd"
-import ContentContainer from "component/container/content.container"
-import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-visitors"
+import { Button, Card, Form, Input, Select, Table, Tooltip } from "antd";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
+import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-visitors";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { getCustomerVisitors, updateCustomerVisitors } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { CustomerVisitorsStyle } from "./index.style"
-import UrlConfig from "config/url.config";
+import { CustomerVisitorsStyle } from "./index.style";
 
 function CustomerVisitors() {
     const [form] = Form.useForm();
@@ -34,10 +34,11 @@ function CustomerVisitors() {
     const [isFilter, setIsFilter] = useState<boolean>(true);
 
     const currentYear = moment().year();
-    const numberOfYears = 10;
+    const currentMonth = moment().month() + 1;
+    const startYear = 2018;
     const initialFilterValues = {
         [CustomerVisitorsFilter.StoreIds]: [],
-        [CustomerVisitorsFilter.Month]: moment().month() + 1,
+        [CustomerVisitorsFilter.Month]: currentMonth,
         [CustomerVisitorsFilter.Year]: currentYear,
     }
 
@@ -49,7 +50,7 @@ function CustomerVisitors() {
 
     useEffect(() => {
         const years = [];
-        for (let i = currentYear; i > currentYear - numberOfYears; --i) {
+        for (let i = currentYear; i >= startYear; --i) {
             years.push(i.toString());
         }
         setYearList(years);
@@ -91,8 +92,8 @@ function CustomerVisitors() {
                     if (existedStore) {
                         return { storeName: name, code, department, ...existedStore };
                     }
-                    const dayValues = Array.from({ length: moment(`${year}-${month}`).daysInMonth() }, (x, i) => {
-                        return { [`day${moment().startOf('month').add(i, 'days').format('DD')}`]: 0 }
+                    const dayValues = Array.from({ length: moment(`${year}-${month}`, 'YYYY-M').daysInMonth() }, (x, i) => {
+                        return { [`day${moment(`${year}-${month}`, 'YYYY-M').startOf('month').add(i, 'days').format('DD')}`]: 0 }
                     }).reduce((result, item) => {
                         return { ...result, ...item }
                     }, {});
@@ -101,14 +102,17 @@ function CustomerVisitors() {
                     }
                 })
                 const columnsTmp: any[] = [];
-                Array.from({ length: moment(`${year}-${month}`).daysInMonth() }, (x, i) => `${moment().startOf('month').add(i, 'days').format('DD')}`).forEach((day: string) => {
+                Array.from({ length: moment(`${year}-${month}`, 'YYYY-M').daysInMonth() }, (x, i) => `${moment(`${year}-${month}`, 'YYYY-M').startOf('month').add(i, 'days').format('DD')}`).forEach((day: string) => {
                     const column = {
                         title: day,
                         dataIndex: `day${day}`,
                         key: `day${day}`,
+                        isToday: currentYear === year && currentMonth === month && +day === +moment().date()
                     }
                     columnsTmp.push(column);
+                    
                 })
+
                 setColumns((prev) => [...prev, ...columnsTmp, {
                     title: 'Thao tác',
                     dataIndex: 'actions',
@@ -122,7 +126,7 @@ function CustomerVisitors() {
         if (yearList.length && stores.length && isFilter) {
             fetchCustomerVisitors();
         }
-    }, [dispatch, form, stores, yearList.length, isFilter])
+    }, [dispatch, form, stores, yearList.length, isFilter, currentYear, currentMonth])
 
     const handleChangeVisitors = _.debounce((record: any, key: string, event: any) => {
         const { store_id } = record;
@@ -150,6 +154,12 @@ function CustomerVisitors() {
             }
         }
     }
+    const currentDay = document.querySelector('.current-day');
+    useLayoutEffect(() => {   
+        if (currentDay) {
+            currentDay.scrollIntoView({ block: "center", behavior: "auto", inline: "center" });
+        }
+    }, [currentDay]);
 
     return (
         <CustomerVisitorsStyle>
@@ -157,20 +167,18 @@ function CustomerVisitors() {
                 isLoading={loading}
                 title={'Nhập số lượng khách vào cửa hàng'}
                 breadcrumb={[{
-                    name: `Danh sách báo cáo bán hàng`,
-                    path: UrlConfig.ANALYTIC_SALES,
+                    name: `Danh sách báo cáo bán lẻ`,
+                    path: UrlConfig.ANALYTIC_SALES_OFFLINE,
                 }, { name: 'Nhập số lượng khách vào cửa hàng' }]}
             >
                 <Form form={form} name="filter-block" initialValues={initialFilterValues}>
                     <Card bodyStyle={{ paddingBottom: 0, paddingTop: 0 }} title="Bộ lọc">
-                        <div className="w-100 d-flex justify-content-start align-items-end">
+                        <div className="d-flex justify-content-start align-items-end pt-3">
                             <Form.Item
-                                label="Cửa hàng"
                                 name={CustomerVisitorsFilter.StoreIds}
-                                labelCol={{ span: 24 }}
+                                className="input-width"
                                 help={false}>
                                 <TreeStore
-                                    className="input-width"
                                     form={form}
                                     name={CustomerVisitorsFilter.StoreIds}
                                     placeholder="Chọn cửa hàng"
@@ -178,13 +186,10 @@ function CustomerVisitors() {
                                 />
                             </Form.Item>
                             <Form.Item
-                                label="Tháng"
                                 name={CustomerVisitorsFilter.Month}
-                                labelCol={{ span: 24 }}
-                                className="px-2"
+                                className="input-width"
                                 help={false}>
                                 <Select
-                                    className="input-width"
                                     placeholder="Chọn tháng">
                                     {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map((month) => {
                                         return (
@@ -196,12 +201,10 @@ function CustomerVisitors() {
                                 </Select>
                             </Form.Item>
                             <Form.Item
-                                label="Năm"
                                 name={CustomerVisitorsFilter.Year}
-                                labelCol={{ span: 24 }}
+                                className="input-width"
                                 help={false}>
                                 <Select
-                                    className="input-width"
                                     placeholder="Chọn năm">
                                     {yearList.map((year) => {
                                         return (
@@ -225,11 +228,10 @@ function CustomerVisitors() {
                                 <Table
                                     dataSource={customerVisitors}
                                     loading={loadingTable}
-                                    scroll={{ x: 1000, y: 450 }}
-                                    sticky={{ offsetScroll: 55, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
-                                    pagination={false}
+                                    scroll={{ x: 1000 }}
+                                    sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+                                    pagination={{defaultPageSize: 30, showSizeChanger: false }}
                                     bordered={true}
-
                                 >
                                     {columns.map((item: any, index: number) => {
                                         return (
@@ -239,9 +241,12 @@ function CustomerVisitors() {
                                                 className="px-1"
                                                 title={
                                                     <Tooltip
-                                                        title={item.title}>
-                                                        {item.title}
+                                                        title={item.key.includes('day') ? (item.isToday ? 'Hôm nay' : `${item.title}/${form.getFieldValue(CustomerVisitorsFilter.Month)}/${form.getFieldValue(CustomerVisitorsFilter.Year)}`) : item.title}>
+                                                            <span className={item.isToday ? 'text-primary' : ''}>
+                                                                {item.title}
+                                                            </span>
                                                     </Tooltip>
+                                                    
                                                 }
                                                 fixed={
                                                     index > 0 && index < columns.length - 1
@@ -249,10 +254,13 @@ function CustomerVisitors() {
                                                         : (index === 0 ? 'left' : 'right')
                                                 }
                                                 key={index}
-                                                width={index > 0 ? (index === columns.length - 1 ? 100 : 80) : 150}
+                                                width={index > 0 ? (index === columns.length - 1 ? 100 : 80) : 160}
                                                 render={(record: any) => {
                                                     return (
-                                                        index > 0 ? (index === columns.length - 1 ? <Button type="primary" className="px-1" size="small" onClick={() => handleUpdateCustomerVisitors(record.store_id)}>Cập nhật</Button> : <Input style={{ width: "100%" }} defaultValue={record[item.key]} onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()} onChange={(e) => handleChangeVisitors(record, item.key, e)} />) : record[item.key]
+                                                        index > 0 ? (index === columns.length - 1 ? <Button type="primary" className="px-1" size="small" onClick={() => handleUpdateCustomerVisitors(record.store_id)}>Cập nhật</Button> : 
+                                                        <div className={item.isToday ? 'current-day' : ''}>
+                                                                <Input style={{ width: "100%" }} defaultValue={record[item.key]} onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()} onChange={(e) => handleChangeVisitors(record, item.key, e)} />
+                                                            </div>) : record[item.key]
                                                     )
                                                 }}
                                             />)

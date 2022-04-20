@@ -11,6 +11,7 @@ import { supplierSagas } from "./core/supplier.saga";
 import { customerGroupSaga } from "./customer/customer-group.saga";
 import customerSagas from "./customer/customer.saga";
 import { ecommerceSaga } from "./ecommerce/ecommerce.saga";
+import { webAppSaga } from "./web-app/web-app.saga";
 import { inventorySaga } from "./invetory/inventory.saga";
 import { inventoryTransferSaga } from "./invetory/inventory-transfer.saga";
 import { loyaltySaga } from "./loyalty/loyalty.saga";
@@ -41,6 +42,7 @@ import { collectionSaga } from "./product/collection.saga";
 import { OrderDuplicateSaga } from "./order/order-duplicate.saga";
 import { importSaga } from "./core/import.saga";
 import bankAccountSagas from "./bank/bank-account.saga";
+import { warrantySaga } from "./warranty/warranty.saga";
 
 function* rootSaga() {
   yield all([
@@ -76,6 +78,7 @@ function* rootSaga() {
     settingOrdersSaga(),
     loyaltySaga(),
     ecommerceSaga(),
+    webAppSaga(),
     OrderReturnSaga(),
     inventoryAdjustmentSaga(),
     discountSaga(),
@@ -85,7 +88,8 @@ function* rootSaga() {
     moduleSaga(),
     OrderDuplicateSaga(),
     importSaga(),
-    bankAccountSagas()
+    bankAccountSagas(),
+    warrantySaga()
   ]);
 }
 

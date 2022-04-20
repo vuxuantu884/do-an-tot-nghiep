@@ -16,7 +16,6 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
 import {
   creatInventoryTransferAction,
-  getDetailInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
@@ -37,12 +36,10 @@ import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { Link } from "react-router-dom";
-import { InventoryResponse } from "model/inventory";
 import { callApiNative } from "utils/ApiUtils";
 import { getAccountDetail } from "service/accounts/account.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import { AccountStoreResponse } from "model/account/account.model";
-import { RegUtil } from "utils/RegUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
@@ -218,7 +215,7 @@ const CreateTicket: FC = () => {
 
     if (item)
       selectedItem = item;
-
+      
     if (
       !dataTemp.some(
         (variant: VariantResponse) => variant.sku === selectedItem.sku
@@ -234,8 +231,6 @@ const CreateTicket: FC = () => {
       })
       setDataTable(dataTemp);
     }
-    setKeySearch("");
-    barCode="";
     setResultSearch([]);
 
     form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
@@ -326,10 +321,8 @@ const CreateTicket: FC = () => {
     (result: InventoryTransferDetailItem) => {
       setIsLoading(false);
       if (result) {
-        dispatch(getDetailInventoryTransferAction(result.id, () => {
-          showSuccess("Thêm mới dữ liệu thành công");
-          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
-        }));
+        showSuccess("Thêm mới dữ liệu thành công");
+        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -339,20 +332,24 @@ const CreateTicket: FC = () => {
   const onResultGetDetailVariantIds = useCallback( result => {
     if (result) {
       setIsLoadingTable(false);
-      const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable, newOnHand;
-        result?.forEach((itemNew: InventoryResponse) => {
-          if (itemNew.variant_id === itemOld.id) {
-            newAvailable = itemNew.available;
-            newOnHand = itemNew.on_hand;
+
+      let newDataTable = [...dataTable];
+
+      const storeId = form.getFieldValue("from_store_id");
+
+      for (let i = 0; i < newDataTable.length; i++) {
+        for (let j = 0; j < result.length; j++) {
+          if (storeId === result[j].store_id && newDataTable[i].variant_id === result[j].variant_id) {
+            newDataTable[i].available = result[j].available;
+            newDataTable[i].on_hand = result[j].on_hand;
+            break;
           }
-        });
-        return {
-          ...itemOld,
-          available: newAvailable,
-          on_hand: newOnHand,
-        };
-      });
+
+          if (j === result.length - 1 && i === newDataTable.length - 1) {
+            newDataTable = [];
+          }
+        }
+      }
 
       setDataTable(newDataTable);
     } else {
@@ -402,34 +399,34 @@ const CreateTicket: FC = () => {
   }, [stores, fromStores]);
 
   const onFinish = (data: StockTransferSubmit) => {
-    let countError = 0;
-    let arrError: Array<string> = [];
-    dataTable?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        arrError.push(`${index + 1}`);
-        countError++;
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-
-
-    if (countError > 0) {
-      showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-      return;
-    }
+    // let countError = 0;
+    // let arrError: Array<string> = [];
+    // dataTable?.forEach((element: VariantResponse, index: number) => {
+    //   const thisInput = document.getElementById(`item-quantity-${index}`);
+    //   if (!element.transfer_quantity) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (element.transfer_quantity === 0) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (
+    //     element.transfer_quantity > (element.available ? element.available : 0)
+    //   ) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     arrError.push(`${index + 1}`);
+    //     countError++;
+    //   } else {
+    //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+    //   }
+    // });
+    //
+    //
+    // if (countError > 0) {
+    //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
+    //   return;
+    // }
 
     stores.forEach((store) => {
       if (store?.id === Number(data?.from_store_id)) {
@@ -487,55 +484,55 @@ const CreateTicket: FC = () => {
     dispatch(creatInventoryTransferAction(data, createCallback));
   };
 
-  const checkError = (index: number) => {
-    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
-    const thisInput = document.getElementById(`item-quantity-${index}`);
+  // const checkError = (index: number) => {
+  //   const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
+  //   const thisInput = document.getElementById(`item-quantity-${index}`);
+  //
+  //   if (dataLineItems[index].transfer_quantity === 0) {
+  //     showError("Số lượng phải lớn hơn 0");
+  //     if (thisInput) thisInput.style.borderColor = "red";
+  //   } else if (
+  //     dataLineItems[index].transfer_quantity >
+  //     (dataLineItems[index].available ? dataLineItems[index].available : 0)
+  //   ) {
+  //     showError("Không đủ tồn kho gửi");
+  //     if (thisInput) thisInput.style.borderColor = "red";
+  //   } else {
+  //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+  //   }
+  //
+  //   dataLineItems?.forEach((element: VariantResponse, index: number) => {
+  //     const thisInput = document.getElementById(`item-quantity-${index}`);
+  //     if (!element.transfer_quantity) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else if (element.transfer_quantity === 0) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else if (
+  //       element.transfer_quantity > (element.available ? element.available : 0)
+  //     ) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else {
+  //       if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+  //     }
+  //   });
+  // };
 
-    if (dataLineItems[index].transfer_quantity === 0) {
-      showError("Số lượng phải lớn hơn 0");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else if (
-      dataLineItems[index].transfer_quantity >
-      (dataLineItems[index].available ? dataLineItems[index].available : 0)
-    ) {
-      showError("Không đủ tồn kho gửi");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else {
-      if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-    }
-
-    dataLineItems?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-  };
-
-  const isError = useMemo(()=>{
-    if (!fromStoreData || !toStoreData || (fromStoreData.id === toStoreData.id))  return true
-    let error = false;
-
-    if (dataTable.length === 0) {
-      return true
-    }
-
-    dataTable?.forEach((element: VariantResponse, index: number) => {
-      if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
-        error= true
-      }
-    });
-
-    return error;
-  },[toStoreData, fromStoreData, dataTable])
+  // const isError = useMemo(()=>{
+  //   if (!fromStoreData || !toStoreData || (fromStoreData.id === toStoreData.id))  return true
+  //   let error = false;
+  //
+  //   if (dataTable.length === 0) {
+  //     return true
+  //   }
+  //
+  //   dataTable?.forEach((element: VariantResponse) => {
+  //     if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
+  //       error= true
+  //     }
+  //   });
+  //
+  //   return error;
+  // },[toStoreData, fromStoreData, dataTable])
 
   useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
@@ -557,19 +554,16 @@ const CreateTicket: FC = () => {
 
   const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
     if (keyCode === "Enter" && code){
-      barCode ="";
       setKeySearch("");
-
-      if (RegUtil.BARCODE_NUMBER.test(code)) {
-        const storeId = form.getFieldValue("from_store_id");
-        if (!storeId) {
-          showError("Vui lòng chọn kho gửi");
-          return;
-        }
-        let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
-        if (res && res.items && res.items.length > 0) {
-          onSelectProduct(res.items[0].id.toString(),res.items[0]);
-        }
+      barCode = "";
+      const storeId = form.getFieldValue("from_store_id");
+      if (!storeId) {
+        showError("Vui lòng chọn kho gửi");
+        return;
+      }
+      let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
+      if (res && res.items && res.items.length > 0) {
+        onSelectProduct(res.items[0].id.toString(),res.items[0]);
       }
     }
     else{
@@ -581,18 +575,41 @@ const CreateTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dispatch,onSelectProduct, onSearchProduct, form]);
 
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barCode = barCode + event.key;
+        } else if (event.key === "Enter") {
+          if (barCode !== "" && event) {
+            handleSearchProduct(event.key,barCode);
+            barCode = "";
+          }
+        }
+        return;
+      }
+    },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      dispatch,
+    ]
+  );
+
   const eventKeydown = useCallback(
      (event: KeyboardEvent) => {
 
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
-          if (event.key !== "Enter" && event.key !== "Shift")
+          if (event.key !== "Enter")
+          {
             barCode = barCode + event.key;
-
+          }
+          
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
             () => handleSearchProduct(event.key, barCode),
-            600
+            400
           );
           return;
         }
@@ -609,10 +626,12 @@ const CreateTicket: FC = () => {
 
   useEffect(() => {
       window.addEventListener("keydown", eventKeydown);
+      window.addEventListener("keypress", eventKeyPress);
       return () => {
         window.removeEventListener("keydown", eventKeydown);
+        window.addEventListener("keypress", eventKeyPress);
       };
-  }, [eventKeydown]);
+  }, [eventKeyPress, eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -678,7 +697,12 @@ const CreateTicket: FC = () => {
       },
     },
     {
-      title: "Số lượng",
+      title: <div>
+        <div>Số lượng</div>
+        <div className="text-center">
+          {getTotalQuantity()}
+        </div>
+      </div>,
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
@@ -692,9 +716,9 @@ const CreateTicket: FC = () => {
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}
-            onBlur={() => {
-              checkError(index);
-            }}
+            // onBlur={() => {
+            //   checkError(index);
+            // }}
           />
       ),
     },
@@ -979,7 +1003,7 @@ const CreateTicket: FC = () => {
             }
             rightComponent={
               <Space>
-                <Button loading={isLoading} disabled={isError || isLoading} htmlType={"submit"} type="primary">
+                <Button loading={isLoading} disabled={isLoading} htmlType={"submit"} type="primary">
                   Tạo phiếu
                 </Button>
               </Space>

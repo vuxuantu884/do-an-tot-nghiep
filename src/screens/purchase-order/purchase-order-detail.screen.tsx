@@ -1,4 +1,4 @@
-import {EditOutlined, PrinterFilled, FilePdfOutlined} from "@ant-design/icons";
+import { EditOutlined, FilePdfOutlined, PrinterFilled } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -16,7 +16,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import {
   POCancelAction,
-  PoDetailAction, POGetPrintContentAction, POGetPurchaseOrderActionLogs, PoUpdateAction,
+  PoDetailAction, POGetPrintContentAction, POGetPurchaseOrderActionLogs, PoUpdateAction
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
@@ -30,29 +30,35 @@ import { ImportResponse } from "model/other/files/export-model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import {
+  POLineItemGridValue,
   PurchaseOrder,
   PurchaseOrderPrint
 } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import moment from "moment";
-import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
-import {PO_FORM_TEMPORARY, POStatus, ProcumentStatus, VietNamId} from "utils/Constants";
+import { productDetailApi } from "service/product/product.service";
+import { callApiNative } from "utils/ApiUtils";
+import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
+import { combineLineItemToSubmitData, getTotalPriceOfAllLineItem, initSchemaLineItem, initValueLineItem, POUtils, validateLineItem } from "utils/POUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
-import POProductForm from "./component/po-product.form";
+import POProductFormNew from "./component/po-product-form-grid";
+import PoProductContainer from "./component/po-product-form-grid/po-product-container";
+import POProductFormOld from "./component/po-product.form";
 import POReturnList from "./component/po-return-list";
 import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
+import PurchaseOrderProvider, { PurchaseOrderCreateContext } from "./provider/purchase-order.provider";
 import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
-import {PurchaseOrderLineItem} from "../../model/purchase-order/purchase-item.model";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
 const ModalExport = lazy(() => import("./modal/ModalExport"))
@@ -128,6 +134,7 @@ const PODetailScreen: React.FC = () => {
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
 
+  const {setPoLineItemGridChema,setPoLineItemGridValue, setTaxRate, isGridMode, setIsGridMode, poLineItemGridValue, poLineItemGridChema, taxRate }= useContext(PurchaseOrderCreateContext);
 
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -135,6 +142,70 @@ const PODetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
+        
+        // if(!filterSevenCode) {
+        //   //Tìm tất cả các size theo uniq
+        //   const sizeList = uniqBy(result.line_items, "variant_detail.size").map((item: any) => {
+        //     if (!item.variant_detail.size) return null;
+        //     return item.variant_detail.size;
+        //   });
+
+        //   //Tổng hợp tất cả giá tiền theo thứ tự line_items
+        //   const amounts = result.line_items.map((item: PurchaseOrderLineItem) => {
+        //     return item.amount;
+        //   });
+
+        //   //Tổng hợp tất cả id theo thứ tự line_items
+        //   const variantIdList = result.line_items.map((item: PurchaseOrderLineItem) => {
+        //     return item.id;
+        //   });
+
+        //   //Tổng hợp tất cả số lượng size theo thứ tự line_items
+        //   const quantity = result.line_items.map((item: PurchaseOrderLineItem) => {
+        //     return item.quantity;
+        //   });
+        //   //Chia đều amount theo size
+        //   const chunkAmount = chunk(amounts, sizeList.length);
+
+        //   //Chia đều quantity theo size
+        //   const chunkQuantity = chunk(quantity, sizeList.length);
+
+        //   //Sắp xếp size theo thứ tự tăng dần
+        //   const sizeListSorted = _.sortBy(sizeList)
+        //   setSizes(sizeListSorted);
+
+        //   const transformedData = uniqBy(result.line_items, "variant_detail.color_id").map((item,index) => {
+        //     const cloth_code = item.sku.split("-")[1];
+
+        //     let s: any = {}
+        //     sizeList.forEach((size, i) => {
+        //       s[size] = chunkQuantity[index][i]; //Lấy quantity theo index đã chunk
+        //     })
+
+        //     return {
+        //       id: item.id,
+        //       product_id: item.product_id,
+        //       product: item.product,
+        //       variant: item.variant,
+        //       barcode: item.barcode,
+        //       name: item.variant,
+        //       code: item.sku.split("-")[0] || item.code,
+        //       cloth_code: cloth_code,
+        //       color: item.variant_detail.color,
+        //       color_id: item.variant_detail.color_id,
+        //       sizes: sizeList,
+        //       variant_id: variantIdList,
+        //       unit: item.unit, //Đơn vị tính
+        //       price: item.variant_detail.variant_prices[0].import_price, //Đơn giá
+        //       amount: chunkAmount[index].reduce((a, b) => a + b, 0), //Thành tiền
+        //       product_type: item.product_type,
+        //       sku: item.sku,
+        //       quantity: chunkQuantity[index].reduce((a, b) => a + b, 0),  //Tổng số lượng
+        //       ...s,
+        //     }
+        //   })
+        //   setDataSource({...dataSource, items: transformedData, totalPrice: result.untaxed_amount, vat: ((result.untaxed_amount - result.total)/result.untaxed_amount)*100});
+        // }
         setPurchaseItem(result);
         formMain.setFieldsValue(result);
         setStatus(result.status);
@@ -142,6 +213,7 @@ const PODetailScreen: React.FC = () => {
     },
     [formMain]
   );
+
 
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
@@ -186,18 +258,71 @@ const PODetailScreen: React.FC = () => {
     },
     [idNumber, loadDetail]
   );
-  const onFinish = useCallback(
-    (value: PurchaseOrder) => {
-      if (value.line_items.length === 0) {
-        let element: any = document.getElementById("#product_search");
-        element?.focus();
-        const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-        window.scrollTo({ top: y, behavior: "smooth" });
-        showError("Vui lòng thêm sản phẩm");
-        return;
+  const onFinish = (value: PurchaseOrder) => {
+      value.is_grid_mode = isGridMode;
+      if(isGridMode){
+          const isValid = validateLineItem(poLineItemGridValue);
+          if(!isValid){
+              return;
+          }
+          const newDataItems: any = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
+    
+          const untaxed_amount = Math.round(getTotalPriceOfAllLineItem(poLineItemGridValue))
+          
+          const tax_lines = [
+            {
+              rate: taxRate,
+              amount: Math.round((untaxed_amount * taxRate) / 100)
+            }
+          ]
+    
+          const trade_discount_rate = formMain.getFieldValue(
+            POField.trade_discount_rate
+          );
+          const trade_discount_value = formMain.getFieldValue(
+            POField.trade_discount_value
+          );
+          const payment_discount_rate = formMain.getFieldValue(
+            POField.payment_discount_rate
+          );
+          const payment_discount_value = formMain.getFieldValue(
+            POField.trade_discount_value
+          );
+          const trade_discount_amount = POUtils.getTotalDiscount(
+            untaxed_amount,
+            trade_discount_rate,
+            trade_discount_value
+          );
+    
+          const total_after_tax = POUtils.getTotalAfterTax(
+            untaxed_amount,
+            trade_discount_amount,
+            tax_lines
+          );
+          const payment_discount_amount = POUtils.getTotalDiscount(
+            total_after_tax,
+            payment_discount_rate,
+            payment_discount_value
+          );
+    
+          value.line_items = newDataItems
+          value.trade_discount_amount = trade_discount_amount
+          value.payment_discount_amount = payment_discount_amount
+          value.total = Math.round(untaxed_amount + (untaxed_amount * taxRate) / 100)
+          value.untaxed_amount = untaxed_amount
+          value.tax_lines = tax_lines
+        
+      }else{
+        if (poData?.line_items.length === 0) {
+          let element: any = document.getElementById("#product_search");
+          element?.focus();
+          const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+          window.scrollTo({ top: y, behavior: "smooth" });
+          showError("Vui lòng thêm sản phẩm");
+          return;
+        }
       }
-
-      const dataClone = { ...value, status: statusAction };
+      const dataClone: any = { ...poData, ...value, status: statusAction };
       switch (dataClone.status) {
         case POStatus.DRAFT:
         case POStatus.STORED:
@@ -212,9 +337,7 @@ const PODetailScreen: React.FC = () => {
           dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           break;
       }
-    },
-    [dispatch, idNumber, onUpdateCall, statusAction]
-  );
+  };
 
   const onAddProcumentSuccess = useCallback(
     (isSuggest) => {
@@ -247,6 +370,8 @@ const PODetailScreen: React.FC = () => {
       })
     );
   }, [dispatch, idNumber, loadDetail]);
+
+
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
@@ -256,53 +381,54 @@ const PODetailScreen: React.FC = () => {
         case ActionMenu.EXPORT:
           setShowExportModal(true);
           break;
-        case ActionMenu.COPY:
-          const queryParams = formMain.getFieldsValue(true);
-          queryParams.procurements = [
-            {
-              fake_id: new Date().getTime(),
-              reference: "",
-              store_id: null,
-              expect_receipt_date: "",
-              procurement_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {return {sku: item.sku, quantity: item.quantity}}),
-              status: ProcumentStatus.DRAFT,
-              status_po: POStatus.DRAFTPO,
-              note: "",
-              actived_date: "",
-              actived_by: "",
-              stock_in_date: "",
-              stock_in_by: "",
-            },
-          ]
-          localStorage.setItem(
-            PO_FORM_TEMPORARY,
-            JSON.stringify({
-              ...queryParams,
-              line_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {
-                return {
-                  ...item,
-                  id: null,
-                  planned_quantity: 0,
-                };
-              }),
-              return_orders: null,
-              code: null,
-              status_name: null,
-              payments: [],
-              status: POStatus.DRAFT,
-              receive_status: ProcumentStatus.DRAFT,
-              activated_date: null,
-              completed_stock_date: null,
-              cancelled_date: null,
-              completed_date: null,
-            }))
-          history.push(`${UrlConfig.PURCHASE_ORDERS}/create`)
-          break;
+        // case ActionMenu.COPY:
+        //   const queryParams = formMain.getFieldsValue(true);
+        //   queryParams.procurements = [
+        //     {
+        //       fake_id: new Date().getTime(),
+        //       reference: "",
+        //       store_id: null,
+        //       expect_receipt_date: "",
+        //       procurement_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {return {sku: item.sku, quantity: item.quantity}}),
+        //       status: ProcumentStatus.DRAFT,
+        //       status_po: POStatus.DRAFTPO,
+        //       note: "",
+        //       actived_date: "",
+        //       actived_by: "",
+        //       stock_in_date: "",
+        //       stock_in_by: "",
+        //     },
+        //   ]
+        //   localStorage.setItem(
+        //     PO_FORM_TEMPORARY,
+        //     JSON.stringify({
+        //       ...queryParams,
+        //       line_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {
+        //         return {
+        //           ...item,
+        //           id: null,
+        //           planned_quantity: 0,
+        //         };
+        //       }),
+        //       return_orders: null,
+        //       code: null,
+        //       status_name: null,
+        //       payments: [],
+        //       status: POStatus.DRAFT,
+        //       receive_status: ProcumentStatus.DRAFT,
+        //       activated_date: null,
+        //       completed_stock_date: null,
+        //       cancelled_date: null,
+        //       completed_date: null,
+        //     }))
+        //   history.push(`${UrlConfig.PURCHASE_ORDERS}/create`)
+        //   break;
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setConfirmDelete]
   );
+
+
   const redirectToReturn = useCallback(() => {
     if(poData?.status === POStatus.FINALIZED){
       setPaymentItem(undefined);
@@ -320,17 +446,21 @@ const PODetailScreen: React.FC = () => {
     }
 
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
+
+
   const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
+
+
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [
       {
         id: ActionMenu.EXPORT,
         name: "Xuất file NPL",
       },
-      {
-        id: ActionMenu.COPY,
-        name: "Sao chép đơn đặt hàng",
-      }
+      // {
+      //   id: ActionMenu.COPY,
+      //   name: "Sao chép đơn đặt hàng",
+      // }
     ];
     if (!poData) return [];
     let poStatus = poData.status;
@@ -341,6 +471,7 @@ const PODetailScreen: React.FC = () => {
       });
     return menuActions;
   }, [poData, canCancelPO]);
+
 
   const renderModalDelete = useCallback(() => {
     let title = "Bạn chắc chắn hủy đơn nhập hàng này không ?",
@@ -394,6 +525,7 @@ const PODetailScreen: React.FC = () => {
       />
     );
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
+
 
   const renderButton = useMemo(() => {
     const checkRender = () => {
@@ -465,6 +597,7 @@ const PODetailScreen: React.FC = () => {
           <Space direction="horizontal" id="bottomRight">
             <Button
                 type="default"
+                hidden
                 onClick={(e) => {
                   e.stopPropagation();
                   handleExport();
@@ -545,6 +678,48 @@ const PODetailScreen: React.FC = () => {
     }
   }, [dispatch, poData?.id, poData]);
 
+  
+  /**
+   * Load data cho lineItem dạng bảng grid
+   */
+   useEffect(() => {
+    const fetchProductLineItem = async () => {
+      if (poData  && poData.is_grid_mode) {
+          /**
+           *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
+           */
+          const productId = poData.line_items[0].product_id // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
+          const product = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
+
+          if (product.variants) {
+            /**
+             * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
+             */
+            const newpoLineItemGridChema = [];
+            newpoLineItemGridChema.push(initSchemaLineItem(product, "READ_UPDATE", poData.line_items));
+            setPoLineItemGridChema?.(newpoLineItemGridChema);
+
+            /**
+             * Tạo giá trị mặc định cho bảng
+            */
+            const newpoLineItemGridValue: Map<string, POLineItemGridValue>[] = [];
+            newpoLineItemGridChema.forEach(schema => {
+              newpoLineItemGridValue.push(initValueLineItem(schema, poData.line_items));
+            })
+            setPoLineItemGridValue?.(newpoLineItemGridValue);
+
+            /**
+             * Set giá trị thuế
+             * Đối với mode grid thì thuế là chung cho các variant nên chỉ cần set 1 chỗ
+             */
+             setTaxRate(poData.line_items[0].tax_rate);
+          }
+      }
+    }
+    setIsGridMode?.(!!poData?.is_grid_mode);
+    fetchProductLineItem();
+  }, [poData, dispatch, setPoLineItemGridValue, setPoLineItemGridChema, setTaxRate, setIsGridMode]);
+
   const handleExport = () => {
     dispatch(showLoading())
     // khởi tạo, đơn vị px, khổ a4
@@ -623,6 +798,11 @@ const PODetailScreen: React.FC = () => {
     }
   };
 
+  const checkCanEditDraft = () => {
+    const stt = formMain.getFieldValue(POField.status);
+    return isEditDetail && ( !stt || stt  === POStatus.DRAFT);
+  };
+
   return (
     <ContentContainer
       isError={isError}
@@ -682,7 +862,18 @@ const PODetailScreen: React.FC = () => {
               formMain={formMain}
               stepStatus={status}
             />
-            <POProductForm isEdit={!isEditDetail} formMain={formMain} />
+            <PoProductContainer isEditMode={checkCanEditDraft()} isDisableSwitch={true} form={formMain}>
+              {() => (
+                isGridMode ? (
+                    <POProductFormNew
+                      formMain={formMain}
+                      isEditMode={checkCanEditDraft()}
+                    />
+                  ) :
+                  <POProductFormOld isEdit={!isEditDetail} formMain={formMain} />
+              )}
+            </PoProductContainer>
+
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
@@ -725,6 +916,7 @@ const PODetailScreen: React.FC = () => {
             <POInfoForm
               isEdit={true}
               isEditDetail={isEditDetail}
+              formMain={formMain}
             />
             <ActionPurchaseOrderHistory
               actionLog={actionLog}
@@ -756,4 +948,9 @@ const PODetailScreen: React.FC = () => {
     </ContentContainer>
   );
 };
-export default PODetailScreen
+const PODetailWithProvider = (props: any) => (
+  <PurchaseOrderProvider>
+    <PODetailScreen {...props} />
+  </PurchaseOrderProvider>
+)
+export default PODetailWithProvider

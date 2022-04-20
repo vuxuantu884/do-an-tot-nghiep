@@ -14,9 +14,10 @@ import SplashScreen from "./screens/splash.screen";
 
 function App() {
   const dispatch = useDispatch();
-
   const isLoad = useSelector(
-    (state: RootReducerType) => state.userReducer.isLoad
+    (state: RootReducerType) => {
+      return state.userReducer.isLoad
+    }
   );
 
   const user_id = useSelector(

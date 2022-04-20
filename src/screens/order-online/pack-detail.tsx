@@ -109,53 +109,80 @@ const PackDetail: React.FC = () => {
 
           data.orders?.forEach(function (itemOrder) {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
-              if (itemFFM.status !== 'returned'
-              && itemFFM.status !== 'returning'
-              && itemFFM.status !== 'cancelled'
-              && itemFFM.status !== 'splitted') {
-                itemFFM.items.forEach(function (itemProduct, index) {
-                  ////
-                  const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
-                  resultListProduct.push({
-                    key: keyProduct++,
-                    barcode: itemProduct.variant_barcode,
-                    product_id: itemProduct.product_id,
-                    product_sku: itemProduct.sku,
-                    product_name: itemProduct.product,
-                    variant_id: itemProduct.variant_id,
-                    // inventory: itemProduct.available ? itemProduct.available : 0,
-                    price: itemProduct.price,
-                    total_quantity: itemProduct.quantity,
-                    total_incomplate: 0,
-                    on_hand: productOnHand? productOnHand.on_hand : undefined,
+              if(data.receipt_type_id === 1) {
+                if(itemFFM.status === "packed") {
+                  itemFFM.items.forEach(function (itemProduct, index) {
+                    ////
+                    const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
+                    resultListProduct.push({
+                      key: keyProduct++,
+                      barcode: itemProduct.variant_barcode,
+                      product_id: itemProduct.product_id,
+                      product_sku: itemProduct.sku,
+                      product_name: itemProduct.product,
+                      variant_id: itemProduct.variant_id,
+                      // inventory: itemProduct.available ? itemProduct.available : 0,
+                      price: itemProduct.price,
+                      total_quantity: itemProduct.quantity,
+                      total_incomplate: 0,
+                      on_hand: productOnHand? productOnHand.on_hand : undefined,
+                    });
+  
+                    ///
                   });
-
-                  ///
-                });
+                }
+              } else if(data.receipt_type_id === 2) {
+                if(itemFFM.status === "cancelled") {
+                  itemFFM.items.forEach(function (itemProduct, index) {
+                    ////
+                    const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
+                    resultListProduct.push({
+                      key: keyProduct++,
+                      barcode: itemProduct.variant_barcode,
+                      product_id: itemProduct.product_id,
+                      product_sku: itemProduct.sku,
+                      product_name: itemProduct.product,
+                      variant_id: itemProduct.variant_id,
+                      // inventory: itemProduct.available ? itemProduct.available : 0,
+                      price: itemProduct.price,
+                      total_quantity: itemProduct.quantity,
+                      total_incomplate: 0,
+                      on_hand: productOnHand? productOnHand.on_hand : undefined,
+                    });
+  
+                    
+                    ///
+                  });
+                }
               }
+              
             });
           });
 
 
 
           data.orders?.forEach(function (itemOrder) {
-
             let total_quantity = 0;
             let total_price = 0;
             let postage = 0;
             let card_number = 0;
+            let ffrmCode=null;
+            let trackingCode=null;
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-            const ffms = itemOrder.fulfillments?.filter(ffm =>
-              ffm.status !== 'returned' && ffm.status !== 'returning'
-              && ffm.status !== 'cancelled' && ffm.status !== 'splitted');
-
+            const ffms = itemOrder.fulfillments?.filter(ffm => {
+              if(data.receipt_type_id === 1) {
+                return  ffm.status === 'packed'
+              }
+              return  ffm.status === 'cancelled'
+            });
             ffms?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
               total_price += itemFFM.total ? itemFFM.total : 0;
               postage += itemFFM?.shipment?.shipping_fee_informed_to_customer ? itemFFM.shipment.shipping_fee_informed_to_customer : 0;
-
+              ffrmCode=itemFFM.code;
+              trackingCode=itemFFM.shipment?.tracking_code;
               itemFFM.items.forEach(function (itemProduct) {
                 _itemProduct.push({
                   sku: itemProduct.sku,
@@ -178,6 +205,8 @@ const PackDetail: React.FC = () => {
               key: keyOrder++,
               order_id: itemOrder.id,
               order_code: itemOrder.code,
+              ffm_code:ffrmCode||"",
+              tracking_code:trackingCode||"",
               customer_name: itemOrder.customer ? itemOrder.customer : "n/a",
               total_quantity: total_quantity,
               total_price: total_price,

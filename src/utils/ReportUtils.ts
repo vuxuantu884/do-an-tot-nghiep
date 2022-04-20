@@ -1,6 +1,6 @@
 import { YodyAction } from "base/base.action";
 import { TIME_GROUP_BY } from "config/report";
-import { AnalyticConditions, AnalyticMetadata, AnalyticQuery, QueryMode } from "model/report/analytics.model";
+import { AnalyticConditions, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
@@ -14,22 +14,26 @@ const getCondistions = (conditions: AnalyticConditions) => {
     if (Array.isArray(conditionsElement) && conditionsElement.length >= 5) {
       // copy array from item 2nd to end
       const value: Array<string> = conditionsElement.slice(2);
+      
       // convert ["camel", ",", "elephant"] to "("camel", "elephant")"
-
-      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]}  (${value.join("")}) AND`;
+      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} (${value.join("")}) AND`;
     } else if (Array.isArray(conditionsElement) && conditionsElement.length === 3) {
       // check trường hợp dùng operator == != >= .... : mảng conditionsElement có độ dài bằng 3
-      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} '${conditionsElement[2]}' AND`;
+      let value = conditionsElement[2];
+      if(typeof conditionsElement[2] === "string"){
+        value = `'${conditionsElement[2]}'`;
+      }
+      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} ${value} AND`;
     }
   });
 
-  return whereValue.slice(0, -3);
+  return whereValue.slice(0, -4);
 };
 
-const getRows = (rows: Array<string>, mode: QueryMode = "table") => {
+const getRows = (rows: Array<string>) => {
   let rowsValue = "";
   if (rows.length === 1) {
-    if (mode === "chart" && TIME_GROUP_BY.some((item) => item.value === rows[0])) {
+    if (TIME_GROUP_BY.some((item) => item.value === rows[0])) {
       /*nếu là query cho chart và chỉ nhóm theo thời gian thì dùng OVER */
       rowsValue = ` OVER ${rows[0]}`;
     } else {
@@ -41,13 +45,13 @@ const getRows = (rows: Array<string>, mode: QueryMode = "table") => {
   return rowsValue;
 };
 
-const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") => {
+const generateRQuery = (queryObject: AnalyticQuery) => {
+  const { columns: column, rows, cube, conditions, from, to, order_by } = queryObject;
   //validate queryObject
-  if (!queryObject.columns || !queryObject.cube) {
-    throw new Error("Query is not valid");
+  if (!column || !cube) {
+    return "";
   }
 
-  const { columns: column, rows, cube, conditions, from, to, order_by } = queryObject;
   let queryString = "SHOW";
   // column
   if (Array.isArray(column)) {
@@ -55,7 +59,7 @@ const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") =
   }
   // by or over
   if (Array.isArray(rows)) {
-    queryString += getRows(rows, mode);
+    queryString += getRows(rows);
   }
   // from
   if (cube) {
@@ -64,7 +68,7 @@ const generateRQuery = (queryObject: AnalyticQuery, mode: QueryMode = "table") =
   // conditions WHERE
   if (conditions) {
     const whereValue = getCondistions(conditions);
-    queryString += whereValue ? ` WHERE ${whereValue}` : "";
+    queryString += whereValue ? ` WHERE${whereValue}` : "";
   }
   // since
   if (from) {
@@ -251,11 +255,38 @@ export const compare2RangeDate = (date1: moment.Moment[], date2: moment.Moment[]
 };
 
 export const removeSpacesAndEnterCharacters = (str: string) => {
-  if(str){
-  return str.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ");
-  }else{
+  if (str) {
+    return str.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ");
+  } else {
     return str;
   }
 };
 
+export const getChartQuery = (queryObject: AnalyticQuery, chartColumnSelected: string[]): string => {
+
+  if (!queryObject || chartColumnSelected.length === 0) {
+    return '';
+  }
+
+  const { conditions } = queryObject;
+  let mapperConditions;
+  if (conditions?.length) {
+    mapperConditions = conditions.map(condition => {
+      if (condition.findIndex(item => item === 'IN') !== -1) {
+        condition = [...condition.slice(0, 2), ...condition.slice(2).join("").split(",").map((item: string) => `'${item}'`).join(",")].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
+      }
+      return condition;
+    })
+  }
+  const params: AnalyticQuery = {
+    ...queryObject,
+    columns: chartColumnSelected.map(item => {
+      return { field: item }
+    }),
+    conditions: mapperConditions ? mapperConditions : conditions
+  } as AnalyticQuery;
+  const query = generateRQuery(params);
+
+  return query;
+}
 export { generateRQuery, checkArrayHasAnyValue };

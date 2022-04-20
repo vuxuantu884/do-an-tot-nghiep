@@ -30,6 +30,7 @@ import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model
 import { Link } from "react-router-dom";
 import { StyledComponent } from "./scss/index.screen.styles";
 import { showSuccess, showWarning } from "utils/ToastUtils";
+import { formatCurrency } from "utils/AppUtils";
 
 const { Item } = Form;
 type PackParam = {
@@ -82,8 +83,7 @@ const PackUpdate: React.FC = () => {
         let total_price = 0;
 
         itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-          if (itemFulfillment.status !== 'returned' && itemFulfillment.status !== 'returning'
-          && itemFulfillment.status !== 'cancelled' && itemFulfillment.status !== 'splitted') {
+          if (itemFulfillment.status !== 'returned' && itemFulfillment.status !== 'returning' && itemFulfillment.status !== 'splitted') {
             ship_price =
               ship_price +
               (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
@@ -180,6 +180,16 @@ const PackUpdate: React.FC = () => {
 
   const handleSubmit = useCallback(
     (value: any) => {
+
+      const insert = (arr:any, index:number, newItem:any) => [
+        // part of the array before the specified index
+        ...arr.slice(0, index),
+        // inserted item
+        newItem,
+        // part of the array after the specified index
+        ...arr.slice(index)
+      ]
+
       if (!packDetail) return;
 
       let order_id = value.order_id?.trim();
@@ -194,12 +204,35 @@ const PackUpdate: React.FC = () => {
         showWarning("Đơn hàng đã tồn tại trong biên bản");
         return;
       }
+      let codes: string[]=[]
+      
+      
+      if(packDetail.orders)
+        codes = packDetail.orders?.map((p) => {
+          if(packDetail.receipt_type_id === 1) {
+            let fulfillments = p.fulfillments
+            ?.filter(f => f.status === "packed");
+            if(fulfillments && fulfillments.length > 0) {
+              return fulfillments[0].code ? fulfillments[0].code : ""
+            }
+            return "";
+          } else if(packDetail.receipt_type_id === 2) {
+            let fulfillments = p.fulfillments
+            ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
+            if(fulfillments && fulfillments.length > 0) {
+              return fulfillments[0].code ? fulfillments[0].code : ""
+            }
+            return "";
+          } else{
+            return "";
+          }
+        });
+      // packDetail.orders?.forEach((item) => {
+      //   if (item.code) codes.push(item.code);
+      // });
+      codes = insert([...codes],0,order_id);
 
-      let codes: string[] = [];
-      packDetail.orders?.forEach((item) => {
-        if (item.code) codes.push(item.code);
-      });
-      codes.push(order_id);
+      console.log("codes", codes)
 
       let id = packDetail?.id ? packDetail?.id : 0;
       let param: any = {
@@ -217,7 +250,7 @@ const PackUpdate: React.FC = () => {
       );
       searchOrderForm.resetFields();
     },
-    [packDetail, dispatch, searchOrderForm]
+    [dispatch, packDetail, searchOrderForm]
   );
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
@@ -233,7 +266,7 @@ const PackUpdate: React.FC = () => {
             <Link
               target="_blank"
               to={`${UrlConfig.ORDER}/${i.order_id}`}
-              style={{ fontWeight: 500 }}
+              style={{ fontWeight: 500, whiteSpace:"nowrap" }}
             >
               {value}
             </Link>
@@ -294,7 +327,7 @@ const PackUpdate: React.FC = () => {
                     <span>{item.quantity}</span>
                   </div>
                   <div className="price priceWidth">
-                    <span>{item.price}</span>
+                    <span>{formatCurrency(item?.price||0)}</span>
                   </div>
                 </div>
               );
@@ -309,7 +342,7 @@ const PackUpdate: React.FC = () => {
     {
       title: "Cước phí",
       dataIndex: "ship_price",
-      render: (value: number) => <div>{value}</div>,
+      render: (value: number) => <div>{formatCurrency(value||0)}</div>,
       key: "ship_price",
       visible: true,
       align: "center",
@@ -317,7 +350,7 @@ const PackUpdate: React.FC = () => {
     {
       title: "Tổng thu",
       dataIndex: "total_price",
-      render: (value: number) => <div>{value}</div>,
+      render: (value: number) => <div>{formatCurrency(value||0)}</div>,
       key: "total_price",
       visible: true,
       align: "center",
@@ -327,7 +360,7 @@ const PackUpdate: React.FC = () => {
   const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLBodyElement) {
       if (event.key !== "Enter") {
-        barcode += event.key;
+        barcode += event.key.toUpperCase();
       }
       else {
         if (!packDetail) return;
@@ -484,7 +517,7 @@ const PackUpdate: React.FC = () => {
                     <Item name="order_id" style={{ width: 400 }}>
                       <Input
                         prefix={<img src={search} alt="" />}
-                        placeholder="ID đơn hàng"
+                        placeholder="ID đơn hàng/Mã vận đơn"
                       />
                     </Item>
                     <Item style={{ width: 150, marginRight: 0 }}>

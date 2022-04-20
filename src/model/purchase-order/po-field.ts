@@ -44,6 +44,7 @@ const POField = {
   expect_return_date: "expect_return_date",
   designer_code: "designer_code",
   designer: "designer",
+  expect_receipt_date: "expect_receipt_date",
 };
 
 const CostLineField = {

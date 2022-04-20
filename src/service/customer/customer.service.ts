@@ -1,17 +1,32 @@
 import { CustomerNote, CustomerRequest } from '../../model/request/customer.request';
-import { CustomerResponse } from 'model/response/customer/customer.response';
+import {CustomerResponse, ExportCustomerResponse} from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
-import { CustomerSearchQuery } from 'model/query/customer.query';
+import {CustomerSearchQuery, ExportCustomerRequest} from 'model/query/customer.query';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { CustomerBillingAddress, CustomerContact, CustomerShippingAddress } from 'model/request/customer.request';
+import { ExportResponse } from "model/other/files/export-model";
 
 export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<PageResponse<CustomerResponse>>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.CUSTOMER}/customers?${params}`;
   return BaseAxios.get(link);
+};
+
+//customer export file
+export const exportCustomerFile = (
+  params: ExportCustomerRequest
+): Promise<BaseResponse<ExportResponse>> => {
+  return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/export`, params);
+};
+
+// export jobs
+export const getCustomerFile = (
+  code: string
+): Promise<BaseResponse<ExportCustomerResponse>> => {
+  return BaseAxios.get(`${ApiConfig.CUSTOMER}/jobs/${code}`);
 };
 
 export const getCustomersSo = (query : CustomerSearchQuery): Promise<BaseResponse<CustomerResponse>> => {
@@ -31,6 +46,8 @@ export const getCustomerOrderHistoryApi = (queryParams: any): Promise<BaseRespon
   const query = {
     limit: queryParams.limit,
     page: queryParams.page,
+    variant_ids: queryParams.variant_ids,
+    customer_id: null,
   }
   const params = generateQuery(query);
   const link = `${ApiConfig.CUSTOMER}/customers/${queryParams.customer_id}/order-histories?${params}`;
@@ -40,6 +57,23 @@ export const getCustomerOrderHistoryApi = (queryParams: any): Promise<BaseRespon
 // get custommer's order return history
 export const getCustomerOrderReturnHistoryApi = (customer_id: number): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.CUSTOMER}/customers/${customer_id}/order-return-histories`;
+  return BaseAxios.get(link);
+};
+
+// get custommer's activity log
+export const getCustomerActivityLogApi = (queryParams: any): Promise<BaseResponse<any>> => {
+  const query = {
+    limit: queryParams.limit,
+    page: queryParams.page,
+  }
+  const params = generateQuery(query);
+  const link = `${ApiConfig.CUSTOMER}/customers/${queryParams.customer_id}/logs?${params}`;
+  return BaseAxios.get(link);
+};
+
+// get custommer's activity log detail
+export const getCustomerActivityLogDetailApi = (log_id: number): Promise<BaseResponse<any>> => {
+  const link = `${ApiConfig.CUSTOMER}/customers/logs/${log_id}`;
   return BaseAxios.get(link);
 };
 

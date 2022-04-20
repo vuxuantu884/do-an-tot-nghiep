@@ -134,6 +134,7 @@ export interface VariantResponse extends BaseObject {
   supplier:string,
   color_id:number,
   color:string,
+  color_code?:string,
   size_id:number,
   size:string,
   barcode:string,
@@ -152,13 +153,22 @@ export interface VariantResponse extends BaseObject {
   composites:string,
   product_id:number,
   product_name:string,
+  product_code:string,
   product:ProductResponse,
   variant_prices:Array<VariantPricesResponse>,
   variant_images:Array<VariantImage>,
   transfer_quantity: number,
   variant_id: number,
   variant_name?: string,
- real_quantity?: number
+  real_quantity?: number,
+  total_stock?: number,
+  committed?: number,
+  on_hold?: number,
+  defect?: number,
+  in_coming?: number,
+  on_way?: number,
+  transferring?: number,
+  shipping?: number,
 }
 
 export interface VariantView extends BaseObject {
@@ -222,7 +232,8 @@ export interface VariantSearchQuery extends BaseQuery {
   store_id?: number,
   store_ids?: number|null,
   sort_column?: string,
-  sort_type?: string
+  sort_type?: string,
+  variant_ids?:string
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,

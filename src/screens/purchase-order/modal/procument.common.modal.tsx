@@ -20,20 +20,21 @@ import {
   useMemo,
   Fragment,
 } from "react";
-import { ProcumentStatus } from "utils/Constants";
+import { ProcumentStatus, TypeModalPo } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import moment, { Moment } from "moment";
 import { showError, showWarning } from "utils/ToastUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import { PurchaseOrderTabUrl } from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER, PurchaseOrderTabUrl } from "config/url.config";
 import RenderTabBar from 'component/table/StickyTabBar';
 import PurchaseOrderHistory from "../tab/PurchaseOrderHistory";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseOrderDraft } from "screens/purchase-order/purchase-order-list.style";
 import * as XLSX from 'xlsx';
 import { PurchaseProcumentExportField } from "model/purchase-order/purchase-mapping";
+import { Link } from "react-router-dom";
 
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -184,7 +185,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    data.forEach((item: PurchaseProcumentLineItem, index: number) => {
+    data.forEach((item: PurchaseProcumentLineItem) => {
       options.push({
         label: (
           <Row>
@@ -317,7 +318,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       if (type === "inventory") {
         item.procurement_items?.forEach((item1) => {
           if (!item1.real_quantity) {
-            item1.real_quantity = item1.quantity;
+            // item1.real_quantity = item1.quantity;
           }
         });
       }
@@ -327,7 +328,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
-  }, [item, allProcurementItems,form,type]);
+  }, [item, allProcurementItems, form, type]);
 
   const confirmDeletePhrase: string = useMemo(() => {
     if (!item) return "";
@@ -346,7 +347,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
     }
     form.submit();
-  }; 
+  };
 
   const exportExcel= useCallback(()=>{
       let procurement_items = form.getFieldValue(POProcumentField.procurement_items)
@@ -359,20 +360,33 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       let dataExport:any = [];
       for (let i = 0; i < procurement_items.length; i++) {
         const e = procurement_items[i];
-        const item = {
-          [PurchaseProcumentExportField.sku]: e.sku,
-          [PurchaseProcumentExportField.variant]: e.variant,
-          [PurchaseProcumentExportField.sld]: e.ordered_quantity,
-          [PurchaseProcumentExportField.sl]: null,
-        };
+        let item = {};
+        if (type === TypeModalPo.CONFIRM || type===ProcumentStatus.DRAFT) {
+          item = {
+            [PurchaseProcumentExportField.sku]: e.sku,
+            [PurchaseProcumentExportField.variant]: e.variant,
+            [PurchaseProcumentExportField.sld]: e.ordered_quantity,
+            [PurchaseProcumentExportField.sl]: null,
+          };
+        }
+        if (type === TypeModalPo.INVENTORY) {
+          item = {
+            [PurchaseProcumentExportField.sku]: e.sku,
+            [PurchaseProcumentExportField.variant]: e.variant,
+            [PurchaseProcumentExportField.sld]: e.ordered_quantity,
+            [PurchaseProcumentExportField.sldduyet]: e.quantity,
+            [PurchaseProcumentExportField.sl]: null,
+          };
+        }
+
         dataExport.push(item);
-      } 
+      }
       const worksheet = XLSX.utils.json_to_sheet(dataExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
       const fileName = poData?.code ?  `nhap_so_luong_phieu_nhap_kho_${poData?.code}.xlsx`:"nhap_so_luong_phieu_nhap_kho.xlsx";
       XLSX.writeFile(workbook, fileName);
-  },[form, poData]);
+  },[form, poData,type]);
 
   const uploadProps  = {
     beforeUpload: (file: any) => {
@@ -382,8 +396,8 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       }
       return typeExcel || Upload.LIST_IGNORE;
     },
-    onChange: useCallback(async (e:any)=>{ 
-      const file = e.file; 
+    onChange: useCallback(async (e:any)=>{
+      const file = e.file;
       const data = await file.originFileObj.arrayBuffer();
       const workbook = XLSX.read(data);
 
@@ -391,18 +405,23 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       const jsonData: any = XLSX.utils.sheet_to_json(workSheet);
       let procurement_items = form.getFieldValue(POProcumentField.procurement_items)
       ? form.getFieldValue(POProcumentField.procurement_items)
-      : []; 
-      
+      : [];
+
       procurement_items.forEach((e:PurchaseProcumentLineItem) => {
         const findItem = jsonData.find((item:any)=>(item.sku !== undefined && item.sku.toString() === e.sku.toString()));
         if (findItem && typeof(findItem.sl) === "number") {
-          e.quantity = findItem.sl;
+          if (type === TypeModalPo.CONFIRM || type===ProcumentStatus.DRAFT) {
+            e.quantity = findItem.sl;
+          }
+          if (type === TypeModalPo.INVENTORY) {
+            e.real_quantity = findItem.sl;
+          }
         }
       });
 
       form.setFieldsValue({procurement_items: [...procurement_items]});
-    },[form])
-  }    
+    },[form,type])
+  }
 
   return (
     <Fragment>
@@ -448,17 +467,16 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         title={titleTabModal}
         okButtonProps={okButtonProps}
       >
-        <PurchaseOrderDraft> 
-          { 
+        <PurchaseOrderDraft>
+          {
             title !== 'Tạo phiếu nháp' ?
               (<Tabs
                 style={{ overflow: "initial", marginTop: "-24px" }}
                 activeKey={activeTab}
                 onChange={(active) => onChangeActive(active)}
                 renderTabBar={RenderTabBar}
-                tabBarExtraContent={ 
-                type !== "draft" ? <></>: 
-                <>
+                tabBarExtraContent={
+                ([ProcumentStatus.DRAFT,ProcumentStatus.NOT_RECEIVED].indexOf(item?.status ?? "draft") !== -1) && <>
                   <Button icon={<DownloadOutlined />} onClick={exportExcel}>Export Excel</Button>
                   <Upload {...uploadProps} maxCount={1}>
                     <Button icon={<UploadOutlined />}>Import Excel</Button>
@@ -499,16 +517,31 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }}
                     onFinish={onFinish}
-                    layout="vertical" 
+                    layout="vertical"
                   >
                     {!isConfirmModal && (
                       <Fragment>
-                        <Row gutter={50} style={{marginTop: 5, marginBottom: 10}}>
+                        <Row gutter={50} style={{ marginTop: 5, marginBottom: 10 }}>
                           <Col span={24} md={12}>
-                            Đơn đặt hàng: <Typography.Text strong>{poData?.code}</Typography.Text>
+                            <Row style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <div>
+                                Đơn đặt hàng: {" "}
+                                <Link to={"#"} onClick={() => {
+                                  const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${poData?.id}`
+                                  const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+                                  if (newWindow) newWindow.opener = null
+                                }}>
+                                  {poData?.code}
+                                </Link>
+                              </div>
+                              {poData?.reference ? <div>Mã tham chiếu:{" "}
+                                <Typography.Text strong>{`${poData?.reference}`}</Typography.Text>
+                              </div> : null}
+
+                            </Row>
                           </Col>
                           <Col span={24} md={12}>
-                            Nhà cung cấp:  <Typography.Text strong>{poData?.supplier}</Typography.Text>
+                            Nhà cung cấp:  <Typography.Text strong>{`${poData?.supplier} - ${poData?.phone}`}</Typography.Text>
                           </Col>
                         </Row>
 

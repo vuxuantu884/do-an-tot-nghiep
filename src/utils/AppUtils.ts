@@ -43,7 +43,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { ErrorGHTK, FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
@@ -1215,14 +1215,14 @@ export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		});
 		return _amount;
 }
-// check if value is null or undefined
+
 export const isNullOrUndefined = (value: any) => {
-  if (value === null || value === undefined) {
-    return true;
-  } else {
-    return false;
-  }
+  return value === null || value === undefined;
 };
+
+export const convertItemToArray = (item: any) => {
+  return Array.isArray(item) ? item : [item];
+}
 
 export const convertActionLogDetailToText = (data?: string, dateFormat: string = "HH:mm DD/MM/YYYY") => {
   const renderAddress = (dataJson: any) => {
@@ -1685,7 +1685,7 @@ export const getCustomerShippingAddress = (customer: CustomerResponse) => {
 export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | undefined) => {
   return  orderDetail?.status === OrderStatus.FINISHED ||
    orderDetail?.status === OrderStatus.COMPLETED ||
-   orderDetail?.status === OrderStatus.CANCELLED 
+   orderDetail?.status === OrderStatus.CANCELLED
 };
 
 export const copyTextToClipboard = (e: any, data: string | null) => {
@@ -1801,4 +1801,111 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, 
     isChange = handleIfOrderStatusOther(sub_status_code, sortedFulfillments);
   }
   return isChange
+};
+
+export const convertFromStringToDate = (pDate: any, fomat:string) => {
+  let date: Moment|null = null;
+
+  if (pDate) {
+    if (!moment(pDate).isValid()) {
+      let dd = pDate.split("-")[0].padStart(2, "0");
+      let mm = pDate.split("-")[1].padStart(2, "0");
+      let yyyy = pDate.split("-")[2].split(" ")[0];
+      // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
+      // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
+      // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
+
+      mm = (parseInt(mm) - 1).toString(); // January is 0
+      dd = (parseInt(dd) + 1).toString();
+
+      date = moment(new Date(yyyy, mm, dd)).utc(true);
+    }
+    else
+      date = moment(pDate, 'DD-MM-YYYY').utc(true);
+  }
+
+  return date;
+}
+
+export const removeSpaceBeforeAndAfterWord = (text: string) => {
+  return text.split(" ").map(single => single.trim()).filter(single => single).join(" ")
+};
+
+export const replaceLast = (text: string, textShort: string) => {
+  textShort = removeSpaceBeforeAndAfterWord((textShort));
+  text = removeSpaceBeforeAndAfterWord((text));
+  console.log('textShort', textShort)
+  console.log('text', text)
+  let index = (text).lastIndexOf((textShort));
+  console.log('index', index);
+  let result = text
+  if(index > -1) {
+    let deleteText = text.substring(index, index + textShort.length);
+    console.log('deleteText', deleteText);
+    result = text.replace(deleteText, "");
+  }
+  return result;
+};
+
+export const convertStringDistrictWithoutLine = (text: string) => {
+  return text.toLowerCase().replace("tỉnh", "").replace("đường", "").replaceAll(".", "").replaceAll(",", " ").normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/đ/g, "d")
+  .replace(/Đ/g, "D")
+  .replace("thi xa", "")
+  .replace("xa", "")
+  .replace("huyen", "")
+  .replace("thanh pho", "")
+  .replace("thi tran", "")
+  .replace("tp", "")
+  .replace("phuong", "")
+  .replace("p.", "")
+  .replace("hcm", "ho chi minh")
+  .replace("hn", "ha noi")
+};
+
+
+export const convertStringDistrict = (text: string) => {
+  return convertStringDistrictWithoutLine(text).replaceAll("-", " ").replace(/\s\s+/g, ' ')
+};
+
+export const findWard = (district: string | null, newWards: any[],  newValue: string) => {
+  let districtConvert = district ? convertStringDistrictWithoutLine(district).toLowerCase().replace("tỉnh ", "").normalize("NFD")
+  : "";
+  console.log('districtConvert', districtConvert);
+  let districtArr = districtConvert.split("-");
+  console.log('districtArr', districtArr)
+  let valueResult = convertStringDistrict(newValue);
+  districtArr.forEach(ddd => {
+    console.log('ddd', ddd)
+    console.log('valueResult', valueResult)
+    // valueResult = valueResult.replace(ddd.trim(), "");
+    valueResult = replaceLast(valueResult, convertStringDistrict(ddd));
+  })
+  console.log('valueResult', valueResult)
+  const findWard = newWards.find((ward: any) => {
+    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ");
+    console.log('valueResultArr', valueResultArr)
+    const wardNameArr:any[] = convertStringDistrict(ward.name).split(" ");
+    return !wardNameArr.some(single => !valueResultArr.includes(single))
+  });
+  return findWard;
+};
+
+export const handleFindArea = (value: string, newAreas: any) => {
+  const newValue = convertStringDistrict(value)
+      
+    // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
+    const findArea = newAreas.find((area: any) => {
+      // replace quận trong list danh sách tỉnh huyện có sẵn
+      const districtString = convertStringDistrict(area.name).replace("quan", "").replace("dao ", "");
+       // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao: 
+      // test Thị xã Phú Mỹ, bà rịa vũng tàu
+      // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
+      const cityString = convertStringDistrict(area.city_name);
+      console.log('cityString', cityString)
+      console.log('districtString', districtString)
+      return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
+    });
+    return findArea
 };

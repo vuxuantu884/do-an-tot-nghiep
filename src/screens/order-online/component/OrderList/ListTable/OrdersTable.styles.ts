@@ -1,12 +1,19 @@
 import styled from "styled-components";
-import {borderColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
-const quantityWidth = 50;
+import {borderColor, dangerColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
+let quantityWidth = 48;
 const massWidth = 100;
-const priceWidth = 82;
-const nameWidth = 120;
-export const nameQuantityWidth = nameWidth+ quantityWidth + priceWidth;
+let priceWidth = 82;
+let nameWidth = 118;
+export let nameQuantityWidth = nameWidth+ quantityWidth + priceWidth + 10;
 
-export const StyledComponent = styled.div`
+export const StyledComponent = styled.div.attrs((props:any) => {
+  if(props.isOnlyShowPos ) {
+    quantityWidth = 50;
+    // nameWidth = 158;
+    // priceWidth = 92;
+    nameQuantityWidth = window.screen.width > 1800 ? nameWidth+ quantityWidth + priceWidth : nameWidth+ quantityWidth + priceWidth + 15;
+  }
+})`
   th {
     /* text-align: center !important; */
 		padding: 12px 10px !important;
@@ -490,6 +497,10 @@ export const StyledComponent = styled.div`
       color: ${successColor};
       font-weight: 500;
     }
+    .orderTotalLeftAmount {
+      color: ${dangerColor};
+      font-weight: 500;
+    }
     .ant-table-selection-column {
       padding-left: 6px !important;
       padding-right: 6px !important;
@@ -555,5 +566,13 @@ export const StyledComponent = styled.div`
   }
   .iconReturn {
     width: 20px
+  }
+  .isReturn {
+    text-align: center;
+  }
+  .actionButton {
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
   }
 `;

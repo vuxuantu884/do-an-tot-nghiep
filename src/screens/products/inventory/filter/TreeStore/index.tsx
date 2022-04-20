@@ -3,7 +3,7 @@ import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import React, { useEffect, useState } from "react";
 import { fullTextSearch } from "utils/StringUtils";
-interface Props extends TreeSelectProps<string> {
+interface Props extends TreeSelectProps<any> {
   form?: FormInstance;
   name: string;
   placeholder?: string;

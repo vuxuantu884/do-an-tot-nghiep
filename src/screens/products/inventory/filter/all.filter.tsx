@@ -514,7 +514,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 name={InventoryQueryField.store_ids}
                 placeholder="Chọn cửa hàng"
                 listStore={listStore}
-            />
+              />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">
@@ -585,23 +585,12 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 </Col>
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.store_ids} className="store">
-                    <CustomSelect
-                      showSearch
-                      optionFilterProp="children"
-                      showArrow
+                    <TreeStore
+                      form={formBaseFilter}
+                      name={InventoryQueryField.store_ids}
                       placeholder="Chọn cửa hàng"
-                      mode="multiple"
-                      allowClear
-                      tagRender={tagRender}
-                      notFoundContent="Không tìm thấy kết quả"
-                      maxTagCount="responsive"
-                    >
-                      {listStore?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                      listStore={listStore}
+                    />
                   </Item>
                 </Col>
               </Row>

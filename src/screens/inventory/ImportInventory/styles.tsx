@@ -17,6 +17,7 @@ export const ImportStatusWrapper = styled.div`
     flex-direction: column;
     text-align: left;
     margin-top: 30px;
+    max-width: 100%;
 
     & .content {
       padding: 10px 15px;

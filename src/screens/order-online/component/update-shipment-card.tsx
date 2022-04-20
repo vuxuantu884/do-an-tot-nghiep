@@ -503,7 +503,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 				totalPaid -
 				(props.OrderDetail?.discounts &&
 					props.OrderDetail?.discounts.length > 0 &&
-					props.OrderDetail?.discounts[0].amount
+					props.OrderDetail?.discounts[0]?.amount
 					? props.OrderDetail?.discounts[0].amount
 					: 0)
 			);
@@ -636,7 +636,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 			value.cod = totalAmountCustomerNeedToPay;
 		}
 
-		FulFillmentRequest.shipment = isEcommerceOrder ? ecommerceShipment : value;
+		FulFillmentRequest.shipment = (isEcommerceOrder && ecommerceShipment) ? ecommerceShipment : value;
 
 		if (props.shippingFeeInformedCustomer !== null) {
 			FulFillmentRequest.shipping_fee_informed_to_customer =
@@ -813,8 +813,17 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	// end
 
 	const onPrint = () => {
-		onOkShippingConfirm();
-		setReload(true);
+		if (
+			props.OrderDetail?.fulfillments &&
+			props.OrderDetail?.fulfillments.length > 0 &&
+			props.OrderDetail?.fulfillments[0].shipment &&
+			props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+			props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
+			ShipmentMethod.PICK_AT_STORE
+		) {
+			fulfillmentTypeOrderRequest(1);
+			setReload(true);
+		}
 	};
 
 	const renderPushingStatusWhenDeliverPartnerFailed = () => {

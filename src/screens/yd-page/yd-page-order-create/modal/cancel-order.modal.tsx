@@ -33,6 +33,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
       setReasonSubID('')
       setReasonSubs([])
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reasonID, reasons])
   return (
     <Modal

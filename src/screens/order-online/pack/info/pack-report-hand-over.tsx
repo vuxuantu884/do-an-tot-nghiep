@@ -13,12 +13,13 @@ import { useDispatch } from "react-redux";
 import {
   deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
+  updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
 import { FulFillmentStatus } from "utils/Constants";
 import { getQueryParams } from "utils/useQuery";
 import { useHistory } from "react-router";
-import { generateQuery } from "utils/AppUtils";
+import { convertFromStringToDate, generateQuery } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import PackFilter from "component/filter/pack.filter";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
@@ -31,7 +32,9 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import moment from "moment";
+import moment, { Moment } from "moment";
+import EditNote from "screens/order-online/component/edit-note";
+import { GoodsReceiptsRequest } from "model/request/pack.request";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -213,6 +216,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
     let dataResult: Array<GoodsReceiptsSearhModel> = [];
+    
     data.items.forEach((item: GoodsReceiptsResponse, index: number) => {
       //let product_quantity = 0;
       let order_quantity = item.orders?.length ? item.orders?.length : 0;
@@ -257,15 +261,15 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           order_have_not_taken = order_have_not_taken + 1;
         if (itemOrder.fulfillment_status === FulFillmentStatus.CANCELLED)
           order_cancel = order_cancel + 1;
-        if (itemOrder.status === FulFillmentStatus.RETURNING)
+        if (itemOrder.fulfillment_status === FulFillmentStatus.RETURNING)
           order_moving_complete = order_moving_complete + 1;
-        if (itemOrder.status === FulFillmentStatus.SHIPPED)
+        if (itemOrder.fulfillment_status === FulFillmentStatus.SHIPPED)
           order_success = order_success + 1;
-        if (itemOrder.status === FulFillmentStatus.RETURNED)
+        if (itemOrder.fulfillment_status === FulFillmentStatus.RETURNED)
           order_complete = order_complete + 1;
       });
 
-      let _result = {
+      let _result:GoodsReceiptsSearhModel = {
         ...item,
         key: index,
         id_handover_record: item.id,
@@ -282,8 +286,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         order_complete: order_complete, //đơn hoàn
         account_create: item.updated_by ? item.updated_by : "", //người tạo
         ecommerce_id: item.ecommerce_id,
+        description:item.description,
+        note:item.note,
+        goods_receipts:item
       };
-
+      console.log("dataResult",_result)
       dataResult.push(_result);
 
     });
@@ -317,17 +324,28 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         if (data) {
           setTableLoading(true);
           dispatch(
-            getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
-              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-              /////
-              setData({
-                metadata: {
-                  limit: data.metadata.limit,
-                  page: data.metadata.page,
-                  total: data.metadata.total,
-                },
-                items: dataResult,
-              });
+            getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
+              if(data){
+                let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+                /////
+                setData({
+                  metadata: {
+                    limit: data.metadata.limit,
+                    page: data.metadata.page,
+                    total: data.metadata.total,
+                  },
+                  items: dataResult,
+                });
+              }else{
+                setData({
+                  metadata: {
+                    limit: 30,
+                    page: 1,
+                    total: 0,
+                  },
+                  items: [],
+                })
+              }
               setTableLoading(false);
             })
           );
@@ -418,6 +436,51 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     );
   };
 
+  const editNote= useCallback((id:number, data:GoodsReceiptsResponse, newNote:string)=>{
+    let goodsReceiptsCopy:any={...data}
+    let codes = data.orders?.map((p) => p.fullfilement_code);
+    let param : GoodsReceiptsRequest={
+      ...goodsReceiptsCopy,
+      codes: codes,
+      note: newNote
+    }
+
+    dispatch(
+      updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
+        if (data) {
+          setTableLoading(true);
+          dispatch(
+            getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
+              if(data){
+                let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+              /////
+                setData({
+                  metadata: {
+                    limit: data.metadata.limit,
+                    page: data.metadata.page,
+                    total: data.metadata.total,
+                  },
+                  items: dataResult,
+                });
+              }else{
+                setData({
+                  metadata: {
+                    limit: 30,
+                    page: 1,
+                    total: 0,
+                  },
+                  items: [],
+                })
+              }
+              setTableLoading(false);
+            })
+          );
+          showSuccess("Cập nhập ghi chú biên bản thành công");
+        }
+      })
+    );
+  },[dispatch, params])
+
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
   >([
@@ -437,6 +500,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
+              <div style={{fontSize:"0.86em", lineHeight:"1.25"}}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
               <div className="shipment-details">
                 Tự vận chuyển
               </div>
@@ -449,6 +513,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
+              <div style={{fontSize:"0.86em", lineHeight:"1.25"}}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
               <div className="shipment-details">
                 {service &&
                   <img
@@ -552,15 +617,38 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       width: "110px",
     },
 
+    // {
+    //   title: "Đơn hoàn",
+    //   dataIndex: "order_complete",
+    //   key: "order_complete",
+    //   visible: true,
+    //   align: "center",
+    //   width: "80px",
+    // },
     {
-      title: "Đơn hoàn",
-      dataIndex: "order_complete",
-      key: "order_complete",
+      title: "Ghi chú",
+      dataIndex: "note",
       visible: true,
-      align: "center",
-      width: "80px",
+      width: "160px",
+      align: "left",
+      render: (value: string, record: GoodsReceiptsSearhModel) => (
+        <div className="orderNotes">
+          <div className="inner">
+            <div className="single">
+              <EditNote
+                note={record?.note}
+                //title="Khách hàng: "
+                color={"#2a2a86"}
+                onOk={(newNote) => {
+                   editNote(record.id_handover_record, record.goods_receipts, newNote);
+                }}
+              // isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </div>
+          </div>
+        </div>
+      ),
     },
-
     {
       title: "Người tạo",
       dataIndex: "account_create",
@@ -606,32 +694,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   );
 
   useEffect(() => {
-    const convertFromStringToDate = (pDate: any, fomat:string) => {
-      let date: any = null;
-
-      if (pDate) {
-        if (!moment(pDate).isValid()) {
-          let dd = pDate.split("-")[0].padStart(2, "0");
-          let mm = pDate.split("-")[1].padStart(2, "0");
-          let yyyy = pDate.split("-")[2].split(" ")[0];
-          // let hh = pDate.split("-")[2].split(" ")[1].split(":")[0].padStart(2, "0");
-          // let mi = pDate.split("-")[2].split(" ")[1].split(":")[1].padStart(2, "0");
-          // let secs = pDate.split("-")[2].split(" ")[1].split(":")[2].padStart(2, "0");
-
-          mm = (parseInt(mm) - 1).toString(); // January is 0
-          dd = (parseInt(dd) + 1).toString();
-
-          date = moment(new Date(yyyy, mm, dd), fomat);
-        }
-        else
-          date = moment(pDate, fomat);
-      }
-
-      return date;
-    }
+    
     setTableLoading(true);
-    let from_date: any = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'");
-    let to_date: any =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'");
+    let from_date: Moment|undefined = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
+    let to_date: Moment|undefined =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
 
     let query = {
       ...params,
@@ -640,18 +706,27 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     }
     dispatch(
       getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
-        let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+        if(data){
+          let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
         /////
-        setData({
-          metadata: {
-            limit: data.metadata.limit,
-            page: data.metadata.page,
-            total: data.metadata.total,
-          },
-          items: dataResult,
-        });
+          setData({
+            metadata: {
+              limit: data.metadata.limit,
+              page: data.metadata.page,
+              total: data.metadata.total,
+            },
+            items: dataResult,
+          });
 
-        setGoodsReceipt(data.items);
+          setGoodsReceipt(data.items);
+        }else setData({
+          metadata: {
+            limit: 30,
+            page: 1,
+            total: 0,
+          },
+          items: [],
+        })
         setTableLoading(false);
       })
     );
@@ -674,7 +749,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 1450, y: 520 }}
+          scroll={{ x: 1550, y: 520 }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={{
             pageSize: data.metadata.limit,

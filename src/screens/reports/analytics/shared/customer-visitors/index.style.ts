@@ -52,4 +52,10 @@ export const CustomerVisitorsStyle = styled.div`
 .input-width {
     width: 200px;
 }
+.pt-3 {
+    padding-top: 24px;
+}
+.text-primary {
+    color: #fcaf17;
+}
 `;

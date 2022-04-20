@@ -41,7 +41,7 @@ function PickDiscountModal (props: PropType) {
   };
 
   const onchangeDiscount = (value: number|null) => {
-    if(!value) {
+    if(value === null) {
       return;
     }
     if (_type === "money") {

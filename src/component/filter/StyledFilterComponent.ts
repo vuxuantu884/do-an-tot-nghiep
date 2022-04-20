@@ -12,7 +12,7 @@ export const StyledSelectDateFilter = styled.div`
       margin-bottom: 10px;
       .ant-btn {
         width: 30%;
-        padding: 0 10px;
+        padding: 0px;
         border-radius: 3px;
         background-color: #f5f5f5;
       }
@@ -25,5 +25,16 @@ export const StyledSelectDateFilter = styled.div`
         background-color: #2a2a86;
       }
     }
+	  
+	  .date-picker-styled {
+      display: flex;
+      align-items: center;
+		  .date-picker-select {
+			  flex-grow: 1;
+			  .ant-picker {
+				  width: 100%;
+			  }
+		  }
+	  }
   }
 `;

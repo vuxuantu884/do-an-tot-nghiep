@@ -28,6 +28,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
   const dispatch = useDispatch();
 
   const [wardList, setWardList] = React.useState<Array<WardResponse>>([]);
+  const [loadingWardList, setLoadingWardList] = React.useState<boolean>(false);
   const [districtId, setDistrictId] = React.useState<any>(null);
 
   useEffect(() => {
@@ -97,7 +98,11 @@ const YDpageCustomerAreaInfo = (props: any) => {
 
   useEffect(() => {
     if (districtId) {
-      dispatch(WardGetByDistrictAction(districtId, setWardList));
+      setLoadingWardList(true);
+      dispatch(WardGetByDistrictAction(Number(districtId), (wardResponse) => {
+        setWardList(wardResponse);
+        setLoadingWardList(false);
+      }));
     } else {
       setWardList([]);
     }
@@ -131,8 +136,9 @@ const YDpageCustomerAreaInfo = (props: any) => {
         >
           <Select
             showSearch
-            disabled={isDisable}
+            disabled={isDisable || loadingWardList}
             allowClear
+            loading={loadingWardList}
             optionFilterProp="children"
             placeholder="Phường/xã"
             onClear={handleClearWard}

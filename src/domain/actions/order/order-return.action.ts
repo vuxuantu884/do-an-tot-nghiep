@@ -20,13 +20,15 @@ export const actionGetOrderReturnDetails = (
 
 export const actionCreateOrderReturn = (
   params: OrderRequest,
-  handleData: (data: any) => void
+  handleData: (data: any) => void,
+  handleError?: () => void
 ) => {
   return {
     type: OrderType.CREATE_RETURN,
     payload: {
       params,
       handleData,
+      handleError,
     },
   };
 };

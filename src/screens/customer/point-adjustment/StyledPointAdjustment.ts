@@ -9,30 +9,62 @@ export const StyledPointAdjustment = styled.div`
     margin-bottom: 20px;
   }
 
-  .basic-filter {
-    display: flex;
-    overflow-x: auto;
-
-    .search-input {
-      min-width: 250px;
-      flex-grow: 1;
-    }
-
-    .select-reason {
-      width: 320px;
-      min-width: 350px;
-      .ant-select-selector {
-        width: 100%;
-      }
-      .ant-select-selection-overflow {
-        flex-wrap: nowrap;
+  .filter {
+    margin-bottom: 5px;
+    .ant-form {
+      .ant-form-item {
+        margin-bottom: 5px;
       }
     }
 
-    div:not(:last-child) {
-      margin-right: 15px;
+    .check-validate-adjustment {
+      width: 15%;
+      margin-right: 10px;
+    }
+  
+    .form-adjustment-arrow-icon {
+      height: 38px;
+      line-height: 38px;
+      transform: translateY(-2px);
     }
   }
+
+  .search-input {
+    margin-right: 10px;
+    min-width: 50px;
+    flex-grow: 1;
+    width:10%
+  }
+
+  .select-reason {
+    margin-right: 10px;
+    min-width: 20%;
+    width: 20%;
+  }
+
+  .regulator {
+    margin-right: 10px;
+    min-width: 150px;
+    min-width: 20%;
+    width: 20%;
+  }
+  .datetime {
+    margin-right: 10px;
+    min-width: 13%;
+    width: 13%;
+    
+  }
+
+  .select-scope {
+    display: flex;
+    flex-grow: 1;
+    min-width: 180px;
+    align-items: baseline;
+    .select-item {
+      width: 40%;
+    }
+  }
+
 
   .filter-tags {
     .ant-tag {

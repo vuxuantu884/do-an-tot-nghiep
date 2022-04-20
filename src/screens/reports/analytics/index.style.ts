@@ -1,7 +1,7 @@
 import Color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 export const AnalyticsStyle = styled.div`
-padding-top: 20px;
+
 .ant-table-summary {
       display: table-header-group;
 }
@@ -11,6 +11,7 @@ padding-top: 20px;
     align-items: flex-end;
     justify-content: start;
     gap: 20px;
+    flex-wrap: wrap;
 }
 .input-width{
     width: 250px;
@@ -101,7 +102,20 @@ export const ListAnalyticsStyle = styled.div`
         }
     }
     .card-custom-report {
-        background-color: ${Color.gray} ;
+        background-color: ${Color.gray};
+        .ant-card-head-wrapper {
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .btn-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            .search {
+                width: 320px;
+            }
+        }
     }
     .ana-list {
         &__link{

@@ -6,7 +6,9 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   onReturn: () => void;
+  onReturnAndPrint: () => void;
   onReturnAndExchange: () => void;
+  onReturnAndExchangeAndPrint: () => void;
   onCancel: () => void;
   isCanExchange: boolean;
   isExchange: boolean;
@@ -15,7 +17,9 @@ type PropType = {
 function ReturnBottomBar(props: PropType) {
   const {
     onReturn,
+    onReturnAndPrint,
     onReturnAndExchange,
+    onReturnAndExchangeAndPrint,
     onCancel,
     isExchange,
   } = props;
@@ -37,24 +41,47 @@ function ReturnBottomBar(props: PropType) {
             Hủy
           </Button>
           {!isExchange ? (
-            <Button
-              type="primary"
-              onClick={() => {
-                onReturn();
-              }}
-            >
-              Trả hàng
-            </Button>
+            <React.Fragment>
+              <Button
+                type="primary"
+                ghost
+                onClick={() => {
+                  onReturn();
+                }}
+              >
+                Trả hàng
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  onReturnAndPrint();
+                }}
+              >
+                Trả hàng và in hóa đơn
+              </Button>
+            </React.Fragment>
           ) : (
-            <Button
-              type="primary"
-              onClick={() => {
-                onReturnAndExchange();
-              }}
-              disabled={isLoadingDiscount}
-            >
-              Trả và đổi hàng
-            </Button>
+            <React.Fragment>
+              <Button
+                type="primary"
+                ghost
+                onClick={() => {
+                  onReturnAndExchange();
+                }}
+                disabled={isLoadingDiscount}
+              >
+                Trả và đổi hàng
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  onReturnAndExchangeAndPrint();
+                }}
+                disabled={isLoadingDiscount}
+              >
+                Trả và đổi hàng và in hóa đơn
+              </Button>
+            </React.Fragment>
           )}
           
         </div>

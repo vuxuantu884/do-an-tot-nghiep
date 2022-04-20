@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, Row, Select, Timeline } from "antd";
+import { Button, Card, Col, Form, Input, Row, Timeline } from "antd";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
@@ -31,7 +31,6 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
   const {
     isEdit,
     formMain,
-    listPayment,
     poDataPayments,
     formMainEdit,
     isEditDetail,
@@ -131,27 +130,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
         >
           <div>
             <Row gutter={50}>
-              <Col span={24} md={10}>
-                <Form.Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn điều khoản thanh toán",
-                    },
-                  ]}
-                  name={POField.payment_condition_id}
-                  label="Điều khoản thanh toán"
-                >
-                  <Select placeholder="Chọn điều khoản thanh toán">
-                    {listPayment?.map((item) => (
-                      <Select.Option key={item.id} value={item.id}>
-                        {item.note}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={24} md={10}>
+              <Col span={30} md={15}>
                 <Form.Item name={POField.payment_note} label="Diễn giải">
                   <Input.TextArea
                     maxLength={255}
@@ -235,7 +214,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
           </div>
         }
         extra={
-          <Button
+          isEditDetail && <Button
             onClick={ShowPaymentModal}
             style={{
               alignItems: "center",
@@ -311,27 +290,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
             </Row>
           ) : (
             <Row gutter={50}>
-              <Col span={24} md={10}>
-                <Form.Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn điều khoản thanh toán",
-                    },
-                  ]}
-                  name={POField.payment_condition_id}
-                  label="Điều khoản thanh toán"
-                >
-                  <Select placeholder="Chọn điều khoản thanh toán">
-                    {listPayment?.map((item) => (
-                      <Select.Option key={item.id} value={item.id}>
-                        {item.note}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={24} md={10}>
+              <Col span={30} md={15}>
                 <Form.Item name={POField.payment_note} label="Diễn giải">
                   <Input.TextArea
                     maxLength={255}

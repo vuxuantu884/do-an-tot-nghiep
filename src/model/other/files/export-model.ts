@@ -3,7 +3,8 @@ import { BaseObject } from "model/base/base.response";
 export interface ExportRequest {
   conditions?: string;
   type: string;
-  url?: string
+  url?: string;
+  is_online?: string;
 }
 
 export interface ExportResponse extends BaseObject {

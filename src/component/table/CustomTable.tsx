@@ -16,7 +16,7 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   isShowPaginationAtHeader?: boolean;
   onChangeRowKey?: (rowKey: any[]) => void;
   rowSelectionRenderCell?: ((value: boolean, record: any, index: number, originNode: React.ReactNode) => React.ReactNode) | undefined;
-  rowSelectionWidth ?: number;
+  rowSelectionWidth ?: number|string;
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {

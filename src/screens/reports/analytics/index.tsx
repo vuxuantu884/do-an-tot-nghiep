@@ -1,11 +1,14 @@
-import { Button, Card, Form, Table } from 'antd'
+import { Button, Card, Form, Input, Table } from 'antd'
+import Item from 'antd/lib/descriptions/Item'
 import Color from "assets/css/export-variable.module.scss"
+import search from "assets/img/search.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
-import REPORT_TEMPLATES, { REPORT_NAMES } from 'config/report/report-templates'
-import { REPORT_CUBES } from 'config/report/report-templates'
+import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from 'config/report/report-templates'
 import UrlConfig from 'config/url.config'
+import _ from 'lodash'
+import { AnalyticCube } from 'model/report/analytics.model'
 import { FormFinishInfo } from 'rc-field-form/es/FormContext'
 import React, { useCallback, useEffect } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
@@ -14,6 +17,7 @@ import { useDispatch } from 'react-redux'
 import { Link, useRouteMatch } from 'react-router-dom'
 import { deleteAnalyticsCustomService, getAnalyticsCustomByService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
+import { strForSearch } from 'utils/StringUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ListAnalyticsStyle } from './index.style'
 import ModalCreateReport from './shared/create-report-modal'
@@ -32,6 +36,7 @@ function Analytics() {
     const [isModalCreateVisible, setIsModalCreateVisible] = React.useState<boolean>(false)
     const [isConfirmDeleteVisible, setIsConfirmDeleteVisible] = React.useState<boolean>(false)
     const [handlingReportId, setHanlingReportId] = React.useState<number>()
+    const [filteredAnalyticList, setFilteredAnalyticList] = React.useState<Array<any>>()
 
 
 
@@ -100,6 +105,21 @@ function Analytics() {
         fetchCustomAnalytics();
     }, [dispatch, fetchCustomAnalytics]);
 
+    const onSearchCustomReport = (keySearch: string) => {
+        if (!analyticList?.length) {
+            return;
+        }
+        if (!keySearch) {
+            setFilteredAnalyticList([...analyticList]);
+        } else {
+            const filteredData = analyticList.filter(item => {
+                const { name } = item;
+                return name && strForSearch(name.toLowerCase()).includes(strForSearch(keySearch.toLowerCase()));
+            })
+            setFilteredAnalyticList([...filteredData]);
+        }
+    }
+
     return (
         <ContentContainer
             title={`Danh sách ${REPORT_NAMES[matchPath].toLocaleLowerCase()}`}
@@ -109,14 +129,27 @@ function Analytics() {
             <Form.Provider onFormFinish={handleFormFinish}>
                 <ListAnalyticsStyle>
                     {
-                        [UrlConfig.ANALYTIC_SALES].includes(matchPath) && (
+                        [UrlConfig.ANALYTIC_SALES_OFFLINE].includes(matchPath) && (
                             <div>
                                 <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
-                                    return item.alias.includes(matchPath) && item.cube === 'sales'
+                                    return item.alias.includes(matchPath) && item.cube === AnalyticCube.OfflineSales
                                 })} title="Báo cáo bán hàng"></ListAnalyticsBlock>
-                                <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
+                                {/* <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
                                     return item.alias.includes(matchPath) && item.cube === 'payments'
-                                })} title="Báo cáo thanh toán"></ListAnalyticsBlock>
+                                })} title="Báo cáo thanh toán"></ListAnalyticsBlock> */}
+                            </div>
+                        )
+                    }
+
+                    {
+                        [UrlConfig.ANALYTIC_SALES_ONLINE].includes(matchPath) && (
+                            <div>
+                                <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
+                                    return item.alias.includes(matchPath) && item.cube === AnalyticCube.Sales
+                                })} title="Báo cáo đơn hàng"></ListAnalyticsBlock>
+                                {/* <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
+                                    return item.alias.includes(matchPath) && item.cube === 'payments'
+                                })} title="Báo cáo thanh toán"></ListAnalyticsBlock> */}
                             </div>
                         )
                     }
@@ -138,12 +171,26 @@ function Analytics() {
                     }
 
                     <Card title="Báo cáo tuỳ chỉnh" className='card-custom-report'
-                        extra={<Button type='primary' onClick={() => setIsModalCreateVisible(true)}>
-                            Tạo báo cáo tuỳ chỉnh
-                        </Button>
+                        extra={
+                            <div className="btn-group">
+                                <Form>
+                                    <Item>
+                                        <Input
+                                            className="search"
+                                            allowClear
+                                            prefix={<img src={search} alt="" />}
+                                            placeholder="Tìm kiếm theo Tên báo cáo tuỳ chỉnh"
+                                            onChange={_.debounce((event) => onSearchCustomReport(event.target.value), 200)}
+                                        />
+                                    </Item>
+                                </Form>
+                                <Button type='primary' onClick={() => setIsModalCreateVisible(true)}>
+                                    Tạo báo cáo tuỳ chỉnh
+                                </Button>
+                            </div>
                         }
                     >
-                        <Table dataSource={analyticList}
+                        <Table dataSource={filteredAnalyticList ? filteredAnalyticList : analyticList}
                             rowKey={(record: any) => record.id}
                             rowClassName="ana-list__item"
                             loading={isLoadingAnalyticList}
@@ -187,7 +234,7 @@ function Analytics() {
                     subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
                 />
             </Form.Provider>
-            { [UrlConfig.ANALYTIC_SALES].includes(matchPath) && (
+            { [UrlConfig.ANALYTIC_SALES_OFFLINE].includes(matchPath) && (
                 <BottomBarContainer
                     rightComponent={
                         <>

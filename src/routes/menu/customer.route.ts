@@ -36,7 +36,7 @@ const customers: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: `${UrlConfig.CUSTOMER2}-cards`,
+    path: `${UrlConfig.CUSTOMER_CARDS}`,
     exact: true,
     title: "Thẻ khách hàng",
     icon: "icon-dot",
@@ -46,7 +46,7 @@ const customers: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.CUSTOMER2}-cards/upload`,
+        path: `${UrlConfig.CUSTOMER_CARDS}/upload`,
         exact: true,
         title: "Thẻ khách hàng",
         icon: "icon-dot",

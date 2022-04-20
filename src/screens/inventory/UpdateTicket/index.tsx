@@ -1,27 +1,8 @@
-import React, {
-  createRef,
-  FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import './index.scss';
+import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
+import "./index.scss";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import {
-  AutoComplete,
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  Table,
-  Upload,
-} from "antd";
+import { AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Table, Upload } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { UploadOutlined } from "@ant-design/icons";
@@ -44,13 +25,7 @@ import {
   inventoryUploadFileAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {
-  FileUrl,
-  InventoryTransferDetailItem,
-  LineItem,
-  StockTransferSubmit,
-  Store,
-} from "model/inventory/transfer";
+import { FileUrl, InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
 
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
@@ -67,7 +42,6 @@ import _ from "lodash";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
 import { Link } from "react-router-dom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { InventoryResponse } from "model/inventory";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { AccountStoreResponse } from "model/account/account.model";
@@ -154,8 +128,7 @@ const UpdateTicket: FC = () => {
     const dataTableClone = _.cloneDeep(dataTable);
     dataTableClone[index].transfer_quantity = quantity;
 
-    const amountNumber = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
-    dataTableClone[index].amount = amountNumber;
+    dataTableClone[index].amount = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
     setDataTable(dataTableClone);
   }
 
@@ -209,7 +182,34 @@ const UpdateTicket: FC = () => {
     } else {
       dispatch(getDetailInventoryTransferAction(idNumber, onResult));
     }
-  }, [CopyId, stateImport, dispatch, idNumber, onResult, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [CopyId]);
+
+  useEffect(() => {
+    if (stores.length === 0) return;
+
+    if (fromStores?.length === 1) {
+      stores.forEach((element: any) => {
+        if (element.id === fromStores[0].store_id) {
+          form.setFieldsValue({
+            from_store_id: element.id
+          });
+          setFormStoreData(element);
+        }
+      });
+    }
+
+    if (fromStores?.length === 0) {
+      const newStore = stores.map((i) => {
+        return {
+          store_id: i.id,
+          store: i.name,
+        }
+      });
+      setFromStores(newStore);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stores, fromStores]);
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
@@ -258,7 +258,7 @@ const UpdateTicket: FC = () => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+    resultSearch?.items?.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -438,20 +438,24 @@ const UpdateTicket: FC = () => {
   const onResultGetDetailVariantIds = useCallback( result => {
     if (result) {
       setIsLoadingTable(false);
-      const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable, newOnHand;
-        result?.forEach((itemNew: InventoryResponse) => {
-          if (itemNew.variant_id === itemOld.variant_id) {
-            newAvailable = itemNew.available;
-            newOnHand = itemNew.on_hand;
+
+      let newDataTable = [...dataTable];
+
+      const storeId = form.getFieldValue("from_store_id");
+
+      for (let i = 0; i < newDataTable.length; i++) {
+        for (let j = 0; j < result.length; j++) {
+          if (storeId === result[j].store_id && newDataTable[i].variant_id === result[j].variant_id) {
+            newDataTable[i].available = result[j].available;
+            newDataTable[i].on_hand = result[j].on_hand;
+            break;
           }
-        });
-        return {
-          ...itemOld,
-          available: newAvailable,
-          on_hand: newOnHand,
-        };
-      });
+
+          if (j === result.length - 1 && i === newDataTable.length - 1) {
+            newDataTable = [];
+          }
+        }
+      }
 
       setDataTable(newDataTable);
     } else {
@@ -491,33 +495,33 @@ const UpdateTicket: FC = () => {
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
-    let countError = 0;
-    let arrError: Array<string> = [];
-    dataTable?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        arrError.push(`${index + 1}`);
-        countError++;
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-
-    if (countError > 0) {
-      showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-      return;
-    }
+    // let countError = 0;
+    // let arrError: Array<string> = [];
+    // dataTable?.forEach((element: VariantResponse, index: number) => {
+    //   const thisInput = document.getElementById(`item-quantity-${index}`);
+    //   if (!element.transfer_quantity) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (element.transfer_quantity === 0) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (
+    //     element.transfer_quantity > (element.available ? element.available : 0)
+    //   ) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     arrError.push(`${index + 1}`);
+    //     countError++;
+    //   } else {
+    //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+    //   }
+    // });
+    //
+    // if (countError > 0) {
+    //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
+    //   return;
+    // }
 
     if (CopyId || stateImport) {
       const dataCreate: any= {}
@@ -610,37 +614,37 @@ const UpdateTicket: FC = () => {
     }
   },[CopyId, createCallback, dataTable, dispatch, initDataForm, stateImport, stores]);
 
-  const checkError = (index: number) => {
-    const dataLineItems = dataTable;
-    const thisInput = document.getElementById(`item-quantity-${index}`);
-    if (dataLineItems[index].transfer_quantity === 0) {
-      showError("Số lượng phải lớn hơn 0");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else if (
-      dataLineItems[index].transfer_quantity >
-      (dataLineItems[index].available ? dataLineItems[index].available : 0)
-    ) {
-      showError("Không đủ tồn kho gửi");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else {
-      if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-    }
-
-    dataLineItems?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-  };
+  // const checkError = (index: number) => {
+  //   const dataLineItems = dataTable;
+  //   const thisInput = document.getElementById(`item-quantity-${index}`);
+  //   if (dataLineItems[index].transfer_quantity === 0) {
+  //     showError("Số lượng phải lớn hơn 0");
+  //     if (thisInput) thisInput.style.borderColor = "red";
+  //   } else if (
+  //     dataLineItems[index].transfer_quantity >
+  //     (dataLineItems[index].available ? dataLineItems[index].available : 0)
+  //   ) {
+  //     showError("Không đủ tồn kho gửi");
+  //     if (thisInput) thisInput.style.borderColor = "red";
+  //   } else {
+  //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+  //   }
+  //
+  //   dataLineItems?.forEach((element: VariantResponse, index: number) => {
+  //     const thisInput = document.getElementById(`item-quantity-${index}`);
+  //     if (!element.transfer_quantity) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else if (element.transfer_quantity === 0) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else if (
+  //       element.transfer_quantity > (element.available ? element.available : 0)
+  //     ) {
+  //       if (thisInput) thisInput.style.borderColor = "red";
+  //     } else {
+  //       if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+  //     }
+  //   });
+  // };
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
@@ -658,24 +662,24 @@ const UpdateTicket: FC = () => {
     );
   };
 
-  const isError = useMemo(()=>{
-   const fromId =  form.getFieldValue("from_store_id");
-
-    if (!fromId || (!initDataForm && !toStoreData) ||  (fromId === toStoreData?.id))  return true
-
-    let error = false;
-
-    if (dataTable.length === 0) {
-      return true
-    }
-
-    dataTable?.forEach((element: VariantResponse, index: number) => {
-      if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
-        error= true
-      }
-    });
-    return error;
-  },[form, toStoreData, dataTable, initDataForm])
+  // const isError = useMemo(()=>{
+  //  const fromId =  form.getFieldValue("from_store_id");
+  //
+  //   if (!fromId || (!initDataForm && !toStoreData) ||  (fromId === toStoreData?.id))  return true
+  //
+  //   let error = false;
+  //
+  //   if (dataTable.length === 0) {
+  //     return true
+  //   }
+  //
+  //   dataTable?.forEach((element: VariantResponse) => {
+  //     if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
+  //       error= true
+  //     }
+  //   });
+  //   return error;
+  // },[form, toStoreData, dataTable, initDataForm])
 
   useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
@@ -745,7 +749,7 @@ const UpdateTicket: FC = () => {
    [onSelectProduct,form, dispatch, onSearchProduct]
  );
 
- const onSelect = useCallback((o,v)=>{
+ const onSelect = useCallback((o)=>{
    onSelectProduct(o);
  },[onSelectProduct])
 
@@ -781,7 +785,7 @@ const UpdateTicket: FC = () => {
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -809,7 +813,12 @@ const UpdateTicket: FC = () => {
       },
     },
     {
-      title: "Số lượng",
+      title: <div>
+        <div>Số lượng</div>
+        <div className="text-center">
+          {getTotalQuantity()}
+        </div>
+      </div>,
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
@@ -829,9 +838,9 @@ const UpdateTicket: FC = () => {
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}
-            onBlur={() => {
-              checkError(index);
-            }}
+            // onBlur={() => {
+            //   checkError(index);
+            // }}
           />
         </React.Fragment>
       ),
@@ -1155,7 +1164,7 @@ const UpdateTicket: FC = () => {
                   {(!CopyId || !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
 
                   <Button
-                    disabled={isError || isLoading}
+                    disabled={isLoading}
                     htmlType={"submit"}
                     type="primary"
                     loading={isLoading}

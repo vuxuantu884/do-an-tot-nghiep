@@ -1,13 +1,14 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import { Tooltip} from "antd";
+import {Button, Col, Form, Tooltip} from "antd";
+// import {HiChevronDoubleDown, HiChevronDoubleRight} from "react-icons/hi";
 import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
 import {OrderModel} from "model/order/order.model";
 import NumberFormat from "react-number-format";
-import {Link} from "react-router-dom";
+import {Link, useHistory, useLocation} from "react-router-dom";
 import UrlConfig from "config/url.config";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {formatCurrency} from "utils/AppUtils";
+import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {PageResponse} from "model/base/base-metadata.response";
 import moment from "moment";
 import {DeliveryServiceResponse, OrderLineItemResponse,} from "model/response/order/order.response";
@@ -29,10 +30,11 @@ import iconShippingFeeInformedToCustomer
   from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeePay3PL.svg";
 import iconWeight from "screens/order-online/component/OrderList/ListTable/images/iconWeight.svg";
-import IconPaymentBank from "screens/order-online/component/OrderList/ListTable/images/paymentBank.svg";
+import IconPaymentBank from "screens/order-online/component/OrderList/ListTable/images/chuyen-khoan.svg";
 import IconPaymentCard from "screens/order-online/component/OrderList/ListTable/images/paymentCard.svg";
-import IconPaymentCod from "screens/order-online/component/OrderList/ListTable/images/paymentCod.svg";
-import IconPaymentCash from "screens/order-online/component/OrderList/ListTable/images/paymentMoney.svg";
+import IconPaymentCod from "screens/order-online/component/OrderList/ListTable/images/cod.svg";
+import IconPaymentReturn from "screens/order-online/component/OrderList/ListTable/images/tien-hoan.svg";
+import IconPaymentCash from "screens/order-online/component/OrderList/ListTable/images/tien-mat.svg";
 import IconPaymentPoint from "screens/order-online/component/OrderList/ListTable/images/paymentPoint.svg";
 import IconStore from "screens/order-online/component/OrderList/ListTable/images/store.svg";
 import {ReturnModel} from "model/order/return.model";
@@ -41,13 +43,34 @@ import {
   getCustomerOrderReturnHistoryAction
 } from "../../../domain/actions/customer/customer.action";
 import iconReturn from "assets/icon/return.svg";
+import { getVariantApi, searchVariantsApi } from "service/product/product.service";
+import DebounceSelect from "component/filter/component/debounce-select";
+import { getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
+import queryString from "query-string";
+
 
 type PurchaseHistoryProps = {
   customer: any;
 };
 
+const initQuery: any = {
+  limit: 10,
+  page: 1,
+  customer_id: null,
+  variant_ids: [],
+}
+
 function PurchaseHistory(props: PurchaseHistoryProps) {
   const { customer } = props;
+
+  const history = useHistory()
+  const location = useLocation()
+
+  const queryParamsParsed: any = queryString.parse(
+    location.search
+  );
+
+  const [formOrderHistoryFilter] = Form.useForm()
 
   // const orderPointSpend = (order: any) => {
   //   if (order) {
@@ -124,19 +147,30 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     Array<DeliveryServiceResponse>
   >([]);
 
+
   const dispatch = useDispatch();
+  const query = useQuery()
 
   // get order returned
+  const [variantsQuery, setVariantsQuery] = useState<any>(null);
   const [orderReturnedList, setOrderReturnedList] = useState<any>([]);
+
+  //handle get purchase history
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
+  const [orderHistoryQueryParams, setOrderHistoryQueryParams] = useState<any>(initQuery);
+  const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
+  const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
 
   const updateOrderReturnedList = useCallback(
     (data: PageResponse<ReturnModel> | false) => {
       setTableLoading(false);
-      if (!!data) {
+      if (!!data && !variantsQuery) {
         setOrderReturnedList(data.items);
+      }else {
+        setOrderReturnedList([]);
       }
     },
-    []
+    [variantsQuery]
   );
 
   useEffect(() => {
@@ -144,16 +178,11 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
       setTableLoading(true);
       dispatch(getCustomerOrderReturnHistoryAction(customer?.id, updateOrderReturnedList));
     }
-  }, [customer?.id, dispatch, updateOrderReturnedList]);
+  }, [customer?.id, dispatch, orderHistoryQueryParams.variant_ids, updateOrderReturnedList]);
   // end get order returned
 
-  // handle get purchase history
-  const [tableLoading, setTableLoading] = useState<boolean>(false);
-  const [orderHistoryQueryParams, setOrderHistoryQueryParams] = useState<any>({
-    limit: 10,
-    page: 1,
-    customer_id: null,
-  });
+
+
 
   const [orderHistoryData, setOrderHistoryData] = useState<
     PageResponse<OrderModel>
@@ -170,9 +199,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     (page, limit) => {
       orderHistoryQueryParams.page = page;
       orderHistoryQueryParams.limit = limit;
-      setOrderHistoryQueryParams({ ...orderHistoryQueryParams });
+
+      const newParams = { ...orderHistoryQueryParams, page, limit, customer_id: null }
+      let queryParam = generateQuery(newParams);
+			history.push(`${location.pathname}?${queryParam}`);
     },
-    [orderHistoryQueryParams, setOrderHistoryQueryParams]
+    [history, location.pathname, orderHistoryQueryParams]
   );
 
   const updateOrderHistoryData = useCallback(
@@ -185,20 +217,26 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     []
   );
 
-  useEffect(() => {
-    if (customer?.id) {
-      orderHistoryQueryParams.customer_id = customer?.id;
-      setTableLoading(true);
-      dispatch(getCustomerOrderHistoryAction(orderHistoryQueryParams, updateOrderHistoryData));
+  async function handleSearchVariantAndBarCode (value: any){
+    try {
+      const result = await searchVariantsApi({ info: value });
+      return result.data.items.map((item) => {
+        return {
+          label: item.name,
+          value: item.id.toString(),
+        };
+      });
+    } catch (error) {
+      console.log(error);
     }
-  }, [customer?.id, dispatch, orderHistoryQueryParams, updateOrderHistoryData]);
+  }
+
 
   const orderHistoryList = useCallback(() => {
-
     const newOrderHistoryList = orderReturnedList.map((order: any) => {
       const unifiedCode = order.code ? order.code : order.code_order_return
-      const unifiedTotalAmount = order.total_line_amount_after_line_discount 
-      ? order.total_line_amount_after_line_discount 
+      const unifiedTotalAmount = order.total_line_amount_after_line_discount
+      ? order.total_line_amount_after_line_discount
       : order.total_amount
 
       return {
@@ -213,10 +251,25 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     orderMapOrderHistory.length && orderMapOrderHistory.sort((a, b) => {
       return (b.created_date < a.created_date) ? -1 : ((b.created_date > a.created_date) ? 1 : 0);
     });
- 
+
     return orderMapOrderHistory;
   }, [orderHistoryData?.items, orderReturnedList]);
   // end handle get purchase history
+
+  const onFinish = useCallback((values: any) => {
+    const newParams = { ...orderHistoryQueryParams, ...values, customer_id: null }
+    const currentParam = generateQuery(orderHistoryQueryParams);
+    const queryParam = generateQuery(newParams);
+    if (currentParam !== queryParam) {
+      history.push(`${location.pathname}?${queryParam}`);
+
+    }
+
+    if (values.variant_ids.length) {
+      setOrderReturnedList([])
+    }
+
+  }, [history, location.pathname, orderHistoryQueryParams])
 
   useEffect(() => {
     dispatch(
@@ -225,6 +278,78 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
       })
     );
   }, [dispatch]);
+
+  useEffect(() => {
+    if (orderHistoryQueryParams.variant_ids && orderHistoryQueryParams.variant_ids.length) {
+      setRerenderSearchVariant(false);
+      let variant_ids = Array.isArray(orderHistoryQueryParams.variant_ids)
+        ? orderHistoryQueryParams.variant_ids
+        : [orderHistoryQueryParams.variant_ids];
+      (async () => {
+        let variants: any = [];
+        await Promise.all(
+          variant_ids.map(async (variant_id: any) => {
+            try {
+              const result = await getVariantApi(variant_id);
+
+              variants.push({
+                label: result.data.name,
+                value: result.data.id.toString(),
+              });
+            } catch {}
+          })
+        );
+        setOptionsVariant(variants);
+        if (variants?.length > 0) {
+          setRerenderSearchVariant(true);
+        }
+      })();
+    } else {
+      setRerenderSearchVariant(true);
+    }
+  }, [orderHistoryQueryParams.variant_ids]);
+
+
+  const getCustomerHistory = (params: any) => {
+    if (customer?.id) {
+      const checkVariantId = Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids]
+
+      const newParams = {
+        ...params,
+        variant_ids: checkVariantId,
+      }
+
+      dispatch(getCustomerOrderHistoryAction(newParams, updateOrderHistoryData));
+      setTableLoading(true);
+    }
+  }
+
+  useEffect(() => {
+    formOrderHistoryFilter.setFieldsValue({
+      variant_ids: orderHistoryQueryParams.variant_ids,
+    })
+
+    setVariantsQuery(query.get("variant_ids"))
+
+  }, [formOrderHistoryFilter, orderHistoryQueryParams, query]);
+
+
+  useEffect(() => {
+    initQuery.customer_id = customer?.id;
+    let dataQuery: any ={
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    }
+    setOrderHistoryQueryParams(dataQuery)
+    getCustomerHistory(dataQuery)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, location.search, customer?.id]);
+
+  const handleClearSearchOrderCustomer = () => {
+    let queryParam = generateQuery(initQuery);
+    history.push(`${location.pathname}?${queryParam}`);
+  }
+
 
   const paymentIcons = [
     {
@@ -254,7 +379,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     },
     {
       payment_method_code: null,
-      icon: IconPaymentCash,
+      icon: IconPaymentReturn,
       tooltip: null,
     },
     {
@@ -267,15 +392,23 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
     let html = null;
-    html = orderDetail.payments.map((payment, index) => {
+    html = orderDetail?.payments?.map((payment, index) => {
       if (!payment.amount) {
         return null;
       }
       let selectedPayment = paymentIcons.find(
-        (single) => single.payment_method_code === payment.payment_method_code
+        (single) => {
+          if(single.payment_method_code === "cod") {
+            return single.payment_method_code === payment.payment_method
+          } else if(!single.payment_method_code ){
+            return payment.payment_method=== "Hàng đổi"
+          } else {
+            return single.payment_method_code === payment.payment_method_code
+          }
+        }
       );
       return (
-        <div className="singlePayment" key={index}>
+        <div  className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={index}>
           {payment.paid_amount < 0 ? (
             <Tooltip title="Hoàn tiền">
               <img src={selectedPayment?.icon} alt="" />
@@ -363,18 +496,20 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     [dispatch, onSuccessEditNote]
   );
 
-  const renderReturn = (item:OrderModel) => {
-    return (
-      <div style={{marginTop: 5}}>
-        <Tooltip title="Đổi trả hàng">
-          <Link
-            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${item.id}`}
-          >
-            <img alt="" src={iconReturn} style={{width: 20}} />
-          </Link>
-        </Tooltip>
-      </div>
-    )
+  const renderReturn = (item: any) => {
+    if (!item.code_order_return) {
+      return (
+        <div style={{marginTop: 5}}>
+          <Tooltip title="Đổi trả hàng">
+            <Link
+              to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${item.id}`}
+            >
+              <img alt="" src={iconReturn} style={{width: 20}} />
+            </Link>
+          </Tooltip>
+        </div>
+      )
+    }
   };
 
   const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> =
@@ -392,7 +527,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               <div>
                 {
                   !item.code_order_return
-                  ?  
+                  ?
                   <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
                    {value}
                   </Link>
@@ -573,12 +708,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               {
                 !record.code_order_return
                 ?
-                <div className="order-point-column">
+                <div className="order-point-column order-point-screen">
                   <span style={{ color: "#27AE60" }}>{`Tích: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
                   <span style={{ color: "#E24343" }}>{`Tiêu: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
                 </div>
                 :
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div className="order-point-screen">
                   <span style={{ color: "#27AE60" }}>{`Trừ Tích: ${record.change_point?.subtract ? record.change_point?.subtract : 0}`}</span>
                   <span style={{ color: "#E24343" }}>{`Hoàn Tiêu: ${record.change_point?.add ? record.change_point?.add : 0}`}</span>
                 </div>
@@ -589,7 +724,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           key: "customer.amount_money",
           visible: true,
           align: "left",
-          width: 120,
+          width: 130,
         },
 
         {
@@ -600,12 +735,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               <div className="inner">
                 {
                   record.code_order_return
-                  &&  
+                  &&
                   <div className="order-reason">
-                   <span className="order-reason-heading">Lý do trả</span>
+                   <span className="order-reason-heading">Lý do trả:</span>
                    <span className="order-reason-content">{record.reason}</span>
                   </div>
-                  
+
                 }
                 <div className="single order-note">
                   <EditNote
@@ -635,7 +770,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           key: "note",
           visible: true,
           align: "left",
-          width: 150,
+          width: 160,
         },
 
         {
@@ -665,7 +800,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   ? "#27AE60"
                   : "#E24343",
             };
-    
+
             return (
               <>
               {
@@ -725,8 +860,8 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
               {
                 record.code_order_return
-                &&  
-                <div>
+                &&
+                <div style={{ textAlign: "center" }}>
                   <div>
                     <div>
                     <strong>Hàng: </strong>
@@ -740,7 +875,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                       : ""}
                     </div>
                   </div>
-                  
+
                   <div>
                     <strong>Tiền: </strong>
                     <span style={{ color: `${payment_status.color}` }}>
@@ -756,7 +891,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           align: "left",
           width: 120,
         },
-        
+
         {
           title: "Vận chuyển",
           key: "shipment.type",
@@ -1037,8 +1172,8 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             <Link
               target="_blank"
               to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
-              {record.account 
-                && record.account_code 
+              {record.account
+                && record.account_code
                 && `${record.account_code} - ${record.account}`
               }
             </Link>
@@ -1145,6 +1280,34 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
   return (
     <StyledPurchaseHistory>
+      <Form
+       onFinish={onFinish}
+       form={formOrderHistoryFilter}
+       layout="inline"
+      >
+        <Col span={22} style={{ paddingBottom: "20px" }}>
+            <Form.Item name="variant_ids">
+              {rerenderSearchVariant && (
+                 <DebounceSelect
+                 mode="multiple"
+                 showArrow
+                 maxTagCount="responsive"
+                 placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm"
+                 allowClear
+                 fetchOptions={handleSearchVariantAndBarCode}
+                 optionsVariant={optionsVariant}
+                 onClear={handleClearSearchOrderCustomer}
+               />
+              )}
+          </Form.Item>
+        </Col>
+
+        <Col span={2}>
+          <Button type="primary" htmlType="submit">
+            Lọc
+          </Button>
+        </Col>
+      </Form>
       <CustomTable
         bordered
         isLoading={tableLoading}
@@ -1152,9 +1315,9 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         scroll={{ x: 2800 }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
-          pageSize: orderHistoryData.metadata.limit,
-          total: orderHistoryData.metadata.total,
-          current: orderHistoryData.metadata.page,
+          pageSize: orderHistoryData.metadata?.limit,
+          total: orderHistoryData.metadata?.total,
+          current: orderHistoryData.metadata?.page,
           showSizeChanger: true,
           onChange: onPageChange,
           onShowSizeChange: onPageChange,

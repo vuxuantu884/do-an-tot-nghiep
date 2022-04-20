@@ -15,6 +15,7 @@ import CustomerShippingAddressInfo from "./customer-shipping/customer.shipping";
 import CustomerShippingInfo from "./customer-billing/customer.billing";
 import CustomerNoteInfo from "./customer-note/customer.note";
 import PurchaseHistory from "screens/customer/customer-detail/PurchaseHistory";
+import CustomerActivityLog from "screens/customer/customer-detail/CustomerActivityLog";
 import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHistory";
 
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
@@ -84,14 +85,14 @@ const CustomerDetail = () => {
       id: 2,
       name: "Trừ điểm",
     },
-    // {
-    //   id: 3,
-    //   name: "Tặng tiền tích lũy",
-    // },
-    // {
-    //   id: 4,
-    //   name: "Trừ tiền tích lũy",
-    // },
+    {
+      id: 3,
+      name: "Tặng tiền tích lũy",
+    },
+    {
+      id: 4,
+      name: "Trừ tiền tích lũy",
+    },
   ];
 
 
@@ -129,6 +130,10 @@ const CustomerDetail = () => {
       switch (history.location.hash) {
         case "#history":
           setActiveTab("history");
+          setIsShowAddBtn(false);
+          break;
+        case "#activity-log":
+          setActiveTab("activity-log");
           setIsShowAddBtn(false);
           break;
         case "#caring-history":
@@ -335,6 +340,9 @@ const CustomerDetail = () => {
       case "history":
         setIsShowAddBtn(false);
         break;
+      case "activity-log":
+        setIsShowAddBtn(false);
+        break;
     }
     if (active === "add") {
       switch (history.location.hash) {
@@ -367,6 +375,9 @@ const CustomerDetail = () => {
         case "#history":
           setIsShowAddBtn(false);
           break;
+        case "#activity-log":
+          setIsShowAddBtn(false);
+          break;
       }
     } else {
       history.replace(`${history.location.pathname}#${active}`);
@@ -378,20 +389,24 @@ const CustomerDetail = () => {
       switch (menuId) {
         case 1:
           history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD_POINT&customer_ids=${customer?.id}`
           );
           break;
         case 2:
           history.replace(
-            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT_POINT&customer_ids=${customer?.id}`
           );
           break;
-        // case 3:
-        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
-        //   break;
-        // case 4:
-        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
-        //   break;
+        case 3:
+          history.replace(
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD_MONEY&customer_ids=${customer?.id}`
+          );
+          break;
+        case 4:
+          history.replace(
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT_MONEY&customer_ids=${customer?.id}`
+          );
+          break;
       }
     },
     [customer, history]
@@ -474,6 +489,12 @@ const CustomerDetail = () => {
 
                   <TabPane tab="Lịch sử chăm sóc" key="caring-history">
                     <CustomerCareHistory
+                      customer={customer}
+                    />
+                  </TabPane>
+
+                  <TabPane tab="Lịch sử thao tác" key="activity-log">
+                    <CustomerActivityLog
                       customer={customer}
                     />
                   </TabPane>

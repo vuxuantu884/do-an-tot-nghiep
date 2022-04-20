@@ -1,17 +1,18 @@
-import { Card, Col, Form, FormInstance, Row } from "antd";
+import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/CreateOrderSidebarOrderExtraInformation/CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOrderSidebarOrderInformation";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import { getListStoresSimpleAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
-import { hideLoading } from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionCreateOrderExchange,
@@ -22,6 +23,7 @@ import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, change
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import purify from "dompurify";
 import useFetchStores from "hook/useFetchStores";
+import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -49,6 +51,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
@@ -62,7 +65,6 @@ import {
   getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleFetchApiError,
-  haveAccess,
   isFetchApiSuccessful,
   isOrderFromPOS,
   scrollAndFocusToDomElement,
@@ -95,17 +97,17 @@ type PropTypes = {
 
 let typeButton = "";
 let order_return_id: number = 0;
+let isPrint = false;
 
 const ScreenReturnCreate = (props: PropTypes) => {
   const isUserCanCreateOrder = useRef(true);
   const printType =  {
     return: "order_return",
     returnAndExchange: "order_exchange",
-
   }
   const isShouldSetDefaultStoreBankAccount = useSelector(
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
-  )	
+  )
   const [form] = Form.useForm();
   const [isError, setError] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
@@ -136,7 +138,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
   const [orderAmount, setOrderAmount] = useState<number>(0);
-  const [tags, setTag] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
@@ -185,6 +187,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   OrderReasonModel|null
   >(null);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
+  const [isVisibleModalWarningPointRefund, setIsVisibleModalWarningPointRefund] = useState<boolean>(false);
   const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
   const [moneyRefund, setMoneyRefund] = useState(0);
@@ -226,6 +229,13 @@ ShippingServiceConfigDetailResponseModel[]
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
+
+  const recentAccountCode = useMemo(() => {
+    return {
+      accountCode: userReducer.account?.code,
+      accountFullName: userReducer.account?.full_name
+    }
+  }, [userReducer.account?.code, userReducer.account?.full_name])
 
   const initialForm: OrderRequest = useMemo(() => {
     return {
@@ -280,12 +290,14 @@ ShippingServiceConfigDetailResponseModel[]
           returnMoneyNote: undefined,
         },
       ],
-      account_code: OrderDetail?.account_code,
-      assignee_code: OrderDetail?.assignee_code || null,
+      account_code: recentAccountCode.accountCode,
+      assignee_code: !isOrderFromPOS(OrderDetail) ? recentAccountCode.accountCode :  OrderDetail?.assignee_code,
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
+      note: OrderDetail?.note,
+      customer_note: OrderDetail?.customer_note,
     }
-  }, [OrderDetail?.account_code, OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.marketer_code, initialForm, listPaymentMethodsReturnToCustomer?.id])
+  }, [OrderDetail, initialForm, listPaymentMethodsReturnToCustomer?.id, recentAccountCode.accountCode])
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -327,8 +339,6 @@ ShippingServiceConfigDetailResponseModel[]
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
-  console.log('storeId', storeId)
-
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
     if (!data) {
@@ -369,7 +379,7 @@ ShippingServiceConfigDetailResponseModel[]
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
       if (_data.tags) {
-        setTag(_data.tags);
+        setTags(_data.tags);
       }
       if (_data.discounts) {
         let totalDiscount = 0;
@@ -423,7 +433,7 @@ ShippingServiceConfigDetailResponseModel[]
 
   const handleRecalculateOriginDiscount = (itemsResult: any) => {
     return OrderDetail?.discounts?.map(singleDiscount => {
-      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult) 
+      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult)
       return {
         ...singleDiscount,
         value: value,
@@ -431,20 +441,26 @@ ShippingServiceConfigDetailResponseModel[]
       }
     }) || null
   };
+  
 
   const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
     const orderIds = [orderId];
-  
-    getPrintOrderReturnContentService(orderIds, printType).then(response => {
-      if (isFetchApiSuccessful(response)) {
-        console.log('response', response)
-        setPrintContent(response.data[0].html_content);
-        handlePrint();
-      } else {
-        handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
-      }
+    return new Promise((resolve, reject) => {
+      getPrintOrderReturnContentService(orderIds, printType).then(response => {
+        if (isFetchApiSuccessful(response)) {
+          console.log('response', response)
+          setPrintContent(response.data[0].html_content);
+          if(handlePrint) {
+            handlePrint();
+          }
+        } else {
+          handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
+        }
+      }).finally(() => {
+        resolve("")
+      })
     })
-   
+
   }, [dispatch, handlePrint]);
 
   const handleSubmitFormReturn = () => {
@@ -514,18 +530,38 @@ ShippingServiceConfigDetailResponseModel[]
         total: totalAmountReturnProducts,
         total_discount: getTotalOrderDiscount(discounts),
         total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
+        account_code: recentAccountCode.accountCode,
+        // clear giá trị
+        reference_code: "",
+        customer_note: "",
+        note: "",
+        url: "",
+        tags: null,
       };
-      // return;
+      console.log('orderDetailResult', orderDetailResult);
+      dispatch(showLoading())
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           setTimeout(() => {
             isUserCanCreateOrder.current = true;
           }, 1000);
-          handlePrintOrderReturnOrExchange(response.id, printType.return);
-          setListReturnProducts([]);
-          setTimeout(() => {
-            history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
-          }, 1000);
+          if(isPrint) {
+            handlePrintOrderReturnOrExchange(response.id, printType.return).then(() => {
+              setListReturnProducts([]);
+              dispatch(hideLoading())
+              setTimeout(() => {
+                history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+              }, 500);
+            })
+          } else {
+            setListReturnProducts([]);
+            dispatch(hideLoading())
+            setTimeout(() => {
+              history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+            }, 500);
+          }
+        }, () => {
+          dispatch(hideLoading())
         })
       );
     }
@@ -538,6 +574,8 @@ ShippingServiceConfigDetailResponseModel[]
   const onReturn = () => {
     if (!storeReturn) {
       showError("Vui lòng chọn cửa hàng để trả!");
+      const element: any = document.getElementById("selectStoreReturn");
+      scrollAndFocusToDomElement(element);
       return;
     }
     if (!checkIfHasReturnProduct) {
@@ -567,6 +605,8 @@ ShippingServiceConfigDetailResponseModel[]
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           resolve(response)
+        }, () => {
+          dispatch(hideLoading())
         })
       );
     })
@@ -632,6 +672,8 @@ ShippingServiceConfigDetailResponseModel[]
         }
         if (!storeReturn) {
           showError("Vui lòng chọn cửa hàng để trả!");
+          const element: any = document.getElementById("selectStoreReturn");
+          scrollAndFocusToDomElement(element);
           return;
         }
         if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
@@ -715,23 +757,35 @@ ShippingServiceConfigDetailResponseModel[]
             sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
             discounts: handleRecalculateOriginDiscount(itemsResult),
+            // clear giá trị
+            reference_code: "",
+            customer_note: "",
+            note: "",
+            url: "",
+            tags: null,
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
+          if(!valuesResult) {
+            return;
+          }
           valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
-          values.account_code = form.getFieldValue("account_code") || OrderDetail.account_code;
-          values.assignee_code = form.getFieldValue("assignee_code") || OrderDetail.assignee_code;
-          values.coordinator_code = form.getFieldValue("coordinator_code") || OrderDetail.coordinator_code;
-          values.marketer_code = form.getFieldValue("marketer_code") || OrderDetail.marketer_code;
-          values.reference_code = form.getFieldValue("reference_code") || OrderDetail.reference_code;
-          values.url = form.getFieldValue("url") || OrderDetail.url;
+          values.account_code = form.getFieldValue("account_code");
+          values.assignee_code = form.getFieldValue("assignee_code");
+          values.coordinator_code = form.getFieldValue("coordinator_code");
+          values.marketer_code = form.getFieldValue("marketer_code");
+          values.reference_code = form.getFieldValue("reference_code");
+          values.url = form.getFieldValue("url");
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
               valuesResult.order_return_id = orderReturnId;
               valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0)) : null;
               valuesResult.items = listExchangeProducts.concat(itemGifts);
+              valuesResult.tags = tags;
+              valuesResult.note = form.getFieldValue("note");
+              valuesResult.customer_note = form.getFieldValue("customer_note");
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(
@@ -749,6 +803,7 @@ ShippingServiceConfigDetailResponseModel[]
                 return;
               }
               console.log('orderDetailResult', orderDetailResult)
+              dispatch(showLoading())
               handleDispatchReturnAndExchange(orderDetailResult).then((response: any) => {
                 valuesResult.order_return_id = response.id;
                 let lstDiscount = createDiscountRequest();
@@ -824,7 +879,8 @@ ShippingServiceConfigDetailResponseModel[]
 			setTimeout(() => {
 				isUserCanCreateOrder.current = true
 			}, 5000);
-			return values
+      showError("Không được thao tác liên tiếp! Vui lòng đợi 5 giây!")
+			return
 		}
 		isUserCanCreateOrder.current = false;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -911,13 +967,19 @@ ShippingServiceConfigDetailResponseModel[]
       setTimeout(() => {
 				isUserCanCreateOrder.current = true;
 			}, 1000);
-      dispatch(hideLoading());
-      handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange);
-      setTimeout(() => {
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
-      }, 1000);
+      if(isPrint) {
+        handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange).then(() => {
+          setTimeout(() => {
+            history.push(`${UrlConfig.ORDER}/${value.id}`);
+          }, 500);
+        });
+      } else {
+        setTimeout(() => {
+          history.push(`${UrlConfig.ORDER}/${value.id}`);
+        }, 500);
+      }
     },
-    [dispatch, handlePrintOrderReturnOrExchange, history, printType.returnAndExchange]
+    [handlePrintOrderReturnOrExchange, history, printType.returnAndExchange]
   );
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -963,7 +1025,7 @@ ShippingServiceConfigDetailResponseModel[]
           service: thirdPL.service,
           shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
-      
+
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
@@ -1125,6 +1187,14 @@ ShippingServiceConfigDetailResponseModel[]
     return result;
   };
 
+  const onChangeTag = useCallback(
+		(value: []) => {
+			const strTag = value.join(",");
+			setTags(strTag);
+		},
+		[setTags]
+	);
+
   /**
    * theme context data
    */
@@ -1202,11 +1272,12 @@ ShippingServiceConfigDetailResponseModel[]
                     isAutoDefaultOrderSource= {false}
                   />
                 )}
-                
+
                 <CardReturnProductContainer
                   discountRate={discountRate}
                   isDetailPage={false}
                   orderId={orderId}
+                  setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
                 />
                 <OrderCreateProduct
                   orderAmount={orderAmount}
@@ -1238,6 +1309,7 @@ ShippingServiceConfigDetailResponseModel[]
                   loyaltyPoint={loyaltyPoint}
                   countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
                   isCreateReturn
+                  isExchange = {isExchange}
                   shipmentMethod={shipmentMethod}
                   listStores={listStores}
                 />
@@ -1267,6 +1339,7 @@ ShippingServiceConfigDetailResponseModel[]
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                     isDisablePostPayment={isDisablePostPayment}
+                    isOrderReturnFromPOS = {isOrderFromPOS(OrderDetail)}
                   />
                 )}
                 {isExchange && (
@@ -1302,13 +1375,33 @@ ShippingServiceConfigDetailResponseModel[]
                 <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn isExchange = {isExchange} />
                 <OrderReturnReason orderReturnReasonResponse={orderReturnReasonResponse} form={form} />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
+                {isExchange ? (
+                  <Card title="THÔNG TIN BỔ SUNG CẬP NHẬT">
+                    <CreateOrderSidebarOrderExtraInformation onChangeTag={onChangeTag} tags={tags} />
+                  </Card>
+                  ) : null
+                }
               </Col>
             </Row>
           </Form>
         </div>
         <ReturnBottomBar
-          onReturn={onReturn}
-          onReturnAndExchange={() => onReturnAndExchange()}
+          onReturn={() => {
+            isPrint= false;
+            onReturn()
+          }}
+          onReturnAndPrint={() => {
+            isPrint= true;
+            onReturn()
+          }}
+          onReturnAndExchange={() => {
+            isPrint= false;
+            onReturnAndExchange()
+          }}
+          onReturnAndExchangeAndPrint={() => {
+            isPrint= true;
+            onReturnAndExchange()
+          }}
           onCancel={() => handleCancel()}
           isCanExchange={isCanExchange}
           isExchange={isExchange}
@@ -1339,6 +1432,42 @@ ShippingServiceConfigDetailResponseModel[]
           subTitle=""
           visible={isVisibleModalWarning}
         />
+        <Modal
+          width="35%"
+          className="modal-confirm"
+          okText={"Đồng ý"}
+          visible={isVisibleModalWarningPointRefund}
+          onCancel={() => {
+            setIsVisibleModalWarningPointRefund(false);
+          }}
+          onOk={() => {
+            setIsVisibleModalWarningPointRefund(false);
+          }}
+          footer={(
+            <Button type="primary" onClick={() =>setIsVisibleModalWarningPointRefund(false)}>
+              Đồng ý
+            </Button>
+          )}
+        >
+          <div className="modal-confirm-container">
+            <div>
+              <div
+                style={{
+                  color: "#FFFFFF",
+                  backgroundColor: "#FCAF17",
+                  fontSize: "45px",
+                }}
+                className="modal-confirm-icon"
+              >
+                <TiWarningOutline />
+              </div>
+            </div>
+            <div className="modal-confirm-right margin-left-20">
+              <div className="modal-confirm-title">{"Chú ý"}</div>
+                <div className="modal-confirm-sub-title">Đơn gốc có thể đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị lỗi điểm hoàn và tiền hoàn lại cho khách!</div>
+            </div>
+          </div>
+        </Modal>
         <div style={{display: "none"}}>
           <div className="printContent333" ref={printElementRef}>
             <div
@@ -1483,7 +1612,7 @@ ShippingServiceConfigDetailResponseModel[]
         }
       })
     );
-    
+
   }, [customer?.id, dispatch]);
 
   useEffect(() => {
@@ -1517,7 +1646,7 @@ ShippingServiceConfigDetailResponseModel[]
       })
     );
   }, [dispatch])
-  
+
 
   /**
    * orderSettings
@@ -1577,7 +1706,7 @@ ShippingServiceConfigDetailResponseModel[]
       setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE)
     }
   }, [OrderDetail])
-  
+
   useEffect(() => {
     if(listExchangeProducts.length > 0) {
       setIsExchange(true)
@@ -1586,31 +1715,14 @@ ShippingServiceConfigDetailResponseModel[]
     }
   }, [listExchangeProducts.length])
 
-  const dataCanAccess = useMemo(() => {
-		let newData: Array<StoreResponse> = [];
-		if (listStores && listStores.length) {
-			if(userReducer.account?.account_stores && userReducer.account?.account_stores.length>0)
-			{
-				newData = listStores.filter((store) =>
-					haveAccess(
-						store.id,
-						userReducer.account ? userReducer.account.account_stores : []
-					)
-				);
-			}
-			else{
-				newData=listStores;
-			}
-		}
-		return newData;
-	}, [listStores, userReducer.account]);
+  const storeIdLogin = useGetStoreIdFromLocalStorage()
 
   useEffect(() => {
-    if(dataCanAccess[0]?.id) {
-      setStoreReturn(dataCanAccess[0]);
-		}
-  }, [dataCanAccess, dispatch])
-  
+    if(storeIdLogin) {
+      dispatch(StoreDetailAction(storeIdLogin, setStoreReturn))
+    }
+  }, [dispatch, storeIdLogin])
+
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

@@ -12,12 +12,17 @@ import setting from './setting.route';
 import shipments from "./shipment.route";
 import reports from "./reports.route";
 import { ODERS_PERMISSIONS } from 'config/permissions/order.permission';
+import offlineOrdersRoute from './offline-orders.route';
+import webAppRoute from "./web-app.route";
+import warrantyRoute from './warranty.route';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
+const PosOrders = React.lazy(() => import ("screens/order-online/orders/offline-orders.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
+const WebAppOrdersSync = React.lazy(() => import ("screens/web-app/orders-sync/WebAppOrdersSync"));
 const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
 const ReportOrdersOnline = React.lazy(() => import ("screens/reports/report-orders-online"));
 const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
@@ -60,13 +65,24 @@ const menu: Array<RouteMenu> = [
   {
     path: UrlConfig.ORDER,
     exact: true,
-    title: "Đơn hàng",
+    title: "Đơn hàng online",
     icon: 'icon-order',
     component: OrderOnline,
     key: "5",
     isShow: true,
     header: null,
     subMenu: bill,
+  },
+  {
+    path: UrlConfig.ORDER,
+    exact: true,
+    title: "Bán lẻ offline",
+    icon: 'icon-order',
+    component: PosOrders,
+    key: "ban-hang",
+    isShow: true,
+    header: null,
+    subMenu: offlineOrdersRoute,
   },
   {
     path: UrlConfig.SHIPMENTS,
@@ -145,6 +161,28 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: ecommerce,
+  },
+  {
+    path: UrlConfig.WEB_APP,
+    exact: true,
+    title: "Web/App",
+    icon: 'icon-web-app',
+    component: WebAppOrdersSync,
+    key: "web_app",
+    isShow: true,
+    header: null,
+    subMenu: webAppRoute,
+  },
+  {
+    path: UrlConfig.WARRANTY,
+    exact: true,
+    title: "Bảo hành",
+    icon: 'icon-warranty',
+    component: null,
+    key: "warranty",
+    isShow: true,
+    header: null,
+    subMenu: warrantyRoute,
   },
   {
     path: "/setting",
