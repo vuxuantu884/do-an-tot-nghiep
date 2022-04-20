@@ -689,14 +689,14 @@ const PODetailScreen: React.FC = () => {
            *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
            */
           const productId = poData.line_items[0].product_id // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
-          const data = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
+          const product = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
 
-          if (data.variants) {
+          if (product.variants) {
             /**
              * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
              */
             const newpoLineItemGridChema = [];
-            newpoLineItemGridChema.push(initSchemaLineItem(data, "READ_UPDATE", poData.line_items));
+            newpoLineItemGridChema.push(initSchemaLineItem(product, "READ_UPDATE", poData.line_items));
             setPoLineItemGridChema?.(newpoLineItemGridChema);
 
             /**
