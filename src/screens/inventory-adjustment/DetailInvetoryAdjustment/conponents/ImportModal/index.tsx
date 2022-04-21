@@ -32,7 +32,7 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
   } = props;
 
   const renderModalFooter = () => {
-    
+
     return (
       <>
         <Button
@@ -78,6 +78,7 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
       title="Nhập file"
       footer={renderModalFooter()}
       width={600}
+      maskClosable={false}
     >
       <ImportStatusWrapper>
         {statusImport !== STATUS_IMPORT_EXPORT.DEFAULT && (

@@ -48,16 +48,18 @@ function ReturnBottomBar(props: PropType) {
                 onClick={() => {
                   onReturn();
                 }}
+                id="btn-return"
               >
-                Trả hàng
+                Trả hàng (F9)
               </Button>
               <Button
                 type="primary"
                 onClick={() => {
                   onReturnAndPrint();
                 }}
+                id="btn-return-print"
               >
-                Trả hàng và in hóa đơn
+                Trả hàng và in hóa đơn (F10)
               </Button>
             </React.Fragment>
           ) : (
@@ -69,8 +71,9 @@ function ReturnBottomBar(props: PropType) {
                   onReturnAndExchange();
                 }}
                 disabled={isLoadingDiscount}
+                id="btn-return"
               >
-                Trả và đổi hàng
+                Trả và đổi hàng (F9)
               </Button>
               <Button
                 type="primary"
@@ -78,8 +81,9 @@ function ReturnBottomBar(props: PropType) {
                   onReturnAndExchangeAndPrint();
                 }}
                 disabled={isLoadingDiscount}
+                id="btn-return-print"
               >
-                Trả và đổi hàng và in hóa đơn
+                Trả và đổi hàng và in hóa đơn (F10)
               </Button>
             </React.Fragment>
           )}
