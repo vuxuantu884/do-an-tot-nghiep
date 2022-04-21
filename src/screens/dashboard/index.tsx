@@ -1,3 +1,13 @@
+/**
+ * Read carefully, this is the dashboard screen.
+ * Data trong dashboard được quản lý tập trung tại context của dashboard
+ * Việc request api được xử lý trong các hook: dashboard/hooks 
+ * Lý do dùng cách này để quản lý lượng request api sao cho phù hợp bởi đặc thù của dashboard là sử dụng lại các câu query của báo cáo 
+ * Đối với mỗi component thì có thể sử dụng 1 hoặc nhiều câu query để lấy dữ liệu, tuy nhiên cần tính toán xem có gom các câu query lại thành 1 câu query không
+ * VD : Doanh thu online, offline, trả hàng được gom lại thành 1 câu query để giảm thời gian load dữ liệu
+ * Ngoài ra cách tổ chức này sẽ support nhu cầu thay vị trí các component trong tương lai
+ * Đọc code xong đừng chửi, peace!
+ */
 import { Card, Col, Row } from "antd";
 import { TOP_CHARTS_KEY } from "config/dashboard";
 import { useContext } from "react";
@@ -6,21 +16,19 @@ import RankHorizontalChart from "./chart/rank-hirizontal-chart";
 import RankVerticalChart from "./chart/rank-vertical-chart";
 import DashboardFilter from "./filter/index";
 import Greeting from "./greeting";
-import useFetchTopProduct from "./hooks/useFetchTopProduct";
 import useFetchTopSaleByDepartment from "./hooks/useFetchTopSaleByDepartment";
 import useFetchTopSaleByShop from "./hooks/useFetchTopSaleByShop";
 import useFetchTopSaleByStaff from "./hooks/useFetchTopSaleByStaff";
 import { DashboardContainer } from "./index.style";
-import ImcomeGroupTab from "./product/product-business-result";
+import ProductDashboard from "./product";
 import DashboardPrivider, { DashboardContext } from "./provider/dashboard-provider";
 const Dashboard = () => {
-  const { topSale, dataSrcTopProduct } = useContext(DashboardContext);
+  const { topSale } = useContext(DashboardContext);
 
   useFetchTopSaleByStaff();
   useFetchTopSaleByShop();
   useFetchTopSaleByDepartment();
-  useFetchTopProduct();
-  
+
   return (
     <DashboardContainer>
       <Greeting />
@@ -44,20 +52,8 @@ const Dashboard = () => {
         </Row>
         <div className="padding-20" />
       </Card>
-      <Card className="cart-bottom-wrapper">
-        <Row gutter={20}>
-          <Col span={10}>
-            <Card title="Doanh thu theo nhóm sản phẩm" className="product-group-cart">
-              <ImcomeGroupTab data={dataSrcTopProduct} />
-            </Card>
-          </Col>
-          {/* <Col span={14}>
-            <GoodAreComingTable {...goodAreComing} />
-            <Divider className="divider-table" />
-            <OrderStatusTable data={orderStatus} />
-          </Col> */}
-        </Row>
-      </Card>
+
+      <ProductDashboard /> {/* DOANH THU THEO NHÓM SẢN PHẨM */}
     </DashboardContainer>
   );
 };

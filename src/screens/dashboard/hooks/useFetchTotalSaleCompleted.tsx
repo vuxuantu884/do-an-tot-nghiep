@@ -1,15 +1,12 @@
-import { BUSINESS_RESULT_CART_NAME, BUSINESS_RESULT_QUERY_TOTAL_SALES_COMPLETED, DASHBOARD_CONFIG, ReportDatavalue } from 'config/dashboard'
+import { BUSINESS_RESULT_CART_NAME, BUSINESS_RESULT_QUERY_TOTAL_SALES_COMPLETED, ReportDatavalue } from 'config/dashboard'
 import { BusinessResultCartItem } from 'model/dashboard/dashboard.model'
-import { AnalyticDataQuery, ArrayAny } from 'model/report/analytics.model'
+import { ArrayAny } from 'model/report/analytics.model'
 import moment from 'moment'
 import { useContext, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { executeAnalyticsQueryService } from 'service/report/analytics.service'
-import { callApiNative } from 'utils/ApiUtils'
-import { setDepartmentQuery } from 'utils/DashboardUtils'
+import { getDataOneQueryDashboard } from 'utils/DashboardUtils'
 import { DATE_FORMAT } from 'utils/DateUtils'
-import { generateRQuery } from 'utils/ReportUtils'
-import { showError } from 'utils/ToastUtils'
+import { showErrorReport } from 'utils/ReportUtils'
 import { DashboardContext } from '../provider/dashboard-provider'
 
 
@@ -21,20 +18,13 @@ function useFetchBusinessResultComplete() {
 
     useEffect(() => {
         const fetchTotalSaleComplete = async () => {
-            const { condition, isSeeMyData, myCode } = showMyData;
-            // Data từ bộ lọc bộ phận
-            const locationCondition = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
-            // Data từ bộ lọc xem dữ liệu của tôi
-            const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
 
-            BUSINESS_RESULT_QUERY_TOTAL_SALES_COMPLETED.query.conditions = [...locationCondition, userCondition];
-
-            const q = generateRQuery(BUSINESS_RESULT_QUERY_TOTAL_SALES_COMPLETED.query);
             setIsFetchingBusinessResultComplete(true);
-            const response: AnalyticDataQuery = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q });
+            const response = await getDataOneQueryDashboard(dispatch, showMyData, deparmentIdList, BUSINESS_RESULT_QUERY_TOTAL_SALES_COMPLETED);
             setIsFetchingBusinessResultComplete(false);
+
             if (!response) {
-                showError("Lỗi lấy dữ liệu doanh thu");
+                showErrorReport("Lỗi lấy dữ liệu doanh thu");
                 return;
             }
 
