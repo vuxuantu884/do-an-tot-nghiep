@@ -25,4 +25,14 @@ export const StyledComponent = styled.div`
   .columnQuantity {
     text-align: center;
   }
+  .ant-table-tbody>tr>td {
+    padding: 8px;
+  }
+  .yody-pos-varian-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
 `;
