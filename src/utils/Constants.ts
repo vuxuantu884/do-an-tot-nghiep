@@ -281,6 +281,15 @@ export const SHOPEE = {
   channel_code: "Shopee"
 };
 
+export const WEB = {
+  channel_id: 4,
+  channel_code : "web"
+}
+
+// export const App = {
+//   chan
+// }
+
 export const TIKI = {
 	channel_id: 17,
   channel_code: "tiki"

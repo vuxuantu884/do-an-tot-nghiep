@@ -10,6 +10,7 @@ const POField = {
   payment_discount_amount: "payment_discount_amount",
   cost_lines: "cost_lines",
   line_items: "line_items",
+  line_items_old: "line_items_old",
   line_return_items: "line_return_items",
   total: "total",
   total_payment: "total_payment",
