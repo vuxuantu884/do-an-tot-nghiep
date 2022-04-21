@@ -1,6 +1,7 @@
 import { BaseObject } from "model/base/base.response";
 import React from "react";
 export interface RouteMenu {
+  fullUrl?: string;
   path: string;
   exact: boolean;
   title: string;
