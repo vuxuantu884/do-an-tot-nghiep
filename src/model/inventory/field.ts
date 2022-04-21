@@ -146,6 +146,26 @@ const TransferExportField = {
   [TransferColumnField.created_date]: 'Ngày tạo',
 }
 
+const TransferLineItemField = {
+  barcode: 'barcode',
+  sku: 'sku',
+  variant_name: 'variant_name',
+  transfer_quantity: 'transfer_quantity',
+  real_quantity: 'real_quantity',
+  total_amount: 'total_amount',
+  price: 'price'
+}
+
+const TransferExportLineItemField = {
+  [TransferLineItemField.barcode]: 'Barcode',
+  [TransferLineItemField.sku]: 'Mã sản phẩm',
+  [TransferLineItemField.variant_name]: 'Tên sản phẩm',
+  [TransferLineItemField.price]: 'Giá bán',
+  [TransferLineItemField.transfer_quantity]: 'Số lượng chuyển',
+  [TransferLineItemField.total_amount]: 'Thành tiền',
+  [TransferLineItemField.real_quantity]: 'SL thực nhận',
+}
+
 export {InventoryQueryField,
    InventoryMappingField,
    BasicInventoryFilter,
@@ -158,4 +178,6 @@ export {InventoryQueryField,
    InventoryExportField,
    TransferExportField,
    TransferColumnField,
+   TransferLineItemField,
+   TransferExportLineItemField,
    InventoryColumnField};

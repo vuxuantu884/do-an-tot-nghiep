@@ -33,6 +33,7 @@ const InventoryListScreen: React.FC = () => {
   const {path} = useRouteMatch();
   const dispatch = useDispatch();
   const [vExportTransfer,setVExportTransfer] = useState(false);
+  const [vExportDetailTransfer,setVExportDetailTransfer] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
@@ -134,9 +135,8 @@ const InventoryListScreen: React.FC = () => {
               <Button
                   className="light"
                   size="large"
-                  hidden
                   icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                  onClick={() => {setVExportTransfer(true)}}
+                  onClick={() => {setVExportDetailTransfer(true)}}
                 >
                   Xuất file chi tiết
               </Button>
@@ -170,6 +170,7 @@ const InventoryListScreen: React.FC = () => {
             <TabPane tab="Danh sách phiếu" key={InventoryTransferTabUrl.LIST}>
               <InventoryTransferTab
                 vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
+                vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
                 stores={stores}
                 accounts={accounts}
                 accountStores={accountStores}

@@ -11,6 +11,7 @@ import InventoryFilters from "../../Components/FIlter/InventoryListFilter";
 import {
   InventoryTransferDetailItem,
   InventoryTransferSearchQuery,
+  LineItem,
   Store,
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
@@ -59,7 +60,7 @@ import {
 } from "service/inventory/transfer/index.service";
 import moment from "moment";
 import * as XLSX from 'xlsx';
-import { TransferExportField } from "model/inventory/field";
+import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 const {TextArea} = Input;
 
 let firstLoad = true;
@@ -100,11 +101,13 @@ type InventoryTransferTabProps = {
   accounts?: Array<AccountResponse>,
   setAccounts?: (e: any) => any,
   vExportTransfer: boolean,
-  setVExportTransfer: React.Dispatch<React.SetStateAction<boolean>>
+  vExportDetailTransfer: boolean,
+  setVExportTransfer: React.Dispatch<React.SetStateAction<boolean>>,
+  setVExportDetailTransfer: React.Dispatch<React.SetStateAction<boolean>>
 };
 
 const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: InventoryTransferTabProps) => {
-  const { accountStores, stores, accounts, setAccounts,vExportTransfer,setVExportTransfer } = props;
+  const { accountStores, stores, accounts, setAccounts,vExportTransfer,setVExportTransfer,vExportDetailTransfer,setVExportDetailTransfer } = props;
   const history = useHistory();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
@@ -544,6 +547,24 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     };
   }
 
+  const convertTransferDetailExport = (arrItem: Array<LineItem>) => {
+    let arr = [];
+    for (let i = 0; i < arrItem.length; i++) {
+      const item = arrItem[i];
+
+      arr.push({
+        [TransferExportLineItemField.barcode]: item.barcode,
+        [TransferExportLineItemField.sku]: item.sku,
+        [TransferExportLineItemField.variant_name]: item.variant_name,
+        [TransferExportLineItemField.price]: item.price,
+        [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
+        [TransferExportLineItemField.total_amount]: (item.transfer_quantity ?? 0) * (item.price ?? 0),
+        [TransferExportLineItemField.real_quantity]: item.real_quantity,
+      });
+    }
+    return arr;
+  }
+
   const getItemsByCondition = useCallback(async (type: string) => {
     let res: any; 
     let items: Array<InventoryTransferDetailItem> = [];
@@ -597,6 +618,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
         showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
         setVExportTransfer(false);
+        setVExportDetailTransfer(false);
         return;
       }
 
@@ -605,25 +627,41 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         showWarning("Không có phiếu chuyển nào đủ điều kiện");
         return;
       }
-      for (let i = 0; i < res.length; i++) {
-        const e = res[i];
-        const item = convertItemExport(e);
-        dataExport.push(item);
-      }
 
-      let worksheet = XLSX.utils.json_to_sheet(dataExport);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-      const today = moment(new Date(), 'YYYY/MM/DD');
 
+      if (vExportDetailTransfer) {
+        for (let i = 0; i < res.length; i++) {
+          if (!res[i] || !res[i].line_items) return;
+
+          const item = convertTransferDetailExport(res[i].line_items);
+          
+          const ws = XLSX.utils.json_to_sheet(item);
+          XLSX.utils.book_append_sheet(workbook, ws, res[i].code);
+        }
+        
+      }else{
+        for (let i = 0; i < res.length; i++) {
+          const e = res[i];
+          const item = convertItemExport(e);
+          dataExport.push(item);
+        }
+
+        let worksheet = XLSX.utils.json_to_sheet(dataExport);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      }
+      
+      const today = moment(new Date(), 'YYYY/MM/DD');
       const month = today.format('M');
       const day   = today.format('D');
       const year  = today.format('YYYY');
-      XLSX.writeFile(workbook, `transfer_${day}_${month}_${year}.xlsx`);
+      XLSX.writeFile(workbook, `${vExportDetailTransfer ? 'transfer_detail':'transfer'}_${day}_${month}_${year}.xlsx`);
       setVExportTransfer(false);
+      setVExportDetailTransfer(false);
     },
     Cancel: () => {
       setVExportTransfer(false);
+      setVExportDetailTransfer(false);
     },
   }
 
@@ -794,7 +832,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
        <TransferExport
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
-        visible={vExportTransfer}
+        visible={vExportTransfer || vExportDetailTransfer}
       />
     </InventoryTransferTabWrapper>
   );
