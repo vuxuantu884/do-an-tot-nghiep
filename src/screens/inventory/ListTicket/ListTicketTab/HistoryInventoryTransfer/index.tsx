@@ -17,6 +17,8 @@ import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 import { Link } from "react-router-dom";
+import { callApiNative } from "../../../../../utils/ApiUtils";
+import { searchAccountPublicApi } from "../../../../../service/accounts/account.service";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -109,10 +111,11 @@ type HistoryInventoryTransferTabProps = {
   accountStores?: Array<AccountStoreResponse>,
   stores?: Array<Store>,
   accounts?: Array<AccountResponse>,
+  setAccounts?: (e: any) => any,
 };
 
 const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = (props: HistoryInventoryTransferTabProps) => {
-  const { accountStores, accounts, stores } = props;
+  const { accountStores, accounts, stores, setAccounts } = props;
   const [accountStoresSelected, setAccountStoresSelected] = useState<AccountStoreResponse | null>(null);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
@@ -256,13 +259,28 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
     []
   );
 
+  const getAccounts = async (codes: string) => {
+    const initSelectedResponse = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      searchAccountPublicApi,
+      {
+        codes
+      }
+    );
+
+    setAccounts && setAccounts(initSelectedResponse.items);
+  }
+
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${InventoryTransferTabUrl.HISTORIES}?${queryParam}`);
+      getAccounts(newPrams.updated_by).then();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, params]
   );
 

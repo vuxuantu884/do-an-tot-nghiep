@@ -9,7 +9,7 @@ import {
   SizeCreateRequest,
   SizeUpdateRequest,
 } from "model/product/size.model";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {PageResponse} from "model/base/base-metadata.response";
 import {getQueryParams, useQuery} from "utils/useQuery";
@@ -78,7 +78,12 @@ const SizeListScreen: React.FC = () => {
     },
     {
       title: "Người tạo",
-      dataIndex: "created_name",
+      render: (item: SizeResponse) => {
+        return item.created_name ?
+             <div>
+               <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
+             </div> :"---"
+       },
     },
   ];
 

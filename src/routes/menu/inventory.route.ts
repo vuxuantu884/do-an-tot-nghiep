@@ -1,9 +1,12 @@
+import { InventoryDefectsPermission } from './../../config/permissions/inventory-defects.permission';
 import { RouteMenu } from "../../model/other";
 import UrlConfig, { InventoryTabUrl, ProcurementTabUrl } from "../../config/url.config";
 import React from "react";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
+const ListInventoryDefect = React.lazy(() => import("screens/inventory-defects/ListInventoryDefect"));
+const InventoryDefectCreate = React.lazy(() => import("screens/inventory-defects/CreateInventoryDefects"));
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
 const DetailTicket = React.lazy(() => import("screens/inventory/DetailTicket/index"));
 const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
@@ -328,6 +331,31 @@ export const inventory: Array<RouteMenu> = [
         isShow: true,
         header: null,
         permissions:[InventoryAdjustmentPermission.read],
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    path: UrlConfig.INVENTORY_DEFECTS,
+    exact: true,
+    title: "Hàng lỗi",
+    icon: "icon-dot",
+    component: ListInventoryDefect,
+    key: "submenu34",
+    isShow: true,
+    header: null,
+    permissions:[InventoryDefectsPermission.read],
+    subMenu: [
+      {
+        path: `${UrlConfig.INVENTORY_DEFECTS}/create`,
+        exact: true,
+        title: "Thêm hàng lỗi",
+        icon: "icon-dot",
+        component: InventoryDefectCreate,
+        key: "submenu34",
+        isShow: true,
+        header: null,
+        permissions:[InventoryDefectsPermission.create],
         subMenu: [],
       },
     ],

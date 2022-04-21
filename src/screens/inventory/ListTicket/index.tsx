@@ -12,12 +12,14 @@ import { InventoryTransferPermission } from "config/permissions/inventory-transf
 import importIcon from "assets/icon/import.svg";
 import { AccountResponse, AccountStoreResponse } from "../../../model/account/account.model";
 import { callApiNative } from "../../../utils/ApiUtils";
-import { getAccountDetail } from "../../../service/accounts/account.service";
+import { getAccountDetail, searchAccountPublicApi } from "../../../service/accounts/account.service";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicAction } from "../../../domain/actions/account/account.action";
 import { inventoryGetSenderStoreAction } from "../../../domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { Store } from "../../../model/inventory/transfer";
 import { PageResponse } from "model/base/base-metadata.response";
+import { useLocation } from "react-router-dom";
+import queryString from "query-string";
 import exportIcon from "assets/icon/export.svg";
 
 const { TabPane } = Tabs;
@@ -45,6 +47,30 @@ const InventoryListScreen: React.FC = () => {
     }
   }, [history, path]);
 
+  const location = useLocation()
+
+  const queryParamsParsed: any = queryString.parse(
+    location.search
+  );
+
+  const getAccounts = async (codes: string) => {
+    const initSelectedResponse = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      searchAccountPublicApi,
+      {
+        codes
+      }
+    );
+
+    setAccounts((accounts) => {
+      return [
+        ...initSelectedResponse.items,
+        ...accounts
+      ];
+    });
+  }
+
   const getMe = useCallback(async ()=>{
     const res = await callApiNative({isShowLoading: false}, dispatch, getAccountDetail);
     if (res && res.account_stores) {
@@ -58,7 +84,12 @@ const InventoryListScreen: React.FC = () => {
         return;
       }
       setAccounts(data.items);
+
+      if (queryParamsParsed.created_by || queryParamsParsed.updated_by) {
+        getAccounts(queryParamsParsed.created_by || queryParamsParsed.updated_by).then();
+      }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -143,6 +174,10 @@ const InventoryListScreen: React.FC = () => {
                 stores={stores}
                 accounts={accounts}
                 accountStores={accountStores}
+                setAccounts={(value) => setAccounts([
+                  ...value,
+                  ...accounts
+                ])}
               />
             </TabPane>
             <TabPane tab="Lịch sử phiếu" key={InventoryTransferTabUrl.HISTORIES}>
@@ -150,6 +185,10 @@ const InventoryListScreen: React.FC = () => {
                 stores={stores}
                 accounts={accounts}
                 accountStores={accountStores}
+                setAccounts={(value) => setAccounts([
+                  ...value,
+                  ...accounts
+                ])}
               />
             </TabPane>
           </Tabs>

@@ -276,34 +276,22 @@ const PODetailScreen: React.FC = () => {
             }
           ]
     
-          const trade_discount_rate = formMain.getFieldValue(
-            POField.trade_discount_rate
-          );
-          const trade_discount_value = formMain.getFieldValue(
-            POField.trade_discount_value
-          );
-          const payment_discount_rate = formMain.getFieldValue(
-            POField.payment_discount_rate
-          );
-          const payment_discount_value = formMain.getFieldValue(
-            POField.trade_discount_value
-          );
-          const trade_discount_amount = POUtils.getTotalDiscount(
-            untaxed_amount,
-            trade_discount_rate,
-            trade_discount_value
-          );
+          // const trade_discount_rate = formMain.getFieldValue(
+          //   POField.trade_discount_rate
+          // );
+          // const trade_discount_value = formMain.getFieldValue(
+          //   POField.trade_discount_value
+          // );
+          // const payment_discount_rate = formMain.getFieldValue(
+          //   POField.payment_discount_rate
+          // );
+          // const payment_discount_value = formMain.getFieldValue(
+          //   POField.trade_discount_value
+          // );
+          const trade_discount_amount = POUtils.getTotalDiscount(formMain,untaxed_amount);
     
-          const total_after_tax = POUtils.getTotalAfterTax(
-            untaxed_amount,
-            trade_discount_amount,
-            tax_lines
-          );
-          const payment_discount_amount = POUtils.getTotalDiscount(
-            total_after_tax,
-            payment_discount_rate,
-            payment_discount_value
-          );
+          const total_after_tax = POUtils.getTotalAfterTax(formMain);
+          const payment_discount_amount = POUtils.getTotalDiscount(formMain,total_after_tax);
     
           value.line_items = newDataItems
           value.trade_discount_amount = trade_discount_amount

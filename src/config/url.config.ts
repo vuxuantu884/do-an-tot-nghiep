@@ -57,6 +57,7 @@ const UrlConfig = {
   ANALYTIC_FINACE:`/analytics/finance`,
   ANALYTIC_CUSTOMER:`/analytics/customers`,
   WARRANTY:`/warranty`,
+  INVENTORY_DEFECTS: `/inventory-defects`
 };
 
 export const ProductTabUrl = {
