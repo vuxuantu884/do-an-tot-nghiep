@@ -140,7 +140,7 @@ type PropType = {
 var barcode = "";
 
 const initQueryVariant: VariantSearchQuery = {
-	limit: 10,
+	limit: 50,
 	page: 1,
 };
 
