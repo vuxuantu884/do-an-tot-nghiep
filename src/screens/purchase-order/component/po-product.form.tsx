@@ -9,6 +9,7 @@ import {
   Input,
   Row,
   Table,
+  TablePaginationConfig,
   Tooltip
 } from "antd";
 import emptyProduct from "assets/icon/empty_products.svg";
@@ -20,12 +21,11 @@ import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-import { DiscountType, POField } from "model/purchase-order/po-field";
+import {  POField } from "model/purchase-order/po-field";
 import {
   PurchaseOrderLineItem,
   Vat
 } from "model/purchase-order/purchase-item.model";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import React, { createRef, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -51,14 +51,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [listPrice, setListPrice] = useState<Array<Number>>([]);
-  const [listVat, setListVat] = useState<Array<Number>>([]);
-  const [priceValue, setPriceValue] = useState(0);
-  const [vatValue, setVatValue] = useState(0);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [isPressed] = useKeyboardJs('f3');
-
-  // const {quickInputQtyProcurementLineItem, setQuickInputProductLineItem} = useContext(PurchaseOrderCreateContext)
+  const [isSortSku,setIsSortSku] = useState(false);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -81,447 +76,209 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     []
   );
-  const onSelectProduct = useCallback(
-    (value: string) => {
-      let index = data.findIndex((item) => item.id.toString() === value);
-      if (index !== -1) {
-        let old_line_items = formMain.getFieldValue(POField.line_items);
-        let trade_discount_rate = formMain.getFieldValue(
-          POField.trade_discount_rate
-        );
-        let trade_discount_value = formMain.getFieldValue(
-          POField.trade_discount_value
-        );
-        let payment_discount_rate = formMain.getFieldValue(
-          POField.payment_discount_rate
-        );
-        let payment_discount_value = formMain.getFieldValue(
-          POField.trade_discount_value
-        );
-        let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-        let variants: Array<VariantResponse> = [data[index]];
-        let new_items: Array<PurchaseOrderLineItem> = [
-          ...POUtils.convertVariantToLineitem(variants, position),
-        ];
-        position = position + new_items.length;
-        let new_line_items = POUtils.addProduct(
-          old_line_items,
-          new_items,
-          false
-        );
-        let untaxed_amount = POUtils.totalAmount(new_line_items);
-        let tax_lines = POUtils.getVatList(
-          new_line_items,
-          trade_discount_rate,
-          trade_discount_value
-        );
-        let trade_discount_amount = POUtils.getTotalDiscount(
-          untaxed_amount,
-          trade_discount_rate,
-          trade_discount_value
-        );
-        let total_after_tax = POUtils.getTotalAfterTax(
-          untaxed_amount,
-          trade_discount_amount,
-          tax_lines
-        );
-        let payment_discount_amount = POUtils.getTotalDiscount(
-          total_after_tax,
-          payment_discount_rate,
-          payment_discount_value
-        );
-        let total = POUtils.getTotalPayment(
-          untaxed_amount,
-          trade_discount_amount,
-          payment_discount_amount,
-          total_cost_line,
-          tax_lines
-        );
-        let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-          POField.procurements
-        );
-        let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
-          currentProcument,
-          new_line_items
-        );
+  const handleSelectProduct = (variantId: string) => {
+    const index = data.findIndex((item) => item.id.toString() === variantId);
+    if(index !== -1){
+      let lineItems = formMain.getFieldValue(POField.line_items);
+      let variants: Array<VariantResponse> = [data[index]];
+      let newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(variants, position)];
+      position = position + newItems.length;
+      let newLineItems = POUtils.addProduct(lineItems,newItems,false);
+      formMain.setFieldsValue({
+        line_items:newLineItems
+      });
+      const taxLines = POUtils.getVatList(formMain);
+      const untaxedAmount = POUtils.totalAmount(formMain);
+      formMain.setFieldsValue({
+        tax_lines: taxLines,
+        untaxed_amount: untaxedAmount
+      });
+      const total = POUtils.getTotalPayment(formMain);
+      formMain.setFieldsValue({
+        total: total,
+      });
+      //let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
+    }
+  } 
+  const handleDeleteLineItem = (index: number) => {
+      let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+      const lineItem = lineItems[index];
+      lineItems.splice(index,1);
+      formMain.setFieldsValue({
+        line_items: [...lineItems]
+      });
+      const taxLines = POUtils.getVatList(formMain);
+      const untaxedAmount = POUtils.totalAmount(formMain);
+      formMain.setFieldsValue({
+        tax_lines: taxLines,
+        untaxed_amount: untaxedAmount
+      });
+      const total = POUtils.getTotalPayment(formMain);
+      formMain.setFieldsValue({
+        total: total,
+      });
+      let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
+      if(oldLineItems){
+        const indexOld = oldLineItems.findIndex((a) => a.sku === lineItem.sku);
+        if(indexOld !== -1){
+          oldLineItems.splice(indexOld,1);
+          formMain.setFieldsValue({
+            line_items_old: [...oldLineItems]
+          });
+        }
+      }
+  }
+  const handleChangePriceLineItem = (price: number, index : number) => {
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items
+    );
+    if(lineItems[index]){
+      lineItems[index] = POUtils.updateLineItemByPrice(lineItems[index],price);
+      updateOldLineItem(lineItems[index]);
+      let untaxed_amount = POUtils.totalAmount(formMain);
+      formMain.setFieldsValue({
+        line_items : [...lineItems],
+        untaxed_amount: untaxed_amount
+      })
+      let total = POUtils.getTotalPayment(formMain);
+      let taxLines = POUtils.getVatList(formMain);
+      formMain.setFieldsValue({
+        total: total,
+        tax_lines: taxLines
+      })
+    }
+  }
+  const handleChangeAllPriceLineItem = (price: number) => {
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items
+    );
+    if(lineItems.length > 0){
+      lineItems = lineItems.map((lineItem) => {
+        let newItem = POUtils.updateLineItemByPrice(lineItem,price);
+        updateOldLineItem(newItem);
+        return newItem;
+      })
+      formMain.setFieldsValue({
+        line_items : [...lineItems]
+      })
+      let untaxed_amount = POUtils.totalAmount(formMain);
+      formMain.setFieldsValue({
+        untaxed_amount: untaxed_amount
+      })
+      let total = POUtils.getTotalPayment(formMain);
+      let taxLines = POUtils.getVatList(formMain);
+      formMain.setFieldsValue({
+        total: total,
+        tax_lines: taxLines
+      })
+    }
+  }
+  const handleChangeQuantityLineItem = (quantity: number,index: number) => {
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items
+    );
+    if(lineItems[index]){
+      lineItems[index] = POUtils.updateLineItemByQuantity(lineItems[index],quantity);
+      updateOldLineItem(lineItems[index]);
+      let untaxed_amount = POUtils.totalAmount(formMain);
+      formMain.setFieldsValue({
+        line_items : [...lineItems],
+        untaxed_amount: untaxed_amount
+      })
+      let total = POUtils.getTotalPayment(formMain);
+      let taxLines = POUtils.getVatList(formMain);
+      formMain.setFieldsValue({
+        total: total,
+        tax_lines: taxLines
+      })
+    }
+  }
+  const handleChangeTax = (taxRate: number,index: number) => {
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items
+    );
+    if(lineItems[index]){
+      lineItems[index] = POUtils.updateLineItemByVat(formMain,lineItems[index],taxRate);
+      updateOldLineItem(lineItems[index]);
+      formMain.setFieldsValue({
+        line_items : [...lineItems],
+      })
+      let taxLines = POUtils.getVatList(formMain);
+      formMain.setFieldsValue({
+        tax_lines: taxLines
+      })
+      let total = POUtils.getTotalPayment(formMain);
+      formMain.setFieldsValue({
+        total: total,
+      })
+    }
+  }
+  const handleChangeAllTax = (taxRate: number) => {
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items
+    );
+    if(lineItems.length > 0){
+      lineItems = lineItems.map((lineItem) => {
+        let newItem = POUtils.updateLineItemByVat(formMain,lineItem,taxRate);
+        updateOldLineItem(newItem);
+        return newItem;
+      })
+      formMain.setFieldsValue({
+        line_items : [...lineItems],
+      })
+      let taxLines = POUtils.getVatList(formMain);
+      formMain.setFieldsValue({
+        tax_lines: taxLines
+      })
+      let total = POUtils.getTotalPayment(formMain);
+      formMain.setFieldsValue({
+        total: total,
+      })
+    }
+  }
+  const updateOldLineItem = (lineItem: PurchaseOrderLineItem) =>{
+    let oldLineItems : Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items_old
+    );
+    if(oldLineItems && oldLineItems.length > 0){
+      const index = oldLineItems.findIndex((a) => a.sku === lineItem.sku);
+      if(index !== -1){
+        oldLineItems[index] = lineItem;
         formMain.setFieldsValue({
-          line_items: new_line_items,
-          untaxed_amount: untaxed_amount,
-          tax_lines: tax_lines,
-          trade_discount_amount: trade_discount_amount,
-          payment_discount_amount: payment_discount_amount,
-          [POField.total]: total,
-          [POField.procurements]: newProcument,
-        });
+          line_items_old : oldLineItems,
+        })
       }
-      setData([]);
-    },
-    [data, formMain]
-  );
-  const onDeleteItem = useCallback(
-    (index: number) => {
-      let old_line_items: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-        POField.line_items
-      );
-      let trade_discount_rate = formMain.getFieldValue(
-        POField.trade_discount_rate
-      );
-      let trade_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let payment_discount_rate = formMain.getFieldValue(
-        POField.payment_discount_rate
-      );
-      let payment_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-      old_line_items.splice(index, 1);
-      let untaxed_amount = POUtils.totalAmount(old_line_items);
-      let tax_lines = POUtils.getVatList(
-        old_line_items,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let trade_discount_amount = POUtils.getTotalDiscount(
-        untaxed_amount,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let total_after_tax = POUtils.getTotalAfterTax(
-        untaxed_amount,
-        trade_discount_amount,
-        tax_lines
-      );
-      let payment_discount_amount = POUtils.getTotalDiscount(
-        total_after_tax,
-        payment_discount_rate,
-        payment_discount_value
-      );
-      let total = POUtils.getTotalPayment(
-        untaxed_amount,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
-      );
-      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
-        currentProcument,
-        old_line_items
-      );
+    }
+  }
+  const handlePickManyProduct = (items: Array<VariantResponse>) => {
+    setVisibleManyProduct(false);
+    const lineItems = formMain.getFieldValue(POField.line_items);
+    const newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(items,position)];
+    position = position +  newItems.length;
+    let newLineItems = POUtils.addProduct(lineItems,newItems,false);
+    if(isSortSku){
+      newLineItems = handleSortLineItems(newLineItems);
+    }
+    formMain.setFieldsValue({
+      line_items: newLineItems
+    });
+    formMain.setFieldsValue({
+      untaxed_amount: POUtils.totalAmount(formMain)
+    });
+    formMain.setFieldsValue({
+      tax_lines: POUtils.getVatList(formMain)
+    });
+    formMain.setFieldsValue({
+      total: POUtils.getTotalPayment(formMain)
+    });
+    const oldLineItems = formMain.getFieldValue(POField.line_items_old);
+    if(oldLineItems){
+      const newOldLineItems =  POUtils.addProduct(oldLineItems,newItems,false);
       formMain.setFieldsValue({
-        line_items: [...old_line_items],
-        untaxed_amount: untaxed_amount,
-        tax_lines: tax_lines,
-        trade_discount_amount: trade_discount_amount,
-        payment_discount_amount: payment_discount_amount,
-        total: total,
-        [POField.procurements]: newProcument,
-      });
-
-      const prices = [...listPrice];
-      prices.splice(index, 1);
-      setListPrice(prices);
-
-      const vats = [...listVat];
-      vats.splice(index, 1);
-      setListVat(vats);
-
-      if (vats.length === 0 || prices.length === 0) {
-        setVatValue(0);
-        setPriceValue(0)
-      }
-    },
-    [formMain, listPrice, listVat]
-  );
-  const onQuantityChange = useCallback(
-    (quantity, index) => {
-
-      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-        POField.line_items
-      );
-      let trade_discount_rate = formMain.getFieldValue(
-        POField.trade_discount_rate
-      );
-      let trade_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let payment_discount_rate = formMain.getFieldValue(
-        POField.payment_discount_rate
-      );
-      let payment_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-      let updateItem = POUtils.updateQuantityItem(
-        data[index],
-        data[index].price,
-        data[index].discount_rate,
-        data[index].discount_value,
-        quantity
-      );
-      data[index] = updateItem;
-      let untaxed_amount = POUtils.totalAmount(data);
-      let tax_lines = POUtils.getVatList(
-        data,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let trade_discount_amount = POUtils.getTotalDiscount(
-        untaxed_amount,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let total_after_tax = POUtils.getTotalAfterTax(
-        untaxed_amount,
-        trade_discount_amount,
-        tax_lines
-      );
-      let payment_discount_amount = POUtils.getTotalDiscount(
-        total_after_tax,
-        payment_discount_rate,
-        payment_discount_value
-      );
-      let total = POUtils.getTotalPayment(
-        untaxed_amount,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-      // let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-      //   POField.procurements
-      // );
-      // let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
-      //   currentProcument,
-      //   data
-      // );
-      formMain.setFieldsValue({
-        line_items: [...data],
-        total: total,
-        tax_lines: tax_lines,
-        trade_discount_amount: trade_discount_amount,
-        payment_discount_amount: payment_discount_amount,
-        untaxed_amount: untaxed_amount,
-        // [POField.procurements]: newProcument,
-      });
-    },
-    [formMain]
-  );
-  const onPriceChange = useCallback(
-    (price: number, type: string, discount: number, index) => {
-      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-        POField.line_items
-      );
-      let trade_discount_rate = formMain.getFieldValue(
-        POField.trade_discount_rate
-      );
-      let trade_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let payment_discount_rate = formMain.getFieldValue(
-        POField.payment_discount_rate
-      );
-      let payment_discount_value = formMain.getFieldValue(
-        POField.payment_discount_value
-      );
-      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-      let discount_rate = data[index].discount_rate;
-      let discount_value = data[index].discount_value;
-      if (type === DiscountType.percent) {
-        discount_rate = discount;
-        discount_value = null;
-      }
-      if (type === DiscountType.money) {
-        discount_rate = null;
-        discount_value = discount;
-      }
-      let updateItem = POUtils.updateQuantityItem(
-        data[index],
-        price,
-        discount_rate,
-        discount_value,
-        data[index].quantity
-      );
-      data[index] = updateItem;
-      let untaxed_amount = POUtils.totalAmount(data);
-      let tax_lines = POUtils.getVatList(
-        data,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let trade_discount_amount = POUtils.getTotalDiscount(
-        untaxed_amount,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let total_after_tax = POUtils.getTotalAfterTax(
-        untaxed_amount,
-        trade_discount_amount,
-        tax_lines
-      );
-      let payment_discount_amount = POUtils.getTotalDiscount(
-        total_after_tax,
-        payment_discount_rate,
-        payment_discount_value
-      );
-      let total = POUtils.getTotalPayment(
-        untaxed_amount,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-      formMain.setFieldsValue({
-        line_items: [...data],
-        total: total,
-        tax_lines: tax_lines,
-        trade_discount_amount: trade_discount_amount,
-        payment_discount_amount: payment_discount_amount,
-        untaxed_amount: untaxed_amount,
-      });
-    },
-    [formMain]
-  );
-  const onPickManyProduct = useCallback(
-    (items: Array<VariantResponse>) => {
-      setVisibleManyProduct(false);
-      let old_line_items = formMain.getFieldValue(POField.line_items);
-      let trade_discount_rate = formMain.getFieldValue(
-        POField.trade_discount_rate
-      );
-      let trade_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let payment_discount_rate = formMain.getFieldValue(
-        POField.payment_discount_rate
-      );
-      let payment_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-      let new_items: Array<PurchaseOrderLineItem> = [
-        ...POUtils.convertVariantToLineitem(items, position),
-      ];
-      position = position + new_items.length;
-      let new_line_items = POUtils.addProduct(
-        old_line_items,
-        new_items,
-        false
-      );
-      let untaxed_amount = POUtils.totalAmount(new_line_items);
-
-      let tax_lines = POUtils.getVatList(
-        new_line_items,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let trade_discount_amount = POUtils.getTotalDiscount(
-        untaxed_amount,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let total_after_tax = POUtils.getTotalAfterTax(
-        untaxed_amount,
-        trade_discount_amount,
-        tax_lines
-      );
-      let payment_discount_amount = POUtils.getTotalDiscount(
-        total_after_tax,
-        payment_discount_rate,
-        payment_discount_value
-      );
-      let total = POUtils.getTotalPayment(
-        total_after_tax,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
-      );
-      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
-        currentProcument,
-        new_line_items
-      );
-      formMain.setFieldsValue({
-        line_items: new_line_items,
-        untaxed_amount: untaxed_amount,
-        tax_lines: tax_lines,
-        total: total,
-        trade_discount_amount: trade_discount_amount,
-        payment_discount_amount: payment_discount_amount,
-        [POField.procurements]: newProcument,
-      });
-    },
-    [formMain]
-  );
-  const onTaxChange = useCallback(
-    (vat, index: number) => {
-      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-        POField.line_items
-      );
-      let trade_discount_rate = formMain.getFieldValue(
-        POField.trade_discount_rate
-      );
-      let trade_discount_value = formMain.getFieldValue(
-        POField.trade_discount_value
-      );
-      let trade_discount_amount = formMain.getFieldValue(
-        POField.trade_discount_amount
-      );
-      let payment_discount_rate = formMain.getFieldValue(
-        POField.payment_discount_rate
-      );
-      let payment_discount_value = formMain.getFieldValue(
-        POField.payment_discount_value
-      );
-      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-      let updateItem = POUtils.updateVatItem(
-        data[index],
-        vat,
-        data,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      data[index] = updateItem;
-      let tax_lines = POUtils.getVatList(
-        data,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let total_after_tax = POUtils.getTotalAfterTax(
-        untaxed_amount,
-        trade_discount_amount,
-        tax_lines
-      );
-      let payment_discount_amount = POUtils.getTotalDiscount(
-        total_after_tax,
-        payment_discount_rate,
-        payment_discount_value
-      );
-      let total = POUtils.getTotalPayment(
-        untaxed_amount,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-
-      formMain.setFieldsValue({
-        line_items: [...data],
-        tax_lines: tax_lines,
-        total: total,
-        payment_discount_amount: payment_discount_amount,
-      });
-    },
-    [formMain]
-  );
+        line_items_old: newOldLineItems
+      })
+    }
+  }
   const onNoteChange = useCallback(
     (value: string, index: number) => {
       let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
@@ -573,29 +330,151 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [dispatch, onResultSearch]
   );
-
   const onSearchProduct = () => {
     let element: any = document.getElementById("#product_search");
     element?.focus();
     const y = element?.getBoundingClientRect()?.top + window.pageYOffset - 250;
     window.scrollTo({ top: y, behavior: "smooth" });
   }
-
-  /**
-   * Thay đổi số lượng tại bảng sản phẩm sẽ thay đổi sl tại bảng procurement
-   * @param value input
-   * @param tableProductIndex bảng sản phẩm
-   */
-  // const applyChangeQtyForProcurement = (inputValue: number, variantId: number) => {
-  //   //lưu lại giá trị vừa nhập để sửa dụng lại khi thay đổi số lượng bảng procurement
-  //   setQuickInputProductLineItem((prev: Map<number, number>) => {
-  //     prev.set(variantId, inputValue);
-  //     return {...prev};
-  //   })
-
-  //   setProcurementLineItemById(formMain, [variantId], inputValue, quickInputQtyProcurementLineItem);
-  // }
-
+  const sizeIndex = [
+    {
+      size: "XS",
+      index: 1
+    },
+    {
+      size: "S",
+      index: 2
+    },
+    {
+      size: "M",
+      index: 3
+    },
+    {
+      size: "L",
+      index: 4
+    },
+    {
+      size: "XL",
+      index: 5
+    },
+    {
+      size: "2XL",
+      index: 6
+    },
+    {
+      size: "3XL",
+      index: 7
+    },
+    {
+      size: "4XL",
+      index: 8
+    }
+  ]
+ const handleSortLineItems = (items : Array<any> ) => {
+    if(items.length === 0)
+      return items;
+    let result: Array<any> = [];
+    let newItems = items.map((item : any) => {
+        let sku = item.sku;
+        if(sku){
+          let arrSku = sku.split('-');
+          item.sku_sku = arrSku[0] ? arrSku[0] : "";
+          item.sku_color = arrSku[1] ? arrSku[1] : "";
+          item.sku_size = arrSku[2] ? arrSku[2] : "";
+        }
+        else{
+          item.sku_sku = "";
+          item.sku_color = "";
+          item.sku_size = "";
+        }
+        return item;
+    })
+    newItems.sort((a,b) => (a.sku_sku > b.sku_sku) ? 1 : -1);
+    let itemsAfter = groupByProperty(newItems,"sku_sku");
+    console.log(itemsAfter);
+    for(let i = 0; i < itemsAfter.length; i++){
+      let subItem : Array<any> = itemsAfter[i];
+        subItem.sort((a,b) => (a.sku_color > b.sku_color) ? 1 : -1)
+        let subItemAfter = groupByProperty(subItem,"sku_color");
+        let itemsSortSize = [];
+        for(let k =0; k < subItemAfter.length; k++){
+          itemsSortSize.push(sortBySize(subItemAfter[k]));
+          console.log("itemsSortSize",itemsSortSize);
+          itemsAfter[i] = itemsSortSize;
+      }
+    }
+    console.log(itemsAfter);
+    for(let i = 0; i < itemsAfter.length; i++){
+      for(let j = 0; j < itemsAfter[i].length; j++){
+        for(let k = 0; k < itemsAfter[i][j].length; k++){
+          if(Array.isArray(itemsAfter[i][j][k])){
+            for(let h = 0; h < itemsAfter[i][j][k].length; h++){
+              result.push(itemsAfter[i][j][k][h]);
+            }
+          }
+          else{
+            result.push(itemsAfter[i][j][k]);
+          }
+        }
+      }
+    }
+    console.log(result);
+    return result;
+  }
+  const groupByProperty = (collection: Array<any>,property: string) => {
+    let  val, index, values = [], result = [];
+    for (let i = 0; i < collection.length; i++) {
+        val = collection[i][property];
+        index = values.indexOf(val);
+        if (index > -1)
+            result[index].push(collection[i]);
+        else {
+            values.push(val);
+            result.push([collection[i]]);
+        }
+    }
+    return result;
+  }
+  const sortBySize = (collection : Array<any>) => {
+    for(let i = 0; i < collection.length; i++){
+      for(let j = i+1; j < collection.length; j++){
+        if(isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))){
+          let sku_size1 = collection[i].sku_size ? collection[i].sku_size.split('/')[0] : "";
+          let sku_size2 = collection[j].sku_size ? collection[j].sku_size.split('/')[0] : "";
+          let size1 = sizeIndex.find(item => item.size === sku_size1);
+          let size2 = sizeIndex.find(item => item.size === sku_size2);
+          if(size1 !== undefined && size2 !== undefined){
+            if(size2.index < size1.index){
+              console.log("1",collection[i],collection[j]);
+              [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+              console.log("2",collection[i],collection[j]);
+            }
+          }
+          else if(size1 === undefined){
+            [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+          }
+        }
+        else if(!isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))){
+          [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+        }
+        else if(!isNaN(parseFloat(collection[i].sku_size)) && !isNaN(parseFloat(collection[j].sku_size))){
+          if(parseFloat(collection[i].sku_size) > parseFloat(collection[j].sku_size)){
+            console.log("1",collection[i],collection[j]);
+            [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+            console.log("2",collection[i],collection[j]);
+          }
+        }
+      }
+    }
+    console.log("col:",collection);
+    return collection;
+  }
+  const swapItem = (a: any,b: any) => {
+    let temp = a;
+    a = {...b};
+    b = {...temp};
+    return [a,b]
+  }
   useEffect(() => {
     if(isPressed) {
       onSearchProduct()
@@ -626,7 +505,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       style={{ width: "100%" }}
                       showAdd={true}
                       textAdd="Thêm mới sản phẩm"
-                      onSelect={onSelectProduct}
+                      onSelect={handleSelectProduct}
                       options={renderResult}
                       ref={productSearchRef}
                       onClickAddNew={() => {
@@ -665,7 +544,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 ? getFieldValue(POField.line_items)
                 : [];
               let status = getFieldValue(POField.status);
-
               return !isEdit && (!status || status === POStatus.DRAFT) ? (
                 <Table
                   className="product-table"
@@ -687,6 +565,33 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         </Button>
                       </Empty>
                     ),
+                  }}
+                  sortDirections={[ "descend", null]}
+                  onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
+                    if(sorter){
+                      if(sorter.order == null){
+                        setIsSortSku(false)
+                        let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+                          POField.line_items_old
+                        );
+                        formMain.setFieldsValue({
+                          line_items: [...data],
+                        });
+                      }
+                      else{
+                        setIsSortSku(true)
+                        let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+                          POField.line_items
+                        );
+                        formMain.setFieldsValue({
+                          line_items_old: [...data],
+                        });
+                        data = handleSortLineItems(data);
+                        formMain.setFieldsValue({
+                          line_items: [...data],
+                        });
+                      }
+                    }
                   }}
                   rowKey={(record: PurchaseOrderLineItem) => record.temp_id}
                   rowClassName="product-table-row"
@@ -714,8 +619,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     {
                       title: "Sản phẩm",
                       width: "99%",
+                      sorter: true,
                       className: "ant-col-info",
-
                       dataIndex: "variant",
                       render: (
                         value: string,
@@ -812,7 +717,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           default={1}
                           maxLength={6}
                           onChange={(quantity) => {
-                            onQuantityChange(quantity, index);
+                            handleChangeQuantityLineItem(quantity || 0, index);
                             // applyChangeQtyForProcurement(quantity||0, item.variant_id);
                           }}
                         />
@@ -842,23 +747,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           <NumberInput
                             style={{ width: "80%" }}
                             min={0}
-                            value={priceValue}
                             format={(a: string) => formatCurrency(a ? a : 0, '')}
                             replace={(a: string) => replaceFormatString(a)}
                             onPressEnter={(e) => {
-                              const newPrice = e.target.value || 0;
-                              const prices = [];
-                              setPriceValue(newPrice);
-                              for (let index = 0; index < items.length; index++) {
-                                prices.push(newPrice);
-                                onPriceChange(
-                                  newPrice,
-                                  DiscountType.money,
-                                  0,
-                                  index
-                                );
-                              }
-                              setListPrice(prices);
+                              handleChangeAllPriceLineItem(e.target.value || 0)
                             }}
                           />
                         </div>
@@ -872,27 +764,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             min={0}
                             format={(a: string) => formatCurrency(a ? a : 0)}
                             replace={(a: string) => replaceFormatString(a)}
-                            value={listPrice[index] > 0 ? listPrice[index] : value}
+                            value={item.price > 0 ? item.price : value}
                             onChange={(inputValue) => {
-                              const newList = [...listPrice];
-                              newList[index] = inputValue || 0;
-                              setListPrice(newList);
-
-                              if (inputValue === null) {
-                                onPriceChange(
-                                  0,
-                                  DiscountType.money,
-                                  0,
-                                  index
-                                );
-                                return;
-                              }
-                              onPriceChange(
-                                inputValue,
-                                DiscountType.money,
-                                0,
-                                index
-                              );
+                              handleChangePriceLineItem(inputValue || 0,index);
                             }}
                           />
                         );
@@ -912,19 +786,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             className="product-item-vat"
                             prefix={<div>%</div>}
                             isFloat
-                            value={vatValue}
                             onPressEnter={(e) => {
-                              const newVat = e.target.value || 0;
-                              const vats = [];
-                              setVatValue(newVat);
-                              for (let index = 0; index < items.length; index++) {
-                                vats.push(newVat);
-                                onTaxChange(
-                                  newVat,
-                                  index
-                                );
-                              }
-                              setListVat(vats);
+                              handleChangeAllTax(e.target.value || 0);
                             }}
                           />
                         </div>
@@ -935,24 +798,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         return (
                           <NumberInput
                             className="product-item-vat"
-                            value={ listVat[index] > 0 ? listVat[index] : value}
+                            value={ item.tax_rate > 0 ? item.tax_rate : value}
                             prefix={<div>%</div>}
                             isFloat
-                            onChange={(v) => {
-                              const newList = [...listVat];
-                              newList[index] = v || 0;
-                              setListVat(newList);
-
-                              onTaxChange(v, index)
+                            onChange={(inputValue) => {
+                              handleChangeTax(inputValue || 0,index);
                             }}
                             min={0}
                             maxLength={3}
                             max={100}
-                            onBlur={() => {
-                              if (value === null) {
-                                onTaxChange(0, index);
-                              }
-                            }}
                           />
                         );
                       },
@@ -1000,7 +854,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       width: 40,
                       render: (value: string, item, index: number) => (
                         <Button
-                          onClick={() => onDeleteItem(index)}
+                          onClick={() => handleDeleteLineItem(index)}
                           className="product-item-delete"
                           icon={<AiOutlineClose />}
                         />
@@ -1333,7 +1187,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       {
         visibleManyProduct && (
           <PickManyProductModal
-            onSave={onPickManyProduct}
+            onSave={handlePickManyProduct}
             selected={[]}
             onCancel={() => setVisibleManyProduct(false)}
             visible={visibleManyProduct}
