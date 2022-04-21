@@ -118,6 +118,34 @@ const HistoryInventoryMappingField = {
   quantity: 'Số lượng thay đổi',
 }
 
+const TransferColumnField = {
+  code: 'code',
+  from_store_name: 'from_store_name',
+  to_store_name: 'to_store_name',
+  status: 'status',
+  total_variant: 'total_variant',
+  total_quantity: 'total_quantity',
+  total_amount: 'total_amount',
+  transfer_date: 'transfer_date',
+  receive_date: 'receive_date',
+  note: 'note',
+  created_date: 'created_date',
+}
+
+const TransferExportField = {
+  [TransferColumnField.code]: 'Phiếu chuyển',
+  [TransferColumnField.from_store_name]: 'Kho gửi',
+  [TransferColumnField.to_store_name]: 'Kho nhận',
+  [TransferColumnField.status]: 'Trạng thái',
+  [TransferColumnField.total_variant]: 'Số sản phẩm',
+  [TransferColumnField.total_quantity]: 'Số lượng',
+  [TransferColumnField.total_amount]: 'Thành tiền',
+  [TransferColumnField.transfer_date]: 'Ngày Chuyển',
+  [TransferColumnField.receive_date]: 'Ngày nhận',
+  [TransferColumnField.note]: 'Ghi chú',
+  [TransferColumnField.created_date]: 'Ngày tạo',
+}
+
 export {InventoryQueryField,
    InventoryMappingField,
    BasicInventoryFilter,
@@ -128,4 +156,6 @@ export {InventoryQueryField,
    AvdAllFilter,
    AllInventoryMappingField,
    InventoryExportField,
+   TransferExportField,
+   TransferColumnField,
    InventoryColumnField};
