@@ -18,6 +18,7 @@ import { searchAccountPublicAction } from "../../../domain/actions/account/accou
 import { inventoryGetSenderStoreAction } from "../../../domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { Store } from "../../../model/inventory/transfer";
 import { PageResponse } from "model/base/base-metadata.response";
+import exportIcon from "assets/icon/export.svg";
 
 const { TabPane } = Tabs;
 
@@ -29,6 +30,8 @@ const InventoryListScreen: React.FC = () => {
   const history = useHistory();
   const {path} = useRouteMatch();
   const dispatch = useDispatch();
+  const [vExportTransfer,setVExportTransfer] = useState(false);
+  const [vExportDetailTransfer,setVExportDetailTransfer] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
@@ -90,6 +93,22 @@ const InventoryListScreen: React.FC = () => {
           activeTab === InventoryTransferTabUrl.LIST && (
             <Row>
               <Space>
+              <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                  onClick={() => {setVExportTransfer(true)}}
+                >
+                  Xuất file danh sách
+              </Button>
+              <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                  onClick={() => {setVExportDetailTransfer(true)}}
+                >
+                  Xuất file chi tiết
+              </Button>
                 <AuthWrapper acceptPermissions={[InventoryTransferPermission.import]}>
                   <Button
                    className="light"
@@ -119,6 +138,8 @@ const InventoryListScreen: React.FC = () => {
           >
             <TabPane tab="Danh sách phiếu" key={InventoryTransferTabUrl.LIST}>
               <InventoryTransferTab
+                vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
+                vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
                 stores={stores}
                 accounts={accounts}
                 accountStores={accountStores}
