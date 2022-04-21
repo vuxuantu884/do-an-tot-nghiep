@@ -20,6 +20,7 @@ import { Store } from "../../../model/inventory/transfer";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useLocation } from "react-router-dom";
 import queryString from "query-string";
+import exportIcon from "assets/icon/export.svg";
 
 const { TabPane } = Tabs;
 
@@ -31,6 +32,7 @@ const InventoryListScreen: React.FC = () => {
   const history = useHistory();
   const {path} = useRouteMatch();
   const dispatch = useDispatch();
+  const [vExportTransfer,setVExportTransfer] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
@@ -121,6 +123,23 @@ const InventoryListScreen: React.FC = () => {
           activeTab === InventoryTransferTabUrl.LIST && (
             <Row>
               <Space>
+              <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                  onClick={() => {setVExportTransfer(true)}}
+                >
+                  Xuất file danh sách
+              </Button>
+              <Button
+                  className="light"
+                  size="large"
+                  hidden
+                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                  onClick={() => {setVExportTransfer(true)}}
+                >
+                  Xuất file chi tiết
+              </Button>
                 <AuthWrapper acceptPermissions={[InventoryTransferPermission.import]}>
                   <Button
                    className="light"
@@ -150,6 +169,7 @@ const InventoryListScreen: React.FC = () => {
           >
             <TabPane tab="Danh sách phiếu" key={InventoryTransferTabUrl.LIST}>
               <InventoryTransferTab
+                vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
                 stores={stores}
                 accounts={accounts}
                 accountStores={accountStores}

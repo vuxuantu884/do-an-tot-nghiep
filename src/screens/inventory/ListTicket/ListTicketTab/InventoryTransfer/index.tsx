@@ -24,13 +24,12 @@ import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {Input, Modal, Tag, Form} from "antd";
 import {InventoryTransferTabWrapper} from "./styles";
-import {STATUS_INVENTORY_TRANSFER} from "../../constants";
+import {STATUS_INVENTORY_TRANSFER,STATUS_INVENTORY_TRANSFER_ARRAY} from "../../constants";
 
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {
   BarsOutlined,
   CopyOutlined,
-  ExportOutlined,
   FormOutlined,
   PaperClipOutlined,
   PrinterOutlined,
@@ -53,14 +52,23 @@ import {InventoryTransferPermission} from "config/permissions/inventory-transfer
 import useAuthorization from "hook/useAuthorization";
 import { callApiNative } from "../../../../../utils/ApiUtils";
 import { searchAccountPublicApi } from "../../../../../service/accounts/account.service";
+import TransferExport from "../../Components/TransferExport";
+import { TYPE_EXPORT } from "screens/products/constants";
+import {
+  getListInventoryTransferApi
+} from "service/inventory/transfer/index.service";
+import moment from "moment";
+import * as XLSX from 'xlsx';
+import { TransferExportField } from "model/inventory/field";
 const {TextArea} = Input;
+
+let firstLoad = true;
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
   WATCH_MANY_TICKET: 2,
   PRINT: 4,
   PRINT_TICKET: 5,
-  EXPORT_EXCEL: 6,
   MAKE_COPY: 7,
 };
 
@@ -91,10 +99,12 @@ type InventoryTransferTabProps = {
   stores?: Array<Store>,
   accounts?: Array<AccountResponse>,
   setAccounts?: (e: any) => any,
+  vExportTransfer: boolean,
+  setVExportTransfer: React.Dispatch<React.SetStateAction<boolean>>
 };
 
 const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: InventoryTransferTabProps) => {
-  const { accountStores, stores, accounts, setAccounts } = props;
+  const { accountStores, stores, accounts, setAccounts,vExportTransfer,setVExportTransfer } = props;
   const history = useHistory();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
@@ -108,6 +118,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
   const [itemData, setItemData] = useState<InventoryTransferDetailItem>();
   const printElementRef = useRef(null);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -161,12 +172,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       name: "In phiếu",
       icon: <PrinterOutlined />,
       disabled: !allowPrint,
-    },
-    {
-      id: ACTIONS_INDEX.EXPORT_EXCEL,
-      name: "Xuất Excel",
-      icon: <ExportOutlined />,
-      disabled: true,
     },
     {
       id: ACTIONS_INDEX.MAKE_COPY,
@@ -427,6 +432,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       if (!!result) {
         setTableLoading(false);
         setData(result);
+        if (firstLoad) {
+          setTotalItems(result.metadata.total);
+        }
+        firstLoad = false;
       }
     },
     []
@@ -517,6 +526,106 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     setSelectedRowData(selectedRow);
     setSelectedRowKeys(selectedRowKeys);
   }, []);
+
+  const convertItemExport = (item: InventoryTransferDetailItem) => {
+
+    return {
+      [TransferExportField.code]: item.code,
+      [TransferExportField.from_store_name]: item.from_store_name,
+      [TransferExportField.to_store_name]: item.to_store_name,
+      [TransferExportField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===item.status)?.name,
+      [TransferExportField.total_variant]: item.total_variant,
+      [TransferExportField.total_quantity]: item.total_quantity,
+      [TransferExportField.total_amount]: item.total_amount,
+      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date),
+      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date),
+      [TransferExportField.note]: item.note,
+      [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date),
+    };
+  }
+
+  const getItemsByCondition = useCallback(async (type: string) => {
+    let res: any; 
+    let items: Array<InventoryTransferDetailItem> = [];
+    const limit = 50;
+    let times = 0;
+    switch (type) {
+      case TYPE_EXPORT.page:
+        res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,limit: params.limit ?? 50});
+        if (res) {
+          items= items.concat(res.items);
+        }
+        break;
+      case TYPE_EXPORT.selected:
+        items = selectedRowData;
+        break;
+      case TYPE_EXPORT.all:
+      const roundAll = Math.round(data.metadata.total / limit);
+      times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
+
+        for (let index = 1; index <= times; index++) {        
+          const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          if (res) {
+            items= items.concat(res.items);
+          }
+        }
+        
+        break;
+      case TYPE_EXPORT.allin:
+        if (!totalItems || totalItems===0) {
+          break;
+        }
+        const roundAllin = Math.round(totalItems / limit);
+        times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
+        for (let index = 1; index <= times; index++) {
+          
+          const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          if (res) {
+            items= items.concat(res.items);
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    return items;
+  },[dispatch,selectedRowData,params,data,totalItems])
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      let dataExport: any = [];
+      if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
+        showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
+        setVExportTransfer(false);
+        return;
+      }
+
+      const res = await getItemsByCondition(typeExport);
+      if (res && res.length === 0) {
+        showWarning("Không có phiếu chuyển nào đủ điều kiện");
+        return;
+      }
+      for (let i = 0; i < res.length; i++) {
+        const e = res[i];
+        const item = convertItemExport(e);
+        dataExport.push(item);
+      }
+
+      let worksheet = XLSX.utils.json_to_sheet(dataExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      const today = moment(new Date(), 'YYYY/MM/DD');
+
+      const month = today.format('M');
+      const day   = today.format('D');
+      const year  = today.format('YYYY');
+      XLSX.writeFile(workbook, `transfer_${day}_${month}_${year}.xlsx`);
+      setVExportTransfer(false);
+    },
+    Cancel: () => {
+      setVExportTransfer(false);
+    },
+  }
 
   //get list
   useEffect(() => {
@@ -681,6 +790,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           setColumn(data);
         }}
         data={columns}
+      />
+       <TransferExport
+        onCancel={actionExport.Cancel}
+        onOk={actionExport.Ok}
+        visible={vExportTransfer}
       />
     </InventoryTransferTabWrapper>
   );
