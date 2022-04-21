@@ -161,7 +161,4 @@ export const BUSINESS_RESULT_CURRRENT_MONTHS_QUERY: AnalyticSampleQuery = {
     options: `time:"completed_at"`
 }
 
-export const BUSINESS_RESULT_CHART_TEMPLATE: Array<AnalyticSampleQuery> = [
-    BUSINESS_RESULT_LAST_3_MONTHS_QUERY,
-    BUSINESS_RESULT_CURRRENT_MONTHS_QUERY,
-]
+ 

@@ -159,7 +159,7 @@ export const DashboardContainer = styled.div`
         padding: 20px 0 20px 30px;
       }
   }
- .cart-bottom-wrapper{
+ .product-dashboard{
    &>.ant-card-body{
      padding-top: 0;
      padding-left: 0;
