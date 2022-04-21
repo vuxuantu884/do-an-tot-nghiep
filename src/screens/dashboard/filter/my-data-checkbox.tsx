@@ -17,7 +17,7 @@ type GroupPositionProps = {
 
 const PopoverContent = ({ setIsVisiblePopover }: GroupPositionProps) => {
     const { setShowMyData, showMyData } = useContext(DashboardContext);
-    const myCode = useSelector((state: RootReducerType)=> state.userReducer.account?.code);
+    const myCode = useSelector((state: RootReducerType) => state.userReducer.account?.code);
 
     const handleChangeRadio = (e: RadioChangeEvent) => {
         const { checked, value } = e.target;
@@ -59,6 +59,11 @@ function MyDataCheckbox(props: Props) {
         setIsVisiblePopover(visible && !showMyData.isSeeMyData);
 
     }
+
+    const transleShowMyDataCode = (code: string) => {
+        const item = STAFF_POSITION_LIST.find(item => item.value === code);
+        return item?.label || "";
+    }
     return (
         <>
             <Popover placement="bottomLeft"
@@ -67,14 +72,14 @@ function MyDataCheckbox(props: Props) {
                 trigger="click"
                 visible={isVisiblePopover && !showMyData.isSeeMyData}
                 onVisibleChange={(visible) => {
-                    handleChangePopover(visible);              
+                    handleChangePopover(visible);
                 }}
             >
                 <Checkbox
                     checked={showMyData.isSeeMyData}
                     onChange={handleChangeSeeMyData}
                 >
-                    Xem dữ liệu của tôi
+                    Xem dữ liệu của tôi {showMyData.isSeeMyData ? `(${transleShowMyDataCode(showMyData.condition || "")})` : ''}
                 </Checkbox>
             </Popover>
 
