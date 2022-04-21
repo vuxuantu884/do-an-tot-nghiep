@@ -1,21 +1,21 @@
-import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Col, Form, FormInstance, Input, Modal, ModalProps, Row, Select, Table } from 'antd'
-import BaseSelectPaging from 'component/base/BaseSelect/BaseSelectPaging'
-import NumberInput from 'component/custom/number-input.custom'
-import CustomSelect from 'component/custom/select.custom'
-import useFetchColors from 'hook/useFetchColor'
-import useFetchSizes from 'hook/useFetchSizes'
-import _ from 'lodash'
-import { ColorResponse } from 'model/product/color.model'
-import { VariantRequestView, VariantResponse } from 'model/product/product.model'
-import { SizeResponse } from 'model/product/size.model'
-import { RootReducerType } from 'model/reducers/RootReducerType'
-import React, { useEffect } from 'react'
-import { BiTrash } from 'react-icons/bi'
-import { useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
-import { formatCurrencyForProduct, replaceFormatString } from 'utils/AppUtils'
-import { ProductParams } from '../ProductDetailScreen'
+import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Col, Form, FormInstance, Input, Modal, ModalProps, Row, Select, Table } from "antd";
+import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
+import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
+import useFetchColors from "hook/useFetchColor";
+import useFetchSizes from "hook/useFetchSizes";
+import _ from "lodash";
+import { ColorResponse } from "model/product/color.model";
+import { VariantRequestView, VariantResponse } from "model/product/product.model";
+import { SizeResponse } from "model/product/size.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import React, { useEffect, useMemo } from "react";
+import { BiTrash } from "react-icons/bi";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { formatCurrencyForProduct, replaceFormatString } from "utils/AppUtils";
+import { ProductParams } from "../ProductDetailScreen";
 
 const { Item } = Form
 const { Option } = Select
@@ -34,6 +34,7 @@ function AddVariantsModal(props: Props) {
      * Tạm thời để gọn trong 1 component cho đỡ rối code ở component cha
      */
     const [visible, setVisible] = React.useState(false);
+    const [valueSearchColor, setValueSearchColor] = React.useState('');
     const [sizeSelectedList, setSizeSelectedList] = React.useState<SizeResponse[]>([])
     const [colorSelectedList, setColorSelectedList] = React.useState<ColorResponse[]>([])
 
@@ -82,7 +83,7 @@ function AddVariantsModal(props: Props) {
             [modalInputField, "currency_code"]
             ]
 
-        ).then(values => {
+        ).then(() => {
             const modalValue = form.getFieldValue(modalInputField);
             console.log("validate success ", modalValue);
             /**
@@ -239,16 +240,15 @@ function AddVariantsModal(props: Props) {
              * make list unique by sku
              */
             setVariantTempList((prev) => {
-                const newVariantList = _.uniqBy([...prev, ...newVariants], 'sku');
-                return newVariantList
+                return _.uniqBy([...prev, ...newVariants], 'sku')
             });
         }
     }
 
     /**
      * Nếu có 1 variant trùng color và size thì return true
-     * @param colorId 
-     * @param sizeId 
+     * @param colorId
+     * @param sizeId
      * @returns boolean
      */
     const checkVariantExisted = (colorId: number | null, sizeId: number | null) => {
@@ -270,7 +270,7 @@ function AddVariantsModal(props: Props) {
         let newSizeSelectedList: SizeResponse[] = [];
         if (selectedSize) {
             newSizeSelectedList = [...sizeSelectedList, selectedSize];
-            setSizeSelectedList((prev) => newSizeSelectedList)
+            setSizeSelectedList(() => newSizeSelectedList)
         }
 
         /**
@@ -325,6 +325,14 @@ function AddVariantsModal(props: Props) {
             }
         })
     }, [form]);
+
+    const debounceSearch = useMemo(() =>
+        _.debounce((code: string) => {
+            setValueSearchColor(code);
+            fetchColor({ info: code, page: 1 })
+        }, 500),
+      [fetchColor]
+    );
 
     return (
         <>
@@ -634,9 +642,8 @@ function AddVariantsModal(props: Props) {
                                             {item.code} - {item.name}
                                         </Option>
                                     )}
-                                    onSearch={(value) => {
-                                        fetchColor({ info: value })
-                                    }}
+                                    valueSearch={valueSearchColor}
+                                    onSearch={(value) => debounceSearch(value)}
                                     filterOption={() => true}
                                     showArrow
                                     loading={isColorLoading}

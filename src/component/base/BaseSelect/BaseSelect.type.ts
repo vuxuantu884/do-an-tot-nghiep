@@ -9,12 +9,14 @@ import {
 export type BaseSelectType<T> = SelectProps<any> & {
   children?: ReactNode;
   data?: T[];
+  valueSearch?: string;
   renderItem?: (item: T, index: number) => void;
 };
 
 export type BaseSelectPagingType<T> = BaseSelectType<T> & {
   metadata: BaseMetadata;
   fetchData: (query: AccountPublicSearchQuery) => void;
+  valueSearch?: string;
 };
 
 export type BaseSelectPaginationType = {
