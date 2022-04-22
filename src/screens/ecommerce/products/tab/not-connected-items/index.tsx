@@ -615,7 +615,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <div>
             <div>{item.ecommerce_sku}</div>
             <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
-            <div style={{ color: "#2a2a86" }}>({item.shop})</div>
+            <div style={{ color: "#737373", fontStyle: "italic" }}>({item.ecommerce_variant_id})</div>
+            <div style={{ color: "#2a2a86", fontWeight: 500 }}>({item.shop})</div>
           </div>
         );
       },
