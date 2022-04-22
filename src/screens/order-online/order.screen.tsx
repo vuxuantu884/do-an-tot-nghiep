@@ -1331,6 +1331,7 @@ export default function Order() {
 											customerId={customer?.id}
 											form={form}
 											storeId={storeId}
+											setReload={() => {}}
 										/>
 									</Col>
 								</Row>

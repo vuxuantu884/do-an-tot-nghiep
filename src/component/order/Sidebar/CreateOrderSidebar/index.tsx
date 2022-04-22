@@ -7,7 +7,7 @@ import CreateOrderSidebarOrderExtraInformation from "../CreateOrderSidebarOrderE
 import CreateOrderSidebarOrderInformation from "../CreateOrderSidebarOrderInformation";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   form: FormInstance<any>;
   tags: string;
   levelOrder?: number;
@@ -17,6 +17,7 @@ type PropType = {
   orderDetail?: OrderResponse | null;
   listOrderSubStatus?: OrderSubStatusResponse[];
   onChangeTag: (value: []) => void;
+  setReload: (value: boolean) => void;
 };
 
 /**
@@ -32,7 +33,7 @@ type PropType = {
  *
  * onChangeTag: xử lý khi thay đổi tag
  */
-function CreateOrderSidebar(props: PropType): JSX.Element {
+function CreateOrderSidebar(props: PropTypes): JSX.Element {
   const {
     onChangeTag,
     tags,
@@ -42,6 +43,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
     form,
     storeId,
     updateOrder,
+    setReload,
   } = props;
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
@@ -64,8 +66,8 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           status={orderDetail?.status}
           orderId={orderDetail?.id}
           handleUpdateSubStatus={handleUpdateSubStatus}
-          setReload={() => {}}
           OrderDetailAllFulfillment={orderDetail}
+          setReload={setReload}
         />
       )}
       <Card title="THÔNG TIN BỔ SUNG">

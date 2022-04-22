@@ -52,7 +52,7 @@ import { RegUtil } from "./RegUtils";
 import {BaseFilterTag} from "../model/base/base-filter-tag";
 import { showError, showSuccess } from "./ToastUtils";
 import { OrderModel } from "model/order/order.model";
-import { ORDER_SUB_STATUS } from "./OrderSubStatusUtils";
+import { ORDER_SUB_STATUS } from "./Order.constants";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {

@@ -48,7 +48,7 @@ import {
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import EditNote from "../../edit-note";
