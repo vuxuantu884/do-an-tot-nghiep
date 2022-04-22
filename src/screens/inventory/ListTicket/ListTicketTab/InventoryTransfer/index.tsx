@@ -525,7 +525,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }, [history]);
 
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    const selectedRowKeys = selectedRow.map((row: any) => row && row.id);
     setSelectedRowData(selectedRow);
     setSelectedRowKeys(selectedRowKeys);
   }, []);
@@ -566,7 +566,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }
 
   const getItemsByCondition = useCallback(async (type: string) => {
-    let res: any; 
+    let res: any;
     let items: Array<InventoryTransferDetailItem> = [];
     const limit = 50;
     let times = 0;
@@ -584,13 +584,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       const roundAll = Math.round(data.metadata.total / limit);
       times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
 
-        for (let index = 1; index <= times; index++) {        
+        for (let index = 1; index <= times; index++) {
           const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
         }
-        
+
         break;
       case TYPE_EXPORT.allin:
         if (!totalItems || totalItems===0) {
@@ -599,7 +599,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         const roundAllin = Math.round(totalItems / limit);
         times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
         for (let index = 1; index <= times; index++) {
-          
+
           const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
@@ -635,11 +635,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           if (!res[i] || !res[i].line_items) return;
 
           const item = convertTransferDetailExport(res[i].line_items);
-          
+
           const ws = XLSX.utils.json_to_sheet(item);
           XLSX.utils.book_append_sheet(workbook, ws, res[i].code);
         }
-        
+
       }else{
         for (let i = 0; i < res.length; i++) {
           const e = res[i];
@@ -650,7 +650,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         let worksheet = XLSX.utils.json_to_sheet(dataExport);
         XLSX.utils.book_append_sheet(workbook, worksheet, "data");
       }
-      
+
       const today = moment(new Date(), 'YYYY/MM/DD');
       const month = today.format('M');
       const day   = today.format('D');
