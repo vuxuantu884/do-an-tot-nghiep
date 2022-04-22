@@ -62,7 +62,7 @@ const ExportModal: React.FC<ExportModalProps> = (
   //   },
   //   [type]
   // );
-  const [optionExport, setOptionExport] = useState<number>(selected ? 3 : 1);
+  const [optionExport, setOptionExport] = useState<number>(selected ? 3 : (type === "orders" ? 2 : 1));
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [typeExport, setTypeExport] = useState<number>(1);
   // const [fieldsExport, setFieldsExport] = useState<Array<any>>(fields.map(i => {
