@@ -43,7 +43,7 @@ const TransferExport: React.FC<ExportModalProps> = (props: ExportModalProps) => 
                   <Space direction="vertical">
                     <Radio value={TYPE_EXPORT.page}>Phiếu chuyển trên trang này</Radio>
                     <Radio value={TYPE_EXPORT.selected}>Các dòng được chọn</Radio>
-                    <Radio value={TYPE_EXPORT.all}>Tất cả phiếu chuyển điểu kiện lọc</Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả phiếu chuyển điều kiện lọc</Radio>
                     <Radio value={TYPE_EXPORT.allin}>Tất cả phiếu chuyển</Radio>
                   </Space>
                 </Radio.Group>
