@@ -168,7 +168,8 @@ const DetailTicket: FC = () => {
 
         callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
           if (res) {
-            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase());
+            const fromStoreFiltered = res.account_stores.filter((i: any) => i.store_id === result.from_store_id);
+            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase() || fromStoreFiltered.length > 0);
             return;
           }
 
@@ -277,7 +278,7 @@ const DetailTicket: FC = () => {
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
     };
-      
+
     if (
       !dataTemp.some(
         (variant: VariantResponse) => variant.sku === newResult?.sku
@@ -457,7 +458,7 @@ const DetailTicket: FC = () => {
       barCode = "";
       if (keyCode === "Enter" && code){
         setKeySearch("");
-        
+
         let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids: data?.from_store_id ?? null});
         if (res && res.items && res.items.length > 0) {
           onSelectProduct(res.items[0].id.toString(),res.items[0]);
@@ -466,7 +467,7 @@ const DetailTicket: FC = () => {
       else{
         const txtSearchProductElement: any =
           document.getElementById("product_search_variant");
-  
+
         onSearchProduct(txtSearchProductElement?.value);
       }
     },[dispatch, data?.from_store_id, onSelectProduct, onSearchProduct]);
@@ -474,10 +475,9 @@ const DetailTicket: FC = () => {
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
      if (event.target instanceof HTMLBodyElement) {
-      console.log('event.key',event.key);
        if (event.key !== "Enter") {
          barCode = barCode + event.key;
-       } else if (event && event.key === "Enter") {          
+       } else if (event && event.key === "Enter") {
            handleSearchProduct(event.key,barCode);
        }
        return;
