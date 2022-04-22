@@ -391,7 +391,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     })
     newItems.sort((a,b) => (a.sku_sku > b.sku_sku) ? 1 : -1);
     let itemsAfter = groupByProperty(newItems,"sku_sku");
-    console.log(itemsAfter);
     for(let i = 0; i < itemsAfter.length; i++){
       let subItem : Array<any> = itemsAfter[i];
         subItem.sort((a,b) => (a.sku_color > b.sku_color) ? 1 : -1)
@@ -399,11 +398,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         let itemsSortSize = [];
         for(let k =0; k < subItemAfter.length; k++){
           itemsSortSize.push(sortBySize(subItemAfter[k]));
-          console.log("itemsSortSize",itemsSortSize);
           itemsAfter[i] = itemsSortSize;
       }
     }
-    console.log(itemsAfter);
     for(let i = 0; i < itemsAfter.length; i++){
       for(let j = 0; j < itemsAfter[i].length; j++){
         for(let k = 0; k < itemsAfter[i][j].length; k++){
@@ -418,7 +415,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
       }
     }
-    console.log(result);
     return result;
   }
   const groupByProperty = (collection: Array<any>,property: string) => {
@@ -445,12 +441,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           let size2 = sizeIndex.find(item => item.size === sku_size2);
           if(size1 !== undefined && size2 !== undefined){
             if(size2.index < size1.index){
-              console.log("1",collection[i],collection[j]);
               [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
-              console.log("2",collection[i],collection[j]);
             }
           }
-          else if(size1 === undefined){
+          else if(size2 === undefined){
             [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
           }
         }
@@ -459,14 +453,11 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
         else if(!isNaN(parseFloat(collection[i].sku_size)) && !isNaN(parseFloat(collection[j].sku_size))){
           if(parseFloat(collection[i].sku_size) > parseFloat(collection[j].sku_size)){
-            console.log("1",collection[i],collection[j]);
             [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
-            console.log("2",collection[i],collection[j]);
           }
         }
       }
     }
-    console.log("col:",collection);
     return collection;
   }
   const swapItem = (a: any,b: any) => {
@@ -1197,5 +1188,4 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     </React.Fragment>
   );
 };
-
 export default POProductForm;
