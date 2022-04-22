@@ -1,12 +1,12 @@
 import { StoreResponse } from "model/core/store.model";
-import { ProductResponse, VariantImage, VariantPricesResponse } from "model/product/product.model"; 
+import { ProductResponse, VariantImage, VariantPricesResponse } from "model/product/product.model";
 
 export interface InventoryAdjustmentSearchQuery {
   page: number;
   limit: number;
-  condition: string | null, 
-  adjusted_store_id: number | null, 
-  status: [] | null, 
+  condition: string | null,
+  adjusted_store_id: number | null,
+  status: [] | null,
   audit_type: [] | null,
   from_total_variant: number | null,
   to_total_variant: number | null,
@@ -49,7 +49,7 @@ export interface LineItemAdjustment {
   updated_name: string;
   updated_date: Date;
   sku: string;
-  name: string; 
+  name: string;
   variant_id: number,
   variant_name: string;
   variant_images:Array<VariantImage>,
@@ -76,7 +76,7 @@ export interface FileUrl {
   transfer_id?: number;
   url: string;
 }
- 
+
 export interface InventoryAdjustmentDetailItem {
   id: number;
   code: string;
@@ -89,7 +89,7 @@ export interface InventoryAdjustmentDetailItem {
   audit_type: string;
   audit_name?: string;
   updated_name: string;
-  updated_date: Date; 
+  updated_date: Date;
   adjusted_store_id: number,
   adjusted_store_name: string | null,
   status: string;
@@ -97,8 +97,10 @@ export interface InventoryAdjustmentDetailItem {
   total_quantity: number;
   total_amount: number;
   audited_by: [];
+  audited_bys?: [];
   attached_files: [];
-  note: string; 
+  list_attached_files: [];
+  note: string;
   audited_date: Date;
   adjusted_date: Date;
   finished_date: Date;
@@ -111,5 +113,5 @@ export interface InventoryAdjustmentDetailItem {
   total_variant_deviant: number;
   line_items: Array<LineItemAdjustment>;
   store: StoreResponse;
-}; 
+};
 

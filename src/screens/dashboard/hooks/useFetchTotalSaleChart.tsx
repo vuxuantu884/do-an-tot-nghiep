@@ -1,22 +1,19 @@
 
 
-import { BUSINESS_RESULT_CHART_TEMPLATE, DASHBOARD_CONFIG } from 'config/dashboard/index';
+import { BUSINESS_RESULT_CURRRENT_MONTHS_QUERY, BUSINESS_RESULT_LAST_3_MONTHS_QUERY } from 'config/dashboard/business-result-config';
 import { DayTotalSale } from 'model/dashboard/dashboard.model';
-import { AnalyticQueryMany, AnalyticSampleQuery, ArrayAny } from 'model/report/analytics.model';
+import { ArrayAny } from 'model/report/analytics.model';
 import moment from 'moment';
 import { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { executeManyAnalyticsQueryService } from 'service/report/analytics.service';
-import { callApiNative } from 'utils/ApiUtils';
-import { setDepartmentQuery } from 'utils/DashboardUtils';
-import { generateRQuery } from 'utils/ReportUtils';
-import { showError } from 'utils/ToastUtils';
+import { getDataManyQueryDashboard } from 'utils/DashboardUtils';
+import { showErrorReport } from 'utils/ReportUtils';
 import { DashboardContext } from '../provider/dashboard-provider';
 type AccumulateData = { sum: number, count: number, day: string }
 
 function useFetchChartBusinessResult() {
     const dispatch = useDispatch();
-    const { setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList } = useContext(DashboardContext)
+    const { setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList, showMyData } = useContext(DashboardContext)
     const [isFetchingChartData, setIsFetchingChartData] = useState<boolean>(false);
 
     useEffect(() => {
@@ -24,17 +21,16 @@ function useFetchChartBusinessResult() {
 
         const fetchChartData = async () => {
             setIsFetchingChartData(true);
-            const params: AnalyticQueryMany = { q: [], options: [] };
-            BUSINESS_RESULT_CHART_TEMPLATE.forEach((item: AnalyticSampleQuery) => {
-                item.query.conditions = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
-                const q = generateRQuery(item.query);
-                params.q.push(q);
-                params.options.push(item.options || "");
-            })
-            const data = await callApiNative({ isShowError: true }, dispatch, executeManyAnalyticsQueryService, params);
+            
+            const data = await getDataManyQueryDashboard(dispatch, showMyData, deparmentIdList,
+                [
+                    BUSINESS_RESULT_LAST_3_MONTHS_QUERY,
+                    BUSINESS_RESULT_CURRRENT_MONTHS_QUERY,
+                ])
+
             setIsFetchingChartData(false);
             if (!data) {
-                showError("Lỗi khi lấy dữ liệu biểu đồ kết quả kinh doanh");
+                showErrorReport("Lỗi khi lấy dữ liệu biểu đồ kết quả kinh doanh");
                 return;
             }
             // tính luỹ kế 3 tháng
@@ -76,7 +72,7 @@ function useFetchChartBusinessResult() {
         }
 
         fetchChartData();
-    }, [dispatch, setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList]);
+    }, [dispatch, setDataSrcChartBusinessResult, setTotalSalesToday, deparmentIdList, showMyData]);
 
     return { isFetchingChartData };
 }

@@ -206,35 +206,27 @@ const CreateTicket: FC = () => {
     setKeySearch(value);
   },[setKeySearch]);
 
-  const onSelectProduct = useCallback((value: string, item?: VariantResponse) => {
+  const onSelectProduct = useCallback((value: string, item: VariantResponse) => {
     let dataTemp = [...dataTable];
-
-    let selectedItem = resultSearch?.items?.find(
-      (variant: VariantResponse) => variant.id.toString() === value
-    );
-
-    if (item)
-      selectedItem = item;
+    let selectedItem = item;
       
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === selectedItem.sku
+        (variant: VariantResponse) => variant.sku === selectedItem?.sku
       )
     ) {
       setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
       dataTemp = dataTemp.concat([{...selectedItem, transfer_quantity: 1}]);
     }else{
-      dataTemp?.forEach((e: VariantResponse) => {
-        if (e.sku === selectedItem.sku) {
-          e.transfer_quantity += 1;
-        }
-      })
-      setDataTable(dataTemp);
+      const indexItem = dataTemp.findIndex(e=>e.sku === item.sku);
+
+      dataTemp[indexItem].transfer_quantity +=1;
     }
+    setDataTable([...dataTemp]);
     setResultSearch([]);
 
     form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
-  },[resultSearch, dataTable, form]);
+  },[dataTable, form]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
@@ -399,34 +391,34 @@ const CreateTicket: FC = () => {
   }, [stores, fromStores]);
 
   const onFinish = (data: StockTransferSubmit) => {
-    let countError = 0;
-    let arrError: Array<string> = [];
-    dataTable?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        arrError.push(`${index + 1}`);
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-        arrError.push(`${index + 1}`);
-        countError++;
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-
-
-    if (countError > 0) {
-      showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-      return;
-    }
+    // let countError = 0;
+    // let arrError: Array<string> = [];
+    // dataTable?.forEach((element: VariantResponse, index: number) => {
+    //   const thisInput = document.getElementById(`item-quantity-${index}`);
+    //   if (!element.transfer_quantity) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (element.transfer_quantity === 0) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     countError++;
+    //     arrError.push(`${index + 1}`);
+    //   } else if (
+    //     element.transfer_quantity > (element.available ? element.available : 0)
+    //   ) {
+    //     if (thisInput) thisInput.style.borderColor = "red";
+    //     arrError.push(`${index + 1}`);
+    //     countError++;
+    //   } else {
+    //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+    //   }
+    // });
+    //
+    //
+    // if (countError > 0) {
+    //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
+    //   return;
+    // }
 
     stores.forEach((store) => {
       if (store?.id === Number(data?.from_store_id)) {
@@ -484,56 +476,6 @@ const CreateTicket: FC = () => {
     dispatch(creatInventoryTransferAction(data, createCallback));
   };
 
-  const checkError = (index: number) => {
-    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
-    const thisInput = document.getElementById(`item-quantity-${index}`);
-
-    if (dataLineItems[index].transfer_quantity === 0) {
-      showError("Số lượng phải lớn hơn 0");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else if (
-      dataLineItems[index].transfer_quantity >
-      (dataLineItems[index].available ? dataLineItems[index].available : 0)
-    ) {
-      showError("Không đủ tồn kho gửi");
-      if (thisInput) thisInput.style.borderColor = "red";
-    } else {
-      if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-    }
-
-    dataLineItems?.forEach((element: VariantResponse, index: number) => {
-      const thisInput = document.getElementById(`item-quantity-${index}`);
-      if (!element.transfer_quantity) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (element.transfer_quantity === 0) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
-        if (thisInput) thisInput.style.borderColor = "red";
-      } else {
-        if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      }
-    });
-  };
-
-  const isError = useMemo(()=>{
-    if (!fromStoreData || !toStoreData || (fromStoreData.id === toStoreData.id))  return true
-    let error = false;
-
-    if (dataTable.length === 0) {
-      return true
-    }
-
-    dataTable?.forEach((element: VariantResponse) => {
-      if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
-        error= true
-      }
-    });
-
-    return error;
-  },[toStoreData, fromStoreData, dataTable])
-
   useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
@@ -553,9 +495,11 @@ const CreateTicket: FC = () => {
   }, [dataTable]);
 
   const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
+    barCode = "";
+    
     if (keyCode === "Enter" && code){
       setKeySearch("");
-      barCode = "";
+      
       const storeId = form.getFieldValue("from_store_id");
       if (!storeId) {
         showError("Vui lòng chọn kho gửi");
@@ -576,15 +520,12 @@ const CreateTicket: FC = () => {
   },[dispatch,onSelectProduct, onSearchProduct, form]);
 
   const eventKeyPress = useCallback(
-    (event: KeyboardEvent) => {
+     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLBodyElement) {
         if (event.key !== "Enter") {
           barCode = barCode + event.key;
-        } else if (event.key === "Enter") {
-          if (barCode !== "" && event) {
+        } else if (event && event.key === "Enter") {          
             handleSearchProduct(event.key,barCode);
-            barCode = "";
-          }
         }
         return;
       }
@@ -592,7 +533,7 @@ const CreateTicket: FC = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      dispatch,
+      dispatch,handleSearchProduct
     ]
   );
 
@@ -620,8 +561,8 @@ const CreateTicket: FC = () => {
     [handleSearchProduct]
   );
 
-  const onSelect = useCallback((o)=>{
-    onSelectProduct(o);
+  const onSelect = useCallback((o,obj)=>{
+    onSelectProduct(o,obj.label.props.data);
   },[onSelectProduct])
 
   useEffect(() => {
@@ -629,7 +570,7 @@ const CreateTicket: FC = () => {
       window.addEventListener("keypress", eventKeyPress);
       return () => {
         window.removeEventListener("keydown", eventKeydown);
-        window.addEventListener("keypress", eventKeyPress);
+        window.removeEventListener("keypress", eventKeyPress);
       };
   }, [eventKeyPress, eventKeydown]);
 
@@ -716,9 +657,9 @@ const CreateTicket: FC = () => {
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}
-            onBlur={() => {
-              checkError(index);
-            }}
+            // onBlur={() => {
+            //   checkError(index);
+            // }}
           />
       ),
     },
@@ -1003,7 +944,7 @@ const CreateTicket: FC = () => {
             }
             rightComponent={
               <Space>
-                <Button loading={isLoading} disabled={isError || isLoading} htmlType={"submit"} type="primary">
+                <Button loading={isLoading} disabled={isLoading} htmlType={"submit"} type="primary">
                   Tạo phiếu
                 </Button>
               </Space>

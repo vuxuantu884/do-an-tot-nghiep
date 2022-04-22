@@ -113,8 +113,13 @@ const ColorListScreen: React.FC = () => {
     },
     {
       title: "Người tạo",
-      dataIndex: "created_name",
       visible: true,
+      render: (item: ColorResponse) => {
+        return item.created_name ?
+             <div>
+               <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
+             </div> :"---"
+       },
     },
     {
       title: "Ghi chú",

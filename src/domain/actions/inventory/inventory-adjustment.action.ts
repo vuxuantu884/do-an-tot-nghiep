@@ -49,11 +49,27 @@ const createInventoryAdjustmentAction = (
 
 const updateItemOnlineInventoryAction = (
   id: number,
+  lineId: number,
   data: Partial<LineItemAdjustment>,
   onResult: (data: LineItemAdjustment) => void
 ) => {
   return BaseAction(InventoryType.UPDATE_ITEM_ONLINE_INVENTORY, {
     id,
+    lineId,
+    data,
+    onResult,
+  });
+};
+
+const updateReasonItemOnlineInventoryAction = (
+  id: number,
+  lineId: number,
+  data: Partial<LineItemAdjustment>,
+  onResult: (data: LineItemAdjustment) => void
+) => {
+  return BaseAction(InventoryType.UPDATE_REASON_ITEM_ONLINE_INVENTORY, {
+    id,
+    lineId,
     data,
     onResult,
   });
@@ -133,5 +149,6 @@ export {
   InventoryAdjustmentGetPrintContentAction,
   getLinesItemAdjustmentAction,
   updateInventoryAdjustmentAction,
-  getVariantHasOnHandByStoreAction
+  getVariantHasOnHandByStoreAction,
+  updateReasonItemOnlineInventoryAction
 };

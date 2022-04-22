@@ -2,14 +2,21 @@ import { AxiosRequestConfig } from "axios";
 import BaseAxiosApi from "base/base.axios.api";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
+import { AppConfig } from "config/app.config";
 import { AnalyticCustomize, AnalyticQueryMany, AnalyticTemplateParams } from "model/report/analytics.model";
 import qs from "query-string";
 import { removeSpacesAndEnterCharacters } from "utils/ReportUtils";
+
+const isUat = AppConfig.ENV === "UAT"; // báo cáo không có server trên UAT=> trên mt uat không call api
+export const NO_SERVER_ERROR = "Báo cáo không có trên môi trường UAT";
 
 export const executeAnalyticsQueryService = (
   params: AnalyticTemplateParams,
   config?: AxiosRequestConfig
 ): Promise<BaseResponse<any>> => {
+  if (isUat) {
+    return Promise.reject(new Error(NO_SERVER_ERROR));
+  }
   params.q = removeSpacesAndEnterCharacters(params.q);
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/query`, { params, ...config });
 };
@@ -18,6 +25,9 @@ export const executeManyAnalyticsQueryService = (
   params: AnalyticQueryMany,
   config?: AxiosRequestConfig
 ): Promise<BaseResponse<any>> => {
+  if (isUat) {
+    return Promise.reject(new Error(NO_SERVER_ERROR));
+  }
   const { q } = params;
   if (Array.isArray(q) && q.length > 0) {
     q.forEach(item => {

@@ -1,4 +1,5 @@
 import { YodyAction } from "base/base.action";
+import { AppConfig } from "config/app.config";
 import { TIME_GROUP_BY } from "config/report";
 import { AnalyticConditions, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
 import moment from "moment";
@@ -6,6 +7,7 @@ import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
 import { callApiNative } from "./ApiUtils";
 import { DATE_FORMAT } from "./DateUtils";
+import { showError } from "./ToastUtils";
 
 const getCondistions = (conditions: AnalyticConditions) => {
   let whereValue = "";
@@ -14,12 +16,16 @@ const getCondistions = (conditions: AnalyticConditions) => {
     if (Array.isArray(conditionsElement) && conditionsElement.length >= 5) {
       // copy array from item 2nd to end
       const value: Array<string> = conditionsElement.slice(2);
-      
+
       // convert ["camel", ",", "elephant"] to "("camel", "elephant")"
       whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} (${value.join("")}) AND`;
     } else if (Array.isArray(conditionsElement) && conditionsElement.length === 3) {
       // check trường hợp dùng operator == != >= .... : mảng conditionsElement có độ dài bằng 3
-      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} ${conditionsElement[2]} AND`;
+      let value = conditionsElement[2];
+      if (typeof conditionsElement[2] === "string") {
+        value = `'${conditionsElement[2]}'`;
+      }
+      whereValue += ` ${conditionsElement[0]} ${conditionsElement[1]} ${value} AND`;
     }
   });
 
@@ -41,7 +47,7 @@ const getRows = (rows: Array<string>) => {
   return rowsValue;
 };
 
-const generateRQuery = (queryObject: AnalyticQuery) => {
+export const generateRQuery = (queryObject: AnalyticQuery) => {
   const { columns: column, rows, cube, conditions, from, to, order_by } = queryObject;
   //validate queryObject
   if (!column || !cube) {
@@ -85,7 +91,7 @@ const generateRQuery = (queryObject: AnalyticQuery) => {
   return queryString;
 };
 // check array a has a value in array b
-const checkArrayHasAnyValue = (a: Array<string>, b: Array<string>) => {
+export const checkArrayHasAnyValue = (a: Array<string>, b: Array<string>) => {
   if (Array.isArray(a) && Array.isArray(b)) {
     return a.find((item) => b.includes(item));
   }
@@ -285,4 +291,13 @@ export const getChartQuery = (queryObject: AnalyticQuery, chartColumnSelected: s
 
   return query;
 }
-export { generateRQuery, checkArrayHasAnyValue };
+
+/**
+ * Show toast error dành cho báo cáo (môi trường uat không có báo nên nên không show toast)
+ * @param errorMsg 
+ */
+export const showErrorReport = (errorMsg: React.ReactNode) => {
+  if (AppConfig.ENV !== "UAT") {
+    showError(errorMsg);
+  }
+}

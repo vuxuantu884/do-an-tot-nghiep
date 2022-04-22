@@ -159,7 +159,7 @@ export const DashboardContainer = styled.div`
         padding: 20px 0 20px 30px;
       }
   }
- .cart-bottom-wrapper{
+ .product-dashboard{
    &>.ant-card-body{
      padding-top: 0;
      padding-left: 0;
@@ -217,6 +217,20 @@ export const DashboardContainer = styled.div`
     }
     }
     
-  }
- 
+  } 
 `;
+
+export const ShowMyDataStyle = styled.div`
+  padding: 0 10px;
+  margin-bottom: 5px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 400px;
+.ant-radio-group {
+  display: grid;
+  grid-template-columns: repeat( 2,minmax(200px,1fr) );  
+  column-gap: 20px;
+  row-gap: 5px;
+}
+`

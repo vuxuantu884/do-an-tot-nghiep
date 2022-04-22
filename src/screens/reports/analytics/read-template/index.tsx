@@ -44,7 +44,7 @@ function UpdateAnalytics() {
         return REPORT_TEMPLATES.find((item) => item.id === templateId) || {} as AnalyticTemplateData;
     }, [templateId])
 
-    const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cube === CURRENT_REPORT_TEMPLATE.cube);
+    const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cubes.includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube));
 
     cubeRef.current = CURRENT_REPORT_TEMPLATE.cube;
 
@@ -150,9 +150,7 @@ function UpdateAnalytics() {
       */
     useEffect(() => {
         const fetchTemplateQuery = async () => {
-            // update after BE deploy prod - htm
-            // const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube) ? { q: CURRENT_REPORT_TEMPLATE.query, options: CURRENT_REPORT_TEMPLATE.timeAtOption } : { q: CURRENT_REPORT_TEMPLATE.query };
-            const fullParams = { q: CURRENT_REPORT_TEMPLATE.query };
+            const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube) ? { q: CURRENT_REPORT_TEMPLATE.query, options: CURRENT_REPORT_TEMPLATE.timeAtOption } : { q: CURRENT_REPORT_TEMPLATE.query };
             const response: AnalyticDataQuery = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullParams);
             if (response) {
                 const { columns, rows, cube, conditions, from, to, order_by: orderBy } = response.query;
@@ -175,7 +173,7 @@ function UpdateAnalytics() {
                     [ReportifyFormFields.where]: whereValue,
                     [ReportifyFormFields.chartFilter]: CURRENT_REPORT_TEMPLATE.chartColumnSelected,
                     [ReportifyFormFields.orderBy]: orderBy,
-                    // [ReportifyFormFields.timeAtOption]: CURRENT_REPORT_TEMPLATE.timeAtOption,
+                    [ReportifyFormFields.timeAtOption]: CURRENT_REPORT_TEMPLATE.timeAtOption,
                 })
 
                 if (rows && rows.length) {

@@ -8,7 +8,7 @@ interface NumberInputProps {
   value?: number | string;
   isFloat?: boolean;
   onChange?: (v: number | null) => void;
-  onBlur?: () => void;
+  onBlur?: (e: any) => void;
   onKeyPress?: (event: any) => void;
   onPressEnter?: (event:any) => void;
   style?: CSSProperties;
@@ -102,7 +102,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
           onChange && onChange(props.default);
         }
       }
-      onBlur && onBlur();
+      onBlur && onBlur(e);
     },
     [onBlur, onChange, props, value, isChangeAfterBlur]
   );

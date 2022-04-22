@@ -109,29 +109,53 @@ const PackDetail: React.FC = () => {
 
           data.orders?.forEach(function (itemOrder) {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
-              if (itemFFM.status !== 'returned'
-              && itemFFM.status !== 'returning'
-              && itemFFM.status !== 'splitted') {
-                itemFFM.items.forEach(function (itemProduct, index) {
-                  ////
-                  const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
-                  resultListProduct.push({
-                    key: keyProduct++,
-                    barcode: itemProduct.variant_barcode,
-                    product_id: itemProduct.product_id,
-                    product_sku: itemProduct.sku,
-                    product_name: itemProduct.product,
-                    variant_id: itemProduct.variant_id,
-                    // inventory: itemProduct.available ? itemProduct.available : 0,
-                    price: itemProduct.price,
-                    total_quantity: itemProduct.quantity,
-                    total_incomplate: 0,
-                    on_hand: productOnHand? productOnHand.on_hand : undefined,
+              if(data.receipt_type_id === 1) {
+                if(itemFFM.status === "packed") {
+                  itemFFM.items.forEach(function (itemProduct, index) {
+                    ////
+                    const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
+                    resultListProduct.push({
+                      key: keyProduct++,
+                      barcode: itemProduct.variant_barcode,
+                      product_id: itemProduct.product_id,
+                      product_sku: itemProduct.sku,
+                      product_name: itemProduct.product,
+                      variant_id: itemProduct.variant_id,
+                      // inventory: itemProduct.available ? itemProduct.available : 0,
+                      price: itemProduct.price,
+                      total_quantity: itemProduct.quantity,
+                      total_incomplate: 0,
+                      on_hand: productOnHand? productOnHand.on_hand : undefined,
+                    });
+  
+                    ///
                   });
-
-                  ///
-                });
+                }
+              } else if(data.receipt_type_id === 2) {
+                if(itemFFM.status === "cancelled") {
+                  itemFFM.items.forEach(function (itemProduct, index) {
+                    ////
+                    const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
+                    resultListProduct.push({
+                      key: keyProduct++,
+                      barcode: itemProduct.variant_barcode,
+                      product_id: itemProduct.product_id,
+                      product_sku: itemProduct.sku,
+                      product_name: itemProduct.product,
+                      variant_id: itemProduct.variant_id,
+                      // inventory: itemProduct.available ? itemProduct.available : 0,
+                      price: itemProduct.price,
+                      total_quantity: itemProduct.quantity,
+                      total_incomplate: 0,
+                      on_hand: productOnHand? productOnHand.on_hand : undefined,
+                    });
+  
+                    
+                    ///
+                  });
+                }
               }
+              
             });
           });
 
@@ -146,9 +170,12 @@ const PackDetail: React.FC = () => {
             let trackingCode=null;
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-            const ffms = itemOrder.fulfillments?.filter(ffm =>
-              ffm.status !== 'returned' && ffm.status !== 'returning' && ffm.status !== 'splitted');
-
+            const ffms = itemOrder.fulfillments?.filter(ffm => {
+              if(data.receipt_type_id === 1) {
+                return  ffm.status === 'packed'
+              }
+              return  ffm.status === 'cancelled'
+            });
             ffms?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
@@ -235,7 +262,7 @@ const PackDetail: React.FC = () => {
           handleExportExcelOrderPack();
           break;
         case 4:
-          history.push(`${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${PackId}`);
+          history.push(`${UrlConfig.DELIVERY_RECORDS}/${PackId}/update`);
           break;
         default:
           break;

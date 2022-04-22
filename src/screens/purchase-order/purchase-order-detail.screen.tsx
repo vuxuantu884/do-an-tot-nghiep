@@ -276,34 +276,22 @@ const PODetailScreen: React.FC = () => {
             }
           ]
     
-          const trade_discount_rate = formMain.getFieldValue(
-            POField.trade_discount_rate
-          );
-          const trade_discount_value = formMain.getFieldValue(
-            POField.trade_discount_value
-          );
-          const payment_discount_rate = formMain.getFieldValue(
-            POField.payment_discount_rate
-          );
-          const payment_discount_value = formMain.getFieldValue(
-            POField.trade_discount_value
-          );
-          const trade_discount_amount = POUtils.getTotalDiscount(
-            untaxed_amount,
-            trade_discount_rate,
-            trade_discount_value
-          );
+          // const trade_discount_rate = formMain.getFieldValue(
+          //   POField.trade_discount_rate
+          // );
+          // const trade_discount_value = formMain.getFieldValue(
+          //   POField.trade_discount_value
+          // );
+          // const payment_discount_rate = formMain.getFieldValue(
+          //   POField.payment_discount_rate
+          // );
+          // const payment_discount_value = formMain.getFieldValue(
+          //   POField.trade_discount_value
+          // );
+          const trade_discount_amount = POUtils.getTotalDiscount(formMain,untaxed_amount);
     
-          const total_after_tax = POUtils.getTotalAfterTax(
-            untaxed_amount,
-            trade_discount_amount,
-            tax_lines
-          );
-          const payment_discount_amount = POUtils.getTotalDiscount(
-            total_after_tax,
-            payment_discount_rate,
-            payment_discount_value
-          );
+          const total_after_tax = POUtils.getTotalAfterTax(formMain);
+          const payment_discount_amount = POUtils.getTotalDiscount(formMain,total_after_tax);
     
           value.line_items = newDataItems
           value.trade_discount_amount = trade_discount_amount
@@ -689,14 +677,14 @@ const PODetailScreen: React.FC = () => {
            *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
            */
           const productId = poData.line_items[0].product_id // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
-          const data = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
+          const product = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
 
-          if (data.variants) {
+          if (product.variants) {
             /**
              * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
              */
             const newpoLineItemGridChema = [];
-            newpoLineItemGridChema.push(initSchemaLineItem(data, "READ_UPDATE", poData.line_items));
+            newpoLineItemGridChema.push(initSchemaLineItem(product, "READ_UPDATE", poData.line_items));
             setPoLineItemGridChema?.(newpoLineItemGridChema);
 
             /**

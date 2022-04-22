@@ -8,6 +8,7 @@ import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from 'config/report/report-templates'
 import UrlConfig from 'config/url.config'
 import _ from 'lodash'
+import { AnalyticCube } from 'model/report/analytics.model'
 import { FormFinishInfo } from 'rc-field-form/es/FormContext'
 import React, { useCallback, useEffect } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
@@ -131,7 +132,7 @@ function Analytics() {
                         [UrlConfig.ANALYTIC_SALES_OFFLINE].includes(matchPath) && (
                             <div>
                                 <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
-                                    return item.alias.includes(matchPath) && item.cube === 'sales'
+                                    return item.alias.includes(matchPath) && item.cube === AnalyticCube.OfflineSales
                                 })} title="Báo cáo bán hàng"></ListAnalyticsBlock>
                                 {/* <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
                                     return item.alias.includes(matchPath) && item.cube === 'payments'
@@ -144,7 +145,7 @@ function Analytics() {
                         [UrlConfig.ANALYTIC_SALES_ONLINE].includes(matchPath) && (
                             <div>
                                 <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
-                                    return item.alias.includes(matchPath) && item.cube === 'sales'
+                                    return item.alias.includes(matchPath) && item.cube === AnalyticCube.Sales
                                 })} title="Báo cáo đơn hàng"></ListAnalyticsBlock>
                                 {/* <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
                                     return item.alias.includes(matchPath) && item.cube === 'payments'

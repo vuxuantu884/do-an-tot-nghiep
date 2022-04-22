@@ -233,7 +233,8 @@ export interface VariantSearchQuery extends BaseQuery {
   store_ids?: number|null,
   sort_column?: string,
   sort_type?: string,
-  variant_ids?:string
+  variant_ids?:string,
+  remain?:string
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,

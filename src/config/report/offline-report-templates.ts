@@ -1,5 +1,5 @@
 import UrlConfig from "config/url.config";
-import { AnalyticTemplateData, TimeAtOptionValue } from "model/report/analytics.model";
+import { AnalyticCube, AnalyticTemplateData, TimeAtOptionValue } from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -12,17 +12,15 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     name: "theo thời gian",
     query: `SHOW orders, return_count, net_quantity, gross_sales, returns, discounts, point_payments, total_sales  
     OVER day 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
     `,
     chart_query: `SHOW customers, total_sales 
     OVER day 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
     `,
-    cube: "sales",
+    cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     iconImg: "thoi-gian.svg",
     id: 1,
@@ -35,12 +33,11 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     name: "theo nhân viên thu ngân",
     query: `SHOW cash_payments, transfer_payments, card_payments, qr_pay_payments, point_payments, payments, unknown_payments, net_payments   
     BY staff_name, staff_code 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     `,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
-    cube: "sales",
+    cube: AnalyticCube.OfflineSales,
     iconImg: "nhan-vien.svg",
     chartColumnSelected: [],
     timeAtOption: TimeAtOptionValue.CompletedAt,
@@ -51,18 +48,16 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     name: "theo nhân viên bán hàng",
     query: `SHOW orders, return_count, ordered_item_quantity, returned_item_quantity, discounts, point_payments, total_sales, average_order_value 
     BY assignee_code,assignee_name   
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY total_sales DESC`,
     chart_query: `SHOW total_sales, average_order_value 
     BY assignee_code,assignee_name   
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY total_sales DESC`,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
-    cube: "sales",
+    cube: AnalyticCube.OfflineSales,
     iconImg: "nhan-vien.svg",
     chartColumnSelected: ['total_sales', 'average_order_value'],
     timeAtOption: TimeAtOptionValue.CompletedAt,
@@ -72,16 +67,14 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     name: "theo cửa hàng",
     query: `SHOW orders, return_count, ordered_item_quantity, returned_item_quantity, total_sales, average_order_value, customers 
     BY pos_location_name 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} ORDER BY total_sales DESC`,
     chart_query: `SHOW total_sales, average_order_value 
     BY pos_location_name 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} ORDER BY total_sales DESC`,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
-    cube: "sales",
+    cube: AnalyticCube.OfflineSales,
     iconImg: "cua-hang.svg",
     id: 4,
     chartColumnSelected: ['total_sales', 'average_order_value'],
@@ -92,17 +85,15 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     name: "theo sản phẩm (mã 3)",
     query: `SHOW ordered_item_quantity, returned_item_quantity, gross_sales, returns, discounts, point_payments, total_sales 
     BY variant_sku3 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY total_sales DESC `,
     chart_query: `SHOW total_sales, net_quantity 
     BY variant_sku3 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     iconImg: "san-pham.svg",
     id: 5,
@@ -114,11 +105,11 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   //   name: " theo nhân viên",
   //   query: `SHOW returns, returned_item_quantity 
   //   BY staff_name 
-  //   FROM sales
+  //   FROM offline_sales
   //   WHERE sale_kind IN ('Trả hàng')  
   //   SINCE ${START_OF_MONTH} UNTIL ${TODAY}
   //   ORDER BY returns DESC`,
-  //   cube: "sales",
+  //   cube: AnalyticCube.OfflineSales,
   //   alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
   //   iconImg: "nhan-vien-tra-hang.svg",
   //   id: 7,
@@ -130,17 +121,15 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     name: "theo sản phẩm (mã 7)",
     query: `SHOW ordered_item_quantity, returned_item_quantity, gross_sales, returns, discounts, point_payments, total_sales 
     BY variant_sku7 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS')   
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY total_sales DESC`,
     chart_query: `SHOW total_sales, net_quantity  
     BY variant_sku7 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS')   
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY total_sales DESC`,
-    cube: "sales",
+    cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     iconImg: "san-pham.svg",
     id: 6,
@@ -152,11 +141,10 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     name: "theo khách hàng",
     query: `SHOW ordered_item_quantity, returned_item_quantity, gross_sales, returns, discounts, point_payments, total_sales 
     BY customer_name,customer_phone_number 
-    FROM sales 
-    WHERE channel_provider_name IN ('POS') 
+    FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
     ORDER BY total_sales DESC `,
-    cube: "sales",
+    cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     iconImg: "khach-hang.svg",
     id: 7,

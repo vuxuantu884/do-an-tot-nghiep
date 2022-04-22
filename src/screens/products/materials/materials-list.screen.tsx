@@ -76,8 +76,13 @@ const ListMaterial: React.FC = () => {
     },
     {
       title: "Người tạo",
-      dataIndex: "created_name",
       key: "created_name",
+      render: (item: MaterialResponse) => {
+        return item.created_name ?
+             <div>
+               <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
+             </div> :"---"
+       },
     },
     {
       title: "Ghi chú",

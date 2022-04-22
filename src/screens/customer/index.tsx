@@ -436,6 +436,10 @@ const Customer = () => {
     const dataQuery: CustomerSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
+      first_order_time_from: queryParamsParsed.first_order_time_from,
+      first_order_time_to: queryParamsParsed.first_order_time_to,
+      last_order_time_from: queryParamsParsed.last_order_time_from,
+      last_order_time_to: queryParamsParsed.last_order_time_to,
     };
     setParams(dataQuery);
     getCustomerList(dataQuery);

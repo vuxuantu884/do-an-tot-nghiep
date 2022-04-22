@@ -1,12 +1,10 @@
 import { MAX_TOP_RANK, TOP_CHARTS_KEY, TOP_SALES_BY_SHOP_OFFLINE, TOP_SALES_BY_SHOP_ONLINE } from 'config/dashboard';
-import { DashboardTopSale } from 'model/dashboard/dashboard.model';
-import { AnalyticDataQuery, AnalyticQueryMany, AnalyticSampleQuery } from 'model/report/analytics.model';
+import { DashboardShowMyData, DashboardTopSale } from 'model/dashboard/dashboard.model';
+import { AnalyticDataQuery } from 'model/report/analytics.model';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { executeManyAnalyticsQueryService } from 'service/report/analytics.service';
-import { callApiNative } from 'utils/ApiUtils';
-import { generateRQuery } from 'utils/ReportUtils';
-import { showError } from 'utils/ToastUtils';
+import { getDataManyQueryDashboard } from 'utils/DashboardUtils';
+import { showErrorReport } from 'utils/ReportUtils';
 import { DashboardContext } from '../provider/dashboard-provider';
 
 
@@ -18,17 +16,12 @@ function useFetchTopSaleByShop() {
         const fetchFetchTopSaleByShop = async () => {
             setIsFetching(true);
 
-            const params: AnalyticQueryMany = { q: [], options: [] };
-            [TOP_SALES_BY_SHOP_ONLINE, TOP_SALES_BY_SHOP_OFFLINE].forEach((item: AnalyticSampleQuery) => {
-                const q = generateRQuery(item.query);
-                params.q.push(q);
-                params.options.push(item.options || "");
-            })
-            const response: Array<AnalyticDataQuery> = await callApiNative({ isShowError: true }, dispatch, executeManyAnalyticsQueryService, params);
+            const response = await getDataManyQueryDashboard(dispatch, {} as DashboardShowMyData, [],
+                [TOP_SALES_BY_SHOP_ONLINE, TOP_SALES_BY_SHOP_OFFLINE])
 
             setIsFetching(false);
             if (!response) {
-                showError("Lỗi lấy dữ liệu doanh thu theo nhân viên");
+                showErrorReport("Lỗi lấy dữ liệu doanh thu theo shop/cửa hàng");
                 return;
             }
 
@@ -47,15 +40,19 @@ function useFetchTopSaleByShop() {
 
                 }
             })
-            
+
             listTopSale = listTopSale.sort((a, b) => {
                 if (b.totalSales && a.totalSales) {
-                    return b.totalSales - a.totalSales
+                    return Number(b.totalSales) - Number(a.totalSales)
                 } else {
                     return 0;
                 }
             }).slice(0, MAX_TOP_RANK);
-            listTopSale[0].top = 1;
+
+            if (listTopSale.length) {
+                listTopSale[0].top = 1;
+            }
+
             setTopSale((prevState: Map<string, DashboardTopSale[]>) => {
                 const newState = new Map(prevState);
                 newState.set(TOP_CHARTS_KEY.TOP_SHOP_SALES, listTopSale);

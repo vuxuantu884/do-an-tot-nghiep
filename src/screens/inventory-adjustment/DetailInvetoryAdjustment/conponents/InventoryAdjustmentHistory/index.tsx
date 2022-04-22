@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {
   InventoryAdjustmentDetailItem,
   LineItemAdjustment,
@@ -10,7 +10,14 @@ import { InventoryTabUrl } from "config/url.config";
 import {VariantResponse} from "model/product/product.model";
 import {useDispatch} from "react-redux";
 import _ from "lodash";
-import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
+import {
+  updateReasonItemOnlineInventoryAction,
+} from "domain/actions/inventory/inventory-adjustment.action";
+import {showSuccess} from "utils/ToastUtils";
+import {
+  INVENTORY_AUDIT_TYPE_CONSTANTS,
+  STATUS_INVENTORY_ADJUSTMENT_CONSTANTS,
+} from "screens/inventory-adjustment/constants";
 import {CodepenOutlined, InfoCircleOutlined, PieChartOutlined, SearchOutlined, UserSwitchOutlined} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
@@ -19,11 +26,14 @@ import { PageResponse } from "model/base/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
 import { getLinesItemAdjustmentApi, updateReasonItemOnlineInventoryApi } from "service/inventory/adjustment/index.service";
+import { formatCurrency } from "../../../../../utils/AppUtils";
 import EditNote from "screens/order-online/component/edit-note";
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
   idNumber: number;
+  objSummaryTableByAuditTotal: any;
+  setDataTab: (value: number) => void;
 };
 
 const arrTypeNote = [
@@ -41,7 +51,7 @@ export interface Summary {
 
 const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   props: propsInventoryAdjustment
-) => { 
+) => {
   const [dataLinesItem, setDataLinesItem] = useState<PageResponse<LineItemAdjustment>>({
     metadata: {
       limit: 30,
@@ -49,7 +59,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       total: 0,
     },
     items: [],
-  });   
+  });
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
     TotalMiss: 0,
@@ -60,19 +70,19 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   const [keySearch, setKeySearch] = useState<string | any>("");
 
   const dispatch = useDispatch();
-  const {data, idNumber} = props;
+  const {data, idNumber, objSummaryTableByAuditTotal, setDataTab} = props;
 
   //phân quyền
   const [allowUpdate] = useAuthorization({
     acceptPermissions: [InventoryAdjustmentPermission.update],
-  }); 
+  });
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
     let totalExcess = 0,
       totalMiss = 0,
       totalQuantity = 0,
       totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
+    data.length > 0 && data.forEach((element: LineItemAdjustment) => {
       totalQuantity += element.on_hand;
       totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
       let on_hand_adj = element.on_hand_adj ?? 0;
@@ -92,32 +102,23 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     });
   }, []);
 
-  const getLinesItemAdjustment= useCallback(async (page: number,size: number, keySearch: string|null)=>{
+  const onChangeReason = useCallback(
+    (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
+      row.note = value;
 
-    const res = await callApiNative(
-      { isShowError: false },
-      dispatch,
-      getLinesItemAdjustmentApi,
-      idNumber,
-      `page=${page}&limit=${size}&type=deviant&condition=${keySearch?.toString()}`
-    );
-    if (res) {
-      setDataLinesItem({...res}); 
-     } 
-  },[idNumber,  dispatch]);
+      dataItems.items.forEach((e)=>{
+        if (e.variant_id === row.id) {
+          e.note = row.note;
+        }
+      });
 
-  const onChangeReason = (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
-    row.note = value;  
+      setDataLinesItem({...dataItems});
+      debounceChangeReason(row);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+    []
+  );
 
-    dataItems.items.forEach((e)=>{
-      if (e.variant_id === row.id) {
-        e.note = row.note;
-      }
-    }); 
-
-    setDataLinesItem({...dataItems});
-  }
-  
   const handleNoteChange = useCallback(async (index:number, newValue: string,item: LineItemAdjustment) => {
     const value = newValue;
     if (value && value.indexOf('##') !== -1) {
@@ -134,8 +135,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     if (res) {
       onChangeReason(item.note, item, dataLinesItem);
     }
-  },[dataLinesItem,dispatch,data]);
-
+  },[dispatch, data?.id, onChangeReason, dataLinesItem]);
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -148,7 +148,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_image",
-      render: (value: string, record: any) => {
+      render: (value: string) => {
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
@@ -161,21 +161,19 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: VariantResponse, index: number) => (
+      render: (value: string, record: VariantResponse) => (
         <div>
           <div>
             <div className="product-item-sku">
-              {record.sku}
-            </div>
-            <div className="product-item-name">
-              <span className="product-item-name-detail">
-                <Link
+              <Link
                 target="_blank"
                 to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
-                {value}
+                {record.sku}
               </Link>
-                </span>
+            </div>
+            <div className="product-item-name">
+              <span className="product-item-name-detail">{value}</span>
             </div>
           </div>
         </div>
@@ -186,7 +184,9 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>{objSummaryTable.TotalOnHand}</div>
+            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
+              ? formatCurrency(objSummaryTable.TotalOnHand)
+              : formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
         );
       },
@@ -202,7 +202,9 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tồn thực tế</div>
-            <div>{objSummaryTable.TotalRealOnHand}</div>
+            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
+              ? objSummaryTable.TotalRealOnHand
+              : objSummaryTableByAuditTotal.realOnHand})</div>
           </>
         );
       },
@@ -218,29 +220,49 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Thừa/Thiếu</div>
-            <Row align="middle" justify="center">
-              {objSummaryTable.TotalExcess === 0 ? (
-                ""
-              ) : (
-                <div style={{color: "#27AE60"}}>+{objSummaryTable.TotalExcess}</div>
-              )}
-              {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
-                <Space>/</Space>
-              ) : (
-                ""
-              )}
-              {objSummaryTable.TotalMiss === 0 ? (
-                ""
-              ) : (
-                <div style={{color: "red"}}>-{objSummaryTable.TotalMiss}</div>
-              )}
-            </Row>
+            {data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ? (
+              <Row align="middle" justify="center">
+                {objSummaryTable.TotalExcess === 0 || !objSummaryTable.TotalExcess ? (
+                  ""
+                ) : (
+                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTable.TotalExcess)}</div>
+                )}
+                {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
+                  <Space>/</Space>
+                ) : (
+                  ""
+                )}
+                {objSummaryTable.TotalMiss === 0 ? (
+                  ""
+                ) : (
+                  <div style={{ color: "red" }}>-{formatCurrency(objSummaryTable.TotalMiss)}</div>
+                )}
+              </Row>
+            ) : (
+              <Row align="middle" justify="center">
+                {objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess ? (
+                  ""
+                ) : (
+                  <div style={{color: "#27AE60"}}>+{objSummaryTableByAuditTotal.totalExcess}</div>
+                )}
+                {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
+                  <Space>/</Space>
+                ) : (
+                  ""
+                )}
+                {objSummaryTableByAuditTotal.totalMissing === 0 ? (
+                  ""
+                ) : (
+                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
+                )}
+              </Row>
+            )}
           </>
         );
       },
       align: "center",
       width: 200,
-      render: (value, item, index: number) => {
+      render: (value, item) => {
         if (!item.on_hand_adj && item.on_hand_adj === 0) {
           return null;
         }
@@ -267,11 +289,12 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       render: (value, row: LineItemAdjustment, index: number) => {
         let note = `${index}#${value}`;
         let tooltip = null;
-        
+
         if (!arrTypeNote.find(e=>e.value === value)) {
           note = `${index}##${value}`;
           tooltip= value;
         }
+
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
             <Radio.Group value={note} buttonStyle="solid" onChange={(e)=>{
@@ -312,11 +335,46 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     },
   ];
 
+  const getLinesItemAdjustment= useCallback(async (page: number,size: number, keySearch: string|null)=>{
+
+    const res = await callApiNative(
+      { isShowError: false },
+      dispatch,
+      getLinesItemAdjustmentApi,
+      idNumber,
+      `page=${page}&limit=${size}&type=deviant&condition=${keySearch?.toString()}`
+    );
+    if (res) {
+      setDataLinesItem({...res});
+      setDataTab(res.metadata.total);
+     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  },[dispatch, idNumber]);
+
   const onPageChange = useCallback(
     (page, size) => {
       getLinesItemAdjustment(page,size, keySearch);
     },
     [keySearch, getLinesItemAdjustment]
+  );
+
+  const debounceChangeReason = useMemo(()=>
+      _.debounce((row: LineItemAdjustment)=>{
+        const newData = {
+          real_on_hand: row.real_on_hand,
+          note: row.note,
+        };
+
+        dispatch(
+          updateReasonItemOnlineInventoryAction(data?.id, row.id, newData, (result) => {
+            if (result) {
+              showSuccess("Nhập lý do thành công.");
+            }
+          })
+        );
+
+    }, 500),
+    [data?.id, dispatch]
   );
 
   const onEnterFilterVariant = useCallback(
@@ -335,11 +393,12 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
 
   const onChangeKeySearch = useCallback((code: string)=>{
     debounceSearchVariant(code);
-  },[debounceSearchVariant]); 
+  },[debounceSearchVariant]);
 
   useEffect(() => {
-    getLinesItemAdjustment(1,30, "");
-  }, [getLinesItemAdjustment]);
+    getLinesItemAdjustment(dataLinesItem.metadata.page,dataLinesItem.metadata.limit, "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  }, []);
 
   useEffect(() => {
     drawColumns(dataLinesItem.items);
@@ -356,7 +415,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
               onChange={(e) => {
                 setKeySearch(e.target.value);
                 onChangeKeySearch(e.target.value);
-              }} 
+              }}
               style={{marginLeft: 8}}
               placeholder="Tìm kiếm sản phẩm trong phiếu"
               addonAfter={

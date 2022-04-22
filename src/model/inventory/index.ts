@@ -1,6 +1,6 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
-import { ProductResponse } from "model/product/product.model";
+import { ProductResponse, VariantPricesResponse } from "model/product/product.model";
 
 
 export interface InventoryResponse extends BaseObject {
@@ -27,6 +27,7 @@ export interface InventoryResponse extends BaseObject {
   retail_price: number;
   import_price: number;
   product: ProductResponse | null,
+  variant_prices:Array<VariantPricesResponse>,
 }
 
 export interface InventoryQuery extends BaseQuery {
@@ -35,6 +36,7 @@ export interface InventoryQuery extends BaseQuery {
   variant_id?: number,
   status?: string,
   store_adj?: number;
+  remain?:string
 } 
 export interface InventoryVariantListQuery extends InventoryQuery {
   variant_ids?: Array<number>;
@@ -78,6 +80,9 @@ export interface HistoryInventoryResponse extends BaseObject{
   retail_price: number;
   total: number;
   total_discount: number;
+  quantity: number;
+  action: string;
+  on_hand: number
 }
 
 export interface HistoryInventoryQuery extends BaseQuery {
@@ -90,6 +95,7 @@ export interface HistoryInventoryQuery extends BaseQuery {
   variant_id?: number,
   to_quantity?: number,
   from_quantity?: number,
+  ids?: string
 }
 
 

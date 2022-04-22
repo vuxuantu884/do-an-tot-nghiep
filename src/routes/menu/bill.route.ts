@@ -181,7 +181,7 @@ const bill: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.DELIVERY_RECORDS}/report-hand-over-create`,
+        path: `${UrlConfig.DELIVERY_RECORDS}/create`,
         exact: true,
         title: "Thêm mới biên bản bàn giao",
         icon: "icon-dot",
@@ -204,7 +204,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/:id`,
+        path: `${UrlConfig.DELIVERY_RECORDS}/:id/update`,
         exact: true,
         title: "Cập nhật biên bản bàn giao",
         icon: "icon-dot",

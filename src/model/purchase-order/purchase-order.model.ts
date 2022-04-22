@@ -108,6 +108,7 @@ export interface ProcumentLogQuery extends BaseQuery {
  * Mapping size và màu sắc cho việc validate, hiển thị line-item
  */
  export interface POPairSizeColor {
+  lineItemId?: number;
   size: string;
   color: string;
   variantId: number;

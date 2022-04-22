@@ -80,7 +80,11 @@ const AllInventoryMappingField = {
 }
 
 const InventoryColumnField = {
-  retail_price: 'retail_price',
+  variant_name: 'variant_name',
+  sku: 'sku',
+  category: 'category',
+  variant_prices: 'variant_prices',
+  total_stock: 'total_stock',
   on_hand: 'on_hand',
   available: 'available',
   committed: 'committed',
@@ -90,13 +94,76 @@ const InventoryColumnField = {
   transferring: 'transferring',
   on_way: 'on_way',
   shipping: 'shipping',
-  total_stock: 'total_stock'
+}
+
+const InventoryExportField = {
+  [InventoryColumnField.variant_name]: 'Sản phẩm',
+  [InventoryColumnField.sku]: 'Mã sản phẩm',
+  [InventoryColumnField.variant_prices]: 'Giá bán',
+  [InventoryColumnField.total_stock]: 'Tổng tồn',
+  [InventoryColumnField.on_hand]: 'Tồn trong kho',
+  [InventoryColumnField.available]: 'Có thể bán',
+  [InventoryColumnField.committed]: 'Đang giao dịch',
+  [InventoryColumnField.on_hold]: 'Tạm giữ',
+  [InventoryColumnField.defect]: 'Hàng lỗi',
+  [InventoryColumnField.in_coming]: 'Chờ nhập',
+  [InventoryColumnField.transferring]: 'Hàng chuyển đến',
+  [InventoryColumnField.on_way]: 'Hàng chuyển đi',
+  [InventoryColumnField.shipping]: 'Đang giao',
 }
 
 const HistoryInventoryMappingField = {
   [AvdHistoryInventoryFilter.transaction_date]: 'Thời gian',
   [AvdHistoryInventoryFilter.quantity_change]: 'Số lượng thay đổi',
   quantity: 'Số lượng thay đổi',
+}
+
+const TransferColumnField = {
+  code: 'code',
+  from_store_name: 'from_store_name',
+  to_store_name: 'to_store_name',
+  status: 'status',
+  total_variant: 'total_variant',
+  total_quantity: 'total_quantity',
+  total_amount: 'total_amount',
+  transfer_date: 'transfer_date',
+  receive_date: 'receive_date',
+  note: 'note',
+  created_date: 'created_date',
+}
+
+const TransferExportField = {
+  [TransferColumnField.code]: 'Phiếu chuyển',
+  [TransferColumnField.from_store_name]: 'Kho gửi',
+  [TransferColumnField.to_store_name]: 'Kho nhận',
+  [TransferColumnField.status]: 'Trạng thái',
+  [TransferColumnField.total_variant]: 'Số sản phẩm',
+  [TransferColumnField.total_quantity]: 'Số lượng',
+  [TransferColumnField.total_amount]: 'Thành tiền',
+  [TransferColumnField.transfer_date]: 'Ngày Chuyển',
+  [TransferColumnField.receive_date]: 'Ngày nhận',
+  [TransferColumnField.note]: 'Ghi chú',
+  [TransferColumnField.created_date]: 'Ngày tạo',
+}
+
+const TransferLineItemField = {
+  barcode: 'barcode',
+  sku: 'sku',
+  variant_name: 'variant_name',
+  transfer_quantity: 'transfer_quantity',
+  real_quantity: 'real_quantity',
+  total_amount: 'total_amount',
+  price: 'price'
+}
+
+const TransferExportLineItemField = {
+  [TransferLineItemField.barcode]: 'Barcode',
+  [TransferLineItemField.sku]: 'Mã sản phẩm',
+  [TransferLineItemField.variant_name]: 'Tên sản phẩm',
+  [TransferLineItemField.price]: 'Giá bán',
+  [TransferLineItemField.transfer_quantity]: 'Số lượng chuyển',
+  [TransferLineItemField.total_amount]: 'Thành tiền',
+  [TransferLineItemField.real_quantity]: 'SL thực nhận',
 }
 
 export {InventoryQueryField,
@@ -108,4 +175,9 @@ export {InventoryQueryField,
    HistoryInventoryMappingField,
    AvdAllFilter,
    AllInventoryMappingField,
+   InventoryExportField,
+   TransferExportField,
+   TransferColumnField,
+   TransferLineItemField,
+   TransferExportLineItemField,
    InventoryColumnField};

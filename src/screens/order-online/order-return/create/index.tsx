@@ -1339,6 +1339,7 @@ ShippingServiceConfigDetailResponseModel[]
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                     isDisablePostPayment={isDisablePostPayment}
+                    isOrderReturnFromPOS = {isOrderFromPOS(OrderDetail)}
                   />
                 )}
                 {isExchange && (
@@ -1480,6 +1481,28 @@ ShippingServiceConfigDetailResponseModel[]
       </React.Fragment>
     );
   };
+
+  const eventFunctional=useCallback((event:KeyboardEvent)=>{
+    if (
+      ["F9", "F10"].indexOf(
+        event.key
+      ) !== -1
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    switch (event.key) {
+      case "F9":
+        const btnFinishReturnElement=document.getElementById("btn-return");
+        btnFinishReturnElement?.click();
+          break;
+      case "F10":
+        const btnFinishReturnPrintElement=document.getElementById("btn-return-print");
+        btnFinishReturnPrintElement?.click();
+        break;
+    }
+  },[])
 
   useEffect(() => {
     if (storeId != null) {
@@ -1721,6 +1744,13 @@ ShippingServiceConfigDetailResponseModel[]
       dispatch(StoreDetailAction(storeIdLogin, setStoreReturn))
     }
   }, [dispatch, storeIdLogin])
+
+  useEffect(()=>{
+    window.addEventListener("keydown", eventFunctional);
+    return ()=>{
+      window.removeEventListener("keydown", eventFunctional);
+    }
+  },[eventFunctional])
 
 
   return (

@@ -21,7 +21,7 @@ export const TOP_SALES_BY_STAFF: AnalyticSampleQuery = {
         ],
         rows: ["assignee_code", "assignee_name"],
         cube: "sales",
-        conditions: [],
+        conditions: [["assignee_code", "!=", ""]],
         from: TODAY,
         to: TODAY,
         order_by: [["total_sales", "DESC"]]
@@ -41,7 +41,7 @@ export const TOP_SALES_BY_SHOP_ONLINE: AnalyticSampleQuery = {
         ],
         rows: ["source_department_name"],
         cube: "sales",
-        conditions: [],
+        conditions: [["source_department_name", "!=", ""]],
         from: TODAY,
         to: TODAY,
         order_by: [["total_sales", "DESC"]]
@@ -61,7 +61,7 @@ export const TOP_SALES_BY_SHOP_OFFLINE: AnalyticSampleQuery = {
         ],
         rows: ["pos_location_name"],
         cube: "sales",
-        conditions: [],
+        conditions: [["pos_location_name", "!=", ""]],
         from: TODAY,
         to: TODAY,
         order_by: [["total_sales", "DESC"]]
@@ -81,7 +81,7 @@ export const TOP_SALES_BY_SOURCE_DEPARMENT_LV2: AnalyticSampleQuery = {
         ],
         rows: ["source_department_lv2"],
         cube: "sales",
-        conditions: [],
+        conditions: [["source_department_lv2", "!=", ""]],
         from: TODAY,
         to: TODAY,
         order_by: [["total_sales", "DESC"]]
@@ -101,7 +101,7 @@ export const TOP_SALES_BY_POS_DEPARMENT_LV2: AnalyticSampleQuery = {
         ],
         rows: ["pos_location_department_lv2"],
         cube: "sales",
-        conditions: [],
+        conditions: [["pos_location_department_lv2", "!=", ""]],
         from: TODAY,
         to: TODAY,
         order_by: [["total_sales", "DESC"]]

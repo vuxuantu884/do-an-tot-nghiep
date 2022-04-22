@@ -1,15 +1,13 @@
-import { ExportOutlined } from '@ant-design/icons';
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
 import { AppConfig } from 'config/app.config';
 import { DETAIL_LINKS, TIME_AT_OPTION, TIME_GROUP_BY } from 'config/report/report-templates';
-import UrlConfig from 'config/url.config';
 import _ from 'lodash';
-import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME, TimeAtOptionValue } from 'model/report/analytics.model';
+import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
 import moment from 'moment';
 import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useRouteMatch } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { executeAnalyticsQueryService } from 'service/report/analytics.service';
 import { callApiNative } from 'utils/ApiUtils';
 import { formatCurrency } from 'utils/AppUtils';
@@ -51,7 +49,6 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
 
     const dispatch = useDispatch();
     const [warningChooseColumn, setWarningChooseColumn] = useState(false);
-    const { path: matchPath } = useRouteMatch();
 
     const pushSubmitAction = () => {
         form.submit()
@@ -355,7 +352,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 name="report-form-base">
                 <Card bodyStyle={{ paddingBottom: 0, paddingTop: 8 }}>
                     <div className="group-report-type">
-                        {false && cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
+                        {cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
                             <Form.Item
                                 label="Ghi nhận theo"
                                 name={ReportifyFormFields.timeAtOption}
@@ -365,12 +362,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                 <Select
                                     placeholder="Chọn giá trị ghi nhận theo"
                                     onChange={handleChangeTimeGroup}>
-                                    {TIME_AT_OPTION.filter(item => {
-                                        if (matchPath.includes(UrlConfig.ANALYTIC_SALES_OFFLINE)) {
-                                            return item.value === TimeAtOptionValue.CompletedAt;
-                                        }
-                                        return item;
-                                    }).map(({ label, value }) => {
+                                    {TIME_AT_OPTION.map(({ label, value }) => {
                                         return (
                                             <Select.Option key={value} value={value}>
                                                 {label}
@@ -591,6 +583,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                 ? "left"
                                                 : undefined
                                         }
+                                        className="detail-link"
                                         render={(value, record: Array<any>) => {
                                             let data = record[index];
                                             if (!data && typeof data !== FIELD_FORMAT.NumberFormat) {
@@ -613,14 +606,15 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                             );
                                             if (type === ColumnType.Property && field !== TIME.HOUR && (!existedFilter || existedFilter.value.length > 1 || (existedFilter.value.length === 1 && existedFilter.value[0] === 'Tất cả'))) {
                                                 return (
-                                                    <span className="link detail-link">
-                                                        <span onClick={() => handleQueryColumn(item, format === 'price' ? record[index] : data)}>{data}</span>
+                                                    <span>
+                                                        <span className="link" onClick={() => handleQueryColumn(item, format === 'price' ? record[index] : data)}>{data}</span>
                                                         {detailLink ? (
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 to={`${detailLink.link}/${data}`}>
-                                                                <ExportOutlined className="external-link" />
+                                                                <div className='external-link'>
+                                                                    <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>
                                                         ) : (
                                                             ""
@@ -629,14 +623,15 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                 );
                                             } else {
                                                 return (
-                                                    <span className="detail-link">
+                                                    <span>
                                                         {data}
                                                         {detailLink ? (
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 to={`${detailLink.link}/${data}`}>
-                                                                <ExportOutlined className="external-link" />
+                                                                <div className='external-link'>
+                                                                    <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>
                                                         ) : (
                                                             ""

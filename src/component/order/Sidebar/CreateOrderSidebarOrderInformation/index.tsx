@@ -243,7 +243,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
           name="assignee_code"
           rules={[
             {
-              required: true,
+              required: !isOrderReturn,
               message: isOrderFromPOS(orderDetail) ? "Vui lòng chọn nhân viên tư vấn" : "Vui lòng chọn nhân viên bán hàng",
             },
           ]}

@@ -185,7 +185,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    data.forEach((item: PurchaseProcumentLineItem, index: number) => {
+    data.forEach((item: PurchaseProcumentLineItem) => {
       options.push({
         label: (
           <Row>
@@ -318,7 +318,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       if (type === "inventory") {
         item.procurement_items?.forEach((item1) => {
           if (!item1.real_quantity) {
-            item1.real_quantity = item1.quantity;
+            // item1.real_quantity = item1.quantity;
           }
         });
       }
@@ -347,7 +347,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
     }
     form.submit();
-  }; 
+  };
 
   const exportExcel= useCallback(()=>{
       let procurement_items = form.getFieldValue(POProcumentField.procurement_items)
@@ -380,7 +380,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         }
 
         dataExport.push(item);
-      } 
+      }
       const worksheet = XLSX.utils.json_to_sheet(dataExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
@@ -396,8 +396,8 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       }
       return typeExcel || Upload.LIST_IGNORE;
     },
-    onChange: useCallback(async (e:any)=>{ 
-      const file = e.file; 
+    onChange: useCallback(async (e:any)=>{
+      const file = e.file;
       const data = await file.originFileObj.arrayBuffer();
       const workbook = XLSX.read(data);
 
@@ -405,8 +405,8 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       const jsonData: any = XLSX.utils.sheet_to_json(workSheet);
       let procurement_items = form.getFieldValue(POProcumentField.procurement_items)
       ? form.getFieldValue(POProcumentField.procurement_items)
-      : []; 
-      
+      : [];
+
       procurement_items.forEach((e:PurchaseProcumentLineItem) => {
         const findItem = jsonData.find((item:any)=>(item.sku !== undefined && item.sku.toString() === e.sku.toString()));
         if (findItem && typeof(findItem.sl) === "number") {
@@ -467,15 +467,15 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         title={titleTabModal}
         okButtonProps={okButtonProps}
       >
-        <PurchaseOrderDraft> 
-          { 
+        <PurchaseOrderDraft>
+          {
             title !== 'Tạo phiếu nháp' ?
               (<Tabs
                 style={{ overflow: "initial", marginTop: "-24px" }}
                 activeKey={activeTab}
                 onChange={(active) => onChangeActive(active)}
                 renderTabBar={RenderTabBar}
-                tabBarExtraContent={ 
+                tabBarExtraContent={
                 ([ProcumentStatus.DRAFT,ProcumentStatus.NOT_RECEIVED].indexOf(item?.status ?? "draft") !== -1) && <>
                   <Button icon={<DownloadOutlined />} onClick={exportExcel}>Export Excel</Button>
                   <Upload {...uploadProps} maxCount={1}>
@@ -517,7 +517,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       window.scrollTo({ top: y, behavior: "smooth" });
                     }}
                     onFinish={onFinish}
-                    layout="vertical" 
+                    layout="vertical"
                   >
                     {!isConfirmModal && (
                       <Fragment>

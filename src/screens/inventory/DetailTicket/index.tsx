@@ -18,7 +18,7 @@ import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory, useParams } from "react-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteInventoryTransferAction,
   getDetailInventoryTransferAction,
@@ -62,28 +62,17 @@ import { PrinterInventoryTransferResponseModel } from "model/response/printer.re
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryTransferPermission, ShipmentInventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 import { RefSelectProps } from "antd/lib/select";
-import { RegUtil } from "utils/RegUtils";
 import { callApiNative } from "utils/ApiUtils";
-import { getVariantByBarcode } from "service/product/variant.service";
-import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
-import { InventoryResponse } from "model/inventory";
 import TextArea from "antd/es/input/TextArea";
-// import { checkUserPermission } from "../../../utils/AuthUtil";
-// import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { checkUserPermission } from "../../../utils/AuthUtil";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import { getAccountDetail } from "../../../service/accounts/account.service";
-// import moment from "moment";
+import { searchVariantsApi } from "service/product/product.service";
 export interface InventoryParams {
   id: string;
 }
 
 let barCode = "";
-
-// const ShipmentStatus = {
-//   CONFIRMED: "confirmed",
-//   TRANSFERRING: "transferring",
-//   RECEIVED: "received",
-//   CANCELED: "canceled"
-// }
 
 let version = 0;
 
@@ -121,13 +110,13 @@ const DetailTicket: FC = () => {
   const [form] = Form.useForm();
   const printElementRef = useRef(null);
 
-  // const currentPermissions: string[] = useSelector(
-  //   (state: RootReducerType) => state.permissionReducer.permissions
-  // );
-  //
-  // const currentStores = useSelector(
-  //   (state: RootReducerType) => state.userReducer.account?.account_stores
-  // );
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions
+  );
+
+  const currentStores = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores
+  );
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -179,7 +168,7 @@ const DetailTicket: FC = () => {
 
         callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
           if (res) {
-            setIsHavePermissionQuickBalance(res.user_name === result.created_name);
+            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase());
             return;
           }
 
@@ -262,14 +251,9 @@ const DetailTicket: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = useCallback((value: string, item?: VariantResponse) => {
-    const dataTemp = [...dataTable];
-    let selectedItem = resultSearch?.items?.find(
-      (variant: VariantResponse) => variant.id.toString() === value
-    );
-
-    if (item)
-    selectedItem = item;
+  const onSelectProduct = useCallback((value: string, item: VariantResponse) => {
+    let dataTemp = [...dataTable];
+    let selectedItem = item;
 
     const variantPrice =
       selectedItem &&
@@ -293,28 +277,22 @@ const DetailTicket: FC = () => {
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
     };
-
+      
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === newResult.sku
+        (variant: VariantResponse) => variant.sku === newResult?.sku
       )
-    )  {
-      setDataTable((prev: any) => prev.concat([{...newResult}]));
+    ) {
+      setDataTable((prev: any) => prev.concat([{...newResult,transfer_quantity: 0, real_quantity: 1}]));
+      dataTemp = dataTemp.concat([{...newResult, transfer_quantity: 0,real_quantity: 1}]);
     }else{
-      dataTemp?.forEach((e: VariantResponse) => {
-        if (e.sku === selectedItem.sku) {
-          if (!e.real_quantity) {
-            e.real_quantity = 0
-          }
-          e.real_quantity += 1;
-        }
-      })
-      setDataTable(dataTemp);
+      const indexItem = dataTemp.findIndex(e=>e.sku === item.sku);
+
+      dataTemp[indexItem].real_quantity +=1;
     }
-    setKeySearch("");
-    barCode="";
+    setDataTable([...dataTemp]);
     setResultSearch([]);
-  },[resultSearch, dataTable]);
+  },[dataTable]);
 
   function getTotalRealQuantity() {
     let total = 0;
@@ -476,48 +454,41 @@ const DetailTicket: FC = () => {
   }, [createCallback, data, dataTable, dispatch, stores]);
 
   const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
+      barCode = "";
       if (keyCode === "Enter" && code){
-        barCode ="";
         setKeySearch("");
-
-        if (RegUtil.BARCODE_NUMBER.test(code)) {
-          const item: VariantResponse  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-
-          if (item && item.id) {
-           const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],data?.from_store_id ?? null);
-           if (variant && variant.items && variant.items.length > 0) {
-             item.available = variant.items[variant.items.length-1].available;
-             item.on_hand = variant.items[variant.items.length-1].on_hand;
-           }
-           onSelectProduct(item.id.toString(),item);
-          }
+        
+        let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids: data?.from_store_id ?? null});
+        if (res && res.items && res.items.length > 0) {
+          onSelectProduct(res.items[0].id.toString(),res.items[0]);
         }
       }
       else{
         const txtSearchProductElement: any =
           document.getElementById("product_search_variant");
-
+  
         onSearchProduct(txtSearchProductElement?.value);
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[dispatch,onSelectProduct, onSearchProduct]);
+    },[dispatch, data?.from_store_id, onSelectProduct, onSearchProduct]);
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLBodyElement) {
-        if (event.key !== "Enter") {
-          barCode = barCode + event.key;
-        } else if (event.key === "Enter") {
-          if (barCode !== "" && event) {
-            handleSearchProduct(event.key,barCode);
-            barCode = "";
-          }
-        }
-        return;
-      }
-    },
-    [handleSearchProduct]
-  );
+     if (event.target instanceof HTMLBodyElement) {
+      console.log('event.key',event.key);
+       if (event.key !== "Enter") {
+         barCode = barCode + event.key;
+       } else if (event && event.key === "Enter") {          
+           handleSearchProduct(event.key,barCode);
+       }
+       return;
+     }
+   },
+
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   [
+     dispatch,handleSearchProduct
+   ]
+ );
 
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
@@ -541,16 +512,16 @@ const DetailTicket: FC = () => {
    [handleSearchProduct]
  );
 
-  const onSelect = useCallback((o)=>{
-    onSelectProduct(o);
-  },[onSelectProduct])
+ const onSelect = useCallback((o,obj)=>{
+  onSelectProduct(o,obj.label.props.data);
+},[onSelectProduct])
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
     window.addEventListener("keypress", eventKeyPress);
     return () => {
       window.removeEventListener("keydown", eventKeydown);
-      window.addEventListener("keypress", eventKeyPress);
+      window.removeEventListener("keypress", eventKeyPress);
     };
 }, [eventKeyPress, eventKeydown]);
 
@@ -733,7 +704,7 @@ const DetailTicket: FC = () => {
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
-            // disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
@@ -1247,7 +1218,7 @@ const DetailTicket: FC = () => {
                     </Col>
                     <Col span={24}>
                       <span className="text-focus">
-                        {data.attached_files?.map(
+                        {Array.isArray(data.attached_files) && data.attached_files.length > 0 && data.attached_files?.map(
                           (link: string, index: number) => {
                             return (
                               <a
