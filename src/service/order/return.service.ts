@@ -13,19 +13,19 @@ import { generateQuery } from "utils/AppUtils";
 export const getOrderReturnService = (
   id: number
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/orders/return/${id}`);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns/${id}`);
 };
 
 export const createOrderReturnService = (
   params: OrderRequest
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/orders/return`, params);
+  return BaseAxios.post(`${ApiConfig.ORDER}/orders/returns`, params);
 };
 
 export const setIsReceivedProductOrderReturnService = (
   id: number
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/orders/return/${id}/received`);
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/returns/${id}/received`);
 };
 
 export const getOrderReasonService = (orderCodes: string[]): Promise<
@@ -44,7 +44,7 @@ export const orderRefundService = (
     payments: OrderPaymentResponse[];
   }
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/orders/return/${id}/refund`, params);
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/returns/${id}/refund`, params);
 };
 
 export const createOrderExchangeService = (
