@@ -43,7 +43,7 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
                   <Space direction="vertical">
                     <Radio value={TYPE_EXPORT.page}>Tồn trên trang này</Radio>
                     <Radio value={TYPE_EXPORT.selected}>Các dòng được chọn</Radio>
-                    <Radio value={TYPE_EXPORT.all}>Tất cả tồn đủ điểu kiện lọc</Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả tồn đủ điều kiện lọc</Radio>
                     <Radio value={TYPE_EXPORT.allin}>Tất cả tồn kho</Radio>
                   </Space>
                 </Radio.Group>
