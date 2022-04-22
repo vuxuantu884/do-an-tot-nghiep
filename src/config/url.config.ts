@@ -25,6 +25,7 @@ const UrlConfig = {
   PRINTER: `/prints-templates`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
+  SMS_SETTINGS: `/${SETTINGS}/sms`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   CUSTOMER_CARDS: `/customer-cards`,
