@@ -769,10 +769,10 @@ const OrderDetail = (props: PropType) => {
 
   const checkIsPaymentUpdate = useMemo(() => {
     let fromDate = moment(new Date()).format("yyyy-MM-DD 07:00");
-    let toDate =moment(new Date().setHours(24)).format("yyyy-MM-DD 07:01");
+    let toDate =moment(new Date()).format("yyyy-MM-DD 23:59");
     let orderdate = moment(OrderDetail?.finished_on);
 
-    console.log("checkTodate", toDate, fromDate, orderdate);
+    console.log("checkTodate", toDate, fromDate, orderdate?.format("yyyy-MM-DD HH:mm"));
 
     if(!allowUpdatePayment) 
     {
