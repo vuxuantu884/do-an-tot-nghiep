@@ -1,12 +1,12 @@
-import React, { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, {ChangeEvent, useCallback, useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
 
-import { Button, DatePicker, Modal, Select, Tooltip } from "antd";
+import {Button, DatePicker, Input, Modal, Radio, Select, Tooltip} from "antd";
 import moment from "moment";
-import { DATE_FORMAT } from "utils/DateUtils";
+import {DATE_FORMAT} from "utils/DateUtils";
 
-import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
-import { getIconByEcommerceId } from "screens/ecommerce/common/commonAction";
+import {getShopEcommerceList} from "domain/actions/ecommerce/ecommerce.actions";
+import {getIconByEcommerceId} from "screens/ecommerce/common/commonAction";
 
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -14,7 +14,8 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 import successIcon from "assets/icon/success_2.svg";
 
-import { StyledUpdateProductDataModal } from "screens/ecommerce/products/styles";
+import {StyledUpdateProductDataModal} from "screens/ecommerce/products/styles";
+import {RadioChangeEvent} from "antd/lib/radio/interface";
 
 
 type UpdateProductDataModalProps = {
@@ -86,7 +87,29 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     },
   ]);
 
+  const [downloadType, setDownloadType] = useState<Number>(1);
+  const [variantList, setVariantList] = useState<any>("");
 
+  const selectDownloadType = useCallback((e: RadioChangeEvent) => {
+    setDownloadType(e.target.value);
+  },[])
+
+  const onInputChange = useCallback((v: ChangeEvent<HTMLInputElement>) => {
+    setVariantList(v.target.value)
+  }, [])
+
+  useEffect(() => {
+    console.log(downloadType)
+    if (downloadType !== 2){
+      setVariantList("");
+    }
+    if (downloadType !== 1){
+      setSelectedDateValue("");
+      setStartDate(null);
+      setEndDate(null)
+    }
+  }, [downloadType])
+  
   const updateEcommerceShopList = useCallback((result) => {
     setIsEcommerceSelected(true);
     setEcommerceShopList(result);
@@ -149,15 +172,18 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
   //end handle select date
 
   const isDisableGetItemOkButton = () => {
-    return !shopIdSelected || !startDate || !endDate;
+    if (shopIdSelected && selectedDateValue) return false;
+    return !(shopIdSelected && variantList);
   }
 
   const onOk = () => {
+    let variants = variantList?.split(",");
     const params = {
       ecommerce_id: ecommerceSelected,
       shop_id: shopIdSelected,
       update_time_from: startDate,
-      update_time_to: endDate
+      update_time_to: endDate,
+      item_ids: variants
     }
     getProductsFromEcommerce(params);
   }
@@ -176,7 +202,6 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     setEcommerceSelected(null);
     setIsEcommerceSelected(false);
   };
-  
 
   return (
     <Modal
@@ -263,17 +288,29 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
           }
         </div>
 
-        <div>
-          <div className="item-title">Thời gian <span style={{ color: 'red' }}>*</span></div>
+        <Radio.Group onChange={(v: RadioChangeEvent) => selectDownloadType(v)} defaultValue={downloadType}>
+          <Radio value={1} style={{marginBottom: 12}}>
+            Tải sản phẩm theo thời gian cập nhật
+          </Radio>
           <RangePicker
-            disabled={isLoading}
-            placeholder={["Từ ngày", "Đến ngày"]}
-            style={{ width: "100%" }}
-            format={DATE_FORMAT.DDMMYYY}
-            value={selectedDateValue}
-            onChange={onChangeDate}
+              disabled={isLoading || downloadType !== 1}
+              placeholder={["Từ ngày", "Đến ngày"]}
+              style={{ width: "100%", marginBottom: 20 }}
+              format={DATE_FORMAT.DDMMYYY}
+              value={selectedDateValue}
+              onChange={onChangeDate}
           />
-        </div>
+          <Radio value={2} style={{marginBottom: 12}} >
+            Tải sản phẩm theo ID
+          </Radio>
+
+          <Input placeholder={"Nhập ID sản phẩm"}
+                 onInput={onInputChange}
+                 disabled={downloadType !== 2}
+                 value={variantList}
+          />
+        </Radio.Group>
+
       </StyledUpdateProductDataModal>
     </Modal>
   );

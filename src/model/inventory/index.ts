@@ -36,6 +36,7 @@ export interface InventoryQuery extends BaseQuery {
   variant_id?: number,
   status?: string,
   store_adj?: number;
+  remain?:string
 } 
 export interface InventoryVariantListQuery extends InventoryQuery {
   variant_ids?: Array<number>;

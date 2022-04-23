@@ -502,18 +502,23 @@ const AllTab: React.FC<any> = (props) => {
     }
   };
 
-  const fetchInventoryByVariant = (
+  const fetchInventoryByVariant = useCallback((
     variant_ids: Array<number>,
     store_ids: Array<number>
   ) => {
-    const params: InventoryVariantListQuery = JSON.parse(
+    
+    const request: InventoryVariantListQuery = JSON.parse(
       JSON.stringify({variant_ids, store_ids, is_detail: true})
     );
-
+    if (params && params.remain) {
+      request.remain = params.remain;
+    }
+    
     dispatch(
-      inventoryByVariantAction(params, (result) => onSaveInventory(result, variant_ids))
+      inventoryByVariantAction(request, (result) => onSaveInventory(result, variant_ids))
     );
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[dispatch, params]);
 
   const debouncedSearch = React.useMemo(() =>
     _.debounce((keyword: string) => {

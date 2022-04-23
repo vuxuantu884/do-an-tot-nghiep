@@ -23,6 +23,7 @@ interface CustomAutoCompleteType {
   onClickAddNew?: () => void;
 	isFillInputWithTextSelected?: boolean; // có điền vào input giá trị đã select ko
 	defaultValue?: string; // giá trị mặc định
+  isNotPermissionAudit?: boolean;
 }
 
 interface CustomAutoCompleteState {
@@ -60,6 +61,7 @@ export default class CustomAutoComplete extends Component<
   };
 
   onSearch = (value: string) => {
+    if (this.props.isNotPermissionAudit) return;
     this.setState({ value: value });
     this.props.onSearch && this.props.onSearch(value);
   };
@@ -96,21 +98,23 @@ export default class CustomAutoComplete extends Component<
         options={this.props.options}
         allowClear
 				defaultActiveFirstOption = {this.props.defaultActiveFirstOption ? this.props.defaultActiveFirstOption : true}
-        dropdownRender={(menu) => (
-          <div className="dropdown-custom">
-            {this.props.showAdd && (
-              <Button
-                icon={<AiOutlinePlusCircle size={24} />}
-                className="dropdown-custom-add-new"
-                type="link"
-                onClick={this.add}
-              >
-                {this.props.textAdd ? this.props.textAdd : "Thêm mới"}
-              </Button>
-            )}
-            {menu}
-          </div>
-        )}
+        dropdownRender={(menu) => {
+          return !this.props.isNotPermissionAudit ? (
+            <div className="dropdown-custom">
+              {this.props.showAdd && (
+                <Button
+                  icon={<AiOutlinePlusCircle size={24} />}
+                  className="dropdown-custom-add-new"
+                  type="link"
+                  onClick={this.add}
+                >
+                  {this.props.textAdd ? this.props.textAdd : "Thêm mới"}
+                </Button>
+              )}
+              {menu}
+            </div>
+          ) : (<></>)
+        }}
         onSelect={this.onSelect}
         disabled={this.props.disabled}
       >
