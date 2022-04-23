@@ -1,7 +1,7 @@
 import React, { ChangeEvent, createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form } from "antd";
+import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form, Checkbox } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -85,6 +85,7 @@ const DetailTicket: FC = () => {
   const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
   const [isDisableEditNote, setIsDisableEditNote] = useState<boolean>(false);
+  const [isReceiveAllProducts, setIsReceiveAllProducts] = useState<boolean>(false);
 
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
@@ -799,6 +800,22 @@ const DetailTicket: FC = () => {
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   },[dispatch,idNumber,onResult])
 
+  const changeReceiveAllProducts = (e: any) => {
+    setIsReceiveAllProducts(e.target.checked);
+    let newDataTable = [...dataTable];
+
+    newDataTable = newDataTable.map((i) => {
+      return {
+        ...i,
+        real_quantity: e.target.checked ? i.transfer_quantity : 0
+      }
+    });
+
+    console.log(newDataTable)
+
+    setDataTable(newDataTable);
+  };
+
   useEffect(() => {
     if (!stores || !data) return;
     else {
@@ -978,7 +995,14 @@ const DetailTicket: FC = () => {
                   <Card
                     title="Danh sách sản phẩm"
                     bordered={false}
-                    extra={<Tag className={classTag}>{textTag}</Tag>}
+                    extra={<>
+                      { data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                        <Checkbox className="checkbox" checked={isReceiveAllProducts} onChange={changeReceiveAllProducts}>
+                          Nhận tất cả sản phẩm
+                        </Checkbox>
+                      )}
+                      <Tag className={classTag}>{textTag}</Tag>
+                    </>}
                     className={"inventory-transfer-table"}
                   >
                     <div>
