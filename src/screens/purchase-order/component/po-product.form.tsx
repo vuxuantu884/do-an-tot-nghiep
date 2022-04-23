@@ -26,6 +26,7 @@ import {
   PurchaseOrderLineItem,
   Vat
 } from "model/purchase-order/purchase-item.model";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import React, { createRef, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -127,6 +128,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           });
         }
       }
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
   }
   const handleChangePriceLineItem = (price: number, index : number) => {
     let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
@@ -146,6 +157,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total: total,
         tax_lines: taxLines
       })
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
     }
   }
   const handleChangeAllPriceLineItem = (price: number) => {
@@ -171,6 +192,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total: total,
         tax_lines: taxLines
       })
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
     }
   }
   const handleChangeQuantityLineItem = (quantity: number,index: number) => {
@@ -191,6 +222,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total: total,
         tax_lines: taxLines
       })
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
     }
   }
   const handleChangeTax = (taxRate: number,index: number) => {
@@ -210,7 +251,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       let total = POUtils.getTotalPayment(formMain);
       formMain.setFieldsValue({
         total: total,
-      })
+      });
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
     }
   }
   const handleChangeAllTax = (taxRate: number) => {
@@ -233,7 +284,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       let total = POUtils.getTotalPayment(formMain);
       formMain.setFieldsValue({
         total: total,
-      })
+      });
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
     }
   }
   const updateOldLineItem = (lineItem: PurchaseOrderLineItem) =>{
@@ -278,6 +339,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         line_items_old: newOldLineItems
       })
     }
+    let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+      POField.procurements
+    );
+    let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+      currentProcument,
+      newLineItems
+    );
+    formMain.setFieldsValue({
+      procurements: newProcument,
+    });
   }
   const onNoteChange = useCallback(
     (value: string, index: number) => {

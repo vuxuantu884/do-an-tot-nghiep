@@ -48,7 +48,8 @@ export function getAxiosBase(config: AxiosRequestConfig) {
          * Record api 401 để check lỗi tự đăng xuất
          */
           localStorage.removeItem(ACCESS_TOKEN);
-          window.location.replace('/admin/login');
+          let returnUrl = encodeURIComponent(`${window.location.pathname.slice(6, window.location.pathname.length)}${window.location.search}`);
+          window.location.replace(`/admin/login?returnUrl=${returnUrl}`);
           console.warn("Lỗi xác thực: \n", response?.config);
           return response;
         default:
