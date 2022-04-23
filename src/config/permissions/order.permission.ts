@@ -16,7 +16,6 @@ export const ODERS_PERMISSIONS = {
   UPDATE_PACKED: "orders_packed_update",
   UPDATE_SHIPPING: "orders_shipping_update",
   UPDATE_FINISHED: "orders_finished_update",
-  UPDATE_PAYMENT: "orders_update_payment",
   // CANCEL
   CANCEL_CONFIRMED: "orders_confirmed_cancel",
   CANCEL_PACKED: "orders_packed_cancel",
