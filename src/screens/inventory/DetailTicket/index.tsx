@@ -712,11 +712,7 @@ const DetailTicket: FC = () => {
             onChange={(quantity) => {
               onRealQuantityChange(quantity, index);
             }}
-            className={value && value < row.transfer_quantity
-              ? 'border-red'
-              : value && value > row.transfer_quantity
-                ? 'border-red'
-                : ''}
+            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
           />
         }
         else {
