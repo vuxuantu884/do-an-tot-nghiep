@@ -83,6 +83,7 @@ import './styles.scss'
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
+import useFetchStores from "../../../hook/useFetchStores";
 
 let typeButton = "";
 
@@ -152,6 +153,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
     Array<LoyaltyUsageResponse>
   >([]);
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+
+  const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
+
   const [thirdPL, setThirdPL] = useState<any>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
@@ -210,6 +214,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+
+  const listStores = useFetchStores();
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -288,9 +294,28 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   useEffect(() => {
     if (customer?.id) {
-      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+      dispatch(getLoyaltyPoint(customer.id, (data) => {
+        setLoyaltyPoint(data);
+        setCountFinishingUpdateCustomer(prev => prev + 1);
+      }));
+      /* order screen */
+      // setVisibleCustomer(true);
+      // if (customer.shipping_addresses) {
+      //   let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
+      //   let item = shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null;
+      //   onChangeShippingAddress(item);
+      // }
+      // else
+      //   onChangeShippingAddress(null)
+      // if (customer.billing_addresses) {
+      //   let billing_addresses_index = customer.billing_addresses.findIndex(x => x.default === true);
+      //   onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
+      // }
+      // else
+      //   onChangeBillingAddress(null)
     } else {
       setLoyaltyPoint(null);
+      setCountFinishingUpdateCustomer(prev => prev + 1);
     }
   }, [customer?.id, dispatch]);
 
@@ -1414,6 +1439,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       loyaltyPoint={null}
                       isCheckSplitLine={isCheckSplitLine}
                       setCheckSplitLine={setCheckSplitLine}
+                      countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+                      shipmentMethod={shipmentMethod}
+                      listStores={listStores}
                     />
 
                     {/* Không cần thanh toán và vận chuyển */}
