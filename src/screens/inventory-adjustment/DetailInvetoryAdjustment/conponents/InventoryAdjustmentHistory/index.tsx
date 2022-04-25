@@ -124,14 +124,14 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     if (value && value.indexOf('##') !== -1) {
       return;
     }
-   
+
     item.note = value ?? "";
     if (item.note) {
       item.note = item.note.substring(item.note.lastIndexOf("#")+1,item.note.length);
     }
-    
+
     const res = await callApiNative({isShowError: false},dispatch,updateReasonItemOnlineInventoryApi,data?.id ?? 0,item.id,item);
-    
+
     if (res) {
       onChangeReason(item.note, item, dataLinesItem);
     }
@@ -203,8 +203,8 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
           <>
             <div>Tồn thực tế</div>
             <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
-              ? objSummaryTable.TotalRealOnHand
-              : objSummaryTableByAuditTotal.realOnHand})</div>
+              ? formatCurrency(objSummaryTable.TotalRealOnHand)
+              : formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
       },
