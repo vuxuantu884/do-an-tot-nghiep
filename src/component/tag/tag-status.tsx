@@ -3,7 +3,7 @@ import React from "react";
 import {TagStatusStyle} from "./tag-status.style";
 import classnames from "classnames";
 
-declare const TagTypes: ["nomarl", "success", "danger", "primary", "warning", "secondary"];
+declare const TagTypes: ["normal", "success", "danger", "primary", "warning", "secondary"];
 export declare type TagType = typeof TagTypes[number];
 interface TagStatusProps extends TagProps {
   type?: TagType | string;
@@ -13,12 +13,12 @@ interface TagStatusProps extends TagProps {
 }
 
 TagStatus.defaultProps = {
-  type: "nomarl",
+  type: "normal",
   isOutline: false,
 };
 
 export enum TagStatusType {
-  nomarl = "nomarl",
+  normal = "normal",
   success = "success",
   danger = "danger",
   primary = "primary",
@@ -50,7 +50,7 @@ function TagStatus(props: TagStatusProps) {
       bgColor = "rgba(115, 115, 115, 0.2)";
       color = "#666666";
       break;
-    case "nomarl":
+    case "normal":
     default:
       bgColor = "rgba(245, 245, 245, 1)";
       color = "#878790";
@@ -58,7 +58,7 @@ function TagStatus(props: TagStatusProps) {
   }
   return (
     <TagStatusStyle>
-      <Tag color={bgColor} style={{color: color, margin: 0}} className={classnames(isOutline ? "outline" :"", className) }>
+      <Tag color={bgColor} style={{color: color}} className={classnames(isOutline ? "outline" :"", className) }>
         { icon && <img src={icon} alt="" style={{ marginRight: 4 }}/> }
         {children}
       </Tag>

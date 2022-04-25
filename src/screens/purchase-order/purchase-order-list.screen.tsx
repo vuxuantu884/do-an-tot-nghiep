@@ -240,7 +240,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         width: 150,
         dataIndex: "status",
         render: (value: string, record) => {
-          let type = TagStatusType.nomarl;
+          let type = TagStatusType.normal;
           let icon = "";
           if (!value) {
             return "";
@@ -259,7 +259,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               icon = statusCancelled
               break;
             case POStatus.FINISHED:
-              type = TagStatusType.nomarl;
+              type = TagStatusType.normal;
               icon = statusFinished
               break;
             case POStatus.COMPLETED:

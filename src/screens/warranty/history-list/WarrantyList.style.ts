@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
-.fee-icon {
+.ant-btn.addIcon {
     border-radius: 5px;
     background-color: #DCDCF2;
     display: inline-flex;
@@ -11,6 +11,10 @@ export const StyledComponent = styled.div`
 }
 .warranty-status {
     cursor: pointer;
+    text-align: center;
+    .ant-tag {
+        margin-bottom: 5px;
+    }
     .tag-line-height {
         margin-top: 5px !important;
     }
@@ -34,10 +38,10 @@ export const StyledComponent = styled.div`
     }
 }
 .ant-btn-icon-only {
-    width: auto;
-    padding: 0;
     border: none;
     background: none;
+    width: 36px;
+    padding: 0;
 }
 .warranty-status {
     .ant-tag {
@@ -50,5 +54,23 @@ export const StyledComponent = styled.div`
 .fee {
     color: ${primaryColor};
     font-weight: bold;
+}
+.noFee {
+    text-align: center;
+}
+.hasFee {
+    text-align: right;
+}
+.isCanChange {
+    cursor: pointer;
+}
+.ant-tabs-tab .number {
+    padding: 2px 6px;
+    border-radius: 20px;
+    color: white;
+    margin-left: 6px;
+    font-size: 11px;
+    position: relative;
+    top: -1px;
 }
 `;

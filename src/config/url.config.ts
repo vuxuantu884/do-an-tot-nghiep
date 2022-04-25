@@ -56,7 +56,7 @@ const UrlConfig = {
   ANALYTIC_SALES_ONLINE:`/analytics/sales-online`,
   ANALYTIC_FINACE:`/analytics/finance`,
   ANALYTIC_CUSTOMER:`/analytics/customers`,
-  WARRANTY:`/warranty`,
+  WARRANTY:`/warranties`,
   INVENTORY_DEFECTS: `/inventory-defects`
 };
 
@@ -116,3 +116,9 @@ export const WebAppConfigTabUrl = {
 export const BASE_NAME_ROUTER = "/admin";
 // export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
 export default UrlConfig;
+
+export const WARRANTY_URL = {
+  productStatus: "product-statuses",
+  reason: "reasons",
+  center: "centers"
+}

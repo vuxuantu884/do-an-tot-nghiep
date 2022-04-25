@@ -4,7 +4,7 @@ import { AutoComplete, Button, Card, Col, DatePicker, Form, FormInstance, Input,
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/url.config';
 import { CustomerSearchQuery } from 'model/query/customer.query';
-import { CustomerSearchSo, getCustomerDetailAction, getCustomerOrderHistoryAction } from 'domain/actions/customer/customer.action';
+import { CustomerSearchSo, getCustomerDetailAction } from 'domain/actions/customer/customer.action';
 import { useDispatch } from 'react-redux';
 import { CustomerResponse } from 'model/response/customer/customer.response';
 import { findAvatar, findPrice, handleDelayActionWhenInsertTextInSearchInput } from 'utils/AppUtils';
@@ -17,20 +17,20 @@ import { AccountResponse } from 'model/account/account.model';
 import { searchAccountPublicAction } from 'domain/actions/account/account.action';
 import moment from 'moment';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { OrderModel } from 'model/order/order.model';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import { PageResponse } from 'model/base/base-metadata.response';
 import HistoryPurchaseModal from '../HistoryPurchase/HistoryPurchase.modal';
 import { DATE_FORMAT } from 'utils/DateUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import { StyledComponent } from './index.styles';
-import { WarrantyFormType, WarrantyItemType } from 'model/warranty/warranty.model';
+import { WarrantyFormType, WarrantyItemTypeModel } from 'model/warranty/warranty.model';
 import { updateWarrantyAction, getWarrantyReasonsAction, getDetailsWarrantyAction } from 'domain/actions/warranty/warranty.action';
-import { showError, showSuccess } from 'utils/ToastUtils';
+import { showError, showSuccess, showWarning } from 'utils/ToastUtils';
 import { VariantResponse } from 'model/product/product.model';
 import imgDefault from "assets/icon/img-default.svg";
 import { AppConfig } from 'config/app.config';
 import { searchVariantsOrderRequestAction } from 'domain/actions/product/products.action';
+import { RegUtil } from 'utils/RegUtils';
 
 type Props = {};
 type WarrantyParam = {
@@ -69,24 +69,9 @@ function UpdateWarranty(props: Props) {
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [hadCustomer, setHadCustomer] = useState(false);
-  const [params, setParams] = useState<any>({
-    customer_id: null,
-    page: 1,
-    limit: 10,
-  });
-  const [tableLoading, setTableLoading] = useState(false);
+  const [customerID, setCustomerID] = useState<number | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
   const [visibleHistory, setVisibleHistory] = useState(false); 
-  const [orderHistoryData, setOrderHistoryData] = useState<
-    PageResponse<OrderModel>
-  >({
-    metadata: {
-      limit: 10,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
 
   const [warrantyItems, setWarrantyItems] = useState<Array<any>>([]);
   // const [noneItems, setNoneItems] = useState(false);
@@ -296,15 +281,6 @@ function UpdateWarranty(props: Props) {
     [dispatch]
   );
 
-  const updateOrderHistoryData = useCallback(
-    (data) => {
-      setTableLoading(false);
-      if (data) {
-        setOrderHistoryData(data);
-      }
-    },
-    []
-  );
   const searchCustomerSelect = useCallback(
     (value, o) => {
       let index: number = -1;
@@ -319,18 +295,14 @@ function UpdateWarranty(props: Props) {
             resultSearch[index].id,
             (data: CustomerResponse | null) => {
               if (data) {
-                setTableLoading(true);
-                setParams({
-                  ...params,
-                  customer_id: data.id
-                })
-                dispatch(getCustomerOrderHistoryAction({ customer_id: data.id }, updateOrderHistoryData));
+                setCustomerID(data.id);
                 setHadCustomer(true);
                 warrantyForm.setFieldsValue({
                   customer_id: data.id,
                   customer: data.full_name,
                   customer_mobile: data.phone,
-                  customer_address: data.full_address
+                  customer_address: data.full_address ?
+                    data.full_address : (warrantyForm.getFieldValue("type") === WarrantyFormType.STORE ? "Nhận tại cửa hàng" : "")
                 })
               }
             }
@@ -339,7 +311,7 @@ function UpdateWarranty(props: Props) {
         setKeySearchCustomer("");
       }
     },
-    [dispatch, params, resultSearch, updateOrderHistoryData, warrantyForm]
+    [dispatch, resultSearch, warrantyForm]
   );
 
   const disabledDate = (current: any) => {
@@ -356,14 +328,18 @@ function UpdateWarranty(props: Props) {
         fee: 0,
         customer_fee: 0,
       }
-    ]
-    newWarrantyItems = newWarrantyItems.map((i, index) => {
-      return {
-        ...i,
-        index
-      }
-    });
-    setWarrantyItems(newWarrantyItems);
+    ];
+    if (newWarrantyItems.length > 10) {
+      showWarning("Phiếu bảo hành chỉ tối đa 10 sản phẩm");
+    } else {
+      newWarrantyItems = newWarrantyItems.map((i, index) => {
+        return {
+          ...i,
+          index
+        }
+      });
+      setWarrantyItems(newWarrantyItems);
+    }
   }, [warrantyItems]);
 
   const onSearchVariantSelect = useCallback(
@@ -452,10 +428,10 @@ function UpdateWarranty(props: Props) {
               style={{  width: "100%"}}
               className={record.type ? "" : "non-select"}
             >
-                <CustomSelect.Option key={"WARRANTY"} value={WarrantyItemType.WARRANTY}>
+                <CustomSelect.Option key={"WARRANTY"} value={WarrantyItemTypeModel.WARRANTY}>
                   Bảo hành
                 </CustomSelect.Option>
-                <CustomSelect.Option key={"REPAIR"} value={WarrantyItemType.REPAIR}>
+                <CustomSelect.Option key={"REPAIR"} value={WarrantyItemTypeModel.REPAIR}>
                   Sửa chữa
                 </CustomSelect.Option>
             </CustomSelect>
@@ -505,7 +481,8 @@ function UpdateWarranty(props: Props) {
           return ""
         },
         visible: true,
-        width: 100
+        align: "center",
+        width: 130
       },
       {
         title: "Ghi chú",
@@ -542,7 +519,7 @@ function UpdateWarranty(props: Props) {
                 />
         },
         visible: true,
-        width: 100
+        width: 120,
       },
 
       {
@@ -564,18 +541,7 @@ function UpdateWarranty(props: Props) {
       },
     ], [deleteItemsWarranty, onChangeItem, reasons]
   );
-  const onPageChange = useCallback(
-    (page, limit) => {
-      setParams({
-        ...params,
-        page,
-        limit,
-      });
-      dispatch(getCustomerOrderHistoryAction(params, updateOrderHistoryData));
-    },
-    [dispatch, params, updateOrderHistoryData]
-  );
-
+  
   const handleSubmit = (values: any) => {
     if (warrantyItems.length) {
       let typeOK = true;
@@ -628,38 +594,21 @@ function UpdateWarranty(props: Props) {
       if (id) {
         dispatch(getDetailsWarrantyAction(id, (data:any) => {
           warrantyForm.setFieldsValue({
-            store_id: data.store_id,
-            assignee_code: data.assignee_code,
-            appointment_date: data.appointment_date,
-            delivery_method: data.delivery_method
+            store_id: data.warranty.store_id,
+            assignee_code: data.warranty.assignee_code,
+            appointment_date: data.warranty.appointment_date,
+            delivery_method: data.warranty.delivery_method,
+            customer_id: data.warranty.customer_id,
+            customer: data.warranty.full_name,
+            customer_mobile: data.warranty.phone,
+            customer_address: data.warranty.full_address
           });
-          dispatch(
-            getCustomerDetailAction(
-              data.customer_id,
-              (data: CustomerResponse | null) => {
-                if (data) {
-                  console.log('data', data)
-                  setTableLoading(true);
-                  setParams({
-                    ...params,
-                    customer_id: data.id
-                  })
-                  dispatch(getCustomerOrderHistoryAction({ customer_id: data.id }, updateOrderHistoryData));
-                  setHadCustomer(true);
-                  warrantyForm.setFieldsValue({
-                    customer_id: data.id,
-                    customer: data.full_name,
-                    customer_mobile: data.phone,
-                    customer_address: data.full_address
-                  })
-                }
-              }
-            )
-          );
-          const lineItems = data.line_items.map((item:any) => {
+          setCustomerID(data.warranty.customer_id);
+          
+          const lineItems = data.expenses.map((item:any) => {
             return {
               ...item,
-              reason_id: item.expenses[0].reason_id
+              reason_id: item.reason_id
             }
           });
           setWarrantyItems(lineItems);
@@ -668,7 +617,7 @@ function UpdateWarranty(props: Props) {
     }
     isFirstLoad.current = false;
       
-  }, [dispatch, id, params, updateOrderHistoryData, warrantyForm]);
+  }, [dispatch, id, warrantyForm]);
 
   return (
     <StyledComponent>
@@ -757,13 +706,27 @@ function UpdateWarranty(props: Props) {
                         prefix={<UserOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
-                    <Form.Item name="customer_mobile">
+                    <Form.Item
+                      name="customer_mobile"
+                      rules={[
+                        { required: true, message: 'Nhập số điện thoại' },
+                        {
+                          pattern: RegUtil.PHONE,
+                          message: "Số điện thoại chưa đúng định dạng",
+                        },
+                      ]}
+                    >
                       <Input
-                        placeholder="Nhập số điện thoại người nhận"
+                        placeholder="Nhập số điện thoại"
                         prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
-                    <Form.Item name="customer_address">
+                    <Form.Item
+                      name="customer_address"
+                      rules={[
+                        { required: true, message: 'Nhập địa chỉ' },
+                      ]}
+                    >
                       <Input
                         placeholder="Địa chỉ"
                         prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
@@ -853,13 +816,22 @@ function UpdateWarranty(props: Props) {
                     placeholder="Hình thức trả khách"
                     style={{ width: "100%" }}
                     getPopupContainer={(trigger) => trigger.parentNode}
-                    maxTagCount="responsive">
-                      <CustomSelect.Option key={"SHIPPING"} value={WarrantyFormType.SHIPPING}>
-                        Giao trả hàng tận nhà khách
-                      </CustomSelect.Option>
-                      <CustomSelect.Option key={"STORE"} value={WarrantyFormType.STORE}>
-                        Khách đến cửa hàng lấy
-                      </CustomSelect.Option>
+                    maxTagCount="responsive"
+                    onSelect={(value: string) => {
+                      if (value === WarrantyFormType.STORE &&
+                      warrantyForm.getFieldValue("customer_address") === "") {
+                        warrantyForm.setFieldsValue({
+                          customer_address: "Nhận tại cửa hàng"
+                        })
+                      }
+                    }}
+                  >
+                    <CustomSelect.Option key={"SHIPPING"} value={WarrantyFormType.SHIPPING}>
+                      Giao trả hàng tận nhà khách
+                    </CustomSelect.Option>
+                    <CustomSelect.Option key={"STORE"} value={WarrantyFormType.STORE}>
+                      Khách đến cửa hàng lấy
+                    </CustomSelect.Option>
                   </CustomSelect>
                 </Form.Item>
               </Card>
@@ -868,9 +840,7 @@ function UpdateWarranty(props: Props) {
           <Row gutter={40}>
             <HistoryPurchaseModal
               visible={visibleHistory}
-              isLoading={tableLoading}
-              orderHistoryData={orderHistoryData}
-              onPageChange={onPageChange}
+              customerID={customerID}
               onOk={() => setVisibleHistory(false)}
               onClick={(item) => addItemsWarranty(item)}
             />
@@ -920,10 +890,7 @@ function UpdateWarranty(props: Props) {
                   bordered
                   // scroll={{ x: 1400 }}
                   sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-                  pagination={{
-                    pageSize: 10,
-                    total: warrantyItems.length,
-                  }}
+                  pagination={false}
                   dataSource={warrantyItems}
                   columns={columnsWarrantyItems}
                   rowKey={(item: any) => item.index}
@@ -937,7 +904,7 @@ function UpdateWarranty(props: Props) {
                 <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
                   <Button
                     style={{ padding: "0 25px", marginRight: 20, fontWeight: 400 }}
-                    onClick={() => {}}
+                    onClick={() => history.push(`${UrlConfig.WARRANTY}`)}
                   >
                     Huỷ
                   </Button>
