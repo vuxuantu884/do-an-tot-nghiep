@@ -13,6 +13,7 @@ import ReportHandOverModal from "../../modal/report-hand-over.modal";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import {
   createGoodsReceipts,
+  getByIdGoodsReceipts,
   getGoodsReceiptsSerch,
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
@@ -177,25 +178,25 @@ const AddReportHandOver: React.FC = () => {
       return;
     }
 
-    let codes: any[] = goodsReceipts?.orders?.map((p)=>p.fullfilement_code)||[];//lấy lại đơn hàng đã có sẵn trong biên bản
+    let codes: any[] = [];
 
-    // goodsReceipts?.orders?.forEach((order) => {
-    //   if(goodsReceipts.receipt_type_id === 1) {
-    //     let fulfillments = order.fulfillments
-    //     ?.filter(f => f.status === "packed");
-    //     if(fulfillments && fulfillments.length > 0) {
-    //       codes.push(fulfillments[0].code ? fulfillments[0].code : "")
-    //     }
-    //   } else if(goodsReceipts.receipt_type_id === 2) {
-    //     let fulfillments = order.fulfillments
-    //     ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
-    //     if(fulfillments && fulfillments.length > 0) {
-    //       codes.push(fulfillments[0].code ? fulfillments[0].code : "")
-    //     } else {
-    //       codes.push("");
-    //     }
-    //   }
-    // });
+    goodsReceipts?.orders?.forEach((order) => {
+      if(goodsReceipts.receipt_type_id === 1) {
+        let fulfillments = order.fulfillments
+        ?.filter(f => f.status === "packed");
+        if(fulfillments && fulfillments.length > 0) {
+          codes.push(fulfillments[0].code ? fulfillments[0].code : "")
+        }
+      } else if(goodsReceipts.receipt_type_id === 2) {
+        let fulfillments = order.fulfillments
+        ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
+        if(fulfillments && fulfillments.length > 0) {
+          codes.push(fulfillments[0].code ? fulfillments[0].code : "")
+        } else {
+          codes.push("");
+        }
+      }
+    });
 
     //thêm đơn hàng mới vừa đóng gói
     selectOrderPackSuccess?.forEach((f) => {
@@ -268,11 +269,12 @@ const AddReportHandOver: React.FC = () => {
       let indexGoods = listGoodsReceipts.findIndex(
         (data: GoodsReceiptsResponse) => data.id === value
       );
-      if (indexGoods !== -1) setGoodsReceipts(listGoodsReceipts[indexGoods]);
+      if (indexGoods !== -1)
+        dispatch(getByIdGoodsReceipts(listGoodsReceipts[indexGoods].id,setGoodsReceipts));
       else
         setGoodsReceipts(undefined);
     },
-    [listGoodsReceipts]
+    [dispatch,listGoodsReceipts]
   );
   return (
     <Card
