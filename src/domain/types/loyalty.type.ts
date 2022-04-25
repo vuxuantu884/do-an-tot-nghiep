@@ -46,5 +46,20 @@ const LoyaltyPointsAdjustmentType = {
   GET_LOYALTY_ADJUST_POINT_DETAIL: 'GET_LOYALTY_ADJUST_POINT_DETAIL',
   CREATE_CUSTOMER_POINT_ADJUSTMENT: 'CREATE_CUSTOMER_POINT_ADJUSTMENT',
 }
+
+const LoyaltyChangeValueAdjustmentType = {
+  GET_LOYALTY_CODE_IMPORT_ADJUSTMENT: "GET_LOYALTY_CODE_IMPORT_ADJUSTMENT",
+  GET_LOYALTY_VALUE_CHANGE_ADJUSTMENT: "GET_LOYALTY_VALUE_CHANGE_ADJUSTMENT",
+}
   
-export { LoyaltyCardReleaseType, LoyaltyRankType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType, LoyaltyPointsType, LoyaltyPointsAdjustmentType };
+export {
+  LoyaltyCardReleaseType,
+  LoyaltyRankType,
+  LoyaltyCardType,
+  LoyaltyProgramType,
+  LoyaltyRateType,
+  LoyaltyUsageType,
+  LoyaltyPointsType,
+  LoyaltyPointsAdjustmentType,
+  LoyaltyChangeValueAdjustmentType 
+};

@@ -72,7 +72,7 @@ const PointAdjustment = () => {
     {
       title: "Mã phiếu",
       dataIndex: "id",
-      width: "9%",
+      width: 150,
       render: (value: string, item: any) => {
         return (
           <Link to={`${UrlConfig.CUSTOMER2}-adjustments/${item.id}`}>{item.code}</Link>
@@ -91,7 +91,7 @@ const PointAdjustment = () => {
     },
     {
       title: "Số KH",
-      width: "8%",
+      width: 70,
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
           {item.customers?.length &&
@@ -131,7 +131,7 @@ const PointAdjustment = () => {
     {
       title: "Giá trị",
       dataIndex: "value_change",
-      width: "8%",
+      width: 110,
       align: "center",
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
@@ -153,7 +153,10 @@ const PointAdjustment = () => {
     {
       title: "Người điều chỉnh",
       dataIndex: "created_by",
-      width: "10%"
+      width: "15%",
+      render: (value: any, item: any) => (
+        <div>{value ? value + " - " : ""}{item.created_name ? item.created_name : ""}</div>
+      ),
     },
     {
       title: "Ngày điều chỉnh",
@@ -167,6 +170,11 @@ const PointAdjustment = () => {
     {
       title: "Ghi chú",
       dataIndex: "note",
+      render: (value: any, item: any) => {
+        return (
+            <div>{value ? value : ""}</div>
+        )
+      }
     },
   ]
   const dispatch = useDispatch()
