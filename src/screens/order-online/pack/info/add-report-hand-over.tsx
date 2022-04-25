@@ -21,7 +21,7 @@ import { setPackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment, { Moment } from "moment";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
@@ -177,26 +177,27 @@ const AddReportHandOver: React.FC = () => {
       return;
     }
 
-    let codes: any[] = [];
+    let codes: any[] = goodsReceipts?.orders?.map((p)=>p.fullfilement_code)||[];//lấy lại đơn hàng đã có sẵn trong biên bản
 
-    goodsReceipts?.orders?.forEach((order) => {
-      if(goodsReceipts.receipt_type_id === 1) {
-        let fulfillments = order.fulfillments
-        ?.filter(f => f.status === "packed");
-        if(fulfillments && fulfillments.length > 0) {
-          codes.push(fulfillments[0].code ? fulfillments[0].code : "")
-        }
-      } else if(goodsReceipts.receipt_type_id === 2) {
-        let fulfillments = order.fulfillments
-        ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
-        if(fulfillments && fulfillments.length > 0) {
-          codes.push(fulfillments[0].code ? fulfillments[0].code : "")
-        } else {
-          codes.push("");
-        }
-      }
-    });
-    
+    // goodsReceipts?.orders?.forEach((order) => {
+    //   if(goodsReceipts.receipt_type_id === 1) {
+    //     let fulfillments = order.fulfillments
+    //     ?.filter(f => f.status === "packed");
+    //     if(fulfillments && fulfillments.length > 0) {
+    //       codes.push(fulfillments[0].code ? fulfillments[0].code : "")
+    //     }
+    //   } else if(goodsReceipts.receipt_type_id === 2) {
+    //     let fulfillments = order.fulfillments
+    //     ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
+    //     if(fulfillments && fulfillments.length > 0) {
+    //       codes.push(fulfillments[0].code ? fulfillments[0].code : "")
+    //     } else {
+    //       codes.push("");
+    //     }
+    //   }
+    // });
+
+    //thêm đơn hàng mới vừa đóng gói
     selectOrderPackSuccess?.forEach((f) => {
       if(goodsReceipts.receipt_type_id === 1 && f.status === "picked") {
         codes.push(f.code);
@@ -209,6 +210,7 @@ const AddReportHandOver: React.FC = () => {
       ...goodsReceipts,
       codes: codes,
     };
+    console.log(param);
 
     dispatch(
       updateGoodsReceipts(
@@ -233,6 +235,9 @@ const AddReportHandOver: React.FC = () => {
             let pathname = `${process.env.PUBLIC_URL}${UrlConfig.DELIVERY_RECORDS}/${value.id}`;
             window.open(pathname,"_blank");
             //history.push(`${UrlConfig.DELIVERY_RECORDS}/${value.id}`)
+          }
+          else{
+            showError("Thêm đơn hàng vào biên bản bàn giao thất bại");
           }
         }
       )

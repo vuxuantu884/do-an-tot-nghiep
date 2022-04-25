@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { Card, Row, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -104,29 +104,33 @@ const PackSupportScreen: React.FC = () => {
   //   setActiveTab(newParam.tab);
   // }, [newParam.tab]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     let packInfo: string | null = getPackInfo();
     if (packInfo) {
       dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
       let packData: PackModel = { ...new PackModelDefaltValue(), ...packInfoConvertJson };
-      let storeId: number | null | undefined = packData.store_id ? 
-        listStoresDataCanAccess.findIndex((p) => p.id === packData.store_id) !== -1 
-        ? packData.store_id : null : null;
+      // let storeId: number | null | undefined = packData.store_id ? 
+      //   listStoresDataCanAccess.findIndex((p) => p.id === packData.store_id) !== -1 
+      //   ? packData.store_id : null : null;
       let queryCode = packData.order.map(p => p.order_code);
       let queryParam: any = { code: queryCode }
       getListOrderApi(queryParam).then((response) => {
         if (isFetchApiSuccessful(response)) {
-          let orderEnd = packData.order.filter((p) => response.data.items.some(p1 => p1.code === p.order_code && !p1.goods_receipt_id));
-          setPackModel({ ...packData,store_id:storeId ,order: orderEnd });
-          setPackInfo({ ...packData,store_id:storeId, order: orderEnd });
+          let orderEnd = packData.order.filter((p) => 
+            response.data.items.some(
+              p1 => p1.code === p.order_code && (!p1.goods_receipts ||(p1.goods_receipts &&p1.goods_receipts.length<=0) )
+            )
+          );
+          setPackModel({ ...packData,store_id:packData.store_id ,order: orderEnd });
+          setPackInfo({ ...packData,store_id:packData.store_id, order: orderEnd });
         }
         else handleFetchApiError(response, "Danh sách Fullfiment", dispatch)
       }).catch((err) => {
         console.log(err);
       }).finally(() => { dispatch(hideLoading()); });
     }
-  }, [dispatch, listStoresDataCanAccess]);
+  }, [dispatch]);
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>

@@ -1,5 +1,6 @@
 import { BaseObject } from "model/base/base.response";
 import { BillingAddress, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 
 export interface OrderItemModel {
   product_id: number;
@@ -118,7 +119,7 @@ export interface OrderModel extends BaseObject {
   channel_code: string;
   created_on?: string | null;
   total_quantity: number;
-  goods_receipt_id: number;
+  goods_receipts?: GoodsReceiptsResponse[];
   export_bill: boolean;
 }
 
