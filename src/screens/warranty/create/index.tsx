@@ -357,6 +357,7 @@ function CreateWarranty(props: Props) {
           ...item,
           type: null,
           reason_id: null,
+          price: 0,
           customer_fee: 0,
         },
       ];
@@ -678,7 +679,7 @@ function CreateWarranty(props: Props) {
     <StyledComponent>
       <ContentContainer
         // isLoading={loadingData}
-        title="Đơn hàng"
+        title="Thêm mới phiếu bảo hành"
         breadcrumb={[
           {
             name: "Tổng quan",
