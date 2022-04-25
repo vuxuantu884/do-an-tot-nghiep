@@ -1138,7 +1138,7 @@ const onChangeNote = useCallback(
                         activeKey={activeTab}
                         onChange={(active) => setActiveTab(active)}
                       >
-                        <TabPane tab={`Thừa/Thiếu (${dataTab?.total_variant_deviant ?? 0})`} key="1">
+                        <TabPane tab={`Thừa/Thiếu (${formatCurrency(dataTab?.total_variant_deviant) ?? 0})`} key="1">
                           <InventoryAdjustmentHistory
                             objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
                             data={data}
