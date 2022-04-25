@@ -28,6 +28,8 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
   // handle get purchase history
   const [isVisibleLogDetail, setIsVisibleLogDetail] = useState<boolean>(false);
   const [activityLogDetail, setActivityLogDetail] = useState<any>();
+  const [oldDataLogDetail, setOldDataLogDetail] = useState<string>("");
+  const [newDataLogDetail, setNewDataLogDetail] = useState<string>("");
   const [activityLogDetailType, setActivityLogDetailType] = useState<string>("");
   const [activityLogQueryParams, setActivityLogQueryParams] = useState<any>({
     limit: 10,
@@ -74,6 +76,8 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
       setIsVisibleLogDetail(true);
       setActivityLogDetailType(response.action?.toUpperCase());
       setActivityLogDetail(response.data);
+      setOldDataLogDetail(response.old_data?.replaceAll('null', ''));
+      setNewDataLogDetail(response.new_data?.replaceAll('null', ''));
     }
   }
 
@@ -181,7 +185,7 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
           visible={isVisibleLogDetail}
           closable={false}
           centered
-          title="Chi tiết logs"
+          title={activityLogDetailType === "CREATE" ? "Chi tiết tạo mới" : "Chi tiết chỉnh sửa"}
           width={800}
           footer={[
             <Button key="close" type="primary" onClick={onCloseLogDetailModal}>
@@ -192,13 +196,25 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
           <StyledActivityLogDetailModal>
             <div className="log-detail-modal-body">
               {activityLogDetailType === "CREATE" ?
-                <div className="content">
-                  <pre>{JSON.stringify(JSON.parse(activityLogDetail || "{}"), null, 2)}</pre>
+                <div>
+                  <div><strong>Dữ liệu tạo mới:</strong></div>
+                  <div className="content">
+                    <pre>{JSON.stringify(JSON.parse(activityLogDetail || "{}"), null, 2)}</pre>
+                  </div>
                 </div>
                 :
-                <div className="log-detail-update">
-                  <pre className="content">{JSON.parse(activityLogDetail || "{}").old_data}</pre>
-                  <pre className="content">{JSON.parse(activityLogDetail || "{}").new_data}</pre>
+                <div>
+                  <div className="log-detail-update">
+                    <div className="old-data">
+                      <div className="label"><strong>Dữ liệu cũ:</strong></div>
+                      <div className="content">{oldDataLogDetail}</div>
+                    </div>
+
+                    <div className="new-data">
+                      <div className="label"><strong>Dữ liệu mới:</strong></div>
+                      <div className="content">{newDataLogDetail}</div>
+                    </div>
+                  </div>
                 </div>
               }
             </div>

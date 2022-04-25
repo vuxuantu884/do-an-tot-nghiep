@@ -407,14 +407,22 @@ export const StyledActivityLogDetailModal = styled.div`
     .log-detail-update {
       display: flex;
       justify-content: space-between;
-      .content {
-        width: 49%;
+			.old-data {
+				flex-grow: 1;
+				margin-right: 20px;
+			}
+			.new-data {
+        flex-grow: 1;
+			}
+      .label {
+        margin-bottom: 10px;
       }
     }
     .content {
       background: #eee;
       padding: 10px;
       margin-bottom: 0;
+			white-space: pre-wrap;
     }
   }
 `;
