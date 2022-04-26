@@ -31,7 +31,8 @@ import { productSaga } from "./product/product.saga";
 import { sizeSaga } from "./product/size.saga";
 import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
 import { settingOrdersSaga } from "./settings/order-settings.saga";
-import { inventoryAdjustmentSaga } from "./invetory/inventory-adjustment.saga"; 
+import { smsSettingSaga } from "./settings/sms-settings.saga";
+import { inventoryAdjustmentSaga } from "./invetory/inventory-adjustment.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
 import { departmentSaga } from "./account/department.saga";
 import { discountSaga } from "./promotion/discount/discount.saga";
@@ -76,6 +77,7 @@ function* rootSaga() {
     inventorySaga(),
     inventoryTransferSaga(),
     settingOrdersSaga(),
+    smsSettingSaga(),
     loyaltySaga(),
     ecommerceSaga(),
     webAppSaga(),
