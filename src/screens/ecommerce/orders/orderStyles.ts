@@ -6,6 +6,13 @@ const priceWidth = 85;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`
+	.custom-table {
+		.custom-table-pagination {
+			.ant-col-12 {
+				flex: unset;
+			}
+    }
+	}
   .product-and-quantity {
     padding: 0 !important;
   }
@@ -138,10 +145,25 @@ export const StyledOrderFilter = styled.div`
   .order-filter {
     overflow-x: auto;
     margin-bottom: 5px;
+		
+		.order-filter-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+			.first-line {
+				display: flex;
+			}
+			.input-search-tracking_codes {
+        width: 350px;
+        min-width: 250px;
+        margin: 10px auto;
+			}
+		}
+		
     .ant-form {
       display: flex;
       .ant-form-item {
-        margin-bottom: 5px;
+        margin-bottom: 0;
       }
     }
   }
@@ -149,7 +171,7 @@ export const StyledOrderFilter = styled.div`
   .order-filter-tags .tag {
     margin-bottom: 10px;
     margin-top: 0;
-    padding: 10px 20px;
+    padding: 5px 15px;
     white-space: normal;
   }
 
