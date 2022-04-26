@@ -1,5 +1,5 @@
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
 import { useHistory } from "react-router";
 import NumberFormat from "react-number-format";
 import {
@@ -13,6 +13,8 @@ import {
   FormInstance,
   AutoComplete,
   InputNumber,
+  Tooltip,
+  Spin,
 } from "antd";
 
 import CustomTable, {
@@ -22,16 +24,14 @@ import UrlConfig from "config/url.config";
 import { useQuery } from "utils/useQuery";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
-import _ from "lodash";
 import {
-  CustomerSearch,
   getCustomerListAction,
 } from "domain/actions/customer/customer.action";
 import {
   createCustomerPointAdjustmentAction,
+  getImportCodeCustomerAdjustmentAction,
   getLoyaltyPoint,
 } from "domain/actions/loyalty/loyalty.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -47,6 +47,21 @@ import arrowBack from "assets/icon/arrow-back.svg";
 import { StyledCreatePointAdjustment } from "screens/customer/point-adjustment/StyledPointAdjustment";
 import { StyledComponent } from "screens/ecommerce/products/tab/not-connected-items/styles";
 import { StyledFooterAction } from "screens/customer/common/CommonStyled";
+import { UploadOutlined } from "@ant-design/icons";
+import ImportCustomerIntoAdjustmentFile from "../import-file/importCustomerIntoAdjustment";
+
+import { getImportCodeCustomerAdjustmentRequest, } from 'model/request/loyalty/loyalty.request';
+
+import {RootReducerType} from "model/reducers/RootReducerType";
+import BaseResponse from "base/base.response";
+import {HttpStatus} from "config/http-status.config";
+import {handleDelayActionWhenInsertTextInSearchInput, isNullOrUndefined} from "utils/AppUtils";
+import {EnumJobStatus} from "config/enum.config";
+import {getInfoAdjustmentByJobService} from "service/loyalty/loyalty.service";
+
+import deleteIcon from "assets/icon/deleteIcon.svg";
+import excelIcon from "assets/icon/icon-excel.svg";
+
 
 const { Item } = Form;
 const POINT_ADD_REASON = [
@@ -67,14 +82,20 @@ const CreatePointAdjustment = () => {
   const history = useHistory();
   const query = useQuery();
   const paramCustomerIds = query.get("customer_ids");
+
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const {account} = userReducer;
   
   const formRef = createRef<FormInstance>();
   const dispatch = useDispatch();
 
+  const autoCompleteRefCustomer = useRef<any>(null);
+  
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [selectedCustomers, setSelectedCustomers] = useState<any[]>([]);
   const [type, setType] = useState<string>(query.get("type") as any);
-  const [keyword, setKeyword] = useState<string>("");
+  const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
+  const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [fieldName, setFieldName] = useState<string>("");
 
   const initFormValues = {
@@ -142,7 +163,7 @@ const CreatePointAdjustment = () => {
       visible: true,
       dataIndex: "point",
       align: "center",
-      render: (value: any, item: any, index: number) => (
+      render: (value: any) => (
         value ?
         <NumberFormat
           value={value}
@@ -153,7 +174,7 @@ const CreatePointAdjustment = () => {
     },
     {
       width: "60px",
-      render: (value: any, item: any, index: number) => {
+      render: (value: any, item: any) => {
         return (
           <StyledComponent>
             <img
@@ -168,10 +189,30 @@ const CreatePointAdjustment = () => {
     },
   ];
 
-  const fetchCustomer = _.debounce((keyword: string) => {
-    let query: any = { request: keyword };
-    dispatch(CustomerSearch(query, setCustomers));
-  }, 300);
+  const updateCustomerList = React.useCallback((data: PageResponse<any> | false) => {
+    setIsSearchingCustomer(false);
+    if (data) {
+      setCustomers(data.items);
+    }
+  }, []);
+  
+  const customerChangeSearch = useCallback(
+    (value) => {
+      setKeySearchCustomer(value);
+      if(value.length >= 3) {
+        setIsSearchingCustomer(true);
+      } else {
+        setIsSearchingCustomer(false);
+      }
+      
+      let query: any = { request: value.trim() };
+      const handleSearch = () => {
+        dispatch(getCustomerListAction(query, updateCustomerList));
+      };
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefCustomer, () => handleSearch());
+    },
+    [dispatch, updateCustomerList]
+  );
 
   const transformCustomers = useMemo(() => {
     return customers.map((customer) => {
@@ -182,10 +223,6 @@ const CreatePointAdjustment = () => {
       };
     });
   }, [customers]);
-
-  const onChange = (data: string) => {
-    setKeyword(data);
-  };
 
   const onSelect = (value: any, option: any) => {
     const customer = option?.customer;
@@ -210,47 +247,10 @@ const CreatePointAdjustment = () => {
     (data: any) => {
       formRef.current?.resetFields();
       setSelectedCustomers([]);
-      dispatch(hideLoading());
       showSuccess("Tạo mới phiếu điều chỉnh thành công");
       history.replace(`${UrlConfig.CUSTOMER2}-adjustments/${data?.id}`)
     },
-    [formRef, dispatch, history]
-  );
-
-  const handleError = useCallback(() => {
-    dispatch(hideLoading());
-  }, [dispatch]);
-
-  const onFinish = useCallback(
-    (values) => {
-      if (selectedCustomers.length === 0) {
-        showError("Không có khách hàng nào được chọn");
-        return;
-      }
-
-      if (values.value_change === 0) {
-        showError("Giá trị điều chỉnh phải lớn hơn 0");
-        return;
-      }
-
-      const customerIds: Array<any> = [];
-      selectedCustomers.forEach((customer) => {
-        customerIds.push(customer.id);
-      });
-
-      const params = {
-        customer_ids: customerIds,
-        note: values.note,
-        reason: values.reason,
-        value_change: values.value_change,
-        type: values.type,
-        name: values.name,
-      }
-
-      dispatch(showLoading());
-      dispatch(createCustomerPointAdjustmentAction(params, onUpdateEnd, handleError));
-    },
-    [dispatch, handleError, onUpdateEnd, selectedCustomers]
+    [formRef, history]
   );
 
   const onChangeName = (e: any) => {
@@ -285,14 +285,136 @@ const CreatePointAdjustment = () => {
     }
   };
 
-  const checkDisableCreateButton = useCallback(() => {
-    if (selectedCustomers.length === 0 || !fieldName) {
-      return true;
-    } else {
-      return false;
-    }
-  }, [fieldName, selectedCustomers.length]);
+  //handle import customer adjustment
+  const [isVisibleImportModal, setIsVisibleImportModal] = useState(false);
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
+  const [fileImportCustomerAdjustment, setFileImportCustomerAdjustment] = useState<Array<File>>([]);
+  const [importCustomerAdjustmentCode, setImportCustomerAdjustmentCode] = useState(null);
+  const [progressData, setProgressData] = useState<any>(null);
+  const [importProgressPercent, setImportProgressPercent] = useState<number>(0);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
+
+  const handleJobCodeResponse = (data: any) => {
+    if (data) {
+      setImportCustomerAdjustmentCode(data.code);
+      setIsVisibleProgressModal(true);
+      setIsDownloading(true);
+    } else {
+      showError("Có lỗi tải lên file tạo phiếu điều chỉnh. Vui lòng thử lại sau!");
+    }
+  }
+
+  // import modal
+  const openImportFileModal = () => {
+    setIsVisibleImportModal(true);
+  }
+
+  const onOkImportModal = () => {
+    setIsVisibleImportModal(false);
+  }
+
+  const onCancelImportModal = () => {
+    setIsVisibleImportModal(false);
+  }
+  // end import modal
+
+  const handleRemoveFileImportCustomerAdjustment = () => {
+    setFileImportCustomerAdjustment([]);
+  }
+
+  //-- end handle import customer adjustment --/
+
+  const onFinish = useCallback(
+    (values) => {
+      if (values.value_change === 0) {
+        showError("Giá trị điều chỉnh phải lớn hơn 0");
+        return;
+      }
+
+      if (fileImportCustomerAdjustment.length > 0) {
+        const paramsByImportCustomer: getImportCodeCustomerAdjustmentRequest = {
+          file: fileImportCustomerAdjustment[0],
+          name: values.name,
+          value_change: values.value_change,
+          type: values.type,
+          note: values.note,
+          reason: values.reason,
+          created_by: account?.code || "",
+          created_name: account?.full_name || "",
+        }
+        dispatch(getImportCodeCustomerAdjustmentAction(paramsByImportCustomer, handleJobCodeResponse))
+      } else {
+        const customerIds = selectedCustomers.map(customer => customer.id);
+        const params = {
+          customer_ids: customerIds,
+          note: values.note,
+          reason: values.reason,
+          value_change: values.value_change,
+          type: values.type,
+          name: values.name,
+        }
+        dispatch(createCustomerPointAdjustmentAction(params, onUpdateEnd));
+      }
+    },
+    [account?.code, account?.full_name, dispatch, fileImportCustomerAdjustment, onUpdateEnd, selectedCustomers]
+  );
+
+  const checkDisableCreateButton = useCallback(() => {
+    return !fieldName || (selectedCustomers.length === 0 && fileImportCustomerAdjustment.length === 0);
+  }, [fieldName, fileImportCustomerAdjustment.length, selectedCustomers.length]);
+
+  //handle create adjustment
+  const handleCreateAdjustment = () => {
+    formRef.current?.submit();
+  }
+  //--end handle create adjustment --//
+
+  // handle process import file
+  const resetProgress = () => {
+    setImportCustomerAdjustmentCode(null);
+    setImportProgressPercent(0);
+    setProgressData(null);
+  }
+
+  const onOKProgressModal = () => {
+    resetProgress();
+    setIsVisibleProgressModal(false);
+  }
+
+  const getProgressImportFile = useCallback(() => {
+    let getImportProgressPromise: Promise<BaseResponse<any>> = getInfoAdjustmentByJobService(importCustomerAdjustmentCode);
+    Promise.all([getImportProgressPromise]).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+          const processData = response.data;
+          setProgressData(processData);
+          
+          const progressCount = processData.processed;
+          if (progressCount >= processData.total || processData.status.toUpperCase() === EnumJobStatus.finish) {
+            setImportProgressPercent(100);
+            setImportCustomerAdjustmentCode(null);
+            setIsDownloading(false);
+            showSuccess("Hoàn thành tạo mới phiếu điều chỉnh từ file tải lên!");
+          } else {
+            const percent = Math.floor(progressCount / processData.total * 100);
+            setImportProgressPercent(percent);
+          }
+        }
+      });
+    });
+  }, [importCustomerAdjustmentCode]);
+
+  useEffect(() => {
+    if (importProgressPercent === 100 || !importCustomerAdjustmentCode) {
+      return;
+    }
+    getProgressImportFile();
+    const getFileInterval = setInterval(getProgressImportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [getProgressImportFile, importCustomerAdjustmentCode, importProgressPercent]);
+  // end handle process import file
+  
   return (
     <StyledCreatePointAdjustment>
       <ContentContainer
@@ -487,7 +609,7 @@ const CreatePointAdjustment = () => {
                           <span>Khách hàng </span>
                           <span className="text-error">*</span>
                         </div>
-                        <div className="row-content">
+                        <div className="row-content row-content-info-customer">
                           <Item
                             name="search"
                             rules={[
@@ -495,24 +617,57 @@ const CreatePointAdjustment = () => {
                                 message: "",
                               },
                             ]}
+                            className="search-info-customer"
                           >
                             <AutoComplete
-                              className="dropdown-rule"
                               allowClear
                               notFoundContent={
-                                customers.length === 0
-                                  ? "Không có bản ghi nào"
-                                  : undefined
+                                isSearchingCustomer ? <Spin size="small"/> : "Không tìm thấy khách hàng"
                               }
-                              onSearch={fetchCustomer}
+                              onSearch={customerChangeSearch}
                               options={transformCustomers}
                               onSelect={onSelect}
-                              onChange={onChange}
                               placeholder="Tìm kiếm theo mã khách hàng, tên, SĐT khách hàng"
-                              value={keyword}
+                              value={keySearchCustomer}
+                              ref={autoCompleteRefCustomer}
+                              disabled={fileImportCustomerAdjustment.length > 0}
                             />
                           </Item>
+
+                          <div>
+                            <div className="upload-file-customer">
+                              <Button
+                                size="large"
+                                icon={<UploadOutlined />}
+                                onClick={openImportFileModal}
+                                disabled={selectedCustomers.length > 0}
+                              >
+                                Nhập file
+                              </Button>
+                             </div>
+                          </div>
                         </div>
+                      </Col>
+
+                      <Col span={7}  className="customer-adjustment-file-name">
+                        {fileImportCustomerAdjustment.length > 0 &&
+                          <div style={{ marginTop: 10 }}>
+                            <img src={excelIcon} alt="" style={{ marginRight: 5 }}/>
+                            <span style={{ padding: "0 2px" }}>{fileImportCustomerAdjustment[0].name}</span>
+                            <Tooltip
+                              overlay="Xóa file"
+                              placement="top"
+                              color="red"
+                            >
+                              <img
+                                src={deleteIcon}
+                                style={{ marginLeft: 5, cursor: "pointer" }}
+                                alt=""
+                                onClick={handleRemoveFileImportCustomerAdjustment}
+                              />
+                            </Tooltip>
+                          </div>
+                        }
                       </Col>
                     </Row>
 
@@ -552,7 +707,7 @@ const CreatePointAdjustment = () => {
 
                           <Button
                             type="primary"
-                            onClick={() => { formRef.current?.submit() }}
+                            onClick={handleCreateAdjustment}
                             disabled={checkDisableCreateButton()}
                           >
                             Thêm mới
@@ -565,6 +720,19 @@ const CreatePointAdjustment = () => {
               </Card>
               : <NoPermission />)}
           </AuthWrapper>
+
+          {/* import customer file */}
+          <ImportCustomerIntoAdjustmentFile
+            isVisibleImportModal={isVisibleImportModal}
+            onOkImportModal={onOkImportModal}
+            onCancelImportModal={onCancelImportModal}
+            isVisibleProgressModal={isVisibleProgressModal}
+            progressData={progressData}
+            onOKProgressModal={onOKProgressModal}
+            setFileImportCustomerAdjustment={setFileImportCustomerAdjustment}
+            importProgressPercent={importProgressPercent}
+            isDownloading={isDownloading}
+          />
       </ContentContainer>
     </StyledCreatePointAdjustment>
   );

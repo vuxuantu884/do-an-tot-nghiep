@@ -19,6 +19,16 @@ const BankAccountCreateScreen = React.lazy(
 const BackAccountUpdateScreen = React.lazy(
   () => import("screens/settings/bank/update/bank-account.update.screen")
 );
+const SmsScreen = React.lazy(
+  () => import("screens/settings/sms/sms.screen")
+);
+const SmsOrderRetail = React.lazy(
+  () => import("screens/settings/sms/config/SmsOrderRetail")
+);
+const SmsWebsiteOrder = React.lazy(
+  () => import("screens/settings/sms/config/SmsWebsiteOrder")
+);
+
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
 );
@@ -475,6 +485,41 @@ const setting: Array<RouteMenu> = [
         icon: "icon-dot",
         component: BackAccountUpdateScreen,
         key: "update-bank-account-setting",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ]
+  },
+  {
+    path: UrlConfig.SMS_SETTINGS,
+    exact: true,
+    title: "Cài đặt gửi tin",
+    subTitle: "",
+    icon: "icon-dot",
+    component: SmsScreen,
+    key: UrlConfig.SMS_SETTINGS,
+    isShow: true,
+    header: null,
+    subMenu:[
+      {
+        path: `${UrlConfig.SMS_SETTINGS}/order-retail`,
+        exact: true,
+        title: "Phát sinh hóa đơn bán lẻ",
+        icon: "icon-dot",
+        component: SmsOrderRetail,
+        key: "sms-order-retail",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.SMS_SETTINGS}/website-order`,
+        exact: true,
+        title: "Phát sinh hóa đơn trên Website",
+        icon: "icon-dot",
+        component: SmsWebsiteOrder,
+        key: "sms-website-order",
         isShow: true,
         header: null,
         subMenu: [],

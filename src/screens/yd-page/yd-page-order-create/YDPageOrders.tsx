@@ -103,6 +103,7 @@ type OrdersCreatePermissionProps = {
   fbPageId: string | null;
   defaultSourceId: number | null;
   defaultStoreId: number | null;
+  fbAdsId: string;
   userId: string | null;
   levelOrder?: number;
   updateOrder?: boolean;
@@ -134,6 +135,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setVisibleCustomer,
     defaultStoreId,
     defaultSourceId,
+    fbAdsId,
   } = props;
   const dispatch = useDispatch();
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
@@ -565,7 +567,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
-    values.tags = tags;
+    const fbAdsIdTags = fbAdsId ? `ad_id: ${fbAdsId}` : "";
+    values.tags = fbAdsIdTags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;

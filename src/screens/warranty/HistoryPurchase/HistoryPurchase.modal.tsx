@@ -1,21 +1,22 @@
 import {  Button, Modal, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
+import { getCustomerOrderHistoryAction } from "domain/actions/customer/customer.action";
+import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import moment from "moment";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import NumberFormat from "react-number-format";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { HistoryPurchaseStyled } from "./HistoryPurchase.styles";
 // import { fields_order, fields_shipment, fields_return} from "../common/fields.export";
 type HistoryPurchaseModalProps = {
   visible: boolean;
-  isLoading: boolean;
-  orderHistoryData: any;
-  onPageChange: (page: any, limit: any) => void;
+  customerID: number | null;
   onOk: () => void;
   onClick: (item: any) => void;
 };
@@ -23,8 +24,20 @@ type HistoryPurchaseModalProps = {
 const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
   props: HistoryPurchaseModalProps
 ) => {
-  const { visible, isLoading, orderHistoryData, onPageChange, onOk, onClick } = props;
-  
+  const { visible, customerID, onOk, onClick } = props;
+  const dispatch = useDispatch();
+  const [tableLoading, setTableLoading] = useState(false);
+  const [orderHistoryData, setOrderHistoryData] = useState<
+    PageResponse<OrderModel>
+  >({
+    metadata: {
+      limit: 10,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+
   const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> =
     React.useMemo(() => [
       {
@@ -124,12 +137,12 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
                       />
                     </div>
                     <div className="price priceWidth">
-                      <Tooltip title={record.status !== "finished" ? "Sản phẩm chưa được bán hoặc đã đổi trả" : "Thêm sản phẩm bảo hành"}>
+                    <Tooltip title={record.status !== "finished" ? "Sản phẩm chưa được bán hoặc đã đổi trả" : "Thêm sản phẩm bảo hành"}>
                         <Button
                           icon={<AiOutlinePlusCircle size={24} />}
                           type="link"
                           disabled={record.status !== "finished"}
-                          onClick={() => onClick(item)}
+                          onClick={() => onClick({...item, finished_on: record.finished_on, finalized_on: record.finalized_on })}
                         />
                       </Tooltip>
                     </div>
@@ -145,6 +158,31 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
       },
     ], [onClick]
   );
+
+  const onPageChange = useCallback(
+    (page, limit) => {
+      dispatch(getCustomerOrderHistoryAction({
+        customer_id: customerID,
+        page,
+        limit,
+      }, (data) => {
+        setTableLoading(false);
+        if (data) {
+          setOrderHistoryData(data);
+        }
+      },));
+    },
+    [customerID, dispatch]
+  );
+
+  useEffect(() => {
+    customerID && dispatch(getCustomerOrderHistoryAction({ customer_id: customerID }, (data) => {
+      setTableLoading(false);
+      if (data) {
+        setOrderHistoryData(data);
+      }
+    },));
+  }, [customerID, dispatch]);
 
   return (
     <Modal
@@ -172,7 +210,7 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
         <CustomTable
           bordered
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-          isLoading={isLoading}
+          isLoading={tableLoading}
           pagination={{
             pageSize: orderHistoryData.metadata.limit,
             total: orderHistoryData.metadata.total,

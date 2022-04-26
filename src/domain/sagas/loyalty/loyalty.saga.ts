@@ -13,7 +13,8 @@ import {
   LoyaltyRateType,
   LoyaltyUsageType,
   LoyaltyPointsType,
-  LoyaltyPointsAdjustmentType
+  LoyaltyPointsAdjustmentType,
+  LoyaltyChangeValueAdjustmentType
 } from "domain/types/loyalty.type";
 import { loyaltyCardUploadApi, searchLoyaltyCardReleaseList } from "service/loyalty/release/loyalty-card-release.service";
 import { createLoyaltyRank, deleteLoyaltyRank, getLoyaltyRankDetail, getLoyaltyRankList, updateLoyaltyRank } from "service/loyalty/ranking/loyalty-ranking.service";
@@ -39,7 +40,9 @@ import {
   getPointAdjustmentListService,
   getPointAdjustmentDetailService,
   createCustomerPointAdjustmentService,
-  getLoyaltyAdjustMoneyService
+  getLoyaltyAdjustMoneyService,
+  getImportCodeCustomerAdjustmentService,
+  getInfoAdjustmentByJobService,
 } from "service/loyalty/loyalty.service";
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
@@ -617,7 +620,8 @@ function* getPointAdjustmentDetailSaga(action: YodyAction) {
 }
 
 function* createCustomerPointAdjustmentSaga(action: YodyAction) {
-  const { params, successCallback, failCallback } = action.payload;
+  const { params, successCallback } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(
       createCustomerPointAdjustmentService,
@@ -633,11 +637,63 @@ function* createCustomerPointAdjustmentSaga(action: YodyAction) {
         break;
       default:
         response.errors.forEach((e:any) => showError(e));
-        failCallback();
         break;
     }
   } catch (error) {
-    failCallback();
+    showError("Có lỗi khi tạo mới phiếu điều chỉnh. Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* getImportCodeCustomerAdjustmentSaga(action: YodyAction) {
+  const { params, successCallback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(
+      getImportCodeCustomerAdjustmentService,
+      params
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        successCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* getInfoAdjustmentByJobSaga(action: YodyAction) {
+  const { code, callback } = action.payload;
+  try {
+    const response: BaseResponse<LoyaltyPoint> = yield call(
+      getInfoAdjustmentByJobService,
+      code,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    callback(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -669,4 +725,6 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, getPointAdjustmentListSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL, getPointAdjustmentDetailSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.CREATE_CUSTOMER_POINT_ADJUSTMENT, createCustomerPointAdjustmentSaga);
+  yield takeLatest(LoyaltyChangeValueAdjustmentType.GET_LOYALTY_CODE_IMPORT_ADJUSTMENT, getImportCodeCustomerAdjustmentSaga);
+  yield takeLatest(LoyaltyChangeValueAdjustmentType.GET_LOYALTY_VALUE_CHANGE_ADJUSTMENT, getInfoAdjustmentByJobSaga);
 }

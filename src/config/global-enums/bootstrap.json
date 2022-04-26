@@ -361,6 +361,10 @@
     {
       "name": "Hóa đơn đổi hàng",
       "value": "order_exchange"
+    },
+    {
+      "name": "Hóa đơn bảo hành",
+      "value": "warranty"
     }
   ],
   "moq_unit": [

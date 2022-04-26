@@ -25,6 +25,7 @@ const UrlConfig = {
   PRINTER: `/prints-templates`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
+  SMS_SETTINGS: `/${SETTINGS}/sms`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   CUSTOMER_CARDS: `/customer-cards`,
@@ -56,7 +57,7 @@ const UrlConfig = {
   ANALYTIC_SALES_ONLINE:`/analytics/sales-online`,
   ANALYTIC_FINACE:`/analytics/finance`,
   ANALYTIC_CUSTOMER:`/analytics/customers`,
-  WARRANTY:`/warranty`,
+  WARRANTY:`/warranties`,
   INVENTORY_DEFECTS: `/inventory-defects`
 };
 
@@ -116,3 +117,9 @@ export const WebAppConfigTabUrl = {
 export const BASE_NAME_ROUTER = "/admin";
 // export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
 export default UrlConfig;
+
+export const WARRANTY_URL = {
+  productStatus: "product-statuses",
+  reason: "reasons",
+  center: "centers"
+}

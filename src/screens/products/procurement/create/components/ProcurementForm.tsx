@@ -1,5 +1,6 @@
 import { CheckCircleOutlined, LoadingOutlined, PhoneOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Col, Form, FormInstance, Input, Modal, Row, Select, Upload } from "antd";
+import { Store } from "antd/lib/form/interface";
 import Text from "antd/lib/typography/Text";
 import { UploadFile } from "antd/lib/upload/interface";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
@@ -10,9 +11,9 @@ import { uploadFileAction } from "domain/actions/core/import.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { importProcumentAction } from "domain/actions/po/po-procument.action";
-import { debounce } from "lodash";
+import { debounce, isEmpty } from "lodash";
+import { AccountStoreResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { ProcurementCreate } from "model/procurement";
 import { ProcurementField } from "model/procurement/field";
@@ -24,6 +25,8 @@ import { VscError } from "react-icons/vsc";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import SupplierItem from "screens/purchase-order/component/supplier-item";
+import { getAccountDetail } from "service/accounts/account.service";
+import { getStoreApi } from "service/inventory/transfer/index.service";
 import { listPurchaseOrderApi } from "service/purchase-order/purchase-order.service";
 import { getJobImport } from "service/purchase-order/purchase-procument.service";
 import { callApiNative } from "utils/ApiUtils";
@@ -50,7 +53,8 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 	const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(false);
 	const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
 	const [fileList, setFileList] = useState<Array<UploadFile>>([]);
-	const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
+	const [listStore, setListStore] = useState<Array<Store>>([]);
+	const [accountStores, setAccountStores] = useState<Array<AccountStoreResponse>>([]);
 	const [statusImport, setStatusImport] = useState<number>(CON_STATUS_IMPORT.DEFAULT);
 	const [jobImportStatus, setJobImportStatus] = useState<EnumJobStatus>();
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
@@ -63,9 +67,52 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 
 	const dispatch = useDispatch()
 
+	const getMe = useCallback(async ()=>{
+    const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
+    if (res && res.account_stores) {
+      setAccountStores(res.account_stores);
+    }
+  },[dispatch]);
+
+	const getStores = useCallback(async ()=>{
+    const res = await callApiNative({isShowLoading: false},dispatch,getStoreApi,{ status: "active", simple: true });
+    if (res) {
+      setListStore(res);
+    }
+  },[dispatch]);
+
 	useEffect(() => {
 		dispatch(StoreGetListAction(setListStore));
 	}, [dispatch])
+
+
+	useEffect(() => {
+		getMe()
+		getStores()
+	}, [dispatch, getMe, getStores])
+
+	useEffect(() => {
+    if (listStore.length === 0) return;
+
+    if (accountStores?.length === 1) {
+      listStore.forEach((element) => {
+        if (element.id === accountStores[0].store_id) {
+					formMain.setFieldsValue({ [ProcurementField.store_id]: element.id })
+					setStoreID(element.id)
+        }
+      });
+    }
+
+    if (accountStores?.length === 0) {
+      const newStore = listStore.map((i) => {
+        return {
+          store_id: i.id,
+          store: i.name,
+        }
+      });
+      setAccountStores(newStore);
+    }
+  }, [listStore, accountStores, formMain]);
 
 	const renderResult = useMemo(() => {
 		let options: any[] = [];
@@ -356,9 +403,10 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 						placeholder="Chọn kho nhận"
 						onChange={onChangeStore}
 					>
-						{listStore.map((item) => (
-							<Select.Option key={item.id} value={item.id}>
-								{item.name}
+
+						{!isEmpty(accountStores) && accountStores.map((item) => (
+							<Select.Option key={item.id} value={item.store_id || 0}>
+								{item.store}
 							</Select.Option>
 						))}
 					</Select>

@@ -53,6 +53,7 @@ import {BaseFilterTag} from "../model/base/base-filter-tag";
 import { showError, showSuccess } from "./ToastUtils";
 import { OrderModel } from "model/order/order.model";
 import { ORDER_SUB_STATUS } from "./OrderSubStatusUtils";
+import { BaseMetadata } from "model/base/base-metadata.response";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -1908,4 +1909,19 @@ export const handleFindArea = (value: string, newAreas: any) => {
       return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
     });
     return findArea
+};
+
+export const changeMetaDataAfterDelete = (metadata: BaseMetadata, setMetaData: (value: BaseMetadata) => void, removedCount: number) => {
+  setMetaData({
+    ...metadata,
+    total: metadata.total - removedCount,
+    limit: metadata.limit - removedCount,
+  });
+};
+
+export const formatCurrencyInputValue = (a: string) => {
+  if (a) {
+    return formatCurrency(a);
+  }
+  return a;
 };

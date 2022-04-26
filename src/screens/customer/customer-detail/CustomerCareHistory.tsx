@@ -68,7 +68,7 @@ function CustomerCareHistory(props: any) {
     {
       title: "Giá trị",
       dataIndex: "value_change",
-      width: "7%",
+      width: 110,
       render: (value: any, row: any, index: any) => {
         const pointValue = value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         return <span>{pointValue}</span>;
@@ -83,6 +83,9 @@ function CustomerCareHistory(props: any) {
       title: "Người điều chỉnh",
       dataIndex: "created_by",
       width: "15%",
+      render: (value: any, item: any) => (
+        <div>{value ? value + " - " : ""}{item.created_name ? item.created_name : ""}</div>
+      ),
     },
     {
       title: "Ngày điều chỉnh",
@@ -96,6 +99,11 @@ function CustomerCareHistory(props: any) {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
+      render: (value: any) => {
+        return (
+          <div>{value ? value : ""}</div>
+        )
+      }
     }
   ]);  
 

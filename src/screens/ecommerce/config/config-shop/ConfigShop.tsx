@@ -521,7 +521,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 placeholder="Nhập tên gian hàng"
                 maxLength={255}
                 isRequired={true}
-                disabled={!configDetail || !allowShopsUpdate}
+                disabled={true}
               />
             </Col>
           </Row>

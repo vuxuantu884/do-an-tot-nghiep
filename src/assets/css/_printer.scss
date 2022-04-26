@@ -48,3 +48,66 @@
     }
   }
 }
+.print-po-grid {
+  .po-info {
+    font-size: 12px !important;
+    border-spacing: 0;
+  }
+   .po-info td {
+    vertical-align: top;
+    padding: 0 !important;
+  }
+  .printContent table td {
+    padding: 0px !important;
+  }
+  table.print-grid {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: 8px;
+    font-weight: bold;
+  }
+  table.print-grid th {
+    border: 0.5px solid gray;
+  }
+  table.print-grid td {
+    border: 0.5px solid gray;
+  }
+  .wrap-text {
+    overflow-wrap: break-word;
+    text-align: center;
+  }
+  .wrap-text-name{
+    overflow-wrap: break-word;
+    text-align: center;
+    font-size: 12px;
+  }
+  .header-wrap-code{
+    width: 40x;
+  }
+  .wrap-text-code {
+    transform: rotate(-90deg);
+    display:inline-block;
+    font-size: 10px;
+  }
+  .cloth {
+    overflow-wrap: break-word;
+    text-align: center;
+  }
+  .qty {
+    overflow-wrap: break-word;
+    text-align: center;
+  }
+  .price {
+    overflow-wrap: break-word;
+    text-align: center;
+  }
+  .amount {
+    overflow-wrap: break-word;
+    text-align: center;
+  }
+  .po-img{
+    max-height: 140px;
+  }
+}

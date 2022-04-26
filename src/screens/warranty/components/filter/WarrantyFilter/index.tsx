@@ -2,7 +2,7 @@ import { SettingOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Select } from "antd";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import CustomSelect from "component/custom/select.custom";
-import { StyledComponent } from "component/filter/warranty.filter.styles";
+import { StyledComponent } from "./styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import { StoreResponse } from "model/core/store.model";
@@ -12,7 +12,7 @@ import { GetWarrantiesParamModel } from "model/warranty/warranty.model";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
-import { WARRANTY_STATUS } from "utils/Constants";
+import { WARRANTY_TYPE } from "utils/Warranty.constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 
 type PropTypes = {
@@ -45,6 +45,10 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
       ...params,
       ids: Array.isArray(params.ids) ? params.ids.map(i => Number(i)) : (params.ids),
       store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : Number(params.store_ids),
+      type: params.type ? params.type : undefined,
+      created_date: params.from_created_date === params.to_created_date ? params.from_created_date : undefined,
+      appointment_date: params.from_appointment_date === params.to_appointment_date ? params.from_appointment_date : undefined,
+
     };
   }, [params]);
 
@@ -112,18 +116,20 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item name="from_created_date">
+                  <Form.Item name="created_date">
                     <CustomDatePicker
                       placeholder="Ngày tiếp nhận"
                       format={DATE_FORMAT.DD_MM_YYYY}
+                      style={{width: "100%"}}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item name="to_created_date">
+                  <Form.Item name="appointment_date">
                     <CustomDatePicker
-                      placeholder="Đến ngày"
+                      placeholder="Ngày hẹn trả"
                       format={DATE_FORMAT.DD_MM_YYYY}
+                      style={{width: "100%"}}
                     />
                   </Form.Item>
                 </Col>
@@ -136,7 +142,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       placeholder="Loại"
                       notFoundContent="Không tìm thấy kết quả">
-                      {WARRANTY_STATUS.map((item, index) => (
+                      {WARRANTY_TYPE.map((item, index) => (
                         <Select.Option key={index} value={item.code}>
                           {item.name}
                         </Select.Option>
