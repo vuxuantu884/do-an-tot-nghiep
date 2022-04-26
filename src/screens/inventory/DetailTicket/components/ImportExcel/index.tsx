@@ -8,6 +8,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { searchVariantsApi } from "service/product/product.service";
 import { VariantResponse } from "model/product/product.model";
 import { useDispatch } from "react-redux";
+import * as FileSaver from 'file-saver';
 
 export interface ModalImportProps {
   visible?: boolean;
@@ -34,15 +35,15 @@ const ImportExcel: React.FC<ModalImportProps> = (
   const { visible, onOk, onCancel, title, dataTable } =
     props;
   const [fileList, setFileList] = useState<Array<File>>([]);
-  const [data, setData] = useState<Array<VariantResponse>>(dataTable ? [...dataTable]:[]);
+  const [data, setData] = useState<Array<VariantResponse>>(dataTable ? [...dataTable] : []);
   const dispatch = useDispatch();
 
   const ActionImport = {
     Ok: useCallback(() => {
-      
+
       onOk(data);
-    }, [onOk,data]),
-    Cancel: useCallback(()=>{
+    }, [onOk, data]),
+    Cancel: useCallback(() => {
       firstLoad = true;
       setFileList([]);
       onCancel();
@@ -53,7 +54,7 @@ const ImportExcel: React.FC<ModalImportProps> = (
     setFileList([]);
   }
 
-  const uploadProps  = {
+  const uploadProps = {
     beforeUpload: (file: any) => {
       const typeExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       if (!typeExcel) {
@@ -62,7 +63,7 @@ const ImportExcel: React.FC<ModalImportProps> = (
       setFileList([file]);
       return typeExcel || Upload.LIST_IGNORE;
     },
-    onChange: useCallback(async (e:any)=>{
+    onChange: useCallback(async (e: any) => {
       if (!firstLoad) {
         return;
       }
@@ -77,39 +78,39 @@ const ImportExcel: React.FC<ModalImportProps> = (
         let convertData: Array<ImportProps> = [];
         for (let i = 0; i < jsonData.length; i++) {
           const element = jsonData[i];
-          
-          const findIndex = convertData.findIndex(e=>e.barcode && (e.barcode.toString() === element.barcode.toString()));
+
+          const findIndex = convertData.findIndex(e => e.barcode && (e.barcode.toString() === element.barcode.toString()));
           if (findIndex >= 0) {
             convertData[findIndex].quantity += element.quantity ?? 1;
-          }else{
+          } else {
             convertData.push({
-              barcode :element.barcode,
-              quantity :element.quantity ?? 1,
+              barcode: element.barcode,
+              quantity: element.quantity ?? 1,
             });
           }
         }
 
         if (convertData && convertData.length > 0) {
-          for (let i = 0; i < convertData.length; i++){ 
+          for (let i = 0; i < convertData.length; i++) {
             const element = convertData[i];
-            const fi = data?.findIndex((e:VariantResponse) =>e.barcode === element.barcode);
+            const fi = data?.findIndex((e: VariantResponse) => e.barcode === element.barcode);
 
             if (fi >= 0) {
               data[fi].real_quantity = element.quantity;
-            }else{
+            } else {
               //call api lấy sản phẩm vào phiếu
-              let res = await callApiNative({isShowLoading: true},dispatch,searchVariantsApi,{barcode: element.barcode,store_ids: null});
+              let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: element.barcode, store_ids: null });
               if (res && res.items && res.items.length > 0) {
                 let newItem: VariantResponse = {
                   ...res.items[0],
                   id: null,
-                  variant_id: res.items[0].id, 
+                  variant_id: res.items[0].id,
                   transfer_quantity: 0,
                   real_quantity: null
                 }
 
-                const findIndex = convertData.findIndex(e=>e.barcode && (e.barcode.toString() === newItem.barcode.toString()));
-                
+                const findIndex = convertData.findIndex(e => e.barcode && (e.barcode.toString() === newItem.barcode.toString()));
+
                 if (findIndex >= 0) {
                   newItem.real_quantity = convertData[findIndex].quantity;
                 }
@@ -120,28 +121,32 @@ const ImportExcel: React.FC<ModalImportProps> = (
           }
         }
       }
-      console.log('data',data);
-    },[data, dispatch])
+      console.log('data', data);
+    }, [data, dispatch])
   }
 
-  const exportTemplate = () => {
-    const worksheet = XLSX.utils.json_to_sheet([{
+  const exportTemplate = (e:any) => {
+    let worksheet = XLSX.utils.json_to_sheet([{
       'barcode': null,
       'quantity': null,
     }]);
-    
+    const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    const fileExtension = '.xlsx';
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-    const fileName = `import_so_luong_thuc_nhan.xlsx`;
-    XLSX.writeFile(workbook, fileName);
-  }  
+    //XLSX.writeFile(workbook, `import_so_luong_thuc_nhan.xlsx`);
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], {type: fileType});
+    FileSaver.saveAs(data, `import_so_luong_thuc_nhan` + fileExtension);
+    e.preventDefault();
+  }
 
   const checkDisableOkButton = useCallback(() => {
     return !fileList.length;
   }, [fileList.length]);
 
   useEffect(() => {
-    setData(dataTable ? [...dataTable]:[]);
+    setData(dataTable ? [...dataTable] : []);
   }, [dataTable]);
 
   return (
