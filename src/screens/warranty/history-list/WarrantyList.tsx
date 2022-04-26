@@ -82,7 +82,8 @@ let TAB_STATUS = [
     param: {},
     labelColor: "#0400fb",
     countParam: {
-      warranty_status: WarrantyStatus.NEW,
+      return_status: WarrantyReturnStatusModel.UNRETURNED,
+      status: WarrantyItemStatus.RECEIVED,
     },
     count: 0,
   },
@@ -92,8 +93,8 @@ let TAB_STATUS = [
     param: {},
     labelColor: "#fbaf15",
     countParam: {
-      warranty_status: WarrantyStatus.FINALIZED,
       return_status: WarrantyReturnStatusModel.UNRETURNED,
+      status: WarrantyItemStatus.FIXING,
     },
     count: 0,
   },
