@@ -258,15 +258,15 @@ export interface FormValueCreateCenterType {
 }
 
 export interface CreateWarrantyCenterParamsModel {
-  name: string | undefined;
-  phone: number | undefined;
-  city_id: number | undefined;
-  district_id: number | undefined;
-  address: string | undefined;
-  country_id: number | undefined;
-  city: string | undefined;
-  country: string | undefined;
-  district: string | undefined;
+  name: string | undefined | null;
+  phone: number | undefined | null;
+  city_id: number | undefined | null;
+  district_id: number | undefined | null;
+  address: string | undefined | null;
+  country_id: number | undefined | null;
+  city: string | undefined | null;
+  country: string | undefined | null;
+  district: string | undefined | null;
 }
 
 export interface FormValueCreateReasonType {

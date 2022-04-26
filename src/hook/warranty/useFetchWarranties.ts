@@ -1,5 +1,5 @@
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { GetWarrantiesParamModelExtra, WarrantyItemModel } from "model/warranty/warranty.model";
+import { GetWarrantiesParamModelExtra, WarrantyItemModel, WarrantyReturnStatusModel, WarrantyStatus } from "model/warranty/warranty.model";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useEffect, useState } from "react";
@@ -38,17 +38,18 @@ function useFetchWarranties(
       case TAB_STATUS_KEY.new:
         return {
           ...queryParamsParsed,
-          warranty_status: "NEW",
+          warranty_status: WarrantyStatus.NEW,
         };
       case TAB_STATUS_KEY.finalized:
         return {
           ...queryParamsParsed,
-          warranty_status: "FINALIZED",
+          warranty_status: WarrantyStatus.FINALIZED,
         };
       case TAB_STATUS_KEY.finished:
         return {
           ...queryParamsParsed,
-          warranty_status: "FINISH",
+          warranty_status: undefined,
+          return_status: WarrantyReturnStatusModel.RETURNED,
         };
       case TAB_STATUS_KEY.today:
         return {
@@ -63,6 +64,7 @@ function useFetchWarranties(
           from_appointment_date: undefined,
           to_appointment_date: moment().subtract(1, "days").format(DATE_FORMAT.DD_MM_YYYY),
           warranty_status: undefined,
+          return_status: WarrantyReturnStatusModel.UNRETURNED,
         };
 
       default:

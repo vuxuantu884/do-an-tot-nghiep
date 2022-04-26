@@ -7,7 +7,7 @@ import {
   WarrantiesValueUpdateGetModel,
   WarrantyItemModel,
   WarrantyItemStatus,
-  WarrantyReturnStatusModel,
+  WarrantyReturnStatusModel
 } from "model/warranty/warranty.model";
 import React, { useState } from "react";
 import { formatCurrency, formatCurrencyInputValue, replaceFormatString } from "utils/AppUtils";
@@ -65,12 +65,15 @@ function WarrantyStatusModal(props: PropTypes) {
 
   return (
     <Modal
-      title="Cập nhật trạng thái"
+      title={`Cập nhật trạng thái id ${record?.id}`}
       onCancel={() => {
         setIsShowPaymentInModalStatus(false);
         handleCancel();
       }}
-      onOk={handleOk}
+      onOk={(values) => {
+        setIsShowPaymentInModalStatus(false)
+        handleOk(values)
+      }}
       {...rest}
     >
       <Form form={form} layout="vertical" initialValues={initialFormValues}>

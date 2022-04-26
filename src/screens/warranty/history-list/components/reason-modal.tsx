@@ -14,8 +14,8 @@ type PropTypes = ModalProps & {
   handleCancel: () => void;
   initialFormValues: initialFormModalWarrantiesReasonType;
   warrantyReasonsConvert?: {
-    id: number,
-    name: string
+    id: number;
+    name: string;
   }[];
   record?: WarrantyItemModel | undefined;
 };
@@ -34,24 +34,31 @@ function ReasonModal(props: PropTypes) {
   } = props;
 
   let warrantyReasonsResult = useMemo(() => {
-    let result = warrantyReasonsConvert ? [...warrantyReasonsConvert].map(reason => ({
-      id: reason.id,
-      name: reason.name,
-    })) : [];
-    let arr = warrantyReasonsConvert?.map(single => single.id);
-    record?.expenses.forEach(expense => {
-      if(!arr?.includes(expense.id)) {
+    let result = warrantyReasonsConvert
+      ? [...warrantyReasonsConvert].map((reason) => ({
+          id: reason.id,
+          name: reason.name,
+        }))
+      : [];
+    let arr = warrantyReasonsConvert?.map((single) => single.id);
+    record?.expenses.forEach((expense) => {
+      if (!arr?.includes(expense.id)) {
         result.push({
           id: expense.reason_id,
           name: expense.reason,
-        }) 
+        });
       }
-    })
+    });
     return result;
   }, [record?.expenses, warrantyReasonsConvert]);
 
   return (
-    <Modal title="Cập nhật lý do" onCancel={handleCancel} onOk={handleOk} {...rest}>
+    <Modal
+      title={`Cập nhật lý do id  ${record?.id}`}
+      onCancel={handleCancel}
+      onOk={handleOk}
+      {...rest}
+    >
       <Form form={form} layout="horizontal" initialValues={initialFormValues}>
         <Form.Item
           name="reason_ids"

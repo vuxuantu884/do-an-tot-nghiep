@@ -1,5 +1,6 @@
 import { Form, FormInstance, Input, Modal, ModalProps } from "antd";
 import withWarrantyModalForm from "HOCs/warranty/withWarrantyModalForm";
+import { WarrantyCenterModel } from "model/warranty/warranty.model";
 import React from "react";
 
 export type initialFormModalCenterAddressType = {
@@ -11,13 +12,16 @@ type PropTypes = ModalProps & {
   handleOk: (values: any) => void;
   handleCancel: () => void;
   initialFormValues: initialFormModalCenterAddressType;
+  record?: WarrantyCenterModel | undefined;
 };
 
 function ModalWarrantyCenterAddress(props: PropTypes) {
-  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, ...rest } = props;
+  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, record, ...rest } = props;
 
   return (
-    <Modal title="Cập nhật địa chỉ" onCancel={handleCancel} onOk={handleOk} {...rest}>
+    <Modal 
+    title={`Cập nhật địa chỉ trung tâm "${record?.name}"`}
+    onCancel={handleCancel} onOk={handleOk} {...rest}>
       <Form form={form} layout="horizontal" initialValues={initialFormValues}>
         <Form.Item
           labelAlign={"left"}
