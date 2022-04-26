@@ -11,6 +11,7 @@ import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import {
   CloseCircleOutlined,
   EditOutlined,
+  ImportOutlined,
   PaperClipOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
@@ -68,6 +69,7 @@ import { checkUserPermission } from "../../../utils/AuthUtil";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import { getAccountDetail } from "../../../service/accounts/account.service";
 import { searchVariantsApi } from "service/product/product.service";
+import ImportExcel from "./components/ImportExcel";
 export interface InventoryParams {
   id: string;
 }
@@ -118,6 +120,7 @@ const DetailTicket: FC = () => {
   const currentStores = useSelector(
     (state: RootReducerType) => state.userReducer.account?.account_stores
   );
+  const [isImport, setIsImport] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -253,6 +256,42 @@ const DetailTicket: FC = () => {
     return options;
   }, [resultSearch]);
 
+  const convertArrItem = (arr: Array<VariantResponse>)=>{
+     let newArr = [];
+     for (let i = 0; i < arr.length; i++) {
+       const element = arr[i];
+
+       if (element.id !==null) {
+        newArr.push(arr[i]);
+        continue;
+       }
+       const variantPrice =
+       element &&
+       element.variant_prices &&
+       element.variant_prices[0] &&
+       element.variant_prices[0].retail_price;
+ 
+     const newResult = {
+       sku: element.sku,
+       barcode: element.barcode,
+       variant_name: element.name,
+       variant_id: element.variant_id,
+       variant_image: findAvatar(element.variant_images ?? []),
+       product_name: element.product.name,
+       product_id: element.product.id,
+       available: element.available ?? 0,
+       amount: variantPrice,
+       price: variantPrice,
+       transfer_quantity: 0,
+       real_quantity: element.real_quantity,
+       weight: element?.weight ? element?.weight : 0,
+       weight_unit: element?.weight_unit ? element?.weight_unit : "",
+     };
+      newArr.push(newResult);
+     }
+    return newArr;
+  }
+
   const onSelectProduct = useCallback((value: string, item: VariantResponse) => {
     let dataTemp = [...dataTable];
     let selectedItem = item;
@@ -279,6 +318,7 @@ const DetailTicket: FC = () => {
       weight: selectedItem?.weight ? selectedItem?.weight : 0,
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
     };
+
 
     if (
       !dataTemp.some(
@@ -811,10 +851,14 @@ const DetailTicket: FC = () => {
       }
     });
 
-    console.log(newDataTable)
-
     setDataTable(newDataTable);
   };
+
+  const importRealQuantity = (data: Array<VariantResponse>)=>{
+    const newArr= convertArrItem(data);
+    setDataTable([...newArr]);
+    setIsImport(false);
+  }
 
   useEffect(() => {
     if (!stores || !data) return;
@@ -997,9 +1041,11 @@ const DetailTicket: FC = () => {
                     bordered={false}
                     extra={<>
                       { data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
-                        <Checkbox className="checkbox" checked={isReceiveAllProducts} onChange={changeReceiveAllProducts}>
-                          Nhận tất cả sản phẩm
-                        </Checkbox>
+                        <>
+                          <Checkbox className="checkbox" checked={isReceiveAllProducts} onChange={changeReceiveAllProducts}>
+                            Nhận tất cả sản phẩm
+                          </Checkbox>
+                        </>
                       )}
                       <Tag className={classTag}>{textTag}</Tag>
                     </>}
@@ -1268,6 +1314,14 @@ const DetailTicket: FC = () => {
               }
               rightComponent={
                 <Space>
+                  {
+                    data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && 
+                    <AuthWrapper acceptPermissions={[InventoryTransferPermission.receive]}>
+                      <Button icon={<ImportOutlined />} onClick={()=>{
+                              setIsImport(true);
+                            }}>Import Excel</Button>
+                    </AuthWrapper>
+                  }
                   <AuthWrapper
                     acceptPermissions={[InventoryTransferPermission.print]}
                   >
@@ -1449,6 +1503,13 @@ const DetailTicket: FC = () => {
             infoFees={infoFees}
           />
         }
+        <ImportExcel 
+          onCancel={()=>{setIsImport(false)}}
+          onOk={(data: Array<VariantResponse>)=>{importRealQuantity(data)}}
+          title="Import số lượng thực nhận"
+          visible={isImport}
+          dataTable={dataTable}
+          />
       </ContentContainer>
     </StyledWrapper>
   );

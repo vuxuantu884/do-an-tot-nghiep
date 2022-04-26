@@ -35,6 +35,7 @@ import { PurchaseOrderDraft } from "screens/purchase-order/purchase-order-list.s
 import * as XLSX from 'xlsx';
 import { PurchaseProcumentExportField } from "model/purchase-order/purchase-mapping";
 import { Link } from "react-router-dom";
+import * as FileSaver from 'file-saver';
 
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -381,11 +382,15 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
 
         dataExport.push(item);
       }
+      const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
       const worksheet = XLSX.utils.json_to_sheet(dataExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
       const fileName = poData?.code ?  `nhap_so_luong_phieu_nhap_kho_${poData?.code}.xlsx`:"nhap_so_luong_phieu_nhap_kho.xlsx";
-      XLSX.writeFile(workbook, fileName);
+      //XLSX.writeFile(workbook, fileName);
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const data = new Blob([excelBuffer], {type: fileType});
+      FileSaver.saveAs(data, fileName);
   },[form, poData,type]);
 
   const uploadProps  = {

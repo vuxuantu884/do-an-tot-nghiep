@@ -50,7 +50,7 @@
 }
 .print-po-grid {
   .po-info {
-    font-size: 10px !important;
+    font-size: 12px !important;
     border-spacing: 0;
   }
    .po-info td {
@@ -66,25 +66,30 @@
     width: 100%;
     table-layout: fixed;
     font-size: 8px;
+    font-weight: bold;
   }
   table.print-grid th {
-    border: 1px dotted gray;
+    border: 0.5px solid gray;
   }
   table.print-grid td {
-    border: 1px dotted gray;
+    border: 0.5px solid gray;
   }
   .wrap-text {
     overflow-wrap: break-word;
+    text-align: center;
+  }
+  .wrap-text-name{
+    overflow-wrap: break-word;
+    text-align: center;
+    font-size: 12px;
+  }
+  .header-wrap-code{
+    width: 40x;
   }
   .wrap-text-code {
-    overflow-wrap: break-word;
+    transform: rotate(-90deg);
     display:inline-block;
-    -webkit-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    transform: rotate(90deg);
-    justify-content: center;
-    align-items: center;
-    margin: auto;
+    font-size: 10px;
   }
   .cloth {
     overflow-wrap: break-word;
@@ -101,5 +106,8 @@
   .amount {
     overflow-wrap: break-word;
     text-align: center;
+  }
+  .po-img{
+    max-height: 140px;
   }
 }
