@@ -37,7 +37,7 @@ export const StyledComponent = styled.div`
         font-weight: bold;
     }
 }
-.ant-btn-icon-only {
+table .ant-btn-icon-only {
     border: none;
     background: none;
     width: 36px;

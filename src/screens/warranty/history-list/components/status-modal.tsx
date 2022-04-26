@@ -63,9 +63,11 @@ function WarrantyStatusModal(props: PropTypes) {
     }
   };
 
+  const isReturned = record?.return_status === WarrantyReturnStatusModel.RETURNED;
+
   return (
     <Modal
-      title={`Cập nhật trạng thái id ${record?.id}`}
+      title={`Cập nhật trạng thái id "${record?.id}"`}
       onCancel={() => {
         setIsShowPaymentInModalStatus(false);
         handleCancel();
@@ -73,6 +75,7 @@ function WarrantyStatusModal(props: PropTypes) {
       onOk={(values) => {
         handleOk(values)
       }}
+      okButtonProps={{ style: { display: isReturned ?'none' : "inline-flex" } }}
       {...rest}
     >
       <Form form={form} layout="vertical" initialValues={initialFormValues}>
@@ -100,6 +103,7 @@ function WarrantyStatusModal(props: PropTypes) {
                   status: value,
                 });
             }}
+            disabled={isReturned}
           >
             {WARRANTY_ITEM_STATUS.length > 0 &&
               WARRANTY_ITEM_STATUS.map((status) => (
@@ -156,6 +160,7 @@ function WarrantyStatusModal(props: PropTypes) {
             onChange={(value) => {
               handleChange(value);
             }}
+            disabled={isReturned}
           >
             {WARRANTY_RETURN_STATUS.length > 0 &&
               WARRANTY_RETURN_STATUS.map((status) => (
@@ -192,6 +197,7 @@ function WarrantyStatusModal(props: PropTypes) {
                 allowClear
                 optionFilterProp="children"
                 placeholder="Chọn hình thức thanh toán"
+                disabled={isReturned}
               >
                 {filteredPaymentMethod &&
                   filteredPaymentMethod.length > 0 &&
@@ -227,6 +233,7 @@ function WarrantyStatusModal(props: PropTypes) {
                 }}
                 maxLength={14}
                 minLength={0}
+                disabled={isReturned}
               />
             </Form.Item>
           </React.Fragment>

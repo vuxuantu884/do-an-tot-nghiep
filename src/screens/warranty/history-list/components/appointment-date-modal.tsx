@@ -23,7 +23,7 @@ function AppointmentDateModal(props: PropTypes) {
 
   return (
     <Modal
-      title={`Cập nhật ngày hẹn trả khách id  ${record?.id}`}
+      title={`Cập nhật ngày hẹn trả khách id "${record?.id}"`}
       onCancel={handleCancel}
       onOk={handleOk}
       {...rest}

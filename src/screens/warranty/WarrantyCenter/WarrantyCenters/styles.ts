@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-.ant-btn-icon-only {
+table .ant-btn-icon-only {
     width: auto;
     padding: 0;
     border: none;
