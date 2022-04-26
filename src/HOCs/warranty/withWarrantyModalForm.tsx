@@ -1,4 +1,5 @@
 import { Form, FormInstance } from "antd";
+import { WarrantyItemModel } from "model/warranty/warranty.model";
 import React, { FunctionComponent, useEffect } from "react";
 
 type initFormValuesTypes = any;
@@ -8,6 +9,7 @@ type PropTypes<T> = {
   visible: boolean;
   onOk: (values: any) => void;
   onCancel: () => void;
+  record: any | undefined;
   [key: string]: any;
 };
 
@@ -17,11 +19,12 @@ type ComponentPropTypes = {
   handleCancel: () => void;
   initialFormValues: initFormValuesTypes;
   okText: string;
+  record: any | undefined;
 };
 
 function withWarrantyModalForm(Component: FunctionComponent<ComponentPropTypes>) {
   return function (props: PropTypes<any>): JSX.Element {
-    const { initialFormValues, onOk, onCancel, ...rest } = props;
+    const { initialFormValues, onOk, onCancel, record, ...rest } = props;
     const [form] = Form.useForm();
     const handleOk = () => {
       form.validateFields().then(() => {
@@ -45,6 +48,7 @@ function withWarrantyModalForm(Component: FunctionComponent<ComponentPropTypes>)
         handleOk={handleOk}
         form={form}
         initialFormValues={initialFormValues}
+        record={record}
         okText="Cập nhật"
         {...rest}
       />

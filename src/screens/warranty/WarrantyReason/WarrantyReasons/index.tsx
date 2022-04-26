@@ -647,6 +647,7 @@ function WarrantyReasons(props: PropTypes) {
         initialFormValues={{
           customer_fee: selectedData.customer_fee,
         }}
+        record={rowSelected.current?.record}
       />
       <ModalWarrantyReasonsPrice
         visible={isPriceModalVisible}
@@ -666,6 +667,7 @@ function WarrantyReasons(props: PropTypes) {
         initialFormValues={{
           price: selectedData.price || 0,
         }}
+        record={rowSelected.current?.record}
       />
       <ModalConfirm
         visible={isConfirmModalVisible}

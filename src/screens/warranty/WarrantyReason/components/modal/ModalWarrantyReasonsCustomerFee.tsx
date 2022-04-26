@@ -1,6 +1,7 @@
 import { Form, FormInstance, Modal, ModalProps } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import withWarrantyModalForm from "HOCs/warranty/withWarrantyModalForm";
+import { WarrantyReasonModel } from "model/warranty/warranty.model";
 import React from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
@@ -13,15 +14,38 @@ type PropTypes = ModalProps & {
   handleOk: (values: any) => void;
   handleCancel: () => void;
   initialFormValues: initialFormModalReasonCustomerFeeType;
+  record?: WarrantyReasonModel | undefined;
 };
 
 function ModalWarrantyReasonsCustomerFee(props: PropTypes) {
-  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, ...rest } = props;
+  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, record, ...rest } =
+    props;
 
   return (
-    <Modal title="Cập nhật phí báo khách" onCancel={handleCancel} onOk={handleOk} {...rest}>
+    <Modal
+      title={`Cập nhật phí báo khách lý do  "${record?.name}"`}
+      onCancel={handleCancel}
+      onOk={handleOk}
+      {...rest}
+    >
       <Form form={form} layout="horizontal" initialValues={initialFormValues}>
-        <Form.Item name="customer_fee">
+        <Form.Item
+          name="customer_fee"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng điền phí báo khách!",
+            },
+            () => ({
+              validator(_, value) {
+                if (value && value < 1000) {
+                  return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                }
+                return Promise.resolve();
+              },
+            }),
+          ]}
+        >
           <NumberInput
             format={(a: string) => formatCurrency(a)}
             replace={(a: string) => replaceFormatString(a)}
