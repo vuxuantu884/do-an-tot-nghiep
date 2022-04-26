@@ -1,5 +1,5 @@
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { GetWarrantiesParamModelExtra, WarrantyItemModel, WarrantyReturnStatusModel, WarrantyStatus } from "model/warranty/warranty.model";
+import { GetWarrantiesParamModelExtra, WarrantyItemModel, WarrantyItemStatus, WarrantyReturnStatusModel } from "model/warranty/warranty.model";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useEffect, useState } from "react";
@@ -32,19 +32,22 @@ function useFetchWarranties(
     () => {
       let result = {};
     if (!queryParamsParsed?.tab) {
-      return {};
+      queryParamsParsed.tab = TAB_STATUS_KEY.new
     }
     switch (queryParamsParsed?.tab) {
       case TAB_STATUS_KEY.new:
         return {
           ...queryParamsParsed,
-          warranty_status: WarrantyStatus.NEW,
+          warranty_status: undefined,
+          return_status: WarrantyReturnStatusModel.UNRETURNED,
+          status: WarrantyItemStatus.RECEIVED,
         };
       case TAB_STATUS_KEY.finalized:
         return {
           ...queryParamsParsed,
-          warranty_status: WarrantyStatus.FINALIZED,
+          warranty_status: undefined,
           return_status: WarrantyReturnStatusModel.UNRETURNED,
+          status: WarrantyItemStatus.FIXING,
         };
       case TAB_STATUS_KEY.finished:
         return {

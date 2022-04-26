@@ -71,7 +71,6 @@ function WarrantyStatusModal(props: PropTypes) {
         handleCancel();
       }}
       onOk={(values) => {
-        setIsShowPaymentInModalStatus(false)
         handleOk(values)
       }}
       {...rest}
