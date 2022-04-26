@@ -219,8 +219,8 @@ const InventoryAdjustment: React.FC = () => {
       width: 100,
       align: "center",
       render: (item: string) => {
-        let textTag = "";
-        let classTag = "";
+        let textTag: string;
+        let classTag: string;
         switch (item) {
           case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT:
             textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
@@ -324,7 +324,7 @@ const InventoryAdjustment: React.FC = () => {
           setListExportFile([...listExportFile, response.data.code]);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
@@ -407,7 +407,12 @@ const InventoryAdjustment: React.FC = () => {
     if (!data) {
       return;
     }
-    setAccounts(data.items);
+    setAccounts((account) => {
+      return [
+        ...account,
+        ...data.items,
+      ]
+    });
   }, []);
 
   const onFilter = useCallback(
@@ -422,7 +427,7 @@ const InventoryAdjustment: React.FC = () => {
   );
 
   const printTicketAction = useCallback(
-    (index: number) => {
+    () => {
       let params = {
         ids: selectedRowKeys,
       };
@@ -439,7 +444,7 @@ const InventoryAdjustment: React.FC = () => {
     (index: number) => {
       switch (index) {
         case ACTIONS_INDEX.PRINT:
-          printTicketAction(index);
+          printTicketAction();
           break;
         case ACTIONS_INDEX.EXPORT:
           if (selectedRowKeys.length > 1) {
@@ -501,6 +506,14 @@ const InventoryAdjustment: React.FC = () => {
           onMenuClick={onMenuClick}
           onFilter={onFilter}
           onClearFilter={() => onClearFilter()}
+          setAccounts={(data) => {
+            setAccounts((account) => {
+              return [
+                ...data,
+                ...account,
+              ]
+            });
+          }}
         />
 
         <CustomTable
