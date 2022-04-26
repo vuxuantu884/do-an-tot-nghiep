@@ -1,56 +1,52 @@
-import { Button, Card, Form, Image, Input, Select } from "antd";
-import CustomSelect from "component/custom/select.custom";
+import { Button, Card, Form, Image, Input } from "antd";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { DataRequestDefectItems, InventoryDefectFields, InventoryDefectResponse, InventorySearchItem, LineItemDefect } from "model/inventory-defects";
+import { DataRequestDefectItems, InventoryDefectFields, InventoryDefectResponse, LineItemDefect } from "model/inventory-defects";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
 import search from "assets/img/search.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import { primaryColor } from "utils/global-styles/variables";
 import { callApiNative } from "utils/ApiUtils";
 import { useDispatch } from "react-redux";
 import { getStoreApi } from "service/inventory/transfer/index.service";
-import { Store } from "antd/lib/form/interface";
 import EditNote from "screens/order-online/component/edit-note";
 import { createInventoryDefect, deleteInventoryDefect, getListInventoryDefect } from "service/inventory/defect/index.service";
 import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import UrlConfig from "config/url.config";
-import { generateQuery } from "utils/AppUtils";
+import { generateQuery, formatFieldTag, transformParamsToObject } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { cloneDeep, isEmpty } from "lodash";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { cloneDeep, isArray, isEmpty } from "lodash";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { VariantResponse } from "model/product/product.model";
 import TextEllipsis from "component/table/TextEllipsis";
-
-const initQuery: InventorySearchItem = {
-  page: 1,
-  limit: 30,
-  store_id: null,
-  condition: null,
-}
+import TreeStore from "screens/products/inventory/filter/TreeStore";
+import { StoreResponse } from "model/core/store.model";
+import { DefectFilterBasicEnum, DefectFilterBasicName } from "model/inventory-defects/filter"
+import { useArray } from "hook/useArray";
+import BaseFilterResult from "component/base/BaseFilterResult";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch()
-  const { Option } = Select;
   const { Item } = Form;
   const [showSettingColumn, setShowSettingColumn] = useState<boolean>(false)
-  const [stores, setStores] = useState<Array<Store>>([])
+  const [stores, setStores] = useState<Array<StoreResponse>>([])
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false)
   const query = useQuery();
 
-  let dataQuery = {
-    ...initQuery,
-    ...getQueryParams(query),
-  };
+  let dataQuery: any = useMemo(() => {
+    return { ...getQueryParams(query) }
+  }, [query]);
+
   let [params, setParams] = useState<any>(dataQuery);
   const [loadingTable, setLoadingTable] = useState<boolean>(false)
-  const [itemDeleteId, setItemDeleteId] = useState<number>(0)
+  const [itemDelete, setItemDelete] = useState<InventoryDefectResponse>()
+  const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([])
   const [data, setData] = useState<PageResponse<InventoryDefectResponse>>({
     metadata: {
       limit: 30,
@@ -238,41 +234,40 @@ const ListInventoryDefect: React.FC = () => {
       },
       {
         title: "Thời gian",
-        width: 100,
+        width: 120,
         dataIndex: "created_date",
         visible: true,
         align: "center",
-        render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
+        render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       },
       {
         key: "action",
         render: (value: any, item: InventoryDefectResponse, index: number) => {
           return (
             <Button
-              icon={
-                <img alt="" src={deleteIcon} />
-              }
               type="text"
               className=""
               style={{
                 background: "transparent",
-                border: "none",
-                color: "red",
+                border: "solid 1px red",
+                padding: 0,
+                width: '40px'
               }}
               onClick={() => {
-                setItemDeleteId(item.id)
+                setItemDelete(item)
                 setConfirmDelete(true)
               }}
             >
+              <DeleteOutlined style={{fontSize: 18, color: 'red'}}/>
             </Button>
           )
         },
         visible: true,
-        width: 70,
+        width: 60,
         align: "center",
       },
     ];
-  }, [editItemDefect, setItemDeleteId])
+  }, [editItemDefect, setItemDelete])
 
   const [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryDefectResponse>>>(initColumns);
 
@@ -291,48 +286,80 @@ const ListInventoryDefect: React.FC = () => {
       params.limit = size;
       setParams({ ...params });
       let queryParam = generateQuery(params);
-      history.push(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+      history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
     },
     [params, history]
   );
 
-  const onFinish = useCallback(async (value) => {
-    const newParam = { ...params, store_id: value.store_id, condition: value.condition }
+  const onFinish = useCallback(async (data) => {
+    const newParam = { ...params, ...data }
     setParams(newParam)
     const queryParam = generateQuery(newParam)
-    history.push(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+    history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
   }, [history, params])
+
+  useEffect(() => {
+    form.setFieldsValue({
+      [DefectFilterBasicEnum.condition]: params.condition?.toString()?.split(','),
+      [DefectFilterBasicEnum.store_ids]: params.store_ids?.toString()?.split(',').map((x: string) => parseInt(x)),
+    })
+  }, [form, params]);
+
+  useEffect(() => {
+    (async () => {
+      if (paramsArray.length < (prevArray?.length || 0)) {
+        let newParams = transformParamsToObject(paramsArray)
+        setParams(newParams)
+        await history.replace(`${history.location.pathname}?${generateQuery(newParams)}`)
+      }
+    })();
+  }, [paramsArray, history, prevArray])
+
+  useEffect(() => {
+    const newParams = { ...params }
+
+    const formatted = formatFieldTag(newParams, { ...DefectFilterBasicName })
+    const transformParams = formatted.map((item) => {
+      switch (item.keyId) {
+        case DefectFilterBasicEnum.store_ids:
+          if (isArray(item.valueId)) {
+            const filterStore = stores?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
+            if (filterStore)
+              return { ...item, valueName: filterStore?.map((item: any) => item.name).toString() }
+          }
+          const findStore = stores?.find(store => +store.id === +item.valueId)
+          return { ...item, valueName: findStore?.name }
+        case DefectFilterBasicEnum.condition:
+          return { ...item, valueName: item.valueId.toString() }
+        default:
+          return item
+      }
+    })
+    setParamsArray(transformParams)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, JSON.stringify(stores), setParamsArray])
+
+  const onRemoveStatus = useCallback((index: number) => {
+    remove(index)
+  }, [remove])
 
   return (
     <Card>
-      <div className="custom-filter" style={{paddingBottom: 20}}>
         <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
-          <Item style={{ flex: 1 }} name="condition" className="input-search">
+          <Item style={{ flex: 1 }} name={DefectFilterBasicEnum.condition} className="input-search">
             <Input
-
+              allowClear
               prefix={<img src={search} alt="" />}
               placeholder="Tìm kiếm theo mã vạch, sku, tên sản phẩm"
             />
           </Item>
-          <Item name="store_id">
-            <CustomSelect
-              style={{
-                width: 150,
-              }}
-              allowClear={true}
+          <Item name={DefectFilterBasicEnum.store_ids} style={{ minWidth: 250 }}>
+            <TreeStore
+              form={form}
+              name={DefectFilterBasicEnum.store_ids}
               placeholder="Chọn cửa hàng"
-              showArrow
-              showSearch
-              optionFilterProp="children"
-            >
-              {Array.isArray(stores) &&
-                stores.length > 0 &&
-                stores.map((item, index) => (
-                  <Option key={"defects_store_id" + index} value={item.id.toString()}>
-                    {item.name}
-                  </Option>
-                ))}
-            </CustomSelect>
+              listStore={stores}
+            />
           </Item>
           <Item>
             <Button htmlType="submit" type="primary">
@@ -343,6 +370,8 @@ const ListInventoryDefect: React.FC = () => {
             <ButtonSetting onClick={() => setShowSettingColumn(true)} />
           </Item>
         </Form>
+      <div style={{ marginTop: paramsArray.length > 0 ? 10 : 20 }}>
+        <BaseFilterResult data={paramsArray} onClose={onRemoveStatus} />
       </div>
       <CustomTable
         className="small-padding"
@@ -374,15 +403,15 @@ const ListInventoryDefect: React.FC = () => {
           onShowSizeChange: onPageChange,
         }}
       />
-      <ModalDeleteConfirm
+      {itemDelete && <ModalDeleteConfirm
         onCancel={() => setConfirmDelete(false)}
         onOk={() => {
-          handleDelete(itemDeleteId)
+          handleDelete(itemDelete.id)
           setConfirmDelete(false);
         }}
-        title="Bạn chắc chắn xóa sản phẩm này?"
+        title={<div>Bạn chắc chắn xóa sản phẩm <span style={{color: '#11006f'}}>{itemDelete.name}</span> ?</div>}
         visible={isConfirmDelete}
-      />
+      />}
     </Card>)
 }
 

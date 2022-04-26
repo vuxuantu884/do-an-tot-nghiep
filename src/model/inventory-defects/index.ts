@@ -21,7 +21,7 @@ export interface InventorySearchItem {
     page: number;
     limit: number;
     condition?: string | null,
-    store_id?: number | null,
+    store_ids?: string | null,
 }
 
 export interface InventoryItemsDefectedDetail {
