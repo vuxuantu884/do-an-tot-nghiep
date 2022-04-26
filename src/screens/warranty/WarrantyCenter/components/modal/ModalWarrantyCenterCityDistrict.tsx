@@ -2,7 +2,10 @@ import { Form, FormInstance, Modal, ModalProps, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import withWarrantyModalForm from "HOCs/warranty/withWarrantyModalForm";
 import { DistrictResponse } from "model/content/district.model";
-import { WarrantyCenterValueUpdateGetModel } from "model/warranty/warranty.model";
+import {
+  WarrantyCenterModel,
+  WarrantyCenterValueUpdateGetModel,
+} from "model/warranty/warranty.model";
 import React from "react";
 
 export type initialFormModalCenterCityDistrictType = {
@@ -21,6 +24,7 @@ type PropTypes = ModalProps & {
   selectedCityId?: number | null;
   selectedData?: WarrantyCenterValueUpdateGetModel;
   setSelectedData?: (data: WarrantyCenterValueUpdateGetModel) => void;
+  record?: WarrantyCenterModel | undefined;
 };
 
 function ModalWarrantyCenterCityDistrict(props: PropTypes) {
@@ -35,6 +39,7 @@ function ModalWarrantyCenterCityDistrict(props: PropTypes) {
     selectedCityId,
     setSelectedData,
     selectedData,
+    record,
     ...rest
   } = props;
 
@@ -42,7 +47,7 @@ function ModalWarrantyCenterCityDistrict(props: PropTypes) {
 
   return (
     <Modal
-      title="Cập nhật tỉnh/thành phố và quận/huyện"
+      title={`Cập nhật tỉnh/thành phố và quận/huyện trung tâm "${record?.name}"`}
       onCancel={handleCancel}
       onOk={handleOk}
       {...rest}

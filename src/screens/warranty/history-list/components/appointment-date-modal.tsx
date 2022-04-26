@@ -1,6 +1,7 @@
 import { Form, FormInstance, Modal, ModalProps } from "antd";
 import CustomDatePicker from "component/custom/date-picker.custom";
 import withWarrantyModalForm from "HOCs/warranty/withWarrantyModalForm";
+import { WarrantyItemModel } from "model/warranty/warranty.model";
 import React from "react";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -13,13 +14,20 @@ type PropTypes = ModalProps & {
   handleOk: (values: any) => void;
   handleCancel: () => void;
   initialFormValues: initialFormModalWarrantiesAppointmentType;
+  record: WarrantyItemModel | undefined;
 };
 
 function AppointmentDateModal(props: PropTypes) {
-  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, ...rest } = props;
+  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, record, ...rest } =
+    props;
 
   return (
-    <Modal title="Cập nhật ngày hẹn trả khách" onCancel={handleCancel} onOk={handleOk} {...rest}>
+    <Modal
+      title={`Cập nhật ngày hẹn trả khách id  ${record?.id}`}
+      onCancel={handleCancel}
+      onOk={handleOk}
+      {...rest}
+    >
       <Form form={form} layout="horizontal" initialValues={initialFormValues}>
         <Form.Item name="appointment_date">
           <CustomDatePicker

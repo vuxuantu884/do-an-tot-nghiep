@@ -53,7 +53,7 @@ function WarrantyCenters(props: PropTypes) {
   const { location } = props;
 
   const history = useHistory();
-  const rowSelected = useRef<{ record: any; index: number }>();
+  const rowSelected = useRef<{ record: WarrantyCenterModel; index: number }>();
   const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] = useState(false);
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
@@ -132,10 +132,13 @@ function WarrantyCenters(props: PropTypes) {
 
   const handleOkPhoneModal = useCallback(
     (values) => {
+      if(!rowSelected.current?.record.id) {
+        return;
+      }
       setIsPhoneModalVisible(false);
       const query = {
         ...rowSelected.current?.record,
-        phone: values.phone,
+        phone: values.phone || undefined,
       };
       dispatch(showLoading());
       updateWarrantyCenterService(rowSelected.current?.record.id, query)
@@ -162,6 +165,9 @@ function WarrantyCenters(props: PropTypes) {
 
   const handleOkAddressModal = useCallback(
     (values: any) => {
+      if(!rowSelected.current?.record.id) {
+        return;
+      }
       setIsAddressModalVisible(false);
       const query = {
         ...rowSelected.current?.record,
@@ -192,6 +198,9 @@ function WarrantyCenters(props: PropTypes) {
 
   const handleOkCityDistrictModal = useCallback(
     (values: any) => {
+      if(!rowSelected.current?.record.id) {
+        return;
+      }
       setIsCityDistrictModalVisible(false);
       const query = {
         ...rowSelected.current?.record,
@@ -658,6 +667,7 @@ function WarrantyCenters(props: PropTypes) {
         initialFormValues={{
           phone: selectedData.phone,
         }}
+        record={rowSelected.current?.record}
       />
       <ModalWarrantyCenterAddress
         visible={isAddressModalVisible}
@@ -666,6 +676,7 @@ function WarrantyCenters(props: PropTypes) {
         initialFormValues={{
           address: selectedData.address,
         }}
+        record={rowSelected.current?.record}
       />
       <ModalWarrantyCenterCityDistrict
         visible={isCityDistrictModalVisible}
@@ -681,6 +692,7 @@ function WarrantyCenters(props: PropTypes) {
         }}
         selectedData={selectedData}
         setSelectedData={setSelectedData}
+        record={rowSelected.current?.record}
       />
     </ContentContainer>
   );

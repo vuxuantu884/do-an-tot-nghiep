@@ -8,9 +8,7 @@ import { ReactComponent as CycleIcon } from "assets/icon/return.svg";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TagStatus from "component/tag/tag-status";
 import UrlConfig from "config/url.config";
@@ -26,17 +24,12 @@ import {
   WarrantiesUpdateDetailStatusModel,
   WarrantiesValueUpdateGetModel,
   WarrantyItemModel,
+  WarrantyItemStatus,
   WarrantyReturnStatusModel,
   WarrantyStatus,
 } from "model/warranty/warranty.model";
 import moment from "moment";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, withRouter } from "react-router-dom";
@@ -109,7 +102,7 @@ let TAB_STATUS = [
     param: {},
     labelColor: "#65a74a",
     countParam: {
-      warranty_status: WarrantyStatus.FINISH,
+      return_status: WarrantyReturnStatusModel.RETURNED,
     },
     count: 0,
   },
@@ -130,9 +123,7 @@ let TAB_STATUS = [
     param: {},
     labelColor: "#cc0100",
     countParam: {
-      to_appointment_date: moment()
-        .subtract(1, "days")
-        .format(DATE_FORMAT.DD_MM_YYYY),
+      to_appointment_date: moment().subtract(1, "days").format(DATE_FORMAT.DD_MM_YYYY),
     },
     count: 0,
   },
@@ -163,20 +154,14 @@ function WarrantyHistoryList(props: PropTypes) {
   const [isFeeModalVisible, setIsFeeModalVisible] = useState(false);
   const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
-  const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] =
-    useState(false);
-  const [isWarrantyCenterModalVisible, setIsWarrantyCenterModalVisible] =
-    useState(false);
-  const [isAppointmentDateModalVisible, setIsAppointmentDateModalVisible] =
-    useState(false);
+  const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] = useState(false);
+  const [isWarrantyCenterModalVisible, setIsWarrantyCenterModalVisible] = useState(false);
+  const [isAppointmentDateModalVisible, setIsAppointmentDateModalVisible] = useState(false);
   const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
-  const [confirmDeleteSubTitle, setConfirmDeleteSubTitle] =
-    useState<React.ReactNode>("");
+  const [confirmDeleteSubTitle, setConfirmDeleteSubTitle] = useState<React.ReactNode>("");
   const [countForceFetchData, setCountForceFetchData] = useState(0);
   const [isShowSettingColumn, setIsShowSettingColumn] = useState(false);
-  const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<WarrantyItemModel>>
-  >([]);
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<WarrantyItemModel>>>([]);
 
   const rowClicked = (record: any, index: number) => {
     rowSelected.current = { record, index };
@@ -184,17 +169,16 @@ function WarrantyHistoryList(props: PropTypes) {
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
 
-  const [selectedData, setSelectedData] =
-    useState<WarrantiesValueUpdateGetModel>({
-      note: "",
-      status: undefined,
-      return_status: undefined,
-      warranty_center_id: undefined,
-      price: undefined,
-      customer_fee: undefined,
-      appointment_date: undefined,
-      reason_ids: undefined,
-    });
+  const [selectedData, setSelectedData] = useState<WarrantiesValueUpdateGetModel>({
+    note: "",
+    status: undefined,
+    return_status: undefined,
+    warranty_center_id: undefined,
+    price: undefined,
+    customer_fee: undefined,
+    appointment_date: undefined,
+    reason_ids: undefined,
+  });
 
   const initQuery: GetWarrantiesParamModelExtra = {
     tab: "new",
@@ -215,17 +199,10 @@ function WarrantyHistoryList(props: PropTypes) {
   const warrantyReasons = useGetWarrantyReasons();
   const paymentMethods = useGetPaymentMethods();
   const filteredPaymentMethod = paymentMethods.filter(
-    (method) =>
-      method.code !== PaymentMethodCode.POINT &&
-      method.code !== PaymentMethodCode.COD,
+    (method) => method.code !== PaymentMethodCode.POINT && method.code !== PaymentMethodCode.COD
   );
 
-  const getWarranties = useFetchWarranties(
-    initQuery,
-    location,
-    countForceFetchData,
-    setQuery,
-  );
+  const getWarranties = useFetchWarranties(initQuery, location, countForceFetchData, setQuery);
   let { warranties, metadata } = getWarranties;
   const [data, setData] = useState<WarrantyItemModel[]>([]);
 
@@ -251,14 +228,12 @@ function WarrantyHistoryList(props: PropTypes) {
         disabled: selectedRowKeys.length ? false : true,
       },
     ],
-    [ACTION_ID.delete, selectedRowKeys.length],
+    [ACTION_ID.delete, selectedRowKeys.length]
   );
 
   const onSelectedChange = (selectedRow: WarrantyItemModel[]) => {
     console.log("selectedRowKeys changed: ", selectedRow);
-    const selectedRowIds = selectedRow
-      .filter((row) => row)
-      .map((row) => row?.id);
+    const selectedRowIds = selectedRow.filter((row) => row).map((row) => row?.id);
     setSelectedRowKeys(selectedRowIds);
   };
 
@@ -269,9 +244,8 @@ function WarrantyHistoryList(props: PropTypes) {
           typeOfDelete = "multi";
           setConfirmDeleteSubTitle(
             <React.Fragment>
-              Bạn có chắc chắn muốn xóa các: <strong>Lịch sử bảo hành</strong>{" "}
-              đã chọn ?
-            </React.Fragment>,
+              Bạn có chắc chắn muốn xóa các: <strong>Lịch sử bảo hành</strong> đã chọn ?
+            </React.Fragment>
           );
           setIsDeleteConfirmModalVisible(true);
           break;
@@ -280,22 +254,16 @@ function WarrantyHistoryList(props: PropTypes) {
           break;
       }
     },
-    [ACTION_ID.delete],
+    [ACTION_ID.delete]
   );
 
-  const handleUpdateWarrantyNote = (
-    warrantyItemId: number,
-    warrantyId: number,
-    note: string,
-  ) => {
+  const handleUpdateWarrantyNote = (warrantyItemId: number, warrantyId: number, note: string) => {
     dispatch(showLoading());
     updateWarrantyDetailNoteService(warrantyItemId, warrantyId, note)
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Cập nhật ghi chú thành công!");
-          const index = data.findIndex(
-            (single) => single.id === warrantyId,
-          );
+          const index = data.findIndex((single) => single.id === warrantyId);
           if (index > -1) {
             let dataResult = [...data];
             dataResult[index].note = note;
@@ -322,14 +290,12 @@ function WarrantyHistoryList(props: PropTypes) {
     updateWarrantyDetailFeeService(
       rowSelected.current?.record.warranty.id,
       rowSelected.current?.record.id,
-      params,
+      params
     )
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Cập nhật phí báo khách thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id,
-          );
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
           if (index > -1) {
             let dataResult = [...data];
             dataResult[index].customer_fee = values.customer_fee || null;
@@ -354,8 +320,25 @@ function WarrantyHistoryList(props: PropTypes) {
     handleUpdateWarrantyNote(
       rowSelected.current?.record.warranty.id,
       rowSelected.current?.record.id,
-      values.note,
+      values.note
     );
+  };
+
+  const checkStatusAfterChange = (status: string, returnStatus: string) => {
+    let result = "";
+    if (returnStatus === WarrantyReturnStatusModel.UNRETURNED) {
+      switch (status) {
+        case WarrantyItemStatus.RECEIVED:
+          result = TAB_STATUS_KEY.new;
+          break;
+        default:
+          result = TAB_STATUS_KEY.finalized;
+          break;
+      }
+    } else {
+      result = TAB_STATUS_KEY.finished;
+    }
+    return result;
   };
 
   const handleOkStatusModal = (values: any) => {
@@ -382,14 +365,18 @@ function WarrantyHistoryList(props: PropTypes) {
     updateWarrantyDetailStatusService(
       rowSelected.current?.record.warranty.id,
       rowSelected.current?.record.id,
-      params,
+      params
     )
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Cập nhật trạng thái thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id,
-          );
+          const status = checkStatusAfterChange(values.status, values.return_status);
+          let newPrams = {
+            tab: status,
+          };
+          let queryParam = generateQuery(newPrams);
+          history.push(`${location.pathname}?${queryParam}`);
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
           if (index > -1) {
             let dataResult = [...data];
             dataResult[index].status = values.status;
@@ -429,19 +416,13 @@ function WarrantyHistoryList(props: PropTypes) {
     updateWarrantyLineItemService(
       rowSelected.current?.record.id,
       rowSelected.current?.record.warranty.id,
-      params,
+      params
     )
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Cập nhật lý do thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id,
-          );
-          if (
-            index > -1 &&
-            values.reason_ids &&
-            values.reason_ids?.length > 0
-          ) {
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
+          if (index > -1 && values.reason_ids && values.reason_ids?.length > 0) {
             let dataResult = [...data];
             dataResult[index].expenses =
               values.reason_ids?.map((single: number) => {
@@ -450,13 +431,13 @@ function WarrantyHistoryList(props: PropTypes) {
                   reason_id: single,
                   code: "",
                   reason: warrantyReasons
-                    ? warrantyReasons?.find((reason) => reason.id === single)
-                        ?.name || ""
+                    ? warrantyReasons?.find((reason) => reason.id === single)?.name || ""
                     : "",
                 };
               }) || [];
             setData(dataResult);
           }
+
           changeToTabFinalizedIfCurrentIsNew();
           console.log("response", response);
         } else {
@@ -491,14 +472,12 @@ function WarrantyHistoryList(props: PropTypes) {
     updateWarrantyLineItemService(
       rowSelected.current?.record.id,
       rowSelected.current?.record.warranty.id,
-      params,
+      params
     )
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Cập nhật ngày hẹn trả thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id,
-          );
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
           if (index > -1) {
             let dataResult = [...data];
             dataResult[index].appointment_date = values.appointment_date
@@ -529,14 +508,12 @@ function WarrantyHistoryList(props: PropTypes) {
     sendToWarrantyCentersService(
       rowSelected.current?.record.warranty.id,
       rowSelected.current?.record.id,
-      params,
+      params
     )
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Chuyển trung tâm bảo hành thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id,
-          );
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
           if (index > -1) {
             let dataResult = [...data];
             dataResult[index].warranty_center_id = values.warranty_center_id;
@@ -570,9 +547,7 @@ function WarrantyHistoryList(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Xóa phiếu bảo hành thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id,
-          );
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
           if (index > -1) {
             let dataResult = [...data];
             dataResult.splice(index, 1);
@@ -606,15 +581,9 @@ function WarrantyHistoryList(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Xóa phiếu bảo hành thành công!");
-          let dataResult = [...data].filter(
-            (single) => !selectedRowKeys.includes(single.id),
-          );
+          let dataResult = [...data].filter((single) => !selectedRowKeys.includes(single.id));
           setData(dataResult);
-          changeMetaDataAfterDelete(
-            metadata,
-            setMetaDataShow,
-            selectedRowKeys.length,
-          );
+          changeMetaDataAfterDelete(metadata, setMetaDataShow, selectedRowKeys.length);
           console.log("response", response);
         } else {
           handleFetchApiError(response, "Xóa phiếu bảo hành", dispatch);
@@ -657,7 +626,7 @@ function WarrantyHistoryList(props: PropTypes) {
       history.push(`${location.pathname}?${queryParam}`);
       goToTopPage();
     },
-    [history, location.pathname, query],
+    [history, location.pathname, query]
   );
 
   const forceFetchData = useCallback(() => {
@@ -689,382 +658,353 @@ function WarrantyHistoryList(props: PropTypes) {
       // setSelectedRowKeys([]);
       // setSelectedRowCodes([]);
     },
-    [forceFetchData, history, location.pathname, query],
+    [forceFetchData, history, location.pathname, query]
   );
 
   useEffect(() => {
     setData(warranties);
   }, [warranties]);
 
-  const initColumns: ICustomTableColumType<WarrantyItemModel>[] =
-    useMemo(() => {
-      // if (data.items.length === 0) {
-      //   return [];
-      // }
-      return [
-        {
-          title: "ID",
-          dataIndex: "id",
-          align: "center",
-          width: "6%",
-          render: (id, record: WarrantyItemModel) => {
-            return record?.id ? (
-              <div className="columnId">
-                <Link to={`${UrlConfig.WARRANTY}/${record.id}`}>{id}</Link>
-                <br />
-                <div>
-                  {record?.created_date
-                    ? moment(record?.created_date).format(formatDate)
-                    : "-"}
-                </div>
-              </div>
-            ) : null;
-          },
-          visible: true,
-        },
-        {
-          title: "Khách hàng",
-          align: "left",
-          dataIndex: "customer",
-          key: "customer",
-          width: "13%",
-          render: (value, record: WarrantyItemModel) => {
-            return (
+  const initColumns: ICustomTableColumType<WarrantyItemModel>[] = useMemo(() => {
+    // if (data.items.length === 0) {
+    //   return [];
+    // }
+    return [
+      {
+        title: "ID",
+        dataIndex: "id",
+        align: "center",
+        width: "6%",
+        render: (id, record: WarrantyItemModel) => {
+          return record?.id ? (
+            <div className="columnId">
+              <Link to={`${UrlConfig.WARRANTY}/${record.id}`}>{id}</Link>
+              <br />
               <div>
-                <b>{record?.warranty?.customer}</b>
-                <br />
-                <span>{record?.warranty?.customer_mobile}</span>
+                {record?.created_date ? moment(record?.created_date).format(formatDate) : "-"}
               </div>
-            );
-          },
-          visible: true,
+            </div>
+          ) : null;
         },
-        {
-          title: "Sản phẩm",
-          dataIndex: "product",
-          key: "lineItem",
-          width: "13%",
-          render: (value, record: WarrantyItemModel) => {
-            // let result = record.line_items.map((lineItem, index) => {
-            //   return (
-            //     <div key={index}>
-            //       {lineItem.product}
-            //     </div>
-            //   )
-            // })
-            return <div>{record.variant}</div>;
-          },
-          visible: true,
+        visible: true,
+      },
+      {
+        title: "Khách hàng",
+        align: "left",
+        dataIndex: "customer",
+        key: "customer",
+        width: "13%",
+        render: (value, record: WarrantyItemModel) => {
+          return (
+            <div>
+              <b>{record?.warranty?.customer}</b>
+              <br />
+              <span>{record?.warranty?.customer_mobile}</span>
+            </div>
+          );
         },
-        {
-          title: "Loại",
-          dataIndex: "type",
-          key: "type",
-          width: "9%",
-          align: "center",
-          render: (value, record: WarrantyItemModel) => {
-            let result = WARRANTY_TYPE.find(
-              (single) => single.code === record.type,
-            );
-            return <div>{result ? result.name : "-"}</div>;
-          },
-          visible: true,
+        visible: true,
+      },
+      {
+        title: "Sản phẩm",
+        dataIndex: "product",
+        key: "lineItem",
+        width: "13%",
+        render: (value, record: WarrantyItemModel) => {
+          // let result = record.line_items.map((lineItem, index) => {
+          //   return (
+          //     <div key={index}>
+          //       {lineItem.product}
+          //     </div>
+          //   )
+          // })
+          return <div>{record.variant}</div>;
         },
-        {
-          title: "Phí báo khách",
-          dataIndex: "customer_fee",
-          key: "customer_fee",
-          width: "7%",
-          align: "center",
-          render: (id, record: WarrantyItemModel, index) => {
-            return (
-              <div
-                className="customer_fee isCanChange"
-                onClick={() => {
-                  rowClicked(record, index);
-                  setSelectedData({
-                    ...selectedData,
-                    customer_fee: record.customer_fee
-                      ? record.customer_fee
-                      : undefined,
-                  });
-                  setIsFeeModalVisible(true);
-                }}
-              >
-                {record.customer_fee ? (
-                  <div className="hasFee">
-                    {formatCurrency(record.customer_fee)}
-                  </div>
-                ) : (
-                  <div className="noFee">
-                    <Button
-                      icon={<AiOutlinePlus color={color.primary} />}
-                      className="fee-icon addIcon"
-                      onClick={() => {
-                        rowClicked(record, index);
-                        setIsFeeModalVisible(true);
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          },
-          visible: true,
+        visible: true,
+      },
+      {
+        title: "Loại",
+        dataIndex: "type",
+        key: "type",
+        width: "9%",
+        align: "center",
+        render: (value, record: WarrantyItemModel) => {
+          let result = WARRANTY_TYPE.find((single) => single.code === record.type);
+          return <div>{result ? result.name : "-"}</div>;
         },
-        {
-          title: "Lý do",
-          dataIndex: "reason",
-          key: "reason",
-          width: "8.5%",
-          render: (value, record: WarrantyItemModel, index) => {
-            return (
-              <div
-                className="isCanChange"
-                onClick={() => {
-                  rowClicked(record, index);
-                  setSelectedData({
-                    ...selectedData,
-                    reason_ids: record.expenses.map(
-                      (single) => single.reason_id,
-                    ),
-                  });
-                  setIsReasonModalVisible(true);
-                }}
-              >
-                {record?.expenses && record?.expenses.length > 0 ? (
-                  renderReason(record)
-                ) : (
-                  <Button
-                    icon={<AiOutlinePlus color={color.primary} />}
-                    className="fee-icon addIcon"
-                  />
-                )}
-              </div>
-            );
-          },
-          visible: true,
-        },
-        {
-          title: "Hẹn trả",
-          dataIndex: "appointment_date",
-          key: "appointment_date",
-          align: "center",
-          width: "7%",
-          render: (value, record: WarrantyItemModel, index) => {
-            return (
-              <div
-                className="isCanChange"
-                onClick={() => {
-                  rowClicked(record, index);
-                  setSelectedData({
-                    ...selectedData,
-                    appointment_date: record.appointment_date
-                      ? moment(record.appointment_date).format(
-                          DATE_FORMAT.DD_MM_YYYY,
-                        )
-                      : undefined,
-                  });
-                  setIsAppointmentDateModalVisible(true);
-                }}
-              >
-                {record?.appointment_date ? (
-                  moment(record?.appointment_date).format(
-                    DATE_FORMAT.DD_MM_YYYY,
-                  )
-                ) : (
-                  <Button
-                    icon={<AiOutlinePlus color={color.primary} />}
-                    className="fee-icon addIcon"
-                  />
-                )}
-              </div>
-            );
-          },
-          visible: true,
-        },
-        {
-          title: "Trạng thái",
-          dataIndex: "status",
-          key: "status",
-          align: "center",
-          width: "9%",
-          render: (value, record: WarrantyItemModel, index) => {
-            let resultStatus = WARRANTY_ITEM_STATUS.find(
-              (single) => single.code === record.status,
-            );
-            let resultReturn = WARRANTY_RETURN_STATUS.find(
-              (single) => single.code === record.return_status,
-            );
-            return (
-              <React.Fragment>
-                <div
-                  className="isCanChange"
-                  onClick={() => {
-                    rowClicked(record, index);
-                    setIsStatusModalVisible(true);
-                    setSelectedData({
-                      ...selectedData,
-                      status: record.status,
-                      return_status: record.return_status,
-                    });
-                  }}
-                >
-                  <div className="warranty-status">
-                    {resultStatus ? (
-                      <TagStatus type={resultStatus.type}>
-                        {resultStatus.name}
-                      </TagStatus>
-                    ) : (
-                      "-"
-                    )}
-                  </div>
-                  <div className="warranty-status">
-                    {resultReturn ? (
-                      <TagStatus type={resultReturn.type}>
-                        {resultReturn.name}
-                      </TagStatus>
-                    ) : (
-                      "-"
-                    )}
-                  </div>
-                </div>
-              </React.Fragment>
-            );
-          },
-          visible: true,
-        },
-        {
-          title: "Người tạo",
-          dataIndex: "created_name",
-          key: "created_name",
-          width: "12%",
-          render: (value, record: WarrantyItemModel) => {
-            return <div>{`${record.created_by} - ${record.created_name}`}</div>;
-          },
-          visible: true,
-        },
-        {
-          title: "Ghi chú",
-          width: "7%",
-          align: "center",
-          render: (id, record: WarrantyItemModel, index) => {
-            return (
-              <div
-                className="isCanChange"
-                onClick={() => {
-                  rowClicked(record, index);
-                  setIsNoteModalVisible(true);
-                  setSelectedData({
-                    ...selectedData,
-                    note: record.note,
-                  });
-                }}
-              >
-                {record.note && record.note.trim().length > 0 ? (
-                  record.note
-                ) : (
+        visible: true,
+      },
+      {
+        title: "Phí báo khách",
+        dataIndex: "customer_fee",
+        key: "customer_fee",
+        width: "7%",
+        align: "center",
+        render: (id, record: WarrantyItemModel, index) => {
+          return (
+            <div
+              className="customer_fee isCanChange"
+              onClick={() => {
+                rowClicked(record, index);
+                setSelectedData({
+                  ...selectedData,
+                  customer_fee: record.customer_fee ? record.customer_fee : undefined,
+                });
+                setIsFeeModalVisible(true);
+              }}
+            >
+              {record.customer_fee ? (
+                <div className="hasFee">{formatCurrency(record.customer_fee)}</div>
+              ) : (
+                <div className="noFee">
                   <Button
                     icon={<AiOutlinePlus color={color.primary} />}
                     className="fee-icon addIcon"
                     onClick={() => {
                       rowClicked(record, index);
-                      setIsNoteModalVisible(true);
+                      setIsFeeModalVisible(true);
                     }}
                   />
-                )}
-              </div>
-            );
-          },
-          visible: true,
+                </div>
+              )}
+            </div>
+          );
         },
-        {
-          title: "",
-          width: "3.5%",
-          align: "center",
-          render: (text, record: WarrantyItemModel, index) => {
-            return (
-              <Dropdown
-                trigger={["click"]}
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      icon={<CycleIcon width={20} height={30} />}
-                      key={"chuyen-trung-tam-bao-hanh"}
-                      onClick={() => {
-                        setIsWarrantyCenterModalVisible(true);
-                        rowClicked(record, index);
-                        setSelectedData({
-                          ...selectedData,
-                          warranty_center_id:
-                            record.warranty_center_id || undefined,
-                        });
-                      }}
-                    >
-                      Chuyển trung tâm bảo hành
-                    </Menu.Item>
-                    <Menu.Item
-                      icon={<EditIcon width={20} height={30} />}
-                      onClick={() => {
-                        history.push(`${UrlConfig.WARRANTY}/${record.id}`);
-                      }}
-                      key={"update"}
-                    >
-                      Sửa
-                    </Menu.Item>
-                    <Menu.Item
-                      icon={<CycleIcon width={20} height={30} />}
-                      key={"in"}
-                      onClick={() => {
-                        let queryParamOrder = generateQuery({
-                          "action": "print",
-                          "ids": [record.warranty.id],
-                          "print-type": "warranty",
-                          "print-dialog": true,
-                        });
-                        const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParamOrder}`;
-                        window.open(printPreviewOrderUrl);
-                      }}
-                    >
-                      In hóa đơn bảo hành
-                    </Menu.Item>
-                    <Menu.Item
-                      icon={<DeleteIcon height={30} />}
-                      key={"delete"}
-                      onClick={() => {
-                        rowClicked(record, index);
-                        typeOfDelete = "single";
-                        setConfirmDeleteSubTitle(
-                          <React.Fragment>
-                            Bạn có chắc chắn muốn xóa:{" "}
-                            <strong>Lịch sử bảo hành</strong> có ID{" "}
-                            <strong>{`"${record.id}"`}</strong> ?
-                          </React.Fragment>,
-                        );
-                        setIsDeleteConfirmModalVisible(true);
-                      }}
-                    >
-                      Xoá
-                    </Menu.Item>
-                  </Menu>
-                }
-              >
+        visible: true,
+      },
+      {
+        title: "Lý do",
+        dataIndex: "reason",
+        key: "reason",
+        width: "8.5%",
+        render: (value, record: WarrantyItemModel, index) => {
+          return (
+            <div
+              className="isCanChange"
+              onClick={() => {
+                rowClicked(record, index);
+                setSelectedData({
+                  ...selectedData,
+                  reason_ids: record.expenses.map((single) => single.reason_id),
+                });
+                setIsReasonModalVisible(true);
+              }}
+            >
+              {record?.expenses && record?.expenses.length > 0 ? (
+                renderReason(record)
+              ) : (
                 <Button
-                  type="text"
-                  icon={<img src={MoreAction} alt=""></img>}
-                ></Button>
-              </Dropdown>
-            );
-          },
-          visible: true,
+                  icon={<AiOutlinePlus color={color.primary} />}
+                  className="fee-icon addIcon"
+                />
+              )}
+            </div>
+          );
         },
-      ];
-    }, [formatDate, history, selectedData]);
+        visible: true,
+      },
+      {
+        title: "Hẹn trả",
+        dataIndex: "appointment_date",
+        key: "appointment_date",
+        align: "center",
+        width: "7%",
+        render: (value, record: WarrantyItemModel, index) => {
+          return (
+            <div
+              className="isCanChange"
+              onClick={() => {
+                rowClicked(record, index);
+                setSelectedData({
+                  ...selectedData,
+                  appointment_date: record.appointment_date
+                    ? moment(record.appointment_date).format(DATE_FORMAT.DD_MM_YYYY)
+                    : undefined,
+                });
+                setIsAppointmentDateModalVisible(true);
+              }}
+            >
+              {record?.appointment_date ? (
+                moment(record?.appointment_date).format(DATE_FORMAT.DD_MM_YYYY)
+              ) : (
+                <Button
+                  icon={<AiOutlinePlus color={color.primary} />}
+                  className="fee-icon addIcon"
+                />
+              )}
+            </div>
+          );
+        },
+        visible: true,
+      },
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        key: "status",
+        align: "center",
+        width: "9%",
+        render: (value, record: WarrantyItemModel, index) => {
+          let resultStatus = WARRANTY_ITEM_STATUS.find((single) => single.code === record.status);
+          let resultReturn = WARRANTY_RETURN_STATUS.find(
+            (single) => single.code === record.return_status
+          );
+          return (
+            <React.Fragment>
+              <div
+                className="isCanChange"
+                onClick={() => {
+                  rowClicked(record, index);
+                  setIsStatusModalVisible(true);
+                  setSelectedData({
+                    ...selectedData,
+                    status: record.status,
+                    return_status: record.return_status,
+                  });
+                }}
+              >
+                <div className="warranty-status">
+                  {resultStatus ? (
+                    <TagStatus type={resultStatus.type}>{resultStatus.name}</TagStatus>
+                  ) : (
+                    "-"
+                  )}
+                </div>
+                <div className="warranty-status">
+                  {resultReturn ? (
+                    <TagStatus type={resultReturn.type}>{resultReturn.name}</TagStatus>
+                  ) : (
+                    "-"
+                  )}
+                </div>
+              </div>
+            </React.Fragment>
+          );
+        },
+        visible: true,
+      },
+      {
+        title: "Người tạo",
+        dataIndex: "created_name",
+        key: "created_name",
+        width: "12%",
+        render: (value, record: WarrantyItemModel) => {
+          return <div>{`${record.created_by} - ${record.created_name}`}</div>;
+        },
+        visible: true,
+      },
+      {
+        title: "Ghi chú",
+        width: "7%",
+        align: "center",
+        render: (id, record: WarrantyItemModel, index) => {
+          return (
+            <div
+              className="isCanChange"
+              onClick={() => {
+                rowClicked(record, index);
+                setIsNoteModalVisible(true);
+                setSelectedData({
+                  ...selectedData,
+                  note: record.note,
+                });
+              }}
+            >
+              {record.note && record.note.trim().length > 0 ? (
+                record.note
+              ) : (
+                <Button
+                  icon={<AiOutlinePlus color={color.primary} />}
+                  className="fee-icon addIcon"
+                  onClick={() => {
+                    rowClicked(record, index);
+                    setIsNoteModalVisible(true);
+                  }}
+                />
+              )}
+            </div>
+          );
+        },
+        visible: true,
+      },
+      {
+        title: "",
+        width: "3.5%",
+        align: "center",
+        render: (text, record: WarrantyItemModel, index) => {
+          return (
+            <Dropdown
+              trigger={["click"]}
+              overlay={
+                <Menu>
+                  <Menu.Item
+                    icon={<CycleIcon width={20} height={30} />}
+                    key={"chuyen-trung-tam-bao-hanh"}
+                    onClick={() => {
+                      setIsWarrantyCenterModalVisible(true);
+                      rowClicked(record, index);
+                      setSelectedData({
+                        ...selectedData,
+                        warranty_center_id: record.warranty_center_id || undefined,
+                      });
+                    }}
+                  >
+                    Chuyển trung tâm bảo hành
+                  </Menu.Item>
+                  <Menu.Item
+                    icon={<EditIcon width={20} height={30} />}
+                    onClick={() => {
+                      history.push(`${UrlConfig.WARRANTY}/${record.id}`);
+                    }}
+                    key={"update"}
+                  >
+                    Sửa
+                  </Menu.Item>
+                  <Menu.Item
+                    icon={<CycleIcon width={20} height={30} />}
+                    key={"in"}
+                    onClick={() => {
+                      let queryParamOrder = generateQuery({
+                        action: "print",
+                        ids: [record.warranty.id],
+                        "print-type": "warranty",
+                        "print-dialog": true,
+                      });
+                      const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParamOrder}`;
+                      window.open(printPreviewOrderUrl);
+                    }}
+                  >
+                    In hóa đơn bảo hành
+                  </Menu.Item>
+                  <Menu.Item
+                    icon={<DeleteIcon height={30} />}
+                    key={"delete"}
+                    onClick={() => {
+                      rowClicked(record, index);
+                      typeOfDelete = "single";
+                      setConfirmDeleteSubTitle(
+                        <React.Fragment>
+                          Bạn có chắc chắn muốn xóa: <strong>Lịch sử bảo hành</strong> có ID{" "}
+                          <strong>{`"${record.id}"`}</strong> ?
+                        </React.Fragment>
+                      );
+                      setIsDeleteConfirmModalVisible(true);
+                    }}
+                  >
+                    Xoá
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              <Button type="text" icon={<img src={MoreAction} alt=""></img>}></Button>
+            </Dropdown>
+          );
+        },
+        visible: true,
+      },
+    ];
+  }, [formatDate, history, selectedData]);
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns],
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   useEffect(() => {
     if (columns.length === 0) {
@@ -1090,10 +1030,7 @@ function WarrantyHistoryList(props: PropTypes) {
         },
       ]}
       extra={
-        <Button
-          type="primary"
-          onClick={() => history.push(UrlConfig.WARRANTY + "/create")}
-        >
+        <Button type="primary" onClick={() => history.push(UrlConfig.WARRANTY + "/create")}>
           Thêm mới phiếu tiếp nhận yêu cầu bảo hành
         </Button>
       }
@@ -1118,10 +1055,7 @@ function WarrantyHistoryList(props: PropTypes) {
                   tab={
                     <React.Fragment>
                       <span>{name}</span>
-                      <span
-                        className="number"
-                        style={{ background: labelColor }}
-                      >
+                      <span className="number" style={{ background: labelColor }}>
                         {warrantyCount[index] || 0}
                       </span>
                     </React.Fragment>
@@ -1167,6 +1101,7 @@ function WarrantyHistoryList(props: PropTypes) {
         initialFormValues={{
           customer_fee: selectedData.customer_fee,
         }}
+        record={rowSelected.current?.record}
       />
       <NoteModal
         visible={isNoteModalVisible}
@@ -1177,6 +1112,7 @@ function WarrantyHistoryList(props: PropTypes) {
         initialFormValues={{
           note: selectedData.note,
         }}
+        record={rowSelected.current?.record}
       />
       <WarrantyStatusModal
         visible={isStatusModalVisible}
@@ -1203,6 +1139,7 @@ function WarrantyHistoryList(props: PropTypes) {
         initialFormValues={{
           warranty_center_id: selectedData.warranty_center_id,
         }}
+        record={rowSelected.current?.record}
       />
       <ModalDeleteConfirm
         visible={isDeleteConfirmModalVisible}
@@ -1220,6 +1157,7 @@ function WarrantyHistoryList(props: PropTypes) {
             ? moment(selectedData.appointment_date, DATE_FORMAT.DD_MM_YYYY)
             : undefined,
         }}
+        record={rowSelected.current?.record}
       />
       <ReasonModal
         visible={isReasonModalVisible}
