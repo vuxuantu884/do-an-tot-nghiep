@@ -154,9 +154,12 @@ export const StyledOrderFilter = styled.div`
 				display: flex;
 			}
 			.input-search-tracking_codes {
-        width: 350px;
-        min-width: 250px;
+        width: 200px;
+        min-width: 200px;
         margin: 10px auto;
+				.ant-input-affix-wrapper {
+					padding: 0;
+				}
 			}
 		}
 		
