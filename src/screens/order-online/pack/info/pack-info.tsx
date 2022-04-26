@@ -145,20 +145,16 @@ const PackInfo: React.FC = () => {
         dispatch(
           getFulfillments(query, (data: PackFulFillmentResponse[]) => {
             if (data && data.length !== 0) {
-              console.log(data)
               let fMSuccess:PackFulFillmentResponse[]=data.filter((p)=>p.status!==FulFillmentStatus.CANCELLED&&p.status!==FulFillmentStatus.RETURNED&&p.status!==FulFillmentStatus.RETURNING)
-              console.log("fMSuccess",fMSuccess)
-              setPackFulFillmentResponse(fMSuccess[0]);
-              setDisableStoreId(true);
-              setDisableDeliveryProviderId(true);
-              setDisableOrder(true);
               let storeId: number | null | undefined = data[0]?.stock_location_id ?
               listStoresDataCanAccess?.findIndex((p) => p.id === data[0]?.stock_location_id) !== -1
               ? data[0]?.stock_location_id : null : null;
-              console.log("store_id",listStoresDataCanAccess)
-              console.log("store_id",storeId)
 
-              if (data[0]?.stock_location_id) {
+              if (storeId) {
+                setPackFulFillmentResponse(fMSuccess[0]);
+                setDisableStoreId(true);
+                setDisableDeliveryProviderId(true);
+                setDisableOrder(true);
                 setPackModel({
                   ...new PackModelDefaltValue(),
                   ...packModel,
@@ -169,6 +165,8 @@ const PackInfo: React.FC = () => {
                   store_request: storeId
                 })
               }
+              else 
+                showError("Đơn hàng không thuộc cửa hàng được phân bổ");
               OrderRequestElement?.blur();
 
             } else {
@@ -252,6 +250,7 @@ const PackInfo: React.FC = () => {
   },[formRef, itemProductList])
 
   const FinishPack = useCallback(() => {
+    
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
     if (value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())) {
@@ -262,7 +261,7 @@ const PackInfo: React.FC = () => {
     let order_request = value.order_request;
     let quality_request = value.quality_request ? +value.quality_request : 1;
     let product_request = value.product_request;
-
+    
     if (store_request && order_request && product_request)
       ProductPack(product_request,quality_request)
 

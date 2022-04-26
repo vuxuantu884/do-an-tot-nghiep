@@ -83,39 +83,64 @@ const PackUpdate: React.FC = () => {
         let total_price = 0;
 
         itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-          if (itemFulfillment.status !== 'returned' && itemFulfillment.status !== 'returning' && itemFulfillment.status !== 'splitted') {
-            ship_price =
-              ship_price +
-              (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
-                ? itemFulfillment.shipment.shipping_fee_informed_to_customer
-                : 0);
-            total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
+          if (packDetail.receipt_type_id === 1) {
+            if (itemFulfillment.status === 'packed') {
+              ship_price =
+                ship_price +
+                (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
+                  ? itemFulfillment.shipment.shipping_fee_informed_to_customer
+                  : 0);
+              total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
 
-            itemFulfillment.items.forEach(function (itemProduct) {
-              product.push({
-                sku: itemProduct.sku,
-                product_id: itemProduct.product_id,
-                product: itemProduct.product,
-                variant_id: itemProduct.variant_id,
-                variant: itemProduct.variant,
-                variant_barcode: itemProduct.variant_barcode,
-                quantity: itemProduct.quantity,
-                price: itemProduct.price
+              itemFulfillment.items.forEach(function (itemProduct) {
+                product.push({
+                  sku: itemProduct.sku,
+                  product_id: itemProduct.product_id,
+                  product: itemProduct.product,
+                  variant_id: itemProduct.variant_id,
+                  variant: itemProduct.variant,
+                  variant_barcode: itemProduct.variant_barcode,
+                  quantity: itemProduct.quantity,
+                  price: itemProduct.price
+                });
               });
-            });
+            }
+          } else {
+            if (itemFulfillment.status === 'cancelled') {
+              ship_price =
+                ship_price +
+                (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
+                  ? itemFulfillment.shipment.shipping_fee_informed_to_customer
+                  : 0);
+              total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
+
+              itemFulfillment.items.forEach(function (itemProduct) {
+                product.push({
+                  sku: itemProduct.sku,
+                  product_id: itemProduct.product_id,
+                  product: itemProduct.product,
+                  variant_id: itemProduct.variant_id,
+                  variant: itemProduct.variant,
+                  variant_barcode: itemProduct.variant_barcode,
+                  quantity: itemProduct.quantity,
+                  price: itemProduct.price
+                });
+              });
+            }
           }
+
         });
 
         let resultItem: GoodsReceiptsInfoOrderModel = {
           key: index,
           order_id: itemOrder.id ? itemOrder.id : 0,
           order_code: itemOrder.code ? itemOrder.code : "",
-          customer_id: itemOrder.customer_id||0,
+          customer_id: itemOrder.customer_id || 0,
           customer_name: itemOrder.shipping_address ? itemOrder.shipping_address.name : "",
           customer_phone: itemOrder.shipping_address
             ? itemOrder.shipping_address.phone
             : "không có dữ liệu",
-          customer_address:  itemOrder.shipping_address ? itemOrder.shipping_address.full_address : "không có dữ liệu",
+          customer_address: itemOrder.shipping_address ? itemOrder.shipping_address.full_address : "không có dữ liệu",
           product: product,
           ship_price: ship_price,
           total_price: total_price,
@@ -181,7 +206,7 @@ const PackUpdate: React.FC = () => {
   const handleSubmit = useCallback(
     (value: any) => {
 
-      const insert = (arr:any, index:number, newItem:any) => [
+      const insert = (arr: any, index: number, newItem: any) => [
         // part of the array before the specified index
         ...arr.slice(0, index),
         // inserted item
@@ -204,33 +229,33 @@ const PackUpdate: React.FC = () => {
         showWarning("Đơn hàng đã tồn tại trong biên bản");
         return;
       }
-      let codes: string[]=[]
-      
-      
-      if(packDetail.orders)
+      let codes: string[] = []
+
+
+      if (packDetail.orders)
         codes = packDetail.orders?.map((p) => {
-          if(packDetail.receipt_type_id === 1) {
+          if (packDetail.receipt_type_id === 1) {
             let fulfillments = p.fulfillments
-            ?.filter(f => f.status === "packed");
-            if(fulfillments && fulfillments.length > 0) {
+              ?.filter(f => f.status === "packed");
+            if (fulfillments && fulfillments.length > 0) {
               return fulfillments[0].code ? fulfillments[0].code : ""
             }
             return "";
-          } else if(packDetail.receipt_type_id === 2) {
+          } else if (packDetail.receipt_type_id === 2) {
             let fulfillments = p.fulfillments
-            ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
-            if(fulfillments && fulfillments.length > 0) {
+              ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
+            if (fulfillments && fulfillments.length > 0) {
               return fulfillments[0].code ? fulfillments[0].code : ""
             }
             return "";
-          } else{
+          } else {
             return "";
           }
         });
       // packDetail.orders?.forEach((item) => {
       //   if (item.code) codes.push(item.code);
       // });
-      codes = insert([...codes],0,order_id);
+      codes = insert([...codes], 0, order_id);
 
       console.log("codes", codes)
 
@@ -266,7 +291,7 @@ const PackUpdate: React.FC = () => {
             <Link
               target="_blank"
               to={`${UrlConfig.ORDER}/${i.order_id}`}
-              style={{ fontWeight: 500, whiteSpace:"nowrap" }}
+              style={{ fontWeight: 500, whiteSpace: "nowrap" }}
             >
               {value}
             </Link>
@@ -327,7 +352,7 @@ const PackUpdate: React.FC = () => {
                     <span>{item.quantity}</span>
                   </div>
                   <div className="price priceWidth">
-                    <span>{formatCurrency(item?.price||0)}</span>
+                    <span>{formatCurrency(item?.price || 0)}</span>
                   </div>
                 </div>
               );
@@ -342,7 +367,7 @@ const PackUpdate: React.FC = () => {
     {
       title: "Cước phí",
       dataIndex: "ship_price",
-      render: (value: number) => <div>{formatCurrency(value||0)}</div>,
+      render: (value: number) => <div>{formatCurrency(value || 0)}</div>,
       key: "ship_price",
       visible: true,
       align: "center",
@@ -350,7 +375,7 @@ const PackUpdate: React.FC = () => {
     {
       title: "Tổng thu",
       dataIndex: "total_price",
-      render: (value: number) => <div>{formatCurrency(value||0)}</div>,
+      render: (value: number) => <div>{formatCurrency(value || 0)}</div>,
       key: "total_price",
       visible: true,
       align: "center",
@@ -370,19 +395,19 @@ const PackUpdate: React.FC = () => {
           showWarning("Đơn hàng đã tồn tại trong biên bản");
           return;
         }
-  
+
         let codes: string[] = [];
         packDetail?.orders?.forEach((item) => {
           if (item.code) codes.push(item.code);
         });
         codes.push(barcode);
-  
+
         let id = packDetail?.id ? packDetail?.id : 0;
         let param: any = {
           ...packDetail,
           codes: codes,
         };
-  
+
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
             if (data) {

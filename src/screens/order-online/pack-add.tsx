@@ -450,6 +450,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
             onMenuClick={onMenuClick}
             handleAddOrder={handleAddOrdersCode}
             formSearchOrderRef={formSearchOrderRef}
+            goodsReceiptForm={goodsReceiptsForm}
           />
 
           <AddOrderBottombar onOkPress={onOkPress} isLoading={isLoading}/>
