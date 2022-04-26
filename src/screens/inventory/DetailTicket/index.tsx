@@ -270,7 +270,7 @@ const DetailTicket: FC = () => {
        element.variant_prices &&
        element.variant_prices[0] &&
        element.variant_prices[0].retail_price;
- 
+
      const newResult = {
        sku: element.sku,
        barcode: element.barcode,
@@ -1315,7 +1315,7 @@ const DetailTicket: FC = () => {
               rightComponent={
                 <Space>
                   {
-                    data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && 
+                    data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&
                     <AuthWrapper acceptPermissions={[InventoryTransferPermission.receive]}>
                       <Button icon={<ImportOutlined />} onClick={()=>{
                               setIsImport(true);
@@ -1339,7 +1339,7 @@ const DetailTicket: FC = () => {
                     </Button>
                   </AuthWrapper>
                   {
-                   (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && data.shipment === null) &&
+                   ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && data.shipment === null) &&
                     <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.cancel]}
                     >
@@ -1503,7 +1503,7 @@ const DetailTicket: FC = () => {
             infoFees={infoFees}
           />
         }
-        <ImportExcel 
+        <ImportExcel
           onCancel={()=>{setIsImport(false)}}
           onOk={(data: Array<VariantResponse>)=>{importRealQuantity(data)}}
           title="Import số lượng thực nhận"
