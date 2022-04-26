@@ -44,6 +44,7 @@ function useFetchWarranties(
         return {
           ...queryParamsParsed,
           warranty_status: WarrantyStatus.FINALIZED,
+          return_status: WarrantyReturnStatusModel.UNRETURNED,
         };
       case TAB_STATUS_KEY.finished:
         return {
