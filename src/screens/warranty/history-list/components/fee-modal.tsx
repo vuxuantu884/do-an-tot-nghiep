@@ -23,7 +23,7 @@ function ModalWarrantyReasonsPrice(props: PropTypes) {
 
   return (
     <Modal
-      title={`Cập nhật phí báo khách id  ${record?.id}`}
+      title={`Cập nhật phí báo khách id "${record?.id}"`}
       onCancel={handleCancel}
       onOk={handleOk}
       {...rest}

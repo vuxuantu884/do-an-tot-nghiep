@@ -54,7 +54,7 @@ function ReasonModal(props: PropTypes) {
 
   return (
     <Modal
-      title={`Cập nhật lý do id  ${record?.id}`}
+      title={`Cập nhật lý do id "${record?.id}`}
       onCancel={handleCancel}
       onOk={handleOk}
       {...rest}
