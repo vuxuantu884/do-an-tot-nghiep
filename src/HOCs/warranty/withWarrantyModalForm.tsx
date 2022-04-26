@@ -1,5 +1,4 @@
 import { Form, FormInstance } from "antd";
-import { WarrantyItemModel } from "model/warranty/warranty.model";
 import React, { FunctionComponent, useEffect } from "react";
 
 type initFormValuesTypes = any;

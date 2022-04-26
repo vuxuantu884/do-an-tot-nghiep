@@ -499,6 +499,7 @@ function WarrantyStatus(props: PropTypes) {
         initialFormValues={{
           type: selectedData.type,
         }}
+        record={rowSelected.current?.record}
       />
       <ModalSettingColumn
         visible={isShowSettingColumn}

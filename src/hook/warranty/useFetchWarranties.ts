@@ -64,6 +64,7 @@ function useFetchWarranties(
           from_appointment_date: undefined,
           to_appointment_date: moment().subtract(1, "days").format(DATE_FORMAT.DD_MM_YYYY),
           warranty_status: undefined,
+          return_status: WarrantyReturnStatusModel.UNRETURNED,
         };
 
       default:

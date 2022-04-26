@@ -124,6 +124,7 @@ let TAB_STATUS = [
     labelColor: "#cc0100",
     countParam: {
       to_appointment_date: moment().subtract(1, "days").format(DATE_FORMAT.DD_MM_YYYY),
+      return_status: WarrantyReturnStatusModel.UNRETURNED,
     },
     count: 0,
   },
