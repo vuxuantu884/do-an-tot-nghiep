@@ -678,6 +678,13 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         value: initialValues.search_term
       })
     }
+    if (initialValues.tracking_codes) {
+      list.push({
+        key: 'tracking_codes',
+        name: 'Mã vận đơn',
+        value: initialValues.tracking_codes
+      })
+    }
     return list
   }, [
     initialValues.channel_codes,
@@ -712,6 +719,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     initialValues.tags,
     initialValues.reference_code,
     initialValues.search_term,
+    initialValues.tracking_codes,
     ecommerceShopList,
     listStore,
     listSources,
@@ -827,6 +835,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           });
           onFilter && onFilter({...params, search_term: ""});
           break;
+        case 'tracking_codes':
+          form?.setFieldsValue({
+            tracking_codes: "",
+          });
+          onFilter && onFilter({...params, tracking_codes: ""});
+          break;
         default: break
       }
     },
@@ -882,6 +896,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       ecommerce_shop_ids: checkEcommerceShop.map(item => +item),
       search_term: params.search_term,
       reference_code: params.reference_code,
+      tracking_codes: params.tracking_codes,
       sub_status_code: params.sub_status_code
     });
 
@@ -944,172 +959,190 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           form={form}
           initialValues={initialValues}
         >
-          <Form.Item className="action-dropdown">
-            <Dropdown
-              overlay={actionDropdown}
-              trigger={["click"]}
-              disabled={isLoading}
-            >
-              <Button className="action-button">
-                <div style={{ marginRight: 5 }}>Thao tác</div>
-                <DownOutlined />
-              </Button>
-            </Dropdown>
-          </Form.Item>
-          
-          <Item
-            className="ecommerce-dropdown"
-            name="channel_codes"
-          >
-            <Select
-              disabled={isLoading}
-              placeholder="Chọn sàn"
-              allowClear
-              onSelect={(value) => handleSelectEcommerce(value)}
-              onClear={handleRemoveEcommerce}
-            >
-              {ECOMMERCE_LIST?.map((item: any) => (
-                <Option key={item.ecommerce_id} value={item.key}>
-                  <img
-                    src={item.icon}
-                    alt={item.id}
-                    style={{ marginRight: "5px", width: "20px" }}
-                  />
-                  <span>{item.title}</span>
-                </Option>
-              ))}
-            </Select>
-          </Item>
+          <div className="order-filter-container">
+            <div className="first-line">
+              <Form.Item className="action-dropdown">
+                <Dropdown
+                  overlay={actionDropdown}
+                  trigger={["click"]}
+                  disabled={isLoading}
+                >
+                  <Button className="action-button">
+                    <div style={{ marginRight: 5 }}>Thao tác</div>
+                    <DownOutlined />
+                  </Button>
+                </Dropdown>
+              </Form.Item>
 
-          <Form.Item
-            className="select-store-dropdown"
-            name="ecommerce_shop_ids"
-          >
-            {isEcommerceSelected ?
-              <TreeSelect
-                placeholder="Chọn gian hàng"
-                treeDefaultExpandAll
-                className="selector"
-                allowClear
-                showArrow
-                showSearch
-                multiple
-                treeCheckable
-                treeNodeFilterProp="title"
-                maxTagCount="responsive"
-                filterTreeNode={(textSearch: any, item: any) => {
-                  const treeNodeTitle = item?.title?.props?.children[1];
-                  return fullTextSearch(textSearch, treeNodeTitle);
-                }}
+              <Item
+                className="ecommerce-dropdown"
+                name="channel_codes"
               >
-                {ecommerceShopList?.map((shopItem: any) => (
-                  <TreeSelect.TreeNode
-                    key={shopItem.id}
-                    value={shopItem.id}
-                    title={
-                      <span>
-                        {getEcommerceIcon(shopItem.ecommerce) &&
-                          <img
-                            src={getEcommerceIcon(shopItem.ecommerce)}
-                            alt={shopItem.id}
-                            style={{ marginRight: "5px", height: "16px" }}
-                          />
-                        }
-                        {shopItem.name}
-                      </span>
-                    }
-                  />
-                ))}
-              </TreeSelect>
-              :
-              <Tooltip title="Yêu cầu chọn sàn" color={"gold"}>
                 <Select
-                  showSearch
-                  disabled={true}
-                  placeholder="Chọn gian hàng"
+                  disabled={isLoading}
+                  placeholder="Chọn sàn"
+                  allowClear
+                  onSelect={(value) => handleSelectEcommerce(value)}
+                  onClear={handleRemoveEcommerce}
+                >
+                  {ECOMMERCE_LIST?.map((item: any) => (
+                    <Option key={item.ecommerce_id} value={item.key}>
+                      <img
+                        src={item.icon}
+                        alt={item.id}
+                        style={{ marginRight: "5px", width: "20px" }}
+                      />
+                      <span>{item.title}</span>
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+
+              <Form.Item
+                className="select-store-dropdown"
+                name="ecommerce_shop_ids"
+              >
+                {isEcommerceSelected ?
+                  <TreeSelect
+                    placeholder="Chọn gian hàng"
+                    treeDefaultExpandAll
+                    className="selector"
+                    allowClear
+                    showArrow
+                    showSearch
+                    multiple
+                    treeCheckable
+                    treeNodeFilterProp="title"
+                    maxTagCount="responsive"
+                    filterTreeNode={(textSearch: any, item: any) => {
+                      const treeNodeTitle = item?.title?.props?.children[1];
+                      return fullTextSearch(textSearch, treeNodeTitle);
+                    }}
+                  >
+                    {ecommerceShopList?.map((shopItem: any) => (
+                      <TreeSelect.TreeNode
+                        key={shopItem.id}
+                        value={shopItem.id}
+                        title={
+                          <span>
+                            {getEcommerceIcon(shopItem.ecommerce) &&
+                              <img
+                                src={getEcommerceIcon(shopItem.ecommerce)}
+                                alt={shopItem.id}
+                                style={{ marginRight: "5px", height: "16px" }}
+                              />
+                            }
+                            {shopItem.name}
+                          </span>
+                        }
+                      />
+                    ))}
+                  </TreeSelect>
+                  :
+                  <Tooltip title="Yêu cầu chọn sàn" color={"gold"}>
+                    <Select
+                      showSearch
+                      disabled={true}
+                      placeholder="Chọn gian hàng"
+                    />
+                  </Tooltip>
+                }
+              </Form.Item>
+
+              <Item name="reference_code" className="search-id-order-ecommerce">
+                <Input
+                  disabled={isLoading}
+                  prefix={<img src={search} alt="" />}
+                  placeholder="ID đơn hàng (sàn)"
+                  onBlur={(e) => {
+                    form?.setFieldsValue({
+                      reference_code: e.target.value.trim(),
+                    });
+                  }}
+                  onPressEnter={(e: any) => {
+                    form?.setFieldsValue({
+                      reference_code: e.target.value.trim(),
+                    });
+                  }}
                 />
-              </Tooltip>
-            }
-          </Form.Item>
+              </Item>
 
-          <Item name="reference_code" className="search-id-order-ecommerce">
-            <Input
-              disabled={isLoading}
-              prefix={<img src={search} alt="" />}
-              placeholder="ID đơn hàng (sàn)"
-              onBlur={(e) => {
-                form?.setFieldsValue({
-                  reference_code: e.target.value.trim(),
-                });
-              }}
-              onPressEnter={(e: any) => {
-                form?.setFieldsValue({
-                  reference_code: e.target.value.trim(),
-                });
-              }}
-            />
-          </Item>
+              <Item name="search_term" className="search-term-input">
+                <Input
+                  disabled={isLoading}
+                  prefix={<img src={search} alt="" />}
+                  placeholder="ID đơn hàng, SĐT KH"
+                  onBlur={(e) => {
+                    form?.setFieldsValue({
+                      search_term: e.target.value.trim(),
+                    });
+                  }}
+                />
+              </Item>
 
-          <Item name="search_term" className="search-term-input">
-            <Input
-              disabled={isLoading}
-              prefix={<img src={search} alt="" />}
-              placeholder="ID đơn hàng, SĐT KH"
-              onBlur={(e) => {
-                form?.setFieldsValue({
-                  search_term: e.target.value.trim(),
-                });
-              }}
-            />
-          </Item>
+              <Item
+                className="select-sub-status"
+                name="sub_status_code"
+              >
+                <Select
+                  mode="multiple"
+                  showSearch
+                  showArrow
+                  allowClear
+                  placeholder="TT xử lý đơn"
+                  notFoundContent="Không tìm thấy kết quả"
+                  disabled={isLoading}
+                  optionFilterProp="children"
+                  maxTagCount='responsive'
+                >
+                  {subStatus?.map((item: any) => (
+                    <Option key={item.id} value={item.code?.toString()}>
+                      {item.sub_status}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
 
-          <Item
-            className="select-sub-status"
-            name="sub_status_code"
-          >
-            <Select
-              mode="multiple"
-              showSearch
-              showArrow
-              allowClear
-              placeholder="TT xử lý đơn"
-              notFoundContent="Không tìm thấy kết quả"
-              disabled={isLoading}
-              optionFilterProp="children"
-              maxTagCount='responsive'
-            >
-              {subStatus?.map((item: any) => (
-                <Option key={item.id} value={item.code?.toString()}>
-                  {item.sub_status}
-                </Option>
-              ))}
-            </Select>
-          </Item>
+              <div style={{ marginRight: "10px"}}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  disabled={isLoading}
+                >
+                  Lọc
+                </Button>
+              </div>
 
-          <div style={{ marginRight: "10px"}}>
-            <Button
-              type="primary"
-              htmlType="submit" 
-              disabled={isLoading}
-            >
-              Lọc
-            </Button>
+              <div style={{ marginRight: "10px"}}>
+                <Button
+                  icon={<FilterOutlined />}
+                  onClick={openFilter}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <Button
+                className="setting-button"
+                icon={<SettingOutlined />}
+                onClick={onShowColumnSetting}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div>
+              <Item name="tracking_codes" className="input-search-tracking_codes">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Mã vận đơn"
+                  onBlur={(e) => {
+                    form?.setFieldsValue({
+                      tracking_codes: e.target.value.trim(),
+                    });
+                  }}
+                />
+              </Item>
+            </div>
           </div>
-
-          <div style={{ marginRight: "10px"}}>
-            <Button
-              icon={<FilterOutlined />}
-              onClick={openFilter}
-              disabled={isLoading}
-            />
-          </div>
-
-          <Button
-            className="setting-button"
-            icon={<SettingOutlined />}
-            onClick={onShowColumnSetting}
-            disabled={isLoading}
-          />
         </Form>
 
         <BaseFilter
