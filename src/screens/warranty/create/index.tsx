@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   CalendarOutlined,
   CloseOutlined,
@@ -16,21 +15,21 @@ import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelec
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-// import { AppConfig } from "config/app.config";
+import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { CustomerSearchSo, getCustomerDetailAction } from "domain/actions/customer/customer.action";
-// import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import {
   createWarrantyAction,
   getWarrantyReasonsAction,
 } from "domain/actions/warranty/warranty.action";
 import purify from "dompurify";
 import { AccountResponse } from "model/account/account.model";
-// import { PageResponse } from "model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-// import { VariantResponse } from "model/product/product.model";
+import { VariantResponse } from "model/product/product.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { WarrantyFormType, WarrantyItemTypeModel } from "model/warranty/warranty.model";
@@ -41,8 +40,8 @@ import { Link, useHistory } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { getPrintFormByWarrantyIdsService } from "service/warranty/warranty.service";
 import {
-  // findAvatar,
-  // findPrice,
+  findAvatar,
+  findPrice,
   formatCurrencyInputValue,
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
@@ -95,16 +94,16 @@ function CreateWarranty(props: Props) {
 
   const [warrantyItems, setWarrantyItems] = useState<Array<any>>([]);
   // const [noneItems, setNoneItems] = useState(false);
-  // const [searchProducts, setSearchProducts] = useState(false);
-  // const [keySearchVariant, setKeySearchVariant] = useState("");
-  // const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
-  //   metadata: {
-  //     limit: 0,
-  //     page: 1,
-  //     total: 0,
-  //   },
-  //   items: [],
-  // });
+  const [searchProducts, setSearchProducts] = useState(false);
+  const [keySearchVariant, setKeySearchVariant] = useState("");
+  const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
+    metadata: {
+      limit: 0,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
 
   const [printContent, setPrintContent] = useState("");
   const printerContentHtml = () => {
@@ -123,126 +122,126 @@ function CreateWarranty(props: Props) {
   //   not: false,
   // });
 
-  // const renderSearchVariant = (item: VariantResponse) => {
-  //   let avatar = findAvatar(item.variant_images);
-  //   return (
-  //     <Row>
-  //       <Col
-  //         span={4}
-  //         style={{
-  //           alignItems: "center",
-  //           justifyContent: "center",
-  //           display: "flex",
-  //           padding: "4px 6px",
-  //         }}
-  //       >
-  //         <img
-  //           src={avatar === "" ? imgDefault : avatar}
-  //           alt="anh"
-  //           placeholder={imgDefault}
-  //           style={{ width: "50%", borderRadius: 5 }}
-  //         />
-  //       </Col>
-  //       <Col span={14}>
-  //         <div style={{ padding: "5px 0" }}>
-  //           <span
-  //             className="searchDropdown__productTitle"
-  //             style={{ color: "#37394D" }}
-  //             title={item.name}
-  //           >
-  //             {item.name}
-  //           </span>
-  //           <div style={{ color: "#95A1AC" }}>{item.sku}</div>
-  //         </div>
-  //       </Col>
-  //       <Col span={6}>
-  //         <div style={{ textAlign: "right", padding: "0 20px" }}>
-  //           <div style={{ display: "inline-block", textAlign: "right" }}>
-  //             <Col style={{ color: "#222222" }}>
-  //               {`${findPrice(item.variant_prices, AppConfig.currency)} `}
-  //               <span
-  //                 style={{
-  //                   color: "#737373",
-  //                   textDecoration: "underline",
-  //                   textDecorationColor: "#737373",
-  //                 }}
-  //               >
-  //                 đ
-  //               </span>
-  //             </Col>
-  //             <div style={{ color: "#737373" }}>
-  //               Có thể bán:
-  //               <span
-  //                 style={{
-  //                   color:
-  //                     (item.available === null ? 0 : item.available) > 0
-  //                       ? "#2A2A86"
-  //                       : "rgba(226, 67, 67, 1)",
-  //                 }}
-  //               >
-  //                 {` ${item.available === null ? 0 : item.available}`}
-  //               </span>
-  //             </div>
-  //           </div>
-  //         </div>
-  //       </Col>
-  //     </Row>
-  //   );
-  // };
+  const renderSearchVariant = (item: VariantResponse) => {
+    let avatar = findAvatar(item.variant_images);
+    return (
+      <Row>
+        <Col
+          span={4}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+            padding: "4px 6px",
+          }}
+        >
+          <img
+            src={avatar === "" ? imgDefault : avatar}
+            alt="anh"
+            placeholder={imgDefault}
+            style={{ width: "50%", borderRadius: 5 }}
+          />
+        </Col>
+        <Col span={14}>
+          <div style={{ padding: "5px 0" }}>
+            <span
+              className="searchDropdown__productTitle"
+              style={{ color: "#37394D" }}
+              title={item.name}
+            >
+              {item.name}
+            </span>
+            <div style={{ color: "#95A1AC" }}>{item.sku}</div>
+          </div>
+        </Col>
+        <Col span={6}>
+          <div style={{ textAlign: "right", padding: "0 20px" }}>
+            <div style={{ display: "inline-block", textAlign: "right" }}>
+              <Col style={{ color: "#222222" }}>
+                {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+                <span
+                  style={{
+                    color: "#737373",
+                    textDecoration: "underline",
+                    textDecorationColor: "#737373",
+                  }}
+                >
+                  đ
+                </span>
+              </Col>
+              <div style={{ color: "#737373" }}>
+                Có thể bán:
+                <span
+                  style={{
+                    color:
+                      (item.available === null ? 0 : item.available) > 0
+                        ? "#2A2A86"
+                        : "rgba(226, 67, 67, 1)",
+                  }}
+                >
+                  {` ${item.available === null ? 0 : item.available}`}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Col>
+      </Row>
+    );
+  };
 
-  // const onChangeProductSearch = useCallback(
-  //   async (value: string) => {
-  //     setKeySearchVariant(value);
+  const onChangeProductSearch = useCallback(
+    async (value: string) => {
+      setKeySearchVariant(value);
 
-  //     if (value.length >= 3) {
-  //       setSearchProducts(true);
-  //     } else {
-  //       setSearchProducts(false);
-  //     }
-  //     const handleSearchProduct = () => {
-  //       if (value.trim()) {
-  //         (async () => {
-  //           try {
-  //             await dispatch(
-  //               searchVariantsOrderRequestAction(
-  //                 { info: value },
-  //                 (data) => {
-  //                   setResultSearchVariant(data);
-  //                   setSearchProducts(false);
-  //                 },
-  //                 () => {
-  //                   setSearchProducts(false);
-  //                 }
-  //               )
-  //             );
-  //           } catch {
-  //             setSearchProducts(false);
-  //           }
-  //         })();
-  //       } else {
-  //         setSearchProducts(false);
-  //       }
-  //     };
-  //     handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefProduct, () =>
-  //       handleSearchProduct()
-  //     );
-  //   },
-  //   [dispatch]
-  // );
-  // const convertResultSearchVariant = useMemo(() => {
-  //   let options: any[] = [];
-  //   resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
-  //     options.push({
-  //       label: renderSearchVariant(item),
-  //       value: item.id ? item.id.toString() : "",
-  //     });
-  //   });
-  //   return options;
-  // }, [resultSearchVariant]);
+      if (value.length >= 3) {
+        setSearchProducts(true);
+      } else {
+        setSearchProducts(false);
+      }
+      const handleSearchProduct = () => {
+        if (value.trim()) {
+          (async () => {
+            try {
+              await dispatch(
+                searchVariantsOrderRequestAction(
+                  { info: value },
+                  (data) => {
+                    setResultSearchVariant(data);
+                    setSearchProducts(false);
+                  },
+                  () => {
+                    setSearchProducts(false);
+                  }
+                )
+              );
+            } catch {
+              setSearchProducts(false);
+            }
+          })();
+        } else {
+          setSearchProducts(false);
+        }
+      };
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefProduct, () =>
+        handleSearchProduct()
+      );
+    },
+    [dispatch]
+  );
+  const convertResultSearchVariant = useMemo(() => {
+    let options: any[] = [];
+    resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        label: renderSearchVariant(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
+    return options;
+  }, [resultSearchVariant]);
 
   const [reasons, setReasons] = useState<Array<any>>([]);
   const autoCompleteRefCustomer = useRef<any>(null);
-  // const autoCompleteRefProduct = useRef<any>(null);
+  const autoCompleteRefProduct = useRef<any>(null);
 
   const initialFormValueWarranty = {
     customer_id: "",
@@ -377,25 +376,25 @@ function CreateWarranty(props: Props) {
     [warrantyItems]
   );
 
-  // const onSearchVariantSelect = useCallback(
-  //   (value) => {
-  //     setKeySearchVariant("");
-  //     // eslint-disable-next-line eqeqeq
-  //     const indexSearch = resultSearchVariant.items.findIndex((s) => s.id == value);
-  //     const item = resultSearchVariant.items[indexSearch];
-  //     const itemWarranty = {
-  //       sku: item.sku,
-  //       variant_id: item.id,
-  //       product_id: item.product.id,
-  //       variant: item.name,
-  //       variant_barcode: item.barcode,
-  //       product_type: item.product.product_type,
-  //       product_code: item.product.code,
-  //     };
-  //     addItemsWarranty(itemWarranty);
-  //   },
-  //   [addItemsWarranty, resultSearchVariant.items]
-  // );
+  const onSearchVariantSelect = useCallback(
+    (value) => {
+      setKeySearchVariant("");
+      // eslint-disable-next-line eqeqeq
+      const indexSearch = resultSearchVariant.items.findIndex((s) => s.id == value);
+      const item = resultSearchVariant.items[indexSearch];
+      const itemWarranty = {
+        sku: item.sku,
+        variant_id: item.id,
+        product_id: item.product.id,
+        variant: item.name,
+        variant_barcode: item.barcode,
+        product_type: item.product.product_type,
+        product_code: item.product.code,
+      };
+      addItemsWarranty(itemWarranty);
+    },
+    [addItemsWarranty, resultSearchVariant.items]
+  );
   const deleteItemsWarranty = useCallback(
     (item: any) => {
       let newWarrantyItems = [...warrantyItems];
@@ -924,39 +923,39 @@ function CreateWarranty(props: Props) {
             <Col md={24}>
               <Card
                 title="Sản phẩm bảo hành"
-                // extra={[
-                //   <AutoComplete
-                //     notFoundContent={
-                //       keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
-                //     }
-                //     id="search_product"
-                //     value={keySearchVariant}
-                //     ref={autoCompleteRefProduct}
-                //     onSelect={onSearchVariantSelect}
-                //     dropdownClassName="search-layout dropdown-search-header"
-                //     dropdownMatchSelectWidth={456}
-                //     className="w-100"
-                //     onSearch={onChangeProductSearch}
-                //     options={convertResultSearchVariant}
-                //     maxLength={255}
-                //     defaultActiveFirstOption
-                //     dropdownRender={(menu) => <div>{menu}</div>}
-                //   >
-                //     <Input
-                //       size="middle"
-                //       className="yody-search"
-                //       placeholder="Tìm sản phẩm"
-                //       prefix={
-                //         searchProducts ? (
-                //           <LoadingOutlined style={{ color: "#2a2a86" }} />
-                //         ) : (
-                //           <SearchOutlined style={{ color: "#ABB4BD" }} />
-                //         )
-                //       }
-                //       style={{ width: 500 }}
-                //     />
-                //   </AutoComplete>,
-                // ]}
+                extra={[
+                  <AutoComplete
+                    notFoundContent={
+                      keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                    }
+                    id="search_product"
+                    value={keySearchVariant}
+                    ref={autoCompleteRefProduct}
+                    onSelect={onSearchVariantSelect}
+                    dropdownClassName="search-layout dropdown-search-header"
+                    dropdownMatchSelectWidth={456}
+                    className="w-100"
+                    onSearch={onChangeProductSearch}
+                    options={convertResultSearchVariant}
+                    maxLength={255}
+                    defaultActiveFirstOption
+                    dropdownRender={(menu) => <div>{menu}</div>}
+                  >
+                    <Input
+                      size="middle"
+                      className="yody-search"
+                      placeholder="Tìm sản phẩm"
+                      prefix={
+                        searchProducts ? (
+                          <LoadingOutlined style={{ color: "#2a2a86" }} />
+                        ) : (
+                          <SearchOutlined style={{ color: "#ABB4BD" }} />
+                        )
+                      }
+                      style={{ width: 500 }}
+                    />
+                  </AutoComplete>,
+                ]}
               >
                 <CustomTable
                   bordered
