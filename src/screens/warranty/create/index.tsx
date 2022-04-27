@@ -26,6 +26,7 @@ import {
   getWarrantyReasonsAction,
 } from "domain/actions/warranty/warranty.action";
 import purify from "dompurify";
+import useFetchStores from "hook/useFetchStores";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -81,7 +82,6 @@ function CreateWarranty(props: Props) {
   const history = useHistory();
   const [warrantyForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
   const [searchCustomer, setSearchCustomer] = useState(false);
@@ -91,6 +91,8 @@ function CreateWarranty(props: Props) {
   const [customerID, setCustomerID] = useState<number | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
   const [visibleHistory, setVisibleHistory] = useState(false);
+
+  const stores = useFetchStores();
 
   const [warrantyItems, setWarrantyItems] = useState<Array<any>>([]);
   // const [noneItems, setNoneItems] = useState(false);
@@ -667,7 +669,6 @@ function CreateWarranty(props: Props) {
         setAccountData(data.items);
       })
     );
-    dispatch(StoreGetListAction(setStore));
     dispatch(
       getWarrantyReasonsAction((data) =>
         setReasons(data.filter((reason) => reason.status === "ACTIVE"))
@@ -826,7 +827,7 @@ function CreateWarranty(props: Props) {
                     optionFilterProp="children"
                     getPopupContainer={(trigger) => trigger.parentNode}
                   >
-                    {listStore?.map((item) => (
+                    {stores?.map((item) => (
                       <CustomSelect.Option key={item.id} value={item.id}>
                         {item.name}
                       </CustomSelect.Option>
