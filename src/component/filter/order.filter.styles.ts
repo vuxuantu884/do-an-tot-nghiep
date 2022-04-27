@@ -41,7 +41,6 @@ export const StyledComponent = styled.div`
         }
         .page-filter-right {
           width: 88%;
-          padding-left: 20px;
           .ant-space.ant-space-horizontal {
             width: 100%;
             .ant-space-item {
@@ -58,8 +57,9 @@ export const StyledComponent = styled.div`
                   right: 0;
                   display: flex;
                   align-items: center;
+                  width: 280px;
+                  justify-content: space-between;
                   button {
-                    margin-right: 15px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
