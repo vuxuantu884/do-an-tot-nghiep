@@ -17,7 +17,7 @@ function useFetchWarranties(
   location: any,
   countForceFetchData: number,
   setQuery: (data: GetWarrantiesParamModelExtra) => void
-  ) {
+) {
   const [warranties, setWarranties] = useState<Array<WarrantyItemModel>>([]);
   const [metadata, setMetaData] = useState({
     limit: 0,
@@ -31,55 +31,55 @@ function useFetchWarranties(
   const getFullQuery = useCallback(
     () => {
       let result = {};
-    if (!queryParamsParsed?.tab) {
-      queryParamsParsed.tab = TAB_STATUS_KEY.new
-    }
-    switch (queryParamsParsed?.tab) {
-      case TAB_STATUS_KEY.new:
-        return {
-          ...queryParamsParsed,
-          warranty_status: undefined,
-          return_status: WarrantyReturnStatusModel.UNRETURNED,
-          status: WarrantyItemStatus.RECEIVED,
-        };
-      case TAB_STATUS_KEY.finalized:
-        return {
-          ...queryParamsParsed,
-          warranty_status: undefined,
-          return_status: WarrantyReturnStatusModel.UNRETURNED,
-          status: WarrantyItemStatus.FIXING,
-        };
-      case TAB_STATUS_KEY.finished:
-        return {
-          ...queryParamsParsed,
-          warranty_status: undefined,
-          return_status: WarrantyReturnStatusModel.RETURNED,
-        };
-      case TAB_STATUS_KEY.today:
-        return {
-          ...queryParamsParsed,
-          from_appointment_date: moment().format(DATE_FORMAT.DD_MM_YYYY),
-          to_appointment_date: moment().format(DATE_FORMAT.DD_MM_YYYY),
-          warranty_status: undefined,
-        };
-      case TAB_STATUS_KEY.expired:
-        return {
-          ...queryParamsParsed,
-          from_appointment_date: undefined,
-          to_appointment_date: moment().subtract(1, "days").format(DATE_FORMAT.DD_MM_YYYY),
-          warranty_status: undefined,
-          return_status: WarrantyReturnStatusModel.UNRETURNED,
-        };
+      if (!queryParamsParsed?.tab) {
+        queryParamsParsed.tab = TAB_STATUS_KEY.new
+      }
+      switch (queryParamsParsed?.tab) {
+        case TAB_STATUS_KEY.new:
+          return {
+            ...queryParamsParsed,
+            warranty_status: undefined,
+            return_status: WarrantyReturnStatusModel.UNRETURNED,
+            status: WarrantyItemStatus.RECEIVED,
+          };
+        case TAB_STATUS_KEY.finalized:
+          return {
+            ...queryParamsParsed,
+            warranty_status: undefined,
+            return_status: WarrantyReturnStatusModel.UNRETURNED,
+            status: WarrantyItemStatus.FIXING,
+          };
+        case TAB_STATUS_KEY.finished:
+          return {
+            ...queryParamsParsed,
+            warranty_status: undefined,
+            return_status: WarrantyReturnStatusModel.RETURNED,
+          };
+        case TAB_STATUS_KEY.today:
+          return {
+            ...queryParamsParsed,
+            from_appointment_date: moment().format(DATE_FORMAT.DD_MM_YYYY),
+            to_appointment_date: moment().format(DATE_FORMAT.DD_MM_YYYY),
+            warranty_status: undefined,
+          };
+        case TAB_STATUS_KEY.expired:
+          return {
+            ...queryParamsParsed,
+            from_appointment_date: undefined,
+            to_appointment_date: moment().subtract(1, "days").format(DATE_FORMAT.DD_MM_YYYY),
+            warranty_status: undefined,
+            return_status: WarrantyReturnStatusModel.UNRETURNED,
+          };
 
-      default:
-        break;
-    }
+        default:
+          break;
+      }
 
-    return result;
+      return result;
     },
     [queryParamsParsed],
   )
-  
+
 
   const findId = useCallback(
     () => {
@@ -89,62 +89,76 @@ function useFetchWarranties(
           warranty_status: undefined,
           from_appointment_date: undefined,
           to_appointment_date: undefined,
+          return_status: undefined,
+          status: undefined,
         };
       }
     },
     [queryParamsParsed],
   )
-  
+
+  const findTab = (item: WarrantyItemModel) => {
+    if (item.return_status === WarrantyReturnStatusModel.UNRETURNED &&
+      item.status === WarrantyItemStatus.RECEIVED) {
+      return TAB_STATUS_KEY.new
+    } else if (item.return_status === WarrantyReturnStatusModel.UNRETURNED &&
+      item.status === WarrantyItemStatus.FIXING) {
+      return TAB_STATUS_KEY.finalized
+    } else {
+      return TAB_STATUS_KEY.finished
+    }
+  };
 
   const fetchData = useCallback(
     () => {
-    const fullQuery = getFullQuery();
-    let dataQuery = {
-      ...initQuery,
-      ...fullQuery,
-      ...getQueryParamsFromQueryString(queryParamsParsed),
-      ...findId(),
-    };
-    let result = {
-      ...dataQuery,
-      created_date: undefined,
-      appointment_date: undefined,
-      tab: undefined,
-    };
-    setQuery(dataQuery);
-    dispatch(showLoading());
-    getWarrantiesService(result)
-      .then((response) => {
-        console.log("response", response);
-        if (isFetchApiSuccessful(response)) {
-          setWarranties(response.data.items);
-          setMetaData(response.data.metadata);
-          if (queryParamsParsed?.ids) {
-            let newPrams = {
-              ...queryParamsParsed,
-              tab: response.data.items[0]?.warranty?.status?.toLowerCase(),
-              warranty_status: undefined,
-              from_appointment_date: undefined,
-              to_appointment_date: undefined,
-            };
-            let queryParam = generateQuery(newPrams);
-            history.push(`${location.pathname}?${queryParam}`);
+      const fullQuery = getFullQuery();
+      let dataQuery = {
+        ...initQuery,
+        ...fullQuery,
+        ...getQueryParamsFromQueryString(queryParamsParsed),
+        ...findId(),
+      };
+      
+      let result = {
+        ...dataQuery,
+        created_date: undefined,
+        appointment_date: undefined,
+        tab: undefined,
+      };
+      setQuery(dataQuery);
+      dispatch(showLoading());
+      getWarrantiesService(result)
+        .then((response) => {
+          console.log("response", response);
+          if (isFetchApiSuccessful(response)) {
+            setWarranties(response.data.items);
+            setMetaData(response.data.metadata);
+            if (queryParamsParsed?.ids) {
+              let newPrams = {
+                ...queryParamsParsed,
+                tab: findTab(response.data.items[0]),
+                warranty_status: undefined,
+                from_appointment_date: undefined,
+                to_appointment_date: undefined,
+              };
+              let queryParam = generateQuery(newPrams);
+              history.push(`${location.pathname}?${queryParam}`);
+            } else {
+
+            }
           } else {
-            
+            handleFetchApiError(response, "Danh sách lịch sử bảo hành", dispatch);
           }
-        } else {
-          handleFetchApiError(response, "Danh sách lịch sử bảo hành", dispatch);
-        }
-      })
-      .catch((error) => {
-        console.log('error.response', error.response)
-        if(error?.response?.data?.message) {
-          showError(error?.response?.data?.message)
-        }
-      })
-      .finally(() => {
-        dispatch(hideLoading());
-      });
+        })
+        .catch((error) => {
+          console.log('error.response', error.response)
+          if (error?.response?.data?.message) {
+            showError(error?.response?.data?.message)
+          }
+        })
+        .finally(() => {
+          dispatch(hideLoading());
+        });
     },
     [dispatch, findId, getFullQuery, history, initQuery, location.pathname, queryParamsParsed, setQuery],
   )
