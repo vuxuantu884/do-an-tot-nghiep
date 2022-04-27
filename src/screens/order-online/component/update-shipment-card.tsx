@@ -19,6 +19,7 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
+import CustomSelect from "component/custom/select.custom";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
@@ -67,6 +68,7 @@ import {
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor } from "utils/global-styles/variables";
+import { RETURN_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
@@ -130,6 +132,8 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	const [form] = Form.useForm();
 	// action
 	const dispatch = useDispatch();
+
+	const [returnType, setReturnType] = useState<string|undefined>(undefined) // trả hàng online hay offline
 
 	//handle create a new fulfillment for ecommerce order
 	const [ecommerceShipment, setEcommerceShipment] = useState<any>();
@@ -1611,30 +1615,49 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 								<AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
 									{(isPassed: boolean) =>
 										<React.Fragment>
-											<Button
-												style={{ margin: "0 10px", padding: "0 25px" }}
-												className="create-button-custom ant-btn-outline fixed-button"
-												onClick={() => {
-													history.push(
-														`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`
-													);
-												}}
-												disabled={!isPassed}
+											<CustomSelect
+												placeholder="Chọn kiểu trả hàng"
+												notFoundContent="Không tìm thấy kết quả"
+												style={{width: "165px"}}
+												optionFilterProp="children"
+												showArrow
+												getPopupContainer={(trigger) => trigger.parentNode}
+												allowClear
+												onChange={setReturnType}
+												id="selectReturnType"
 											>
-												Trả lại chuyển hàng
-											</Button>
+												{RETURN_TYPES.map((type) => (
+													<CustomSelect.Option
+														key={type.value.toString()}
+														value={type.value.toString()}
+													>
+														{type.name}
+													</CustomSelect.Option>
+												))}
+											</CustomSelect>
 											<Button
 												type="primary"
 												style={{ margin: "0 10px", padding: "0 25px" }}
 												className="create-button-custom ant-btn-outline fixed-button"
 												onClick={() => {
-													history.push(
-														`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
-													);
+													if(returnType === "OFFLINE") {
+														history.push(
+															`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
+														);
+													} else if(returnType === "ONLINE") {
+														history.push(
+															`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`
+														);
+													} else {
+														showError("Vui lòng chọn kiểu đổi trả hàng!")
+														const element: any = document.getElementById("selectReturnType");
+														scrollAndFocusToDomElement(element);
+														return;
+													}
 												}}
 												disabled={!isPassed}
 											>
-												Trả lại tại quầy
+												Đổi trả hàng
 											</Button>
 										</React.Fragment>}
 								</AuthWrapper>
