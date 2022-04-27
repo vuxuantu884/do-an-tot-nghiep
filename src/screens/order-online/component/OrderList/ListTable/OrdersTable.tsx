@@ -53,7 +53,7 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
+import { dangerColor, grayF5Color, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -311,10 +311,10 @@ function OrdersTable(props: PropTypes) {
       })
       if(returnAmount > 0) {
         return (
-          <Tooltip title={"Tiền hoàn lại"}>
-            <strong className="amount" style={{color: successColor}}>
+          <Tooltip title={"Tiền hoàn lại"} className="singlePayment">
+            <span className="amount" style={{color: yellowColor}}>
               {formatCurrency(returnAmount)}
-            </strong>
+            </span>
           </Tooltip>
         );
       }
