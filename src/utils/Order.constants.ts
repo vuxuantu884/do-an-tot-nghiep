@@ -31,11 +31,11 @@ export const  DISCOUNT_VALUE_TYPE = {
 
 export const RETURN_TYPES = [
   {
-    name: "Trả hàng online",
+    name: "Trả lại chuyển hàng",
     value: "ONLINE"
   },
   {
-    name: "Trả hàng offline",
+    name: "Trả lại tại quầy",
     value: "OFFLINE"
   }
 ] 
