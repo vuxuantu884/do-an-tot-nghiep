@@ -8,11 +8,11 @@ import NumberFormat from "react-number-format";
 import {Link, useHistory, useLocation} from "react-router-dom";
 import UrlConfig from "config/url.config";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {formatCurrency, generateQuery} from "utils/AppUtils";
+import {formatCurrency, generateQuery, getOrderTotalPaymentAmount} from "utils/AppUtils";
 import {PageResponse} from "model/base/base-metadata.response";
 import moment from "moment";
 import {DeliveryServiceResponse, OrderLineItemResponse,} from "model/response/order/order.response";
-import {dangerColor, primaryColor} from "utils/global-styles/variables";
+import {dangerColor, primaryColor, successColor} from "utils/global-styles/variables";
 import {nameQuantityWidth, StyledPurchaseHistory,} from "screens/customer/customer-detail/customerDetailStyled";
 import EditNote from "screens/order-online/component/edit-note";
 import {
@@ -389,13 +389,34 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     },
   ];
 
+  // handle payment column
+  const renderOrderTotalPayment = useCallback(
+    (orderDetail: OrderModel) => {
+      const isOfflineOrder = orderDetail?.channel_id === POS.channel_id;
+      const totalPayment = getOrderTotalPaymentAmount(orderDetail?.payments);
+
+      return (
+        <React.Fragment>
+          {isOfflineOrder ? null :
+            <div className="orderTotalLeftAmount">
+              <Tooltip title="Tiền còn thiếu">
+                {formatCurrency(orderDetail.total - totalPayment)}
+              </Tooltip>
+            </div>
+          }
+        </React.Fragment>
+      );
+    },
+    [],
+  )
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
     let html = null;
     html = orderDetail?.payments?.map((payment, index) => {
-      if (!payment.amount) {
-        return null;
-      }
+      // if (!payment.amount) {
+      //   return null;
+      // }
       let selectedPayment = paymentIcons.find(
         (single) => {
           if(single.payment_method_code === "cod") {
@@ -408,55 +429,99 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         }
       );
       return (
-        <div  className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={index}>
-          {payment.paid_amount < 0 ? (
-            <Tooltip title="Hoàn tiền">
-              <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">
-                {formatCurrency(payment.paid_amount)}
-              </span>
-            </Tooltip>
-          ) : (
-            <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
-              <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">
-                {formatCurrency(payment.paid_amount)}
-              </span>
-            </Tooltip>
-          )}
+        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={index}>
+          <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
+            <img src={selectedPayment?.icon} alt="" />
+            <span className="amount">{formatCurrency(payment.paid_amount)}</span>
+          </Tooltip>
         </div>
       );
     });
     return html;
   };
 
+  const renderOrderReturn = useCallback(
+    (orderDetail: OrderModel) => {
+      let returnAmount = 0
+      orderDetail.payments.forEach(payment => {
+        if(payment.return_amount > 0) {
+          returnAmount = returnAmount + payment.return_amount
+        }
+      })
+      if(returnAmount > 0) {
+        return (
+          <Tooltip title={"Tiền hoàn lại"}>
+            <strong className="amount" style={{color: successColor}}>
+              {formatCurrency(returnAmount)}
+            </strong>
+          </Tooltip>
+        );
+      }
+      return null
+    },
+    []
+  );
+
   const renderOrderPayments = useCallback(
     (orderDetail: OrderModel) => {
       return (
         <React.Fragment>
+          {renderOrderTotalPayment(orderDetail)}
           {renderOrderPaymentMethods(orderDetail)}
-          {/* {orderDetail.total_discount ? (
-						<Tooltip title="Chiết khấu đơn hàng">
-							<div className="totalDiscount" style={{ color: dangerColor }}>
-								<span>
-									{" "}
-									-
-									<NumberFormat
-										value={orderDetail.total_discount}
-										className="foo"
-										displayType={"text"}
-										thousandSeparator={true}
-									/>
-								</span>
-							</div>
-						</Tooltip>
-
-					) : null} */}
+          {renderOrderReturn(orderDetail)}
         </React.Fragment>
       );
     },
-    [renderOrderPaymentMethods]
+    [renderOrderPaymentMethods, renderOrderReturn, renderOrderTotalPayment]
   );
+
+  const renderOrderReturnPayments = useCallback(
+    (record: any) => {
+      return (
+        <React.Fragment>
+          <Tooltip title="Tổng thanh toán">
+            <NumberFormat
+              value={record.total_amount || 0}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+              style={{ fontWeight: 500, color: "#27ae60"}}
+            />
+          </Tooltip>
+
+          {record.change_point?.add &&
+            <Tooltip title="Hoàn điểm">
+              <div>
+                <img src={IconPaymentPoint} alt="" />
+                <NumberFormat
+                  value={record.change_point?.add}
+                  className="foo"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                  style={{ fontWeight: 500, color: "#fcaf17", paddingLeft: 5 }}
+                />
+              </div>
+            </Tooltip>
+          }
+
+          {record.total &&
+            <Tooltip title="Thu người nhận">
+              <div style={{ fontWeight: 500 }}>
+                <NumberFormat
+                  value={record.total || 0}
+                  className="foo"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                />
+              </div>
+            </Tooltip>
+          }
+        </React.Fragment>
+      );
+    },
+    []
+  );
+  // end handle payment column
 
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
@@ -651,35 +716,47 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
         {
           title: "Thành tiền",
-          render: (record: any) => (
-            <React.Fragment>
-              <Tooltip title="Thành tiền">
-                <NumberFormat
-                  value={record.total_line_amount_after_line_discount}
-                  className="foo"
-                  displayType={"text"}
-                  thousandSeparator={true}
-                />
-              </Tooltip>
-              {record.total_discount ? (
-                <React.Fragment>
-                  <br />
-                  <Tooltip title="Chiết khấu đơn hàng">
-                    <span style={{ color: "#EF5B5B" }}>
-                      {" "}
-                      -
+          render: (record: any) => {
+            return (
+              <>
+                {!record.code_order_return &&
+                  <React.Fragment>
+                    <Tooltip title="Tổng tiền">
                       <NumberFormat
-                        value={record.total_discount}
+                        value={record.total_line_amount_after_line_discount}
                         className="foo"
                         displayType={"text"}
                         thousandSeparator={true}
                       />
-                    </span>
-                  </Tooltip>
-                </React.Fragment>
-              ) : null}
-            </React.Fragment>
-          ),
+                    </Tooltip>
+
+                    <Tooltip title="Chiết khấu đơn hàng">
+                      <div style={{color: "#EF5B5B"}}>
+                        <span>- </span>
+                        <NumberFormat
+                          value={record.total_discount || 0}
+                          className="foo"
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                      </div>
+                    </Tooltip>
+
+                    <Tooltip title="Tiền khách cần trả">
+                      <div style={{fontWeight: "bold"}}>
+                        <NumberFormat
+                          value={record.total}
+                          className="foo"
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                      </div>
+                    </Tooltip>
+                  </React.Fragment>
+                }
+              </>
+            )
+          },
           key: "customer.amount_money",
           visible: true,
           align: "right",
@@ -692,7 +769,8 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           render: (value: string, record: any) => {
             return (
               <React.Fragment>
-                {record.payments &&  renderOrderPayments(record)}
+                {!record.code_order_return && record.payments && renderOrderPayments(record)}
+                {record.code_order_return && renderOrderReturnPayments(record)}
               </React.Fragment>
             );
           },
@@ -1275,7 +1353,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           width: 150,
         },
       ],
-      [deliveryServices, editNote, renderOrderPayments, status_order]
+      [deliveryServices, editNote, renderOrderPayments, renderOrderReturnPayments, status_order]
     );
 
   return (

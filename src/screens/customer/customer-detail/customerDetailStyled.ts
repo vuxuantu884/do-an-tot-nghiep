@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
-import { borderColor, primaryColor } from "utils/global-styles/variables";
+import {borderColor, dangerColor, primaryColor} from "utils/global-styles/variables";
+
 
 // Inherit StyledCustomerInfo in StyledCustomerDetail
 export const StyledCustomerDetail = styled(StyledCustomerInfo)`
@@ -374,6 +375,11 @@ export const StyledPurchaseHistory = styled.div`
     .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th {
       background-color: #ffffff;
     }
+  }
+
+  .orderTotalLeftAmount {
+    color: ${dangerColor};
+    font-weight: 500;
   }
 `;
 
