@@ -117,12 +117,19 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                             title={item.subTitle || item.title}
                           >
                             {
-                              <Link
-                                to={item.path}
-                                title={item.subTitle || item.title}
-                              >
-                                {item.title}
-                              </Link>
+                              !item.fullUrl ? (
+                                <Link
+                                  to={item.path}
+                                  title={item.subTitle || item.title}
+                                >
+                                  {item.title}
+                                </Link>
+                              ) : (
+                                <a href={item.fullUrl} target="_blank" rel="noreferrer">
+                                  {item.title}
+                                </a>
+
+                              )
                             }
                             {/* {item.subTitle ? (
                           <Tooltip
