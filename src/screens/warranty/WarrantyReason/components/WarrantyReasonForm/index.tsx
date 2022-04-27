@@ -62,6 +62,14 @@ function WarrantyReasonForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng nhập phí thực tế",
               },
+              () => ({
+                validator(_, value) {
+                  if (value && value < 1000) {
+                    return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}>
             <NumberInput
               format={(a: string) => {
@@ -86,6 +94,14 @@ function WarrantyReasonForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng nhập phí báo khách",
               },
+              () => ({
+                validator(_, value) {
+                  if (value && value < 1000) {
+                    return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}>
             <NumberInput
               format={(a: string) => {
