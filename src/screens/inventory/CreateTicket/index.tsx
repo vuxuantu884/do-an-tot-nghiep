@@ -209,7 +209,7 @@ const CreateTicket: FC = () => {
   const onSelectProduct = useCallback((value: string, item: VariantResponse) => {
     let dataTemp = [...dataTable];
     let selectedItem = item;
-      
+
     if (
       !dataTemp.some(
         (variant: VariantResponse) => variant.sku === selectedItem?.sku
@@ -496,10 +496,10 @@ const CreateTicket: FC = () => {
 
   const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
     barCode = "";
-    
+
     if (keyCode === "Enter" && code){
       setKeySearch("");
-      
+
       const storeId = form.getFieldValue("from_store_id");
       if (!storeId) {
         showError("Vui lòng chọn kho gửi");
@@ -524,7 +524,7 @@ const CreateTicket: FC = () => {
       if (event.target instanceof HTMLBodyElement) {
         if (event.key !== "Enter") {
           barCode = barCode + event.key;
-        } else if (event && event.key === "Enter") {          
+        } else if (event && event.key === "Enter") {
             handleSearchProduct(event.key,barCode);
         }
         return;
@@ -546,7 +546,7 @@ const CreateTicket: FC = () => {
           {
             barCode = barCode + event.key;
           }
-          
+
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
             () => handleSearchProduct(event.key, barCode),

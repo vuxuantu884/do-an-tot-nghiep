@@ -36,7 +36,7 @@ import {
   PrinterOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 
 import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
@@ -100,6 +100,7 @@ type InventoryTransferTabProps = {
   stores?: Array<Store>,
   accounts?: Array<AccountResponse>,
   setAccounts?: (e: any) => any,
+  activeTab?: string,
   vExportTransfer: boolean,
   vExportDetailTransfer: boolean,
   setVExportTransfer: React.Dispatch<React.SetStateAction<boolean>>,
@@ -107,11 +108,10 @@ type InventoryTransferTabProps = {
 };
 
 const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: InventoryTransferTabProps) => {
-  const { accountStores, stores, accounts, setAccounts,vExportTransfer,setVExportTransfer,vExportDetailTransfer,setVExportDetailTransfer } = props;
+  const { accountStores, stores, accounts, setAccounts,vExportTransfer,setVExportTransfer,vExportDetailTransfer,setVExportDetailTransfer, activeTab } = props;
   const history = useHistory();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
-  const [accountStoresSelected, setAccountStoresSelected] = useState<AccountStoreResponse | null>(null);
 
   const [tableLoading, setTableLoading] = useState(false);
   const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
@@ -210,7 +210,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       fixed: "left",
       width: 150,
       render: (value: string, row: InventoryTransferDetailItem) => (
-        <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
+        <div>
+          <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
+          <div>
+            {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYYY)}
+          </div>
+        </div>
       ),
     },
     {
@@ -296,6 +301,27 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       },
     },
     {
+      title: "Ghi chú",
+      dataIndex: "note",
+      visible: true,
+      align: "left",
+      width: "250px",
+      render: (item: string, row: InventoryTransferDetailItem) => {
+        return (
+          <div className={item ? 'note': ''}>
+            {item}
+            <FormOutlined
+              onClick={() => {
+                setItemData(row);
+                setIsModalVisibleNote(true);
+              }}
+              className={item ? 'note-icon' : ''}
+            />
+          </div>
+        );
+      },
+    },
+    {
       title: "Ngày chuyển",
       dataIndex: "transfer_date",
       visible: true,
@@ -332,27 +358,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       },
     },
     {
-      title: "Ghi chú",
-      dataIndex: "note",
-      visible: true,
-      align: "left",
-      width: "250px",
-      render: (item: string, row: InventoryTransferDetailItem) => {
-        return (
-          <div className="note">
-            {item}
-            <FormOutlined
-              onClick={() => {
-                setItemData(row);
-                setIsModalVisibleNote(true);
-              }}
-              className="note-icon"
-            />
-          </div>
-        );
-      },
-    },
-    {
       title: "Người tạo",
       dataIndex: "created_by",
       visible: true,
@@ -361,23 +366,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: string, item: InventoryTransferDetailItem) => {
         return (
           <>
-          <div>
-            <b>{item.created_by ?? ""}</b>
-          </div>
-          <div>
-            {item.created_name ?? ""}
-          </div>
-        </>
+            <div>
+              <b>{item.created_by ?? ""}</b>
+            </div>
+            <div>
+              {item.created_name ?? ""}
+            </div>
+          </>
         );
       },
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_date",
-      visible: true,
-      align: "center",
-      width: "150px",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
   ]);
 
@@ -415,12 +412,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
   const onPageChange = useCallback(
     (page, size) => {
-      console.log(page, size)
       params.page = page;
       params.limit = size;
       setParams({...params});
       let queryParam = generateQuery({...params});
-      history.push(`${UrlConfig.INVENTORY_TRANSFERS}?${queryParam}`);
+      history.push(`${history.location.pathname}?${queryParam}`);
     },
     [history, params]
   );
@@ -463,7 +459,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       setParams(newParams);
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
-      history.push(`${UrlConfig.INVENTORY_TRANSFERS}?${queryParam}`);
+      history.push(`${history.location.pathname}?${queryParam}`);
       getAccounts(newParams.created_by).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -581,8 +577,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         items = selectedRowData;
         break;
       case TYPE_EXPORT.all:
-      const roundAll = Math.round(data.metadata.total / limit);
-      times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
+        const roundAll = Math.round(data.metadata.total / limit);
+        times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
 
         for (let index = 1; index <= times; index++) {
           const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
@@ -665,33 +661,52 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     },
   }
 
-  //get list
   useEffect(() => {
-    if (stores?.length === 0) return;
-    if (Array.isArray(accountStores) && accountStores?.length === 1) {
-      stores?.forEach((element) => {
-        if (element.id === accountStores[0].store_id) {
-          const newParams = {
-            ...params,
-            from_store_id: params.from_store_id ? params.from_store_id : element.id,
-          };
-          setAccountStoresSelected(element);
-          setTableLoading(true);
-          dispatch(getListInventoryTransferAction(newParams, setSearchResult));
-        }
-      });
+    if (activeTab === '') return;
+    if (accountStores?.length === 0) return;
+    let status: string[] = [];
 
-      return;
+    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
+
+    switch (activeTab) {
+      case InventoryTransferTabUrl.LIST_CONFIRMED:
+        status = ['confirmed'];
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        status = ['transferring'];
+        break;
+      default: break;
     }
-    setTableLoading(true);
-    dispatch(getListInventoryTransferAction(params, setSearchResult));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountStores, dispatch, setSearchResult, stores]);
 
-  useEffect(() => {
-    dispatch(getListInventoryTransferAction(params, setSearchResult));
+    let newParams = {
+      ...params,
+      status: params.status.length > 0 ? params.status : status,
+    };
+
+    switch (activeTab) {
+      case InventoryTransferTabUrl.LIST_CONFIRMED:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        newParams = {
+          ...newParams,
+          from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected || null
+        };
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
+        newParams = {
+          ...newParams,
+          to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected || null
+        };
+        break;
+      default: break;
+    }
+
+    let queryParam = generateQuery(newParams);
+    history.push(`${history.location.pathname}?${queryParam}`);
+
+    dispatch(getListInventoryTransferAction(newParams, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, setSearchResult, params]);
+  }, [dispatch, setSearchResult, activeTab, params, accountStores]);
 
   return (
     <InventoryTransferTabWrapper>
@@ -705,16 +720,16 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         </div>
       </div>
       <InventoryFilters
+        activeTab={activeTab}
         accounts={accounts}
         params={params}
         stores={stores}
+        accountStores={accountStores}
         actions={actions}
         onMenuClick={onMenuClick}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onFilter={onFilter}
         onClearFilter={() => onClearFilter()}
-        accountStoresSelected={accountStoresSelected}
-        setAccountStoresSelected={(value: any) => setAccountStoresSelected(value)}
       />
       <CustomTable
         isRowSelection
@@ -784,7 +799,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                 dispatch(
                   updateInventoryTransferAction(itemData.id, data, (result) => {
                     setItemData(undefined);
-                    if (result) showSuccess(`Update ${itemData?.code} thành công`);
+                    if (result) showSuccess(`Cập nhật ${itemData?.code} thành công`);
                     dispatch(getListInventoryTransferAction(params, setSearchResult));
                   })
                 );
@@ -829,7 +844,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         }}
         data={columns}
       />
-       <TransferExport
+      <TransferExport
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportTransfer || vExportDetailTransfer}
