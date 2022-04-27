@@ -1,18 +1,15 @@
 import styled from "styled-components";
 import {borderColor, dangerColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
-let quantityWidth = 48;
-const massWidth = 100;
-let priceWidth = 82;
-let nameWidth = 118;
-export let nameQuantityWidth = nameWidth+ quantityWidth + priceWidth + 10;
+
+let nameQuantityWidth = 200;
 
 export const StyledComponent = styled.div.attrs((props:any) => {
-  if(props.isOnlyShowPos ) {
-    quantityWidth = 50;
-    // nameWidth = 158;
-    // priceWidth = 92;
-    nameQuantityWidth = window.screen.width > 1800 ? nameWidth+ quantityWidth + priceWidth : nameWidth+ quantityWidth + priceWidth + 15;
-  }
+  // if(props.isShowOfflineOrder ) {
+  //   quantityWidth = 50;
+  //   nameWidth = 288;
+  //   priceWidth = 120;
+  //   nameQuantityWidth = window.screen.width > 1800 ? nameWidth+ quantityWidth + priceWidth : nameWidth+ quantityWidth + priceWidth + 15;
+  // }
 })`
   th {
     /* text-align: center !important; */
@@ -44,18 +41,14 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     width: ${nameQuantityWidth}px;
   }
   .productNameWidth {
-    width: ${nameWidth + 32}px ;
+    width: 60% ;
   }
   .quantityWidth {
-    width: ${quantityWidth}px;
-    text-align: center;
-  }
-  .massWidth {
-    width: ${massWidth}px;
+    width: 15%;
     text-align: center;
   }
   .priceWidth {
-    width: ${priceWidth}px;
+    width: 25%;
     text-align: center;
 		justify-content: flex-end;
 		padding: 0 10px;
@@ -90,31 +83,13 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         z-index: 1;
         top: -999px;
         bottom: -999px;
-        right: ${quantityWidth}px;
+        left: 0;
         background-color: ${borderColor};
       }
     }
 		.quantity {
 			justify-content: center;
 		}
-    .mass {
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      &:before {
-        content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: 0px;
-        bottom: 0px;
-        right: ${massWidth}px;
-        background-color: ${borderColor};
-      }
-    }
     .price {
       white-space: nowrap;
       display: flex;
@@ -128,7 +103,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         z-index: 1;
         top: -999px;
         bottom:-999px;
-        right: ${priceWidth}px;
+        left: 0;
         background-color: ${borderColor};
       }
     }
@@ -575,4 +550,13 @@ export const StyledComponent = styled.div.attrs((props:any) => {
       margin-bottom: 8px;
     }
   }
+  .mainColor {
+    color: ${primaryColor};
+  }
+  .orderTotal {
+    color: ${successColor};
+    font-weight: bold;
+  }
 `;
+
+export {nameQuantityWidth}
