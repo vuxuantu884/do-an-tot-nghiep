@@ -89,6 +89,8 @@ function useFetchWarranties(
           warranty_status: undefined,
           from_appointment_date: undefined,
           to_appointment_date: undefined,
+          return_status: undefined,
+          status: undefined,
         };
       }
     },
