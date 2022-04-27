@@ -479,16 +479,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     (record: any) => {
       return (
         <React.Fragment>
-          <Tooltip title="Tổng thanh toán">
-            <NumberFormat
-              value={record.total_amount || 0}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-              style={{ fontWeight: 500, color: "#27ae60"}}
-            />
-          </Tooltip>
-
           {record.change_point?.add &&
             <Tooltip title="Hoàn điểm">
               <div>
@@ -751,6 +741,21 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                           thousandSeparator={true}
                         />
                       </div>
+                    </Tooltip>
+                  </React.Fragment>
+                }
+
+                {/*Đơn trả*/}
+                {record.code_order_return &&
+                  <React.Fragment>
+                    <Tooltip title="Tổng tiền">
+                      <NumberFormat
+                        value={record.total_amount || 0}
+                        className="foo"
+                        displayType={"text"}
+                        thousandSeparator={true}
+                        style={{ fontWeight: "bold" }}
+                      />
                     </Tooltip>
                   </React.Fragment>
                 }
