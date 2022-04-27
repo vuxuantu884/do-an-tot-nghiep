@@ -140,15 +140,15 @@ export const StyledComponent = styled.div.attrs((props:any) => {
 		img {
 			margin-right: 5px;
 		}
-		.amount {
-			position: relative;
-			top: 1px;
-      font-weight: 500;
-		}
     &.ydPoint {
       color: ${yellowColor};
     }
 	}
+  .amount {
+    position: relative;
+    top: 1px;
+    font-weight: 500;
+  }
 	.notes {
 		position: relative;
 	}
