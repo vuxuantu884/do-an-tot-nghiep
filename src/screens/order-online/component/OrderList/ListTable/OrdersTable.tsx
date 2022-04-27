@@ -291,22 +291,37 @@ function OrdersTable(props: PropTypes) {
       );
       return (
         <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`}>
-          {payment.amount < 0 ? (
-            <Tooltip title="Hoàn tiền">
+          <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
               <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">{formatCurrency(payment.amount)}</span>
+              <span className="amount">{formatCurrency(payment.paid_amount)}</span>
             </Tooltip>
-          ) : (
-            <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
-              <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">{formatCurrency(payment.amount)}</span>
-            </Tooltip>
-          )}
         </div>
       );
     });
     return html;
   };
+
+  const renderOrderReturn = useCallback(
+    (orderDetail: OrderModel) => {
+      let returnAmount = 0
+      orderDetail.payments.forEach(payment => {
+        if(payment.return_amount > 0) {
+          returnAmount = returnAmount + payment.return_amount
+        }
+      })
+      if(returnAmount > 0) {
+        return (
+          <Tooltip title={"Tiền hoàn lại"}>
+            <strong className="amount" style={{color: successColor}}>
+              {formatCurrency(returnAmount)}
+            </strong>
+          </Tooltip>
+        );
+      }
+      return null
+    },
+    []
+  );
 
   const renderOrderPayments = useCallback(
     (orderDetail: OrderModel) => {
@@ -314,10 +329,11 @@ function OrdersTable(props: PropTypes) {
         <React.Fragment>
           {renderOrderTotalPayment(orderDetail)}
           {renderOrderPaymentMethods(orderDetail)}
+          {renderOrderReturn(orderDetail)}
         </React.Fragment>
       );
     },
-    [renderOrderPaymentMethods, renderOrderTotalPayment]
+    [renderOrderPaymentMethods, renderOrderReturn, renderOrderTotalPayment]
   );
 
   const renderShippingAddress = (orderDetail: OrderModel) => {
@@ -346,11 +362,17 @@ function OrdersTable(props: PropTypes) {
     if (record?.tags) {
       const tagsArr = record?.tags.split(",");
       if (tagsArr.length > 0) {
-        html = tagsArr.map((tag, index) => (
-          <div key={index}>
-            <span className="textSmall">{tag}</span>
-          </div>
-        ))
+        html = tagsArr.map((tag, index) => {
+          if(tag) {
+            return (
+              <div key={index}>
+                <span className="textSmall">{tag}</span>
+              </div>
+
+            )
+          }
+          return null
+        })
       }
     }
     return html
@@ -484,10 +506,30 @@ function OrdersTable(props: PropTypes) {
                   </Link>
                 </Tooltip>
               </div>
-              <div className="textSmall single">
-                <Tooltip title="Nguồn">{i.source}</Tooltip>
-              </div>
-              {i.source && (
+              {isShowOfflineOrder ? null : (
+                <div className="textSmall single">
+                  <Tooltip title="Nguồn">{i.source}</Tooltip>
+                </div>
+              )}
+              { isShowOfflineOrder ? (
+                <React.Fragment>
+                  <div className="textSmall single mainColor">
+                    <Tooltip title="Chuyên gia tư vấn">
+                      <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
+                        <strong>CGTV: </strong>{i.assignee}
+                      </Link>
+                    </Tooltip>
+                  </div>
+                  <div className="textSmall single mainColor">
+                    <Tooltip title="Thu ngân">
+                      <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
+                        <strong>Thu ngân: </strong>{i.account}
+                      </Link>
+                    </Tooltip>
+                  </div>
+                </React.Fragment>
+              ) :null}
+              { !isShowOfflineOrder && i.source && (
                 <div className="textSmall single">
                   <Tooltip title="Nhân viên bán hàng">{i.assignee}</Tooltip>
                 </div>
@@ -683,7 +725,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: true,
         align: "left",
-        width: nameQuantityWidth - 80,
+        width: nameQuantityWidth,
       },
       // {
       //   title: "Kho cửa hàng",
@@ -693,35 +735,51 @@ function OrdersTable(props: PropTypes) {
       //   align: "center",
       // },
       {
-        title: "Thành tiền",
+        title: "Chiết khấu",
         // dataIndex: "",
         render: (record: any) => (
           <React.Fragment>
-            <Tooltip title="Thành tiền">
-              <NumberFormat
-                value={record.total}
-                className="foo"
-                displayType={"text"}
-                thousandSeparator={true}
-              />
-            </Tooltip>
-            {record.total_discount ? (
+            {record?.discounts && record.discounts[0] && record.discounts[0]?.amount ? (
               <React.Fragment>
-                <br />
-                <Tooltip title="Chiết khấu đơn hàng">
+                <div>
                   <span style={{ color: "#EF5B5B" }}>
-                    {" "}
-                    -
                     <NumberFormat
-                      value={record.total_discount}
+                      value={record.discounts[0]?.amount}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
                     />
                   </span>
-                </Tooltip>
+
+                </div>
+                <div className="textSmall">
+                  <span style={{ color: "#EF5B5B" }}>
+                    -{Math.round(record.discounts[0]?.amount * 100 / record.total_line_amount_after_line_discount * 100) / 100}%
+                  </span>
+                </div>
+
               </React.Fragment>
             ) : null}
+          </React.Fragment>
+        ),
+        key: "customer.discount",
+        visible: true,
+        align: "right",
+        width: 70,
+      },
+      {
+        title: "Tổng tiền",
+        // dataIndex: "",
+        render: (record: any) => (
+          <React.Fragment>
+            <Tooltip title="Tổng tiền">
+              <NumberFormat
+                value={record.total}
+                className="orderTotal"
+                displayType={"text"}
+                thousandSeparator={true}
+              />
+            </Tooltip>
           </React.Fragment>
         ),
         key: "customer.amount_money",
@@ -1213,7 +1271,7 @@ function OrdersTable(props: PropTypes) {
           </Link>
         ),
         key: "assignee",
-        visible: true,
+        visible: !isShowOfflineOrder,
         align: "center",
         width: 80,
       },
@@ -1225,7 +1283,7 @@ function OrdersTable(props: PropTypes) {
           </Link>
         ),
         key: "account",
-        visible: true,
+        visible: !isShowOfflineOrder,
         align: "center",
         width: 80,
       },
