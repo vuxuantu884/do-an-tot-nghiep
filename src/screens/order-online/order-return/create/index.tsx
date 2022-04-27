@@ -122,17 +122,17 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
+  let queryOrderReturnType = query.get("type"); // trả hàng online hay offline
   const listStores = useFetchStores();
   const [inventoryResponse, setInventoryResponse] =
   useState<Array<InventoryResponse> | null>(null);
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
+  let orderReturnType = queryOrderReturnType ? queryOrderReturnType.toUpperCase() : "";
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [storeId, setStoreId] = useState<number | null>(null);
-
-  const [returnType, setReturnType] = useState<string|undefined>(undefined) // trả hàng online hay offline
 
   // const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 
@@ -470,13 +470,6 @@ ShippingServiceConfigDetailResponseModel[]
 
     if (OrderDetail && listReturnProducts) {
 
-      if(!returnType) {
-        showError("Vui lòng chọn kiểu trả hàng!");
-        const element: any = document.getElementById("selectReturnType");
-        scrollAndFocusToDomElement(element);
-        return;
-      }
-
       let items = listReturnProducts.map((single) => {
         const { maxQuantityCanBeReturned, ...rest } = single;
         return rest;
@@ -546,7 +539,7 @@ ShippingServiceConfigDetailResponseModel[]
         note: "",
         url: "",
         tags: null,
-        type: returnType,
+        type: orderReturnType,
       };
       console.log('orderDetailResult', orderDetailResult);
       dispatch(showLoading())
@@ -707,13 +700,6 @@ ShippingServiceConfigDetailResponseModel[]
           return;
         }
 
-        if(!returnType) {
-          showError("Vui lòng chọn kiểu trả hàng!");
-          const element: any = document.getElementById("selectReturnType");
-          scrollAndFocusToDomElement(element);
-          return;
-        }
-
         if (OrderDetail && listReturnProducts) {
           let items = listReturnProducts.map((single) => {
             const { maxQuantityCanBeReturned, ...rest } = single;
@@ -780,7 +766,7 @@ ShippingServiceConfigDetailResponseModel[]
             note: "",
             url: "",
             tags: null,
-            type: returnType,
+            type: orderReturnType,
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
@@ -1241,6 +1227,8 @@ ShippingServiceConfigDetailResponseModel[]
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
   };
 
+  console.log('orderReturnType', orderReturnType)
+
   const renderIfOrderFinished = () => {
     if (isReturnAll) {
       return <p>Đơn hàng đã đổi trả hết!</p>;
@@ -1423,7 +1411,6 @@ ShippingServiceConfigDetailResponseModel[]
           onCancel={() => handleCancel()}
           isCanExchange={isCanExchange}
           isExchange={isExchange}
-          setReturnType={setReturnType}
         />
         <ModalConfirm
           onCancel={() => {
@@ -1770,7 +1757,10 @@ ShippingServiceConfigDetailResponseModel[]
       window.removeEventListener("keydown", eventFunctional);
     }
   },[eventFunctional])
-
+  
+  if(orderReturnType !== "ONLINE" && orderReturnType!=="OFFLINE") {
+    return <p style={{marginTop: 20}}>Vui lòng kiểm tra đường dẫn!</p>;
+  }
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

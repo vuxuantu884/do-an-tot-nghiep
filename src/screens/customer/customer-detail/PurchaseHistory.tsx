@@ -42,11 +42,11 @@ import {
   getCustomerOrderHistoryAction,
   getCustomerOrderReturnHistoryAction
 } from "../../../domain/actions/customer/customer.action";
-import iconReturn from "assets/icon/return.svg";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import DebounceSelect from "component/filter/component/debounce-select";
 import { getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
 import queryString from "query-string";
+import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
 
 
 type PurchaseHistoryProps = {
@@ -500,13 +500,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     if (!item.code_order_return) {
       return (
         <div style={{marginTop: 5}}>
-          <Tooltip title="Đổi trả hàng">
-            <Link
-              to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${item.id}`}
-            >
-              <img alt="" src={iconReturn} style={{width: 20}} />
-            </Link>
-          </Tooltip>
+          <ButtonCreateOrderReturn orderId={item.id} />
         </div>
       )
     }

@@ -1610,19 +1610,33 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 							{!checkIfOrderHasReturnedAll(OrderDetail) ? (
 								<AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
 									{(isPassed: boolean) =>
-										<Button
-											type="primary"
-											style={{ margin: "0 10px", padding: "0 25px" }}
-											className="create-button-custom ant-btn-outline fixed-button"
-											onClick={() => {
-												history.push(
-													`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
-												);
-											}}
-											disabled={!isPassed}
-										>
-											Đổi trả hàng
-										</Button>}
+										<React.Fragment>
+											<Button
+												style={{ margin: "0 10px", padding: "0 25px" }}
+												className="create-button-custom ant-btn-outline fixed-button"
+												onClick={() => {
+													history.push(
+														`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`
+													);
+												}}
+												disabled={!isPassed}
+											>
+												Trả lại chuyển hàng
+											</Button>
+											<Button
+												type="primary"
+												style={{ margin: "0 10px", padding: "0 25px" }}
+												className="create-button-custom ant-btn-outline fixed-button"
+												onClick={() => {
+													history.push(
+														`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
+													);
+												}}
+												disabled={!isPassed}
+											>
+												Trả lại tại quầy
+											</Button>
+										</React.Fragment>}
 								</AuthWrapper>
 
 							) : (
