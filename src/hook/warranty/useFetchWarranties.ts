@@ -79,24 +79,6 @@ function useFetchWarranties(
     },
     [queryParamsParsed],
   )
-  
-
-  const findId = useCallback(
-    () => {
-      if (queryParamsParsed?.ids) {
-        return {
-          ...queryParamsParsed,
-          warranty_status: undefined,
-          from_appointment_date: undefined,
-          to_appointment_date: undefined,
-          return_status: undefined,
-          status: undefined,
-        };
-      }
-    },
-    [queryParamsParsed],
-  )
-  
 
   const fetchData = useCallback(
     () => {
@@ -105,8 +87,12 @@ function useFetchWarranties(
       ...initQuery,
       ...fullQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
-      ...findId(),
     };
+    if (queryParamsParsed?.ids) {
+      dataQuery = {
+        ids: queryParamsParsed?.ids
+      };
+    }
     let result = {
       ...dataQuery,
       created_date: undefined,
@@ -148,7 +134,7 @@ function useFetchWarranties(
         dispatch(hideLoading());
       });
     },
-    [dispatch, findId, getFullQuery, history, initQuery, location.pathname, queryParamsParsed, setQuery],
+    [dispatch, getFullQuery, history, initQuery, location.pathname, queryParamsParsed, setQuery],
   )
 
   useEffect(() => {
