@@ -74,6 +74,10 @@ const ImportExcel: React.FC<ModalImportProps> = (
 
       const workSheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData: any = XLSX.utils.sheet_to_json(workSheet);
+
+      // let range = XLSX.utils.sheet_to_json(workSheet,{range: workSheet["!ref"], blankrows: true });
+      // console.log('range',range);
+      
       if (jsonData && data && data.length > 0) {
         let convertData: Array<ImportProps> = [];
         for (let i = 0; i < jsonData.length; i++) {
@@ -93,7 +97,7 @@ const ImportExcel: React.FC<ModalImportProps> = (
         if (convertData && convertData.length > 0) {
           for (let i = 0; i < convertData.length; i++) {
             const element = convertData[i];
-            const fi = data?.findIndex((e: VariantResponse) => e.barcode === element.barcode);
+            const fi = data?.findIndex((e: VariantResponse) => e.barcode.toString() === element.barcode.toString());
 
             if (fi >= 0) {
               data[fi].real_quantity = element.quantity;
