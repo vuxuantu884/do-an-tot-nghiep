@@ -391,7 +391,6 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const [cancelledClick, setCancelledClick] = useState("");
   const [expectedClick, setExpectedClick] = useState("");
   const [exportedClick, setExportedClick] = useState("");
-console.log('listSource', listSource)
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);

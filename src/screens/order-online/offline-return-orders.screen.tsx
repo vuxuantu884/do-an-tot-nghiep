@@ -33,7 +33,7 @@ type PropTypes = {
 
 function OfflineReturnOrdersScreen(props: PropTypes) {
   const { location } = props;
-  return <OrderReturnList initQuery={initQuery} location={location} isShowOfflineOrder/>
+  return <OrderReturnList initQuery={initQuery} location={location}/>
 };
 
 export default withRouter(OfflineReturnOrdersScreen);

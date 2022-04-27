@@ -774,7 +774,7 @@ function CreateWarranty(props: Props) {
                     <Form.Item name="customer">
                       <Input
                         readOnly
-                        placeholder="Nhập Tên người nhận"
+                        placeholder="Nhập tên người nhận *"
                         prefix={<UserOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
@@ -789,7 +789,7 @@ function CreateWarranty(props: Props) {
                       ]}
                     >
                       <Input
-                        placeholder="Nhập số điện thoại"
+                        placeholder="Số điện thoại *"
                         prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
@@ -798,7 +798,7 @@ function CreateWarranty(props: Props) {
                       rules={[{ required: true, message: "Nhập địa chỉ" }]}
                     >
                       <Input
-                        placeholder="Địa chỉ"
+                        placeholder="Địa chỉ *"
                         prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
@@ -817,7 +817,7 @@ function CreateWarranty(props: Props) {
                     showArrow
                     allowClear
                     showSearch
-                    placeholder="Cửa hàng"
+                    placeholder="Cửa hàng *"
                     notFoundContent="Không tìm thấy kết quả"
                     style={{
                       width: "100%",
@@ -837,7 +837,7 @@ function CreateWarranty(props: Props) {
                   rules={[{ required: true, message: "Chọn nhân viên tiếp nhận bảo hành" }]}
                 >
                   <AccountCustomSearchSelect
-                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên *"
                     dataToSelect={accountData}
                     setDataToSelect={setAccountData}
                     initDataToSelect={accounts}
@@ -848,7 +848,7 @@ function CreateWarranty(props: Props) {
                 </Form.Item>
                 <Form.Item
                   name="appointment_date"
-                  rules={[{ required: true, message: "Nhập ngày hẹn trả" }]}
+                  rules={[{ required: true, message: "Nhập ngày hẹn trả *" }]}
                 >
                   <DatePicker
                     style={{ width: "100%" }}
@@ -886,7 +886,7 @@ function CreateWarranty(props: Props) {
                     showSearch
                     showArrow
                     notFoundContent="Không tìm thấy kết quả"
-                    placeholder="Hình thức trả khách"
+                    placeholder="Hình thức trả khách *"
                     style={{ width: "100%" }}
                     getPopupContainer={(trigger) => trigger.parentNode}
                     maxTagCount="responsive"
