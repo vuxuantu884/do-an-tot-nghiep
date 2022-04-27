@@ -391,6 +391,20 @@ function WarrantyReasons(props: PropTypes) {
     // }
     return [
       {
+        title: "ID",
+        dataIndex: "id",
+        align: "center",
+        width: "6%",
+        render: (id, record: WarrantyReasonModel) => {
+          return record?.id ? (
+            <div className="columnId">
+              <Link to={`${UrlConfig.WARRANTY}/${WARRANTY_URL.reason}/${record.id}`}>{id}</Link>
+            </div>
+          ) : null;
+        },
+        visible: true,
+      },
+      {
         title: "Lý do",
         align: "left",
         dataIndex: "customer",
