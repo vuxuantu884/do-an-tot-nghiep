@@ -1,16 +1,31 @@
 import { StoreResponse } from "model/core/store.model";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { getStorePublicService } from "service/core/store.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 
 function useFetchStores() {
 	const [stores, setStores] = useState<Array<StoreResponse>>([]);
 	const dispatch = useDispatch();
+	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
-  useEffect(() => {
+	const dataCanAccess = useMemo(() => {
+		let newData: Array<StoreResponse> = [];
+		if (stores && stores.length) {
+			if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
+				newData = stores.filter((store) =>
+					haveAccess(store.id, userReducer.account ? userReducer.account.account_stores : [])
+				);
+			} else {
+				newData = stores;
+			}
+		}
+		return newData;
+	}, [stores, userReducer.account]);
+
+	useEffect(() => {
 		getStorePublicService().then(response => {
-			console.log('response', response)
 			if (isFetchApiSuccessful(response)) {
 				setStores(response.data);
 			} else {
@@ -19,7 +34,7 @@ function useFetchStores() {
 		})
 	}, [dispatch]);
 
-  return stores;
+	return dataCanAccess;
 }
 
 export default useFetchStores;
