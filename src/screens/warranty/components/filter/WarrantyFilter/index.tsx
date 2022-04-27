@@ -2,18 +2,15 @@ import { SettingOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Select } from "antd";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import CustomSelect from "component/custom/select.custom";
-import { StyledComponent } from "./styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { GetWarrantiesParamModel } from "model/warranty/warranty.model";
 import React, { useCallback, useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { haveAccess } from "utils/AppUtils";
-import { WARRANTY_TYPE } from "utils/Warranty.constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { WARRANTY_TYPE } from "utils/Warranty.constants";
+import { StyledComponent } from "./styles";
 
 type PropTypes = {
   stores: StoreResponse[];

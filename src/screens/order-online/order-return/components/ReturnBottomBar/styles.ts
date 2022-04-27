@@ -16,10 +16,10 @@ export const StyledComponent = styled.div`
       align-items: center;
       display: flex;
       justify-content: flex-end;
-    }
-    button {
-      &:not(:last-child) {
-        margin-right: 10px;
+      > * {
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
       }
     }
   }

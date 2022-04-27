@@ -1,10 +1,12 @@
 import { Button } from "antd";
+import CustomSelect from "component/custom/select.custom";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React from "react";
 import { useSelector } from "react-redux";
+import { RETURN_TYPES } from "utils/Order.constants";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   onReturn: () => void;
   onReturnAndPrint: () => void;
   onReturnAndExchange: () => void;
@@ -12,9 +14,10 @@ type PropType = {
   onCancel: () => void;
   isCanExchange: boolean;
   isExchange: boolean;
+  setReturnType: (value: string|undefined) => void;
 };
 
-function ReturnBottomBar(props: PropType) {
+function ReturnBottomBar(props: PropTypes) {
   const {
     onReturn,
     onReturnAndPrint,
@@ -22,6 +25,7 @@ function ReturnBottomBar(props: PropType) {
     onReturnAndExchangeAndPrint,
     onCancel,
     isExchange,
+    setReturnType,
   } = props;
 
   const isLoadingDiscount = useSelector(
@@ -40,6 +44,28 @@ function ReturnBottomBar(props: PropType) {
           >
             Hủy
           </Button>
+
+          <CustomSelect
+            placeholder="Chọn kiểu trả hàng"
+            notFoundContent="Không tìm thấy kết quả"
+            style={{width: "100%"}}
+            optionFilterProp="children"
+            showArrow
+            getPopupContainer={(trigger) => trigger.parentNode}
+            allowClear
+            onChange={setReturnType}
+            id="selectReturnType"
+          >
+            {RETURN_TYPES.map((type) => (
+              <CustomSelect.Option
+                key={type.value.toString()}
+                value={type.value.toString()}
+              >
+                {type.name}
+              </CustomSelect.Option>
+            ))}
+          </CustomSelect>
+
           {!isExchange ? (
             <React.Fragment>
               <Button

@@ -28,3 +28,14 @@ export const  DISCOUNT_VALUE_TYPE = {
   fixedAmount: "FIXED_AMOUNT",
   fixedPrice: "FIXED_PRICE",
 }
+
+export const RETURN_TYPES = [
+  {
+    name: "Trả hàng online",
+    value: "ONLINE"
+  },
+  {
+    name: "Trả hàng offline",
+    value: "OFFLINE"
+  }
+] 

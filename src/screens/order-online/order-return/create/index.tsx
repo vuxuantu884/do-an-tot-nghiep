@@ -132,6 +132,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const [storeId, setStoreId] = useState<number | null>(null);
 
+  const [returnType, setReturnType] = useState<string|undefined>(undefined) // trả hàng online hay offline
+
   // const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 
   const [discountRate, setDiscountRate] = useState<number>(0);
@@ -468,6 +470,13 @@ ShippingServiceConfigDetailResponseModel[]
 
     if (OrderDetail && listReturnProducts) {
 
+      if(!returnType) {
+        showError("Vui lòng chọn kiểu trả hàng!");
+        const element: any = document.getElementById("selectReturnType");
+        scrollAndFocusToDomElement(element);
+        return;
+      }
+
       let items = listReturnProducts.map((single) => {
         const { maxQuantityCanBeReturned, ...rest } = single;
         return rest;
@@ -537,6 +546,7 @@ ShippingServiceConfigDetailResponseModel[]
         note: "",
         url: "",
         tags: null,
+        type: returnType,
       };
       console.log('orderDetailResult', orderDetailResult);
       dispatch(showLoading())
@@ -584,7 +594,6 @@ ShippingServiceConfigDetailResponseModel[]
       scrollAndFocusToDomElement(element);
       return;
     }
-
     form
       .validateFields()
       .then(() => {
@@ -697,6 +706,14 @@ ShippingServiceConfigDetailResponseModel[]
           showError("Vui lòng thanh toán đủ số tiền!");
           return;
         }
+
+        if(!returnType) {
+          showError("Vui lòng chọn kiểu trả hàng!");
+          const element: any = document.getElementById("selectReturnType");
+          scrollAndFocusToDomElement(element);
+          return;
+        }
+
         if (OrderDetail && listReturnProducts) {
           let items = listReturnProducts.map((single) => {
             const { maxQuantityCanBeReturned, ...rest } = single;
@@ -763,6 +780,7 @@ ShippingServiceConfigDetailResponseModel[]
             note: "",
             url: "",
             tags: null,
+            type: returnType,
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
@@ -1405,6 +1423,7 @@ ShippingServiceConfigDetailResponseModel[]
           onCancel={() => handleCancel()}
           isCanExchange={isCanExchange}
           isExchange={isExchange}
+          setReturnType={setReturnType}
         />
         <ModalConfirm
           onCancel={() => {
