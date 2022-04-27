@@ -316,7 +316,7 @@ const DetailInvetoryAdjustment: FC = () => {
       barcode,
       variant_name: name || value.variant_name,
       variant_id: id || value.variant_id,
-      variant_image: variant_images && variant_images.length > 0 ? variant_images[0] : '',
+      variant_image: variant_images && variant_images.length > 0 ? variant_images[0].url : '',
       product_name: product ? product.name : value.product_name,
       product_id: product ? product.id : value.product_id,
       weight,
