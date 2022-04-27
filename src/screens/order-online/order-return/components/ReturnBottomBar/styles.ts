@@ -27,9 +27,12 @@ export const StyledComponent = styled.div`
     color: #737373;
     font-weight: 500;
   }
-  .ant-select.ant-select-focused {
-    .ant-select-selector {
-      border-color: #ff0000 !important;
+  .ant-select {
+    min-width: 165px;
+    &.ant-select-focused {
+      .ant-select-selector {
+        border-color: #ff0000 !important;
+      }
     }
   }
 `;
