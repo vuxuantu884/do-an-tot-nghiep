@@ -6,7 +6,7 @@ import {
   LoadingOutlined,
   PhoneOutlined,
   SearchOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import { AutoComplete, Button, Card, Col, DatePicker, Form, FormInstance, Input, Row } from "antd";
 import { default as imageDefault, default as imgDefault } from "assets/icon/img-default.svg";
@@ -18,18 +18,16 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import { CustomerSearchSo, getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import {
   createWarrantyAction,
-  getWarrantyReasonsAction,
+  getWarrantyReasonsAction
 } from "domain/actions/warranty/warranty.action";
 import purify from "dompurify";
 import useFetchStores from "hook/useFetchStores";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
 import { VariantResponse } from "model/product/product.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -47,7 +45,7 @@ import {
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
   isFetchApiSuccessful,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { RegUtil } from "utils/RegUtils";
@@ -348,7 +346,7 @@ function CreateWarranty(props: Props) {
 
   const disabledDate = (current: any) => {
     // Can not select days before today and today
-    return current && current < moment().endOf("day");
+    return current && current < moment().subtract(1, 'days');
   };
 
   const addItemsWarranty = useCallback(
