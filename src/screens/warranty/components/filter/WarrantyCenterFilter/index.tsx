@@ -85,22 +85,7 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
                 </Col>
                 <Col span={6}>
                   <Form.Item name="phone">
-                    <NumberInput
-                      format={(a: string) => {
-                        if (a) {
-                          return a;
-                        } else {
-                          return "";
-                        }
-                      }}
-                      replace={(a: string) => replaceFormatString(a)}
-                      placeholder="Số điện thoại"
-                      maxLength={14}
-                      minLength={0}
-                      style={{
-                        textAlign: "left",
-                      }}
-                    />
+                    <Input type="number" />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
