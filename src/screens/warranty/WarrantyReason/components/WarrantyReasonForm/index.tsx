@@ -58,10 +58,6 @@ function WarrantyReasonForm(props: PropTypes) {
             labelAlign={"left"}
             name="price"
             rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập phí thực tế",
-              },
               () => ({
                 validator(_, value) {
                   if (value && value < 1000) {
@@ -90,10 +86,6 @@ function WarrantyReasonForm(props: PropTypes) {
             labelAlign={"left"}
             name="customer_fee"
             rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập phí báo khách",
-              },
               () => ({
                 validator(_, value) {
                   if (value && value < 1000) {

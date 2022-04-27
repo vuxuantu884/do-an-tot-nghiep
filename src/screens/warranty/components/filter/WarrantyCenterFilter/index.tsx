@@ -1,6 +1,5 @@
 import { SettingOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Select } from "antd";
-import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
@@ -9,7 +8,6 @@ import useGetDistricts from "hook/useGetDistricts";
 import { OrderSearchQuery } from "model/order/order.model";
 import { GetWarrantyCentersParamModel } from "model/warranty/warranty.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
