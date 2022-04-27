@@ -27,6 +27,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
@@ -241,7 +242,7 @@ const ScreenReturnDetail = (props: PropType) => {
           },
           {
             name: "Danh sách đơn trả hàng",
-            path: `${UrlConfig.ORDERS_RETURN}`,
+            path: isOrderFromPOS(OrderDetail) ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}` : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
           },
           {
             name: OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",

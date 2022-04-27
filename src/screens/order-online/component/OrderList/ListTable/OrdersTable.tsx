@@ -53,7 +53,7 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, grayF5Color, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
