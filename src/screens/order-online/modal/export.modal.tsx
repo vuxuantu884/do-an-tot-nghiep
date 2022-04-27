@@ -21,8 +21,10 @@ const ExportModal: React.FC<ExportModalProps> = (
   const text = useMemo(
     () => {
       switch (type) { 
-        case "orders":
-          return "đơn hàng"
+        case "orders_online":
+          return "đơn hàng";
+        case "orders_offline":
+          return "đơn hàng"  
         case "shipments":
           return "đơn giao hàng"
         case "returns":
@@ -35,8 +37,10 @@ const ExportModal: React.FC<ExportModalProps> = (
   const text1 = useMemo(
     () => {
       switch (type) { 
-        case "orders":
+        case "orders_online":
           return "Đơn hàng"
+        case "orders_offline":
+          return "đơn hàng"
         case "shipments":
           return "Đơn giao hàng"
         case "returns":
@@ -48,7 +52,7 @@ const ExportModal: React.FC<ExportModalProps> = (
   );
   const fields = useMemo(
     () => {
-      switch (type) { 
+      switch (type) {
         case "orders_online":
           return fields_order_online;
         case "orders_offline":

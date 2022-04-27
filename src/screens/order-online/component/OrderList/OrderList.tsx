@@ -111,7 +111,9 @@ function OrderList(props: PropTypes) {
   const [deliveryServices, setDeliveryServices] = useState<
     Array<DeliveryServiceResponse>
   >([]);
-
+  const type = useMemo(() => {
+    return !isShowOfflineOrder ? "orders_online" : "orders_offline"
+  }, [isShowOfflineOrder])
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -660,7 +662,7 @@ function OrderList(props: PropTypes) {
               setStatusExport(1);
             }}
             onOk={(optionExport, hiddenFieldsExport) => onExport(optionExport, hiddenFieldsExport)}
-            type={initQuery.is_online ? "orders_online" : "order_offline"}
+            type={type}
             total={data.metadata.total}
             exportProgress={exportProgress}
             statusExport={statusExport}
