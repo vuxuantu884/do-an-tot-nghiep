@@ -396,7 +396,7 @@ function OrderList(props: PropTypes) {
   }, [dispatch]);
 
   const onExport = useCallback(
-    (optionExport, typeExport) => {
+    (optionExport, hiddenFieldsExport) => {
       let newParams: any = { ...params };
       // let hiddenFields = [];
       switch (optionExport) {
@@ -422,7 +422,7 @@ function OrderList(props: PropTypes) {
       exportFile({
         conditions: queryParams,
         type: "EXPORT_ORDER",
-        is_online: !isShowOfflineOrder ? "true": "false",
+        hidden_fields: hiddenFieldsExport,
       })
         .then((response) => {
           if (response.code === HttpStatus.SUCCESS) {
@@ -437,7 +437,7 @@ function OrderList(props: PropTypes) {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, isShowOfflineOrder, EXPORT_IDs, selectedRowCodes, listExportFile]
+    [params, EXPORT_IDs, selectedRowCodes, listExportFile]
   );
   const checkExportFile = useCallback(() => {
 
@@ -659,8 +659,8 @@ function OrderList(props: PropTypes) {
               setExportProgress(0);
               setStatusExport(1);
             }}
-            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
-            type="orders"
+            onOk={(optionExport, hiddenFieldsExport) => onExport(optionExport, hiddenFieldsExport)}
+            type={initQuery.is_online ? "orders_online" : "order_offline"}
             total={data.metadata.total}
             exportProgress={exportProgress}
             statusExport={statusExport}
