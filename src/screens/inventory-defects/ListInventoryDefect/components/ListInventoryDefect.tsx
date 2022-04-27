@@ -30,6 +30,7 @@ import { DefectFilterBasicEnum, DefectFilterBasicName } from "model/inventory-de
 import { useArray } from "hook/useArray";
 import BaseFilterResult from "component/base/BaseFilterResult";
 import { DeleteOutlined } from "@ant-design/icons";
+import EditPopover from "./EditPopover";
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch()
@@ -190,9 +191,10 @@ const ListInventoryDefect: React.FC = () => {
         render: (value, item: InventoryDefectResponse) => {
           return (
             <div className="single">
-              <EditNote
-                note={item.defect}
-                title="Số lỗi: "
+              <EditPopover
+                content={item.defect}
+                title="Sửa số lỗi: "
+                label="Số lỗi: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editItemDefect(newNote, InventoryDefectFields.defect, item.id);
