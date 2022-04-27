@@ -115,7 +115,7 @@ export default function Order() {
 	const [storeId, setStoreId] = useState<number | null>(null);
 	const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
 	const [shipmentMethod, setShipmentMethod] = useState<number>(
-		ShipmentMethodOption.PICK_AT_STORE
+		ShipmentMethodOption.DELIVER_LATER
 	);
 	const [paymentMethod, setPaymentMethod] = useState<number>(
 		PaymentMethodOption.POSTPAYMENT
@@ -742,6 +742,7 @@ export default function Order() {
 			dispatch(getCustomerDetailAction(+customerParam, setCustomer))
 		}
 	}, [customerParam, dispatch])
+
 	useEffect(() => {
 		const fetchData = async () => {
 			if (isCloneOrder && cloneIdParam) {
@@ -983,7 +984,7 @@ export default function Order() {
 				setIsLoadForm(true);
 				setShippingFeeInformedToCustomer(0);
 				setPromotion(null)
-				setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE);
+				setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
 				form.resetFields();
 			}
 		};
