@@ -1724,10 +1724,8 @@ ShippingServiceConfigDetailResponseModel[]
 	}, [dispatch, listExchangeProducts?.length]);
 
   useEffect(() => {
-    if(isOrderFromPOS(OrderDetail)) {
-      setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE)
-    }
-  }, [OrderDetail])
+    setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE)
+  }, [])
 
   useEffect(() => {
     if(listExchangeProducts.length > 0) {
