@@ -171,7 +171,7 @@ function ReadWarranty(props: PropTypes) {
 
   return (
     <ContentContainer
-      title="Phiếu bảo hành"
+      title={`Phiếu bảo hành ID ${id}`}
       breadcrumb={[
         {
           name: "Tổng quan",
