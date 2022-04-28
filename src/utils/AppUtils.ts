@@ -7,53 +7,53 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import _, { sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DepartmentResponse, DepartmentView } from "model/account/department.model";
+import { BaseMetadata } from "model/base/base-metadata.response";
 import { CityView, DistrictResponse } from "model/content/district.model";
 import { LineItem } from "model/inventory/transfer";
+import { OrderModel } from "model/order/order.model";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import {
-	ProductRequest,
-	ProductRequestView,
-	ProductResponse,
-	VariantImage,
-	VariantPriceRequest,
-	VariantPricesResponse,
-	VariantPriceViewRequest,
-	VariantRequest,
-	VariantRequestView,
-	VariantResponse,
-	VariantUpdateRequest,
-	VariantUpdateView
+  ProductRequest,
+  ProductRequestView,
+  ProductResponse,
+  VariantImage,
+  VariantPriceRequest,
+  VariantPricesResponse,
+  VariantPriceViewRequest,
+  VariantRequest,
+  VariantRequestView,
+  VariantResponse,
+  VariantUpdateRequest,
+  VariantUpdateView
 } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   OrderDiscountRequest,
-	OrderLineItemRequest,
-	OrderPaymentRequest
+  OrderLineItemRequest,
+  OrderPaymentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-	FulFillmentResponse,
-	// DeliveryServiceResponse,
-	OrderLineItemResponse,
-	OrderPaymentResponse,
-	OrderResponse,
-	ReturnProductModel
+  FulFillmentResponse,
+  // DeliveryServiceResponse,
+  OrderLineItemResponse,
+  OrderPaymentResponse,
+  OrderResponse,
+  ReturnProductModel
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
+import { BaseFilterTag } from "../model/base/base-filter-tag";
 import { ErrorGHTK, FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
+import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
 import { RegUtil } from "./RegUtils";
-import {BaseFilterTag} from "../model/base/base-filter-tag";
 import { showError, showSuccess } from "./ToastUtils";
-import { OrderModel } from "model/order/order.model";
-import { ORDER_SUB_STATUS } from "./OrderSubStatusUtils";
-import { BaseMetadata } from "model/base/base-metadata.response";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -1725,10 +1725,9 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
   let isChange = true;
   switch (sub_status_code) {
     case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
-      const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
       if (
         !sortedFulfillments[0]?.shipment ||
-        (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status))
+        (sortedFulfillments[0]?.status && checkIfFulfillmentCanceled(sortedFulfillments[0]))
       ) {
         isChange = true;
       } else {
@@ -1738,9 +1737,8 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
       break;
     }
     case ORDER_SUB_STATUS.coordinator_confirmed: {
-      const cancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
       if (
-        (sortedFulfillments[0]?.status && cancelStatus.includes(sortedFulfillments[0]?.status)) ||
+        (sortedFulfillments[0]?.status && checkIfFulfillmentCanceled(sortedFulfillments[0])) ||
         !sortedFulfillments[0]?.shipment
       ) {
         isChange = false;
@@ -1766,7 +1764,7 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
   return isChange;
 };
 
-export const isFulfillmentCancelled = (fulfillment: FulFillmentResponse) => {
+export const checkIfFulfillmentCanceled = (fulfillment: FulFillmentResponse) => {
   if (fulfillment.status === FulFillmentStatus.CANCELLED ||
     fulfillment.status === FulFillmentStatus.RETURNING ||
     fulfillment.status === FulFillmentStatus.RETURNED) {
@@ -1783,7 +1781,7 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, 
     return false;
   }
   let isChange = true;
-  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !isFulfillmentCancelled(single)) : [];
+  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !checkIfFulfillmentCanceled(single)) : [];
   switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
     // giao hàng hvc, tự giao hàng
     case ShipmentMethod.EXTERNAL_SERVICE:

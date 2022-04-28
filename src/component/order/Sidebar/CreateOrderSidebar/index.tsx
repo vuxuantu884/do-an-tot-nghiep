@@ -7,7 +7,7 @@ import CreateOrderSidebarOrderExtraInformation from "../CreateOrderSidebarOrderE
 import CreateOrderSidebarOrderInformation from "../CreateOrderSidebarOrderInformation";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   form: FormInstance<any>;
   tags: string;
   levelOrder?: number;
@@ -17,6 +17,7 @@ type PropType = {
   orderDetail?: OrderResponse | null;
   listOrderSubStatus?: OrderSubStatusResponse[];
   onChangeTag: (value: []) => void;
+  setReload: (value: boolean) => void;
 };
 
 /**
@@ -32,9 +33,18 @@ type PropType = {
  *
  * onChangeTag: xử lý khi thay đổi tag
  */
-function CreateOrderSidebar(props: PropType): JSX.Element {
-  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, storeId, updateOrder} =
-    props;
+function CreateOrderSidebar(props: PropTypes): JSX.Element {
+  const {
+    onChangeTag,
+    tags,
+    customerId,
+    orderDetail,
+    listOrderSubStatus,
+    form,
+    storeId,
+    updateOrder,
+    setReload,
+  } = props;
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
 
@@ -44,26 +54,28 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 
   return (
     <StyledComponent>
-      <CreateOrderSidebarOrderInformation form={form} orderDetail={orderDetail} storeId={storeId} updateOrder={updateOrder} />
+      <CreateOrderSidebarOrderInformation
+        form={form}
+        orderDetail={orderDetail}
+        storeId={storeId}
+        updateOrder={updateOrder}
+      />
       {listOrderSubStatus && (
         <SubStatusOrder
           subStatusCode={orderDetail?.sub_status_code}
           status={orderDetail?.status}
           orderId={orderDetail?.id}
-          fulfillments={orderDetail?.fulfillments}
           handleUpdateSubStatus={handleUpdateSubStatus}
-          setReload={() => {}}
           OrderDetailAllFulfillment={orderDetail}
+          setReload={setReload}
         />
       )}
       <Card title="THÔNG TIN BỔ SUNG">
         <CreateOrderSidebarOrderExtraInformation onChangeTag={onChangeTag} tags={tags} />
       </Card>
-			{customerId && (
-				<SidebarOrderHistory customerId={customerId} />
-			)}
+      {customerId && <SidebarOrderHistory customerId={customerId} />}
     </StyledComponent>
   );
-};
+}
 
 export default CreateOrderSidebar;
