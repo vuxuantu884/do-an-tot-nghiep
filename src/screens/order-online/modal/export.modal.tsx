@@ -1,6 +1,6 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Col, Modal, Progress, Radio, Row, Space } from "antd";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { fields_order_online, fields_order_offline } from "../common/fields.export";
 type ExportModalProps = {
   visible: boolean;
@@ -72,6 +72,24 @@ const ExportModal: React.FC<ExportModalProps> = (
   const [fieldsExport, setFieldsExport] = useState<Array<any>>(fields.map(i => {
     return i.value
   }));
+
+  useEffect(() => {
+    switch (type) {
+      case "orders_online":
+        const fieldsExportOrdersOnline = localStorage.getItem("orders_online_fields_export");
+        fieldsExportOrdersOnline && setFieldsExport(JSON.parse(fieldsExportOrdersOnline));
+        break;
+      case "orders_offline":
+        const fieldsExportOrdersOffline = localStorage.getItem("orders_offline_fields_export");
+        fieldsExportOrdersOffline && setFieldsExport(JSON.parse(fieldsExportOrdersOffline));
+        break;
+      // case "shipments":
+      //   return fields_shipment
+      // case "returns":
+      //   return fields_return
+      default: break;
+    }
+  }, [type]);
   const [editFields, setEditFields] = useState(false);
 
   const submit = useCallback(
@@ -86,19 +104,30 @@ const ExportModal: React.FC<ExportModalProps> = (
       hidden_fields.forEach(i => {
         hidden_fields_text = hidden_fields_text + i.value + ","
       });
+      switch (type) {
+        case "orders_online":
+          localStorage.setItem("orders_online_fields_export", JSON.stringify(fieldsExport));
+          break;
+        case "orders_offline":
+          localStorage.setItem("orders_offline_fields_export", JSON.stringify(fieldsExport));
+          break;
+        // case "shipments":
+        //   localStorage.setItem("shipments_fields_export", JSON.stringify(fieldsExport));
+        // case "returns":
+        //   localStorage.setItem("returns_fields_export", JSON.stringify(fieldsExport));
+        default:
+          return []
+      }
       console.log('hidden_fields_text', hidden_fields_text.slice(0, hidden_fields_text.length - 1))
       onOk(optionExport, hidden_fields_text.slice(0, hidden_fields_text.length - 1));
-    },[fields, fieldsExport, onOk, optionExport]
+    },[fields, fieldsExport, onOk, optionExport, type]
   );
   
   return (
     <Modal
       onCancel={onCancel}
-      // onOk={onOk}
       visible={visible}
       centered
-      // okText="Xuất file"
-      // cancelText="Thoát"
       title={[
         <span style={{fontWeight: 600, fontSize: 16}}>
           {editFields && <span style={{ color: '#2a2a86', marginRight: '10px'}}><ArrowLeftOutlined onClick={() => setEditFields(false)}/></span>}
@@ -143,9 +172,11 @@ const ExportModal: React.FC<ExportModalProps> = (
             <Radio value={2}>File chi tiết</Radio>
           </Space>
         </Radio.Group> */}
-        <div>
-        <Button type="link" style={{ padding: 0 }} onClick={() => setEditFields(true)}>Tuỳ chọn trường hiển thị</Button>
-        </div>
+        {(type === "orders_online" || type === "orders_offline") && 
+          <div>
+            <Button type="link" style={{ padding: 0, color: "#2a2a86" }} onClick={() => setEditFields(true)}>Tuỳ chọn cột hiển thị</Button>
+          </div>
+        }
       </div>
       )}
       {editFields && statusExport === 1 && (
