@@ -53,6 +53,8 @@ export const ORDER_SUB_STATUS = {
   delivery_service_cancelled: "delivery_service_cancelled",
   compensate: "compensate",
   delivery_fail: "delivery_fail",
+  change_depot: "change_depot",
+  out_of_stock: "out_of_stock",
 };
 
 export const SUB_STATUS_CANCEL_CODE = [

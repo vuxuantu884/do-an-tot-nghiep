@@ -95,9 +95,14 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     }
   };
 
+  const RELOAD_STATUSES = [
+    ...SUB_STATUS_CANCEL_CODE,
+    ORDER_SUB_STATUS.out_of_stock,
+  ]
+
   const changeSubStatusCallback = (value: string) => {
     setValueSubStatusCode(value);
-    if(SUB_STATUS_CANCEL_CODE.includes(value)) {
+    if(RELOAD_STATUSES.includes(value)) {
       setReload(true)
     }
   };
@@ -109,7 +114,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
   }, [subStatusCode]);
 
   useEffect(() => {
-    const code = ["change_depot"];
+    const code = [ORDER_SUB_STATUS.change_depot];
     getOrderReasonService(code).then((response) => {
       if (isFetchApiSuccessful(response)) {
         setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons);

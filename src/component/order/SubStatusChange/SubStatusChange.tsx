@@ -2,7 +2,7 @@ import ModalConfirm from "component/modal/ModalConfirm";
 import { setSubStatusAction } from "domain/actions/order/order.action";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { SUB_STATUS_CANCEL_CODE } from "utils/Order.constants";
+import { ORDER_SUB_STATUS, SUB_STATUS_CANCEL_CODE } from "utils/Order.constants";
 import { StyledComponent } from "./SubStatusChange.styles";
 
 type PropTypes = {
@@ -32,7 +32,7 @@ function SubStatusChange(props: PropTypes): JSX.Element {
       setSubText(
         "Đơn hàng trạng thái khách hàng hủy, HVC hủy, Hệ thống hủy sẽ không thao tác được nữa."
       );
-    } else if (toSubStatus === "out_of_stock") {
+    } else if (toSubStatus === ORDER_SUB_STATUS.out_of_stock) {
       setSubText("Đơn hàng trạng thái Hết Hàng sẽ không thao tác được nữa.");
       setIsShowModalConfirm(true);
       isChange = false;
