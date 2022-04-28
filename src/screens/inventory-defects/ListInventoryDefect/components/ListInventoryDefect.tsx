@@ -16,13 +16,12 @@ import { createInventoryDefect, deleteInventoryDefect, getListInventoryDefect } 
 import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import UrlConfig from "config/url.config";
-import { generateQuery, formatFieldTag, transformParamsToObject } from "utils/AppUtils";
+import { generateQuery, formatFieldTag, transformParamsToObject, splitEllipsis } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { cloneDeep, isArray, isEmpty } from "lodash";
+import { cloneDeep, debounce, isArray, isEmpty } from "lodash";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { VariantResponse } from "model/product/product.model";
 import TextEllipsis from "component/table/TextEllipsis";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { StoreResponse } from "model/core/store.model";
@@ -31,6 +30,7 @@ import { useArray } from "hook/useArray";
 import BaseFilterResult from "component/base/BaseFilterResult";
 import { DeleteOutlined } from "@ant-design/icons";
 import EditPopover from "./EditPopover";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch()
@@ -115,20 +115,33 @@ const ListInventoryDefect: React.FC = () => {
         items: [itemEdit]
       }
       // phía BE viết chức năng update và create chung 1 api
+      dispatch(showLoading())
       const res = await callApiNative({ isShowError: true }, dispatch, createInventoryDefect, itemSubmit)
       if (res) {
-        getInventoryDefects()
-        showSuccess('Sửa sản phẩm thành công')
+        // BE yêu cầu chờ 3s để đồng bộ ES
+        setTimeout(() => {
+          getInventoryDefects()
+          showSuccess('Sửa sản phẩm thành công')
+        }, 3000)
       } else {
-        showError('Sửa sản phẩm không thành công')
+        dispatch(hideLoading())
       }
     }
   }, [dispatch, data, getInventoryDefects])
 
   const handleDelete = useCallback(async (id: number) => {
-    await callApiNative({ isShowError: true }, dispatch, deleteInventoryDefect, id);
-    showSuccess('Xóa sản phẩm thành công')
-    getInventoryDefects()
+    dispatch(showLoading())
+    const response = await callApiNative({ isShowError: true }, dispatch, deleteInventoryDefect, id);
+    if (response) {
+      // BE yêu cầu chờ 3s để đồng bộ ES
+      setTimeout(() => {
+        getInventoryDefects()
+        showSuccess('Xóa sản phẩm thành công')
+        // dispatch(hideLoading())
+      }, 3000)
+    } else {
+      dispatch(hideLoading())
+    }
   }, [dispatch, getInventoryDefects]);
 
   const initColumns: Array<ICustomTableColumType<InventoryDefectResponse>> = useMemo(() => {
@@ -136,17 +149,18 @@ const ListInventoryDefect: React.FC = () => {
       {
         title: "Ảnh",
         align: "center",
+        dataIndex: "variant_image",
         width: 70,
-        render: (value: VariantResponse) => {
-          let url = null;
-          value.variant_images?.forEach((item) => {
-              if (item.product_avatar) {
-                url = item.url;
-              }
-            });
+        render: (value: string) => {
+          // let url = null;
+          // value.variant_images?.forEach((item) => {
+          //     if (item.product_avatar) {
+          //       url = item.url;
+          //     }
+          //   });
           return (
             <>
-              {url ? <Image width={40} height={40} placeholder="Xem" src={url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={url} />}
+              {value ? <Image width={40} height={40} placeholder="Xem" src={value ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={value} />}
             </>
           );
         },
@@ -160,14 +174,18 @@ const ListInventoryDefect: React.FC = () => {
         fixed: "left",
         visible: true,
         render: (value: string, item: InventoryDefectResponse) => {
+          let strName = (item.name.trim());
+          strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
+            : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
+              : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
           return (
             <>
-            <div>
-              <div>{value}</div>
-            </div>
-              <Link to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}>
-                <TextEllipsis value={item?.name ?? ""} line={1}></TextEllipsis>
-              </Link>
+              <div>
+                <Link className="yody-text-ellipsis" to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}>
+                  {value}
+                </Link>
+              </div>
+              <TextEllipsis value={strName ?? ""} line={1}></TextEllipsis>
             </>
           )
         },
@@ -293,12 +311,19 @@ const ListInventoryDefect: React.FC = () => {
     [params, history]
   );
 
-  const onFinish = useCallback(async (data) => {
+  const onFinish = useCallback((data) => {
     const newParam = { ...params, ...data }
     setParams(newParam)
     const queryParam = generateQuery(newParam)
     history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
   }, [history, params])
+
+  const onSearch = debounce((value) => {
+    const newParam = { ...params, [DefectFilterBasicEnum.condition]: value }
+    setParams(newParam)
+    const queryParam = generateQuery(newParam)
+    history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+  }, 300)
 
   useEffect(() => {
     form.setFieldsValue({
@@ -347,31 +372,35 @@ const ListInventoryDefect: React.FC = () => {
 
   return (
     <Card>
-        <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
-          <Item style={{ flex: 1 }} name={DefectFilterBasicEnum.condition} className="input-search">
-            <Input
-              allowClear
-              prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo mã vạch, sku, tên sản phẩm"
-            />
-          </Item>
-          <Item name={DefectFilterBasicEnum.store_ids} style={{ minWidth: 250 }}>
-            <TreeStore
-              form={form}
-              name={DefectFilterBasicEnum.store_ids}
-              placeholder="Chọn cửa hàng"
-              listStore={stores}
-            />
-          </Item>
-          <Item>
-            <Button htmlType="submit" type="primary">
-              Lọc
-            </Button>
-          </Item>
-          <Item>
-            <ButtonSetting onClick={() => setShowSettingColumn(true)} />
-          </Item>
-        </Form>
+      <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
+        <Item style={{ flex: 1 }} name={DefectFilterBasicEnum.condition} className="input-search">
+          <Input
+            allowClear
+            prefix={<img src={search} alt="" />}
+            placeholder="Tìm kiếm theo mã vạch, sku, tên sản phẩm"
+            onChange={(e) => {
+              const value: string = e.target.value
+              onSearch(value)
+            }}
+          />
+        </Item>
+        <Item name={DefectFilterBasicEnum.store_ids} style={{ minWidth: 250 }}>
+          <TreeStore
+            form={form}
+            name={DefectFilterBasicEnum.store_ids}
+            placeholder="Chọn cửa hàng"
+            listStore={stores}
+          />
+        </Item>
+        <Item>
+          <Button htmlType="submit" type="primary">
+            Lọc
+          </Button>
+        </Item>
+        <Item>
+          <ButtonSetting onClick={() => setShowSettingColumn(true)} />
+        </Item>
+      </Form>
       <div style={{ marginTop: paramsArray.length > 0 ? 10 : 20 }}>
         <BaseFilterResult data={paramsArray} onClose={onRemoveStatus} />
       </div>
