@@ -1,3 +1,5 @@
+import { FulFillmentStatus } from "./Constants";
+
 export const DELIVER_SERVICE_STATUS = {
   active: "active",
   inactive: "inactive",
@@ -45,7 +47,6 @@ export const ORDER_SUB_STATUS = {
   canceled: "canceled",
   fourHour_delivery: "4h_delivery",
   order_return: "order_return",
-  het_hang: "het_hang",
   returning: "returning",
   returned: "returned",
   customer_cancelled: "customer_cancelled",
@@ -55,6 +56,7 @@ export const ORDER_SUB_STATUS = {
   delivery_fail: "delivery_fail",
   change_depot: "change_depot",
   out_of_stock: "out_of_stock",
+  coordinator_confirming: "coordinator_confirming",
 };
 
 export const SUB_STATUS_CANCEL_CODE = [
@@ -72,3 +74,5 @@ export const ORDER_RETURN_SUB_STATUS = {
     code: "returned",
   },
 };
+
+export const FulfillmentCancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING, FulFillmentStatus.CANCELLED];

@@ -29,6 +29,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import {
+  checkIfFulfillmentCanceled,
   copyTextToClipboard,
   formatCurrency,
   getOrderTotalPaymentAmount,
@@ -461,6 +462,32 @@ function OrdersTable(props: PropTypes) {
       )?.sub_status;
       setData(dataResult);
     }
+  };
+
+  const checkIfOrderCannotChangeToWarehouseChange = (orderDetail: OrderExtraModel) => {
+    const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
+      return (
+        !orderDetail.fulfillments?.some(single => {
+          return single.shipment && !checkIfFulfillmentCanceled(single)
+        }
+      ))
+    }
+    const checkIfOrderIsNew = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation
+      )
+    }
+    const checkIfOrderIsConfirm = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming
+      )
+    }
+    const checkIfOrderIsAwaitSaleConfirm= (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation
+      )
+    }
+    return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
   };
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
@@ -1100,11 +1127,7 @@ function OrdersTable(props: PropTypes) {
                       }}
                       className={className}
                       onChange={(value) => {
-                        const arrWarehouseChangeNotChange = [
-                          ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
-                          ORDER_SUB_STATUS.returned
-                        ]
-                        if (arrWarehouseChangeNotChange.includes(selected) && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                        if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
                           showError("Bạn không thể đổi sang trạng thái khác!")
                           return;
                         }
