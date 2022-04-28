@@ -1,4 +1,4 @@
-import UrlConfig from "config/url.config";
+import UrlConfig, { AccountUrl } from "config/url.config";
 import React from "react";
 import {RouteMenu} from "model/other";
 import {
@@ -145,7 +145,7 @@ const setting: Array<RouteMenu> = [
         pathIgnore: ["create"],
         permissions: [AccountPermissions.UPDATE],
       }, {
-        path: `${UrlConfig.ACCOUNTS}/me/update-password`,
+        path: AccountUrl.UPDATE_PASSWORD,
         exact: true,
         title: "Đặt lại mật khẩu",
         icon: "icon-dot",

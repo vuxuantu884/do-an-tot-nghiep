@@ -6,8 +6,8 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AppSettingReducerType } from "model/reducers/AppSettingReducerType";
 
-export const loadUserFromStorageAction = () => {
-  return BaseAction(AppType.LOAD_USER_FROM_STORAGE, null);
+export const loadUserFromStorageAction = (handleData?: (account: AccountResponse) => void) => {
+  return BaseAction(AppType.LOAD_USER_FROM_STORAGE, { handleData });
 };
 
 export const loadSettingAppAction = () => {
