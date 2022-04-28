@@ -615,7 +615,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 		setSelectedRow(selectedRow);
 	}, []);
 
-	const onExport = useCallback((optionExport, typeExport) => {
+	const onExport = useCallback((optionExport) => {
 		let newParams: any = { ...params };
 		// let hiddenFields = [];
 		switch (optionExport) {
@@ -870,7 +870,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 						setExportProgress(0)
 						setStatusExport(1)
 					}}
-					onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+					onOk={(optionExport) => onExport(optionExport)}
 					type="shipments"
 					total={data.metadata.total}
 					exportProgress={exportProgress}

@@ -99,7 +99,7 @@ const ExportModal: React.FC<ExportModalProps> = (
         let findIndex = hidden_fields.findIndex(i => i.value === field);
         hidden_fields.splice(findIndex, 1);
       });
-      console.log('hidden_fields', hidden_fields)
+      // console.log('hidden_fields', hidden_fields);
       let hidden_fields_text = "";
       hidden_fields.forEach(i => {
         hidden_fields_text = hidden_fields_text + i.value + ","
@@ -115,10 +115,9 @@ const ExportModal: React.FC<ExportModalProps> = (
         //   localStorage.setItem("shipments_fields_export", JSON.stringify(fieldsExport));
         // case "returns":
         //   localStorage.setItem("returns_fields_export", JSON.stringify(fieldsExport));
-        default:
-          return []
+        default: break;
       }
-      console.log('hidden_fields_text', hidden_fields_text.slice(0, hidden_fields_text.length - 1))
+      // console.log('hidden_fields_text', hidden_fields_text.slice(0, hidden_fields_text.length - 1))
       onOk(optionExport, hidden_fields_text.slice(0, hidden_fields_text.length - 1));
     },[fields, fieldsExport, onOk, optionExport, type]
   );
