@@ -80,7 +80,7 @@ import {
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
-import { RETURN_MONEY_TYPE } from "utils/Order.constants";
+import { RETURN_MONEY_TYPE, RETURN_TYPE_VALUES } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -774,7 +774,8 @@ ShippingServiceConfigDetailResponseModel[]
           if(!valuesResult) {
             return;
           }
-          valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+          // valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+          valuesResult.channel_id = orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code");
           values.assignee_code = form.getFieldValue("assignee_code");
@@ -927,7 +928,8 @@ ShippingServiceConfigDetailResponseModel[]
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
     values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
-    values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+    // values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+    values.channel_id = orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -1758,7 +1760,7 @@ ShippingServiceConfigDetailResponseModel[]
     }
   },[eventFunctional])
   
-  if(orderReturnType !== "ONLINE" && orderReturnType!=="OFFLINE") {
+  if(orderReturnType !== RETURN_TYPE_VALUES.online && orderReturnType!==RETURN_TYPE_VALUES.offline) {
     return <p style={{marginTop: 20}}>Vui lòng kiểm tra đường dẫn!</p>;
   }
 
