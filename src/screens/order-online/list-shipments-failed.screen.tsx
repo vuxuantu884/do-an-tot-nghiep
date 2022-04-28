@@ -617,7 +617,7 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 		setSelectedRow(selectedRow);
 	}, []);
 
-	const onExport = useCallback((optionExport, typeExport) => {
+	const onExport = useCallback((optionExport) => {
 		let newParams: any = { ...params };
 		// let hiddenFields = [];
 		switch (optionExport) {
