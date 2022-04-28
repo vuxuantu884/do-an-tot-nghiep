@@ -510,6 +510,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   );
 
   const dataExportCallback = (data: any) => {
+    setTableLoading(false);
     if (data.code === HttpStatus.SUCCESS) {
       showSuccess(`Xuất kho thành công`);
       setParams({
@@ -522,11 +523,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     if (data.code === HttpStatus.BAD_REQUEST) {
       setIsStatusModalVisible(true);
       setDataUploadError(data.errors);
+      setSelectedRowKeys([]);
     }
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const exportMultiple = async () => {
+    setTableLoading(true);
     const ids = selectedRowKeys.map((i) => {
       return {
         id: i
