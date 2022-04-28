@@ -60,6 +60,7 @@ export interface ReturnRequest extends OrderRequest {
   store_code:string;
   store_phone_number:string;
   store_full_address:string;
+  type: string;
 }
 
 export interface ExchangeRequest extends OrderRequest {

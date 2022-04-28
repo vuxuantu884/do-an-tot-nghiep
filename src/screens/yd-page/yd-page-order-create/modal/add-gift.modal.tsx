@@ -33,6 +33,7 @@ type AddGiftModalProps = {
   onOk: () => void;
   items: Array<OrderLineItemRequest>;
   onUpdateData: (items: Array<OrderLineItemRequest>) => void;
+  storeId?: number | null;
 };
 
 const initQuery: VariantSearchQuery = {
@@ -71,17 +72,17 @@ const renderSearch = (item: VariantResponse) => {
           {findPrice(item.variant_prices, AppConfig.currency)}
         </span>
         <span style={{ color: "#95A1AC" }} className="text t-right p-4">
-          Có thể bán{" "}
-          <span
+          Có thể bán:
+					<span
             style={{
               color:
-                item.inventory > 0
-                  ? "rgba(0, 128, 255, 1)"
+                (item.available === null ? 0 : item.available) > 0
+                  ? "#2A2A86"
                   : "rgba(226, 67, 67, 1)",
             }}
           >
-            {item.inventory}
-          </span>
+						{` ${item.available === null ? 0 : item.available}`}
+					</span>
         </span>
       </div>
     </div>
@@ -91,12 +92,12 @@ const renderSearch = (item: VariantResponse) => {
 const AddGiftModal: React.FC<AddGiftModalProps> = (
   props: AddGiftModalProps
 ) => {
-  const { visible, onCancel, onOk } = props;
+  const { visible, onCancel, onOk, storeId } = props;
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<
     PageResponse<VariantResponse>
-  >({
+    >({
     metadata: {
       limit: 0,
       page: 1,
@@ -126,12 +127,12 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
           <div className="yody-pos-sku">
-          <Link
-                  target="_blank"
-                  to={`${UrlConfig.PRODUCT}/${a.product_id}/variants/${a.variant_id}`}
-                >
-                  {a.sku}
-                </Link>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${a.product_id}/variants/${a.variant_id}`}
+            >
+              {a.sku}
+            </Link>
           </div>
           <Badge status="default" text={a.variant} style={{ marginLeft: 7 }} />
         </div>
@@ -139,6 +140,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     },
     {
       title: "Số lượng",
+      width: 70,
       render: (a: OrderItemModel, b: any, index: number) => (
         <div>
           <Input
@@ -156,7 +158,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: "100px", textAlign: "right" }}
+            style={{ textAlign: "right" }}
           />
         </div>
       ),
@@ -167,6 +169,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     // },
     {
       title: "",
+      width: 60,
       render: (a: any, b: any, index: number) => {
         return (
           <div style={{ textAlign: "right" }}>
@@ -174,6 +177,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
               type="text"
               onClick={() => deleteItem(index)}
               className="yody-pos-delete-item ant-btn-custom"
+              style={{ padding: "0 15px" }}
             >
               <img src={XCloseBtn} alt="" />
             </Button>
@@ -187,9 +191,10 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     (value) => {
       setKeysearch(value);
       initQuery.info = value;
+      initQuery.store_ids=storeId;
       dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
     },
-    [dispatch]
+    [dispatch,storeId]
   );
 
   const convertResultSearch = useMemo(() => {

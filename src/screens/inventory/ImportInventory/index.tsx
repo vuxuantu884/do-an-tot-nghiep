@@ -98,6 +98,10 @@ const UpdateTicket: FC = () => {
   };
 
   const onFinish = useCallback((data: any) => {
+    if (!data.fileUpload || data.fileUpload.length === 0) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     if (stores) {
       stores.forEach((store) => {
@@ -121,7 +125,7 @@ const UpdateTicket: FC = () => {
         }
       });
     }
-    data.fileUpload = data.fileUpload.file;
+    data.fileUpload = data.fileUpload[0].originFileObj;
     delete data.from_store_id;
     delete data.to_store_id;
 
@@ -165,6 +169,13 @@ const UpdateTicket: FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stores]);
+
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
 
   return (
     <StyledWrapper>
@@ -275,6 +286,7 @@ const UpdateTicket: FC = () => {
                       label={<b>File excel:</b>}
                       colon={false}
                       name="fileUpload"
+                      getValueFromEvent={normFile}
                     >
                       <Upload
                         beforeUpload={() => false}

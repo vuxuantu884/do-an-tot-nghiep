@@ -229,6 +229,8 @@ ShippingServiceConfigDetailResponseModel[]
 	const [isLoadForm, setIsLoadForm] = useState(false);
 	const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
 
+	const [reload, setReload] = useState(false);
+
 	const [isDisableSelectSource, setIsDisableSelectSource] = useState(false)
 
 	const stepsStatusValue = useMemo(() => {
@@ -1145,7 +1147,7 @@ ShippingServiceConfigDetailResponseModel[]
 	useEffect(() => {
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [id, dispatch, userReducer.account?.code, isSplit]);
+	}, [id, dispatch, userReducer.account?.code, isSplit, reload]);
 
 	useEffect(() => {
 		if (customer) {
@@ -2598,6 +2600,7 @@ ShippingServiceConfigDetailResponseModel[]
 										storeId={storeId}
 										orderDetail={OrderDetail}
 										updateOrder
+										setReload={setReload}
 									/>
 								</Col>
 							</Row>

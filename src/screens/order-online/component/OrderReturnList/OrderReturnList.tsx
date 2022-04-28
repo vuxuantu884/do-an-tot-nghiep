@@ -41,11 +41,10 @@ import {StyledComponent} from "./OrderReturnList.styles";
 type PropTypes = {
   initQuery: ReturnSearchQuery;
   location: any;
-  isShowOfflineOrder: boolean;
 }
 
 function OrderReturnList(props: PropTypes) {
-  const {initQuery, location, isShowOfflineOrder} = props;
+  const {initQuery, location} = props;
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -346,7 +345,6 @@ function OrderReturnList(props: PropTypes) {
     exportFile({
       conditions: queryParams,
       type: "TYPE_EXPORT_ORDER_RETURN",
-      is_online: !isShowOfflineOrder ? "true": "false",
     })
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
@@ -360,7 +358,7 @@ function OrderReturnList(props: PropTypes) {
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }, [params, isShowOfflineOrder, selectedRowCodes, listExportFile]);
+  }, [params, selectedRowCodes, listExportFile]);
 
   const checkExportFile = useCallback(() => {
     

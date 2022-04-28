@@ -4,17 +4,14 @@ import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconPrint from "assets/icon/Print.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
-import iconReturn from "assets/icon/return.svg";
 import search from "assets/img/search.svg";
+import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  getListSubStatusAction,
-  getTrackingLogFulfillmentAction,
-  setSubStatusAction,
-  updateOrderPartial
+  getTrackingLogFulfillmentAction, updateOrderPartial
 } from "domain/actions/order/order.action";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
@@ -31,17 +28,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import {
+  checkIfFulfillmentCanceled,
+  checkIfOrderCanBeReturned,
   copyTextToClipboard,
   formatCurrency,
   getOrderTotalPaymentAmount,
-  getTotalQuantity,
-  getValidateChangeOrderSubStatus,
-  handleFetchApiError,
+  getTotalQuantity, handleFetchApiError,
   isFetchApiSuccessful,
   isNormalTypeVariantItem,
-  isOrderFromPOS,
-  isOrderFromSaleChannel,
-  sortFulfillments
+  isOrderFromPOS, sortFulfillments
 } from "utils/AppUtils";
 import {
   COD, DELIVERY_SERVICE_PROVIDER_CODE, FACEBOOK,
@@ -54,9 +49,10 @@ import {
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
 import IconPaymentBank from "./images/chuyen-khoan.svg";
@@ -129,6 +125,9 @@ function OrdersTable(props: PropTypes) {
     subStatus: "subStatus",
     setSubStatus: "setSubStatus",
   };
+
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
+
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
 
   const [typeAPi, setTypeAPi] = useState("");
@@ -139,6 +138,9 @@ function OrdersTable(props: PropTypes) {
   // useState(false);
 
   // console.log('isVisiblePopup', isVisiblePopup)
+
+  const subStatuses = useGetOrderSubStatuses();
+  console.log('subStatuses', subStatuses)
 
   itemResult = data.items;
   metadataResult = data.metadata;
@@ -221,24 +223,30 @@ function OrdersTable(props: PropTypes) {
     let html = null;
     if (orderDetail.channel_code === POS.channel_code) {
       html = (
-        <Tooltip title="Đơn hàng tại quầy">
-          <img src={IconStore} alt="" />
-        </Tooltip>
+        <div className="orderSource actionButton">
+          <Tooltip title="Đơn hàng tại quầy">
+            <img src={IconStore} alt="" />
+          </Tooltip>
+        </div>
       );
     } else {
       switch (orderDetail.channel_id) {
         case SHOPEE.channel_id:
           html = (
-            <Tooltip title="Đơn hàng tại Shopee">
-              <img src={IconShopee} alt="" />
-            </Tooltip>
+            <div className="orderSource actionButton">
+              <Tooltip title="Đơn hàng tại Shopee">
+                <img src={IconShopee} alt="" />
+              </Tooltip>
+            </div>
           );
           break;
         case FACEBOOK.channel_id:
           html = (
-            <Tooltip title="Đơn hàng từ Facebook">
-              <img src={IconFacebook} alt="" />
-            </Tooltip>
+            <div className="orderSource actionButton">
+              <Tooltip title="Đơn hàng từ Facebook">
+                <img src={IconFacebook} alt="" />
+              </Tooltip>
+            </div>
           );
           break;
         default:
@@ -470,6 +478,47 @@ function OrdersTable(props: PropTypes) {
     }
   };
 
+  const changeSubStatusCallback = (value: string) => {
+    const index = data.items?.findIndex(
+      (single) => single.id === selectedOrder?.id
+    );
+    if (index > -1) {
+      let dataResult: dataExtra = { ...data };
+      // selected = value;
+      dataResult.items[index].sub_status_code = value;
+      dataResult.items[index].sub_status = subStatuses?.find(
+        (single) => single.code === value
+      )?.sub_status;
+      setData(dataResult);
+    }
+  };
+
+  const checkIfOrderCannotChangeToWarehouseChange = (orderDetail: OrderExtraModel) => {
+    const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
+      return (
+        !orderDetail.fulfillments?.some(single => {
+          return single.shipment && !checkIfFulfillmentCanceled(single)
+        }
+      ))
+    }
+    const checkIfOrderIsNew = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation
+      )
+    }
+    const checkIfOrderIsConfirm = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming
+      )
+    }
+    const checkIfOrderIsAwaitSaleConfirm= (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation
+      )
+    }
+    return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
+  };
+
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
     if (data.items.length === 0) {
       return [];
@@ -682,7 +731,7 @@ function OrdersTable(props: PropTypes) {
             <div className="items">
               {items.map((item, i) => {
                 return (
-                  <div className="item custom-td" key={item.variant_id}>
+                  <div className="item custom-td" key={i}>
                     <div className="product productNameWidth 2">
                       <div className="inner">
                         <Link
@@ -1127,7 +1176,7 @@ function OrdersTable(props: PropTypes) {
                   </div>
 
                   {/* {record.sub_status ? record.sub_status : "-"} */}
-                  {record.sub_status_code ? (
+                  {subStatuses ? (
                     <Select
                       style={{ width: "100%" }}
                       placeholder="Chọn trạng thái xử lý đơn"
@@ -1136,43 +1185,32 @@ function OrdersTable(props: PropTypes) {
                         option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
                       notFoundContent="Không tìm thấy trạng thái xử lý đơn"
-                      value={selected}
+                      value={record.sub_status_code}
                       onClick={() => {
                         setTypeAPi(type.subStatus);
                         setSelectedOrder(record);
                       }}
                       className={className}
                       onChange={(value) => {
+                        if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
+                          showError("Bạn không thể đổi sang trạng thái khác!")
+                          return;
+                        }
                         if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
                           return;
                         }
-                        let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
-                        if (!isChange) {
-                          return;
-                        }
-                        dispatch(
-                          setSubStatusAction(record.id, value, () => {
-                            const index = data.items?.findIndex(
-                              (single) => single.id === record.id
-                            );
-                            if (index > -1) {
-                              let dataResult: dataExtra = { ...data };
-                              // selected = value;
-                              dataResult.items[index].sub_status_code = value;
-                              dataResult.items[index].sub_status = recordStatuses?.find(
-                                (single) => single.code === value
-                              )?.name;
-                              setData(dataResult);
-                            }
-                          })
-                        );
+                        // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
+                        // if (!isChange) {
+                        //   return;
+                        // }
+                        setToSubStatusCode(value);
                       }}>
-                      {recordStatuses &&
-                        recordStatuses.map((single: any, index: number) => {
+                      {subStatuses &&
+                        subStatuses.map((single: any, index: number) => {
                           return (
                             <Select.Option value={single.code} key={index}>
-                              {single.name}
+                              {single.sub_status}
                             </Select.Option>
                           );
                         })}
@@ -1387,14 +1425,11 @@ function OrdersTable(props: PropTypes) {
   const renderActionButton = (record: OrderModel) => {
     return (
       <React.Fragment>
-        <div className="actionButton">
-          <Link
-            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
-            title="Đổi trả hàng"
-          >
-            <img alt="" src={iconReturn} className="iconReturn"/>
-          </Link>
-        </div>
+        {checkIfOrderCanBeReturned(record) ? (
+          <div className="actionButton">
+            <ButtonCreateOrderReturn orderDetail={record} />
+          </div>
+        ) : null}
         {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
           <div className="actionButton">
             <Link
@@ -1418,9 +1453,11 @@ function OrdersTable(props: PropTypes) {
   ) => {
     return (
       <React.Fragment>
-        {originNode}
-        <div className="orderSource">{renderOrderSource(record)}</div>
-        <div>
+        <div className="actionButton">
+          {originNode}
+        </div>
+        {renderOrderSource(record)}
+        <div className="actionButton">
           <Popover
             placement="right"
             overlayStyle={{ zIndex: 1000, top: "150px" }}
@@ -1652,62 +1689,6 @@ function OrdersTable(props: PropTypes) {
           })
         );
       }
-    } else if (typeAPi === type.subStatus) {
-      if (selectedOrder) {
-        const orderId = selectedOrder.id;
-        const statusCode = selectedOrder.status;
-        if (!statusCode) {
-          return;
-        }
-        if (orderId) {
-          const listFulfillmentMapSubStatus = {
-            packed: {
-              fulfillmentStatus: "packed",
-              subStatus: "packed",
-            },
-            finalized: {
-              fulfillmentStatus: ORDER_SUB_STATUS.shipping,
-              subStatus: ORDER_SUB_STATUS.shipping,
-            },
-          };
-          let resultStatus = statusCode;
-          if (statusCode) {
-            if (statusCode === OrderStatus.FINALIZED && selectedOrder?.fulfillments && selectedOrder?.fulfillments?.length > 0) {
-              const sortedFulfillments = sortFulfillments(selectedOrder?.fulfillments);
-              switch (sortedFulfillments[0].status) {
-                case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
-                  resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
-                  break;
-                case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
-                  resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
-                  break;
-                default:
-                  break;
-              }
-            }
-          }
-          dispatch(showLoading())
-          dispatch(
-            getListSubStatusAction(resultStatus, (response) => {
-              const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
-              if (index > -1) {
-                let dataResult: dataExtra = { ...data };
-                dataResult.items[index].statuses = response
-                  .map((single) => {
-                    return {
-                      name: single.sub_status,
-                      code: single.code,
-                    };
-                  });
-                setData(dataResult);
-                dispatch(hideLoading())
-              }
-            },
-              () => dispatch(hideLoading())
-            )
-          );
-        }
-      }
     } else if (typeAPi === type.setSubStatus) {
     }
     //xóa data
@@ -1755,6 +1736,12 @@ function OrdersTable(props: PropTypes) {
         footer={() => renderFooter()}
         isShowPaginationAtHeader
         rowSelectionWidth = {30}
+      />
+      <SubStatusChange
+        orderId={selectedOrder?.id}
+        toSubStatus={toSubStatusCode}
+        setToSubStatusCode={setToSubStatusCode}
+        changeSubStatusCallback={changeSubStatusCallback}
       />
     </StyledComponent>
   );

@@ -59,6 +59,7 @@ import CustomerCard from "screens/order-online/component/order-detail/CardCustom
 import { getPrintOrderReturnContentService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 
+  checkIfOrderCanBeReturned,
   getAmountPayment,
   getAmountPaymentRequest,
   getListItemsCanReturn,
@@ -80,7 +81,7 @@ import {
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
-import { RETURN_MONEY_TYPE } from "utils/Order.constants";
+import { RETURN_MONEY_TYPE, RETURN_TYPE_VALUES } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -122,11 +123,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
+  let queryOrderReturnType = query.get("type"); // trả hàng online hay offline
   const listStores = useFetchStores();
   const [inventoryResponse, setInventoryResponse] =
   useState<Array<InventoryResponse> | null>(null);
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
+  let orderReturnType = queryOrderReturnType ? queryOrderReturnType.toUpperCase() : "";
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
@@ -352,9 +355,7 @@ ShippingServiceConfigDetailResponseModel[]
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      const returnCondition =
-        _data.status === OrderStatus.FINISHED || _data.status === OrderStatus.COMPLETED;
-      if (returnCondition) {
+      if (checkIfOrderCanBeReturned(_data)) {
         setIsOrderFinished(true);
       }
       let listItemCanReturn = getListItemsCanReturn(_data);
@@ -537,6 +538,8 @@ ShippingServiceConfigDetailResponseModel[]
         note: "",
         url: "",
         tags: null,
+        type: orderReturnType,
+        channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
       };
       console.log('orderDetailResult', orderDetailResult);
       dispatch(showLoading())
@@ -584,7 +587,6 @@ ShippingServiceConfigDetailResponseModel[]
       scrollAndFocusToDomElement(element);
       return;
     }
-
     form
       .validateFields()
       .then(() => {
@@ -697,6 +699,7 @@ ShippingServiceConfigDetailResponseModel[]
           showError("Vui lòng thanh toán đủ số tiền!");
           return;
         }
+
         if (OrderDetail && listReturnProducts) {
           let items = listReturnProducts.map((single) => {
             const { maxQuantityCanBeReturned, ...rest } = single;
@@ -763,6 +766,8 @@ ShippingServiceConfigDetailResponseModel[]
             note: "",
             url: "",
             tags: null,
+            type: orderReturnType,
+            channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
@@ -770,7 +775,7 @@ ShippingServiceConfigDetailResponseModel[]
           if(!valuesResult) {
             return;
           }
-          valuesResult.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+          valuesResult.channel_id = OrderDetail.channel_id;
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code");
           values.assignee_code = form.getFieldValue("assignee_code");
@@ -923,7 +928,8 @@ ShippingServiceConfigDetailResponseModel[]
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
     values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
-    values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+    // values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+    values.channel_id = orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -1222,6 +1228,8 @@ ShippingServiceConfigDetailResponseModel[]
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
   };
+
+  console.log('orderReturnType', orderReturnType)
 
   const renderIfOrderFinished = () => {
     if (isReturnAll) {
@@ -1750,6 +1758,23 @@ ShippingServiceConfigDetailResponseModel[]
     }
   },[eventFunctional])
 
+  const checkIfWrongPath = () => {
+    const checkIfOnline = () => {
+      return orderReturnType !== RETURN_TYPE_VALUES.online && orderReturnType!==RETURN_TYPE_VALUES.offline
+    };
+    const checkIfOffline = () => {
+      return orderReturnType!==RETURN_TYPE_VALUES.offline
+    };
+    if(isOrderFromPOS(OrderDetail)) {
+      return checkIfOffline()
+    } else {
+      return checkIfOnline()
+    }
+  };
+  
+  if(checkIfWrongPath()) {
+    return <p style={{marginTop: 20}}>Vui lòng kiểm tra đường dẫn!</p>;
+  }
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

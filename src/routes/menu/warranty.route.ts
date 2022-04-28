@@ -9,7 +9,6 @@ const CreateWarranty = React.lazy(() => import("screens/warranty/create"));
 const ReadWarranty = React.lazy(
   () => import("screens/warranty/WarrantyDetail"),
 );
-const UpdateWarranty = React.lazy(() => import("screens/warranty/update"));
 
 const WarrantyStatuses = React.lazy(
   () =>
@@ -84,18 +83,6 @@ const warrantyRoute: Array<RouteMenu> = [
         subMenu: [],
         permissions: [],
       },
-      {
-        path: `${UrlConfig.WARRANTY}/:id/update`,
-        exact: true,
-        title: "Cập nhật bảo hành",
-        icon: "icon-dot",
-        component: UpdateWarranty,
-        key: "warranty-histoty-update",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        permissions: [],
-      },
     ],
   },
   {
@@ -165,18 +152,6 @@ const warrantyRoute: Array<RouteMenu> = [
         icon: "icon-dot",
         component: WarrantyReasonDetail,
         key: "warranty-status-details",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        permissions: [],
-      },
-      {
-        path: `${UrlConfig.WARRANTY}/${WARRANTY_URL.reason}/:id/update`,
-        exact: true,
-        title: "Cập nhật bảo hành",
-        icon: "icon-dot",
-        component: UpdateWarranty,
-        key: "warranty-status-update",
         isShow: true,
         header: null,
         subMenu: [],

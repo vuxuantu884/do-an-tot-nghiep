@@ -126,7 +126,6 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     }
   }
 	.orderSource {
-		margin-top: 9px;
     margin-bottom: 9px;
 	}
   .customer {
@@ -419,6 +418,18 @@ export const StyledComponent = styled.div.attrs((props:any) => {
           color: #fff;
         }
       }
+      &.coordinator_confirming {
+        .ant-select-selector {
+          color: #fff;
+          background: #E8770A  !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
       &.returning {
         .ant-select-selector {
           color: #fff;
@@ -456,6 +467,45 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         }
       }
       &.cancelled {
+        .ant-select-selector {
+          color: #fff;
+          background: #E24343 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.delivery_fail,
+      &.compensate,
+      &.customer_cancelled,
+      &.delivery_service_cancelled {
+        .ant-select-selector {
+          color: #fff;
+          background: #E24343 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.out_of_stock {
+        .ant-select-selector {
+          color: #fff;
+          background: #E24343 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.system_cancelled {
         .ant-select-selector {
           color: #fff;
           background: #E24343 !important;
@@ -536,7 +586,6 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     padding: 0;
     height: auto;
     line-height: 1;
-    margin-bottom: 8px;
     width: auto;
   }
   .iconReturn {
@@ -547,7 +596,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
   }
   .actionButton {
     &:not(:last-child) {
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
   }
   .mainColor {

@@ -28,4 +28,7 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .page-filter {
+    padding-top: 0;
+  }
 `;

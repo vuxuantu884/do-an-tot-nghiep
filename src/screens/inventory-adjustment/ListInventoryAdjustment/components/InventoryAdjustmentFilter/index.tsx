@@ -322,7 +322,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           : "??") +
         " ~ " +
         (initialValues.to_created_date
-          ? moment(initialValues.to_created_date).format("DD-MM-YYYY")
+          ? moment(initialValues.to_created_date).utc(false).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "created_date",
@@ -337,7 +337,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           : "??") +
         " ~ " +
         (initialValues.to_audited_date
-          ? moment(initialValues.to_audited_date).format("DD-MM-YYYY")
+          ? moment(initialValues.to_audited_date).utc(false).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "audited_date",
@@ -353,7 +353,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           : "??") +
         " ~ " +
         (initialValues.to_adjusted_date
-          ? moment(initialValues.to_adjusted_date).format("DD-MM-YYYY")
+          ? moment(initialValues.to_adjusted_date).utc(false).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "adjusted_date",

@@ -10,7 +10,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } fro
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showWarning } from "utils/ToastUtils";
@@ -121,27 +121,40 @@ const HistoryTab: React.FC<any> = (props) => {
     () => {},
     []
   );
+
+  const ellipName = (str: string|undefined)=>{
+    if (!str) {
+      return "";
+    }
+    let strName = (str.trim());
+        strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
+          : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
+            : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
+    return strName
+  }
+
   const defaultColumns: Array<ICustomTableColumType<HistoryInventoryResponse>> = [
     {
-      width: 300,
       title: <ActionComponent />,
       visible: true,
       dataIndex: "sku",
       fixed: "left",
-      render: (value, record, index) => (
-        <div>
+      render: (value, record, index) => {
+        let strName = ellipName(record.name);
+       return  <div>
           <Link
             to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
           >
             {value}
           </Link>
-          <div>{record.name}</div>
+          <div>{strName}</div>
         </div>
-      ),
+      },
     },
     {
       title: "Mã chứng từ",
       visible: true,
+      width: 110,
       dataIndex: "code",
       render: (value, record: HistoryInventoryResponse) => {
         let id = record.parent_document_id;
@@ -162,6 +175,7 @@ const HistoryTab: React.FC<any> = (props) => {
       title: "Thao tác",
       visible: true,
       dataIndex: "action",
+      width: 200,
     },
     {
       align: "center",
@@ -169,9 +183,11 @@ const HistoryTab: React.FC<any> = (props) => {
       visible: true,
       dataIndex: "transaction_date",
       render: (value) => ConvertUtcToLocalDate(value),
+      width: 140,
     },
     {
-      align: "right",
+      width: 110,
+      align: "center",
       title: "SL thay đổi",
       visible: true,
       dataIndex: "quantity",
@@ -186,18 +202,21 @@ const HistoryTab: React.FC<any> = (props) => {
       }
     },
     {
-      align: "right",
+      width: 115,
+      align: "center",
       title: "Tồn trong kho",
       visible: true,
       dataIndex: "on_hand",
       render: (value) => formatCurrency(value,".")
     },
     {
+      width: 250,
       title: "Kho hàng",
       visible: true,
       dataIndex: "store",
     },
     {
+      width: 240,
       title: "Người sửa",
       visible: true,
       render: (item: HistoryInventoryResponse)=>{
@@ -374,12 +393,12 @@ const HistoryTab: React.FC<any> = (props) => {
         }}
       />
       <CustomTable
+        bordered
         className="small-padding"
         isLoading={loading}
         isRowSelection
         dataSource={data.items}
         columns={columnFinal}
-        scroll={{ x: 1800 }}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
@@ -389,6 +408,7 @@ const HistoryTab: React.FC<any> = (props) => {
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
+        scroll={{ x: "max-content" }}
         rowKey={(data) => data.id}
         onSelectedChange={onSelect}
       />
