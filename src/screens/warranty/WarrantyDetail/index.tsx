@@ -171,7 +171,7 @@ function ReadWarranty(props: PropTypes) {
 
   return (
     <ContentContainer
-      title="Phiếu bảo hành"
+      title={`Phiếu bảo hành ID ${id}`}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -298,6 +298,16 @@ function ReadWarranty(props: PropTypes) {
                     labelCol={{ span: 8 }}
                     labelAlign={"left"}
                     name="fee"
+                    rules={[
+                      () => ({
+                        validator(_, value) {
+                          if (value && value < 1000) {
+                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
+                    ]}
                   >
                     <NumberInput
                       format={(a: string) => formatCurrency(a)}
@@ -318,6 +328,16 @@ function ReadWarranty(props: PropTypes) {
                     labelCol={{ span: 8 }}
                     labelAlign={"left"}
                     name="customer_fee"
+                    rules={[
+                      () => ({
+                        validator(_, value) {
+                          if (value && value < 1000) {
+                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
+                    ]}
                   >
                     <NumberInput
                       format={(a: string) => formatCurrency(a)}
