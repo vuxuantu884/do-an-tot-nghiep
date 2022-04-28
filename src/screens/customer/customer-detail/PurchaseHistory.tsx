@@ -8,7 +8,7 @@ import NumberFormat from "react-number-format";
 import {Link, useHistory, useLocation} from "react-router-dom";
 import UrlConfig from "config/url.config";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {formatCurrency, generateQuery} from "utils/AppUtils";
+import {checkIfOrderCanBeReturned, formatCurrency, generateQuery} from "utils/AppUtils";
 import {PageResponse} from "model/base/base-metadata.response";
 import moment from "moment";
 import {DeliveryServiceResponse, OrderLineItemResponse,} from "model/response/order/order.response";
@@ -499,9 +499,11 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   const renderReturn = (item: any) => {
     if (!item.code_order_return) {
       return (
-        <div style={{marginTop: 5}}>
-          <ButtonCreateOrderReturn orderId={item.id} />
+        checkIfOrderCanBeReturned(item) ? (
+          <div style={{marginTop: 5}}>
+          <ButtonCreateOrderReturn orderDetail={item} />
         </div>
+        ) : null
       )
     }
   };

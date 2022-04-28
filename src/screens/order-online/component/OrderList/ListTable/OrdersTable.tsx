@@ -30,6 +30,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import {
+  checkIfOrderCanBeReturned,
   copyTextToClipboard,
   formatCurrency,
   getOrderTotalPaymentAmount,
@@ -1393,9 +1394,11 @@ function OrdersTable(props: PropTypes) {
   const renderActionButton = (record: OrderModel) => {
     return (
       <React.Fragment>
-        <div className="actionButton">
-          <ButtonCreateOrderReturn orderId={record.id} />
-        </div>
+        {checkIfOrderCanBeReturned(record) ? (
+          <div className="actionButton">
+            <ButtonCreateOrderReturn orderDetail={record} />
+          </div>
+        ) : null}
         {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
           <div className="actionButton">
             <Link

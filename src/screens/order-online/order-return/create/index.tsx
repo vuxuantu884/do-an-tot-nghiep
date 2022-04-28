@@ -59,6 +59,7 @@ import CustomerCard from "screens/order-online/component/order-detail/CardCustom
 import { getPrintOrderReturnContentService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 
+  checkIfOrderCanBeReturned,
   getAmountPayment,
   getAmountPaymentRequest,
   getListItemsCanReturn,
@@ -354,9 +355,7 @@ ShippingServiceConfigDetailResponseModel[]
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      const returnCondition =
-        _data.status === OrderStatus.FINISHED || _data.status === OrderStatus.COMPLETED;
-      if (returnCondition) {
+      if (checkIfOrderCanBeReturned(_data)) {
         setIsOrderFinished(true);
       }
       let listItemCanReturn = getListItemsCanReturn(_data);
@@ -1760,8 +1759,22 @@ ShippingServiceConfigDetailResponseModel[]
       window.removeEventListener("keydown", eventFunctional);
     }
   },[eventFunctional])
+
+  const checkIfWrongPath = () => {
+    const checkIfOnline = () => {
+      return orderReturnType !== RETURN_TYPE_VALUES.online && orderReturnType!==RETURN_TYPE_VALUES.offline
+    };
+    const checkIfOffline = () => {
+      return orderReturnType!==RETURN_TYPE_VALUES.offline
+    };
+    if(isOrderFromPOS(OrderDetail)) {
+      return checkIfOffline()
+    } else {
+      return checkIfOnline()
+    }
+  };
   
-  if(orderReturnType !== RETURN_TYPE_VALUES.online && orderReturnType!==RETURN_TYPE_VALUES.offline) {
+  if(checkIfWrongPath()) {
     return <p style={{marginTop: 20}}>Vui lòng kiểm tra đường dẫn!</p>;
   }
 

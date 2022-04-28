@@ -61,14 +61,14 @@ import {
 	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency,
-	getAmountPayment, scrollAndFocusToDomElement,
+	getAmountPayment, isOrderFromPOS, scrollAndFocusToDomElement,
 	SumWeightResponse,
 	TrackingCode
 } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor } from "utils/global-styles/variables";
-import { RETURN_TYPES } from "utils/Order.constants";
+import { RETURN_TYPES, RETURN_TYPE_VALUES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
@@ -1613,53 +1613,65 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 						<React.Fragment>
 							{!checkIfOrderHasReturnedAll(OrderDetail) ? (
 								<AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-									{(isPassed: boolean) =>
-										<React.Fragment>
-											<CustomSelect
-												placeholder="Chọn kiểu trả hàng"
-												notFoundContent="Không tìm thấy kết quả"
-												style={{width: "165px"}}
-												optionFilterProp="children"
-												showArrow
-												getPopupContainer={(trigger) => trigger.parentNode}
-												allowClear
-												onChange={setReturnType}
-												id="selectReturnType"
-											>
-												{RETURN_TYPES.map((type) => (
-													<CustomSelect.Option
-														key={type.value.toString()}
-														value={type.value.toString()}
+									{(isPassed: boolean) => {
+										return (
+											<React.Fragment>
+												{!isOrderFromPOS(OrderDetail) ? (
+													<CustomSelect
+														placeholder="Chọn kiểu trả hàng"
+														notFoundContent="Không tìm thấy kết quả"
+														style={{width: "165px"}}
+														optionFilterProp="children"
+														showArrow
+														getPopupContainer={(trigger) => trigger.parentNode}
+														allowClear
+														onChange={setReturnType}
+														id="selectReturnType"
 													>
-														{type.name}
-													</CustomSelect.Option>
-												))}
-											</CustomSelect>
-											<Button
-												type="primary"
-												style={{ margin: "0 10px", padding: "0 25px" }}
-												className="create-button-custom ant-btn-outline fixed-button"
-												onClick={() => {
-													if(returnType === "OFFLINE") {
-														history.push(
-															`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
-														);
-													} else if(returnType === "ONLINE") {
-														history.push(
-															`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`
-														);
-													} else {
-														showError("Vui lòng chọn kiểu đổi trả hàng!")
-														const element: any = document.getElementById("selectReturnType");
-														scrollAndFocusToDomElement(element);
-														return;
-													}
-												}}
-												disabled={!isPassed}
-											>
-												Đổi trả hàng
-											</Button>
-										</React.Fragment>}
+														{RETURN_TYPES.map((type) => (
+															<CustomSelect.Option
+																key={type.value.toString()}
+																value={type.value.toString()}
+															>
+																{type.name}
+															</CustomSelect.Option>
+														))}
+													</CustomSelect>
+												) : null}
+												<Button
+													type="primary"
+													style={{ margin: "0 10px", padding: "0 25px" }}
+													className="create-button-custom ant-btn-outline fixed-button"
+													onClick={() => {
+														if(isOrderFromPOS(OrderDetail)) {
+															history.push(
+																`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
+															);
+														} else {
+															if(returnType === RETURN_TYPE_VALUES.offline) {
+																history.push(
+																	`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
+																);
+															} else if(returnType === RETURN_TYPE_VALUES.online) {
+																history.push(
+																	`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`
+																);
+															} else {
+																showError("Vui lòng chọn kiểu đổi trả hàng!")
+																const element: any = document.getElementById("selectReturnType");
+																scrollAndFocusToDomElement(element);
+																return;
+															}
+
+														}
+													}}
+													disabled={!isPassed}
+												>
+													Đổi trả hàng
+												</Button>
+											</React.Fragment>
+										)
+									}}
 								</AuthWrapper>
 
 							) : (
