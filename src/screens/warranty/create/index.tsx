@@ -867,7 +867,7 @@ function CreateWarranty(props: Props) {
                             name: "appointment_date",
                             value: newDate,
                             errors:
-                              newDate < moment(new Date(), "DD/MM/YYYY")
+                              newDate < moment().subtract(1, 'days')
                                 ? ["Ngày hẹn trả không được bé hơn ngày hiện tại"]
                                 : [],
                           },
