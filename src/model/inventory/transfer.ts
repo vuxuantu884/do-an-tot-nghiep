@@ -208,11 +208,15 @@ export interface InventoryTransferDetailItem {
   line_items: Array<LineItem>;
   shipment: ShipmentItem;
   exception_items: [];
-};
+}
 
 export type DeleteTicketRequest = {
   note: string;
 };
+
+export type DataExport = {
+  transfers: Object[]
+}
 
 export interface InventoryTransferLog {
     id: number;
@@ -233,7 +237,7 @@ export interface InventoryTransferLog {
     to_store_name: string;
     from_store_id: number;
     to_store_id: number;
-};
+}
 
 export interface InventoryTransferShipmentRequest {
   delivery_service_id: number | null,
@@ -278,4 +282,4 @@ export interface InventoryProcessImport {
   processed: string;
   success: string;
   error: string;
-};
+}
