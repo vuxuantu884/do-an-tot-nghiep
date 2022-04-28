@@ -310,7 +310,7 @@ function OrderReturnList(props: PropTypes) {
     },
   ], [selectedRowCodes]);
 
-  const onExport = useCallback((optionExport, typeExport) => {
+  const onExport = useCallback((optionExport) => {
     let newParams:any = {...params};
     // let hiddenFields = [];
     switch (optionExport) {
@@ -545,7 +545,7 @@ function OrderReturnList(props: PropTypes) {
               setExportProgress(0)
               setStatusExport(1)
             }}
-            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+            onOk={(optionExport) => onExport(optionExport)}
             type="returns"
             total={data.metadata.total}
             exportProgress={exportProgress}
