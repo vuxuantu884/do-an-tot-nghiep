@@ -74,6 +74,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   onClick={showSaveAndConfirmModal}
                   loading={isSaveDraft}
                   disabled={creating}
+                  id="save-draft-confirm"
                 >
                   Lưu nháp
                 </Button>
