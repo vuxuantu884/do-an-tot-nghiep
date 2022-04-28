@@ -4,7 +4,6 @@ import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconPrint from "assets/icon/Print.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
-import iconReturn from "assets/icon/return.svg";
 import search from "assets/img/search.svg";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
@@ -31,6 +30,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import {
+  checkIfOrderCanBeReturned,
   copyTextToClipboard,
   formatCurrency,
   getOrderTotalPaymentAmount,
@@ -57,6 +57,7 @@ import { dangerColor, primaryColor, successColor, yellowColor } from "utils/glob
 import { ORDER_SUB_STATUS } from "utils/OrderSubStatusUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
 import IconPaymentBank from "./images/chuyen-khoan.svg";
@@ -221,24 +222,30 @@ function OrdersTable(props: PropTypes) {
     let html = null;
     if (orderDetail.channel_code === POS.channel_code) {
       html = (
-        <Tooltip title="Đơn hàng tại quầy">
-          <img src={IconStore} alt="" />
-        </Tooltip>
+        <div className="orderSource actionButton">
+          <Tooltip title="Đơn hàng tại quầy">
+            <img src={IconStore} alt="" />
+          </Tooltip>
+        </div>
       );
     } else {
       switch (orderDetail.channel_id) {
         case SHOPEE.channel_id:
           html = (
-            <Tooltip title="Đơn hàng tại Shopee">
-              <img src={IconShopee} alt="" />
-            </Tooltip>
+            <div className="orderSource actionButton">
+              <Tooltip title="Đơn hàng tại Shopee">
+                <img src={IconShopee} alt="" />
+              </Tooltip>
+            </div>
           );
           break;
         case FACEBOOK.channel_id:
           html = (
-            <Tooltip title="Đơn hàng từ Facebook">
-              <img src={IconFacebook} alt="" />
-            </Tooltip>
+            <div className="orderSource actionButton">
+              <Tooltip title="Đơn hàng từ Facebook">
+                <img src={IconFacebook} alt="" />
+              </Tooltip>
+            </div>
           );
           break;
         default:
@@ -1387,14 +1394,11 @@ function OrdersTable(props: PropTypes) {
   const renderActionButton = (record: OrderModel) => {
     return (
       <React.Fragment>
-        <div className="actionButton">
-          <Link
-            to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${record.id}`}
-            title="Đổi trả hàng"
-          >
-            <img alt="" src={iconReturn} className="iconReturn"/>
-          </Link>
-        </div>
+        {checkIfOrderCanBeReturned(record) ? (
+          <div className="actionButton">
+            <ButtonCreateOrderReturn orderDetail={record} />
+          </div>
+        ) : null}
         {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
           <div className="actionButton">
             <Link
@@ -1418,9 +1422,11 @@ function OrdersTable(props: PropTypes) {
   ) => {
     return (
       <React.Fragment>
-        {originNode}
-        <div className="orderSource">{renderOrderSource(record)}</div>
-        <div>
+        <div className="actionButton">
+          {originNode}
+        </div>
+        {renderOrderSource(record)}
+        <div className="actionButton">
           <Popover
             placement="right"
             overlayStyle={{ zIndex: 1000, top: "150px" }}

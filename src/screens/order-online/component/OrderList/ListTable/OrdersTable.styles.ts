@@ -126,7 +126,6 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     }
   }
 	.orderSource {
-		margin-top: 9px;
     margin-bottom: 9px;
 	}
   .customer {
@@ -536,7 +535,6 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     padding: 0;
     height: auto;
     line-height: 1;
-    margin-bottom: 8px;
     width: auto;
   }
   .iconReturn {
@@ -547,7 +545,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
   }
   .actionButton {
     &:not(:last-child) {
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
   }
   .mainColor {

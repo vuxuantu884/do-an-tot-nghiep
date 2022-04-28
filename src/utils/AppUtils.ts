@@ -1925,3 +1925,7 @@ export const formatCurrencyInputValue = (a: string) => {
   }
   return a;
 };
+
+export const checkIfOrderCanBeReturned = (orderDetail: OrderResponse) => {
+  return orderDetail.status === OrderStatus.FINISHED || orderDetail.status === OrderStatus.COMPLETED;
+};
