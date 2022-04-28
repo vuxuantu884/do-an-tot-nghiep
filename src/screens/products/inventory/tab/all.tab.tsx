@@ -533,9 +533,10 @@ const AllTab: React.FC<any> = (props) => {
   },[dispatch, params]);
 
   const debouncedSearch = React.useMemo(() =>
-    _.debounce((keyword: string) => {
+    _.debounce((keyword: string,filters: any) => {
+      
       setLoading(true);
-      const newValues = {...params,info: keyword?.trim()}
+      const newValues = {...params,info: keyword?.trim(),...filters}
       const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -545,8 +546,8 @@ const AllTab: React.FC<any> = (props) => {
   )
 
   const onChangeKeySearch = useCallback(
-    (keyword: string) => {
-      debouncedSearch(keyword)
+    (keyword: string, filters: any) => {
+      debouncedSearch(keyword,filters)
     },
     [debouncedSearch]
   )
@@ -770,8 +771,8 @@ const AllTab: React.FC<any> = (props) => {
         actions={[]}
         onClearFilter={() => {}}
         listStore={stores}
-        onChangeKeySearch={(value: string)=>{
-          onChangeKeySearch(value);
+        onChangeKeySearch={(value: string,filters: any)=>{
+          onChangeKeySearch(value,filters);
         }}
       />
       <CustomTable
