@@ -230,6 +230,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dataIndex: "to_store_name",
       visible: true,
       align: "left",
+      width: 150,
     },
     {
       title: "Trạng thái",
@@ -264,6 +265,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         }
         return <Tag className={classTag}>{textTag}</Tag>;
       },
+      width: 100,
     },
     {
       title: "SP",
@@ -273,6 +275,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
+      width: 60,
     },
     {
       title: "SL",
@@ -282,6 +285,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
+      width: 60,
     },
     {
       title: "Thành tiền",
@@ -305,7 +309,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dataIndex: "note",
       visible: true,
       align: "left",
-      width: "250px",
+      width: "220px",
       render: (item: string, row: InventoryTransferDetailItem) => {
         return (
           <div className={item ? 'note': ''}>
@@ -326,7 +330,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dataIndex: "transfer_date",
       visible: true,
       align: "center",
-      width: "150px",
+      width: "110px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value,DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
@@ -334,7 +338,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dataIndex: "receive_date",
       visible: true,
       align: "center",
-      width: "150px",
+      width: "100px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
@@ -734,7 +738,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       <CustomTable
         isRowSelection
         isLoading={tableLoading}
-        scroll={{x: 2000}}
+        scroll={{x: 800}}
         sticky={{offsetScroll: 5, offsetHeader: 55}}
         pagination={{
           pageSize: data.metadata.limit,
