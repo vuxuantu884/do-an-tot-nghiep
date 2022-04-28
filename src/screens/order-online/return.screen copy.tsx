@@ -330,7 +330,7 @@ const ListOrderScreen: React.FC = () => {
     },
   ], [selectedRowCodes]);
 
-  const onExport = useCallback((optionExport, typeExport) => {
+  const onExport = useCallback((optionExport) => {
     let newParams:any = {...params};
     // let hiddenFields = [];
     switch (optionExport) {
@@ -562,7 +562,7 @@ const ListOrderScreen: React.FC = () => {
               setExportProgress(0)
               setStatusExport(1)
             }}
-            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+            onOk={(optionExport) => onExport(optionExport)}
             type="returns"
             total={data.metadata.total}
             exportProgress={exportProgress}

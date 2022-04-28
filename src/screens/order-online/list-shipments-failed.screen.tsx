@@ -871,7 +871,7 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 						setExportProgress(0)
 						setStatusExport(1)
 					}}
-					onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+					onOk={(optionExport) => onExport(optionExport)}
 					type="shipments"
 					total={data.metadata.total}
 					exportProgress={exportProgress}
