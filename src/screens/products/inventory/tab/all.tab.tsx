@@ -26,7 +26,7 @@ import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
 import { getInventoryConfigService } from "service/inventory";
-import {formatCurrency, generateQuery, Products} from "utils/AppUtils";
+import {formatCurrency, generateQuery, Products, splitEllipsis} from "utils/AppUtils";
 import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
 import { showError, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -125,6 +125,17 @@ const AllTab: React.FC<any> = (props) => {
     onFilter(newPrams);
   },[params, onFilter]);
 
+  const ellipName = (str: string|undefined)=>{
+    if (!str) {
+      return "";
+    }
+    let strName = (str.trim());
+        strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
+          : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
+            : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
+    return strName
+  }
+
   const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
     return [
        {
@@ -135,6 +146,7 @@ const AllTab: React.FC<any> = (props) => {
          fixed: "left",
          className: "column-product",
          render: (value, record, index) => {
+          let strName = ellipName(record.name);
            return (
              <div>
                  <div>
@@ -143,7 +155,7 @@ const AllTab: React.FC<any> = (props) => {
                    </Link>
                  </div>
                  <div>
-                   <TextEllipsis value={record.name} line={1} />
+                   <TextEllipsis value={strName} line={1} />
                  </div>
              </div>
              )
