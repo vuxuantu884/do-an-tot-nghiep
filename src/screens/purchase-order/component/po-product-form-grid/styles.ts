@@ -45,6 +45,12 @@ export const PoProductFormContainer = styled.div` .header {
     justify-content: center;
   }
 }
+.product-item-vat{
+  input {
+    text-align: right;
+    padding : 0;
+  }
+}
 .product-table-new {
   .ant-table-cell {
   padding: 5px;
