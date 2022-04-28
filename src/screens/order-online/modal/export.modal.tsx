@@ -40,7 +40,7 @@ const ExportModal: React.FC<ExportModalProps> = (
         case "orders_online":
           return "Đơn hàng"
         case "orders_offline":
-          return "đơn hàng"
+          return "Đơn hàng"
         case "shipments":
           return "Đơn giao hàng"
         case "returns":
