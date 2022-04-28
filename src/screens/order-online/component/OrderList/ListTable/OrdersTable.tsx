@@ -1100,6 +1100,10 @@ function OrdersTable(props: PropTypes) {
                       }}
                       className={className}
                       onChange={(value) => {
+                        if (selected === ORDER_SUB_STATUS.awaiting_coordinator_confirmation && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                          showError("Bạn không thể đổi sang trạng thái khác!")
+                          return;
+                        }
                         if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
                           return;
