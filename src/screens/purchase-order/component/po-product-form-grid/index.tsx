@@ -212,42 +212,25 @@ const POProductForm = ({
    * @param inputValue 
    * @param size 
    */
-  const onChangeQuantityHeader = (inputValue: number, size: string) => {
-    const newpoLineItemGridValue = [...poLineItemGridValue];
-    newpoLineItemGridValue.forEach((schema: Map<string, POLineItemGridValue>) => {
-      const mapIterator = schema.values();
-      const mapLength = schema.size;
-      for (let i = 0; i < mapLength; i++) {
-        const { sizeValues } = mapIterator.next().value;
-        sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
-          if (sizeValue.size === size) {
-            sizeValue.quantity = inputValue;
+  const onChangeQuantityHeader = (inputValue: number | null, size: string) => {
+    if (typeof inputValue === 'number') {
+      const newpoLineItemGridValue = [...poLineItemGridValue];
+      newpoLineItemGridValue.forEach((schema: Map<string, POLineItemGridValue>) => {
+        const mapIterator = schema.values();
+        const mapLength = schema.size;
+        for (let i = 0; i < mapLength; i++) {
+          const { sizeValues } = mapIterator.next().value;
+          sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
+            if (sizeValue.size === size) {
+              sizeValue.quantity = inputValue;
+            }
           }
+          )
         }
-        )
-      }
-    })
+      })
 
-    setPoLineItemGridValue(newpoLineItemGridValue);
-
-    /**
-     * Tìm tất cả variantId có size được chọn
-     */
-    // const tempMap = new Map(quickInputProductLineItem);
-    // const variantIdListInSize: number[] = [];
-    // poLineItemGridChema.forEach((schema: POLineItemGridSchema) => {
-    //   schema.mappingColorAndSize.forEach((mapping: POPairSizeColor) => {
-    //     if (mapping.size === size) {
-    //       variantIdListInSize.push(mapping.variantId);
-    //       tempMap.set(mapping.variantId, inputValue);
-    //     }
-    //   })
-    // })
-
-    // setQuickInputProductLineItem(tempMap)
-
-    // setProcurementLineItemById(formMain, variantIdListInSize, inputValue, quickInputQtyProcurementLineItem);
-
+      setPoLineItemGridValue(newpoLineItemGridValue);
+    }
   }
   /**
    * thay đổi số lượng ô nhập đơn giá từng màu
@@ -370,7 +353,7 @@ const POProductForm = ({
         return {
           title: <div>
             <p>{size}</p>
-            {isEditMode && <NumberInput min={0} onChange={(value) => onChangeQuantityHeader(value || 0, size)} />}
+            {isEditMode && <NumberInput min={0} onChange={(value) => onChangeQuantityHeader(value, size)} />}
           </div>,
           dataIndex: size,
           key: size,
@@ -528,7 +511,7 @@ const POProductForm = ({
           rowKey={(record: PODataSourceGrid) => record.color}
           footer={() => {
             const amount: number = getTotalPriceOfAllLineItem(poLineItemGridValue);
-            formMain.setFieldsValue({ [POField.total]: amount + (amount * taxRate) / 100 });
+            formMain.setFieldsValue({ [POField.total]: Math.round(amount + (amount * (taxRate / 100))) });
             return (
               <Row className="footer">
                 <Col span={14} />
