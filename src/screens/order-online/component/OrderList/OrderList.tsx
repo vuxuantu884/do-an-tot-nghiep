@@ -400,7 +400,7 @@ function OrderList(props: PropTypes) {
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
-
+  const [exportError, setExportError] = useState<string>("");
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
@@ -474,10 +474,11 @@ function OrderList(props: PropTypes) {
             setListExportFile(newListExportFile);
           }
           if (response.data && response.data.status === "ERROR") {
-            setStatusExport(4)
+            setStatusExport(4);
+            setExportError(response.data.message);
           }
         } else {
-          setStatusExport(4)
+          setStatusExport(4);
         }
       });
     });
@@ -887,6 +888,7 @@ function OrderList(props: PropTypes) {
             total={data.metadata.total}
             exportProgress={exportProgress}
             statusExport={statusExport}
+            exportError={exportError}
             selected={selectedRowCodes.length ? true : false}
           />
         )}

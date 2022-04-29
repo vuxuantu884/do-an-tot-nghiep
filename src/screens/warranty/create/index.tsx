@@ -552,7 +552,7 @@ function CreateWarranty(props: Props) {
                 return formatCurrencyInputValue(a);
               }}
               replace={(a: string) => replaceFormatString(a)}
-              maxLength={14}
+              maxLength={8}
               minLength={0}
               onChange={(value) => onChangeItem(value, "price", record.index)}
             />
@@ -571,7 +571,7 @@ function CreateWarranty(props: Props) {
                 return formatCurrencyInputValue(a);
               }}
               replace={(a: string) => replaceFormatString(a)}
-              maxLength={14}
+              maxLength={8}
               minLength={0}
               onChange={(value) => onChangeItem(value, "customer_fee", record.index)}
             />
