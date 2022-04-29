@@ -21,6 +21,7 @@ import * as XLSX from 'xlsx';
 import moment from "moment";
 import { callApiNative } from "utils/ApiUtils";
 import { inventoryGetHistoryApi } from "service/inventory";
+import FileSaver from "file-saver";
 
 enum DocumentType {
   PURCHASE_ORDER = "purchase_order",
@@ -363,10 +364,14 @@ const HistoryTab: React.FC<any> = (props) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "data");
       const today = moment(new Date(), 'YYYY/MM/DD');
 
+      const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
       const month = today.format('M');
       const day   = today.format('D');
       const year  = today.format('YYYY');
-      XLSX.writeFile(workbook, `inventory_history_${day}_${month}_${year}.xlsx`);
+      //XLSX.writeFile(workbook, `inventory_history_${day}_${month}_${year}.xlsx`);
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const data = new Blob([excelBuffer], { type: fileType });
+      FileSaver.saveAs(data, `inventory_history_${day}_${month}_${year}.xlsx`);
       setVExportProduct(false);
     },
     Cancel: () => {
