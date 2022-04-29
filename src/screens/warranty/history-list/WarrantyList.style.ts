@@ -59,7 +59,7 @@ table .ant-btn-icon-only {
     text-align: center;
 }
 .hasFee {
-    text-align: right;
+    text-align: center;
 }
 .isCanChange {
     cursor: pointer;

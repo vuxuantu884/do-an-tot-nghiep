@@ -10,6 +10,7 @@ export interface ExportRequest {
 export interface ExportResponse extends BaseObject {
   name: string;
   status: string;
+  message: string;
   num_of_record: number;
   total: number;
   url: string;
