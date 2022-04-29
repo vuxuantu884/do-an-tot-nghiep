@@ -9,7 +9,8 @@ import {
 	Popover,
 	Row,
 	Table,
-	Tooltip
+	Tooltip,
+  Select
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
@@ -20,12 +21,15 @@ import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
-import React, { createRef, useContext, useState } from "react";
+import React, { createRef, useContext, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
 import iconDelete from "assets/icon/deleteIcon.svg";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
+import CustomSelect from "component/custom/select.custom";
+import { StoreResponse } from "model/core/store.model";
+import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 
 type PropTypes = {
   isDetailPage?: boolean;
@@ -44,6 +48,7 @@ type PropTypes = {
   onChangeProductQuantity?: (value: number | null, index: number) => void;
   handleChangeReturnAll?: (e: CheckboxChangeEvent) => void;
   setListReturnProducts: ((listReturnProducts: ReturnProductModel[]) => void) | undefined
+  listStores: StoreResponse[];
 };
 
 function CardReturnProducts(props: PropTypes) {
@@ -64,11 +69,13 @@ function CardReturnProducts(props: PropTypes) {
     onChangeProductQuantity,
     handleChangeReturnAll,
     setListReturnProducts,
+    listStores
   } = props;
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
+  const setStoreReturn= createOrderReturnContext?.return.setStoreReturn;
   const storeReturn= createOrderReturnContext?.return.storeReturn;
 
   const [isStoreReturnModalVisible,setStoreReturnModalVisible]=useState(false);
@@ -96,7 +103,7 @@ function CardReturnProducts(props: PropTypes) {
         >
           Trả toàn bộ sản phẩm
         </Checkbox>
-        <Button type="primary" id="selectStoreReturn" ghost onClick={() => {setStoreReturnModalVisible(true)}} style={{marginLeft: 20}}>Chọn cửa hàng trả</Button>
+        {/* <Button type="primary" id="selectStoreReturn" ghost onClick={() => {setStoreReturnModalVisible(true)}} style={{marginLeft: 20}}>Chọn cửa hàng trả</Button> */}
       </React.Fragment>
     );
   };
@@ -300,6 +307,28 @@ function CardReturnProducts(props: PropTypes) {
     setStoreReturnModalVisible(false);
   }
 
+  const storeIdLogin = useGetStoreIdFromLocalStorage()
+
+  const dataCanAccess = useMemo(() => {
+		let newData: Array<StoreResponse> = listStores;
+		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu đã có ở local storage thì ưu tiên lấy, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
+		if (newData && newData[0]?.id) {
+			if (!storeReturn) {
+				if(storeIdLogin) {
+          const newStoreIndex = listStores.findIndex((p)=>p.id===storeIdLogin);
+          if(newStoreIndex!==-1 && setStoreReturn)
+					  setStoreReturn(listStores[newStoreIndex]);
+				}
+			}
+		}
+		return newData;
+	}, [listStores, setStoreReturn, storeIdLogin, storeReturn]);
+
+  const onChangeStoreReturrn=(value:number)=>{
+    const newStoreIndex = listStores.findIndex((p)=>p.id===value);
+    if(newStoreIndex!==-1 && setStoreReturn)
+      setStoreReturn(listStores[newStoreIndex]);
+  }
   return (
     <StyledComponent>
       <Card
@@ -308,9 +337,31 @@ function CardReturnProducts(props: PropTypes) {
         extra={!isDetailPage && !isStepExchange ? renderCardExtra() : null}
       >
         {isShowProductSearch && (
-          <div>
-            <AutoComplete
-              notFoundContent={
+          				<Row gutter={15} className="rowSelectStoreAndProducts">
+                  <Col md={8}>
+                      <CustomSelect
+                        className="select-with-search"
+                        showSearch
+                        allowClear
+                        style={{ width: "100%" }}
+                        placeholder="Chọn cửa hàng"
+                        notFoundContent="Không tìm thấy kết quả"
+                        value={storeReturn?.id}
+                        onChange={(value?: number) => {
+                          if (value)
+                            onChangeStoreReturrn(value)
+                        }}
+                      >
+                        {dataCanAccess?.map((item, index) => (
+                          <Select.Option key={index} value={item.id}>
+                            {item.name}
+                          </Select.Option>
+                        ))}
+                      </CustomSelect>
+                  </Col>
+                  <Col md={16}>
+                      <AutoComplete
+                              notFoundContent={
                 searchVariantInputValue
                   ? searchVariantInputValue.length >= 0
                     ? "Không tìm thấy sản phẩm"
@@ -328,15 +379,45 @@ function CardReturnProducts(props: PropTypes) {
               options={convertResultSearchVariant}
               maxLength={255}
               dropdownRender={(menu) => <div>{menu}</div>}
-            >
-              <Input
+                      >
+                                <Input
                 size="middle"
                 className="yody-search"
                 placeholder="Chọn sản phẩm"
                 prefix={<SearchOutlined style={{color: "#ABB4BD"}} />}
               />
-            </AutoComplete>
-          </div>
+                      </AutoComplete>
+                  </Col>
+                </Row>
+          // <div>
+          //   <AutoComplete
+          //     notFoundContent={
+          //       searchVariantInputValue
+          //         ? searchVariantInputValue.length >= 0
+          //           ? "Không tìm thấy sản phẩm"
+          //           : undefined
+          //         : undefined
+          //     }
+          //     id="search_product"
+          //     value={searchVariantInputValue}
+          //     ref={autoCompleteRef}
+          //     onSelect={onSelectSearchedVariant}
+          //     dropdownClassName="search-layout dropdown-search-header"
+          //     dropdownMatchSelectWidth={456}
+          //     className="productSearchInput"
+          //     onSearch={onChangeProductSearchValue}
+          //     options={convertResultSearchVariant}
+          //     maxLength={255}
+          //     dropdownRender={(menu) => <div>{menu}</div>}
+          //   >
+          //     <Input
+          //       size="middle"
+          //       className="yody-search"
+          //       placeholder="Chọn sản phẩm"
+          //       prefix={<SearchOutlined style={{color: "#ABB4BD"}} />}
+          //     />
+          //   </AutoComplete>
+          // </div>
         )}
         <Table
           locale={{

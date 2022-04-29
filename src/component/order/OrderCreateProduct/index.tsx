@@ -1990,8 +1990,6 @@ console.log('items', items)
 		}
 		return newData;
 	}, [isCreateReturn, listStores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
-
-	console.log('dataCanAccess', dataCanAccess)
 	
 	useEffect(() => {
 		if(isCreateReturn ) {
