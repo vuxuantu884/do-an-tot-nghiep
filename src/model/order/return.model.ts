@@ -13,7 +13,8 @@ export interface ReturnModel {
   id: number;
   order_id: number;
   payment_status: string;
-  reason: string;
+  reason:string;
+  return_reason?:ReasonReturn;
   reason_id: number;
   receive_date: string | null;
   received: boolean;
@@ -50,6 +51,13 @@ export interface ReturnSearchQuery {
   is_online?: boolean|null;
   source_ids: [];
   channel_codes: [];
+}
+
+export interface ReasonReturn{
+  id: number;
+  code: string;
+  name: string;
+  sub_reasons:any[];
 }
 
 export interface ReturnCalculateRefundModel {
