@@ -77,7 +77,6 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                                             }
                                         });
                                     }}
-                                    defaultValue={DiscountUnitType.PERCENTAGE.value}
                                 >
                                     <Select.Option key={DiscountUnitType.PERCENTAGE.value} value={DiscountUnitType.PERCENTAGE.value} >
                                         {DiscountUnitType.PERCENTAGE.label}
