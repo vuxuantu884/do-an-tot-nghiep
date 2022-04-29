@@ -20,7 +20,7 @@ import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
-import React, { createRef, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
 import iconDelete from "assets/icon/deleteIcon.svg";
@@ -39,6 +39,7 @@ type PropTypes = {
   totalAmountReturnProducts: number | undefined;
   isCheckReturnAll?: boolean;
   convertResultSearchVariant?: any[] | undefined;
+  autoCompleteRef: React.RefObject<RefSelectProps>;
   onChangeProductSearchValue?: (value: string) => void;
   onSelectSearchedVariant?: (value: string) => void;
   onChangeProductQuantity?: (value: number | null, index: number) => void;
@@ -59,14 +60,13 @@ function CardReturnProducts(props: PropTypes) {
     convertResultSearchVariant,
     totalAmountReturnProducts = 0,
     isCheckReturnAll,
+    autoCompleteRef,
     onChangeProductSearchValue,
     onSelectSearchedVariant,
     onChangeProductQuantity,
     handleChangeReturnAll,
     setListReturnProducts,
   } = props;
-
-  const autoCompleteRef = createRef<RefSelectProps>();
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
   const storeReturn= createOrderReturnContext?.return.storeReturn;
@@ -312,12 +312,12 @@ function CardReturnProducts(props: PropTypes) {
             <AutoComplete
               notFoundContent={
                 searchVariantInputValue
-                  ? searchVariantInputValue.length >= 0
+                  ? searchVariantInputValue.length >= 1
                     ? "Không tìm thấy sản phẩm"
                     : undefined
                   : undefined
               }
-              id="search_product"
+              id="search_product_return"
               value={searchVariantInputValue}
               ref={autoCompleteRef}
               onSelect={onSelectSearchedVariant}
@@ -325,9 +325,12 @@ function CardReturnProducts(props: PropTypes) {
               dropdownMatchSelectWidth={456}
               className="productSearchInput"
               onSearch={onChangeProductSearchValue}
-              options={convertResultSearchVariant}
+              options={
+                convertResultSearchVariant
+              }
               maxLength={255}
               dropdownRender={(menu) => <div>{menu}</div>}
+              //defaultActiveFirstOption
             >
               <Input
                 size="middle"
