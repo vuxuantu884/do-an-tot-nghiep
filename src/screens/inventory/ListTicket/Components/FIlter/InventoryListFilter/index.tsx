@@ -13,7 +13,7 @@ import {
 import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
-import { AccountResponse } from "model/account/account.model";
+import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
 import { FilterOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
@@ -30,8 +30,11 @@ import AccountSearchPaging from "component/custom/select-search/account-select-p
 import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import { InventoryTransferTabUrl } from "../../../../../../config/url.config";
+import { useQuery } from "../../../../../../utils/useQuery";
 
 type OrderFilterProps = {
+  accountStores?: Array<AccountStoreResponse>,
   params: InventoryTransferSearchQuery;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
@@ -41,8 +44,7 @@ type OrderFilterProps = {
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void
   stores?: Array<Store>;
-  accountStoresSelected?: any;
-  setAccountStoresSelected?: (value: any) => void;
+  activeTab?: string;
 };
 
 const { Item } = Form;
@@ -61,16 +63,30 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     onShowColumnSetting,
     stores,
     accounts,
-    accountStoresSelected,
-    setAccountStoresSelected
+    activeTab,
+    accountStores,
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  let status: string[] = [];
+  const query: any = useQuery();
+  if (!query?.status) {
+    switch (activeTab) {
+      case InventoryTransferTabUrl.LIST_CONFIRMED:
+        status = ['confirmed'];
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        status = ['transferring'];
+        break;
+      default: break;
+    }
+  }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFromParams = {
     ...params,
-    status: Array.isArray(params.status) ? params.status : [params.status],
+    status: Array.isArray(params.status) ? params.status.length > 0 ? params.status : status : [params.status],
     created_by: Array.isArray(params.created_by) ? params.created_by : [params.created_by],
     from_created_date: formatDateFilter(params.from_created_date),
     to_created_date: formatDateFilter(params.to_created_date),
@@ -84,19 +100,25 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   }, [filterFromParams])
 
   useEffect(() => {
-    if (!accountStoresSelected) {
-      formSearchRef.current?.setFieldsValue(params);
+    if (activeTab === '') return;
+
+    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
+
+    if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED) {
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected?.toString(),
+      });
+    } else if (activeTab === InventoryTransferTabUrl.LIST) {
       return;
+    } else {
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected?.toString(),
+      });
     }
-
-    if (accountStoresSelected === 'SECOND_SEARCH') return;
-
-    formSearchRef.current?.setFieldsValue({
-      ...params,
-      from_store_id: params.from_store_id ? params.from_store_id : String(accountStoresSelected.id)
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountStoresSelected])
+  }, [activeTab, accountStores])
 
   useEffect(() => {
     formAdv.setFieldsValue(filterFromParams);
@@ -221,10 +243,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
           ? getEndOfDayCommon(formAdv.getFieldValue('to_receive_date'))?.format()
           : null,
       }
-      setAccountStoresSelected && setAccountStoresSelected('SECOND_SEARCH');
       onFilter && onFilter(valuesForm);
     },
-    [formAdv, onFilter, setAccountStoresSelected]
+    [formAdv, onFilter]
   );
 
   let filters = useMemo(() => {
@@ -330,91 +351,109 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-              <Item
-                name="from_store_id"
-                className="select-item"
-              >
-                <Select
-                  style={{width: '200px'}}
-                  optionFilterProp="children"
-                  placeholder="Kho gửi"
-                  showArrow
-                  showSearch
-                  allowClear
-                  onClear={() => formSearchRef?.current?.submit()}
-                  filterOption={(input: String, option: any) => {
-                    if (option.props.value) {
-                      return strForSearch(option.props.children).includes(strForSearch(input));
-                    }
+          <Item
+            name="from_store_id"
+            className="select-item"
+          >
+            <Select
+              style={{width: '200px'}}
+              optionFilterProp="children"
+              placeholder="Kho gửi"
+              showArrow
+              showSearch
+              allowClear
+              onClear={() => formSearchRef?.current?.submit()}
+              filterOption={(input: String, option: any) => {
+                if (option.props.value) {
+                  return strForSearch(option.props.children).includes(strForSearch(input));
+                }
 
-                    return false;
-                  }}
-                >
-                  {Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option
-                        key={"from_store_id" + index}
-                        value={item.id.toString()}
-                      >
-                        {item.name}
-                      </Option>
-                    ))}
-                </Select>
-              </Item>
-              <Item
-                name="to_store_id"
-                className="select-item"
-              >
-                <Select
-                  style={{width: '200px'}}
-                  placeholder="Kho nhận"
-                  showArrow
-                  showSearch
-                  optionFilterProp="children"
-                  allowClear
-                  onClear={() => formSearchRef?.current?.submit()}
-                  filterOption={(input: String, option: any) => {
-                    if (option.props.value) {
-                      return strForSearch(option.props.children).includes(strForSearch(input));
-                    }
+                return false;
+              }}
+            >
+              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED ? Array.isArray(stores) &&
+                  stores.length > 0 &&
+                  stores.map((item, index) => (
+                  <Option
+                    key={"from_store_id" + index}
+                    value={item.id.toString()}
+                  >
+                    {item.name}
+                  </Option>
+                )) : Array.isArray(accountStores) &&
+                accountStores.length > 0 &&
+                  accountStores.map((item, index) => (
+                    <Option
+                      key={"from_store_id" + index}
+                      value={item && item.store_id ? item.store_id.toString() : ''}
+                    >
+                      {item.store}
+                    </Option>
+                  ))}
+            </Select>
+          </Item>
+          <Item
+            name="to_store_id"
+            className="select-item"
+          >
+            <Select
+              style={{width: '200px'}}
+              placeholder="Kho nhận"
+              showArrow
+              showSearch
+              optionFilterProp="children"
+              allowClear
+              onClear={() => formSearchRef?.current?.submit()}
+              filterOption={(input: String, option: any) => {
+                if (option.props.value) {
+                  return strForSearch(option.props.children).includes(strForSearch(input));
+                }
 
-                    return false;
-                  }}
-                >
-                  {Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option
-                        key={"to_store_id" + index}
-                        value={item.id.toString()}
-                      >
-                        {item.name}
-                      </Option>
-                    ))}
-                </Select>
-              </Item >
-              <Item name="condition" className="input-search">
-                <Input
-                  className="input-search"
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tìm kiếm theo ID phiếu, tên sản phẩm"
-                  onBlur={(e) => {
-                    formSearchRef?.current?.setFieldsValue({
-                      condition: e.target.value.trim()
-                    })
-                  }}
-                />
-              </Item>
-              <Item>
-                <Button style={{width: '80px'}} type="primary" loading={loadingFilter} htmlType="submit">
-                  Lọc
-                </Button>
-              </Item>
-              <Item>
-                <Button style={{width: '180px'}} icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
-              </Item>
-              <ButtonSetting onClick={onShowColumnSetting} />
+                return false;
+              }}
+            >
+              {activeTab !== InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED ? Array.isArray(stores) &&
+                stores.length > 0 &&
+                stores.map((item, index) => (
+                  <Option
+                    key={"to_store_id" + index}
+                    value={item.id.toString()}
+                  >
+                    {item.name}
+                  </Option>
+                )) : Array.isArray(accountStores) &&
+                accountStores.length > 0 &&
+                accountStores.map((item, index) => (
+                  <Option
+                    key={"to_store_id" + index}
+                    value={item && item.store_id ? item.store_id.toString() : ''}
+                  >
+                    {item.store}
+                  </Option>
+                ))}
+            </Select>
+          </Item >
+          <Item name="condition" className="input-search">
+            <Input
+              className="input-search"
+              prefix={<img src={search} alt="" />}
+              placeholder="Tìm kiếm theo ID phiếu, tên sản phẩm"
+              onBlur={(e) => {
+                formSearchRef?.current?.setFieldsValue({
+                  condition: e.target.value.trim()
+                })
+              }}
+            />
+          </Item>
+          <Item>
+            <Button style={{width: '80px'}} type="primary" loading={loadingFilter} htmlType="submit">
+              Lọc
+            </Button>
+          </Item>
+          <Item>
+            <Button style={{width: '180px'}} icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+          </Item>
+          <ButtonSetting onClick={onShowColumnSetting} />
         </Form>
       </CustomFilter>
       </div>

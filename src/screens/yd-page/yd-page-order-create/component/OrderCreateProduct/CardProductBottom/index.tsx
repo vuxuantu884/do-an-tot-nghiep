@@ -1,5 +1,5 @@
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import { Col, Divider, Row, Tag, Typography } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Col, Divider, Row, Tag, Tooltip, Typography } from "antd";
 import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
@@ -57,16 +57,9 @@ function CardProductBottom(props: PropType) {
 		handleRemoveAllDiscount,
 	} = props;
 
-	// console.log('isDisableOrderDiscount', isDisableOrderDiscount)
-
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
 
-	console.log('totalAmountOrder', totalAmountOrder)
-	console.log('isCouponValid', isCouponValid)
-
-	// console.log('coupon33', coupon)
-	// console.log('discountRate', discountRate);
 	return (
 		<StyledComponent>
       <Row gutter={24}>
@@ -85,7 +78,8 @@ function CardProductBottom(props: PropType) {
 
 					<Row className="paymentRow" style={{justifyContent: "space-between"}} align="middle">
 						<div style={{display: "flex", alignItems: "center"}}>
-              {setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
+							{/* ko disable chiết khấu tổng */}
+              {(setPromotion && !isDisableOrderDiscount && items && items.length > 0) || true ? (
                 <Typography.Link
                   className="font-weight-400"
                   onClick={showDiscountModal}
@@ -101,7 +95,7 @@ function CardProductBottom(props: PropType) {
                 <div>Chiết khấu:</div>
               )}
 
-              {items && discountRate !== 0 && (
+							{items && discountRate !== 0 && (
 								<Tag
 									key={discountRate}
 									style={{
@@ -141,7 +135,14 @@ function CardProductBottom(props: PropType) {
 									Mã giảm giá:
 								</Typography.Link>
 							) : (
-								<div>Mã giảm giá:</div>
+								<div>
+									<Tooltip title="Tắt chiết khấu tự động để nhập mã giảm giá" >
+										Mã giảm giá
+										<span style={{margin: "0 0 0 5px"}}>
+											<InfoCircleOutlined />
+										</span>
+									</Tooltip>
+								</div>
 							)}
 
 							{couponInputText && couponInputText !== "" && (
@@ -150,6 +151,7 @@ function CardProductBottom(props: PropType) {
 										margin: 0,
 										color: "#E24343",
 										backgroundColor: "#F5F5F5",
+										textTransform: "uppercase",
 									}}
 									className="orders-tag orders-tag-danger"
 									closable
@@ -217,12 +219,12 @@ function CardProductBottom(props: PropType) {
 					<Row className="paymentRow" justify="space-between">
 						<strong className="font-size-text">
 							{totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
-								? `Khách phải trả:`
+								? `Khách cần phải trả:`
 								: `Cần trả lại khách:`}
 						</strong>
 						<strong className="text-success font-size-price">
 							{totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
-								? !returnOrderInformation ? formatCurrency(Math.abs(totalAmountOrder)) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
+								? !returnOrderInformation ? formatCurrency(totalAmountOrder > 0 ? totalAmountOrder : 0) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
 								: formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
 						</strong>
 					</Row>

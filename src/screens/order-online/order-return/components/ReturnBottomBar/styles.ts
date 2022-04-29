@@ -16,15 +16,23 @@ export const StyledComponent = styled.div`
       align-items: center;
       display: flex;
       justify-content: flex-end;
-    }
-    button {
-      &:not(:last-child) {
-        margin-right: 10px;
+      > * {
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
       }
     }
   }
   .back {
     color: #737373;
     font-weight: 500;
+  }
+  .ant-select {
+    min-width: 165px;
+    &.ant-select-focused {
+      .ant-select-selector {
+        border-color: #ff0000 !important;
+      }
+    }
   }
 `;

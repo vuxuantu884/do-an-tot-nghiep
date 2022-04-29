@@ -290,7 +290,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
-    setVisibleBtnUpdate(false);
   }, [customerForm]);
 
   const checkAddress = useCallback((type, value) => {

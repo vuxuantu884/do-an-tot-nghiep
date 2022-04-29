@@ -1,4 +1,3 @@
-import { ExportOutlined } from '@ant-design/icons';
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
 import { AppConfig } from 'config/app.config';
@@ -584,6 +583,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                 ? "left"
                                                 : undefined
                                         }
+                                        className="detail-link"
                                         render={(value, record: Array<any>) => {
                                             let data = record[index];
                                             if (!data && typeof data !== FIELD_FORMAT.NumberFormat) {
@@ -606,14 +606,15 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                             );
                                             if (type === ColumnType.Property && field !== TIME.HOUR && (!existedFilter || existedFilter.value.length > 1 || (existedFilter.value.length === 1 && existedFilter.value[0] === 'Tất cả'))) {
                                                 return (
-                                                    <span className="link detail-link">
-                                                        <span onClick={() => handleQueryColumn(item, format === 'price' ? record[index] : data)}>{data}</span>
+                                                    <span>
+                                                        <span className="link" onClick={() => handleQueryColumn(item, format === 'price' ? record[index] : data)}>{data}</span>
                                                         {detailLink ? (
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 to={`${detailLink.link}/${data}`}>
-                                                                <ExportOutlined className="external-link" />
+                                                                <div className='external-link'>
+                                                                    <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>
                                                         ) : (
                                                             ""
@@ -622,14 +623,15 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                 );
                                             } else {
                                                 return (
-                                                    <span className="detail-link">
+                                                    <span>
                                                         {data}
                                                         {detailLink ? (
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 to={`${detailLink.link}/${data}`}>
-                                                                <ExportOutlined className="external-link" />
+                                                                <div className='external-link'>
+                                                                    <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>
                                                         ) : (
                                                             ""

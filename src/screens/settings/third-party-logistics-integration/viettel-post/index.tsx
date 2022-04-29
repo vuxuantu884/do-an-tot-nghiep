@@ -384,7 +384,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                       return (
                         <div className="singleShop" key={index}>
                           <div className="singleShop__title">
-                            <span className="singleShop__name">{single.name}</span>:{" "}
+                          <span className="singleShop__name">{single.name} (ID-{single.store_id})</span>:{" "}
                             <span className="singleShop__code">
                               {single.partner_shop_id}
                             </span>

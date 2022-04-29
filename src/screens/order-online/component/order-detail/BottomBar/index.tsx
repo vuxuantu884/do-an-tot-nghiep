@@ -26,6 +26,7 @@ type PropType = {
   isSaveDraft?: boolean;
   updating?: boolean;
   updatingConfirm?: boolean;
+  isShow?:boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
@@ -47,6 +48,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     updatingConfirm,
     isShowConfirmOrderButton,
     disabledBottomActions,
+    isShow,
     handleTypeButton,
     showSaveAndConfirmModal,
     orderActionsClick,
@@ -109,7 +111,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      <div className="bottomBar">
+      <div className="bottomBar" hidden={isShow}>
         <Row gutter={24}>
           <Col md={12}>
             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", height: "100%" }}>
@@ -139,8 +141,9 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     onClick={showSaveAndConfirmModal}
                     loading={isSaveDraft}
                     disabled={creating || isLoadingDiscount}
+                    id="save-draft-confirm"
                   >
-                    Lưu nháp
+                    Lưu nháp (F6)
                   </Button>
                   <Button
                     style={{ padding: "0 25px", fontWeight: 400 }}
@@ -154,7 +157,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     loading={creating}
                     disabled={isSaveDraft || isLoadingDiscount}
                   >
-                    Lưu và Xác nhận 
+                    Lưu và Xác nhận (F9)
                   </Button>
                 </div>
               </Col>

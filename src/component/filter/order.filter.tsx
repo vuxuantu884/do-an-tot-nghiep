@@ -391,7 +391,6 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const [cancelledClick, setCancelledClick] = useState("");
   const [expectedClick, setExpectedClick] = useState("");
   const [exportedClick, setExportedClick] = useState("");
-console.log('listSource', listSource)
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);
@@ -1186,8 +1185,9 @@ console.log('listSource', listSource)
       search_term: params.search_term,
       variant_ids: params.variant_ids,
       tracking_codes: params.tracking_codes,
+      sub_status_code: params.sub_status_code
     });
-  }, [formSearchRef, params.search_term, params.tracking_codes, params.variant_ids]);
+  }, [formSearchRef, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids]);
 
   useEffect(() => {
     if (params.variant_ids && params.variant_ids.length) {
@@ -1253,7 +1253,7 @@ console.log('listSource', listSource)
             layout="inline">
             <div style={{ width: "100%" }}>
               <Row gutter={12}>
-                <Col span={isShowOfflineOrder ? 12 : 8}>
+                <Col span={isShowOfflineOrder ? 12 : 7}>
                   <Item name="search_term" className="input-search">
                     <Input
                       prefix={<img src={search} alt="" />}
@@ -1266,7 +1266,68 @@ console.log('listSource', listSource)
                     />
                   </Item>
                 </Col>
-                <Col span={isShowOfflineOrder ? 12 : 8}>
+                {isShowOfflineOrder ? null : (
+                  <Col span={6}>
+                    <Item name="sub_status_code" style={{marginRight: 0}}>
+                      <CustomSelectWithButtonCheckAll
+                        mode="multiple"
+                        showArrow
+                        allowClear
+                        showSearch
+                        placeholder="Trạng thái xử lý đơn"
+                        notFoundContent="Không tìm thấy kết quả"
+                        style={{ width: "100%" }}
+                        optionFilterProp="children"
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        maxTagCount="responsive"
+                        onBlur={() =>
+                          setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus)
+                        }
+                        onChangeAllSelect={(e: CheckboxChangeEvent)=>{
+                          if(e.target.checked) {
+                            formRef.current?.setFieldsValue({
+                              sub_status_code: selectedSubStatusCodes
+                            })
+                          } else {
+                            formRef.current?.setFieldsValue({
+                              sub_status_code: undefined
+                            })
+                          }
+                        }}
+                        getCurrentValue={() => {
+                          return formRef.current?.getFieldValue("sub_status_code")
+                        }}
+                        allValues={subStatus}
+                        onSearch = {(value) => {
+                          const showed = initSubStatus.filter(single => fullTextSearch(value, single.sub_status)).map(gg => gg.code)
+                          setSelectedSubStatusCodes(showed)
+                        }}
+                      >
+                        {subStatus?.map((item: any) => (
+                          <CustomSelect.Option key={item.id} value={item.code.toString()}>
+                            {item.sub_status}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelectWithButtonCheckAll>
+                    </Item>
+                  </Col>
+                )}
+                {isShowOfflineOrder ? null : (
+                  <Col span={5}>
+                    <Item name="tracking_codes" className="input-search">
+                      <Input
+                        prefix={<img src={search} alt="" />}
+                        placeholder="Mã vận đơn"
+                        onBlur={(e) => {
+                          formSearchRef?.current?.setFieldsValue({
+                            tracking_codes: e.target.value.trim(),
+                          });
+                        }}
+                      />
+                    </Item>
+                  </Col>
+                )}
+                <Col span={isShowOfflineOrder ? 12 : 6}>
                   {rerenderSearchVariant && (
                     <Item name="variant_ids" style={{marginRight: 0}}>
                       <DebounceSelect
@@ -1284,22 +1345,6 @@ console.log('listSource', listSource)
                     </Item>
                   )}
                 </Col>
-                {isShowOfflineOrder ? null : (
-                  <Col span={8}>
-                    <Item name="tracking_codes" className="input-search">
-                      <Input
-                        prefix={<img src={search} alt="" />}
-                        placeholder="Mã vận đơn"
-                        onBlur={(e) => {
-                          formSearchRef?.current?.setFieldsValue({
-                            tracking_codes: e.target.value.trim(),
-                          });
-                        }}
-                      />
-                    </Item>
-                  </Col>
-
-                )}
               </Row>
             </div>
             <div className="buttonGroup">
@@ -1357,44 +1402,43 @@ console.log('listSource', listSource)
                   />
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="sub_status_code" label="Trạng thái xử lý đơn">
-                    <CustomSelectWithButtonCheckAll
+                  <Item name="order_status" label="Trạng thái tiến trình đơn hàng">
+                  <CustomSelectWithButtonCheckAll
                       mode="multiple"
-                      showArrow
                       allowClear
                       showSearch
-                      placeholder="Chọn trạng thái xử lý đơn"
+                      placeholder="Chọn trạng thái tiến trình đơn hàng"
                       notFoundContent="Không tìm thấy kết quả"
                       style={{ width: "100%" }}
                       optionFilterProp="children"
+                      showArrow
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive"
-                      onBlur={() =>
-                        setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus)
-                      }
                       onChangeAllSelect={(e: CheckboxChangeEvent)=>{
-                        if(e.target.checked) {
+                        if(e.target.checked && status) {
                           formRef.current?.setFieldsValue({
-                            sub_status_code: selectedSubStatusCodes
+                            order_status: showedStatusCodes.length > 0 ? showedStatusCodes : status.map(single => single.value)
                           })
                         } else {
                           formRef.current?.setFieldsValue({
-                            sub_status_code: undefined
+                            order_status: undefined
                           })
                         }
                       }}
                       getCurrentValue={() => {
-                        return formRef.current?.getFieldValue("sub_status_code")
+                        return formRef.current?.getFieldValue("order_status")
                       }}
-                      allValues={subStatus}
+                      allValues={status}
                       onSearch = {(value) => {
-                        const showed = initSubStatus.filter(single => fullTextSearch(value, single.sub_status)).map(gg => gg.code)
-                        setSelectedSubStatusCodes(showed)
+                        if(status) {
+                          const showed = (status|| []).filter(single => fullTextSearch(value, single.name)).map(gg => gg.value)
+                          setShowStatusCodes(showed)
+                        }
                       }}
                     >
-                      {subStatus?.map((item: any) => (
-                        <CustomSelect.Option key={item.id} value={item.code.toString()}>
-                          {item.sub_status}
+                      {status?.map((item) => (
+                        <CustomSelect.Option key={item.value} value={item.value.toString()}>
+                          {item.name}
                         </CustomSelect.Option>
                       ))}
                     </CustomSelectWithButtonCheckAll>
@@ -1660,52 +1704,6 @@ console.log('listSource', listSource)
                   </Item>
                 </Col>
                 
-                <Col span={8} xxl={8}/>
-                <Col span={8} xxl={8}/>
-                <Col span={8} xxl={8}/>
-                <Col span={8} xxl={8}>
-                  <Item name="order_status" label="Trạng thái tiến trình đơn hàng">
-                  <CustomSelectWithButtonCheckAll
-                      mode="multiple"
-                      allowClear
-                      showSearch
-                      placeholder="Chọn trạng thái tiến trình đơn hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      showArrow
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive"
-                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
-                        if(e.target.checked && status) {
-                          formRef.current?.setFieldsValue({
-                            order_status: showedStatusCodes.length > 0 ? showedStatusCodes : status.map(single => single.value)
-                          })
-                        } else {
-                          formRef.current?.setFieldsValue({
-                            order_status: undefined
-                          })
-                        }
-                      }}
-                      getCurrentValue={() => {
-                        return formRef.current?.getFieldValue("order_status")
-                      }}
-                      allValues={status}
-                      onSearch = {(value) => {
-                        if(status) {
-                          const showed = (status|| []).filter(single => fullTextSearch(value, single.name)).map(gg => gg.value)
-                          setShowStatusCodes(showed)
-                        }
-                      }}
-                    >
-                      {status?.map((item) => (
-                        <CustomSelect.Option key={item.value} value={item.value.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelectWithButtonCheckAll>
-                  </Item>
-                </Col>
                 <Col span={8} xxl={8}>
                   <Item name="fulfillment_status" label="Trạng thái giao hàng">
                     <CustomSelect

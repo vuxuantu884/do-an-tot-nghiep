@@ -1,18 +1,15 @@
 import styled from "styled-components";
 import {borderColor, dangerColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
-let quantityWidth = 48;
-const massWidth = 100;
-let priceWidth = 82;
-let nameWidth = 118;
-export let nameQuantityWidth = nameWidth+ quantityWidth + priceWidth + 10;
+
+let nameQuantityWidth = 200;
 
 export const StyledComponent = styled.div.attrs((props:any) => {
-  if(props.isOnlyShowPos ) {
-    quantityWidth = 50;
-    // nameWidth = 158;
-    // priceWidth = 92;
-    nameQuantityWidth = window.screen.width > 1800 ? nameWidth+ quantityWidth + priceWidth : nameWidth+ quantityWidth + priceWidth + 15;
-  }
+  // if(props.isShowOfflineOrder ) {
+  //   quantityWidth = 50;
+  //   nameWidth = 288;
+  //   priceWidth = 120;
+  //   nameQuantityWidth = window.screen.width > 1800 ? nameWidth+ quantityWidth + priceWidth : nameWidth+ quantityWidth + priceWidth + 15;
+  // }
 })`
   th {
     /* text-align: center !important; */
@@ -44,18 +41,14 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     width: ${nameQuantityWidth}px;
   }
   .productNameWidth {
-    width: ${nameWidth + 32}px ;
+    width: 60% ;
   }
   .quantityWidth {
-    width: ${quantityWidth}px;
-    text-align: center;
-  }
-  .massWidth {
-    width: ${massWidth}px;
+    width: 15%;
     text-align: center;
   }
   .priceWidth {
-    width: ${priceWidth}px;
+    width: 25%;
     text-align: center;
 		justify-content: flex-end;
 		padding: 0 10px;
@@ -90,31 +83,13 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         z-index: 1;
         top: -999px;
         bottom: -999px;
-        right: ${quantityWidth}px;
+        left: 0;
         background-color: ${borderColor};
       }
     }
 		.quantity {
 			justify-content: center;
 		}
-    .mass {
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      &:before {
-        content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: 0px;
-        bottom: 0px;
-        right: ${massWidth}px;
-        background-color: ${borderColor};
-      }
-    }
     .price {
       white-space: nowrap;
       display: flex;
@@ -128,7 +103,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         z-index: 1;
         top: -999px;
         bottom:-999px;
-        right: ${priceWidth}px;
+        left: 0;
         background-color: ${borderColor};
       }
     }
@@ -151,7 +126,6 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     }
   }
 	.orderSource {
-		margin-top: 9px;
     margin-bottom: 9px;
 	}
   .customer {
@@ -165,15 +139,15 @@ export const StyledComponent = styled.div.attrs((props:any) => {
 		img {
 			margin-right: 5px;
 		}
-		.amount {
-			position: relative;
-			top: 1px;
-      font-weight: 500;
-		}
     &.ydPoint {
       color: ${yellowColor};
     }
 	}
+  .amount {
+    position: relative;
+    top: 1px;
+    font-weight: 500;
+  }
 	.notes {
 		position: relative;
 	}
@@ -444,6 +418,18 @@ export const StyledComponent = styled.div.attrs((props:any) => {
           color: #fff;
         }
       }
+      &.coordinator_confirming {
+        .ant-select-selector {
+          color: #fff;
+          background: #E8770A  !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
       &.returning {
         .ant-select-selector {
           color: #fff;
@@ -481,6 +467,45 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         }
       }
       &.cancelled {
+        .ant-select-selector {
+          color: #fff;
+          background: #E24343 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.delivery_fail,
+      &.compensate,
+      &.customer_cancelled,
+      &.delivery_service_cancelled {
+        .ant-select-selector {
+          color: #fff;
+          background: #E24343 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.out_of_stock {
+        .ant-select-selector {
+          color: #fff;
+          background: #E24343 !important;
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+        &.ant-select-single.ant-select-open .ant-select-selection-item {
+          color: #fff;
+        }
+      }
+      &.system_cancelled {
         .ant-select-selector {
           color: #fff;
           background: #E24343 !important;
@@ -561,7 +586,6 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     padding: 0;
     height: auto;
     line-height: 1;
-    margin-bottom: 8px;
     width: auto;
   }
   .iconReturn {
@@ -572,7 +596,16 @@ export const StyledComponent = styled.div.attrs((props:any) => {
   }
   .actionButton {
     &:not(:last-child) {
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
   }
+  .mainColor {
+    color: ${primaryColor};
+  }
+  .orderTotal {
+    color: ${successColor};
+    font-weight: bold;
+  }
 `;
+
+export {nameQuantityWidth}

@@ -220,4 +220,7 @@ export const StyledWrapper = styled.div`
   .ant-table-thead > tr > th, .ant-table-tbody >tr>td {
     padding: 5px 0 !important;
   }
+  .checkbox {
+    margin-right: 20px;
+  }
 `;

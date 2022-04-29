@@ -21,7 +21,7 @@ export const TOP_SALES_PRODUCT_TEMPLATE: AnalyticSampleQuery = {
         ],
         rows: ["variant_sku3_group"],
         cube: "sales",
-        conditions: [],
+        // conditions: [["variant_sku3_group", "!=", ""]],
         from: TODAY,
         to: TODAY,
         order_by: [["total_sales", "DESC"]]

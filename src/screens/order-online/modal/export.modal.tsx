@@ -1,12 +1,11 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Button, Checkbox, Col, Modal, Progress, Radio, Row, Space } from "antd";
-import { useMemo, useState } from "react";
-// import { fields_order, fields_shipment, fields_return} from "../common/fields.export";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { fields_order_online, fields_order_offline } from "../common/fields.export";
 type ExportModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  onOk: (optionExport: number, typeExport: number, fieldsExport?: Array<string>) => void;
+  onOk: (optionExport: number, fieldsExport?: string) => void;
   type?: string;
   total: number;
   exportProgress: number;
@@ -22,8 +21,10 @@ const ExportModal: React.FC<ExportModalProps> = (
   const text = useMemo(
     () => {
       switch (type) { 
-        case "orders":
-          return "đơn hàng"
+        case "orders_online":
+          return "đơn hàng";
+        case "orders_offline":
+          return "đơn hàng"  
         case "shipments":
           return "đơn giao hàng"
         case "returns":
@@ -36,7 +37,9 @@ const ExportModal: React.FC<ExportModalProps> = (
   const text1 = useMemo(
     () => {
       switch (type) { 
-        case "orders":
+        case "orders_online":
+          return "Đơn hàng"
+        case "orders_offline":
           return "Đơn hàng"
         case "shipments":
           return "Đơn giao hàng"
@@ -47,37 +50,83 @@ const ExportModal: React.FC<ExportModalProps> = (
     },
     [type]
   );
-  // const fields = useMemo(
-  //   () => {
-  //     switch (type) { 
-  //       case "orders":
-  //         return fields_order
-  //       case "shipments":
-  //         return fields_shipment
-  //       case "returns":
-  //         return fields_return
-  //       default:
-  //         return []
-  //     }
-  //   },
-  //   [type]
-  // );
-  const [optionExport, setOptionExport] = useState<number>(selected ? 3 : 1);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [typeExport, setTypeExport] = useState<number>(1);
-  // const [fieldsExport, setFieldsExport] = useState<Array<any>>(fields.map(i => {
-  //   return i.value
-  // }));
+  const fields = useMemo(
+    () => {
+      switch (type) {
+        case "orders_online":
+          return fields_order_online;
+        case "orders_offline":
+          return fields_order_offline;
+        // case "shipments":
+        //   return fields_shipment
+        // case "returns":
+        //   return fields_return
+        default:
+          return []
+      }
+    },
+    [type]
+  );
+  const [optionExport, setOptionExport] = useState<number>(selected ? 3 : (type === "orders_online" || type === "orders_offline" ? 2 : 1));
+  // const [typeExport, setTypeExport] = useState<number>(1);
+  const [fieldsExport, setFieldsExport] = useState<Array<any>>(fields.map(i => {
+    return i.value
+  }));
+
+  useEffect(() => {
+    switch (type) {
+      case "orders_online":
+        const fieldsExportOrdersOnline = localStorage.getItem("orders_online_fields_export");
+        fieldsExportOrdersOnline && setFieldsExport(JSON.parse(fieldsExportOrdersOnline));
+        break;
+      case "orders_offline":
+        const fieldsExportOrdersOffline = localStorage.getItem("orders_offline_fields_export");
+        fieldsExportOrdersOffline && setFieldsExport(JSON.parse(fieldsExportOrdersOffline));
+        break;
+      // case "shipments":
+      //   return fields_shipment
+      // case "returns":
+      //   return fields_return
+      default: break;
+    }
+  }, [type]);
   const [editFields, setEditFields] = useState(false);
+
+  const submit = useCallback(
+    ()=> {
+      let hidden_fields = [...fields];
+      fieldsExport.forEach((field: string) => {
+        let findIndex = hidden_fields.findIndex(i => i.value === field);
+        hidden_fields.splice(findIndex, 1);
+      });
+      // console.log('hidden_fields', hidden_fields);
+      let hidden_fields_text = "";
+      hidden_fields.forEach(i => {
+        hidden_fields_text = hidden_fields_text + i.value + ","
+      });
+      switch (type) {
+        case "orders_online":
+          localStorage.setItem("orders_online_fields_export", JSON.stringify(fieldsExport));
+          break;
+        case "orders_offline":
+          localStorage.setItem("orders_offline_fields_export", JSON.stringify(fieldsExport));
+          break;
+        // case "shipments":
+        //   localStorage.setItem("shipments_fields_export", JSON.stringify(fieldsExport));
+        // case "returns":
+        //   localStorage.setItem("returns_fields_export", JSON.stringify(fieldsExport));
+        default: break;
+      }
+      // console.log('hidden_fields_text', hidden_fields_text.slice(0, hidden_fields_text.length - 1))
+      onOk(optionExport, hidden_fields_text.slice(0, hidden_fields_text.length - 1));
+    },[fields, fieldsExport, onOk, optionExport, type]
+  );
   
   return (
     <Modal
       onCancel={onCancel}
-      // onOk={onOk}
       visible={visible}
       centered
-      // okText="Xuất file"
-      // cancelText="Thoát"
       title={[
         <span style={{fontWeight: 600, fontSize: 16}}>
           {editFields && <span style={{ color: '#2a2a86', marginRight: '10px'}}><ArrowLeftOutlined onClick={() => setEditFields(false)}/></span>}
@@ -94,7 +143,7 @@ const ExportModal: React.FC<ExportModalProps> = (
         </Button>,
         <Button key="ok"
           type="primary"
-          onClick={() => onOk(optionExport, typeExport)}
+          onClick={() => submit()}
           disabled={statusExport !== 1}
           loading={statusExport === 2}
         >
@@ -107,9 +156,9 @@ const ExportModal: React.FC<ExportModalProps> = (
       {!editFields && statusExport === 1 && (
       <div>
         <p style={{ fontWeight: 500}}>Giới hạn kết quả xuất</p>
-        <Radio.Group name="radiogroup" defaultValue={selected ? 3 : (type === "orders" ? 2 : 1)} onChange={(e) => setOptionExport(e.target.value)}>
+        <Radio.Group name="radiogroup" defaultValue={selected ? 3 : (type === "orders_online" || type === "orders_offline" ? 2 : 1)} onChange={(e) => setOptionExport(e.target.value)}>
           <Space direction="vertical">
-            <Radio value={1} disabled={type === "orders"}>Tất cả {text}</Radio>
+            <Radio value={1} disabled={type === "orders_online" || type === "orders_offline"}>Tất cả {text}</Radio>
             <Radio value={2}>{text1} trên trang này</Radio>
             <Radio value={3} disabled={!selected}>Các {text} được chọn</Radio>
             <Radio value={4}>{total} {text} phù hợp với điều kiện tìm kiếm hiện tại</Radio>
@@ -121,13 +170,15 @@ const ExportModal: React.FC<ExportModalProps> = (
             <Radio value={1}>File tổng quan theo {text}</Radio>
             <Radio value={2}>File chi tiết</Radio>
           </Space>
-        </Radio.Group>
-        <div>
-        <Button type="link" style={{ padding: 0 }} onClick={() => setEditFields(true)}>Tuỳ chọn trường hiển thị</Button>
-        </div> */}
+        </Radio.Group> */}
+        {(type === "orders_online" || type === "orders_offline") && 
+          <div>
+            <Button type="link" style={{ padding: 0, color: "#2a2a86" }} onClick={() => setEditFields(true)}>Tuỳ chọn cột hiển thị</Button>
+          </div>
+        }
       </div>
       )}
-      {/* {editFields && statusExport === 1 && (
+      {editFields && statusExport === 1 && (
         <Checkbox.Group
           name="radiogroup"
           defaultValue={fieldsExport}
@@ -150,7 +201,7 @@ const ExportModal: React.FC<ExportModalProps> = (
         //   defaultValue={['Apple']}
         //   // onChange={onChange}
         // />
-      )} */}
+      )}
       {statusExport !== 1 && (
       <Row style={{ justifyContent: 'center'}}>
         {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}

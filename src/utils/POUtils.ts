@@ -1,7 +1,7 @@
 import { FormInstance } from "antd";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { CostLine } from "model/purchase-order/cost-line.model";
 import { POField } from "model/purchase-order/po-field";
@@ -128,12 +128,41 @@ const POUtils = {
     data.forEach((item) => (total = total + item.discount_amount));
     return total;
   },
-  totalAmount: (data: Array<PurchaseOrderLineItem>): number => {
+  totalAmount: (formMain: FormInstance): number => {
     let total = 0;
-    data.forEach(
+    const lineItems : Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    lineItems.forEach(
       (item) => (total = total + item.line_amount_after_line_discount)
     );
     return total;
+  },
+  updateLineItemByQuantity: (
+    lineItem: PurchaseOrderLineItem,
+    quantity: number
+  ) : PurchaseOrderLineItem =>{
+    let amount = quantity * lineItem.price;
+    let discount_amount = POUtils.caculateDiscountAmount(lineItem.price, lineItem.discount_rate,lineItem.discount_value) * quantity;
+    return {
+      ...lineItem,
+      quantity: quantity,
+      amount: amount,
+      discount_amount : discount_amount,
+      line_amount_after_line_discount: amount - discount_amount,
+    }
+  },
+  updateLineItemByPrice: (
+    lineItem: PurchaseOrderLineItem,
+    price: number
+  ) : PurchaseOrderLineItem => {
+    let amount = price * lineItem.quantity;
+    let discount_amount = POUtils.caculateDiscountAmount(price, lineItem.discount_rate,lineItem.discount_value) * lineItem.quantity;
+    return {
+      ...lineItem,
+      price: price,
+      amount: amount,
+      discount_amount: discount_amount,
+      line_amount_after_line_discount: amount - discount_amount,
+    }
   },
   updateQuantityItem: (
     data: PurchaseOrderLineItem,
@@ -142,17 +171,14 @@ const POUtils = {
     discount_value: number | null,
     quantity: number
   ): PurchaseOrderLineItem => {
-    let newQuantity = quantity;
-    let amount = newQuantity * price;
-    let discount_amount =
-      POUtils.caculateDiscountAmount(price, discount_rate, discount_value) *
-      quantity;
+    let amount = quantity * price;
+    let discount_amount = POUtils.caculateDiscountAmount(price, discount_rate, discount_value) * quantity;
     let tax = amount * data.tax_rate / 100;
     return {
       ...data,
       tax: tax,
       price: price,
-      quantity: newQuantity,
+      quantity: quantity,
       amount: amount,
       discount_amount: discount_amount,
       discount_rate: discount_rate,
@@ -160,29 +186,14 @@ const POUtils = {
       line_amount_after_line_discount: amount - discount_amount,
     };
   },
-  updateVatItem: (
-    item: PurchaseOrderLineItem,
-    tax_rate: number,
-    data: Array<PurchaseOrderLineItem>,
-    tradeDiscountRate: number | null,
-    tradeDiscountValue: number | null
+  updateLineItemByVat: (
+    formMain: FormInstance,
+    lineItem: PurchaseOrderLineItem,
+    tax_rate: number
   ): PurchaseOrderLineItem => {
-    let total = POUtils.totalAmount(data);
-    let amount_after_discount = item.line_amount_after_line_discount;
-    if (tradeDiscountRate !== null) {
-      amount_after_discount =
-        amount_after_discount -
-        (amount_after_discount * tradeDiscountRate) / 100;
-    } else if (tradeDiscountValue !== null) {
-      amount_after_discount =
-        amount_after_discount -
-        (amount_after_discount / total) * tradeDiscountValue;
-    }
-    item.tax_rate = (tax_rate && tax_rate.toString() !== "") ? parseInt(tax_rate.toString()) : item.tax_rate;
-    let tax = parseFloat(
-      ((amount_after_discount * item.tax_rate) / 100).toFixed(2)
-    );
-    return { ...item, tax_rate: tax_rate, tax: tax };
+    lineItem.tax_rate = tax_rate;
+    lineItem.tax = parseFloat(((lineItem.line_amount_after_line_discount * tax_rate) / 100).toFixed(2));
+    return lineItem;
   },
   caculatePrice: (
     price: number,
@@ -197,35 +208,27 @@ const POUtils = {
     }
     return price;
   },
-  getVatList: (
-    data: Array<PurchaseOrderLineItem>,
-    tradeDiscountRate: number | null,
-    tradeDiscountValue: number | null
-  ): Array<Vat> => {
+  getVatList: (formMain: FormInstance): Array<Vat> => {
     let result: Array<Vat> = [];
-    let total = POUtils.totalAmount(data);
-    data.forEach((item) => {
+    let lineItems : Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    let tradeDiscountRate = formMain.getFieldValue(POField.trade_discount_rate);
+    let tradeDiscountValue = formMain.getFieldValue(POField.trade_discount_value);
+    let total = POUtils.totalAmount(formMain);
+    lineItems.forEach((item) => {
       if (item.tax_rate > 0) {
         let index = result.findIndex(
           (vatItem) => vatItem.rate === item.tax_rate
         );
         let amount_after_discount = item.line_amount_after_line_discount;
         if (tradeDiscountRate !== null) {
-          amount_after_discount =
-            amount_after_discount -
-            (amount_after_discount * tradeDiscountRate) / 100;
+          amount_after_discount = amount_after_discount - (amount_after_discount * tradeDiscountRate) / 100;
         } else if (tradeDiscountValue !== null) {
-          amount_after_discount =
-            amount_after_discount -
-            (amount_after_discount / total) * tradeDiscountValue;
+          amount_after_discount = amount_after_discount - (amount_after_discount / total) * tradeDiscountValue;
         }
-        let amountTax = parseFloat(
-          ((amount_after_discount * item.tax_rate) / 100).toFixed(2)
+        let amountTax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2)
         );
         if (index === -1) {
-          result.push({
-            rate: item.tax_rate,
-            amount: amountTax,
+          result.push({rate: item.tax_rate,amount: amountTax,
           });
         } else {
           result[index].amount = result[index].amount + amountTax;
@@ -234,16 +237,14 @@ const POUtils = {
     });
     return result;
   },
-  getTotalDiscount: (
-    total: number,
-    rate: number | null,
-    value: number | null
-  ): number => {
-    if (rate) {
-      return (total * rate) / 100;
+  getTotalDiscount: (formMain: FormInstance,total:number): number => {
+    let discountRate = formMain.getFieldValue(POField.trade_discount_rate);
+    let discountValue = formMain.getFieldValue(POField.trade_discount_value);
+    if (discountRate) {
+      return (total * discountRate) / 100;
     }
-    if (value) {
-      return value;
+    else if (discountValue) {
+      return discountValue;
     }
     return 0;
   },
@@ -260,15 +261,22 @@ const POUtils = {
     }
     return 0;
   },
-  getTotalPayment: (
-    total: number,
-    trade_discount_total: number,
-    payment_discount_total: number,
-    total_cost_line: number,
-    vats: Array<Vat>
-  ): number => {
-    let sum =
-      total - trade_discount_total - payment_discount_total + total_cost_line;
+  getTotalPayment: (formMain: FormInstance): number => {
+    let total = formMain.getFieldValue(POField.untaxed_amount);
+    let trade_discount_total = POUtils.getTotalDiscount(formMain,total);
+    let total_after_tax = POUtils.getTotalAfterTax(formMain);
+    let payment_discount_total = POUtils.getTotalDiscount(formMain,total_after_tax);
+    let vats = POUtils.getVatList(formMain);
+    let sum = total - trade_discount_total - payment_discount_total + formMain.getFieldValue(POField.total_cost_line);
+    vats.forEach((item) => {
+      sum = sum + item.amount;
+    });
+    return sum;
+  },
+  getTotalAfterTax: (formMain : FormInstance) => {
+    let total = formMain.getFieldValue(POField.untaxed_amount);
+    let sum = total - POUtils.getTotalDiscount(formMain,total);
+    let vats = POUtils.getVatList(formMain);
     vats.forEach((item) => {
       sum = sum + item.amount;
     });
@@ -280,17 +288,6 @@ const POUtils = {
       if (item && item.amount !== undefined && item.amount !== null) {
         sum = sum + item.amount;
       }
-    });
-    return sum;
-  },
-  getTotalAfterTax: (
-    total: number,
-    trade_discount_amount: number,
-    vats: Array<Vat>
-  ) => {
-    let sum = total - trade_discount_amount;
-    vats.forEach((item) => {
-      sum = sum + item.amount;
     });
     return sum;
   },
@@ -378,7 +375,6 @@ const POUtils = {
       item.procurement_items = newProcumentLineItem;
       newProcuments.push(item);
     });
-    console.log(newProcuments);
     return newProcuments;
   },
 };
@@ -404,17 +400,25 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
       variant.size = variant.sku;
     }
   })
-  const baseColor: Array<POLineItemColor> = uniqBy(tempVariant, "color").map((item: VariantResponse) => {
+  const baseColor: Array<POLineItemColor> = uniqBy(tempVariant, "color").map((variant: VariantResponse) => {
     let price = 0;
-    if (mode === "CREATE" && item.variant_prices?.length > 0 && item.variant_prices[0]?.import_price) {
-      price = item.variant_prices[0].import_price
-    } else if (mode === "READ_UPDATE" && line_items && line_items.length > 0) {
-      price = line_items.find((lineItem) => lineItem.variant_id === item.id)?.price || 0;
+    let lineItem: PurchaseOrderLineItem | undefined;
+
+    if (mode === "READ_UPDATE" && line_items && line_items.length > 0) {
+      const variantSameColor = tempVariant.filter((variantItem: VariantResponse) => variantItem.color === variant.color);
+      // get lineItem has variant_id in variantSameColor id
+      lineItem = line_items.find((lineItem: PurchaseOrderLineItem) => variantSameColor.find((variantItem: VariantResponse) => variantItem.id === lineItem.variant_id));
+      if (lineItem) {
+        price = lineItem.price;
+      }
+    } 
+    if ((mode === "CREATE" && variant.variant_prices?.length > 0 && variant.variant_prices[0]?.import_price) || isEmpty(lineItem)) {
+      price = variant.variant_prices[0].import_price || 0;
     }
 
     return {
-      color: item.color.trim(),
-      clothCode: item.sku.split("-")[1],
+      color: variant.color.trim(),
+      clothCode: variant.sku.split("-")[1],
       lineItemPrice: price,// giá nhập, không có thì mặc định là 0
     };
 
@@ -473,7 +477,7 @@ export function initValueLineItem(poLineItemGridSchema: POLineItemGridSchema, li
         {
           variantId: current.variantId,
           size: current.size,
-          quantity: line_items?.find(item => item.variant_id === current.variantId)?.quantity ?? 0,
+          quantity: line_items?.find(item => item.variant_id === current.variantId)?.quantity,
         }
       ] as Array<POPairSizeQuantity>;
     }, [] as Array<POPairSizeQuantity>);
@@ -493,7 +497,7 @@ export const getTotalPriceOfAllLineItem = (poLineItemGridValue: Array<Map<string
     const mapLength = productLine.size;
     for (let i = 0; i < mapLength; i++) {
       const value: POLineItemGridValue = mapIterator.next().value;
-      amount += value.price * value.sizeValues.reduce((acc, cur) => acc + cur.quantity, 0);
+      amount += value.price * value.sizeValues.reduce((acc, cur) => acc + (cur.quantity ?? 0), 0);
     }
   })
   return amount;
@@ -511,27 +515,30 @@ export const combineLineItemToSubmitData = (
 
       if (value) {
         const qty = value.sizeValues.find(item => item.size === pair.size)?.quantity || 0;
-        const amount = qty * value.price
-        newDataItems.push({
-          id: pair.lineItemId,
-          //Dữ liệu cơ bản thì lấy từ schema
-          variant_id: pair.variantId,
-          variant: pair.variant,
-          product_id: pair.product_id,
-          sku: pair.sku,
-          product: pair.product,
-          barcode: pair.barcode,
+        if (qty>0) {
+          const amount = qty * value.price
+          newDataItems.push({
+            id: pair.lineItemId,
+            //Dữ liệu cơ bản thì lấy từ schema
+            variant_id: pair.variantId,
+            variant: pair.variant,
+            product_id: pair.product_id,
+            sku: pair.sku,
+            product: pair.product,
+            barcode: pair.barcode,
 
-          // Dữ liệu nhập liệu thì lấy thì value object
-          quantity: qty,
-          price: value.price,
-          purchase_order_id: null,
-          tax: (amount * taxRate) / 100,
-          tax_rate: taxRate,
-          amount: amount, // Tổng tiền
-          line_amount_after_line_discount: qty * value.price, // Tổng tiền sau giảm giá, hiện tại chưa có nên để bằng amount
-
-        });
+            // Dữ liệu nhập liệu thì lấy thì value object
+            quantity: qty,
+            price: value.price,
+            purchase_order_id: null,
+            tax: (amount * taxRate) / 100,
+            tax_rate: taxRate,
+            amount: amount, // Tổng tiền
+            line_amount_after_line_discount: qty * value.price, // Tổng tiền sau giảm giá, hiện tại chưa có nên để bằng amount
+            updated_by: "",
+            updated_name: "",
+          });
+        }
       }
     })
   });
@@ -554,7 +561,7 @@ export const validateLineItem = (poLineItemGridValue: Array<Map<string, POLineIt
     for (let i = 0; i < length; i++) {
       const value: POLineItemGridValue = mapIterator.next().value;
       // với mỗi màu tương ứng 1 row trong grid, nếu giá nhập chưa có thì báo lỗi
-      if (!value.price) {
+      if (!value.price && value.sizeValues.some(item => item.quantity > 0)) {
         showError("Vui lòng nhập đơn giá sản phẩm");
         return true;
       }
@@ -573,7 +580,7 @@ export const setProcurementLineItemById =
     procurements.forEach((procurement: PurchaseProcurementViewDraft, index) => {
       /**
        * Lấy giá trị từ mảng quickInputQtyProcurementLineItem
-       * kiểm nếu 
+       * kiểm nếu
        */
       const { unit, value } = quickInputQtyProcurementLineItem[index];
       variantIdList.forEach((variantId: number) => {

@@ -136,18 +136,27 @@ const POProductForm = ({
 
   };
 
-  const transformDataSource = (): Array<PODataSourceGrid> => {
+  const transformDataSource = (isEditMode: boolean): Array<PODataSourceGrid> => {
+
     const dataSrc: Array<PODataSourceGrid> = [];
     poLineItemGridChema.forEach((schema: POLineItemGridSchema, schemaIndex: number) => {
       schema.baseColor.forEach((c) => {
         const { clothCode, color } = c;
+        /**
+          * Check nếu dòng không có variant nào được nhập quantity thì ẩn
+          *DK : view mode           
+           */
+        if (!isEditMode && poLineItemGridValue[schemaIndex].get(color)?.sizeValues.every(sizeValue => !sizeValue.quantity)) {
+          return;
+        }
+
         const row: any = {
+          schemaIndex,
           productId: schema.productId,
           productCode: schema.productCode,
           productName: schema.productName,
           clothCode,
           color,
-          // lineItemPrice: c.lineItemPrice || 0,
           ...schema.baseSize.reduce((previousValue: any, currentValue: any) => {
             const mapping = schema.mappingColorAndSize.find(variant => variant.color === color && variant.size === currentValue);
             const variantId = mapping ? mapping.variantId : null;
@@ -162,10 +171,18 @@ const POProductForm = ({
                 schemaIndex,
               }
             }
-          }, {}),
-          schemaIndex
-
+          }, {
+            /**{
+               * M : {
+               * variantId,
+               * disabled,
+               * ...
+               * }
+              *}
+             */
+          }),
         }
+
         dataSrc.push(row);
       })
     })
@@ -275,7 +292,7 @@ const POProductForm = ({
         if (sizeValues.length > 0) {
           for (let index = 0; index < sizeValues.length; index++) {
             const element = sizeValues[index];
-            sum += element.quantity;
+            sum += element.quantity || 0;
           }
         }
       }
@@ -359,15 +376,15 @@ const POProductForm = ({
           key: size,
           align: "center",
           width: 80,
-          render: (value: PODataSourceVariantItemGrid, record: PODataSourceGrid) => {
-            let quantityOfSize = 0;
+          render: (v: PODataSourceVariantItemGrid, record: PODataSourceGrid) => {
+            let quantityOfSize = undefined;
             let variantId: number | null = null;
-            const { schemaIndex } = value;
+            const { schemaIndex } = record;
             // check product thứ mấy và get ra số lượng của từng màu
             const sizeOfColor = poLineItemGridValue[schemaIndex].get(record.color)
             if (sizeOfColor) {
               const valueOfSize = sizeOfColor.sizeValues.find(variant => variant.size === size);
-              quantityOfSize = valueOfSize?.quantity ?? 0;
+              quantityOfSize = valueOfSize?.quantity;
               variantId = valueOfSize?.variantId || null;
             }
             /**
@@ -382,7 +399,7 @@ const POProductForm = ({
                 min={0}
                 maxLength={10}
                 value={quantityOfSize}
-                disabled={!!value.disabled || !variantId}
+                disabled={!!record.disabled || !variantId}
                 onChange={(value: number) => {
                   if (variantId) {
                     onChangeQuantity(value, record.color, variantId, schemaIndex);
@@ -391,7 +408,8 @@ const POProductForm = ({
                   }
                 }
                 }
-              />) : (!value.disabled && formatCurrency(quantityOfSize))
+              />
+            ) : (!record.disabled && quantityOfSize && formatCurrency(quantityOfSize))
           }
         }
       })
@@ -411,7 +429,7 @@ const POProductForm = ({
 
         if (sizeQtyOfColorObject) {
           sizeQtyOfColorObject.sizeValues.forEach((variant: POPairSizeQuantity) => {
-            total += variant.quantity;
+            total += variant.quantity || 0;
           }
           )
         }
@@ -460,7 +478,7 @@ const POProductForm = ({
         const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
         const price = sizeQtyOfColorObject?.price ?? 0;
         sizeQtyOfColorObject?.sizeValues.forEach((variant: POPairSizeQuantity) => {
-          total += variant.quantity * price;
+          total += (variant.quantity || 0) * price;
         })
         return formatCurrency(total) + " đ";
       },
@@ -505,7 +523,7 @@ const POProductForm = ({
           bordered
           pagination={false}
           scroll={{ y: 515, x: 950 }}
-          dataSource={transformDataSource()}
+          dataSource={transformDataSource(isEditMode)}
           columns={columns}
           rowKey={(record: PODataSourceGrid) => record.color}
           footer={() => {
@@ -532,9 +550,9 @@ const POProductForm = ({
                           suffix={<div className="vat-suffix">%</div>}
                           style={{ width: "80px" }}
                           className="product-item-vat margin-left-40"
-                          onChange={(value) =>
-                            setTaxRate(value || 0)
-                          }
+                          onChange={(value: number | null) => {
+                            setTaxRate(value || 0);
+                          }}
                         /> : `(${taxRate})%`
                       )}
                     </div>

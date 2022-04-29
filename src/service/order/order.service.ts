@@ -478,5 +478,5 @@ BaseResponse<OrderReturnResponse[]>> => {
     ids: orderIds,
     type
   });
-  return BaseAxios.get(`${ApiConfig.ORDER}/orders/return/print_forms?${params}`);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns/print_forms?${params}`);
 };

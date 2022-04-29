@@ -1,17 +1,25 @@
 import { Button, Card, Col, Form, Row } from "antd";
+import iconPerson from "assets/icon/person.png";
+import iconCalendar from "assets/icon/calendar.png";
+import iconPhone from "assets/icon/phone.png";
+import iconAddress from "assets/icon/address.png";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import TagStatus from "component/tag/tag-status";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { WarrantyExpense, WarrantyModel, WarrantyStatus } from "model/warranty/warranty.model";
+import {
+  WarrantyExpense,
+  WarrantyItemModel,
+  WarrantyItemStatus,
+} from "model/warranty/warranty.model";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { RouterProps, useParams } from "react-router-dom";
+import { Link, RouterProps, useParams } from "react-router-dom";
 import {
   getWarrantyDetailService,
-  updateWarrantyDetailService,
+  updateWarrantyDetailFeeService,
 } from "service/warranty/warranty.service";
 import {
   formatCurrency,
@@ -21,19 +29,24 @@ import {
 } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { StyledComponent } from "./WarrantyDetail.style";
+import { StyledComponent } from "./styles";
+import {
+  WARRANTY_ITEM_STATUS,
+  WARRANTY_RETURN_STATUS,
+  WARRANTY_TYPE,
+} from "utils/Warranty.constants";
 
 type PropTypes = RouterProps & {};
 
 type TagStatusType = {
-  status: WarrantyStatus;
+  status: WarrantyItemStatus;
   name: string;
   type: string;
 };
 
 type FormValueType = {
   fee: number | undefined;
-  feeInformedToCustomer: number | undefined;
+  customer_fee: number | undefined;
 };
 
 function ReadWarranty(props: PropTypes) {
@@ -41,50 +54,28 @@ function ReadWarranty(props: PropTypes) {
   const { id } = useParams<{ id: string }>();
 
   const dispatch = useDispatch();
-  const [textResult, setTextResult] = useState("Đang tải ...")
-  const [warranty, setWarranty] = React.useState<WarrantyModel>();
+  const [textResult, setTextResult] = useState("Đang tải ...");
+  const [warranty, setWarranty] = React.useState<WarrantyItemModel>();
   console.log("id", id);
   console.log("warranty", warranty);
   const [form] = Form.useForm();
 
   const tagStatusArr: TagStatusType[] = [
     {
-      status: WarrantyStatus.NEW,
+      status: WarrantyItemStatus.FINISH,
       name: "Mới nhận hàng",
       type: "success",
     },
     {
-      status: WarrantyStatus.FINISH,
+      status: WarrantyItemStatus.FIXED,
       name: "Hoàn thành",
       type: "success",
     },
   ];
 
-  const getTotalAmountFee = useMemo(() => {
-    let result = 0;
-    if (warranty?.line_items && warranty.line_items.length > 0) {
-      warranty?.line_items.forEach((single) => {
-        result = result + single.customer_fee;
-      });
-    }
-    return result;
-  }, [warranty?.line_items]);
-
-  console.log("getTotalAmountFee", getTotalAmountFee);
-
-  const getTotalAmountFeeInformedToCustomer = useMemo(() => {
-    let result = 0;
-    if (warranty?.line_items && warranty.line_items.length > 0) {
-      warranty?.line_items.forEach((single) => {
-        result = result + single.price;
-      });
-    }
-    return result;
-  }, [warranty?.line_items]);
-
   const initialFormValue: FormValueType = {
     fee: undefined,
-    feeInformedToCustomer: undefined,
+    customer_fee: undefined,
   };
 
   const fetchWarranty = useCallback(
@@ -94,7 +85,7 @@ function ReadWarranty(props: PropTypes) {
           setWarranty(response.data);
         } else {
           handleFetchApiError(response, "Chi tiết phiếu bảo hàng", dispatch);
-          setTextResult("Không tìm thấy phiếu bảo hành!")
+          setTextResult("Không tìm thấy phiếu bảo hành!");
         }
       });
     },
@@ -108,24 +99,18 @@ function ReadWarranty(props: PropTypes) {
     form.validateFields().then(() => {
       const values = form.getFieldsValue();
       console.log("values", values);
-      const params: WarrantyModel = {
-        ...warranty,
-        line_items: warranty.line_items.map((lineItem) => {
-          return {
-            ...lineItem,
-            customer_fee: values.fee,
-            price: values.feeInformedToCustomer,
-          };
-        }),
-      };
       dispatch(showLoading());
-      updateWarrantyDetailService(+id, params)
+      const params = {
+        customer_fee: values.customer_fee,
+        price: values.fee,
+      };
+      updateWarrantyDetailFeeService(warranty.warranty.id, warranty.id, params)
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             console.log("response", response);
             showSuccess("Cập nhật phí sửa chữa thành công!");
           } else {
-            handleFetchApiError(response, "Cập nhật chi tiết phiếu bảo hàng", dispatch);
+            handleFetchApiError(response, "Cập nhật phí sửa chữa", dispatch);
           }
         })
         .finally(() => {
@@ -152,19 +137,19 @@ function ReadWarranty(props: PropTypes) {
     return html;
   };
 
-  const renderWarrantyLineItemsHtml = () => {
+  const renderWarrantyItemHtml = () => {
     let html = null;
-    if (warranty?.line_items?.length && warranty?.line_items.length > 0) {
+    if (warranty?.variant && warranty.variant_id && warranty.product_id) {
       html = (
         <Row>
-          {warranty?.line_items.map((lineItem, index) => {
-            return (
-              <React.Fragment key={index}>
-                <Col span={8}>{lineItem.variant}</Col>
-                <Col span={16}>Lý do: {renderReason(lineItem.expenses)}</Col>
-              </React.Fragment>
-            );
-          })}
+          <Col span={16}>
+            <Link
+              to={`${UrlConfig.PRODUCT}/${warranty.product_id}/variants/${warranty.variant_id}`}
+            >
+              {warranty?.variant}
+            </Link>
+          </Col>
+          <Col span={8}>Lý do: {renderReason(warranty.expenses)}</Col>
         </Row>
       );
     }
@@ -179,15 +164,14 @@ function ReadWarranty(props: PropTypes) {
 
   useEffect(() => {
     form.setFieldsValue({
-      fee: getTotalAmountFee,
-      feeInformedToCustomer: getTotalAmountFeeInformedToCustomer,
+      fee: warranty?.price,
+      customer_fee: warranty?.customer_fee,
     });
-    // form.resetFields()
-  }, [form, getTotalAmountFee, getTotalAmountFeeInformedToCustomer]);
+  }, [form, warranty?.customer_fee, warranty?.price]);
 
   return (
     <ContentContainer
-      title="Phiếu bảo hành"
+      title={`Phiếu bảo hành ID ${id}`}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -200,7 +184,8 @@ function ReadWarranty(props: PropTypes) {
         {
           name: "Chi tiết phiếu bảo hành",
         },
-      ]}>
+      ]}
+    >
       <StyledComponent>
         {warranty ? (
           <Row gutter={20}>
@@ -208,47 +193,85 @@ function ReadWarranty(props: PropTypes) {
             <Col span={12}>
               <Card
                 title={<div>Khách hàng</div>}
-                extra={<TagStatus type="success">{renderTagStatus()}</TagStatus>}>
-                <div>{warranty?.customer}</div>
-                <div>{warranty?.customer_mobile}</div>
-                <div>{warranty?.customer_address}</div>
+                className="cardCustomer"
+                extra={<TagStatus type="success">{renderTagStatus()}</TagStatus>}
+              >
+                <div className="single">
+                  {" "}
+                  <img src={iconPerson} alt="" /> {warranty?.warranty?.customer}
+                </div>
+                <div className="single">
+                  <img src={iconPhone} alt="" />
+                  {warranty?.warranty?.customer_mobile}
+                </div>
+                <div className="single">
+                  <img src={iconAddress} alt="" />
+                  {warranty?.warranty?.customer_address}
+                </div>
+                <div className="single">
+                  <img src={iconCalendar} alt="" />
+                  Ngày mua hàng:{" "}
+                  {warranty?.purchase_date
+                    ? moment(warranty?.purchase_date).format(formatDate)
+                    : "-"}
+                </div>
+                <div className="single">
+                  <img src={iconCalendar} alt="" />
+                  Ngày hẹn trả:{" "}
+                  {warranty?.appointment_date
+                    ? moment(warranty?.appointment_date).format(formatDate)
+                    : "-"}
+                </div>
               </Card>
-              <Card title={"Thông tin"}>
+              <Card title={"Thông tin"} className="cardInformation">
                 <Row>
                   <Col span={8}>Cửa hàng:</Col>
                   <Col span={16}>
-                    <b>{warranty?.store}</b>
+                    <b>{warranty?.warranty?.store}</b>
                   </Col>
                 </Row>
                 <Row>
                   <Col span={8}>Người tạo:</Col>
                   <Col span={16}>
-                    <b>{warranty?.created_name}</b>
+                    {warranty?.created_by && warranty?.created_name ? (
+                      <Link to={`${UrlConfig.ACCOUNTS}/${warranty?.created_by}`}>
+                        <b>{warranty?.created_name}</b>
+                      </Link>
+                    ) : (
+                      "-"
+                    )}
                   </Col>
                 </Row>
                 <Row>
                   <Col span={8}>Nhân viên tiếp nhận:</Col>
                   <Col span={16}>
-                    <b>{warranty?.assignee}</b>
+                    {warranty?.warranty?.assignee && warranty?.warranty?.assignee_code ? (
+                      <Link to={`${UrlConfig.ACCOUNTS}/${warranty?.warranty?.assignee_code}`}>
+                        <b>{warranty?.warranty?.assignee}</b>
+                      </Link>
+                    ) : (
+                      "-"
+                    )}
                   </Col>
                 </Row>
+              </Card>
+              <Card title="Trạng thái sản phẩm" className="cardProduct">
                 <Row>
-                  <Col span={8}>Ngày mua hàng:</Col>
+                  <Col span={8}>Trạng thái xử lý sản phẩm:</Col>
                   <Col span={16}>
                     <b>
-                      {warranty?.purchase_date
-                        ? moment(warranty?.purchase_date).format(formatDate)
-                        : "-"}
+                      {WARRANTY_ITEM_STATUS.find((status) => status.code === warranty.status)
+                        ?.name || "-"}
                     </b>
                   </Col>
                 </Row>
                 <Row>
-                  <Col span={8}>Ngày hẹn trả:</Col>
+                  <Col span={8}>Trạng thái trả khách:</Col>
                   <Col span={16}>
                     <b>
-                      {warranty?.appointment_date
-                        ? moment(warranty?.appointment_date).format(formatDate)
-                        : "-"}
+                      {WARRANTY_RETURN_STATUS.find(
+                        (status) => status.code === warranty.return_status
+                      )?.name || "-"}
                     </b>
                   </Col>
                 </Row>
@@ -262,17 +285,30 @@ function ReadWarranty(props: PropTypes) {
                   <Button type="primary" onClick={handleSubmitRepairFeeForm}>
                     Lưu
                   </Button>
-                }>
+                }
+              >
                 <Form
                   form={form}
                   name="form-order-processing-status"
                   layout="horizontal"
-                  initialValues={initialFormValue}>
+                  initialValues={initialFormValue}
+                >
                   <Form.Item
                     label={"Chi phí sửa chữa"}
                     labelCol={{ span: 8 }}
                     labelAlign={"left"}
-                    name="fee">
+                    name="fee"
+                    rules={[
+                      () => ({
+                        validator(_, value) {
+                          if (value && value < 1000) {
+                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
+                    ]}
+                  >
                     <NumberInput
                       format={(a: string) => formatCurrency(a)}
                       replace={(a: string) => replaceFormatString(a)}
@@ -291,7 +327,18 @@ function ReadWarranty(props: PropTypes) {
                     label={"Phí sửa chữa báo khách"}
                     labelCol={{ span: 8 }}
                     labelAlign={"left"}
-                    name="feeInformedToCustomer">
+                    name="customer_fee"
+                    rules={[
+                      () => ({
+                        validator(_, value) {
+                          if (value && value < 1000) {
+                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
+                    ]}
+                  >
                     <NumberInput
                       format={(a: string) => formatCurrency(a)}
                       replace={(a: string) => replaceFormatString(a)}
@@ -308,10 +355,26 @@ function ReadWarranty(props: PropTypes) {
                   </Form.Item>
                 </Form>
               </Card>
-              <Card title="Sản phẩm">
-                {warranty?.line_items && warranty.line_items.length > 0
-                  ? renderWarrantyLineItemsHtml()
-                  : "Không có sản phẩm nào!"}
+              <Card title="Sản phẩm" className="cardProduct">
+                {warranty?.variant ? renderWarrantyItemHtml() : "Không có sản phẩm nào!"}
+              </Card>
+              <Card title="Loại bảo hành" className="cardProduct">
+                <Row>
+                  <Col span={8}>Loại bảo hành:</Col>
+                  <Col span={16}>
+                    <b>
+                      {WARRANTY_TYPE.find((status) => status.code === warranty.type)?.name || "-"}
+                    </b>
+                  </Col>
+                </Row>
+              </Card>
+              <Card title="Trung tâm bảo hành" className="cardProduct">
+                <Row>
+                  <Col span={8}>Trung tâm bảo hành:</Col>
+                  <Col span={16}>
+                    <b>{warranty.warranty_center || "-"}</b>
+                  </Col>
+                </Row>
               </Card>
             </Col>
           </Row>

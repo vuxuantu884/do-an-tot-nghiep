@@ -175,7 +175,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const handleAddPack = useCallback((item: any) => {
     history.push(
-      `${UrlConfig.DELIVERY_RECORDS}/report-hand-over-update/${item.id_handover_record}`
+      `${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}/update`
     );
   }, [history]);
 

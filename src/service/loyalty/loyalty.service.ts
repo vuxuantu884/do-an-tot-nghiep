@@ -4,7 +4,7 @@ import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BaseQuery } from "model/base/base.query";
 import { CreateLoyaltyAccumulationRequest } from "model/request/loyalty/create-loyalty-accumulation.request";
-import { CreateCustomerPointAdjustmentRequest } from "model/request/loyalty/loyalty.request";
+import { CreateCustomerPointAdjustmentRequest, getImportCodeCustomerAdjustmentRequest } from "model/request/loyalty/loyalty.request";
 import { UpdateLoyaltyPoint } from "model/request/loyalty/update-loyalty-point.request";
 import { LoyaltyAccumulationProgramResponse } from "model/response/loyalty/loyalty-accumulation.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -83,3 +83,21 @@ export const getPointAdjustmentDetailService = (adjustmentId: any): Promise<Base
 export const createCustomerPointAdjustmentService = ( params: CreateCustomerPointAdjustmentRequest): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.LOYALTY}/adjustments`, params);
 };
+
+export const getImportCodeCustomerAdjustmentService = ( params: getImportCodeCustomerAdjustmentRequest) => {
+  let formData = new FormData();
+  for (const [key, value] of Object.entries(params)) {
+    formData.append(key, value);
+  }
+
+  return BaseAxios.post(`${ApiConfig.LOYALTY}/adjustments/import`, formData, {
+    headers: { "content-type": "multipart/form-data" },
+  });
+};
+
+export const getInfoAdjustmentByJobService = (code: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/jobs/${code}`);
+};
+
+
+

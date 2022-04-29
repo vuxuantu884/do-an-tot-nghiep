@@ -1,7 +1,7 @@
 import React, { ChangeEvent, createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form } from "antd";
+import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form, Checkbox } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -11,6 +11,7 @@ import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import {
   CloseCircleOutlined,
   EditOutlined,
+  ImportOutlined,
   PaperClipOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
@@ -62,30 +63,18 @@ import { PrinterInventoryTransferResponseModel } from "model/response/printer.re
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryTransferPermission, ShipmentInventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 import { RefSelectProps } from "antd/lib/select";
-import { RegUtil } from "utils/RegUtils";
 import { callApiNative } from "utils/ApiUtils";
-import { getVariantByBarcode } from "service/product/variant.service";
-import { inventoryTransferGetDetailVariantIdsApi } from "service/inventory/transfer/index.service";
-import { InventoryResponse } from "model/inventory";
 import TextArea from "antd/es/input/TextArea";
 import { checkUserPermission } from "../../../utils/AuthUtil";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
-// import { checkUserPermission } from "../../../utils/AuthUtil";
-// import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import { getAccountDetail } from "../../../service/accounts/account.service";
-// import moment from "moment";
+import { searchVariantsApi } from "service/product/product.service";
+import ImportExcel from "./components/ImportExcel";
 export interface InventoryParams {
   id: string;
 }
 
 let barCode = "";
-
-// const ShipmentStatus = {
-//   CONFIRMED: "confirmed",
-//   TRANSFERRING: "transferring",
-//   RECEIVED: "received",
-//   CANCELED: "canceled"
-// }
 
 let version = 0;
 
@@ -98,6 +87,7 @@ const DetailTicket: FC = () => {
   const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
   const [isDisableEditNote, setIsDisableEditNote] = useState<boolean>(false);
+  const [isReceiveAllProducts, setIsReceiveAllProducts] = useState<boolean>(false);
 
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
@@ -130,6 +120,7 @@ const DetailTicket: FC = () => {
   const currentStores = useSelector(
     (state: RootReducerType) => state.userReducer.account?.account_stores
   );
+  const [isImport, setIsImport] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -181,7 +172,8 @@ const DetailTicket: FC = () => {
 
         callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
           if (res) {
-            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase());
+            const fromStoreFiltered = res.account_stores.filter((i: any) => i.store_id === result.from_store_id);
+            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase() || fromStoreFiltered.length > 0);
             return;
           }
 
@@ -264,14 +256,45 @@ const DetailTicket: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = useCallback((value: string, item?: VariantResponse) => {
-    const dataTemp = [...dataTable];
-    let selectedItem = resultSearch?.items?.find(
-      (variant: VariantResponse) => variant.id.toString() === value
-    );
+  const convertArrItem = (arr: Array<VariantResponse>)=>{
+     let newArr = [];
+     for (let i = 0; i < arr.length; i++) {
+       const element = arr[i];
 
-    if (item)
-    selectedItem = item;
+       if (element.id !==null) {
+        newArr.push(arr[i]);
+        continue;
+       }
+       const variantPrice =
+       element &&
+       element.variant_prices &&
+       element.variant_prices[0] &&
+       element.variant_prices[0].retail_price;
+
+     const newResult = {
+       sku: element.sku,
+       barcode: element.barcode,
+       variant_name: element.name,
+       variant_id: element.variant_id,
+       variant_image: findAvatar(element.variant_images ?? []),
+       product_name: element.product.name,
+       product_id: element.product.id,
+       available: element.available ?? 0,
+       amount: variantPrice,
+       price: variantPrice,
+       transfer_quantity: 0,
+       real_quantity: element.real_quantity,
+       weight: element?.weight ? element?.weight : 0,
+       weight_unit: element?.weight_unit ? element?.weight_unit : "",
+     };
+      newArr.push(newResult);
+     }
+    return newArr;
+  }
+
+  const onSelectProduct = useCallback((value: string, item: VariantResponse) => {
+    let dataTemp = [...dataTable];
+    let selectedItem = item;
 
     const variantPrice =
       selectedItem &&
@@ -296,27 +319,22 @@ const DetailTicket: FC = () => {
       weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
     };
 
+
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === newResult.sku
+        (variant: VariantResponse) => variant.sku === newResult?.sku
       )
-    )  {
-      setDataTable((prev: any) => prev.concat([{...newResult}]));
+    ) {
+      setDataTable((prev: any) => prev.concat([{...newResult,transfer_quantity: 0, real_quantity: 1}]));
+      dataTemp = dataTemp.concat([{...newResult, transfer_quantity: 0,real_quantity: 1}]);
     }else{
-      dataTemp?.forEach((e: VariantResponse) => {
-        if (e.sku === selectedItem.sku) {
-          if (!e.real_quantity) {
-            e.real_quantity = 0
-          }
-          e.real_quantity += 1;
-        }
-      })
-      setDataTable(dataTemp);
+      const indexItem = dataTemp.findIndex(e=>e.sku === item.sku);
+
+      dataTemp[indexItem].real_quantity +=1;
     }
-    setKeySearch("");
-    barCode="";
+    setDataTable([...dataTemp]);
     setResultSearch([]);
-  },[resultSearch, dataTable]);
+  },[dataTable]);
 
   function getTotalRealQuantity() {
     let total = 0;
@@ -478,21 +496,13 @@ const DetailTicket: FC = () => {
   }, [createCallback, data, dataTable, dispatch, stores]);
 
   const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
+      barCode = "";
       if (keyCode === "Enter" && code){
-        barCode ="";
         setKeySearch("");
 
-        if (RegUtil.BARCODE_NUMBER.test(code)) {
-          const item: VariantResponse  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
-
-          if (item && item.id) {
-           const variant: PageResponse<InventoryResponse> = await callApiNative({isShowLoading: false}, dispatch, inventoryTransferGetDetailVariantIdsApi,[item.id],data?.from_store_id ?? null);
-           if (variant && variant.items && variant.items.length > 0) {
-             item.available = variant.items[variant.items.length-1].available;
-             item.on_hand = variant.items[variant.items.length-1].on_hand;
-           }
-           onSelectProduct(item.id.toString(),item);
-          }
+        let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids: data?.from_store_id ?? null});
+        if (res && res.items && res.items.length > 0) {
+          onSelectProduct(res.items[0].id.toString(),res.items[0]);
         }
       }
       else{
@@ -501,25 +511,25 @@ const DetailTicket: FC = () => {
 
         onSearchProduct(txtSearchProductElement?.value);
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[dispatch,onSelectProduct, onSearchProduct]);
+    },[dispatch, data?.from_store_id, onSelectProduct, onSearchProduct]);
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLBodyElement) {
-        if (event.key !== "Enter") {
-          barCode = barCode + event.key;
-        } else if (event.key === "Enter") {
-          if (barCode !== "" && event) {
-            handleSearchProduct(event.key,barCode);
-            barCode = "";
-          }
-        }
-        return;
-      }
-    },
-    [handleSearchProduct]
-  );
+     if (event.target instanceof HTMLBodyElement) {
+       if (event.key !== "Enter") {
+         barCode = barCode + event.key;
+       } else if (event && event.key === "Enter") {
+           handleSearchProduct(event.key,barCode);
+       }
+       return;
+     }
+   },
+
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   [
+     dispatch,handleSearchProduct
+   ]
+ );
 
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
@@ -543,16 +553,16 @@ const DetailTicket: FC = () => {
    [handleSearchProduct]
  );
 
-  const onSelect = useCallback((o)=>{
-    onSelectProduct(o);
-  },[onSelectProduct])
+ const onSelect = useCallback((o,obj)=>{
+  onSelectProduct(o,obj.label.props.data);
+},[onSelectProduct])
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
     window.addEventListener("keypress", eventKeyPress);
     return () => {
       window.removeEventListener("keydown", eventKeydown);
-      window.addEventListener("keypress", eventKeyPress);
+      window.removeEventListener("keypress", eventKeyPress);
     };
 }, [eventKeyPress, eventKeydown]);
 
@@ -743,11 +753,7 @@ const DetailTicket: FC = () => {
             onChange={(quantity) => {
               onRealQuantityChange(quantity, index);
             }}
-            className={value && value < row.transfer_quantity
-              ? 'border-red'
-              : value && value > row.transfer_quantity
-                ? 'border-red'
-                : ''}
+            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
           />
         }
         else {
@@ -833,6 +839,26 @@ const DetailTicket: FC = () => {
   const onReload = useCallback(()=>{
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   },[dispatch,idNumber,onResult])
+
+  const changeReceiveAllProducts = (e: any) => {
+    setIsReceiveAllProducts(e.target.checked);
+    let newDataTable = [...dataTable];
+
+    newDataTable = newDataTable.map((i) => {
+      return {
+        ...i,
+        real_quantity: e.target.checked ? i.transfer_quantity : 0
+      }
+    });
+
+    setDataTable(newDataTable);
+  };
+
+  const importRealQuantity = (data: Array<VariantResponse>)=>{
+    const newArr= convertArrItem(data);
+    setDataTable([...newArr]);
+    setIsImport(false);
+  }
 
   useEffect(() => {
     if (!stores || !data) return;
@@ -1013,7 +1039,16 @@ const DetailTicket: FC = () => {
                   <Card
                     title="Danh sách sản phẩm"
                     bordered={false}
-                    extra={<Tag className={classTag}>{textTag}</Tag>}
+                    extra={<>
+                      { data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                        <>
+                          <Checkbox className="checkbox" checked={isReceiveAllProducts} onChange={changeReceiveAllProducts}>
+                            Nhận tất cả sản phẩm
+                          </Checkbox>
+                        </>
+                      )}
+                      <Tag className={classTag}>{textTag}</Tag>
+                    </>}
                     className={"inventory-transfer-table"}
                   >
                     <div>
@@ -1279,6 +1314,14 @@ const DetailTicket: FC = () => {
               }
               rightComponent={
                 <Space>
+                  {
+                    data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&
+                    <AuthWrapper acceptPermissions={[InventoryTransferPermission.receive]}>
+                      <Button icon={<ImportOutlined />} onClick={()=>{
+                              setIsImport(true);
+                            }}>Import Excel</Button>
+                    </AuthWrapper>
+                  }
                   <AuthWrapper
                     acceptPermissions={[InventoryTransferPermission.print]}
                   >
@@ -1296,7 +1339,7 @@ const DetailTicket: FC = () => {
                     </Button>
                   </AuthWrapper>
                   {
-                   (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && data.shipment === null) &&
+                   ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && data.shipment === null) &&
                     <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.cancel]}
                     >
@@ -1460,6 +1503,13 @@ const DetailTicket: FC = () => {
             infoFees={infoFees}
           />
         }
+        <ImportExcel
+          onCancel={()=>{setIsImport(false)}}
+          onOk={(data: Array<VariantResponse>)=>{importRealQuantity(data)}}
+          title="Import số lượng thực nhận"
+          visible={isImport}
+          dataTable={dataTable}
+          />
       </ContentContainer>
     </StyledWrapper>
   );

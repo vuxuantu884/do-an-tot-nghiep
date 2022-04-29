@@ -840,7 +840,6 @@ const OrderDuplicate: React.FC = () => {
       exportFile({
         conditions: queryParams,
         type: "EXPORT_ORDER",
-        is_online: "true",
       })
         .then((response) => {
           if (response.code === HttpStatus.SUCCESS) {

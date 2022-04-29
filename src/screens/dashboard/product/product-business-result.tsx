@@ -1,48 +1,47 @@
-import { Tabs } from "antd";
-import CustomTable from "component/table/CustomTable";
+import { Table, Tabs } from "antd";
 import { PRODUCT_RANK_TAB_KEY, PRODUCT_RANK_TAB_NAME } from "config/dashboard/product-rank-config";
 import { DashboardTopProduct } from "model/dashboard/dashboard.model";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useContext } from "react";
 import { formatCurrency } from "utils/AppUtils";
-
-interface Props {
-  data: DashboardTopProduct[];
-}
+import useFetchTopProduct from "../hooks/useFetchTopProduct";
+import { DashboardContext } from "../provider/dashboard-provider";
 interface ProductGroupTableProps {
   dataSource: DashboardTopProduct[];
   isQuantity: boolean;
+  loading: boolean;
 }
 
 const { TabPane } = Tabs;
 
 const getPercentOfRow = (value: number, dataSource: DashboardTopProduct[], isQuantity: boolean) => {
-  // get max income of dataSource
-  const maxIncome = Math.max(...dataSource.map((item) => item.total_sales));
-  //get max quantity of dataSource
-  const maxQuantity = Math.max(...dataSource.map((item) => item.net_quantity));
+  // get total sale of dataSource
+  const totalSales = dataSource.reduce((acc, cur) => acc + cur.total_sales, 0);
+  //get total quantity of dataSource
+  const totalQuantity = dataSource.reduce((acc, cur) => acc + cur.net_quantity, 0);
   // get percent of value of income
-  let percentIncome = (value / maxIncome) * 100;
-  percentIncome = percentIncome < 0 ? 0 : percentIncome;
+  let percentSales = (value / totalSales) * 100;
+  percentSales = percentSales < 0 ? 0 : percentSales;
   // get percent of value of quantity
-  let percentQuantity = (value / maxQuantity) * 100;
+  let percentQuantity = (value / totalQuantity) * 100;
   percentQuantity = percentQuantity < 0 ? 0 : percentQuantity;
   // return percent of value
-  return (isQuantity ? percentQuantity : percentIncome) + "%";
+  return (isQuantity ? percentQuantity : percentSales) + "%";
 };
 
-function ImcomeGroupTab(props: Props): ReactElement {
-  const { data } = props;
-  console.log("data", data);
+function ProductSaleGroup(): ReactElement {
+  const { dataSrcTopProduct } = useContext(DashboardContext);
+  const { isFetching } = useFetchTopProduct();
+
   const INCOME_TABS = [
     {
       key: PRODUCT_RANK_TAB_KEY.total_sales,
       name: PRODUCT_RANK_TAB_NAME[PRODUCT_RANK_TAB_KEY.total_sales],
-      Component: <ProductGroupTable dataSource={data} isQuantity={false} />,
+      Component: <ProductGroupTable dataSource={dataSrcTopProduct} isQuantity={false} loading={isFetching} />,
     },
     {
       key: PRODUCT_RANK_TAB_KEY.net_quantity,
       name: PRODUCT_RANK_TAB_NAME[PRODUCT_RANK_TAB_KEY.net_quantity],
-      Component: <ProductGroupTable dataSource={data} isQuantity={true} />,
+      Component: <ProductGroupTable dataSource={dataSrcTopProduct} isQuantity={true} loading={isFetching} />,
     },
   ];
 
@@ -60,10 +59,11 @@ function ImcomeGroupTab(props: Props): ReactElement {
 }
 
 function ProductGroupTable(props: ProductGroupTableProps) {
-  const { dataSource, isQuantity } = props;
+  const { dataSource, isQuantity, loading } = props;
   const key = isQuantity ? PRODUCT_RANK_TAB_KEY.net_quantity : PRODUCT_RANK_TAB_KEY.total_sales;
   return (
-    <CustomTable
+    <Table
+      loading={loading}
       columns={[
         {
           title: "Tên nhóm",
@@ -102,4 +102,4 @@ function ProductGroupTable(props: ProductGroupTableProps) {
   );
 }
 
-export default ImcomeGroupTab;
+export default ProductSaleGroup;

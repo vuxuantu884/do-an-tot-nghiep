@@ -46,7 +46,6 @@ const PackInfo: React.FC = () => {
   //form
   const formRef = createRef<FormInstance>();
   const idDonHangRef = createRef<Input>();
-
   //useState
 
   const [packFulFillmentResponse, setPackFulFillmentResponse] = useState<PackFulFillmentResponse>();
@@ -118,7 +117,7 @@ const PackInfo: React.FC = () => {
               if (order_request && packFulFillmentResponse) {
                 formRef.current?.setFieldsValue({ product_request: barcode });
                 ProductRequestElement?.blur();
-                ProductPack(barcode,1);
+                ProductPack(barcode, 1);
                 //btnFinishPackElement?.click();
               }
               barcode = "";
@@ -134,31 +133,28 @@ const PackInfo: React.FC = () => {
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
-      formRef.current?.validateFields(["store_request", "delivery_service_provider_id","order_request"]);
+      formRef.current?.validateFields(["store_request", "delivery_service_provider_id", "order_request"]);
       let { store_request, delivery_service_provider_id } = formRef.current?.getFieldsValue();
       if (value) {
-        let query:FulfillmentsOrderPackQuery={
-          code:value?.trim(),
-          store_id:store_request,
-          delivery_service_provider_id:delivery_service_provider_id
+        let query: FulfillmentsOrderPackQuery = {
+          code: value?.trim(),
+          store_id: store_request,
+          delivery_service_provider_id: delivery_service_provider_id
         }
         dispatch(
           getFulfillments(query, (data: PackFulFillmentResponse[]) => {
             if (data && data.length !== 0) {
-              console.log(data)
-              let fMSuccess:PackFulFillmentResponse[]=data.filter((p)=>p.status!==FulFillmentStatus.CANCELLED&&p.status!==FulFillmentStatus.RETURNED&&p.status!==FulFillmentStatus.RETURNING)
-              console.log("fMSuccess",fMSuccess)
-              setPackFulFillmentResponse(fMSuccess[0]);
-              setDisableStoreId(true);
-              setDisableDeliveryProviderId(true);
-              setDisableOrder(true);
-              let storeId: number | null | undefined = data[0]?.stock_location_id ?
-              listStoresDataCanAccess?.findIndex((p) => p.id === data[0]?.stock_location_id) !== -1
-              ? data[0]?.stock_location_id : null : null;
-              console.log("store_id",listStoresDataCanAccess)
-              console.log("store_id",storeId)
+              let fMSuccess: PackFulFillmentResponse[] = data.filter((p) => p.status !== FulFillmentStatus.CANCELLED && p.status !== FulFillmentStatus.RETURNED && p.status !== FulFillmentStatus.RETURNING)
 
-              if (data[0]?.stock_location_id) {
+              let storeId: number | null | undefined = data[0]?.stock_location_id ?
+                listStoresDataCanAccess?.findIndex((p) => p.id === data[0]?.stock_location_id) !== -1
+                  ? data[0]?.stock_location_id : null : null;
+              console.log(storeId);
+              if (storeId) {
+                setPackFulFillmentResponse(fMSuccess[0]);
+                setDisableStoreId(true);
+                setDisableDeliveryProviderId(true);
+                setDisableOrder(true);
                 setPackModel({
                   ...new PackModelDefaltValue(),
                   ...packModel,
@@ -168,7 +164,11 @@ const PackInfo: React.FC = () => {
                 formRef.current?.setFieldsValue({
                   store_request: storeId
                 })
+                let element = document.getElementById("inputProduct");
+                element?.focus();
               }
+              else
+                showError("Đơn hàng không thuộc cửa hàng được phân bổ");
               OrderRequestElement?.blur();
 
             } else {
@@ -183,8 +183,7 @@ const PackInfo: React.FC = () => {
         OrderRequestElement?.select();
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [formRef, dispatch, OrderRequestElement]
+    [formRef, dispatch, OrderRequestElement, listStoresDataCanAccess, setPackModel, packModel]
   );
 
   const onPressEnterProduct = useCallback(
@@ -223,7 +222,7 @@ const PackInfo: React.FC = () => {
     });
   };
 
-  const ProductPack=useCallback((product_request:string,quality_request:number)=>{
+  const ProductPack = useCallback((product_request: string, quality_request: number) => {
     let indexPack = itemProductList.findIndex(
       (p) =>
         p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
@@ -249,9 +248,10 @@ const PackInfo: React.FC = () => {
     } else {
       showError("Sản phẩm này không có trong đơn hàng");
     }
-  },[formRef, itemProductList])
+  }, [formRef, itemProductList])
 
   const FinishPack = useCallback(() => {
+
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
     if (value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())) {
@@ -264,7 +264,7 @@ const PackInfo: React.FC = () => {
     let product_request = value.product_request;
 
     if (store_request && order_request && product_request)
-      ProductPack(product_request,quality_request)
+      ProductPack(product_request, quality_request)
 
   }, [formRef, ProductPack]);
 
@@ -300,9 +300,9 @@ const PackInfo: React.FC = () => {
         let indexDuplicate = item.findIndex(p => p.variant_id === i.variant_id);
         if (indexDuplicate !== -1) {
           let quantity = item[indexDuplicate].quantity + i.quantity;
-          
+
           //item.push({ ...i, quantity: quantity || 0, pick: 0, color: "#E24343" });
-          item[indexDuplicate].quantity=quantity;
+          item[indexDuplicate].quantity = quantity;
           console.log("indexDuplicate", item[indexDuplicate]);
         }
         else
@@ -322,7 +322,7 @@ const PackInfo: React.FC = () => {
         (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
       );
 
-      console.log("indexPack",indexPack)
+      console.log("indexPack", indexPack)
 
       if (indexPack === undefined || indexPack.length === 0) {
         let request = {

@@ -1,30 +1,57 @@
-import { Input, Modal, ModalProps } from 'antd'
-import React from 'react'
+import { Form, FormInstance, Input, Modal, ModalProps } from "antd";
+import withWarrantyModalForm from "HOCs/warranty/withWarrantyModalForm";
+import { WarrantyReasonModel } from "model/warranty/warranty.model";
+import React from "react";
 
-type Props = ModalProps & {
+export type initialFormModalWarrantiesNoteType = {
+  note: string;
+};
 
+type PropTypes = ModalProps & {
+  form: FormInstance<any>;
+  handleOk: (values: any) => void;
+  handleCancel: () => void;
+  initialFormValues: initialFormModalWarrantiesNoteType;
+  warrantyReasons?: WarrantyReasonModel[];
+};
+
+function NoteModal(props: PropTypes) {
+  const {
+    onCancel,
+    onOk,
+    form,
+    handleOk,
+    handleCancel,
+    initialFormValues,
+    warrantyReasons,
+    ...rest
+  } = props;
+
+  return (
+    <Modal title="Cập nhật ghi chú" onCancel={handleCancel} onOk={handleOk} {...rest}>
+      <Form form={form} layout="horizontal" initialValues={initialFormValues}>
+        <Form.Item
+          name="note"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng nhập ghi chú",
+            },
+            () => ({
+              validator(_, value) {
+                if (value && value.trim().length === 0) {
+                  return Promise.reject(new Error("Vui lòng nhập ghi chú"));
+                }
+                return Promise.resolve();
+              },
+            }),
+          ]}
+        >
+          <Input.TextArea placeholder="Nhập ghi chú" rows={5} maxLength={250} />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
 }
-NoteModal.defaultProps = {
-    okText: 'Cập nhật',
-}
-function NoteModal(props: Props) {
-    const { onCancel, onOk, ...rest } = props;
 
-    const handleOk = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        const event = e;
-        onOk?.(event);
-    }
-
-    const handleCancel = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        const event = e;
-        onCancel?.(event);
-    }
-
-    return (
-        <Modal title="Ghi chú" onCancel={handleCancel} onOk={handleOk} {...rest}>
-            <Input.TextArea placeholder='Nhập ghi chú' rows={5} />
-        </Modal>
-    )
-}
-
-export default NoteModal
+export default withWarrantyModalForm(NoteModal);

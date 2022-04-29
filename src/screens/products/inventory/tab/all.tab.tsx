@@ -26,7 +26,7 @@ import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
 import { getInventoryConfigService } from "service/inventory";
-import {formatCurrency, generateQuery, Products} from "utils/AppUtils";
+import {formatCurrency, generateQuery, Products, splitEllipsis} from "utils/AppUtils";
 import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
 import { showError, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -125,6 +125,17 @@ const AllTab: React.FC<any> = (props) => {
     onFilter(newPrams);
   },[params, onFilter]);
 
+  const ellipName = (str: string|undefined)=>{
+    if (!str) {
+      return "";
+    }
+    let strName = (str.trim());
+        strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
+          : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
+            : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
+    return strName
+  }
+
   const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
     return [
        {
@@ -135,6 +146,7 @@ const AllTab: React.FC<any> = (props) => {
          fixed: "left",
          className: "column-product",
          render: (value, record, index) => {
+          let strName = ellipName(record.name);
            return (
              <div>
                  <div>
@@ -143,7 +155,7 @@ const AllTab: React.FC<any> = (props) => {
                    </Link>
                  </div>
                  <div>
-                   <TextEllipsis value={record.name} line={1} />
+                   <TextEllipsis value={strName} line={1} />
                  </div>
              </div>
              )
@@ -502,23 +514,29 @@ const AllTab: React.FC<any> = (props) => {
     }
   };
 
-  const fetchInventoryByVariant = (
+  const fetchInventoryByVariant = useCallback((
     variant_ids: Array<number>,
     store_ids: Array<number>
   ) => {
-    const params: InventoryVariantListQuery = JSON.parse(
+    
+    const request: InventoryVariantListQuery = JSON.parse(
       JSON.stringify({variant_ids, store_ids, is_detail: true})
     );
-
+    if (params && params.remain) {
+      request.remain = params.remain;
+    }
+    
     dispatch(
-      inventoryByVariantAction(params, (result) => onSaveInventory(result, variant_ids))
+      inventoryByVariantAction(request, (result) => onSaveInventory(result, variant_ids))
     );
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[dispatch, params]);
 
   const debouncedSearch = React.useMemo(() =>
-    _.debounce((keyword: string) => {
+    _.debounce((keyword: string,filters: any) => {
+      
       setLoading(true);
-      const newValues = {...params,info: keyword?.trim()}
+      const newValues = {...params,info: keyword?.trim(),...filters}
       const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -528,8 +546,8 @@ const AllTab: React.FC<any> = (props) => {
   )
 
   const onChangeKeySearch = useCallback(
-    (keyword: string) => {
-      debouncedSearch(keyword)
+    (keyword: string, filters: any) => {
+      debouncedSearch(keyword,filters)
     },
     [debouncedSearch]
   )
@@ -753,8 +771,8 @@ const AllTab: React.FC<any> = (props) => {
         actions={[]}
         onClearFilter={() => {}}
         listStore={stores}
-        onChangeKeySearch={(value: string)=>{
-          onChangeKeySearch(value);
+        onChangeKeySearch={(value: string,filters: any)=>{
+          onChangeKeySearch(value,filters);
         }}
       />
       <CustomTable

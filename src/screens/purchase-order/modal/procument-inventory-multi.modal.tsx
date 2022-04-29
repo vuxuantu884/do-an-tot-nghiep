@@ -20,6 +20,7 @@ import { getProcurementsMerge } from "service/purchase-order/purchase-procument.
 import * as XLSX from 'xlsx';
 import { showError } from "utils/ToastUtils";
 import { PurchaseProcumentExportField } from "model/purchase-order/purchase-mapping";
+import * as FileSaver from 'file-saver';
 
 type ProcumentInventoryModalProps = { 
   visible: boolean;
@@ -83,11 +84,15 @@ const ProducmentInventoryMultiModal: React.FC<ProcumentInventoryModalProps> = (
 
       dataExport.push(item);
     } 
+    const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
     const worksheet = XLSX.utils.json_to_sheet(dataExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
     const fileName = poData?.code ?  `nhap_so_luong_phieu_nhap_kho_${poData?.code}.xlsx`:"nhap_so_luong_phieu_nhap_kho.xlsx";
-    XLSX.writeFile(workbook, fileName);
+    //XLSX.writeFile(workbook, fileName);
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], {type: fileType});
+    FileSaver.saveAs(data, fileName);
 },[poData,dataTable]);
 
   const uploadProps  = {

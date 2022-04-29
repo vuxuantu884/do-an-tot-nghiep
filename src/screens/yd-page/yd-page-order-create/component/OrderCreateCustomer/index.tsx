@@ -204,7 +204,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             page: 1,
           };
 
-          if (autoCompleteRef.current?.props.value) {
+          if (autoCompleteRef?.current?.props?.value) {
             initQueryCustomer.request = autoCompleteRef.current?.props.value;
             dispatch(
               CustomerSearch(

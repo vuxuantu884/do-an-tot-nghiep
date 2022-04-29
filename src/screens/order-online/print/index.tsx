@@ -8,20 +8,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { useReactToPrint } from "react-to-print";
 import { useQuery } from "utils/useQuery";
 import { StyledComponent } from "./styles";
-import 'assets/css/_printer.scss';
+import "assets/css/_printer.scss";
 import { getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
 import { getPrintOrderReturnContentService } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import BaseResponse from "base/base.response";
+import { PrintFormByOrderIdsResponseModel } from "model/response/printer.response";
+import { getPrintFormByWarrantyIdsService } from "service/warranty/warranty.service";
 
-interface GoodReceiptPrint{
-  good_receipt_id:number;
-  html_content:string;
-  size:string;
+interface GoodReceiptPrint {
+  good_receipt_id: number;
+  html_content: string;
+  size: string;
 }
 
-const printType={
-  print_pack:"print-pack"
-}
+const printType = {
+  print_pack: "print-pack",
+  orders: "orders",
+  order_exchange: "order_exchange",
+  warranty: "warranty",
+};
 
 type PropType = {};
 
@@ -31,11 +37,11 @@ function OrderPrint(props: PropType) {
   const dispatch = useDispatch();
   const printElementRef = useRef(null);
   const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
+    (state: RootReducerType) => state.bootstrapReducer,
   );
   const query = useQuery();
   // const queryIds = query.getAll("ids[]");
-  const queryIds:any = query.get("ids")?.split(",") || null;
+  const queryIds: any = query.get("ids")?.split(",") || null;
 
   const queryAction = query.get("action");
   const queryPrintDialog = query.get("print-dialog");
@@ -44,29 +50,69 @@ function OrderPrint(props: PropType) {
   const listPrinterTypes = bootstrapReducer.data?.print_type;
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
+    onAfterPrint: () => {
+      setTimeout(() => {
+        window.close();
+      }, 500);
+    },
   });
 
-  useEffect(() => {
-    
-    if(queryPrintType&&queryPrintType===printType.print_pack)
-    {
-      if(queryIds&&queryIds.length>0&&queryPackType&&handlePrint){
-        dispatch(getPrintGoodsReceipts(queryIds,queryPackType,(response:GoodReceiptPrint[])=>{
-          const textResponse = response.map((single:any) => {
-            return (
-              `<div class='singleOrderPrint'>${single.html_content}</div>`
-            );
-          });
-
-          let textResponseFormatted = textResponse.join(pageBreak);
-          //xóa thẻ p thừa
-          let result = textResponseFormatted.replaceAll("<p></p>", "");
-          setPrintContent(result);
-          handlePrint();
-        }))
-      }
+  const handlePrintIfGetData = (
+    response: BaseResponse<PrintFormByOrderIdsResponseModel>,
+  ) => {
+    if (!response || response.data?.length === 0) {
+      return null;
     }
-    else{
+    const textResponse = response.data.map((single) => {
+      return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
+    });
+
+    let textResponseFormatted = textResponse.join(pageBreak);
+    //xóa thẻ p thừa
+    let result = textResponseFormatted.replaceAll("<p></p>", "");
+    setPrintContent(result);
+    handlePrint();
+  };
+
+  useEffect(() => {
+    if (queryPrintType && queryPrintType === printType.print_pack) {
+      if (queryIds && queryIds.length > 0 && queryPrintType && handlePrint) {
+        dispatch(
+          getPrintGoodsReceipts(
+            queryIds,
+            queryPrintType,
+            (response: GoodReceiptPrint[]) => {
+              const textResponse = response.map((single: any) => {
+                return `<div class='singleOrderPrint'>${single.html_content}</div>`;
+              });
+
+              let textResponseFormatted = textResponse.join(pageBreak);
+              //xóa thẻ p thừa
+              let result = textResponseFormatted.replaceAll("<p></p>", "");
+              setPrintContent(result);
+              handlePrint();
+            },
+          ),
+        );
+      }
+    } else if (queryPrintType && queryPrintType === printType.warranty) {
+      if (queryIds && queryIds.length > 0 && queryPrintType && handlePrint) {
+        getPrintFormByWarrantyIdsService(queryIds, queryPrintType).then(
+          (response) => {
+            if (isFetchApiSuccessful(response)) {
+              handlePrintIfGetData(response);
+            } else {
+              handleFetchApiError(
+                response,
+                "Lấy dữ liệu in bảo hành",
+                dispatch,
+              );
+            }
+          },
+        );
+      }
+      // default là order
+    } else {
       const isValidatePrintType = () => {
         let result = false;
         let resultFilter = listPrinterTypes?.some((single) => {
@@ -86,56 +132,35 @@ function OrderPrint(props: PropType) {
         queryPrintDialog === "true" &&
         isValidatePrintType();
       if (queryIds && isCanPrint && handlePrint && queryPrintType) {
-        const queryIdsFormatted = queryIds.map((single:any) => +single);
-        if(queryPrintType === "order_exchange") {
-          getPrintOrderReturnContentService(queryIdsFormatted, queryPrintType).then(response => {
-            if (isFetchApiSuccessful(response)) {
-              if(!response || response.data?.length === 0) {
-                return null;
-              }
-              const textResponse = response.data.map((single) => {
-                return (
-                  "<div class='singleOrderPrint'>" +
-                  single.html_content +
-                  "</div>"
-                );
-              });
-  
-              let textResponseFormatted = textResponse.join(pageBreak);
-              //xóa thẻ p thừa
-              let result = textResponseFormatted.replaceAll("<p></p>", "");
-              setPrintContent(result);
-              handlePrint();
-            } else {
-              handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
-            }
-          })
-        } else {
-          dispatch(
-            actionFetchPrintFormByOrderIds(
+        const queryIdsFormatted = queryIds.map((single: any) => +single);
+        switch (queryPrintType) {
+          case printType.order_exchange:
+            getPrintOrderReturnContentService(
               queryIdsFormatted,
               queryPrintType,
-              (response) => {
-                if(!response || response.data?.length === 0) {
-                  return null;
-                }
-                const textResponse = response.data.map((single) => {
-                  return (
-                    "<div class='singleOrderPrint'>" +
-                    single.html_content +
-                    "</div>"
-                  );
-                });
-    
-                let textResponseFormatted = textResponse.join(pageBreak);
-                //xóa thẻ p thừa
-                let result = textResponseFormatted.replaceAll("<p></p>", "");
-                setPrintContent(result);
-                handlePrint();
+            ).then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                handlePrintIfGetData(response);
+              } else {
+                handleFetchApiError(
+                  response,
+                  "Lấy dữ liệu hóa đơn trả",
+                  dispatch,
+                );
               }
-            )
-          );
-
+            });
+            break;
+          default:
+            dispatch(
+              actionFetchPrintFormByOrderIds(
+                queryIdsFormatted,
+                queryPrintType,
+                (response) => {
+                  handlePrintIfGetData(response);
+                },
+              ),
+            );
+            break;
         }
       } else {
         setPrintContent("Có lỗi! Vui lòng kiểm tra lại.");
@@ -151,13 +176,17 @@ function OrderPrint(props: PropType) {
     // queryIds,
     queryPrintDialog,
     queryPrintType,
-    queryPackType
+    queryPackType,
   ]);
 
   return (
     <StyledComponent>
       <ContentContainer
-        title={`${queryPrintType===printType.print_pack?"Mẫu in biên bản bàn giao":"Mẫu in đơn hàng"}`}
+        title={`${
+          queryPrintType === printType.print_pack
+            ? "Mẫu in biên bản bàn giao"
+            : "Mẫu in đơn hàng"
+        }`}
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -168,7 +197,13 @@ function OrderPrint(props: PropType) {
             path: UrlConfig.ORDER,
           },
           {
-            name: `${queryPrintType===printType.print_pack?"Mẫu in biên bản bàn giao":"Mẫu in đơn hàng"}`,
+            name: `${
+              queryPrintType === printType.print_pack
+                ? "Mẫu in biên bản bàn giao"
+                : queryPrintType === printType.warranty
+                ? "Mẫu in bảo hành"
+                : "Mẫu in đơn hàng"
+            }`,
           },
         ]}
       >

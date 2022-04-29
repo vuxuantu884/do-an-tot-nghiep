@@ -1,22 +1,20 @@
 import {
   Button,
   Col,
-  DatePicker,
   Form,
   FormInstance,
   Input,
   Row,
   Select,
-  Collapse,
   Tag,
   InputNumber,
 } from "antd";
 
 import {MenuAction} from "component/table/ActionButton";
-import React, {createRef, useCallback, useMemo, useState} from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
 import {AccountResponse} from "model/account/account.model";
-import {SettingOutlined, FilterOutlined} from "@ant-design/icons";
+import {FilterOutlined} from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import {OrderSearchQuery} from "model/order/order.model";
 import moment from "moment";
@@ -25,22 +23,25 @@ import {
   INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
   STATUS_INVENTORY_ADJUSTMENT_ARRAY,
 } from "../../constants";
-import {InventoryAdjustmentSearchQuery} from "model/inventoryadjustment";
 import {StoreResponse} from "model/core/store.model";
 import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
-import {DATE_FORMAT} from "utils/DateUtils";
+import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import CustomFilterDatePicker from "../../../../../component/custom/filter-date-picker.custom";
+import { searchAccountPublicAction } from "../../../../../domain/actions/account/account.action";
+import { useDispatch } from "react-redux";
+import { PageResponse } from "../../../../../model/base/base-metadata.response";
 
-const {Panel} = Collapse;
 type InventoryAdjustmentFilterProps = {
-  params: InventoryAdjustmentSearchQuery;
+  params: any;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
   accounts: Array<AccountResponse>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
+  setAccounts?: (value: any) => void;
   onClearFilter?: () => void;
   stores?: Array<StoreResponse>;
 };
@@ -59,7 +60,9 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     onShowColumnSetting,
     stores,
     accounts,
+    setAccounts
   } = props;
+  const [dateClick, setDateClick] = useState('');
   const initialValues = useMemo(() => {
     return {
       ...params,
@@ -70,37 +73,10 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     };
   }, [params]);
 
+  const [formAvd] = Form.useForm();
+  const [form] = Form.useForm();
+
   const [visible, setVisible] = useState(false);
-  const [isFromCreatedDate, setIsFromCreatedDate] = useState(
-    initialValues.from_created_date
-      ? moment(initialValues.from_created_date, DATE_FORMAT.DDMMYYY)
-      : null
-  );
-  const [isToCreatedDate, setIsToCreatedDate] = useState(
-    initialValues.to_created_date
-      ? moment(initialValues.to_created_date, DATE_FORMAT.DDMMYYY)
-      : null
-  );
-  const [isFromAuditedDate, setIsFromAuditedDate] = useState(
-    initialValues.from_audited_date
-      ? moment(initialValues.from_audited_date, DATE_FORMAT.DDMMYYY)
-      : null
-  );
-  const [isToAuditedDate, setIsToAuditedDate] = useState(
-    initialValues.to_audited_date
-      ? moment(initialValues.to_audited_date, DATE_FORMAT.DDMMYYY)
-      : null
-  );
-  const [isFromAdjustedBy, setIsFromAdjustedBy] = useState(
-    initialValues.from_adjusted_date
-      ? moment(initialValues.from_adjusted_date, DATE_FORMAT.DDMMYYY)
-      : null
-  );
-  const [isToAdjustedBy, setIsToAdjustedBy] = useState(
-    initialValues.to_adjusted_date
-      ? moment(initialValues.to_adjusted_date, DATE_FORMAT.DDMMYYY)
-      : null
-  );
 
   const loadingFilter = useMemo(() => {
     return !!isLoading;
@@ -109,37 +85,40 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
-  const [createDateClick, setCreateDateClick] = useState("");
-  const [auditedDateClick, setAuditedDateClickClick] = useState("");
-  const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
+  const setDataAccount = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) return;
+      setAccounts && setAccounts(data.items);
+    },
+    [setAccounts]
+  );
 
-  const onChangeRangeDate = useCallback((dates, dateString, type) => {
+  const dispatch = useDispatch();
+  const getCreatedName = useCallback((code: string, page: number) => {
+    dispatch(
+      searchAccountPublicAction(
+        { codes: code, page: page },
+        setDataAccount
+      )
+    );
+  }, [dispatch, setDataAccount]);
 
-    let fromDateString = null;
-    let toDateString = null;
+  useEffect(() => {
+    const filter = {
+      ...params,
+      from_created_date: formatDateFilter(params.from_created_date),
+      to_created_date: formatDateFilter(params.to_created_date),
+      from_audited_date: formatDateFilter(params.from_audited_date),
+      to_audited_date: formatDateFilter(params.to_audited_date),
+      from_adjusted_date: formatDateFilter(params.from_adjusted_date),
+      to_adjusted_date: formatDateFilter(params.to_adjusted_date),
+    };
 
-    if (dates) {
-      fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
-      toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
-    }
-    switch (type) {
-      case "create_date":
-        setCreateDateClick("");
-        setIsFromCreatedDate(fromDateString);
-        setIsToCreatedDate(toDateString);
-        break;
-      case "adjusted_date":
-        setAdjustmentDateClick("");
-        setIsFromAdjustedBy(fromDateString);
-        setIsToAdjustedBy(toDateString);
-        break;
-      case "audited_date":
-        setAuditedDateClickClick("");
-        setIsFromAuditedDate(fromDateString);
-        setIsToAuditedDate(toDateString);
-        break;
-    }
-  }, []);
+    if (params.created_name && params.created_name !== '') getCreatedName(params.created_name, 1);
+
+    formAvd.setFieldsValue(filter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formAvd, params]);
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -148,17 +127,6 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
-
-    setCreateDateClick("");
-    setIsFromCreatedDate(null);
-    setIsToCreatedDate(null);
-    setAdjustmentDateClick("");
-    setIsFromAdjustedBy(null);
-    setIsToAdjustedBy(null);
-    setAuditedDateClickClick("");
-    setIsFromAuditedDate(null);
-    setIsToAuditedDate(null);
-
     formSearchRef?.current?.setFieldsValue({
       code: "",
       adjusted_store_id: "",
@@ -174,85 +142,9 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     setVisible(false);
   }, []);
 
-  const clickOptionDate = useCallback(
-    (type, value) => {
-      let minValue = null;
-      let maxValue = null;
-
-      switch (value) {
-        case "today":
-          minValue = moment().startOf("day");
-          maxValue = moment().endOf("day");
-          break;
-        case "yesterday":
-          minValue = moment().startOf("day").subtract(1, "days");
-          maxValue = moment().endOf("day").subtract(1, "days");
-          break;
-        case "thisweek":
-          minValue = moment().startOf("week");
-          maxValue = moment().endOf("week");
-          break;
-        case "lastweek":
-          minValue = moment().startOf("week").subtract(1, "weeks");
-          maxValue = moment().endOf("week").subtract(1, "weeks");
-          break;
-        case "thismonth":
-          minValue = moment().startOf("month");
-          maxValue = moment().endOf("month");
-          break;
-        case "lastmonth":
-          minValue = moment().startOf("month").subtract(1, "months");
-          maxValue = moment().endOf("month").subtract(1, "months");
-          break;
-        default:
-          break;
-      }
-
-      switch (type) {
-        case "create_date":
-          if (createDateClick === value) {
-            setCreateDateClick("");
-            setIsFromCreatedDate(null);
-            setIsToCreatedDate(null);
-          } else {
-            setCreateDateClick(value);
-            setIsFromCreatedDate(moment(minValue, DATE_FORMAT.DDMMYYY));
-            setIsToCreatedDate(moment(maxValue, DATE_FORMAT.DDMMYYY));
-          }
-          break;
-        case "audited_date":
-          if (auditedDateClick === value) {
-            setAuditedDateClickClick("");
-            setIsFromAuditedDate(null);
-            setIsToAuditedDate(null);
-          } else {
-            setAuditedDateClickClick(value);
-            setIsFromAuditedDate(moment(minValue, DATE_FORMAT.DDMMYYY));
-            setIsToAuditedDate(moment(maxValue, DATE_FORMAT.DDMMYYY));
-          }
-          break;
-        case "adjusted_date":
-          if (adjustmentDateClick === value) {
-            setAdjustmentDateClick("");
-            setIsFromAdjustedBy(null);
-            setIsToAdjustedBy(null);
-          } else {
-            setAdjustmentDateClick(value);
-            setIsFromAdjustedBy(moment(minValue, DATE_FORMAT.DDMMYYY));
-            setIsToAdjustedBy(moment(maxValue, DATE_FORMAT.DDMMYYY));
-          }
-          break;
-        default:
-          break;
-      }
-    },
-    [createDateClick, auditedDateClick, adjustmentDateClick]
-  );
-
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      console.log(e, tag)
       switch (tag.key) {
         case "status":
           onFilter && onFilter({...params, status: []});
@@ -276,16 +168,10 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           onFilter && onFilter({...params, created_name: []});
           break;
         case "created_date":
-          setCreateDateClick("");
-          setIsFromCreatedDate(null);
-          setIsToCreatedDate(null);
           onFilter &&
             onFilter({...params, from_created_date: null, to_created_date: null});
           break;
         case "audited_date":
-          setAuditedDateClickClick("");
-          setIsFromAuditedDate(null);
-          setIsToAuditedDate(null);
           onFilter &&
             onFilter({
               ...params,
@@ -294,9 +180,6 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
             });
           break;
         case "adjusted_date":
-          setAdjustmentDateClick("");
-          setIsFromAdjustedBy(null);
-          setIsToAdjustedBy(null);
           onFilter &&
             onFilter({
               ...params,
@@ -314,58 +197,40 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
   const onFinish = useCallback(
     (values) => {
-      if (values?.from_total_variant > values?.to_total_variant) {
-        values = {
-          ...values,
-          from_total_variant: values?.to_total_variant,
-          to_total_variant: values?.from_total_variant,
-        };
-      }
-      if (values?.from_total_quantity > values?.to_total_quantity) {
-        values = {
-          ...values,
-          from_total_quantity: values?.to_total_quantity,
-          to_total_quantity: values?.from_total_quantity,
-        };
-      }
-      if (values?.from_total_amount > values?.to_total_amount) {
-        values = {
-          ...values,
-          from_total_amount: values?.to_total_amount,
-          to_total_amount: values?.from_total_amount,
-        };
-      }
       const valuesForm = {
         ...values,
         code: values.code ? values.code.trim() : null,
-        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
-        to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
-        from_adjusted_date: isFromAdjustedBy ? moment(isFromAdjustedBy) : null,
-        to_adjusted_date: isToAdjustedBy ? moment(isToAdjustedBy) : null,
-        from_audited_date: isFromAuditedDate ? moment(isFromAuditedDate) : null,
-        to_audited_date: isToAuditedDate ? moment(isToAuditedDate) : null,
       };
       onFilter && onFilter(valuesForm);
     },
     [
-      isFromCreatedDate,
-      isToCreatedDate,
-      isFromAdjustedBy,
-      isToAdjustedBy,
-      isFromAuditedDate,
-      isToAuditedDate,
       onFilter,
     ]
   );
 
-  let filters = useMemo(() => {
+  const onFinishAvd = useCallback(
+    (values: any) => {
+      formAvd.setFieldsValue(values);
+      values.from_created_date = getStartOfDayCommon(values.from_created_date)?.format();
+      values.to_created_date = getEndOfDayCommon(values.to_created_date)?.format();
+      values.from_adjusted_date = getStartOfDayCommon(values.from_adjusted_date)?.format();
+      values.to_adjusted_date = getEndOfDayCommon(values.to_adjusted_date)?.format();
+      values.from_audited_date = getStartOfDayCommon(values.from_audited_date)?.format();
+      values.to_audited_date = getEndOfDayCommon(values.to_audited_date)?.format();
+
+      onFilter && onFilter(values);
+    },
+    [formAvd, onFilter]
+  );
+
+  const filters = () => {
     let list = [];
     if (initialValues?.status?.length) {
       let textStatus = "";
 
       if (initialValues.status.length > 1) {
 
-        initialValues.status.forEach((statusValue) => {
+        initialValues.status.forEach((statusValue: any) => {
           const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
             (status) => status.value === statusValue
           );
@@ -374,7 +239,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
       } else if (initialValues.status.length === 1) {
 
-        initialValues.status.forEach((statusValue) => {
+        initialValues.status.forEach((statusValue: any) => {
           const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
             (status) => status.value === statusValue
           );
@@ -390,19 +255,22 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     }
     if (initialValues?.audit_type?.length) {
       let auditTypeName = "";
+      let auditTypes = initialValues.audit_type;
+      if (!Array.isArray(auditTypes)) {
+        auditTypes = [auditTypes]
+      }
 
-      if (initialValues.audit_type.length > 1) {
-
-        initialValues.audit_type.forEach((value) => {
+      if (auditTypes.length > 1) {
+        auditTypes.forEach((value: any) => {
           const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
             (auditType) => auditType.value === value
           );
           auditTypeName = auditType ? auditTypeName + auditType.name + "; " : auditTypeName;
         });
 
-      } else if (initialValues.audit_type.length === 1) {
+      } else if (auditTypes.length === 1) {
 
-        initialValues.audit_type.forEach((value) => {
+        auditTypes.forEach((value: any) => {
           const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
             (auditType) => auditType.value === value
           );
@@ -430,13 +298,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     if (initialValues.created_name.length) {
       let textAccount = ""
       if (initialValues.created_name.length > 1) {
-        initialValues.created_name.forEach((i) => {
+        initialValues.created_name.forEach((i: any) => {
           const findAccount = accounts?.find(item => item.code === i)
-            textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
         })
       } else if (initialValues.created_name.length === 1) {
 
-        initialValues.created_name.forEach((i) => {
+        initialValues.created_name.forEach((i: any) => {
           const findAccount = accounts?.find(item => item.code === i)
           textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
         })
@@ -454,7 +322,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           : "??") +
         " ~ " +
         (initialValues.to_created_date
-          ? moment(initialValues.to_created_date).format("DD-MM-YYYY")
+          ? moment(initialValues.to_created_date).utc(false).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "created_date",
@@ -469,7 +337,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           : "??") +
         " ~ " +
         (initialValues.to_audited_date
-          ? moment(initialValues.to_audited_date).format("DD-MM-YYYY")
+          ? moment(initialValues.to_audited_date).utc(false).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "audited_date",
@@ -485,7 +353,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           : "??") +
         " ~ " +
         (initialValues.to_adjusted_date
-          ? moment(initialValues.to_adjusted_date).format("DD-MM-YYYY")
+          ? moment(initialValues.to_adjusted_date).utc(false).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "adjusted_date",
@@ -495,12 +363,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     }
 
     return list;
-  }, [initialValues, accounts]);
+  }
 
   return (
     <>
       <div className="adjustment-filter">
         <Form
+          form={form}
           onFinish={onFinish}
           ref={formSearchRef}
           initialValues={initialValues}
@@ -557,399 +426,144 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           onCancel={onCancelFilter}
           visible={visible}
           className="order-filter-drawer"
-          width={500}
+          width={700}
         >
           {visible && (
             <Form
-              onFinish={onFinish}
+              onFinish={onFinishAvd}
               ref={formRef}
+              form={formAvd}
               initialValues={params}
               layout="vertical"
             >
               <>
                 <Row gutter={12} style={{marginTop: "10px"}}>
-                  <Col span={24}>
-                    <Collapse
-                      defaultActiveKey={initialValues?.status?.length ? ["1"] : []}
-                    >
-                      <Panel header="Trạng thái" key="1" className="header-filter">
-                        <Item name="status" style={{margin: "10px 0px"}}>
-                          <CustomSelect
-                            mode="multiple"
-                            showArrow
-                            placeholder="Chọn trạng thái"
-                            notFoundContent="Không tìm thấy kết quả"
-                            optionFilterProp="children"
+                  <Col span={12}>
+                    <div className="font-weight-500">Trạng thái</div>
+                    <Item name="status" style={{margin: "10px 0px"}}>
+                      <CustomSelect
+                        mode="multiple"
+                        showArrow
+                        placeholder="Chọn trạng thái"
+                        notFoundContent="Không tìm thấy kết quả"
+                        optionFilterProp="children"
+                        style={{width: "100%"}}
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                      >
+                        {STATUS_INVENTORY_ADJUSTMENT_ARRAY.map((item, index) => (
+                          <CustomSelect.Option
                             style={{width: "100%"}}
-                            getPopupContainer={(trigger) => trigger.parentNode}
+                            key={index.toString()}
+                            value={item.value}
                           >
-                            {STATUS_INVENTORY_ADJUSTMENT_ARRAY.map((item, index) => (
-                              <CustomSelect.Option
-                                style={{width: "100%"}}
-                                key={index.toString()}
-                                value={item.value}
-                              >
-                                {item.name}
-                              </CustomSelect.Option>
-                            ))}
-                          </CustomSelect>
-                        </Item>
-                      </Panel>
-                    </Collapse>
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                  <Col span={12}>
+                    <div className="font-weight-500">Loại kiểm kho</div>
+                    <Item name="audit_type" style={{margin: "10px 0px"}}>
+                      <CustomSelect
+                        mode="multiple"
+                        showSearch
+                        showArrow
+                        maxTagCount="responsive"
+                        placeholder="Chọn loại kiểm kho"
+                        notFoundContent="Không tìm thấy kết quả"
+                        optionFilterProp="children"
+                        style={{width: "100%"}}
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                      >
+                        {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => {
+                          return (
+                            <CustomSelect.Option
+                              style={{width: "100%"}}
+                              key={index.toString()}
+                              value={item.value}
+                            >
+                              {item.name}
+                            </CustomSelect.Option>
+                          );
+                        })}
+                      </CustomSelect>
+                    </Item>
                   </Col>
                 </Row>
-                <Row gutter={12} style={{marginTop: "10px"}} className="price">
-                  <Col span={24}>
-                    <Collapse
-                      defaultActiveKey={
-                        initialValues.from_total_quantity ||
-                        initialValues.to_total_quantity
-                          ? ["1"]
-                          : []
-                      }
-                    >
-                      <Panel header="Số lượng" key="1" className="header-filter">
-                        <Input.Group compact>
-                          <Item
-                            name="from_total_quantity"
-                            style={{width: "45%", textAlign: "center"}}
-                          >
-                            <InputNumber
-                              className="price_min"
-                              placeholder="Từ"
-                              min="0"
-                              max="100000000"
-                            />
-                          </Item>
+                <Row gutter={12} style={{marginTop: "10px"}}>
+                  <Col span={12}>
+                    <div className="font-weight-500 mb-10">Người tạo</div>
+                    <Item name="created_name">
+                      <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
+                    </Item>
+                  </Col>
+                  <Col span={12}>
+                    <div className="font-weight-500 mb-10">Ngày tạo</div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="from_created_date"
+                      fieldNameTo="to_created_date"
+                      activeButton={dateClick}
+                      setActiveButton={setDateClick}
+                      formRef={formRef}
+                    />
+                  </Col>
+                </Row>
+                <Row gutter={12}>
+                  <Col span={12}>
+                    <div className="font-weight-500 mb-10">Ngày kiểm</div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="from_audited_date"
+                      fieldNameTo="to_audited_date"
+                      activeButton={dateClick}
+                      setActiveButton={setDateClick}
+                      formRef={formRef}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <div className="font-weight-500 mb-10">Ngày cân bằng</div>
+                    <Item name="created_name">
+                      <CustomFilterDatePicker
+                        fieldNameFrom="from_adjusted_date"
+                        fieldNameTo="to_adjusted_date"
+                        activeButton={dateClick}
+                        setActiveButton={setDateClick}
+                        formRef={formRef}
+                      />
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={12}>
+                  <Col span={12}>
+                    <div className="font-weight-500">Số lượng</div>
+                    <Input.Group compact>
+                      <Item
+                        name="from_total_quantity"
+                        style={{textAlign: "center", margin: "10px 0px"}}
+                      >
+                        <InputNumber
+                          className="price_min"
+                          placeholder="Từ"
+                          min="0"
+                          max="100000000"
+                        />
+                      </Item>
 
-                          <Input
-                            className="site-input-split"
-                            style={{
-                              width: "10%",
-                              borderLeft: 0,
-                              borderRight: 0,
-                              pointerEvents: "none",
-                            }}
-                            placeholder="~"
-                            readOnly
-                          />
-                          <Item
-                            name="to_total_quantity"
-                            style={{width: "45%", textAlign: "center"}}
-                          >
-                            <InputNumber
-                              className="site-input-right price_max"
-                              placeholder="Đến"
-                              min="0"
-                              max="1000000000"
-                            />
-                          </Item>
-                        </Input.Group>
-                      </Panel>
-                    </Collapse>
-                  </Col>
-                </Row>
-                <Row gutter={12} style={{marginTop: "10px"}}>
-                  <Col span={24}>
-                    <Collapse
-                      defaultActiveKey={
-                        initialValues.from_created_date && initialValues.to_created_date
-                          ? ["1"]
-                          : []
-                      }
-                    >
-                      <Panel header="Ngày tạo" key="1" className="header-filter">
-                        <div className="date-option">
-                          <Button
-                            onClick={() => clickOptionDate("create_date", "yesterday")}
-                            className={
-                              createDateClick === "yesterday" ? "active" : "deactive"
-                            }
-                          >
-                            Hôm qua
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("create_date", "today")}
-                            className={
-                              createDateClick === "today" ? "active" : "deactive"
-                            }
-                          >
-                            Hôm nay
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("create_date", "thisweek")}
-                            className={
-                              createDateClick === "thisweek" ? "active" : "deactive"
-                            }
-                          >
-                            Tuần này
-                          </Button>
-                        </div>
-                        <div className="date-option">
-                          <Button
-                            onClick={() => clickOptionDate("create_date", "lastweek")}
-                            className={
-                              createDateClick === "lastweek" ? "active" : "deactive"
-                            }
-                          >
-                            Tuần trước
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("create_date", "thismonth")}
-                            className={
-                              createDateClick === "thismonth" ? "active" : "deactive"
-                            }
-                          >
-                            Tháng này
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("create_date", "lastmonth")}
-                            className={
-                              createDateClick === "lastmonth" ? "active" : "deactive"
-                            }
-                          >
-                            Tháng trước
-                          </Button>
-                        </div>
-                        <p>
-                          <SettingOutlined style={{marginRight: "10px"}} />
-                          Tuỳ chọn khoảng thời gian:
-                        </p>
-                        <DatePicker.RangePicker
-                          format={DATE_FORMAT.DDMMYYY}
-                          style={{width: "100%"}}
-                          value={[
-                            isFromCreatedDate
-                              ? moment(isFromCreatedDate, DATE_FORMAT.DDMMYYY)
-                              : null,
-                            isToCreatedDate
-                              ? moment(isToCreatedDate, DATE_FORMAT.DDMMYYY)
-                              : null,
-                          ]}
-                          onChange={(date, dateString) =>
-                            onChangeRangeDate(date, dateString, "create_date")
-                          }
+                      <div
+                        className="site-input-split"
+                      >~</div>
+                      <Item
+                        name="to_total_quantity"
+                        style={{textAlign: "center", margin: "10px 0px"}}
+                      >
+                        <InputNumber
+                          className="site-input-right price_max"
+                          placeholder="Đến"
+                          min="0"
+                          max="1000000000"
                         />
-                      </Panel>
-                    </Collapse>
-                  </Col>
-                </Row>
-                <Row gutter={12} style={{marginTop: "10px"}}>
-                  <Col span={24}>
-                    <Collapse
-                      defaultActiveKey={initialValues?.created_name?.length ? ["1"] : []}
-                    >
-                      <Panel header="Người tạo" key="1" className="header-filter">
-                        <Item name="created_name">
-                          <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
-                        </Item>
-                      </Panel>
-                    </Collapse>
-                  </Col>
-                </Row>
-                <Row gutter={12} style={{marginTop: "10px"}}>
-                  <Col span={24}>
-                    <Collapse
-                      defaultActiveKey={
-                        initialValues.from_audited_date && initialValues.to_audited_date
-                          ? ["1"]
-                          : []
-                      }
-                    >
-                      <Panel header="Ngày kiểm" key="1" className="header-filter">
-                        <div className="date-option">
-                          <Button
-                            onClick={() => clickOptionDate("audited_date", "yesterday")}
-                            className={
-                              auditedDateClick === "yesterday" ? "active" : "deactive"
-                            }
-                          >
-                            Hôm qua
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("audited_date", "today")}
-                            className={
-                              auditedDateClick === "today" ? "active" : "deactive"
-                            }
-                          >
-                            Hôm nay
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("audited_date", "thisweek")}
-                            className={
-                              auditedDateClick === "thisweek" ? "active" : "deactive"
-                            }
-                          >
-                            Tuần này
-                          </Button>
-                        </div>
-                        <div className="date-option">
-                          <Button
-                            onClick={() => clickOptionDate("audited_date", "lastweek")}
-                            className={
-                              auditedDateClick === "lastweek" ? "active" : "deactive"
-                            }
-                          >
-                            Tuần trước
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("audited_date", "thismonth")}
-                            className={
-                              auditedDateClick === "thismonth" ? "active" : "deactive"
-                            }
-                          >
-                            Tháng này
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("audited_date", "lastmonth")}
-                            className={
-                              auditedDateClick === "lastmonth" ? "active" : "deactive"
-                            }
-                          >
-                            Tháng trước
-                          </Button>
-                        </div>
-                        <p>
-                          <SettingOutlined style={{marginRight: "10px"}} />
-                          Tuỳ chọn khoảng thời gian:
-                        </p>
-                        <DatePicker.RangePicker
-                          format={DATE_FORMAT.DDMMYYY}
-                          style={{width: "100%"}}
-                          value={[
-                            isFromAuditedDate
-                              ? moment(isFromAuditedDate, DATE_FORMAT.DDMMYYY)
-                              : null,
-                            isToAuditedDate
-                              ? moment(isToAuditedDate, DATE_FORMAT.DDMMYYY)
-                              : null,
-                          ]}
-                          onChange={(date, dateString) =>
-                            onChangeRangeDate(date, dateString, "audited_date")
-                          }
-                        />
-                      </Panel>
-                    </Collapse>
-                  </Col>
-                </Row>
-                <Row gutter={12} style={{marginTop: "10px"}}>
-                  <Col span={24}>
-                    <Collapse
-                      defaultActiveKey={
-                        initialValues.from_adjusted_date && initialValues.to_adjusted_date
-                          ? ["1"]
-                          : []
-                      }
-                    >
-                      <Panel header="Ngày cân bằng" key="1" className="header-filter">
-                        <div className="date-option">
-                          <Button
-                            onClick={() => clickOptionDate("adjusted_date", "yesterday")}
-                            className={
-                              adjustmentDateClick === "yesterday" ? "active" : "deactive"
-                            }
-                          >
-                            Hôm qua
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("adjusted_date", "today")}
-                            className={
-                              adjustmentDateClick === "today" ? "active" : "deactive"
-                            }
-                          >
-                            Hôm nay
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("adjusted_date", "thisweek")}
-                            className={
-                              adjustmentDateClick === "thisweek" ? "active" : "deactive"
-                            }
-                          >
-                            Tuần này
-                          </Button>
-                        </div>
-                        <div className="date-option">
-                          <Button
-                            onClick={() => clickOptionDate("adjusted_date", "lastweek")}
-                            className={
-                              adjustmentDateClick === "lastweek" ? "active" : "deactive"
-                            }
-                          >
-                            Tuần trước
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("adjusted_date", "thismonth")}
-                            className={
-                              adjustmentDateClick === "thismonth" ? "active" : "deactive"
-                            }
-                          >
-                            Tháng này
-                          </Button>
-                          <Button
-                            onClick={() => clickOptionDate("adjusted_date", "lastmonth")}
-                            className={
-                              adjustmentDateClick === "lastmonth" ? "active" : "deactive"
-                            }
-                          >
-                            Tháng trước
-                          </Button>
-                        </div>
-                        <p>
-                          <SettingOutlined style={{marginRight: "10px"}} />
-                          Tuỳ chọn khoảng thời gian:
-                        </p>
-                        <DatePicker.RangePicker
-                          format={DATE_FORMAT.DDMMYYY}
-                          style={{width: "100%"}}
-                          value={[
-                            isFromAdjustedBy
-                              ? moment(isFromAdjustedBy, DATE_FORMAT.DDMMYYY)
-                              : null,
-                            isToAdjustedBy
-                              ? moment(isToAdjustedBy, DATE_FORMAT.DDMMYYY)
-                              : null,
-                          ]}
-                          onChange={(date, dateString) =>
-                            onChangeRangeDate(date, dateString, "adjusted_date")
-                          }
-                        />
-                      </Panel>
-                    </Collapse>
-                  </Col>
-                </Row>
-                <Row gutter={12} style={{marginTop: "10px"}}>
-                  <Col span={24}>
-                    <Collapse
-                      defaultActiveKey={initialValues?.audit_type?.length ? ["1"] : []}
-                    >
-                      <Panel header="Loại kiểm kho" key="1" className="header-filter">
-                        <Item name="audit_type" style={{margin: "10px 0px"}}>
-                          <CustomSelect
-                            mode="multiple"
-                            showSearch
-                            showArrow
-                            maxTagCount="responsive"
-                            placeholder="Chọn loại kiểm kho"
-                            notFoundContent="Không tìm thấy kết quả"
-                            optionFilterProp="children"
-                            style={{width: "100%"}}
-                            getPopupContainer={(trigger) => trigger.parentNode}
-                          >
-                            {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => {
-                              return (
-                                <CustomSelect.Option
-                                  style={{width: "100%"}}
-                                  key={index.toString()}
-                                  value={item.value}
-                                >
-                                  {item.name}
-                                </CustomSelect.Option>
-                              );
-                            })}
-                          </CustomSelect>
-                        </Item>
-                      </Panel>
-                    </Collapse>
+                      </Item>
+                    </Input.Group>
                   </Col>
                 </Row>
               </>
@@ -958,8 +572,8 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         </BaseFilter>
       </div>
       <div className="order-filter-tags">
-        {filters &&
-          filters.map((filter: any) => {
+        {filters() &&
+          filters().map((filter: any) => {
             return (
               <Tag style={{ marginBottom: 20 }} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
                 {filter.name}: {filter.value}

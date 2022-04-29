@@ -191,7 +191,7 @@ const PromotionCode = () => {
       width: "15%",
       render: (value: string) => {
         const status = statuses.find((e) => e.code === value)?.value || "";
-        let type = TagStatusType.nomarl;
+        let type = TagStatusType.normal;
         switch (value) {
           case statuses[0].code:
             type = TagStatusType.primary;
@@ -200,7 +200,7 @@ const PromotionCode = () => {
             type = TagStatusType.warning;
             break;
           case statuses[2].code:
-            type = TagStatusType.nomarl;
+            type = TagStatusType.normal;
             break;
           case statuses[3].code:
             type = TagStatusType.danger;

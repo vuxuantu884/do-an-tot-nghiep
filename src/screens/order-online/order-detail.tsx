@@ -770,7 +770,7 @@ const OrderDetail = (props: PropType) => {
         },
         {
           name: "Danh sách đơn hàng",
-          path: `${UrlConfig.ORDER}`,
+          path: OrderDetail?.source_code !== "POS" ? UrlConfig.ORDER : UrlConfig.OFFLINE_ORDERS,
         },
         {
           name: OrderDetail?.code
@@ -1240,7 +1240,6 @@ const OrderDetail = (props: PropType) => {
                 subStatusCode={subStatusCode}
                 status={OrderDetail?.status}
                 orderId={OrderDetail?.id}
-                fulfillments={OrderDetail?.fulfillments}
                 handleUpdateSubStatus={handleUpdateSubStatus}
                 setReload={setReload}
                 OrderDetailAllFulfillment={OrderDetailAllFulfillment}

@@ -25,6 +25,7 @@ const UrlConfig = {
   PRINTER: `/prints-templates`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
+  SMS_SETTINGS: `/${SETTINGS}/sms`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   CUSTOMER_CARDS: `/customer-cards`,
@@ -56,8 +57,8 @@ const UrlConfig = {
   ANALYTIC_SALES_ONLINE:`/analytics/sales-online`,
   ANALYTIC_FINACE:`/analytics/finance`,
   ANALYTIC_CUSTOMER:`/analytics/customers`,
-  INVENTORY_DEFECTS: `/inventory-defects`,
-  WARRANTY:`/warranty`,
+  WARRANTY:`/warranties`,
+  INVENTORY_DEFECTS: `/inventory-defects`
 };
 
 export const ProductTabUrl = {
@@ -75,6 +76,9 @@ export const SupplierTabUrl = {
 
 export const InventoryTransferTabUrl = {
   LIST: UrlConfig.INVENTORY_TRANSFERS,
+  LIST_CONFIRMED: UrlConfig.INVENTORY_TRANSFERS + '/confirmed',
+  LIST_TRANSFERRING_SENDER: UrlConfig.INVENTORY_TRANSFERS + '/transferring-sender',
+  LIST_TRANSFERRING_RECEIVED: UrlConfig.INVENTORY_TRANSFERS + '/transferring-received',
   HISTORIES: UrlConfig.INVENTORY_TRANSFERS + "/histories",
 };
 export const InventoryTabUrl = {
@@ -116,3 +120,9 @@ export const WebAppConfigTabUrl = {
 export const BASE_NAME_ROUTER = "/admin";
 // export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
 export default UrlConfig;
+
+export const WARRANTY_URL = {
+  productStatus: "product-statuses",
+  reason: "reasons",
+  center: "centers"
+}

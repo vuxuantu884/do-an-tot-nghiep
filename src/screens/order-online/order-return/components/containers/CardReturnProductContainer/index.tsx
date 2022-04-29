@@ -30,8 +30,10 @@ type PropType = {
   setIsVisibleModalWarningPointRefund?: (value: boolean) => void;
 };
 
+let isAlreadyShowWarningPoint = false;
+
 function CardReturnProductContainer(props: PropType) {
-  const { handleCanReturn, isDetailPage, orderId, setIsVisibleModalWarningPointRefund } = props;
+  const { handleCanReturn, isDetailPage, orderId, setIsVisibleModalWarningPointRefund} = props;
 
   const dispatch = useDispatch();
 
@@ -392,7 +394,11 @@ function CardReturnProductContainer(props: PropType) {
           dispatch(
             actionGetOrderReturnCalculateRefund(params, (response) => {
               if(!response.point_refund) {
-                setIsVisibleModalWarningPointRefund && setIsVisibleModalWarningPointRefund(true)
+                if(!isAlreadyShowWarningPoint) {
+                  setIsVisibleModalWarningPointRefund && setIsVisibleModalWarningPointRefund(true)
+                  // setIsAlreadyShowWarningPoint(true)
+                  isAlreadyShowWarningPoint = true;
+                }
               }
               setPointRefund(response.point_refund);
               if (setMoneyRefund) {

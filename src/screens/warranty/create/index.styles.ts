@@ -11,6 +11,14 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .ant-picker-input {
+    input {
+      &::placeholder {
+      /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #737373;
+      opacity: 1; /* Firefox */
+    }
+  }
   .bottomBar {
     position: fixed;
     text-align: right;

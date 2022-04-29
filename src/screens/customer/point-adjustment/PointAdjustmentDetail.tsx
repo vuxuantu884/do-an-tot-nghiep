@@ -32,11 +32,11 @@ const TYPE_ADJUSTMENT = [
   },
 ]
 
-const pointInfoColumns: Array<ICustomTableColumType<any>> = [
+const valueChangeInfoColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Mã phiếu",
     dataIndex: "code",
-    width: "9%",
+    width: 150,
   },
   {
     title: "Tên phiếu điều chỉnh",
@@ -45,9 +45,10 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   },
   {
     title: "Số KH",
-    width: "8%",
-    render: (value: any, item: any) => (
-      <div style={{ textAlign: "right" }}>
+    width: 70,
+    render: (value: any, item: any) => {
+      return (
+        <div style={{ textAlign: "right" }}>
         {item.customers?.length &&
           <NumberFormat
             value={item.customers?.length}
@@ -56,7 +57,8 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
           />
         }
         </div>
-    ),
+      )
+    },
   },
   {
     title: "Kiểu điều chỉnh",
@@ -73,7 +75,7 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Giá trị",
     dataIndex: "value_change",
-    width: "8%",
+    width: 110,
     align: "center",
     render: (value: any, item: any) => (
       <div style={{ textAlign: "right" }}>
@@ -95,7 +97,10 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Người điều chỉnh",
     dataIndex: "created_by",
-    width: "10%"
+    width: "15%",
+    render: (value: any, item: any) => (
+      <div>{value ? value + " - " : ""}{item.created_name ? item.created_name : ""}</div>
+    ),
   },
   {
     title: "Ngày điều chỉnh",
@@ -109,6 +114,9 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Ghi chú",
     dataIndex: "note",
+    render: (value: any, item: any) => (
+      <div>{value ? value : ""}</div>
+    ),
   },
 ]
 
@@ -164,7 +172,7 @@ const PointAdjustmentDetail = () => {
           <CustomTable
             bordered
             dataSource={detailData}
-            columns={pointInfoColumns}
+            columns={valueChangeInfoColumns}
             pagination={false}
             rowKey={(item: any) => item.id}
           />

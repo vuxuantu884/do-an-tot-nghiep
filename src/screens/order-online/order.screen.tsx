@@ -103,6 +103,10 @@ export default function Order() {
 	const isShouldSetDefaultStoreBankAccount = useSelector(
 		(state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
 	)
+	const isLoadingDiscount = useSelector(
+		(state: RootReducerType) => state.orderReducer.isLoadingDiscount
+	);
+
 	const [isSaveDraft, setIsSaveDraft] = useState(false);
 	const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -115,7 +119,7 @@ export default function Order() {
 	const [storeId, setStoreId] = useState<number | null>(null);
 	const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
 	const [shipmentMethod, setShipmentMethod] = useState<number>(
-		ShipmentMethodOption.PICK_AT_STORE
+		ShipmentMethodOption.DELIVER_LATER
 	);
 	const [paymentMethod, setPaymentMethod] = useState<number>(
 		PaymentMethodOption.POSTPAYMENT
@@ -742,6 +746,7 @@ export default function Order() {
 			dispatch(getCustomerDetailAction(+customerParam, setCustomer))
 		}
 	}, [customerParam, dispatch])
+
 	useEffect(() => {
 		const fetchData = async () => {
 			if (isCloneOrder && cloneIdParam) {
@@ -983,7 +988,7 @@ export default function Order() {
 				setIsLoadForm(true);
 				setShippingFeeInformedToCustomer(0);
 				setPromotion(null)
-				setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE);
+				setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
 				form.resetFields();
 			}
 		};
@@ -1190,6 +1195,33 @@ export default function Order() {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
+	const eventFunctional=useCallback((event: KeyboardEvent)=>{
+		if(["F6","F9"].indexOf(event.key)!==-1){
+			event.preventDefault();
+			event.stopPropagation();
+		}
+		if(creating || isLoadingDiscount || isSaveDraft) return;
+		const btnSaveAndComfirm=document.getElementById("save-and-confirm");
+		const btnSaveDrafComfirm=document.getElementById("save-draft-confirm");
+		switch(event.key){
+			case "F6":
+				btnSaveDrafComfirm?.click();
+				break;
+			case "F9":
+				btnSaveAndComfirm?.click();
+				break;
+			default:
+				break;
+		}
+	},[creating, isLoadingDiscount, isSaveDraft]);
+
+	useEffect(()=>{
+		window.addEventListener("keydown",eventFunctional)
+		return ()=>{
+			window.removeEventListener("keydown",eventFunctional);
+		}
+	},[eventFunctional])
+
 	return (
 		<React.Fragment>
 			<ContentContainer
@@ -1331,19 +1363,20 @@ export default function Order() {
 											customerId={customer?.id}
 											form={form}
 											storeId={storeId}
+											setReload={() => {}}
 										/>
 									</Col>
 								</Row>
-								{visibleBillStep.isShow && (
-									<OrderDetailBottomBar
-										formRef={formRef}
-										handleTypeButton={handleTypeButton}
-										isVisibleGroupButtons={true}
-										showSaveAndConfirmModal={showSaveAndConfirmModal}
-										creating={creating}
-										isSaveDraft={isSaveDraft}
-									/>
-								)}
+								<OrderDetailBottomBar
+									//isShow={!visibleBillStep.isShow}
+									isShow={false}
+									formRef={formRef}
+									handleTypeButton={handleTypeButton}
+									isVisibleGroupButtons={true}
+									showSaveAndConfirmModal={showSaveAndConfirmModal}
+									creating={creating}
+									isSaveDraft={isSaveDraft}
+								/>
 							</Form>
 						)}
 					</div>

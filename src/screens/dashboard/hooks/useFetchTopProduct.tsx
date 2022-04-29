@@ -1,15 +1,10 @@
 
-import { DASHBOARD_CONFIG } from 'config/dashboard';
 import { TOP_SALES_PRODUCT_TEMPLATE } from 'config/dashboard/product-rank-config';
 import { DashboardTopProduct } from 'model/dashboard/dashboard.model';
-import { AnalyticDataQuery } from 'model/report/analytics.model';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { executeAnalyticsQueryService } from 'service/report/analytics.service';
-import { callApiNative } from 'utils/ApiUtils';
-import { setDepartmentQuery } from 'utils/DashboardUtils';
-import { generateRQuery } from 'utils/ReportUtils';
-import { showError } from 'utils/ToastUtils';
+import { getDataOneQueryDashboard } from 'utils/DashboardUtils';
+import { showErrorReport } from 'utils/ReportUtils';
 import { DashboardContext } from '../provider/dashboard-provider';
 
 
@@ -22,19 +17,10 @@ function useFetchTopProduct() {
     useEffect(() => {
         const fetchTopProduct = async () => {
             setIsFetching(true);
-            const { condition, isSeeMyData, myCode } = showMyData;
-            // Data từ bộ lọc bộ phận
-            const locationCondition = setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField);
-            // Data từ bộ lọc xem dữ liệu của tôi
-            const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
-            
-            TOP_SALES_PRODUCT_TEMPLATE.query.conditions =  [...locationCondition, userCondition];
-            const q = generateRQuery(TOP_SALES_PRODUCT_TEMPLATE.query);
-            const response: AnalyticDataQuery = await callApiNative({ notifyAction: "HIDE_ALL" },
-                dispatch, executeAnalyticsQueryService, { q });
+            const response = await getDataOneQueryDashboard(dispatch, showMyData, deparmentIdList, TOP_SALES_PRODUCT_TEMPLATE);
             setIsFetching(false);
             if (!response) {
-                showError("Lỗi lấy dữ liệu doanh thu theo sản phẩm");
+                showErrorReport("Lỗi lấy dữ liệu doanh thu theo sản phẩm");
                 return;
             }
             const listTopSale: Array<DashboardTopProduct> = [];

@@ -20,27 +20,25 @@ import { Store } from "../../../model/inventory/transfer";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useLocation } from "react-router-dom";
 import queryString from "query-string";
+import exportIcon from "assets/icon/export.svg";
 
 const { TabPane } = Tabs;
 
 const InventoryListScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>(InventoryTransferTabUrl.LIST);
+  const [activeTab, setActiveTab] = useState<string>('');
   const [accountStores, setAccountStore] = useState<Array<AccountStoreResponse>>([]);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const history = useHistory();
   const {path} = useRouteMatch();
   const dispatch = useDispatch();
+  const [vExportTransfer,setVExportTransfer] = useState(false);
+  const [vExportDetailTransfer,setVExportDetailTransfer] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
     if (redirectUrl) {
-        if (redirectUrl === InventoryTransferTabUrl.LIST) {
-          setActiveTab(InventoryTransferTabUrl.LIST);
-        }
-        if (redirectUrl === InventoryTransferTabUrl.HISTORIES) {
-          setActiveTab(InventoryTransferTabUrl.HISTORIES);
-        }
+      setActiveTab(redirectUrl);
     }
   }, [history, path]);
 
@@ -118,9 +116,27 @@ const InventoryListScreen: React.FC = () => {
           },
         ]}
         extra={
-          activeTab === InventoryTransferTabUrl.LIST && (
+          (activeTab === InventoryTransferTabUrl.LIST_CONFIRMED || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER
+          || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED
+            || activeTab === InventoryTransferTabUrl.LIST) && (
             <Row>
               <Space>
+              <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                  onClick={() => {setVExportTransfer(true)}}
+                >
+                  Xuất file danh sách
+              </Button>
+              <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                  onClick={() => {setVExportDetailTransfer(true)}}
+                >
+                  Xuất file chi tiết
+              </Button>
                 <AuthWrapper acceptPermissions={[InventoryTransferPermission.import]}>
                   <Button
                    className="light"
@@ -149,15 +165,68 @@ const InventoryListScreen: React.FC = () => {
             onChange={(active) => history.replace(active)}
           >
             <TabPane tab="Danh sách phiếu" key={InventoryTransferTabUrl.LIST}>
-              <InventoryTransferTab
-                stores={stores}
-                accounts={accounts}
-                accountStores={accountStores}
-                setAccounts={(value) => setAccounts([
-                  ...value,
-                  ...accounts
-                ])}
-              />
+              {activeTab === InventoryTransferTabUrl.LIST && (
+                <InventoryTransferTab
+                  activeTab={activeTab}
+                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  stores={stores}
+                  accounts={accounts}
+                  accountStores={accountStores}
+                  setAccounts={(value) => setAccounts([
+                    ...value,
+                    ...accounts
+                  ])}
+                />
+              )}
+            </TabPane>
+            <TabPane tab="Chờ chuyển" key={InventoryTransferTabUrl.LIST_CONFIRMED}>
+              {activeTab === InventoryTransferTabUrl.LIST_CONFIRMED && (
+                <InventoryTransferTab
+                  activeTab={activeTab}
+                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  stores={stores}
+                  accounts={accounts}
+                  accountStores={accountStores}
+                  setAccounts={(value) => setAccounts([
+                    ...value,
+                    ...accounts
+                  ])}
+                />
+              )}
+            </TabPane>
+            <TabPane tab="Đang chuyển đi" key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>
+              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && (
+                <InventoryTransferTab
+                  activeTab={activeTab}
+                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  stores={stores}
+                  accounts={accounts}
+                  accountStores={accountStores}
+                  setAccounts={(value) => setAccounts([
+                    ...value,
+                    ...accounts
+                  ])}
+                />
+              )}
+            </TabPane>
+            <TabPane tab="Đang chuyển đến" key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED}>
+              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED && (
+                <InventoryTransferTab
+                  activeTab={activeTab}
+                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  stores={stores}
+                  accounts={accounts}
+                  accountStores={accountStores}
+                  setAccounts={(value) => setAccounts([
+                    ...value,
+                    ...accounts
+                  ])}
+                />
+              )}
             </TabPane>
             <TabPane tab="Lịch sử phiếu" key={InventoryTransferTabUrl.HISTORIES}>
               <HistoryInventoryTransferTab

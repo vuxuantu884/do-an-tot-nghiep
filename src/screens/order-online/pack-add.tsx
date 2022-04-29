@@ -265,8 +265,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
             path: UrlConfig.ORDER,
           },
           {
-            name: "Hỗ trợ đóng gói",
-            path: UrlConfig.PACK_SUPPORT,
+            name: "Biên bản bàn giao",
+            path: UrlConfig.DELIVERY_RECORDS,
           },
           {
             name: "Thêm mới",
@@ -450,6 +450,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
             onMenuClick={onMenuClick}
             handleAddOrder={handleAddOrdersCode}
             formSearchOrderRef={formSearchOrderRef}
+            goodsReceiptForm={goodsReceiptsForm}
           />
 
           <AddOrderBottombar onOkPress={onOkPress} isLoading={isLoading}/>

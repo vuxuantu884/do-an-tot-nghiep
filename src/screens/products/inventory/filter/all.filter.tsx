@@ -49,8 +49,14 @@ export interface InventoryFilterProps {
   onFilter?: (values: InventoryQuery) => void;
   onClearFilter?: () => void;
   openColumn: () => void;
-  onChangeKeySearch: (value: string) => void;
+  onChangeKeySearch: (value: string,filters: any) => void;
 }
+
+const ArrRemain = [
+  {key: "total_stock",value:"Còn tồn"},
+  {key: "available",value:"Còn có thể bán"},
+  {key: "on_hand",value:"Còn tồn trong kho"},
+]
 
 const { Item } = Form;
 
@@ -476,6 +482,11 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     onCloseFilterConfig();
   }, [formAdvanceFilter, onCloseFilterConfig]);
 
+  const onChangeInfo = useCallback((e:any)=>{
+    const filters = formBaseFilter.getFieldsValue(true);
+    onChangeKeySearch(e.target.value,filters)
+  },[formBaseFilter, onChangeKeySearch]);
+
   useEffect(() => {
     setAdvanceFilters({ ...params });
     dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -504,9 +515,26 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 prefix={<img src={search} alt="" />}
                 style={{width: "100%"}}
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
-                onChange={(e)=>{onChangeKeySearch(e.target.value)}}
+                onChange={onChangeInfo}
                 allowClear
               />
+            </Item>
+            <Item name="remain" style={{ minWidth: 250 }}>
+                <CustomSelect
+                  showSearch
+                  allowClear
+                  showArrow
+                  placeholder="Chọn trạng thái tồn"
+                  style={{ width: "100%" }}
+                  optionFilterProp="children"
+                  getPopupContainer={(trigger) => trigger.parentNode}
+                  maxTagCount="responsive">
+                  {ArrRemain?.map((item) => (
+                    <CustomSelect.Option key={item.key} value={item.key}>
+                      {item.value}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
             </Item>
             <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 250 }}>
               <TreeStore
@@ -677,38 +705,59 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>
                 </Col>
                 <Col span={8}>
-                    <Row className="price">
-                      <Col span={24}>
-                      <Item label="Giá bán">
-                        <Input.Group compact>
-                          <Item hidden={true} name="variant_prices">
-                          </Item>
-                          <Item name="from_price" style={{ width: '45%', textAlign: 'center' }}>
-                            <InputNumber
-                              className="price_min"
-                              placeholder="Từ"
-                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                              min="0"
-                              max="100000000"
-                            />
-                          </Item>
-                          <div
-                            className="site-input-split"
-                          >~</div>
-                          <Item name="to_price" style={{ width: '45%', textAlign: 'center' }}>
-                            <InputNumber
-                              className="site-input-right price_max"
-                              placeholder="Đến"
-                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                              min="0"
-                              max="1000000000"
-                            />
-                          </Item>
-                        </Input.Group>
-                    </Item>
-                      </Col>
-                    </Row>
+                  <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
+                    <CustomSelect
+                      showSearch
+                      allowClear
+                      showArrow
+                      placeholder="Chọn trạng thái tồn"
+                      style={{ width: "100%" }}
+                      optionFilterProp="children"
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      maxTagCount="responsive">
+                      {ArrRemain?.map((item) => (
+                        <CustomSelect.Option key={item.key} value={item.key}>
+                          {item.value}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
                 </Col>
+              </Row>
+              <Row gutter={25}>
+              <Col span={8}>
+                  <Row className="price">
+                   <Col span={24}>
+                   <Item label="Giá bán">
+                     <Input.Group compact>
+                       <Item hidden={true} name="variant_prices">
+                       </Item>
+                       <Item name="from_price" style={{ width: '45%', textAlign: 'center' }}>
+                         <InputNumber
+                           className="price_min"
+                           placeholder="Từ"
+                           formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                           min="0"
+                           max="100000000"
+                         />
+                       </Item>
+                       <div
+                         className="site-input-split"
+                       >~</div>
+                       <Item name="to_price" style={{ width: '45%', textAlign: 'center' }}>
+                         <InputNumber
+                           className="site-input-right price_max"
+                           placeholder="Đến"
+                           formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                           min="0"
+                           max="1000000000"
+                         />
+                       </Item>
+                     </Input.Group>
+                   </Item>
+                   </Col>
+                  </Row>
+                </Col>         
               </Row>
           </Form>
         </BaseFilter>

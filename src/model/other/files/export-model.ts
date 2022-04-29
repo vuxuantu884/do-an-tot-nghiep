@@ -4,7 +4,7 @@ export interface ExportRequest {
   conditions?: string;
   type: string;
   url?: string;
-  is_online?: string;
+  hidden_fields?: string;
 }
 
 export interface ExportResponse extends BaseObject {

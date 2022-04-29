@@ -13,6 +13,7 @@ import ReportHandOverModal from "../../modal/report-hand-over.modal";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import {
   createGoodsReceipts,
+  getByIdGoodsReceipts,
   getGoodsReceiptsSerch,
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
@@ -21,7 +22,7 @@ import { setPackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment, { Moment } from "moment";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
@@ -196,7 +197,8 @@ const AddReportHandOver: React.FC = () => {
         }
       }
     });
-    
+
+    //thêm đơn hàng mới vừa đóng gói
     selectOrderPackSuccess?.forEach((f) => {
       if(goodsReceipts.receipt_type_id === 1 && f.status === "picked") {
         codes.push(f.code);
@@ -209,6 +211,7 @@ const AddReportHandOver: React.FC = () => {
       ...goodsReceipts,
       codes: codes,
     };
+    console.log(param);
 
     dispatch(
       updateGoodsReceipts(
@@ -233,6 +236,9 @@ const AddReportHandOver: React.FC = () => {
             let pathname = `${process.env.PUBLIC_URL}${UrlConfig.DELIVERY_RECORDS}/${value.id}`;
             window.open(pathname,"_blank");
             //history.push(`${UrlConfig.DELIVERY_RECORDS}/${value.id}`)
+          }
+          else{
+            showError("Thêm đơn hàng vào biên bản bàn giao thất bại");
           }
         }
       )
@@ -263,11 +269,12 @@ const AddReportHandOver: React.FC = () => {
       let indexGoods = listGoodsReceipts.findIndex(
         (data: GoodsReceiptsResponse) => data.id === value
       );
-      if (indexGoods !== -1) setGoodsReceipts(listGoodsReceipts[indexGoods]);
+      if (indexGoods !== -1)
+        dispatch(getByIdGoodsReceipts(listGoodsReceipts[indexGoods].id,setGoodsReceipts));
       else
         setGoodsReceipts(undefined);
     },
-    [listGoodsReceipts]
+    [dispatch,listGoodsReceipts]
   );
   return (
     <Card

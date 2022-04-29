@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
-import { borderColor, primaryColor } from "utils/global-styles/variables";
+import {borderColor, dangerColor, primaryColor} from "utils/global-styles/variables";
+
 
 // Inherit StyledCustomerInfo in StyledCustomerDetail
 export const StyledCustomerDetail = styled(StyledCustomerInfo)`
@@ -375,6 +376,11 @@ export const StyledPurchaseHistory = styled.div`
       background-color: #ffffff;
     }
   }
+
+  .orderTotalLeftAmount {
+    color: ${dangerColor};
+    font-weight: 500;
+  }
 `;
 
 export const StyledActivityLog = styled.div`
@@ -407,14 +413,22 @@ export const StyledActivityLogDetailModal = styled.div`
     .log-detail-update {
       display: flex;
       justify-content: space-between;
-      .content {
-        width: 49%;
+			.old-data {
+				flex-grow: 1;
+				margin-right: 20px;
+			}
+			.new-data {
+        flex-grow: 1;
+			}
+      .label {
+        margin-bottom: 10px;
       }
     }
     .content {
       background: #eee;
       padding: 10px;
       margin-bottom: 0;
+			white-space: pre-wrap;
     }
   }
 `;

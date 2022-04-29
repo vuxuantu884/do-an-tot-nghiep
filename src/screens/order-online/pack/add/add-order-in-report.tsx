@@ -20,6 +20,7 @@ type AddOrderInReportProps = {
   onMenuClick?: (index: number) => void;
   handleAddOrder: (code: string) => void;
   formSearchOrderRef: any;
+  goodsReceiptForm: any;
   codes: Array<String>
 };
 const { Item } = Form;
@@ -27,7 +28,7 @@ const { Item } = Form;
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, codes } = props;
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, codes, goodsReceiptForm } = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
@@ -83,9 +84,14 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     if (orderListResponse.length > 0) {
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
       orderListResponse.forEach(function (order, index) {
-        let fulfillmentPacked = order.fulfillments.filter((ffm) =>
-          ffm.status !== 'returned' && ffm.status !== 'returning' && ffm.status !== 'splitted');
-        // console.log('fulfillmentPacked', fulfillmentPacked)
+        let fulfillmentPacked = order.fulfillments?.filter(ffm => {
+        
+          let receiptTypeId = goodsReceiptForm.getFieldValue('receipt_type_id');
+          if(receiptTypeId === 1) {
+            return  ffm.status === 'packed'
+          }
+          return  ffm.status === 'cancelled'
+        });
         if (fulfillmentPacked.length > 0) {
           let product: VariantModel[] = [];
           let ship_price = 0;
@@ -135,7 +141,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       setPackOrderProductList(result);
       formSearchOrderRef.current?.resetFields();
     }
-  }, [formSearchOrderRef, orderListResponse]);
+  }, [formSearchOrderRef, goodsReceiptForm, orderListResponse]);
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
     {

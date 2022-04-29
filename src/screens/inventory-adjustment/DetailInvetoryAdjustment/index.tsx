@@ -9,7 +9,7 @@ import PlusOutline from "assets/icon/plus-outline.svg";
 import { PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
@@ -71,6 +71,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
 import { addLineItem, deleteLineItem, getTotalOnHand } from "service/inventory/adjustment/index.service";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
 
 const { TabPane } = Tabs;
 
@@ -148,6 +149,7 @@ const DetailInvetoryAdjustment: FC = () => {
     items: [],
   });
   const [tableLoading, setTableLoading] = useState(true);
+  const [isPermissionAudit, setIsPermissionAudit] = useState(false);
 
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
@@ -174,6 +176,18 @@ const DetailInvetoryAdjustment: FC = () => {
     }
     setAccounts(data.items);
   }, []);
+
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
+
+  console.log(userReducer)
+
+  useEffect(() => {
+    if (!data) return;
+    const auditedByFiltered = data.audited_bys && data?.audited_bys?.length > 0 ? data?.audited_bys?.filter((i: any) => i.toUpperCase() === userReducer.account?.code.toUpperCase()) : [];
+    setIsPermissionAudit(userReducer.account?.code.toUpperCase() === data.created_by.toUpperCase() || auditedByFiltered.length > 0)
+  }, [data, userReducer.account?.code]);
 
   useEffect(() => {
     if (accounts.length === 0 || !data) return;
@@ -302,7 +316,7 @@ const DetailInvetoryAdjustment: FC = () => {
       barcode,
       variant_name: name || value.variant_name,
       variant_id: id || value.variant_id,
-      variant_image: variant_images && variant_images.length > 0 ? variant_images[0] : '',
+      variant_image: variant_images && variant_images.length > 0 ? variant_images[0].url : '',
       product_name: product ? product.name : value.product_name,
       product_id: product ? product.id : value.product_id,
       weight,
@@ -564,6 +578,7 @@ const DetailInvetoryAdjustment: FC = () => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate) {
           return (
             <NumberInput
+              disabled={!isPermissionAudit}
               min={0}
               maxLength={12}
               value={value}
@@ -641,7 +656,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return <>
           {
             data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL &&
-              row.on_hand === 0 &&
+              row.on_hand === 0 && isPermissionAudit &&
             <Button
               onClick={() => onDeleteItem(Number(id), row.id)}
               className="item-delete"
@@ -793,26 +808,6 @@ const onChangeNote = useCallback(
     },
     [dataLinesItem.items]
   );
-
-  type RowDetailProps = {
-    label: string;
-    value: string | null;
-  };
-
-  const RenderRowInfo = (info: RowDetailProps) => {
-    return (
-      <>
-        <Row className="row-detail">
-          <Col flex="90px" className="row-detail-left label">
-            {info.label} <Col className="dot">:</Col>
-          </Col>
-          <Col flex="auto" className="row-detail-right data">
-            <b>{info?.value}</b>
-          </Col>
-        </Row>
-      </>
-    );
-  };
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -1143,7 +1138,7 @@ const onChangeNote = useCallback(
                         activeKey={activeTab}
                         onChange={(active) => setActiveTab(active)}
                       >
-                        <TabPane tab={`Thừa/Thiếu (${dataTab?.total_variant_deviant ?? 0})`} key="1">
+                        <TabPane tab={`Thừa/Thiếu (${formatCurrency(dataTab?.total_variant_deviant) ?? 0})`} key="1">
                           <InventoryAdjustmentHistory
                             objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
                             data={data}
@@ -1177,6 +1172,7 @@ const onChangeNote = useCallback(
                             dropdownMatchSelectWidth={456}
                             style={{ width: "100%" }}
                             showAdd={true}
+                            isNotPermissionAudit={!isPermissionAudit}
                             textAdd="Thêm mới sản phẩm"
                             onSelect={onSelectProduct}
                             options={renderResult}
@@ -1189,6 +1185,7 @@ const onChangeNote = useCallback(
                             }}
                           />
                           <Button
+                            disabled={!isPermissionAudit}
                             onClick={() => {
                               setVisibleManyProduct(true);
                               return;
@@ -1256,28 +1253,47 @@ const onChangeNote = useCallback(
                   extra={<Tag className={classTag}>{textTag}</Tag>}
                 >
                   <Col>
-                    <RenderRowInfo label="ID Phiếu" value={data.code} />
-                    <RenderRowInfo
-                      label="Người tạo"
-                      value={`${data?.created_name} - ${data.created_by}`}
-                    />
-                    <div>Người kiểm <span style={{ marginLeft: 6 }}>:</span></div>
-                    {
-                      <StyledComponent>
-                        <Row className="audit_by">
-                          <Col span={24}>
-                            {data.audited_bys?.map((item: string) => {
-                              return (
-                                <RenderItemAuditBy
-                                  key={item?.toString()}
-                                  user_name={item?.toString()}
-                                />
-                              );
-                            })}
-                          </Col>
-                        </Row>
-                      </StyledComponent>
-                    }
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">ID phiếu:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">{data.code}</div>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">Người tạo:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">Người kiểm:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">
+                          {
+                            <StyledComponent>
+                              <Row className="audit_by">
+                                <Col span={24}>
+                                  {data.audited_bys?.map((item: string) => {
+                                    return (
+                                      <RenderItemAuditBy
+                                        key={item?.toString()}
+                                        user_name={item?.toString()}
+                                      />
+                                    );
+                                  })}
+                                </Col>
+                              </Row>
+                            </StyledComponent>
+                          }
+                        </div>
+                      </Col>
+                    </Row>
                   </Col>
                 </Card>
                 <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
@@ -1398,7 +1414,7 @@ const onChangeNote = useCallback(
                           onChange={onChangeFile}
                           customRequest={onCustomRequest}
                         >
-                          <Button disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status}
+                          <Button disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
                                   icon={<UploadOutlined />}>Nhập excel</Button>
                         </Upload>
                       </AuthWrapper>
@@ -1414,7 +1430,7 @@ const onChangeNote = useCallback(
                             setShowExportModal(true);
                             onExport();
                           }}
-                          disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status}
+                          disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
                         >
                           Xuất excel
                         </Button>
@@ -1428,14 +1444,14 @@ const onChangeNote = useCallback(
                             setIsShowConfirmAdited(true);
                           }}
                           loading={isLoading}
-                          disabled={hasError || isLoading || data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status}
+                          disabled={hasError || isLoading || data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
                         >
                           Hoàn thành kiểm
                         </Button>
                       </AuthWrapper>
                     </>
                   )}
-                  {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status &&  (
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && (
                     <AuthWrapper
                       acceptPermissions={[InventoryAdjustmentPermission.adjust]}
                     >
@@ -1445,7 +1461,7 @@ const onChangeNote = useCallback(
                           seIsShowConfirmAdj(true);
                         }}
                         loading={isLoading}
-                        disabled={hasError || isLoading}
+                        disabled={hasError || isLoading || !isPermissionAudit}
                       >
                         Cân tồn kho
                       </Button>
