@@ -321,15 +321,16 @@ const PODetailScreen: React.FC = () => {
       payment_note: null,
       payment_refunds: null,
     }
-
+    dispatch(showLoading())
     dispatch(PoCreateAction(params, (result) => {
       if (result) {
         showSuccess("Sao chép đơn đặt hàng thành công");
-        history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
+        dispatch(hideLoading())
+        window.open(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`, "_blank");
         loadDetail(result.id, true, false);
       }
     }));
-  }, [dispatch, loadDetail, history, formMain]);
+  }, [dispatch, loadDetail, formMain]);
 
   const onMenuClick = useCallback(
     (index: number) => {
