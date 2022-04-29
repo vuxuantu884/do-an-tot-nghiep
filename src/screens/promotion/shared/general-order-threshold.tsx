@@ -23,9 +23,9 @@ enum ColumnIndex {
 }
 
 const blankRow = {
-  [ColumnIndex.field]: "product_name",
-  [ColumnIndex.operator]: "EQUALS",
-  [ColumnIndex.value]: undefined,
+  [ColumnIndex.field]: "subtotal",
+  [ColumnIndex.operator]: "GREATER_THAN",
+  [ColumnIndex.value]: 0,
 };
 interface Props {
   form: FormInstance;
@@ -47,9 +47,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
   ]);
 
   const handleDelete = (index: number) => {
-    console.log(form.getFieldValue(rule))
     const discountList: Array<any> = form.getFieldValue(rule)?.conditions;
-    console.log(discountList);
     const temps = _.cloneDeep(discountList);
     if (Array.isArray(temps)) {
       temps.splice(index, 1);
@@ -139,7 +137,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
         [rule]: {
           [conditions]: [blankRow],
           group_operator: "AND",
-          value_type: DiscountUnitType.FIXED_AMOUNT.value,
+          value_type: DiscountUnitType.PERCENTAGE.value,
         },
       });
       setValueComponentList([defaultValueComponent]);
