@@ -126,3 +126,7 @@ export const WARRANTY_URL = {
   reason: "reasons",
   center: "centers"
 }
+
+export const AccountUrl = {
+  UPDATE_PASSWORD: `${UrlConfig.ACCOUNTS}/me/update-password`
+}

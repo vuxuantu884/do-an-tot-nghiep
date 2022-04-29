@@ -26,6 +26,7 @@ import {
 import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { callApiSaga } from "utils/ApiUtils";
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -123,26 +124,27 @@ function* AccountUpdateSaga(action: YodyAction) {
 
 function* AccountUpdatePassSaga(action: YodyAction) {
   const { request, setData } = action.payload;
-  try {
-    let response: BaseResponse<AccountResponse> = yield call(
-      accountUpdatePassScreenService,
-      request
-    );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    console.log("AccountUpdatePassScreenService:" + error);
-    showError("Có lỗi vui lòng thử lại sau");
-  }
+  // try {
+  //   let response: BaseResponse<AccountResponse> = yield call(
+  //     accountUpdatePassScreenService,
+  //     request
+  //   );
+  //   switch (response.code) {
+  //     case HttpStatus.SUCCESS:
+  //       setData(response.data);
+  //       break;
+  //     case HttpStatus.UNAUTHORIZED:
+  //       yield put(unauthorizedAction());
+  //       break;
+  //     default:
+  //       response.errors.forEach((e) => showError(e));
+  //       break;
+  //   }
+  // } catch (error) {
+  //   console.log("AccountUpdatePassScreenService:" + error);
+  //   showError("Có lỗi vui lòng thử lại sau");
+  // }
+  yield callApiSaga({ isShowError: true }, setData, accountUpdatePassScreenService, request);
 }
 function* AccountDeleteSaga(action: YodyAction) {
   const { id, deleteCallback } = action.payload;

@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from "react";
 import { Layout, Button, Badge, Avatar, Dropdown, Menu, Space } from "antd";
 import logo from "assets/img/logo.svg";
-import UrlConfig from "config/url.config";
+import UrlConfig, { AccountUrl } from "config/url.config";
 import { Link } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
-import { AccountResponse } from "model/account/account.model";
 import { RiNotification2Line, RiArrowDropDownLine } from "react-icons/ri";
 import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +18,6 @@ import { AppConfig } from "config/app.config";
 
 type HeaderContainerProps = {
   onCollapse: () => void;
-  account?: AccountResponse | null;
 	isShowHeader: boolean;
 	setIsShowHeader: (value: boolean) => void;
 };
@@ -30,6 +28,8 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
   const user_id = useSelector(
     (state: RootReducerType) => state.userReducer.account?.user_id
   );
+  const myFullname = useSelector((state: RootReducerType) => state.userReducer.account?.full_name);
+
   const dispatch = useDispatch();
   const [isShowBtnDD, setIsShowBtnDD] = useState<boolean>(true);
 
@@ -68,7 +68,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
         </Link>
       </Menu.Item>
       <Menu.Item key="info">
-        <Link to={`${UrlConfig.ACCOUNTS}/me/update-password`}>
+        <Link to={`${AccountUrl.UPDATE_PASSWORD}`}>
           <span>Đổi mật khẩu</span>
         </Link>
       </Menu.Item>
@@ -118,7 +118,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
               <div className="ant-layout-sider-user">
                 <Avatar src="" size={36} />
                 <div className="sider-user-info yody-text-ellipsis">
-                  {props.account?.full_name}
+                  {myFullname}
                 </div>
                 <RiArrowDropDownLine size={25} color="#737373" />
               </div>

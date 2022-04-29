@@ -13,7 +13,8 @@ import OtherType from 'domain/types/other.type';
 import { showError } from 'utils/ToastUtils';
 import { YodyAction } from 'base/base.action';
 
-function* loadUserFromStorageSaga() {
+function* loadUserFromStorageSaga(action: YodyAction) {
+  const { handleData } = action.payload;
   let token: string = yield call(getToken);
   //TODO: Handle token here
   if(!isUndefinedOrNull(token)) {
@@ -22,6 +23,7 @@ function* loadUserFromStorageSaga() {
       switch(response.code) {
         case HttpStatus.SUCCESS:
           yield put(loadUserFromStorageSuccessAction(response.data));
+          handleData?.(response.data);
           break;
         case HttpStatus.UNAUTHORIZED:
           yield put(loadUserFromStorageFailAction())
