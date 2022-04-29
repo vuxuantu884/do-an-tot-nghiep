@@ -24,6 +24,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
+import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import IconClose from "../images/iconClose.svg";
@@ -69,12 +70,13 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     let cloneListShopIsSelected = [...listShopIsSelected];
     let result = cloneListShopIsSelected.filter((singleShop) => {
       return (
-        singleShop.name.toLowerCase().includes(value.toLowerCase()) ||
-        singleShop.partner_shop_id.toString().includes(value.toLowerCase())
+        fullTextSearch(value, singleShop.name) || 
+        fullTextSearch(value, singleShop.partner_shop_id.toString()) || 
+        fullTextSearch(value, singleShop.store_id.toString())
       );
     });
     setListShopIsSelectedShow(result);
-  };
+  }
 
   const handleSubmit = () => {
     form.validateFields(["token"]).then(() => {
@@ -344,7 +346,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                     listShops.map((singleShop) => {
                       return (
                         <Select.Option value={singleShop.id} key={singleShop.id}>
-                          {singleShop.name}
+                          {`${singleShop.name} (ID - ${singleShop.id})`}
                         </Select.Option>
                       );
                     })}
