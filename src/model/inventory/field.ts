@@ -81,6 +81,7 @@ const AllInventoryMappingField = {
 
 const InventoryColumnField = {
   variant_name: 'variant_name',
+  barcode: 'barcode',
   sku: 'sku',
   category: 'category',
   variant_prices: 'variant_prices',
@@ -98,6 +99,7 @@ const InventoryColumnField = {
 
 const InventoryExportField = {
   [InventoryColumnField.variant_name]: 'Sản phẩm',
+  [InventoryColumnField.barcode]: 'Mã vạch',
   [InventoryColumnField.sku]: 'Mã sản phẩm',
   [InventoryColumnField.variant_prices]: 'Giá bán',
   [InventoryColumnField.total_stock]: 'Tổng tồn',
