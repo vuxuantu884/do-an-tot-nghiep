@@ -76,11 +76,11 @@ function OrderPrint(props: PropType) {
 
   useEffect(() => {
     if (queryPrintType && queryPrintType === printType.print_pack) {
-      if (queryIds && queryIds.length > 0 && queryPrintType && handlePrint) {
+      if (queryIds && queryIds.length > 0 && queryPrintType && queryPackType && handlePrint) {
         dispatch(
           getPrintGoodsReceipts(
             queryIds,
-            queryPrintType,
+            queryPackType,
             (response: GoodReceiptPrint[]) => {
               const textResponse = response.map((single: any) => {
                 return `<div class='singleOrderPrint'>${single.html_content}</div>`;
