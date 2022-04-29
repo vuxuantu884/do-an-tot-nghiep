@@ -49,9 +49,11 @@
   }
 }
 .print-po-grid {
+  font-family: "Palatino Linotype" !important;
   .po-info {
     font-size: 12px !important;
     border-spacing: 0;
+    font-family: 'Times New Roman', Times, serif;
   }
    .po-info td {
     vertical-align: top;
@@ -84,7 +86,7 @@
     font-size: 12px;
   }
   .header-wrap-code{
-    width: 40x;
+    width: 50x;
   }
   .wrap-text-code {
     transform: rotate(-90deg);
@@ -109,5 +111,28 @@
   }
   .po-img{
     max-height: 140px;
+  }
+
+  .tb-payment{
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    font-size: 12px;
+  }
+
+  .tb-payment th{
+    border: 0.5px solid gray;
+    padding: 2px;
+  }
+
+  .tb-payment .th-first{
+    border-right: 0;
+  }
+
+  .tb-payment-times{
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    font-weight: bold;
   }
 }
