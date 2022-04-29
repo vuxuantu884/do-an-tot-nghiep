@@ -1,4 +1,5 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { RefSelectProps } from "antd/lib/select";
 import imgDefault from "assets/icon/img-default.svg";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
@@ -20,20 +21,33 @@ import {
   getProductDiscountPerProduct,
 } from "utils/AppUtils";
 import { fullTextSearch } from "utils/StringUtils";
+// import { fullTextSearch } from "utils/StringUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
 type PropType = {
+  autoCompleteRef: React.RefObject<RefSelectProps>;
   isDetailPage?: boolean;
   discountRate?: number;
   orderId: number | undefined;
+  searchVariantInputValue:string;
   handleCanReturn?: (value: boolean) => void;
   setIsVisibleModalWarningPointRefund?: (value: boolean) => void;
+  setSearchVariantInputValue: (value: string) => void;
+  setListOrderProductsResult:(value:OrderLineItemResponse[])=>void;
 };
 
 let isAlreadyShowWarningPoint = false;
 
 function CardReturnProductContainer(props: PropType) {
-  const { handleCanReturn, isDetailPage, orderId, setIsVisibleModalWarningPointRefund} = props;
+  const { 
+    handleCanReturn, 
+    isDetailPage,
+    orderId, 
+    setIsVisibleModalWarningPointRefund,
+    autoCompleteRef,searchVariantInputValue,
+    setSearchVariantInputValue,
+    setListOrderProductsResult
+  } = props;
 
   const dispatch = useDispatch();
 
@@ -41,12 +55,13 @@ function CardReturnProductContainer(props: PropType) {
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
 
-  const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
+ 
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
   const [pointRefund, setPointRefund] = useState(0);
 
   const listReturnProducts = createOrderReturnContext?.return.listReturnProducts;
   const listItemCanBeReturn = createOrderReturnContext?.return.listItemCanBeReturn;
+  const listOrderProductsResult = createOrderReturnContext?.return.listOrderProductsResult;
   const setListReturnProducts = createOrderReturnContext?.return.setListReturnProducts;
   const setTotalAmountReturnProducts =
     createOrderReturnContext?.return.setTotalAmountReturnProducts;
@@ -104,7 +119,7 @@ function CardReturnProductContainer(props: PropType) {
     } else {
       setIsCheckReturnAll(true);
     }
-    setSearchVariantInputValue("");
+    //setSearchVariantInputValue("");
   };
 
   const checkIfIsCanReturn = (listReturnProducts: ReturnProductModel[]) => {
@@ -205,21 +220,20 @@ function CardReturnProductContainer(props: PropType) {
   };
 
   const convertResultSearchVariant = useMemo(() => {
-    if (!listItemCanBeReturn) {
-      return;
-    }
+    if (!listItemCanBeReturn)  return [];
+    if (!listOrderProductsResult)return [];
     let options: any[] = [];
-    let listOrderProductsResult = listItemCanBeReturn;
-    if (searchVariantInputValue) {
-      listOrderProductsResult = listItemCanBeReturn.filter((single) => {
-        console.log('single', single)
-        return (
-          fullTextSearch(searchVariantInputValue, single.variant) ||
-          fullTextSearch(searchVariantInputValue, single.sku)
-        );
-      });
-    }
-    listOrderProductsResult.forEach((item: OrderLineItemResponse, index: number) => {
+    
+    // let listOrderProductsResult = listItemCanBeReturn;
+    // if (searchVariantInputValue) {
+    //   listOrderProductsResult = listItemCanBeReturn.filter((single) => {
+    //     return (
+    //       fullTextSearch(searchVariantInputValue, single.variant) ||
+    //       fullTextSearch(searchVariantInputValue, single.sku)
+    //     );
+    //   });
+    // }
+    listOrderProductsResult?.forEach((item: OrderLineItemResponse, index: number) => {
       options.push({
         label: renderSearchVariant(item),
         value: item.variant_id ? item.variant_id.toString() : "",
@@ -227,10 +241,20 @@ function CardReturnProductContainer(props: PropType) {
     });
 
     return options;
-  }, [listItemCanBeReturn, searchVariantInputValue]);
+  }, [listItemCanBeReturn, listOrderProductsResult]);
 
   const onChangeProductSearchValue = (value: string) => {
     setSearchVariantInputValue(value);
+    let result = listItemCanBeReturn?.filter((single) => {
+      return (
+        fullTextSearch(searchVariantInputValue, single.variant) ||
+        fullTextSearch(searchVariantInputValue, single.sku)
+      );
+    })||[];
+
+    console.log(result)
+
+    setListOrderProductsResult(result);
   };
 
   const onChangeProductQuantity = (value: number | null, index: number) => {
@@ -463,6 +487,7 @@ function CardReturnProductContainer(props: PropType) {
       totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={isShowProductSearch()}
       setListReturnProducts={setListReturnProducts}
+      autoCompleteRef={autoCompleteRef}
     />
   );
 }
