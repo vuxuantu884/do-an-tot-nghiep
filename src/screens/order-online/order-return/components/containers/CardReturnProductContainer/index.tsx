@@ -2,6 +2,7 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import imgDefault from "assets/icon/img-default.svg";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
+import { StoreResponse } from "model/core/store.model";
 import { OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import {
   OrderLineItemResponse,
@@ -28,12 +29,13 @@ type PropType = {
   orderId: number | undefined;
   handleCanReturn?: (value: boolean) => void;
   setIsVisibleModalWarningPointRefund?: (value: boolean) => void;
+  listStores: StoreResponse[];
 };
 
 let isAlreadyShowWarningPoint = false;
 
 function CardReturnProductContainer(props: PropType) {
-  const { handleCanReturn, isDetailPage, orderId, setIsVisibleModalWarningPointRefund} = props;
+  const { handleCanReturn, isDetailPage, orderId, setIsVisibleModalWarningPointRefund,listStores} = props;
 
   const dispatch = useDispatch();
 
@@ -463,6 +465,7 @@ function CardReturnProductContainer(props: PropType) {
       totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={isShowProductSearch()}
       setListReturnProducts={setListReturnProducts}
+      listStores={listStores}
     />
   );
 }

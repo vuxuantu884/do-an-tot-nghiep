@@ -1286,6 +1286,7 @@ ShippingServiceConfigDetailResponseModel[]
                   isDetailPage={false}
                   orderId={orderId}
                   setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
+                  listStores={listStores}
                 />
                 <OrderCreateProduct
                   orderAmount={orderAmount}
