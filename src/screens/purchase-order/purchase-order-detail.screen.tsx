@@ -16,6 +16,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import {
   POCancelAction,
+  PoCreateAction,
   PoDetailAction, POGetPrintContentAction, POGetPurchaseOrderActionLogs, PoUpdateAction
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
@@ -66,7 +67,7 @@ const ModalExport = lazy(() => import("./modal/ModalExport"))
 const ActionMenu = {
   EXPORT: 1,
   DELETE: 2,
-  COPY: 3,
+  CLONE: 3,
 }
 
 type PurchaseOrderParam = {
@@ -141,71 +142,7 @@ const PODetailScreen: React.FC = () => {
       setLoading(false);
       if (!result) {
         setError(true);
-      } else {
-        
-        // if(!filterSevenCode) {
-        //   //Tìm tất cả các size theo uniq
-        //   const sizeList = uniqBy(result.line_items, "variant_detail.size").map((item: any) => {
-        //     if (!item.variant_detail.size) return null;
-        //     return item.variant_detail.size;
-        //   });
-
-        //   //Tổng hợp tất cả giá tiền theo thứ tự line_items
-        //   const amounts = result.line_items.map((item: PurchaseOrderLineItem) => {
-        //     return item.amount;
-        //   });
-
-        //   //Tổng hợp tất cả id theo thứ tự line_items
-        //   const variantIdList = result.line_items.map((item: PurchaseOrderLineItem) => {
-        //     return item.id;
-        //   });
-
-        //   //Tổng hợp tất cả số lượng size theo thứ tự line_items
-        //   const quantity = result.line_items.map((item: PurchaseOrderLineItem) => {
-        //     return item.quantity;
-        //   });
-        //   //Chia đều amount theo size
-        //   const chunkAmount = chunk(amounts, sizeList.length);
-
-        //   //Chia đều quantity theo size
-        //   const chunkQuantity = chunk(quantity, sizeList.length);
-
-        //   //Sắp xếp size theo thứ tự tăng dần
-        //   const sizeListSorted = _.sortBy(sizeList)
-        //   setSizes(sizeListSorted);
-
-        //   const transformedData = uniqBy(result.line_items, "variant_detail.color_id").map((item,index) => {
-        //     const cloth_code = item.sku.split("-")[1];
-
-        //     let s: any = {}
-        //     sizeList.forEach((size, i) => {
-        //       s[size] = chunkQuantity[index][i]; //Lấy quantity theo index đã chunk
-        //     })
-
-        //     return {
-        //       id: item.id,
-        //       product_id: item.product_id,
-        //       product: item.product,
-        //       variant: item.variant,
-        //       barcode: item.barcode,
-        //       name: item.variant,
-        //       code: item.sku.split("-")[0] || item.code,
-        //       cloth_code: cloth_code,
-        //       color: item.variant_detail.color,
-        //       color_id: item.variant_detail.color_id,
-        //       sizes: sizeList,
-        //       variant_id: variantIdList,
-        //       unit: item.unit, //Đơn vị tính
-        //       price: item.variant_detail.variant_prices[0].import_price, //Đơn giá
-        //       amount: chunkAmount[index].reduce((a, b) => a + b, 0), //Thành tiền
-        //       product_type: item.product_type,
-        //       sku: item.sku,
-        //       quantity: chunkQuantity[index].reduce((a, b) => a + b, 0),  //Tổng số lượng
-        //       ...s,
-        //     }
-        //   })
-        //   setDataSource({...dataSource, items: transformedData, totalPrice: result.untaxed_amount, vat: ((result.untaxed_amount - result.total)/result.untaxed_amount)*100});
-        // }
+      } else {        
         setPurchaseItem(result);
         formMain.setFieldsValue(result);
         setStatus(result.status);
@@ -226,10 +163,10 @@ const PODetailScreen: React.FC = () => {
   const loadDetail = useCallback(
     (id: number, isLoading, isSuggestDetail: boolean) => {
       setSuggest(isSuggestDetail);
-      dispatch(PoDetailAction(idNumber, onDetail));
-      dispatch(POGetPrintContentAction(idNumber, printContentCallback));
+      dispatch(PoDetailAction(id, onDetail));
+      dispatch(POGetPrintContentAction(id, printContentCallback));
     },
-    [dispatch, idNumber, onDetail, printContentCallback]
+    [dispatch, onDetail, printContentCallback]
   );
 
   const onConfirmButton = useCallback(() => {
@@ -359,6 +296,40 @@ const PODetailScreen: React.FC = () => {
     );
   }, [dispatch, idNumber, loadDetail]);
 
+  const handleClonePo = useCallback(() => {
+    let params = formMain.getFieldsValue(true);
+    const procurements = params.procurements;
+    procurements.forEach((pro:any) => {
+      pro.code = null;
+      pro.id = null;
+      pro.procurement_items.forEach((item:any) => {
+        item.id = null;
+        item.code = null;
+      }
+      )
+    });
+    params = {
+      ...params,
+      id: null,
+      code: null,
+      status: POStatus.DRAFT,
+      total_payment: 0,
+      payments: [],
+      payment_discount_amount: 0,
+      payment_discount_rate: null,
+      payment_discount_value: null,
+      payment_note: null,
+      payment_refunds: null,
+    }
+
+    dispatch(PoCreateAction(params, (result) => {
+      if (result) {
+        showSuccess("Sao chép đơn đặt hàng thành công");
+        history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
+        loadDetail(result.id, true, false);
+      }
+    }));
+  }, [dispatch, loadDetail, history, formMain]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -369,51 +340,11 @@ const PODetailScreen: React.FC = () => {
         case ActionMenu.EXPORT:
           setShowExportModal(true);
           break;
-        // case ActionMenu.COPY:
-        //   const queryParams = formMain.getFieldsValue(true);
-        //   queryParams.procurements = [
-        //     {
-        //       fake_id: new Date().getTime(),
-        //       reference: "",
-        //       store_id: null,
-        //       expect_receipt_date: "",
-        //       procurement_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {return {sku: item.sku, quantity: item.quantity}}),
-        //       status: ProcumentStatus.DRAFT,
-        //       status_po: POStatus.DRAFTPO,
-        //       note: "",
-        //       actived_date: "",
-        //       actived_by: "",
-        //       stock_in_date: "",
-        //       stock_in_by: "",
-        //     },
-        //   ]
-        //   localStorage.setItem(
-        //     PO_FORM_TEMPORARY,
-        //     JSON.stringify({
-        //       ...queryParams,
-        //       line_items: queryParams.line_items.map((item: PurchaseOrderLineItem) => {
-        //         return {
-        //           ...item,
-        //           id: null,
-        //           planned_quantity: 0,
-        //         };
-        //       }),
-        //       return_orders: null,
-        //       code: null,
-        //       status_name: null,
-        //       payments: [],
-        //       status: POStatus.DRAFT,
-        //       receive_status: ProcumentStatus.DRAFT,
-        //       activated_date: null,
-        //       completed_stock_date: null,
-        //       cancelled_date: null,
-        //       completed_date: null,
-        //     }))
-        //   history.push(`${UrlConfig.PURCHASE_ORDERS}/create`)
-        //   break;
+          case ActionMenu.CLONE:
+          handleClonePo();
       }
     },
-    [setConfirmDelete]
+    [setConfirmDelete, handleClonePo]
   );
 
 
@@ -445,10 +376,10 @@ const PODetailScreen: React.FC = () => {
         id: ActionMenu.EXPORT,
         name: "Xuất file NPL",
       },
-      // {
-      //   id: ActionMenu.COPY,
-      //   name: "Sao chép đơn đặt hàng",
-      // }
+      {
+        id: ActionMenu.CLONE,
+        name: "Sao chép đơn đặt hàng",
+      }
     ];
     if (!poData) return [];
     let poStatus = poData.status;
@@ -640,8 +571,7 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
-
-
+  
   useEffect(() => {
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(onStoreResult));
