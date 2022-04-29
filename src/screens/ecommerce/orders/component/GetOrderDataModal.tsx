@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, DatePicker, Form, Modal, Select, Tooltip } from "antd";
+import { Button, Form, Modal, Select, Tooltip } from "antd";
 import moment from "moment";
 
-import { DATE_FORMAT } from 'utils/DateUtils';
 
 import {
   getShopEcommerceList,
@@ -17,6 +16,9 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 import successIcon from "assets/icon/success_2.svg";
 
 import { StyledDownloadOrderData } from "screens/ecommerce/orders/orderStyles";
+import CustomDatePicker from "../../../../component/custom/new-date-picker.custom";
+import { SwapRightOutlined } from "@ant-design/icons";
+import { changeFormatDay } from "utils/DateUtils";
 
 
 type GetOrderDataModalType = {
@@ -26,7 +28,6 @@ type GetOrderDataModalType = {
 };
 
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 
 const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
@@ -35,12 +36,12 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
   const { visible, onOk, onCancel } = props;
   const dispatch = useDispatch();
 
+  const [formDownloadOrder] = Form.useForm();
+
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceSelected, setEcommerceSelected] = useState(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState(null);
-  const [startDate, setStartDate] = useState<any>(null);
-  const [endDate, setEndDate] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activatedBtn, setActivatedBtn] = useState({
     title: "",
@@ -113,37 +114,22 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
 
   //handle select date
 
-  // check disable select date
-  const [dates, setDates] = useState<any>([]);
-  const [selectedDateValue, setSelectedDateValue] = useState<any>();
+  //handle date
+  const [startDate, setStartDate] = useState<any>(null);
+  const [endDate, setEndDate] = useState<any>(null);
+  const [checkDateStartAndDayEnd, setCheckDateStartAndDayEnd] = useState(false);
 
-  const disabledDate = (current: any) => {
-    if (!dates || dates.length === 0) {
-      return false;
-    }
-    const tooLate = dates[0] && current.diff(dates[0], 'days') > 14;
-    const tooEarly = dates[1] && dates[1].diff(current, 'days') > 14;
-    return tooEarly || tooLate;
-  };
-
-  const onOpenChange = (open: boolean) => {
-    if (open) {
-      setDates([]);
-    }
-  };
-
-  const onCalendarChange = (dates: any, dateStrings: any, info: any) => {
-    setDates(dates);
-  };
 
   const convertStartDateToTimestamp = (date: any) => {
-    const myDate = date.split("/");
+    if (!date) return
+    const myDate = date && date.split("-");
     let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
     return moment(new Date(newDate)).unix();
   }
 
   const convertEndDateToTimestamp = (date: any) => {
-    const myDate = date.split("/");
+    if (!date) return
+    const myDate = date && date.split("-");
     const today = new Date();
     let time = "23:59:59";
 
@@ -159,14 +145,78 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     return moment(new Date(dateTime)).unix();
   }
 
-  const onChangeDate = (dates: any, dateStrings: any) => {
-    const startDateValue = convertStartDateToTimestamp(dateStrings[0]);
-    setStartDate(startDateValue);
-    const endDateValue = convertEndDateToTimestamp(dateStrings[1]);
-    setEndDate(endDateValue);
+  const onChangeDate = useCallback(
+      () => {
+        let value: any = {};
+        value = formDownloadOrder?.getFieldsValue(["date_from", "date_to"])
 
-    setSelectedDateValue(dates);
-  };
+        const convertDateStartToString = value["date_from"] && value["date_from"].toString()
+        const convertDateEndToString = value["date_to"] && value["date_to"].toString()
+
+        const dateStartDayChangeFormat = changeFormatDay(convertDateStartToString)
+        const dateEndDayChangeFormat = changeFormatDay(convertDateEndToString)
+        
+        const date_from = new Date(dateStartDayChangeFormat);
+        const date_to = new Date(dateEndDayChangeFormat)
+        
+        const convertDateStartTimeStamp = convertStartDateToTimestamp(convertDateStartToString)
+        const convertDateEndTimeStamp = convertEndDateToTimestamp(convertDateEndToString)
+
+
+        setStartDate(convertDateStartTimeStamp)
+        setEndDate(convertDateEndTimeStamp)
+
+        const compareDate = date_from.getTime() - date_to.getTime()
+        const differentDays = compareDate / (1000 * 60 * 60 * 24)
+
+        if (value["date_from"] && value["date_to"]) {
+          setCheckDateStartAndDayEnd(true)
+        }else {
+          setCheckDateStartAndDayEnd(false)
+        }
+
+
+        const getDateFrom = date_from.getTime()
+        const getDateTo = date_to.getTime()
+
+        if (getDateFrom > getDateTo) {
+          formDownloadOrder?.setFields([
+            {
+              name: "date_from",
+              errors: ['Ngày từ phải nhỏ hơn ngày đến'],
+            },
+            {
+              name: "date_to",
+              errors: [''],
+            },
+          ])
+          setCheckDateStartAndDayEnd(false)
+        }else if(Math.abs(differentDays) > 15) {
+            formDownloadOrder?.setFields([
+              {
+                name: "date_from",
+                errors: [''],
+              },
+              {
+                name: "date_to",
+                errors: ['Thời gian tải dữ liệu không vượt quá 15 ngày'],
+              },
+            ])
+            setCheckDateStartAndDayEnd(false)
+  
+        } else {
+          formDownloadOrder?.setFields([
+            {
+              name: "date_from",
+              errors: undefined,
+            },
+            {
+              name: "date_to",
+              errors: undefined,
+            },
+          ])
+        }
+      }, [formDownloadOrder]);
 
   //end handle select date
 
@@ -177,19 +227,19 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
   }, [onOk]);
 
   const handleDownloadEcommerceOrders = () => {
-    const params = {
-      ecommerce_id: ecommerceSelected,
-      shop_id: shopIdSelected,
-      update_time_from: startDate,
-      update_time_to: endDate,
-    }
+      const params = {
+        ecommerce_id: ecommerceSelected,
+        shop_id: shopIdSelected,
+        update_time_from: startDate,
+        update_time_to: endDate,
+      }
 
-    setIsLoading(true);
-    dispatch(postEcommerceOrderAction(params, updateEcommerceOrderList));
+      setIsLoading(true);
+      dispatch(postEcommerceOrderAction(params, updateEcommerceOrderList));
   };
 
   const isDisableOkButton = () => {
-    return !shopIdSelected || !startDate || !endDate;
+    return !shopIdSelected || !checkDateStartAndDayEnd;
   }
 
   const cancelGetOrderModal = () => {
@@ -205,8 +255,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     setEcommerceSelected(null);
     setIsEcommerceSelected(false);
     onCancel();
-  };
-
+  };  
 
   return (
     <Modal
@@ -224,7 +273,10 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
       confirmLoading={isLoading}
     >
       <StyledDownloadOrderData>
-        <Form layout="vertical">
+        <Form
+            form={formDownloadOrder}
+            layout="vertical"
+        >
           <div className="ecommerce-list">
             {ecommerceList.map((item) => (
               <Button
@@ -292,19 +344,43 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
             }
           </Form.Item>
 
-          <Form.Item label={<b>Thời gian <span style={{ color: 'red' }}>*</span></b>}>
-            <RangePicker
-              disabled={isLoading}
-              placeholder={["Từ ngày", "Đến ngày"]}
-              style={{ width: "100%" }}
-              format={DATE_FORMAT.DDMMYYY}
-              value={selectedDateValue}
-              disabledDate={disabledDate}
-              onChange={onChangeDate}
-              onCalendarChange={onCalendarChange}
-              onOpenChange={onOpenChange}
-            />
-          </Form.Item>
+          {/*<Form.Item label={<b>Thời gian <span style={{ color: 'red' }}>*</span></b>}>*/}
+          {/*  <RangePicker*/}
+          {/*    disabled={isLoading}*/}
+          {/*    placeholder={["Từ ngày", "Đến ngày"]}*/}
+          {/*    style={{ width: "100%" }}*/}
+          {/*    format={DATE_FORMAT.DDMMYYY}*/}
+          {/*    value={selectedDateValue}*/}
+          {/*    disabledDate={disabledDate}*/}
+          {/*    onChange={onChangeDate}*/}
+          {/*    onCalendarChange={onCalendarChange}*/}
+          {/*    onOpenChange={onOpenChange}*/}
+          {/*  />*/}
+          {/*</Form.Item>*/}
+
+          <div className="date-pick-download-order">
+            <Form.Item name="date_from">
+              <CustomDatePicker
+                  format="DD-MM-YYYY"
+                  placeholder="Từ ngày"
+                  style={{ width: "100%", borderRadius: 0 }}
+                  onChange={() => onChangeDate()}
+              />
+            </Form.Item>
+
+            <div className="date-pick-download-order-icon">
+              <SwapRightOutlined />
+            </div>
+
+            <Form.Item name="date_to">
+              <CustomDatePicker
+                  format="DD-MM-YYYY"
+                  placeholder="Đến ngày"
+                  style={{ width: "100%", borderRadius: 0 }}
+                  onChange={() => onChangeDate()}
+              />
+            </Form.Item>
+          </div>
 
           <div><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
         </Form>
