@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {Form, Button, Card, Tag, Input, Select, DatePicker, Divider} from "antd";
+import React, {createRef, useEffect, useState} from "react";
+import {Form, Button, Card, Tag, Input, Select, DatePicker, Divider, FormInstance} from "antd";
 
 import {
   CreateCustomer,
@@ -39,10 +39,10 @@ const YDPageCustomerCreateUpdate = (props: any) => {
   } = props;
 
   const [form] = Form.useForm();
+	const formRef = createRef<FormInstance>();
   const dispatch = useDispatch();
 
   const [status] = useState<string>("active");
-  const [cityId, setCityId] = useState<any>(null);
 
   // // Update new customer info
   const updateNewCustomerInfo = (fieldName: string, value: any) => {
@@ -188,7 +188,6 @@ const YDPageCustomerCreateUpdate = (props: any) => {
       ...values,
       birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       status: status,
-      city_id: cityId,
       phone: values.phone?.trim(),
     };
     dispatch(CreateCustomer({ ...new CustomerModel(), ...customerCreateParams }, setResultCreate));
@@ -198,7 +197,6 @@ const YDPageCustomerCreateUpdate = (props: any) => {
       ...values,
       birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       status: status,
-      city_id: cityId,
       phone: values.phone?.trim(),
       version: customer.version,
     };
@@ -258,11 +256,13 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 			}
 		},
 	}
+	// end handle note
 
   return (
     <div className="yd-page-customer-create-update">
       <Form
         form={form}
+				ref={formRef}
         name="customer_add"
         onFinish={handleSubmitOption}
         layout="vertical"
@@ -343,9 +343,9 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 
           <YDpageCustomerAreaInfo
             form={form}
+						formRef={formRef}
             areaList={areaList}
             customer={customer}
-            setCityId={setCityId}
             isDisable={isDisableForm()}
             newCustomerInfo={newCustomerInfo}
             setNewCustomerInfo={setNewCustomerInfo}

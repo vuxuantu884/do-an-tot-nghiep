@@ -290,7 +290,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
   return (
     <InventoryFiltersWrapper>
       <div className="custom-filter">
-      <CustomFilter onMenuClick={onActionClick} menu={actions}>
+      <CustomFilter onMenuClick={onActionClick} menu={actions} actionDisable>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
             <Item
               name="from_store_id"

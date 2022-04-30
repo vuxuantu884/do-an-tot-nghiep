@@ -11,6 +11,7 @@ type CreateOrderReturnContextType = {
   orderDetail: OrderResponse | null;
   return: {
     listItemCanBeReturn:  OrderLineItemResponse[];
+    listOrderProductsResult:  OrderLineItemResponse[];
     listReturnProducts: ReturnProductModel[];
     setListReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
     setTotalAmountReturnProducts: (value: number) => void;

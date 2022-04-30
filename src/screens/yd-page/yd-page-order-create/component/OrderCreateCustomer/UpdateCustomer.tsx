@@ -28,14 +28,14 @@ import {
   CustomerResponse,
   ShippingAddress
 } from "model/response/customer/customer.response";
-// import moment from "moment";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {RegUtil} from "utils/RegUtils";
 import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
 import {StyledComponent} from "./styles";
+import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
 
 type UpdateCustomerProps = {
   areaList: any;
@@ -70,26 +70,103 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const dispatch = useDispatch();
   const [shippingAddressForm] = Form.useForm();
   // const [customerForm] = Form.useForm();
-  const formRefAddress = createRef<FormInstance>();
+  const formRef = createRef<FormInstance>();
   // const formRefCustomer = createRef<FormInstance>();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+  // const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
   const [visibleModalChangeAddress, setVisibleModalChangeAddress] = useState(false)
 
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [loadingWardList, setLoadingWardList] = React.useState<boolean>(false);
 
   //const [shippingDistrictId, setShippingDistrictId] = React.useState<any>(null);
 
+  // handle autofill address
+  const fullAddressRef = useRef()
+  const newAreas = useMemo(() => {
+    return areaList.map((area: any) => {
+      return {
+        ...area,
+        city_name_normalize: area.city_name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("tinh ", "")
+          .replace("tp. ", ""),
+        district_name_normalize: area.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("quan ", "")
+          .replace("huyen ", "")
+          // .replace("thanh pho ", "")
+          .replace("thi xa ", ""),
+      }
+    })
+  }, [areaList]);
+
+  const getWards = useCallback(
+    (value: number) => {
+      if (value) {
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRef.current?.getFieldValue("full_address");
+          if (value) {
+            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/đ/g, "d")
+                  .replace(/Đ/g, "D")
+                  .toLowerCase()
+                  .replace("phuong ", "")
+                  .replace("xa ", ""),
+              }
+            });
+            let district = document.getElementsByClassName("YDpageInputDistrictUpdateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
+            const foundWard = findWard(district, newWards, newValue);
+            formRef.current?.setFieldsValue({
+              ward_id: foundWard ? foundWard.id : null,
+            })
+          }
+          setWards(data);
+        }));
+      }
+    },
+    [dispatch, formRef]
+  );
+
+  const checkAddress = useCallback((value) => {
+    // setVisibleBtnUpdate(true);
+    const findArea = handleFindArea(value, newAreas);
+    if (findArea) {
+      if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+        formRef.current?.setFieldsValue({
+          district_id: findArea.id,
+          ward_id: null
+        })
+        getWards(findArea.id);
+      }
+    }
+  }, [formRef, getWards, newAreas]);
+  // end handle autofill address
+  
   const getWardByDistrictId = useCallback(
     (districtId: number) => {
       if (districtId) {
         setLoadingWardList(true);
         dispatch(WardGetByDistrictAction(Number(districtId), (wardResponse) => {
-          setShippingWards(wardResponse);
+          setWards(wardResponse);
           setLoadingWardList(false);
         }));
       }
@@ -124,10 +201,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   useEffect(() => {
     if (shippingAddress && shippingAddress.district_id) {
       dispatch(
-        WardGetByDistrictAction(shippingAddress.district_id, setShippingWards)
+        WardGetByDistrictAction(shippingAddress.district_id, setWards)
       );
     } else {
-      setShippingWards([]);
+      setWards([]);
     }
   }, [dispatch, shippingAddress]);
 
@@ -138,21 +215,20 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   // };
 
   const handleSelectArea = (value: any) => {
-    let values = formRefAddress.current?.getFieldsValue();
+    let values = formRef.current?.getFieldsValue();
     values.ward_id = null;
     shippingAddressForm.setFieldsValue(values);
     getWardByDistrictId(value);
-    setVisibleBtnUpdate(true);
+    // setVisibleBtnUpdate(true);
   };
 
   const handleClearArea = () => {
     let value = shippingAddressForm.getFieldsValue();
     value.district_id = null;
     value.ward_id = null;
-    value.full_address = "";
     shippingAddressForm.setFieldsValue({...value});
 
-    setShippingWards([]);
+    setWards([]);
   };
 
   const handleSubmit = useCallback(
@@ -184,7 +260,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           );
 
                           //if(data!==null) setShippingAddress(data);
-                          setVisibleBtnUpdate(false);
+                          // setVisibleBtnUpdate(false);
                           showSuccess("Cập nhật địa chỉ giao hàng thành công");
                       } else {
                           showError("Cập nhật địa chỉ giao hàng thất bại");
@@ -208,7 +284,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           );
 
                           //if(data!==null) setShippingAddress(data);
-                          setVisibleBtnUpdate(false);
+                          // setVisibleBtnUpdate(false);
                           showSuccess("Thêm mới địa chỉ giao hàng thành công");
                       } else {
                           showError("Thêm mới địa chỉ giao hàng thất bại");
@@ -240,7 +316,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       if (initialFormValues.district_id ) {
         getWardByDistrictId(initialFormValues.district_id);
       } else {
-        setShippingWards([]);
+        setWards([]);
       }
     }
     shippingAddressForm.setFieldsValue(initialFormValues);
@@ -249,7 +325,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   useEffect(() => {
     shippingAddressForm.setFieldsValue(initialFormValues);
   }, [shippingAddressForm, shippingAddress, initialFormValues]);
-
 
   useEffect(() => {
     if (customer) {
@@ -301,7 +376,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       <Form
         layout="vertical"
         form={shippingAddressForm}
-        ref={formRefAddress}
+        ref={formRef}
         onFinish={handleSubmit}
         initialValues={initialFormValues}
         name="shippingAddress_update"
@@ -326,7 +401,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 placeholder="Nhập Tên khách hàng"
                 prefix={<UserOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
-                onChange={() => setVisibleBtnUpdate(true)}
+                // onChange={() => setVisibleBtnUpdate(true)}
               />
             </Form.Item>
           </Col>
@@ -347,7 +422,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               <InputPhoneNumber
                 disabled={disableInput}
                 style={{ borderRadius: 5, width: "100%" }}
-                onChange={() => setVisibleBtnUpdate(true)}
+                // onChange={() => setVisibleBtnUpdate(true)}
                 minLength={9}
                 maxLength={15}
                 placeholder="Nhập số điện thoại"
@@ -381,6 +456,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   message: "Vui lòng chọn khu vực",
                 },
               ]}
+              className="YDpageInputDistrictUpdateCustomer"
             >
               <Select
                 className="select-with-search"
@@ -431,12 +507,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     <span> Chọn phường/xã</span>
                   </React.Fragment>
                 }
-                onChange={() => {
-                  setVisibleBtnUpdate(true);
-                }}
+                // onChange={() => {
+                //   setVisibleBtnUpdate(true);
+                // }}
                 disabled={disableInput || loadingWardList}
               >
-                {shippingWards.map((ward: any) => (
+                {wards.map((ward: any) => (
                   <Select.Option key={ward.id} value={ward.id}>
                     {ward.name}
                   </Select.Option>
@@ -460,7 +536,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 placeholder="Địa chỉ"
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
-                onChange={() => setVisibleBtnUpdate(true)}
+                allowClear
+                onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                  // setVisibleBtnUpdate(true)
+                  checkAddress(e.target.value)
+                },500)}
               />
             </Form.Item>
           </Col>
@@ -519,7 +599,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 									</Modal>
                 </div>
 
-                {isVisibleBtnUpdate &&
+                {/*{isVisibleBtnUpdate &&*/}
                   <div className="page-filter-right" style={{width: "30%"}}>
                     <Button
                       className="page-cancel-address"
@@ -536,7 +616,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       Lưu địa chỉ
                     </Button>
                   </div>
-                }
+                {/*}*/}
               </Row>
             {/*)}*/}
 

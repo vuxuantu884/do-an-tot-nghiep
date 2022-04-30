@@ -10,13 +10,17 @@ type ExportModalProps = {
   total: number;
   exportProgress: number;
   statusExport: number;
+  exportError?: string;
   selected?: boolean;
 };
 
 const ExportModal: React.FC<ExportModalProps> = (
   props: ExportModalProps
 ) => {
-  const { visible, onCancel, onOk, type, total, exportProgress, statusExport, selected = false } = props;
+  const { visible, onCancel, onOk, type, total,
+    exportProgress, statusExport, selected = false,
+    exportError = "Đã có lỗi xảy ra!!!"
+  } = props;
   // statusExport: 1 not export, 2 exporting, 3 export success, 4 export error
   const text = useMemo(
     () => {
@@ -40,7 +44,7 @@ const ExportModal: React.FC<ExportModalProps> = (
         case "orders_online":
           return "Đơn hàng"
         case "orders_offline":
-          return "đơn hàng"
+          return "Đơn hàng"
         case "shipments":
           return "Đơn giao hàng"
         case "returns":
@@ -206,7 +210,7 @@ const ExportModal: React.FC<ExportModalProps> = (
       <Row style={{ justifyContent: 'center'}}>
         {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
         {statusExport === 3 && <p>Đã tạo file thành công</p>}
-        {statusExport === 4 && <p style={{ color: "#e24343"}}>Đã có lỗi xảy ra!!!</p>}
+        {statusExport === 4 && <p style={{ color: "#e24343"}}>{exportError}</p>}
         <Row style={{ justifyContent: 'center', width: '100%'}}><Progress
           type="circle"
           strokeColor={{

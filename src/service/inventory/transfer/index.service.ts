@@ -2,6 +2,7 @@ import BaseResponse from "../../../base/base.response";
 import BaseAxios from "../../../base/base.axios";
 import { ApiConfig } from "../../../config/api.config";
 import {
+  DataExport,
   DeleteTicketRequest,
   FileParam,
   InventoryTransferDetailItem,
@@ -149,6 +150,12 @@ const TransferService = {
       transferId: number
     ): Promise<BaseResponse<string>> => {
       return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/export`);
+    },
+
+    exportMultipleInventoryTransfer: (
+      data: DataExport
+    ): Promise<BaseResponse<string>> => {
+      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-export`, data);
     }
 };
 
@@ -163,6 +170,7 @@ export const {
   receivedInventoryTransfer,
   cancelShipmentInventoryTransfer,
   exportShipmentInventoryTransfer,
+  exportMultipleInventoryTransfer,
   adjustmentInventory
 } =
   TransferService;

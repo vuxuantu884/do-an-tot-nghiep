@@ -438,8 +438,8 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
     const lineItemId = line_items?.find((lineItem) => lineItem.variant_id === variant.id)?.id;
     return {
       lineItemId: lineItemId,
-      color: variant.color ?? variant.sku.split("-")[0],
-      size: variant.size ?? variant.sku.split("-")[0],
+      color: variant.color ?? variant.sku,
+      size: variant.size ?? variant.sku,
       variantId: variant.id,
       sku: variant.sku,
       variant: variant.name,
@@ -515,7 +515,7 @@ export const combineLineItemToSubmitData = (
 
       if (value) {
         const qty = value.sizeValues.find(item => item.size === pair.size)?.quantity || 0;
-        if (qty>0) {
+        if (qty > 0) {
           const amount = qty * value.price
           newDataItems.push({
             id: pair.lineItemId,
@@ -535,8 +535,8 @@ export const combineLineItemToSubmitData = (
             tax_rate: taxRate,
             amount: amount, // Tổng tiền
             line_amount_after_line_discount: qty * value.price, // Tổng tiền sau giảm giá, hiện tại chưa có nên để bằng amount
-            updated_by: "",
-            updated_name: "",
+            updated_by: "", // Để "" cho không lỗi máy chủ pận
+            updated_name: "", // Để "" cho không lỗi máy chủ pận, phần này BE handle
           });
         }
       }

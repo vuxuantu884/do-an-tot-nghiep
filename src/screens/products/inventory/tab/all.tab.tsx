@@ -38,6 +38,7 @@ import * as XLSX from 'xlsx';
 import moment from "moment";
 import { callApiNative } from "utils/ApiUtils";
 import { searchVariantsInventoriesApi } from "service/product/product.service";
+import FileSaver from "file-saver";
 
 type ConfigColumnInventory = {
   Columns: Array<ICustomTableColumType<InventoryResponse>>,
@@ -649,8 +650,9 @@ const AllTab: React.FC<any> = (props) => {
       const price = formatCurrency(objPrice ? objPrice.retail_price : 0);
 
     return {
-      [InventoryExportField[InventoryColumnField.variant_name]]: item.name,
       [InventoryExportField[InventoryColumnField.sku]]: item.sku,
+      [InventoryExportField[InventoryColumnField.variant_name]]: item.name,
+      [InventoryExportField[InventoryColumnField.barcode]]: item.barcode,
       [InventoryExportField[InventoryColumnField.variant_prices]]: price,
       [InventoryExportField[InventoryColumnField.total_stock]]: item.total_stock ? item.total_stock : null,
       [InventoryExportField[InventoryColumnField.on_hand]]: item.on_hand ? item.on_hand : null,
@@ -742,10 +744,14 @@ const AllTab: React.FC<any> = (props) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "data");
       const today = moment(new Date(), 'YYYY/MM/DD');
 
+      const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
       const month = today.format('M');
       const day   = today.format('D');
       const year  = today.format('YYYY');
-      XLSX.writeFile(workbook, `inventory_${day}_${month}_${year}.xlsx`);
+      //XLSX.writeFile(workbook, `inventory_${day}_${month}_${year}.xlsx`);
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const data = new Blob([excelBuffer], { type: fileType });
+      FileSaver.saveAs(data, `inventory_${day}_${month}_${year}.xlsx`);
       setVExportInventory(false);
     },
     Cancel: () => {

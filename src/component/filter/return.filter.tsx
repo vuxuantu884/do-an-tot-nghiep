@@ -243,9 +243,11 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     let list = []
     if (initialValues.store_ids.length) {
       let textStores = ""
-      initialValues.store_ids.forEach(store_id => {
-        const store = listStore?.find(store => store.id.toString() === store_id)
-        textStores = store ? textStores + store.name + "; " : textStores
+      initialValues.store_ids.forEach((store_id:number,index) => {
+        const store = listStore?.find(store => store.id.toString() === store_id?.toString())
+        console.log("listStore",listStore)
+        console.log("store",store_id)
+        textStores = store ? textStores + `${index>0?", " + store.name:store.name}`: textStores
       })
       list.push({
         key: 'store',
@@ -257,7 +259,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       let textReason = ""
       initialValues.reason_ids.forEach(reason_id => {
         const reason = reasons?.find(reason => reason.id.toString() === reason_id)
-        textReason = reason ? textReason + reason.name + "; " : textReason
+        textReason = reason ? textReason + `${initialValues.reason_ids.length>1?reason.name + ";":reason.name}` : textReason
       })
       list.push({
         key: 'reason_ids',

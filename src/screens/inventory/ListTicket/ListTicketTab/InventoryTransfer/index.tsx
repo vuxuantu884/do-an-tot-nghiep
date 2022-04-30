@@ -1,5 +1,6 @@
 import {MenuAction} from "component/table/ActionButton";
 import {
+  actionExportInventoryByIds,
   deleteInventoryTransferAction,
   getListInventoryTransferAction,
   updateInventoryTransferAction,
@@ -9,6 +10,7 @@ import {useDispatch} from "react-redux";
 
 import InventoryFilters from "../../Components/FIlter/InventoryListFilter";
 import {
+  DataExport,
   InventoryTransferDetailItem,
   InventoryTransferSearchQuery,
   LineItem,
@@ -23,7 +25,7 @@ import {getQueryParams, useQuery} from "utils/useQuery";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import {Input, Modal, Tag, Form} from "antd";
+import { Input, Modal, Tag, Form, Button, Row, Typography } from "antd";
 import {InventoryTransferTabWrapper} from "./styles";
 import {STATUS_INVENTORY_TRANSFER,STATUS_INVENTORY_TRANSFER_ARRAY} from "../../constants";
 
@@ -34,6 +36,7 @@ import {
   FormOutlined,
   PaperClipOutlined,
   PrinterOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
@@ -56,12 +59,15 @@ import { searchAccountPublicApi } from "../../../../../service/accounts/account.
 import TransferExport from "../../Components/TransferExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import {
-  getListInventoryTransferApi
+  getListInventoryTransferApi,
 } from "service/inventory/transfer/index.service";
 import moment from "moment";
 import * as XLSX from 'xlsx';
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
-const {TextArea} = Input;
+import { ImportStatusWrapper } from "../../../ImportInventory/styles";
+import { HttpStatus } from "config/http-status.config";
+const { TextArea } = Input;
+const { Text } = Typography;
 
 let firstLoad = true;
 
@@ -71,6 +77,7 @@ const ACTIONS_INDEX = {
   PRINT: 4,
   PRINT_TICKET: 5,
   MAKE_COPY: 7,
+  EXPORT: 8,
 };
 
 const initQuery: InventoryTransferSearchQuery = {
@@ -119,9 +126,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
 
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState<boolean>(false);
   const [itemData, setItemData] = useState<InventoryTransferDetailItem>();
   const printElementRef = useRef(null);
   const [totalItems, setTotalItems] = useState<number>(0);
+  const [dataUploadError, setDataUploadError] = useState<string[]>([]);
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -181,6 +190,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       name: "Tạo bản sao",
       icon: <CopyOutlined />,
       disabled: !allowClone,
+    },
+    {
+      id: ACTIONS_INDEX.EXPORT,
+      name: "Xuất kho",
+      icon: <ExportOutlined />,
     },
   ];
 
@@ -489,6 +503,42 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     [dispatch, printContentCallback, selectedRowKeys]
   );
 
+  const dataExportCallback = (data: any) => {
+    setTableLoading(false);
+    if (data.code === HttpStatus.SUCCESS) {
+      showSuccess(`Xuất kho thành công`);
+      setParams({
+        ...params
+      });
+      setSelectedRowKeys([]);
+      return;
+    }
+
+    if (data.code === HttpStatus.BAD_REQUEST) {
+      setIsStatusModalVisible(true);
+      setDataUploadError(data.errors);
+    }
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const exportMultiple = async () => {
+    setTableLoading(true);
+    const ids = selectedRowKeys.map((i) => {
+      return {
+        id: i
+      }
+    });
+    const data: DataExport = {
+      transfers: ids
+    };
+    dispatch(
+      actionExportInventoryByIds(
+        data,
+        dataExportCallback
+      )
+    );
+  };
+
   const onMenuClick = useCallback(
     (index: number) => {
       if (selectedRowKeys && selectedRowKeys.length === 0) {
@@ -511,11 +561,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
             `${UrlConfig.INVENTORY_TRANSFERS}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`
           );
           break;
+        case ACTIONS_INDEX.EXPORT:
+          exportMultiple().then();
+          break;
         default:
           break;
       }
     },
-    [history, printTicketAction, selectedRowKeys]
+    [exportMultiple, history, printTicketAction, selectedRowKeys]
   );
 
   const onClearFilter = useCallback(() => {
@@ -853,6 +906,37 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         onOk={actionExport.Ok}
         visible={vExportTransfer || vExportDetailTransfer}
       />
+
+      {isStatusModalVisible && (
+        <Modal
+          title="Xuất kho không thành công"
+          visible={isStatusModalVisible}
+          centered
+          onCancel={() => {setIsStatusModalVisible(false)}}
+          footer={[
+            <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
+              Huỷ
+            </Button>,
+          ]}
+        >
+          <ImportStatusWrapper>
+            <Row className="import-info" style={{ marginTop: 0 }}>
+              <div className="title"><b>Chi tiết: </b></div>
+              <div className="content">
+                <ul>
+                  {
+                    dataUploadError ? dataUploadError.map( item => {
+                      return <li><span className="danger">&#8226;</span><Text type="danger">{item}</Text></li>
+                    }) : (
+                      <li><span className="success">&#8226;</span><Text type="success">Thành công</Text></li>
+                    )
+                  }
+                </ul>
+              </div>
+            </Row>
+          </ImportStatusWrapper>
+        </Modal>
+      )}
     </InventoryTransferTabWrapper>
   );
 };

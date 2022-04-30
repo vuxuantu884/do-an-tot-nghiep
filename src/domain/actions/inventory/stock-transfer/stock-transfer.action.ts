@@ -1,6 +1,7 @@
 import BaseAction from "base/base.action";
 import { InventoryType } from "../../../types/inventory.type";
 import {
+  DataExport,
   DeleteTicketRequest,
   FileParam,
   InventoryTransferDetailItem,
@@ -160,6 +161,11 @@ const adjustmentInventoryAction = (id:Number, onResult: (data: InventoryTransfer
 const exportInventoryAction = (transferId: number, onResult: (data: InventoryTransferDetailItem) => void) => {
   return BaseAction(InventoryType.EXPORT_INVENTORY, {transferId, onResult})
 }
+
+const actionExportInventoryByIds = (data: DataExport, onResult: (data: any) => void) => {
+  return BaseAction(InventoryType.EXPORT_MULTIPLE_INVENTORY, {data, onResult})
+}
+
 export {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
@@ -179,4 +185,5 @@ export {
   getCopyDetailInventoryTransferAction,
   cancelShipmentInventoryTransferAction,
   exportInventoryAction,
+  actionExportInventoryByIds,
 };

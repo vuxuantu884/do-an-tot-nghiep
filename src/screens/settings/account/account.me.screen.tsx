@@ -7,7 +7,7 @@ import {
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
+import UrlConfig, { AccountUrl } from "config/url.config";
 import React, {useCallback, useEffect, useState} from "react";
 import { useHistory } from "react-router";
 import {  useDispatch, useSelector } from "react-redux";
@@ -109,7 +109,7 @@ const AccountMeScreen: React.FC = () => {
                 <RowDetail title="Giới tính" value={user?.gender ?  listGender?.find((item) => item.value === user?.gender)?.name ?? "" : "---"}/>
                 <RowDetail title="Ngày sinh" value={user?.birthday ? ConvertUtcToLocalDate(user.birthday, DATE_FORMAT.DDMMYYY) : "---"}/>
                 <Row>
-                  <Link to={`${UrlConfig.ACCOUNTS}/me/update-password`}><LockOutlined /> Đổi mật khẩu</Link>
+                  <Link to={AccountUrl.UPDATE_PASSWORD}><LockOutlined /> Đổi mật khẩu</Link>
                 </Row>
               </div>
             </Card>
@@ -140,7 +140,7 @@ const AccountMeScreen: React.FC = () => {
         </Row>
           
         <BottomBarContainer
-          back="Quay lại"
+          back="Quay lại trang chủ"
           backAction={backAction}
         />
       </AccountMeStyle>

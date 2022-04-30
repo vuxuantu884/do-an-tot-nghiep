@@ -72,7 +72,7 @@
     "build:accountant": "dotenv -e .env.accountant react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prepare": "husky install"
+    "postinstall": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -102,7 +102,8 @@
     "@types/redux-saga": "^0.10.5",
     "babel-plugin-module-resolver": "^4.1.0",
     "dotenv-cli": "^4.0.0",
-    "husky": "^7.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.4.1",
     "prettier": "2.5.1",
     "react-error-overlay": "6.0.9",
     "redux-devtools-extension": "^2.13.9"
@@ -111,5 +112,10 @@
     "react-error-overlay": "6.0.9",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn run eslint --no-eslintrc -c pre-commit.eslint.json"
+    ]
   }
 }

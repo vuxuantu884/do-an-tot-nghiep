@@ -36,6 +36,7 @@ export interface AccountResponse extends AccountBaseModel, BaseObject {
     modules: Array<ModuleAuthorize>,
   }
   role_name: string;
+  is_first_change_password: boolean;
 }
 
 export interface DeliverPartnerResponse {

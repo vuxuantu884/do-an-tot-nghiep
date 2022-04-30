@@ -111,3 +111,14 @@ export const confirmProcumentsMerge = (
 ): Promise<BaseResponse<PurchaseProcument>> => {
   return BaseAxios.put(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements/merge/confirm`,request);
 }
+
+export const updatePurchaseProcumentNoteService = (
+  poId: number,
+  procumentId: number,
+  data: PurchaseProcument
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}/update-note`,
+    data
+  );
+};

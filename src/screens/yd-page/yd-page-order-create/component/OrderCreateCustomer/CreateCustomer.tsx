@@ -27,18 +27,21 @@ import {
   YDpageCustomerRequest
 } from "model/request/customer.request";
 import {BillingAddress, CustomerResponse} from "model/response/customer/customer.response";
-import React, { createRef, useCallback, useEffect } from "react";
+import React, {createRef, useCallback, useEffect, useMemo, useRef} from "react";
 import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {StyledComponent} from "./styles";
 import {VietNamId} from "utils/Constants";
 import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
+import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
+import {WardGetByDistrictAction} from "domain/actions/content/content.action";
 
 type CreateCustomerProps = {
   newCustomerInfo?: YDpageCustomerRequest;
   areaList: any;
   wards: any;
+  setWards: (wards: any) => void;
   loadingWardList: boolean;
   customerGroups: any;
   handleChangeArea: any;
@@ -54,6 +57,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     newCustomerInfo,
     areaList,
     wards,
+    setWards,
     loadingWardList,
     customerGroups,
     handleChangeArea,
@@ -107,11 +111,86 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     let value = customerForm.getFieldsValue();
     value.district_id = null;
     value.ward_id = null;
-    value.full_address = "";
     customerForm.setFieldsValue(value);
 
     handleChangeArea && handleChangeArea(null);
   };
+
+  // handle autofill address
+  const fullAddressRef = useRef()
+  const newAreas = useMemo(() => {
+    return areaList.map((area: any) => {
+      return {
+        ...area,
+        city_name_normalize: area.city_name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("tinh ", "")
+          .replace("tp. ", ""),
+        district_name_normalize: area.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("quan ", "")
+          .replace("huyen ", "")
+          // .replace("thanh pho ", "")
+          .replace("thi xa ", ""),
+      }
+    })
+  }, [areaList]);
+
+  const getWards = useCallback(
+    (value: number) => {
+      if (value) {
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRef.current?.getFieldValue("full_address");
+          if (value) {
+            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/đ/g, "d")
+                  .replace(/Đ/g, "D")
+                  .toLowerCase()
+                  .replace("phuong ", "")
+                  .replace("xa ", ""),
+              }
+            });
+            let district = document.getElementsByClassName("YDpageInputDistrictCreateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
+            const foundWard = findWard(district, newWards, newValue);
+            formRef.current?.setFieldsValue({
+              ward_id: foundWard ? foundWard.id : null,
+            })
+          }
+          setWards(data);
+        }));
+      }
+    },
+    [dispatch, formRef, setWards]
+  );
+  
+  const checkAddress = useCallback((value) => {
+    const findArea = handleFindArea(value, newAreas);
+    if (findArea) {
+      if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+        formRef.current?.setFieldsValue({
+          district_id: findArea.id,
+          ward_id: null
+        })
+        getWards(findArea.id);
+      }
+    }
+  }, [formRef, getWards, newAreas]);
+  // end handle autofill address
 
   const createCustomerCallback = useCallback(
     (result: CustomerResponse) => {
@@ -439,6 +518,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   message: "Vui lòng chọn khu vực",
                 },
               ]}
+              className="YDpageInputDistrictCreateCustomer"
             >
               <Select
                 className="select-with-search"
@@ -515,7 +595,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             >
               <Input
                 placeholder="Địa chỉ"
+                allowClear
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
+                onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                  checkAddress(e.target.value)
+                },500)}
               />
             </Form.Item>
           </Col>

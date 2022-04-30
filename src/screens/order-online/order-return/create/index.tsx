@@ -1,4 +1,5 @@
 import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
+import { RefSelectProps } from "antd/lib/select";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
@@ -50,7 +51,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
@@ -65,6 +66,7 @@ import {
   getListItemsCanReturn,
   getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
+  handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
   isFetchApiSuccessful,
   isOrderFromPOS,
@@ -99,6 +101,7 @@ type PropTypes = {
 let typeButton = "";
 let order_return_id: number = 0;
 let isPrint = false;
+var barcode="";
 
 const ScreenReturnCreate = (props: PropTypes) => {
   const isUserCanCreateOrder = useRef(true);
@@ -110,6 +113,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )
   const [form] = Form.useForm();
+  const productReturnAutoCompleteRef=createRef<RefSelectProps>();
+  const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isError, setError] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
@@ -150,6 +155,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<ReturnProductModel[]>([]);
   const [listItemCanBeReturn, setListItemCanBeReturn] = useState<OrderLineItemResponse[]>(
+    []
+  );
+  const [listOrderProductsResult, setListOrderProductsResult] = useState<OrderLineItemResponse[]>(
     []
   );
 
@@ -1208,6 +1216,7 @@ ShippingServiceConfigDetailResponseModel[]
     orderDetail: OrderDetail,
     return: {
       listItemCanBeReturn,
+      listOrderProductsResult,
       listReturnProducts,
       setListReturnProducts,
       setTotalAmountReturnProducts,
@@ -1287,6 +1296,10 @@ ShippingServiceConfigDetailResponseModel[]
                   orderId={orderId}
                   setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
                   listStores={listStores}
+                  autoCompleteRef={productReturnAutoCompleteRef}
+                  searchVariantInputValue={searchVariantInputValue}
+                  setSearchVariantInputValue={setSearchVariantInputValue}
+                  setListOrderProductsResult={setListOrderProductsResult}
                 />
                 <OrderCreateProduct
                   orderAmount={orderAmount}
@@ -1512,6 +1525,82 @@ ShippingServiceConfigDetailResponseModel[]
         break;
     }
   },[])
+
+  const eventKeydown=useCallback((event:KeyboardEvent)=>{
+    const handleProductReturn = (keyCode: string, Code: string) => {
+      barcode = "";
+      console.log("keyCode", keyCode)
+      if (keyCode === "Enter") {
+        console.log("Code", Code)
+        console.log("listItemCanBeReturn", listItemCanBeReturn)
+        setSearchVariantInputValue("");
+        setListOrderProductsResult([]);
+        if (listItemCanBeReturn && listReturnProducts && Code) {
+          const selectedVariant = listItemCanBeReturn.find((single) => {
+            return single.variant_barcode === Code;
+          });
+
+          console.log("selectedVariant", selectedVariant)
+
+          if (selectedVariant) {
+            let selectedVariantWithMaxQuantity: ReturnProductModel = {
+              ...selectedVariant,
+              maxQuantityCanBeReturned: selectedVariant.quantity,
+            };
+
+            let indexSelectedVariant = listReturnProducts.findIndex((single) => {
+              return single.variant_id === selectedVariantWithMaxQuantity.variant_id;
+            });
+
+            let result = [...listReturnProducts];
+
+            if (indexSelectedVariant === -1) {
+              selectedVariantWithMaxQuantity.quantity = 1;
+              result = [selectedVariantWithMaxQuantity, ...listReturnProducts];
+            }
+            else {
+              let selectedVariant = result[indexSelectedVariant];
+              if (selectedVariant.maxQuantityCanBeReturned
+                && selectedVariant.quantity < selectedVariant.maxQuantityCanBeReturned) {
+                selectedVariant.quantity += 1;
+              }
+            }
+            setListReturnProducts(result);
+          }
+        }
+      }
+      // else if(event.key!=="Enter"){
+      //   const searchProductReturnElement:any= document.getElementById("search_product_return");
+      //   const txtSearchProductReturn=searchProductReturnElement?.value;
+      //   if (txtSearchProductReturn && txtSearchProductReturn.length>=3) {
+      //     let result = listItemCanBeReturn.filter((single) => {
+      //       return (
+      //         fullTextSearch(searchVariantInputValue, single.variant) ||
+      //         fullTextSearch(searchVariantInputValue, single.sku)
+      //       );
+      //     });
+
+      //     setListOrderProductsResult(result);
+      //   }
+      // }
+    }
+
+    if(event.target instanceof HTMLInputElement)
+    {
+      if(event.target.id==="search_product_return"){
+        if(event.key !== "Enter")
+          barcode=barcode+event.key;
+        console.log("barcode",barcode)
+        handleDelayActionWhenInsertTextInSearchInput(
+          productReturnAutoCompleteRef,
+          () => handleProductReturn(event.key, barcode),
+          200
+        );
+        return;
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[listItemCanBeReturn, listReturnProducts])
 
   useEffect(() => {
     if (storeId != null) {
@@ -1753,11 +1842,13 @@ ShippingServiceConfigDetailResponseModel[]
   }, [dispatch, storeIdLogin])
 
   useEffect(()=>{
+    window.addEventListener("keydown",eventKeydown);
     window.addEventListener("keydown", eventFunctional);
     return ()=>{
       window.removeEventListener("keydown", eventFunctional);
+      window.removeEventListener("keydown", eventKeydown);
     }
-  },[eventFunctional])
+  },[eventFunctional,eventKeydown])
 
   const checkIfWrongPath = () => {
     const checkIfOnline = () => {

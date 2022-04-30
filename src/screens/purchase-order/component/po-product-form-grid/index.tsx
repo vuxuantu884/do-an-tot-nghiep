@@ -8,6 +8,7 @@ import React, { createRef, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 import { getTotalPriceOfAllLineItem, initSchemaLineItem, initValueLineItem } from "utils/POUtils";
+import { sortSizeProduct } from "utils/ProductUtils";
 import { showError } from "utils/ToastUtils";
 import BaseButton from "../../../../component/base/BaseButton";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
@@ -212,42 +213,25 @@ const POProductForm = ({
    * @param inputValue 
    * @param size 
    */
-  const onChangeQuantityHeader = (inputValue: number, size: string) => {
-    const newpoLineItemGridValue = [...poLineItemGridValue];
-    newpoLineItemGridValue.forEach((schema: Map<string, POLineItemGridValue>) => {
-      const mapIterator = schema.values();
-      const mapLength = schema.size;
-      for (let i = 0; i < mapLength; i++) {
-        const { sizeValues } = mapIterator.next().value;
-        sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
-          if (sizeValue.size === size) {
-            sizeValue.quantity = inputValue;
+  const onChangeQuantityHeader = (inputValue: number | null, size: string) => {
+    if (typeof inputValue === 'number') {
+      const newpoLineItemGridValue = [...poLineItemGridValue];
+      newpoLineItemGridValue.forEach((schema: Map<string, POLineItemGridValue>) => {
+        const mapIterator = schema.values();
+        const mapLength = schema.size;
+        for (let i = 0; i < mapLength; i++) {
+          const { sizeValues } = mapIterator.next().value;
+          sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
+            if (sizeValue.size === size) {
+              sizeValue.quantity = inputValue;
+            }
           }
+          )
         }
-        )
-      }
-    })
+      })
 
-    setPoLineItemGridValue(newpoLineItemGridValue);
-
-    /**
-     * Tìm tất cả variantId có size được chọn
-     */
-    // const tempMap = new Map(quickInputProductLineItem);
-    // const variantIdListInSize: number[] = [];
-    // poLineItemGridChema.forEach((schema: POLineItemGridSchema) => {
-    //   schema.mappingColorAndSize.forEach((mapping: POPairSizeColor) => {
-    //     if (mapping.size === size) {
-    //       variantIdListInSize.push(mapping.variantId);
-    //       tempMap.set(mapping.variantId, inputValue);
-    //     }
-    //   })
-    // })
-
-    // setQuickInputProductLineItem(tempMap)
-
-    // setProcurementLineItemById(formMain, variantIdListInSize, inputValue, quickInputQtyProcurementLineItem);
-
+      setPoLineItemGridValue(newpoLineItemGridValue);
+    }
   }
   /**
    * thay đổi số lượng ô nhập đơn giá từng màu
@@ -299,6 +283,34 @@ const POProductForm = ({
     })
     return Number(sum);
   }, [poLineItemGridValue])
+
+  const sizeRenderTable = useMemo((): Array<string> => {
+    if (isEditMode) {
+      return uniq(flatMapDeep(poLineItemGridChema?.map(schema => schema.baseSize))).sort((a, b) => sortSizeProduct(a, b, "asc"));
+    } else if (poLineItemGridValue.length > 0) {
+      const availableSize: string[] = [];
+      poLineItemGridValue.forEach((valueLine: Map<string, POLineItemGridValue>) => {
+        const mapIterator = valueLine.values();
+        const mapLength = valueLine.size;
+        for (let i = 0; i < mapLength; i++) {
+          const { sizeValues }: POLineItemGridValue = mapIterator.next().value;
+          if (sizeValues.length > 0) {
+            for (let index = 0; index < sizeValues.length; index++) {
+              const element = sizeValues[index];
+              if (element.quantity > 0) {
+                availableSize.push(element.size);
+              }
+            }
+
+          }
+        }
+      })
+      return uniq(availableSize).sort((a, b) => sortSizeProduct(a, b, "asc"));
+    } else {
+      return [];
+    }
+
+  }, [poLineItemGridChema, poLineItemGridValue, isEditMode])
 
   const columns: ColumnsType<any> = [
     {
@@ -365,12 +377,12 @@ const POProductForm = ({
        * Handle case nhiều mã 7
        * nếu có nhiều mã 7 nhưng số lượng màu trùng nhau thì chỉ hiển thị unique màu
        */
-      children: uniq(flatMapDeep(poLineItemGridChema?.map(schema => schema.baseSize)))?.map((size: string) => {
+      children: sizeRenderTable.map((size: string) => {
 
         return {
           title: <div>
             <p>{size}</p>
-            {isEditMode && <NumberInput min={0} onChange={(value) => onChangeQuantityHeader(value || 0, size)} />}
+            {isEditMode && <NumberInput min={0} onChange={(value) => onChangeQuantityHeader(value, size)} />}
           </div>,
           dataIndex: size,
           key: size,
@@ -528,7 +540,7 @@ const POProductForm = ({
           rowKey={(record: PODataSourceGrid) => record.color}
           footer={() => {
             const amount: number = getTotalPriceOfAllLineItem(poLineItemGridValue);
-            formMain.setFieldsValue({ [POField.total]: amount + (amount * taxRate) / 100 });
+            formMain.setFieldsValue({ [POField.total]: Math.round(amount + (amount * (taxRate / 100))) });
             return (
               <Row className="footer">
                 <Col span={14} />

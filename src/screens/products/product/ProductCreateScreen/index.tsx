@@ -88,6 +88,18 @@ import BaseSelect from "../../../../component/base/BaseSelect/BaseSelect";
 const { Item, List } = Form;
 const { Option } = Select;
 
+type Defect = {
+  code: string,
+  name:string
+};
+
+const arrDefects = [
+  {code: 'L10',name:'Lỗi 10%'},
+  {code: 'L20',name:'Lỗi 20%'},
+  {code: 'L30',name:'Lỗi 30%'},
+  {code: 'L50',name:'Lỗi 50%'},
+]
+
 const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
@@ -222,6 +234,7 @@ const ProductCreateScreen: React.FC = () => {
   const [collectionLoading, setCollectionLoading] = useState(false);
   const [sizeLoading, setSizeLoading] = useState(false);
   const [colorLoading, setColorLoading] = useState(false);
+  const [defects, setDefects] = useState<Array<Defect>>([]);
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
     {
       items: [],
@@ -310,7 +323,7 @@ const ProductCreateScreen: React.FC = () => {
               size: null,
               sku: `${code}-${i1.code}`,
               variant_images: [],
-              quantity: 0,
+              quantity: 0
             });
           });
         }
@@ -326,13 +339,52 @@ const ProductCreateScreen: React.FC = () => {
             quantity: 0,
             variant_images: [],
           });
+
+         for (let i = 0; i < arrDefects.length; i++) {
+           const e = arrDefects[i];
+
+           newVariants.push({
+            name: `${name} - ${e.name}`,
+            color_id: null,
+            code: null,
+            color: null,
+            size_id: null,
+            size: null,
+            sku: `${code}- ${e.code}`,
+            quantity: 0,
+            variant_images: [],
+            saleable: false,
+            defect_code: `${e.code}`
+          });
+         }
+
+         setDefects([...arrDefects]);
+        }
+
+        for (let i = 0; i < defects.length; i++) {
+          const e = defects[i];
+          if (!newVariants.find(v =>v.defect_code === e.code)) {
+            newVariants.push({
+              name: `${name} - ${e.name}`,
+              color_id: null,
+              code: null,
+              color: null,
+              size_id: null,
+              size: null,
+              sku: `${code}- ${e.code}`,
+              quantity: 0,
+              variant_images: [],
+              saleable: false,
+              defect_code: `${e.code}`
+            });
+          }
         }
 
         let uniqueObjArray = [...new Map(newVariants.map((item) => [item["sku"], item])).values()];
         setVariants([...uniqueObjArray]);
       }
     },
-    [form]
+    [defects, form]
   );
 
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -590,10 +642,16 @@ const ProductCreateScreen: React.FC = () => {
   const deleteVariant = useCallback(
     (sku: string) => {
       let index = variants.findIndex((item) => item.sku === sku);
+      if (variants[index].defect_code && variants[index].defect_code !=="") {
+        let lstDefects = [...defects];
+        lstDefects = lstDefects.filter(e=>e.code !== variants[index].defect_code);
+
+        setDefects([...lstDefects]);
+      }
       variants.splice(index, 1);
       setVariants([...variants]);
     },
-    [variants]
+    [defects, variants]
   );
 
   const onPickAvatar = useCallback(() => {

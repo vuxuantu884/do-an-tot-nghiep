@@ -22,7 +22,7 @@ import ProductItem from "screens/purchase-order/component/product-item"
 import { showError, showSuccess } from "utils/ToastUtils"
 import { findAvatar } from "utils/AppUtils"
 import { InventoryDefectFields, LineItemDefect } from "model/inventory-defects"
-import { cloneDeep } from "lodash"
+import { cloneDeep, debounce } from "lodash"
 import { createInventoryDefect } from "service/inventory/defect/index.service"
 import ImageProduct from "screens/products/product/component/image-product.component"
 
@@ -213,9 +213,12 @@ const InventoryDefectCreate: React.FC = () => {
       items: itemsDefect
     }
     await callApiNative({ isShowError: true }, dispatch, createInventoryDefect, dataSubmit)
-    setIsLoading(false)
-    showSuccess("Thêm sản phẩm lỗi thành công");
-    history.push(`${UrlConfig.INVENTORY_DEFECTS}`);
+    //Phía BE cần xử lý bất đồng bộ cho ES nên cần FE delay 3s
+    setTimeout(() => {
+      setIsLoading(false)
+      showSuccess("Thêm sản phẩm lỗi thành công");
+      history.push(`${UrlConfig.INVENTORY_DEFECTS}`);
+    }, 3000)
   }
 
   const calculatingDefectAndInventory = useCallback((data: Array<LineItemDefect>) => {
@@ -251,29 +254,29 @@ const InventoryDefectCreate: React.FC = () => {
     [dataTable, calculatingDefectAndInventory]
   );
 
-  const onSearch = useCallback(
+  const onSearch = debounce(
     async (value: string) => {
       if (!defectStoreIdBak) {
         showError("Vui lòng chọn cửa hàng");
         return;
-      } else if (value.trim() !== "" && value.length > 2) {
-        setLoadingSearch(true);
-        const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
-          status: "active",
-          limit: 10,
-          page: 1,
-          store_ids: defectStoreIdBak ?? 0,
-          info: value.trim(),
-        })
-        if (response) {
-          setVariantData(response.items)
-        }
-      } else {
+      }
+      setLoadingSearch(true);
+      const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
+        status: "active",
+        limit: 10,
+        page: 1,
+        store_ids: defectStoreIdBak ?? 0,
+        info: value.trim(),
+      })
+      if (response) {
+        setVariantData(response.items)
+      }
+      else {
         setVariantData([]);
       }
       setLoadingSearch(false);
     },
-    [dispatch, defectStoreIdBak]
+    300
   );
 
   const renderProductResult = useMemo(() => {
@@ -452,7 +455,10 @@ const InventoryDefectCreate: React.FC = () => {
                 id="#product_search"
                 dropdownClassName="product"
                 placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
-                onSearch={onSearch}
+                onSearch={(value) => {
+                  if (value.trim() === "" || value.length < 3) return
+                  onSearch(value)
+                }}
                 dropdownMatchSelectWidth={456}
                 style={{ width: "100%", paddingBottom: 15 }}
                 showAdd={true}

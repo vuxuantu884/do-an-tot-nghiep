@@ -139,3 +139,14 @@ export const splitDateRange = (dateRange: any) => {
   const end = splitDate[1] || undefined
   return { start, end }
 }
+
+
+export const changeFormatDay = (date: any) => {
+  if (!date) return
+  const convertFormatDayStart = date.split("-").reverse();
+  const restDayStart = convertFormatDayStart.slice(1);
+  const getFirstElementDay = convertFormatDayStart.shift();
+  const startDayAfterChangeFormat = restDayStart.concat(getFirstElementDay).join("-")
+  return startDayAfterChangeFormat
+
+}

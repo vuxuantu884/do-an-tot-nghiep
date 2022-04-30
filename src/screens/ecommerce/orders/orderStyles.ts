@@ -288,6 +288,23 @@ export const StyledDownloadOrderData = styled.div`
       margin-right: 0 !important;
     }
   }
+
+  .date-pick-download-order {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    & .ant-form-item {
+      width: 100%;
+      margin: 0;
+    }
+    &-icon {
+      display: flex;
+      align-items: center;
+      height: 38px;
+      padding: 0 5px;
+    }
+  }
+  
 `;
 
 export const StyledEcommerceOrderBaseFilter = styled.div`

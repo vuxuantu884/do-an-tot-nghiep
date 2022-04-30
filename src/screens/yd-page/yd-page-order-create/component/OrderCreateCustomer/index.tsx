@@ -600,6 +600,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           areaList={areaList}
           newCustomerInfo={newCustomerInfo}
           wards={wards}
+          setWards={setWards}
           loadingWardList={loadingWardList}
           handleChangeArea={handleChangeArea}
           handleChangeCustomer={handleChangeCustomer}

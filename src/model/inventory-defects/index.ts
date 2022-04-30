@@ -21,7 +21,7 @@ export interface InventorySearchItem {
     page: number;
     limit: number;
     condition?: string | null,
-    store_id?: number | null,
+    store_ids?: string | null,
 }
 
 export interface InventoryItemsDefectedDetail {
@@ -68,7 +68,7 @@ export interface InventoryDefectResponse {
     product_id :number;
     barcode?: string;
     variant_name?: string;
-    name?: string
+    name: string
 }
 
 export const InventoryDefectFields = {

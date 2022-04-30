@@ -1,5 +1,5 @@
 import { Input, Form, Select } from "antd";
-import React, { useEffect } from "react";
+import React, {useCallback, useEffect, useMemo, useRef} from "react";
 import {useDispatch} from "react-redux";
 
 import {WardResponse} from "model/content/ward.model";
@@ -10,15 +10,16 @@ import {
 
 import "screens/yd-page/yd-page-customer/customer.scss";
 import {StyledCustomerAreaInfo} from "screens/yd-page/StyledYDpageAdmin";
+import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
 
 const { Option } = Select;
 
 const YDpageCustomerAreaInfo = (props: any) => {
   const {
     form,
+    formRef,
     areaList,
     customer,
-    setCityId,
     isDisable,
     newCustomerInfo,
     setNewCustomerInfo,
@@ -46,17 +47,15 @@ const YDpageCustomerAreaInfo = (props: any) => {
       setDistrictId(districtIdValue);
       let area = areaList.find((item: any) => item.id === districtIdValue);
       let value = form.getFieldsValue();
+      value.city_id = area?.city_id;
       value.district_id = districtIdValue;
       value.ward_id = null;
-      value.full_address = "";
       form.setFieldsValue(value);
 
-      setCityId(area?.city_id);
 			const tempNewCustomerInfo = {...newCustomerInfo};
 			tempNewCustomerInfo["city_id"] = area?.city_id;
 			tempNewCustomerInfo["district_id"] = districtIdValue;
 			tempNewCustomerInfo["ward_id"] = null;
-			tempNewCustomerInfo["full_address"] = "";
 			setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
     }
   };
@@ -64,17 +63,15 @@ const YDpageCustomerAreaInfo = (props: any) => {
   const handleClearArea = () => {
     setDistrictId(null);
     let value = form.getFieldsValue();
+    value.city_id = null;
     value.district_id = null;
     value.ward_id = null;
-    value.full_address = "";
     form.setFieldsValue(value);
 
-    setCityId(null);
 		const tempNewCustomerInfo = {...newCustomerInfo};
 		tempNewCustomerInfo["city_id"] = null;
 		tempNewCustomerInfo["district_id"] = null;
 		tempNewCustomerInfo["ward_id"] = null;
-		tempNewCustomerInfo["full_address"] = "";
 		setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
 
@@ -82,18 +79,23 @@ const YDpageCustomerAreaInfo = (props: any) => {
     let value = form.getFieldsValue();
     value.ward_id = null;
     value.ward = "";
-    value.full_address = "";
     form.setFieldsValue(value);
 
 		const tempNewCustomerInfo = {...newCustomerInfo};
 		tempNewCustomerInfo["ward_id"] = null;
-		tempNewCustomerInfo["full_address"] = "";
 		setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
 
   const handleBlurAddress = (value: any) => {
-    updateNewCustomerInfo("full_address", value.trim());
     form.setFieldsValue({ "full_address": value.trim() })
+
+    const formValues = formRef.current?.getFieldsValue();
+    const tempNewCustomerInfo = {
+      ...newCustomerInfo,
+      ...formValues,
+      full_address: value.trim(),
+    };
+    setNewCustomerInfo(tempNewCustomerInfo);
   }
 
   useEffect(() => {
@@ -108,11 +110,95 @@ const YDpageCustomerAreaInfo = (props: any) => {
     }
   }, [dispatch, districtId]);
 
+  // handle autofill address
+  const fullAddressRef = useRef()
+  const newAreas = useMemo(() => {
+    return areaList.map((area: any) => {
+      return {
+        ...area,
+        city_name_normalize: area.city_name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("tinh ", "")
+          .replace("tp. ", ""),
+        district_name_normalize: area.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("quan ", "")
+          .replace("huyen ", "")
+          // .replace("thanh pho ", "")
+          .replace("thi xa ", ""),
+      }
+    })
+  }, [areaList]);
+
+  const getWards = useCallback(
+    (value: number) => {
+      if (value) {
+        dispatch(WardGetByDistrictAction(value, (data) => {
+          const value = formRef.current?.getFieldValue("full_address");
+          if (value) {
+            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/Đ/g, "D")
+
+            const newWards = data.map((ward: any) => {
+              return {
+                ...ward,
+                ward_name_normalize: ward.name.normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/đ/g, "d")
+                  .replace(/Đ/g, "D")
+                  .toLowerCase()
+                  .replace("phuong ", "")
+                  .replace("xa ", ""),
+              }
+            });
+            let district = document.getElementsByClassName("YDpageCustomerInputDistrictCreateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
+            const foundWard = findWard(district, newWards, newValue);
+            formRef.current?.setFieldsValue({
+              ward_id: foundWard ? foundWard.id : null,
+            })
+
+            // updateNewCustomerInfo("ward_id", foundWard ? foundWard.id : null,);
+          }
+          setWardList(data);
+        }));
+      }
+    },
+    [dispatch, formRef]
+  );
+
+  const checkAddress = useCallback((value) => {
+    const findArea = handleFindArea(value, newAreas);
+    if (findArea) {
+      if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+        formRef.current?.setFieldsValue({
+          city_id: findArea.city_id,
+          district_id: findArea.id,
+          ward_id: null
+        })
+        getWards(findArea.id);
+      }
+    }
+  }, [formRef, getWards, newAreas]);
+  // end handle autofill address
+
   return(
     <StyledCustomerAreaInfo>
       <div className="customer-area-info">
+        <Form.Item label="city" name="city_id" hidden>
+          <Input />
+        </Form.Item>
+
         <Form.Item
           name="district_id"
+          className="YDpageCustomerInputDistrictCreateCustomer"
         >
           <Select
             showSearch
@@ -154,13 +240,16 @@ const YDpageCustomerAreaInfo = (props: any) => {
 
         <Form.Item
           name="full_address"
-          rules={[{ required: false, message: "Vui lòng nhập địa chỉ" }]}
         >
           <Input
             maxLength={500}
             placeholder={"Địa chỉ"}
+            allowClear
             onBlur={(value) => handleBlurAddress(value.target.value)}
             disabled={isDisable}
+            onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+              checkAddress(e.target.value)
+            },500)}
           />
         </Form.Item>
       </div>

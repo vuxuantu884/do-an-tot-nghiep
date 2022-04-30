@@ -17,7 +17,7 @@ function OrderReturnReason(props: PropType): React.ReactElement {
   // const OTHER_REASON_ID = 1;
   // const {orderReturnReasonResponse, form} = props;
   const {orderReturnReasonResponse} = props;
-  console.log('orderReturnReasonResponse', orderReturnReasonResponse)
+  // console.log('orderReturnReasonResponse', orderReturnReasonResponse)
   // const [reasonSubID, setReasonSubID] = useState<number | undefined>(undefined);
   // const [reasonID, setReasonID] = useState<number | undefined>(undefined);
   // const [reasonSubs, setReasonSubs] = useState<any[]>([]);

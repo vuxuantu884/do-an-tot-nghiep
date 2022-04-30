@@ -24,7 +24,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
-import { fullTextSearch, strForSearch } from "utils/StringUtils";
+import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import IconClose from "../images/iconClose.svg";
