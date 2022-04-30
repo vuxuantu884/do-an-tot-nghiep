@@ -343,6 +343,8 @@ export interface VariantRequestView {
   sku: string,
   quantity: number|null,
   variant_images: Array<VariantImage>,
+  saleable?: boolean,
+  defect_code?: string
 }
 
 export interface VariantPriceViewRequest {

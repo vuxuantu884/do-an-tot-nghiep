@@ -494,7 +494,7 @@ export const Products = {
         size_id: item.size_id,
         barcode: null,
         taxable: false,
-        saleable: pr.saleable,
+        saleable: item.saleable ?? pr.saleable,
         deleted: false,
         sku: item.sku,
         width: pr.width,
