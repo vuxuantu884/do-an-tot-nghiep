@@ -1,14 +1,14 @@
 import { Modal, Form, Radio, Space } from "antd";
 import { useCallback, Fragment } from "react";
-import { TYPE_EXPORT } from "screens/products/constants"; 
+import { TYPE_EXPORT } from "screens/products/constants";
 
 type ExportModalProps = {
   visible: boolean;
   onCancel: () => void;
   onOk: (record: string) => void;
 };
-   
- 
+
+
 const TransferExport: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
   const { visible, onCancel, onOk } = props;
@@ -32,7 +32,7 @@ const TransferExport: React.FC<ExportModalProps> = (props: ExportModalProps) => 
         form={form}
         initialValues={{
           record: TYPE_EXPORT.page,
-        }} 
+        }}
         layout="vertical"
       >
         <Space direction="vertical" style={{ width: "100%" }}>
@@ -43,7 +43,7 @@ const TransferExport: React.FC<ExportModalProps> = (props: ExportModalProps) => 
                   <Space direction="vertical">
                     <Radio value={TYPE_EXPORT.page}>Phiếu chuyển trên trang này</Radio>
                     <Radio value={TYPE_EXPORT.selected}>Các dòng được chọn</Radio>
-                    <Radio value={TYPE_EXPORT.all}>Tất cả phiếu chuyển điều kiện lọc</Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả phiếu chuyển theo điều kiện lọc</Radio>
                     <Radio value={TYPE_EXPORT.allin}>Tất cả phiếu chuyển</Radio>
                   </Space>
                 </Radio.Group>
