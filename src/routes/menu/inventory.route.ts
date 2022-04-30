@@ -31,6 +31,9 @@ const PurchaseOrderReturnScreen = React.lazy(
   () => import("screens/purchase-order/purchase-order-return.screen")
 );
 
+//PR
+const ProcurementDetailScreen = React.lazy(() => import("screens/products/procurement/detail/ProcurementDetailScreen"));
+
 //Kiểm kê, DUOCNC 20211021
 
 const ListInventoryAdjustment = React.lazy(() => import("screens/inventory-adjustment/ListInventoryAdjustment"));
@@ -148,6 +151,18 @@ export const inventory: Array<RouteMenu> = [
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.procurements_create],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.PURCHASE_ORDERS}/:id/procurements/:prID`,
+        exact: true,
+        title: "Nhập kho",
+        icon: "icon-dot",
+        component: ProcurementDetailScreen,
+        key: "submenu251",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.procurements_read],
         subMenu: [],
       },
       {
