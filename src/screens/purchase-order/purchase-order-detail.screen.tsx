@@ -6,7 +6,7 @@ import ContentContainer from "component/container/content.container";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction
@@ -326,7 +326,7 @@ const PODetailScreen: React.FC = () => {
       if (result) {
         showSuccess("Sao chép đơn đặt hàng thành công");
         dispatch(hideLoading())
-        window.open(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`, "_blank");
+        window.open(`${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${result.id}`, "_blank");
         loadDetail(result.id, true, false);
       }
     }));

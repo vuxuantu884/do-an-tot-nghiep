@@ -16,14 +16,14 @@ import {
   WarrantiesUpdateDetailStatusModel,
   WarrantyItemModel,
   WarrantyReasonModel,
-  WarrantyReasonStatusModel
+  WarrantyReasonStatusModel,
 } from "model/warranty/warranty.model";
 import { generateQuery } from "utils/AppUtils";
 
 export const getWarrantiesService = (
   query?: GetWarrantiesParamModel,
 ): Promise<BaseResponse<PageResponse<WarrantyItemModel>>> => {
-  const params = generateQuery(query);
+  const params = generateQuery(query).replaceAll("%2C", ",");
   return BaseAxios.get(`${ApiConfig.WARRANTY}/cards?${params}`);
 };
 

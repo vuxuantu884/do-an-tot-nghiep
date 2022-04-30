@@ -19,7 +19,6 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import CustomSelect from "component/custom/select.custom";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
@@ -55,6 +54,7 @@ import moment from "moment";
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import { setTimeout } from "timers";
 import {
 	checkIfOrderHasReturnedAll,
@@ -68,7 +68,6 @@ import {
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor } from "utils/global-styles/variables";
-import { RETURN_TYPES, RETURN_TYPE_VALUES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
@@ -77,7 +76,6 @@ import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 
 const { Panel } = Collapse;
-const { Link } = Typography;
 //#endregion
 type UpdateShipmentCardProps = {
 	shippingFeeInformedCustomer: number;
@@ -132,8 +130,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	const [form] = Form.useForm();
 	// action
 	const dispatch = useDispatch();
-
-	const [returnType, setReturnType] = useState<string|undefined>(undefined) // trả hàng online hay offline
 
 	//handle create a new fulfillment for ecommerce order
 	const [ecommerceShipment, setEcommerceShipment] = useState<any>();
@@ -1371,7 +1367,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 															<div className="orders-shipment-item-view-wrap">
 																<div className="orders-shipment-item-name">
 																	<div>
-																		<Link style={{ color: "#2A2A86" }}>{item.sku}</Link>
+																		<Typography.Link style={{ color: "#2A2A86" }}>{item.sku}</Typography.Link>
 																	</div>
 																	<Badge
 																		status="default"
@@ -1430,7 +1426,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																			>
 																				Mã vận đơn:
 																			</span>
-																			<Link
+																			<Typography.Link
 																				className="text-field"
 																				style={{
 																					color: "#2A2A86",
@@ -1439,7 +1435,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																				}}
 																			>
 																				{TrackingCode(props.OrderDetail)}
-																			</Link>
+																			</Typography.Link>
 																			<div
 																				style={{
 																					width: 30,
@@ -1617,58 +1613,40 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 										return (
 											<React.Fragment>
 												{!isOrderFromPOS(OrderDetail) ? (
-													<CustomSelect
-														placeholder="Chọn kiểu trả hàng"
-														notFoundContent="Không tìm thấy kết quả"
-														style={{width: "165px"}}
-														optionFilterProp="children"
-														showArrow
-														getPopupContainer={(trigger) => trigger.parentNode}
-														allowClear
-														onChange={setReturnType}
-														id="selectReturnType"
-													>
-														{RETURN_TYPES.map((type) => (
-															<CustomSelect.Option
-																key={type.value.toString()}
-																value={type.value.toString()}
-															>
-																{type.name}
-															</CustomSelect.Option>
-														))}
-													</CustomSelect>
-												) : null}
-												<Button
-													type="primary"
-													style={{ margin: "0 10px", padding: "0 25px" }}
-													className="create-button-custom ant-btn-outline fixed-button"
-													onClick={() => {
-														if(isOrderFromPOS(OrderDetail)) {
-															history.push(
-																`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
-															);
-														} else {
-															if(returnType === RETURN_TYPE_VALUES.offline) {
-																history.push(
-																	`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`
-																);
-															} else if(returnType === RETURN_TYPE_VALUES.online) {
-																history.push(
-																	`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`
-																);
-															} else {
-																showError("Vui lòng chọn kiểu đổi trả hàng!")
-																const element: any = document.getElementById("selectReturnType");
-																scrollAndFocusToDomElement(element);
-																return;
-															}
-
-														}
-													}}
-													disabled={!isPassed}
-												>
-													Đổi trả hàng
-												</Button>
+													<React.Fragment>
+														 <Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`}>
+																<Button
+																	type="primary"
+																	style={{ margin: "0 10px", padding: "0 25px" }}
+																	className="create-button-custom ant-btn-outline fixed-button"
+																	disabled={!isPassed}
+																>
+																	Trả lại chuyển hàng
+																</Button>
+															</Link>
+															<Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`}>
+																<Button
+																	type="primary"
+																	style={{ margin: "0 10px", padding: "0 25px" }}
+																	className="create-button-custom ant-btn-outline fixed-button"
+																	disabled={!isPassed}
+																>
+																	Trả lại tại quầy
+																</Button>
+															</Link>
+													</React.Fragment>
+												) : (
+													<Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`}>
+														<Button
+															type="primary"
+															style={{ margin: "0 10px", padding: "0 25px" }}
+															className="create-button-custom ant-btn-outline fixed-button"
+															disabled={!isPassed}
+														>
+															Đổi trả hàng
+														</Button>
+													</Link>
+												)}
 											</React.Fragment>
 										)
 									}}

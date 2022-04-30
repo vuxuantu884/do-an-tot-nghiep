@@ -559,7 +559,6 @@ function OrderCreateProduct(props: PropType) {
 
 	const onDiscountItem = (_items: Array<OrderLineItemRequest>, index: number) => {
 		// nhập chiết khấu tay thì clear chương trình chiết khấu
-		debugger
 		if(_items[index].discount_items && _items[index].discount_items[0]) {
 			_items[index].discount_items[0].promotion_id = undefined;
 			_items[index].discount_items[0].reason = "";

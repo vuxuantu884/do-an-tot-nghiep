@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, {createRef, useState} from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 
 import {
   Form,
   Button,
+  FormInstance,
 } from "antd";
 
 import moment from "moment";
@@ -44,6 +45,7 @@ const initQueryAccount: AccountSearchQuery = {
 const CustomerUpdate = (props: any) => {
   const params = useParams() as any;
   const [customerForm] = Form.useForm();
+  const formRef = createRef<FormInstance>();
   const history = useHistory();
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -83,9 +85,9 @@ const CustomerUpdate = (props: any) => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
 
-  const handleChangeArea = (districtId: string) => {
+  const handleChangeArea = (districtId: any) => {
+    setDistrictId(districtId);
     if (districtId) {
-      setDistrictId(districtId);
       let area = areas.find((area) => area.id === districtId);
       let value = customerForm.getFieldsValue();
       value.city_id = area.city_id;
@@ -100,15 +102,16 @@ const CustomerUpdate = (props: any) => {
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
+    } else {
+      setWards([]);
     }
   }, [dispatch, districtId]);
 
   React.useEffect(() => {
-    if (customer?.district_id) {
+    if (customer) {
       setDistrictId(customer.district_id);
-      dispatch(WardGetByDistrictAction(customer.district_id, setWards));
     }
-  }, [dispatch, customer]);
+  }, [customer]);
 
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -206,6 +209,7 @@ const CustomerUpdate = (props: any) => {
       >
         <Form
           form={customerForm}
+          ref={formRef}
           name="customer_edit"
           onFinish={handleSubmit}
           onFinishFailed={handleSubmitFail}
@@ -214,6 +218,7 @@ const CustomerUpdate = (props: any) => {
           <CustomerGeneralInfo
             accounts={accounts}
             form={customerForm}
+            formRef={formRef}
             name="general edit"
             isLoading={isLoading}
             groups={groups}
@@ -224,6 +229,7 @@ const CustomerUpdate = (props: any) => {
             areas={areas}
             countries={countries}
             wards={wards}
+            setWards={setWards}
             districtId={districtId}
             handleChangeArea={handleChangeArea}
             isEdit={true}

@@ -252,6 +252,7 @@ function OrderReturnList(props: PropTypes) {
       key: "reason",
       visible: true,
       align: "center",
+      render:(value: any, record: ReturnModel, index: number)=><div>{record?.return_reason?.name}</div>
     },
   ]);
 

@@ -1700,7 +1700,7 @@ function OrderCreateProduct(props: PropTypes) {
 				if (!items) {
 					return;
 				}
-	
+
 				let newV = parseInt(v);
 				let _items = [...items];
 				let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
@@ -1727,7 +1727,7 @@ function OrderCreateProduct(props: PropTypes) {
 						calculateChangeMoney(_items);
 					}
 				}
-	
+
 				if (isAutomaticDiscount && _items.length > 0) {
 					handleApplyDiscount(_items);
 				} else if (couponInputText && _items.length > 0) {
@@ -1740,7 +1740,7 @@ function OrderCreateProduct(props: PropTypes) {
 			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
 				selectProduct()
 			);
-			
+
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[items, resultSearchVariant.items, promotion, isAutomaticDiscount, couponInputText, autoCompleteRef, splitLine, handleApplyDiscount, handleApplyCouponWhenInsertCoupon]
@@ -2030,8 +2030,6 @@ function OrderCreateProduct(props: PropTypes) {
 		}
 		return newData;
 	}, [isCreateReturn, listStores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
-
-	// console.log('dataCanAccess', dataCanAccess)
 
 	useEffect(() => {
 		if (isCreateReturn) {

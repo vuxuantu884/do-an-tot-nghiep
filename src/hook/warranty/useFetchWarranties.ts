@@ -47,7 +47,7 @@ function useFetchWarranties(
             ...queryParamsParsed,
             warranty_status: undefined,
             return_status: WarrantyReturnStatusModel.UNRETURNED,
-            status: WarrantyItemStatus.FIXING,
+            status: `${WarrantyItemStatus.FIXING},${WarrantyItemStatus.FIXED},${WarrantyItemStatus.NOT_FIXED}`,
           };
         case TAB_STATUS_KEY.finished:
           return {

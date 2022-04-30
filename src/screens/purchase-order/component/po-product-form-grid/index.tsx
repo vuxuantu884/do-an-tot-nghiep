@@ -8,6 +8,7 @@ import React, { createRef, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 import { getTotalPriceOfAllLineItem, initSchemaLineItem, initValueLineItem } from "utils/POUtils";
+import { sortSizeProduct } from "utils/ProductUtils";
 import { showError } from "utils/ToastUtils";
 import BaseButton from "../../../../component/base/BaseButton";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
@@ -283,6 +284,34 @@ const POProductForm = ({
     return Number(sum);
   }, [poLineItemGridValue])
 
+  const sizeRenderTable = useMemo((): Array<string> => {
+    if (isEditMode) {
+      return uniq(flatMapDeep(poLineItemGridChema?.map(schema => schema.baseSize))).sort((a, b) => sortSizeProduct(a, b, "asc"));
+    } else if (poLineItemGridValue.length > 0) {
+      const availableSize: string[] = [];
+      poLineItemGridValue.forEach((valueLine: Map<string, POLineItemGridValue>) => {
+        const mapIterator = valueLine.values();
+        const mapLength = valueLine.size;
+        for (let i = 0; i < mapLength; i++) {
+          const { sizeValues }: POLineItemGridValue = mapIterator.next().value;
+          if (sizeValues.length > 0) {
+            for (let index = 0; index < sizeValues.length; index++) {
+              const element = sizeValues[index];
+              if (element.quantity > 0) {
+                availableSize.push(element.size);
+              }
+            }
+
+          }
+        }
+      })
+      return uniq(availableSize).sort((a, b) => sortSizeProduct(a, b, "asc"));
+    } else {
+      return [];
+    }
+
+  }, [poLineItemGridChema, poLineItemGridValue, isEditMode])
+
   const columns: ColumnsType<any> = [
     {
       title: "Mã SP",
@@ -348,7 +377,7 @@ const POProductForm = ({
        * Handle case nhiều mã 7
        * nếu có nhiều mã 7 nhưng số lượng màu trùng nhau thì chỉ hiển thị unique màu
        */
-      children: uniq(flatMapDeep(poLineItemGridChema?.map(schema => schema.baseSize)))?.map((size: string) => {
+      children: sizeRenderTable.map((size: string) => {
 
         return {
           title: <div>
