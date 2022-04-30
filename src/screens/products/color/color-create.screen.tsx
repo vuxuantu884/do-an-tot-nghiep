@@ -119,15 +119,11 @@ const ColorCreateScreen: React.FC = () => {
                   <Form.Item
                     rules={[
                       { required: true, message: "Vui lòng nhập tên màu" },
-                      {
-                        pattern: RegUtil.NO_ALL_SPACE,
-                        message: "Tên màu sắc chưa đúng định dạng",
-                      },
                     ]}
                     label="Tên màu"
                     name="name"
                   >
-                    <Input placeholder="Nhập tên màu" maxLength={50} />
+                    <Input placeholder="Nhập tên màu" maxLength={255} />
                   </Form.Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>

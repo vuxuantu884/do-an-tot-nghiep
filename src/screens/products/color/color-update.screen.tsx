@@ -21,13 +21,13 @@ import {
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import ColorUpload from "./color-upload.component";
-import { RegUtil } from "utils/RegUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { CompareObject } from "utils/CompareObject";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { showSuccess } from "utils/ToastUtils";
+import { RegUtil } from "utils/RegUtils";
 
 const { Option } = Select;
 type ColorParams = {
@@ -161,15 +161,11 @@ const ColorUpdateScreen: React.FC = () => {
                     <Form.Item
                       rules={[
                         { required: true, message: "Vui lòng nhập tên màu" },
-                        {
-                          pattern: RegUtil.NO_ALL_SPACE,
-                          message: "Tên màu sắc chưa đúng định dạng",
-                        },
                       ]}
                       label="Tên màu"
                       name="name"
                     >
-                      <Input placeholder="Nhập tên màu" maxLength={50} />
+                      <Input placeholder="Nhập tên màu" maxLength={255} />
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
@@ -211,7 +207,15 @@ const ColorUpdateScreen: React.FC = () => {
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item name="hex_code" label="Mã hex">
+                    <Form.Item name="hex_code" 
+                    label="Mã hex"
+                    rules={[
+                      {
+                        pattern: RegUtil.HEX_COLOR,
+                        message:
+                          "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
+                      },
+                    ]}>
                       <Input placeholder="Nhập mã hex" />
                     </Form.Item>
                   </Col>
