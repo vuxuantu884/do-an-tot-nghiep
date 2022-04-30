@@ -1,5 +1,8 @@
-import {Col, Input, Modal, Row, Select, Form} from "antd";
-//import arrowDownIcon from "assets/img/drow-down.svg";
+import React, {createRef, useCallback, useMemo, useRef} from "react";
+import {useDispatch} from "react-redux";
+import {Col, Input, Modal, Row, Select, Form, FormInstance} from "antd";
+import {EnvironmentOutlined} from "@ant-design/icons";
+
 import {
   CountryGetAllAction,
   WardGetByDistrictAction,
@@ -12,14 +15,13 @@ import {
 import {CustomerShippingAddress, YDpageCustomerRequest} from "model/request/customer.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
 import {ShippingAddress} from "model/response/order/order.response";
-import React, {useCallback} from "react";
 import {RegUtil} from "utils/RegUtils";
 import {showError, showSuccess} from "utils/ToastUtils";
 import * as CONSTANTS from "utils/Constants";
-import {useDispatch} from "react-redux";
 import {WardResponse} from "model/content/ward.model";
 import {CountryResponse} from "model/content/country.model";
 import {modalActionType} from "model/modal/modal.model";
+import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
 
 type AddAddressModalProps = {
   areaList: Array<any>;
@@ -60,6 +62,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
 
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const formRef = createRef<FormInstance>();
 
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [districtId, setDistrictId] = React.useState<any>(null);
@@ -112,6 +115,8 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
+    } else {
+      setWards([]);
     }
   }, [dispatch, districtId]);
 
@@ -123,20 +128,104 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
     form.resetFields();
   }, [form, formItem, visible]);
 
-  const handleChangeArea = (districtId: string) => {
+  const handleChangeArea = (districtId: any) => {
     if (districtId) {
       setDistrictId(districtId);
       let area = areaList.find((area) => area.id === districtId);
       let value = form?.getFieldsValue();
-      value.city_id = area.city_id;
-      value.city = area.city_name;
+      value.city_id = area?.city_id;
+      value.city = area?.city_name;
       value.district_id = districtId;
-      value.district = area.name;
+      value.district = area?.name;
       value.ward_id = null;
       value.ward = "";
       form?.setFieldsValue(value);
     }
   };
+
+  const handleClearArea = () => {
+    let value = form.getFieldsValue();
+    value.city_id = null;
+    value.district_id = null;
+    value.ward_id = null;
+    form.setFieldsValue(value);
+
+    setDistrictId(null);
+  };
+
+  // handle autofill address
+  const fullAddressRef = useRef();
+  const newAreas = useMemo(() => {
+    return areaList.map((area: any) => {
+      return {
+        ...area,
+        city_name_normalize: area.city_name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("tinh ", "")
+          .replace("tp. ", ""),
+        district_name_normalize: area.name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase()
+          .replace("quan ", "")
+          .replace("huyen ", "")
+          // .replace("thanh pho ", "")
+          .replace("thi xa ", ""),
+      }
+    })
+  }, [areaList]);
+
+  const getWards = useCallback((districtId: number) => {
+    if (districtId) {
+      dispatch(WardGetByDistrictAction(districtId, (data) => {
+        const value = formRef.current?.getFieldValue("full_address");
+        if (value) {
+          const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D")
+
+          const newWards = data.map((ward: any) => {
+            return {
+              ...ward,
+              ward_name_normalize: ward.name.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D")
+                .toLowerCase()
+                .replace("phuong ", "")
+                .replace("xa ", ""),
+            }
+          });
+          let district = document.getElementsByClassName("YDpageInputDistrictCreateAddress")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
+          const foundWard = findWard(district, newWards, newValue);
+          formRef.current?.setFieldsValue({
+            ward_id: foundWard ? foundWard.id : null,
+          })
+        }
+        setWards(data);
+      }));
+    }
+  }, [dispatch, formRef, setWards]);
+
+  const checkAddress = useCallback((value) => {
+    const findArea = handleFindArea(value, newAreas);
+    if (findArea) {
+      if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+        formRef.current?.setFieldsValue({
+          city_id: findArea.city_id,
+          district_id: findArea.id,
+          ward_id: null
+        })
+        getWards(findArea.id);
+      }
+    }
+  }, [formRef, getWards, newAreas]);
+  // end handle autofill address
 
   const handleSubmit = useCallback(
     (value: CustomerShippingAddress) => {
@@ -201,6 +290,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
     >
       <Form
         form={form}
+        ref={formRef}
         initialValues={initialFormValue}
         layout="vertical"
         onFinish={handleSubmit}
@@ -209,7 +299,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
           <Col span={24}>
             <Form.Item
               name="name"
-              label={<b>Họ tên người nhận:</b>}
+              // label={<b>Họ tên người nhận:</b>}
               rules={[{required: true, message: "Vui lòng nhập họ tên người nhận"}]}
             >
               <Input
@@ -222,7 +312,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
           <Col span={24}>
             <Form.Item
               name="phone"
-              label={<span className="fw-500">Số điện thoại:</span>}
+              // label={<span className="fw-500">Số điện thoại:</span>}/
               rules={[
                 {
                   required: true,
@@ -244,7 +334,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
           </Col>
           <Col span={24}>
             <Form.Item
-              label={<span className="fw-500">Quốc gia:</span>}
+              // label={<span className="fw-500">Quốc gia:</span>}
               name="country_id"
               initialValue={233}
               rules={[
@@ -272,7 +362,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
           </Col>
           <Col span={24}>
             <Form.Item
-              label={<span className="fw-500">Khu vực:</span>}
+              // label={<span className="fw-500">Khu vực:</span>}
               name="district_id"
               rules={[
                 {
@@ -280,11 +370,13 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
                   message: "Vui lòng chọn khu vực",
                 },
               ]}
+              className="YDpageInputDistrictCreateAddress"
             >
               <Select
                 showSearch
                 placeholder="Chọn khu vực"
                 onChange={handleChangeArea}
+                onClear={handleClearArea}
                 allowClear
                 optionFilterProp="children"
               >
@@ -298,7 +390,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
           </Col>
           <Col span={24}>
             <Form.Item
-              label={<span className="fw-500">Thành phố:</span>}
+              // label={<span className="fw-500">Thành phố:</span>}
               name="city_id"
               hidden
             >
@@ -309,7 +401,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
               />
             </Form.Item>
             <Form.Item
-              label={<span className="fw-500">Phường/xã:</span>}
+              // label={<span className="fw-500">Phường/xã:</span>}
               name="ward_id"
               rules={[
                 {
@@ -336,7 +428,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
           <Col span={24}>
             <Form.Item
               name="full_address"
-              label={<b>Địa chỉ chi tiết:</b>}
+              // label={<b>Địa chỉ chi tiết:</b>}
               rules={[
                 {
                   required: true,
@@ -348,6 +440,11 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
                 placeholder="Nhập địa chỉ chi tiết"
                 style={{width: "100%"}}
                 maxLength={255}
+                allowClear
+                prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
+                onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                  checkAddress(e.target.value)
+                },500)}
               />
             </Form.Item>
             <Form.Item name="default" hidden></Form.Item>

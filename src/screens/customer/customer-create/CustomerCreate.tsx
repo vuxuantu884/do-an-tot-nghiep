@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, {createRef, useState} from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Form, Button } from "antd";
+import {Form, Button, FormInstance} from "antd";
 
 import { showSuccess, showError } from "utils/ToastUtils";
 
@@ -42,6 +42,7 @@ const initQueryAccount: AccountSearchQuery = {
 };
 const CustomerCreate = (props: any) => {
   const [customerForm] = Form.useForm();
+  const formRef = createRef<FormInstance>();
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -84,9 +85,9 @@ const CustomerCreate = (props: any) => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
 
-  const handleChangeArea = (districtId: string) => {
+  const handleChangeArea = (districtId: any) => {
+    setDistrictId(districtId);
     if (districtId) {
-      setDistrictId(districtId);
       let area = areas.find((area) => area.id === districtId);
       let value = customerForm.getFieldsValue();
       value.city_id = area.city_id;
@@ -102,6 +103,8 @@ const CustomerCreate = (props: any) => {
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
+    } else {
+      setWards([]);
     }
   }, [dispatch, districtId]);
 
@@ -182,6 +185,7 @@ const CustomerCreate = (props: any) => {
       >
         <Form
           form={customerForm}
+          ref={formRef}
           name="customer_add"
           onFinish={handleSubmit}
           onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
@@ -189,6 +193,7 @@ const CustomerCreate = (props: any) => {
         >
           <CustomerGeneralInfo
             form={customerForm}
+            formRef={formRef}
             name="general_add"
             isLoading={isLoading}
             accounts={accounts}
@@ -199,6 +204,7 @@ const CustomerCreate = (props: any) => {
             areas={areas}
             countries={countries}
             wards={wards}
+            setWards={setWards}
             handleChangeArea={handleChangeArea}
             AccountChangeSearch={AccountChangeSearch}
           />
