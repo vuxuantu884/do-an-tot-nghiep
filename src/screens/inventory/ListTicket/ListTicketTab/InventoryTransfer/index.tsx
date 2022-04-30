@@ -523,7 +523,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     if (data.code === HttpStatus.BAD_REQUEST) {
       setIsStatusModalVisible(true);
       setDataUploadError(data.errors);
-      setSelectedRowKeys([]);
     }
   };
 
