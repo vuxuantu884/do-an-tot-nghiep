@@ -172,7 +172,15 @@ const TabList: React.FC = () => {
         width: 150,
         visible: true,
         render: (value, record, index) => {
-          return (
+          // Cải tiến UI chuyển từ modal sang chế độ view full screen
+          let improveProcurementTemporary = true
+          return improveProcurementTemporary ? (
+            <Link to={{
+              pathname: `${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}/procurements/${record.id}`,
+            }}>
+              {value}
+            </Link>
+          ) : (
             <div
               className="procurement-code"
               onClick={() => handleClickProcurement(record)}>
@@ -223,6 +231,7 @@ const TabList: React.FC = () => {
       {
         title: "Merchandiser",
         dataIndex: "purchase_order",
+        // width: 130,
         visible: true,
         render: (value, row) => {
           if (!row || !row.purchase_order.merchandiser_code || !row.purchase_order.merchandiser) return "";
