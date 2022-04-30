@@ -1295,6 +1295,7 @@ ShippingServiceConfigDetailResponseModel[]
                   isDetailPage={false}
                   orderId={orderId}
                   setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
+                  listStores={listStores}
                   autoCompleteRef={productReturnAutoCompleteRef}
                   searchVariantInputValue={searchVariantInputValue}
                   setSearchVariantInputValue={setSearchVariantInputValue}
@@ -1583,7 +1584,7 @@ ShippingServiceConfigDetailResponseModel[]
       //   }
       // }
     }
-    
+
     if(event.target instanceof HTMLInputElement)
     {
       if(event.target.id==="search_product_return"){

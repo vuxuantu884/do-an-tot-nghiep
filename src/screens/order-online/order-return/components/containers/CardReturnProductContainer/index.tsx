@@ -3,6 +3,7 @@ import { RefSelectProps } from "antd/lib/select";
 import imgDefault from "assets/icon/img-default.svg";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
+import { StoreResponse } from "model/core/store.model";
 import { OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import {
   OrderLineItemResponse,
@@ -32,6 +33,7 @@ type PropType = {
   searchVariantInputValue:string;
   handleCanReturn?: (value: boolean) => void;
   setIsVisibleModalWarningPointRefund?: (value: boolean) => void;
+  listStores: StoreResponse[];
   setSearchVariantInputValue: (value: string) => void;
   setListOrderProductsResult:(value:OrderLineItemResponse[])=>void;
 };
@@ -39,14 +41,15 @@ type PropType = {
 let isAlreadyShowWarningPoint = false;
 
 function CardReturnProductContainer(props: PropType) {
-  const { 
-    handleCanReturn, 
+  const {
+    handleCanReturn,
     isDetailPage,
-    orderId, 
+    orderId,
     setIsVisibleModalWarningPointRefund,
     autoCompleteRef,searchVariantInputValue,
     setSearchVariantInputValue,
-    setListOrderProductsResult
+    setListOrderProductsResult,
+    listStores,
   } = props;
 
   const dispatch = useDispatch();
@@ -55,7 +58,7 @@ function CardReturnProductContainer(props: PropType) {
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
 
- 
+
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
   const [pointRefund, setPointRefund] = useState(0);
 
@@ -223,7 +226,7 @@ function CardReturnProductContainer(props: PropType) {
     if (!listItemCanBeReturn)  return [];
     if (!listOrderProductsResult)return [];
     let options: any[] = [];
-    
+
     // let listOrderProductsResult = listItemCanBeReturn;
     // if (searchVariantInputValue) {
     //   listOrderProductsResult = listItemCanBeReturn.filter((single) => {
@@ -487,6 +490,7 @@ function CardReturnProductContainer(props: PropType) {
       totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={isShowProductSearch()}
       setListReturnProducts={setListReturnProducts}
+      listStores={listStores}
       autoCompleteRef={autoCompleteRef}
     />
   );

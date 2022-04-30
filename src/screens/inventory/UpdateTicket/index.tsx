@@ -192,7 +192,7 @@ const UpdateTicket: FC = () => {
       stores.forEach((element: any) => {
         if (element.id === fromStores[0].store_id) {
           form.setFieldsValue({
-            from_store_id: element.id
+            from_store_id: CopyId ? element.id : initDataForm?.from_store_id
           });
           setFormStoreData(element);
         }
@@ -209,7 +209,7 @@ const UpdateTicket: FC = () => {
       setFromStores(newStore);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stores, fromStores]);
+  }, [stores, fromStores, initDataForm]);
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {

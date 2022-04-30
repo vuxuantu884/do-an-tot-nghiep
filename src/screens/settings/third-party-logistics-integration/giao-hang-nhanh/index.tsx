@@ -1,4 +1,5 @@
 import { Button, Card, Checkbox, Col, Form, Input, Row, Select } from "antd";
+import CustomSelect from "component/custom/select.custom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
@@ -23,6 +24,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
+import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import IconClose from "../images/iconClose.svg";
@@ -67,12 +69,13 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     let cloneListShopIsSelected = [...listShopIsSelected];
     let result = cloneListShopIsSelected.filter((singleShop) => {
       return (
-        singleShop.name.toLowerCase().includes(value.toLowerCase()) ||
-        singleShop.partner_shop_id.toString().includes(value.toLowerCase())
+        fullTextSearch(value, singleShop.name) || 
+        fullTextSearch(value, singleShop.partner_shop_id.toString()) || 
+        fullTextSearch(value, singleShop.store_id.toString())
       );
     });
     setListShopIsSelectedShow(result);
-  };
+  }
 
   const handleSubmit = () => {
     form.validateFields(["token"]).then(() => {
@@ -325,7 +328,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                 <label htmlFor="">Shop ID</label>
               </div>
               <div className="sectionSelectShop">
-                <Select
+                <CustomSelect
                   placeholder="Chọn hoặc tìm kiếm cửa hàng"
                   allowClear
                   showSearch
@@ -335,19 +338,16 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                     setInputShopIdValue(value);
                   }}
                   className="selectShopId"
-                  filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
                 >
                   {listShops &&
                     listShops.map((singleShop) => {
                       return (
                         <Select.Option value={singleShop.id} key={singleShop.id}>
-                          {singleShop.name}
+                          {`${singleShop.name} (ID - ${singleShop.id})`}
                         </Select.Option>
                       );
                     })}
-                </Select>
+                </CustomSelect>
                 <div>
                   <Input
                     placeholder="Nhập Shop ID"
@@ -383,7 +383,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                       return (
                         <div className="singleShop" key={index}>
                           <div className="singleShop__title">
-                          <span className="singleShop__name">{single.name} (ID-{single.store_id})</span>:{" "}
+                          <span className="singleShop__name">{single.name} (ID - {single.store_id})</span>:{" "}
                             <span className="singleShop__code">
                               {single.partner_shop_id}
                             </span>
