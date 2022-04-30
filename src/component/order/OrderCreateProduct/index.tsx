@@ -943,7 +943,11 @@ function OrderCreateProduct(props: PropTypes) {
 							// couponInputText !== "" ||
 							// checkIfOrderHasAutomaticDiscount()
 							|| isLoadingDiscount
+							|| isLineItemChanging
 						}
+						onBlur={() => {
+							setIsLineItemChanging(true)
+						}}
 					/>
 				</div>
 			);
@@ -1443,7 +1447,7 @@ function OrderCreateProduct(props: PropTypes) {
 						calculateChangeMoney(result, promotion)
 					} else if (isOrderHasDiscountOrder(response.data)) {
 						let itemsAfterRemove = items.map(single => {
-							removeDiscountItem(single)
+							removeAutomaticDiscountItem(single)
 							return single
 						})
 						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
@@ -1952,9 +1956,15 @@ function OrderCreateProduct(props: PropTypes) {
 				let totalOrderAmount = totalAmount(_items);
 				if (discountType === MoneyType.MONEY) {
 					_value = promotion?.value || 0;
+					if(_value > totalOrderAmount) {
+						_value = totalOrderAmount;
+					}
 					_rate = (_value / totalOrderAmount) * 100;
 				} else if (discountType === MoneyType.PERCENT) {
 					_rate = promotion?.rate || 0;
+					if(_rate > 100) {
+						_rate = 100;
+					}
 					_value = (_rate * totalOrderAmount) / 100;
 				}
 				_promotion = {

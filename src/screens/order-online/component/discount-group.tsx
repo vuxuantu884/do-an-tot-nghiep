@@ -1,11 +1,11 @@
 import { Input, Select, Typography } from "antd";
-import NumberInput from "component/custom/number-input.custom";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
 import { formatCurrency, getLineAmountAfterLineDiscount, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue, replaceFormatString } from "utils/AppUtils";
 import _ from "lodash";
 import { MoneyType } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
+import OrderNumberInputCustom from "component/custom/order/order-number-input.custom";
 
 type DiscountGroupProps = {
   price: number;
@@ -15,6 +15,7 @@ type DiscountGroupProps = {
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (_items: Array<OrderLineItemRequest>) => void;
   disabled?: boolean;
+  onBlur: () => void;
 };
 
 const DiscountGroup: React.FC<DiscountGroupProps> = (
@@ -31,6 +32,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 
   const ChangeValueDiscount = useCallback(
     (v) => {
+      console.log('v1111', v)
       if (!items) {
         return;
       }
@@ -56,29 +58,22 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 			let _itemDiscount = _item.discount_items[0];
       let _price = _items[props.index].price;
       if (selected === MoneyType.MONEY) {
-				if(_itemDiscount.amount === v) {
-					return;
-				}
         if(_items[props.index].amount < v) {
 					showError("Chiết khấu không lớn hơn giá sản phẩm!");
-          _itemDiscount.amount = 0;
-          _itemDiscount.rate = 0;
-          return;
+          v = _items[props.index].amount;
 				}
         _itemDiscount.amount = v;
         _itemDiscount.rate = (v / _items[props.index].amount) * 100;
         _itemDiscount.value = (v / _items[props.index].quantity);
        
       } else {
-				if(_itemDiscount.rate === v) {
-					return;
-				}
         if(100 < v) {
-					// v = 100 ;
+					v = 100 ;
           showError("Chiết khấu không lớn hơn 100%!");
 				}
         _itemDiscount.value = Math.round((v * _price) / 100);
         _itemDiscount.rate = v;
+        _itemDiscount.amount = v * _items[props.index].amount / 100;
       }
 			_item.discount_value = getLineItemDiscountValue(_item);
 			_item.discount_amount = getLineItemDiscountAmount(_item);
@@ -101,7 +96,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
           <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
         </Select>
-				<NumberInput
+				<OrderNumberInputCustom
 					className="hide-number-handle "
 					onChange={ChangeValueDiscount}
 					format={(a: string) =>
@@ -115,12 +110,14 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 					onFocus={(e) => {
             e.target.setSelectionRange(0, e.target.value.length);
           }}
-					max={selected === MoneyType.PERCENT ? 100 : props.price}
+          min={0}
+					max={selected === MoneyType.PERCENT ? 100 : (props.items ? props.items[props.index].price * props.items[props.index].quantity : 0)}
 					value={
             selected === MoneyType.PERCENT
               ? props.discountRate
               : Math.round(props.discountAmount)
           }
+          onBlur = {props.onBlur}
 				/>
       </Input.Group>
       {showResult && (
