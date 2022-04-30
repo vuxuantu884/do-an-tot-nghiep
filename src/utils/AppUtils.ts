@@ -2,7 +2,6 @@ import { FormInstance } from "antd/es/form/Form";
 import { UploadFile } from "antd/lib/upload/interface";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
-import { Type } from "config/type.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import _, { sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
@@ -1056,11 +1055,11 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   let orderReturnItems = [...listReturned]
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
 	let newReturnItems = _.cloneDeep(_orderReturnItems);
-	let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
+	// let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
 
-  for (const singleOrder of normalItems) {
-		// trường hợp line item trùng nhau
-    let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
+  for (const singleOrder of OrderDetail.items) {
+		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau)
+    let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id && single.type === singleOrder.type);
     if(duplicatedItem) {
 			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id)
 			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
