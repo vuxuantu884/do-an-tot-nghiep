@@ -32,3 +32,8 @@ export interface SizeCreateRequest {
 export interface SizeUpdateRequest extends SizeCreateRequest  {
   version: number,
 }
+
+export interface SizePriority {
+  size: string | number,
+  priority: number,
+}

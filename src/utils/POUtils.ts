@@ -438,8 +438,8 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
     const lineItemId = line_items?.find((lineItem) => lineItem.variant_id === variant.id)?.id;
     return {
       lineItemId: lineItemId,
-      color: variant.color ?? variant.sku.split("-")[0],
-      size: variant.size ?? variant.sku.split("-")[0],
+      color: variant.color ?? variant.sku,
+      size: variant.size ?? variant.sku,
       variantId: variant.id,
       sku: variant.sku,
       variant: variant.name,
