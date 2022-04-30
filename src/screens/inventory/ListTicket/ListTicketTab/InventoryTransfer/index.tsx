@@ -192,12 +192,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       disabled: !allowClone,
     },
     {
-      id: ACTIONS_INDEX.MAKE_COPY,
-      name: "Tạo bản sao",
-      icon: <CopyOutlined />,
-      disabled: !allowClone,
-    },
-    {
       id: ACTIONS_INDEX.EXPORT,
       name: "Xuất kho",
       icon: <ExportOutlined />,
