@@ -1,6 +1,5 @@
 import { Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
-import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import ActionHistory from "component/order/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
@@ -778,12 +777,12 @@ const OrderDetail = (props: PropType) => {
             : "Đang tải dữ liệu...",
         },
       ]}
-      extra={
-        <CreateBillStep
-          status={stepsStatusValue}
-          orderDetail={OrderDetailAllFulfillment}
-        />
-      }
+      // extra={
+      //   <CreateBillStep
+      //     status={stepsStatusValue}
+      //     orderDetail={OrderDetailAllFulfillment}
+      //   />
+      // }
     >
       <div className="orders">
         <Form layout="vertical" initialValues={initialFormValue} form={form}>
