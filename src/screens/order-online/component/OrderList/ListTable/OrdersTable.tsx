@@ -1,5 +1,5 @@
 import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Popover, Row, Tooltip } from "antd";
+import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconPrint from "assets/icon/Print.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
@@ -29,6 +29,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import {
+  checkIfFulfillmentCanceled,
   checkIfOrderCanBeReturned,
   copyTextToClipboard,
   formatCurrency,
@@ -49,8 +50,9 @@ import {
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
@@ -492,31 +494,31 @@ function OrdersTable(props: PropTypes) {
     }
   };
 
-  // const checkIfOrderCannotChangeToWarehouseChange = (orderDetail: OrderExtraModel) => {
-  //   const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
-  //     return (
-  //       !orderDetail.fulfillments?.some(single => {
-  //         return single.shipment && !checkIfFulfillmentCanceled(single)
-  //       }
-  //     ))
-  //   }
-  //   const checkIfOrderIsNew = (orderDetail: OrderExtraModel) => {
-  //     return (
-  //       orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation
-  //     )
-  //   }
-  //   const checkIfOrderIsConfirm = (orderDetail: OrderExtraModel) => {
-  //     return (
-  //       orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming
-  //     )
-  //   }
-  //   const checkIfOrderIsAwaitSaleConfirm= (orderDetail: OrderExtraModel) => {
-  //     return (
-  //       orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation
-  //     )
-  //   }
-  //   return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
-  // };
+  const checkIfOrderCannotChangeToWarehouseChange = (orderDetail: OrderExtraModel) => {
+    const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
+      return (
+        !orderDetail.fulfillments?.some(single => {
+          return single.shipment && !checkIfFulfillmentCanceled(single)
+        }
+      ))
+    }
+    const checkIfOrderIsNew = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation
+      )
+    }
+    const checkIfOrderIsConfirm = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming
+      )
+    }
+    const checkIfOrderIsAwaitSaleConfirm= (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation
+      )
+    }
+    return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
+  };
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
     if (data.items.length === 0) {
@@ -1144,126 +1146,132 @@ function OrdersTable(props: PropTypes) {
         width: 80,
         align: "left",
       },
-      // {
-      //   title: "Trạng thái",
-      //   dataIndex: "status",
-      //   key: "status",
-      //   className: "orderStatus",
-      //   render: (value: string, record: OrderExtraModel) => {
-      //     if (!record || !status_order) {
-      //       return null;
-      //     }
-      //     const status = status_order.find((status) => status.value === record.status);
-      //     let recordStatuses = record?.statuses;
-      //     if (!recordStatuses) {
-      //       recordStatuses = [];
-      //     }
-      //     let selected = record.sub_status_code ? record.sub_status_code : "finished";
-      //     if (!recordStatuses.some((single) => single.code === selected)) {
-      //       recordStatuses.push({
-      //         name: record.sub_status,
-      //         code: record.sub_status_code,
-      //       });
-      //     }
-      //     let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery ? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
-      //     return (
-      //       <div className="orderStatus">
-      //         <div className="inner">
-      //           <div className="single">
-      //             <div>
-      //               <strong>Xử lý đơn: </strong>
-      //             </div>
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        key: "status",
+        className: "orderStatus",
+        render: (value: string, record: OrderExtraModel) => {
+          if (!record || !status_order) {
+            return null;
+          }
+          //const status = status_order.find((status) => status.value === record.status);
+          let recordStatuses = record?.statuses;
+          if (!recordStatuses) {
+            recordStatuses = [];
+          }
+          let selected = record.sub_status_code ? record.sub_status_code : "finished";
+          if (!recordStatuses.some((single) => single.code === selected)) {
+            recordStatuses.push({
+              name: record.sub_status,
+              code: record.sub_status_code,
+            });
+          }
+          let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery ? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
+          return (
+            <div className="orderStatus">
+              <div className="inner">
+                <div className="single">
+                  <div>
+                    <strong>Xử lý đơn: </strong>
+                  </div>
 
-      //             {/* {record.sub_status ? record.sub_status : "-"} */}
-      //             {subStatuses ? (
-      //               <Select
-      //                 style={{ width: "100%" }}
-      //                 placeholder="Chọn trạng thái xử lý đơn"
-      //                 optionFilterProp="children"
-      //                 filterOption={(input, option) =>
-      //                   option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-      //                 }
-      //                 notFoundContent="Không tìm thấy trạng thái xử lý đơn"
-      //                 value={record.sub_status_code}
-      //                 onClick={() => {
-      //                   setTypeAPi(type.subStatus);
-      //                   setSelectedOrder(record);
-      //                 }}
-      //                 className={className}
-      //                 onChange={(value) => {
-      //                   if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
-      //                     showError("Bạn không thể đổi sang trạng thái khác!")
-      //                     return;
-      //                   }
-      //                   if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
-      //                     showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
-      //                     return;
-      //                   }
-      //                   // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
-      //                   // if (!isChange) {
-      //                   //   return;
-      //                   // }
-      //                   setToSubStatusCode(value);
-      //                 }}>
-      //                 {subStatuses &&
-      //                   subStatuses.map((single: any, index: number) => {
-      //                     return (
-      //                       <Select.Option value={single.code} key={index}>
-      //                         {single.sub_status}
-      //                       </Select.Option>
-      //                     );
-      //                   })}
-      //               </Select>
-      //             ) : "-"}
-      //           </div>
-      //           <div className="single">
-      //             <div>
-      //               <strong>Đơn hàng: </strong>
-      //             </div>
-      //             {record.status === OrderStatus.DRAFT && (
-      //               <div
-      //                 style={{
-      //                   color: "#737373",
-      //                 }}>
-      //                 {status?.name}
-      //               </div>
-      //             )}
+                  {/* {record.sub_status ? record.sub_status : "-"} */}
+                  {subStatuses ? (
+                    <Select
+                      style={{ width: "100%" }}
+                      placeholder="Chọn trạng thái xử lý đơn"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
+                      notFoundContent="Không tìm thấy trạng thái xử lý đơn"
+                      value={record.sub_status_code}
+                      onClick={() => {
+                        setTypeAPi(type.subStatus);
+                        setSelectedOrder(record);
+                      }}
+                      className={className}
+                      onChange={(value) => {
+                        if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
+                          showError("Bạn không thể đổi sang trạng thái khác!")
+                          return;
+                        }
+                        if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
+                          return;
+                        }
+                        // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
+                        // if (!isChange) {
+                        //   return;
+                        // }
+                        setToSubStatusCode(value);
+                      }}>
+                      {subStatuses &&
+                        subStatuses.map((single: any, index: number) => {
+                          return (
+                            <Select.Option value={single.code} key={index}>
+                              {single.sub_status}
+                            </Select.Option>
+                          );
+                        })}
+                    </Select>
+                  ) : "-"}
+                </div>
+                <div className="single">
+                  <div className="coordinator-item">
+                    <strong>NV điều phối: </strong>
+                    {record.coordinator?(
+                      <React.Fragment>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}ssssss</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}ssssss</Link>
+                      </React.Fragment>
+                    ):"N/a"}
+                  </div>
+                  {/* {record.status === OrderStatus.DRAFT && (
+                    <div
+                      style={{
+                        color: "#737373",
+                      }}>
+                      {status?.name}
+                    </div>
+                  )}
 
-      //             {record.status === OrderStatus.FINALIZED && (
-      //               <div
-      //                 style={{
-      //                   color: "#FCAF17",
-      //                 }}>
-      //                 {status?.name}
-      //               </div>
-      //             )}
+                  {record.status === OrderStatus.FINALIZED && (
+                    <div
+                      style={{
+                        color: "#FCAF17",
+                      }}>
+                      {status?.name}
+                    </div>
+                  )}
 
-      //             {record.status === OrderStatus.FINISHED && (
-      //               <div
-      //                 style={{
-      //                   color: successColor,
-      //                 }}>
-      //                 {status?.name}
-      //               </div>
-      //             )}
+                  {record.status === OrderStatus.FINISHED && (
+                    <div
+                      style={{
+                        color: successColor,
+                      }}>
+                      {status?.name}
+                    </div>
+                  )}
 
-      //             {record.status === OrderStatus.CANCELLED && (
-      //               <div
-      //                 style={{
-      //                   color: "#E24343",
-      //                 }}>
-      //                 {status?.name}
-      //               </div>
-      //             )}
-      //           </div>
-      //         </div>
-      //       </div>
-      //     );
-      //   },
-      //   visible: !isShowOfflineOrder,
-      //   align: "left",
-      //   width: 95,
-      // },
+                  {record.status === OrderStatus.CANCELLED && (
+                    <div
+                      style={{
+                        color: "#E24343",
+                      }}>
+                      {status?.name}
+                    </div>
+                  )} */}
+                </div>
+              </div>
+            </div>
+          );
+        },
+        visible: !isShowOfflineOrder,
+        align: "left",
+        width: 95,
+      },
       {
         title: "Ghi chú",
         className: "notes",
@@ -1300,18 +1308,18 @@ function OrdersTable(props: PropTypes) {
         align: "left",
         width: 120,
       },
-      {
-        title:"NV điều phối",
-        key:"coordinator",
-        visible: !isShowOfflineOrder,
-        width: 80,
-        align: "left",
-        render: (value, record: OrderModel) => record.coordinator_code && (
-          <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}>
-            {`${record.coordinator_code} - ${record.coordinator}`}
-          </Link>
-        ),
-      },
+      // {
+      //   title:"NV điều phối",
+      //   key:"coordinator",
+      //   visible: !isShowOfflineOrder,
+      //   width: 80,
+      //   align: "left",
+      //   render: (value, record: OrderModel) => record.coordinator_code && (
+      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}>
+      //       {`${record.coordinator_code} - ${record.coordinator}`}
+      //     </Link>
+      //   ),
+      // },
       {
         title: !isShowOfflineOrder ? "NV bán hàng" : "Chuyên gia tư vấn",
         render: (value, record: OrderModel) => (
