@@ -1,9 +1,9 @@
 import {MenuAction} from "component/table/ActionButton";
 import {
   InventoryAdjustmentGetPrintContentAction,
-  inventoryGetSenderStoreAction,
+  inventoryGetSenderStoreAction, updateInventoryAdjustmentAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
-import {Fragment, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch} from "react-redux";
 import InventoryAdjustmentFilters from "../components/InventoryAdjustmentFilter";
 import {
@@ -14,7 +14,7 @@ import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import {PageResponse} from "model/base/base-metadata.response";
 import {getQueryParams, useQuery} from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import {Tag, Space, Card} from "antd";
+import { Tag, Space, Card, Modal, Form, Input } from "antd";
 import {InventoryAdjustmentWrapper} from "./styles";
 import {
   INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
@@ -40,6 +40,8 @@ import {STATUS_IMPORT_EXPORT} from "screens/inventory-adjustment/DetailInvetoryA
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
+import { FormOutlined } from "@ant-design/icons";
+import TextArea from "antd/es/input/TextArea";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -82,6 +84,9 @@ const InventoryAdjustment: React.FC = () => {
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
+  const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
+  const [itemData, setItemData] = useState<InventoryAdjustmentDetailItem>();
+  const [formNote] = Form.useForm();
 
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -306,6 +311,27 @@ const InventoryAdjustment: React.FC = () => {
               {item.adjusted_by ?? ""}
             </div>
             <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      visible: true,
+      align: "left",
+      width: "220px",
+      render: (item: string, row: InventoryAdjustmentDetailItem) => {
+        return (
+          <div className={item ? 'note': ''}>
+            {item}
+            <FormOutlined
+              onClick={() => {
+                setItemData(row);
+                setIsModalVisibleNote(true);
+              }}
+              className={item ? 'note-icon' : ''}
+            />
           </div>
         );
       },
@@ -564,9 +590,54 @@ const InventoryAdjustment: React.FC = () => {
               dangerouslySetInnerHTML={{
                 __html: purify.sanitize(printContent),
               }}
-            ></div>
+              />
           </div>
         </div>
+
+        {isModalVisibleNote && (
+          <Modal
+            title={`Sửa ghi chú ${itemData?.code}`}
+            visible={isModalVisibleNote}
+            onOk={() => {
+              formNote.submit();
+              setIsModalVisibleNote(false);
+            }}
+            onCancel={() => {
+              setIsModalVisibleNote(false);
+            }}
+          >
+            <Form
+              form={formNote}
+              initialValues={itemData}
+              onFinish={(data) => {
+                if (itemData?.id) {
+                  dispatch(
+                    updateInventoryAdjustmentAction(itemData.id, data, (result) => {
+                      setItemData(undefined);
+                      if (result) showSuccess(`Cập nhật ${itemData?.code} thành công`);
+                      dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
+                    })
+                  );
+                }
+              }}
+              onFinishFailed={() => {}}
+            >
+              <Form.Item noStyle hidden name="note">
+                <Input />
+              </Form.Item>
+              <Form.Item>
+                <TextArea
+                  maxLength={250}
+                  onChange={(e) => {
+                    formNote.setFieldsValue({note: e.target.value});
+                  }}
+                  defaultValue={itemData?.note}
+                  rows={4}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
+        )}
       </Card>
     </InventoryAdjustmentWrapper>
   );
