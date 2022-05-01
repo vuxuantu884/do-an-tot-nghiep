@@ -1314,6 +1314,15 @@ const DetailTicket: FC = () => {
               }
               rightComponent={
                 <Space>
+                  <AuthWrapper
+                    acceptPermissions={[InventoryTransferPermission.clone]}
+                  >
+                    <Button
+                      onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data.id}/update?cloneId=${data.id}`)}
+                    >
+                      Tạo bản sao
+                    </Button>
+                  </AuthWrapper>
                   {
                     data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&
                     <AuthWrapper acceptPermissions={[InventoryTransferPermission.receive]}>
@@ -1384,18 +1393,6 @@ const DetailTicket: FC = () => {
                         }}
                       >
                         <EditOutlined /> Sửa thông tin
-                      </Button>
-                    </AuthWrapper>
-                  }
-                  {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) &&
-                    <AuthWrapper
-                      acceptPermissions={[InventoryTransferPermission.clone]}
-                    >
-                      <Button
-                        onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data.id}/update?cloneId=${data.id}`)}
-                      >
-                        Tạo bản sao
                       </Button>
                     </AuthWrapper>
                   }
