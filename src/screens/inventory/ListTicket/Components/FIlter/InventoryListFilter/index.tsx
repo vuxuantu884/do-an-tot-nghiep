@@ -108,13 +108,20 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       formSearchRef.current?.setFieldsValue({
         ...params,
         to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected?.toString(),
+        from_store_id: params.from_store_id ? params.from_store_id : []
       });
     } else if (activeTab === InventoryTransferTabUrl.LIST) {
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        from_store_id: params.from_store_id ? params.from_store_id : [],
+        to_store_id: params.to_store_id ? params.to_store_id : []
+      });
       return;
     } else {
       formSearchRef.current?.setFieldsValue({
         ...params,
         from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected?.toString(),
+        to_store_id: params.to_store_id ? params.to_store_id : []
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -362,6 +369,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
               showArrow
               showSearch
               allowClear
+              maxTagCount={'responsive' as const}
+              mode="multiple"
               onClear={() => formSearchRef?.current?.submit()}
               filterOption={(input: String, option: any) => {
                 if (option.props.value) {
@@ -401,6 +410,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
               placeholder="Kho nhận"
               showArrow
               showSearch
+              maxTagCount={'responsive' as const}
+              mode="multiple"
               optionFilterProp="children"
               allowClear
               onClear={() => formSearchRef?.current?.submit()}
