@@ -14,7 +14,7 @@ export const BG_COLOR_TAG = {
   ADJUSTED: {
     background: '#EAF7F0',
     color: '#27AE60'
-  }, 
+  },
 }
 
 export const InventoryAdjustmentWrapper = styled.div`
@@ -53,5 +53,17 @@ export const InventoryAdjustmentWrapper = styled.div`
       -webkit-box-orient: "vertical"
     }
   }
-  
+  .note {
+    &-icon {
+      margin-left: 10px;
+      display: none;
+      color: #5656A1;
+      cursor: pointer;
+    }
+    &:hover {
+      .note-icon {
+        display: unset;
+      }
+    }
+  }
 `;
