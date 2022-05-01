@@ -114,7 +114,11 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
   useEffect(() => {
     if (!accountStoresSelected) {
-      formSearchRef.current?.setFieldsValue(params);
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        from_store_id: params.from_store_id ? params.from_store_id : [],
+        to_store_id: params.to_store_id ? params.to_store_id : []
+      });
       return;
     }
 
@@ -122,7 +126,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
     formSearchRef.current?.setFieldsValue({
       ...params,
-      from_store_id: params.from_store_id ? params.from_store_id : String(accountStoresSelected.id)
+      from_store_id: params.from_store_id ? params.from_store_id : String(accountStoresSelected.id),
+      to_store_id: params.to_store_id ? params.to_store_id : []
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountStoresSelected])
@@ -299,6 +304,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
               <Select
                 style={{width: '200px'}}
                 placeholder="Kho gửi"
+                maxTagCount={'responsive' as const}
+                mode="multiple"
                 showArrow
                 showSearch
                 allowClear
@@ -332,6 +339,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 placeholder="Kho nhận"
                 showArrow
                 showSearch
+                maxTagCount={'responsive' as const}
+                mode="multiple"
                 optionFilterProp="children"
                 allowClear
                 onClear={() => formSearchRef?.current?.submit()}
