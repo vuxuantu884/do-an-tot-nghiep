@@ -1,7 +1,7 @@
 import { Fragment, useMemo } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
-import CreateBillStep from "component/header/create-bill-step";
+// import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
 import React, { useCallback } from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
@@ -115,7 +115,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
         <Row gutter={24}>
           <Col md={12}>
             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", height: "100%" }}>
-              <CreateBillStep orderDetail={orderDetail} status={stepsStatusValue} />
+              {/* <CreateBillStep orderDetail={orderDetail} status={stepsStatusValue} /> */}
 
             </div>
           </Col>
