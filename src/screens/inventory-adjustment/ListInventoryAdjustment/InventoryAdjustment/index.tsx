@@ -611,6 +611,7 @@ const InventoryAdjustment: React.FC = () => {
               initialValues={itemData}
               onFinish={(data) => {
                 if (itemData?.id) {
+                  data.list_attached_files = itemData.list_attached_files;
                   dispatch(
                     updateInventoryAdjustmentAction(itemData.id, data, (result) => {
                       setItemData(undefined);
