@@ -188,6 +188,10 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         padding-left: 5px;
         padding-right: 5px;
       }
+      .coordinator-item{
+        display: flex;
+        flex-direction: column;
+      }
 		}
 	}
 	.shipmentType {
