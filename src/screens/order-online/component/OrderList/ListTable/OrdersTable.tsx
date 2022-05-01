@@ -12,6 +12,7 @@ import {
   getTrackingLogFulfillmentAction, updateOrderPartial
 } from "domain/actions/order/order.action";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
+// import { AccountResponse } from "model/account/account.model";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
@@ -48,7 +49,7 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -164,7 +165,7 @@ function OrdersTable(props: PropTypes) {
     {
       payment_method_code: PaymentMethodCode.CASH,
       icon: IconPaymentCash,
-      tooltip: "Đã thanh toán tiền mặt",
+      tooltip: "Tiền khách đưa",
     },
     {
       payment_method_code: COD.code,
@@ -1154,7 +1155,7 @@ function OrdersTable(props: PropTypes) {
           if (!record || !status_order) {
             return null;
           }
-          const status = status_order.find((status) => status.value === record.status);
+          //const status = status_order.find((status) => status.value === record.status);
           let recordStatuses = record?.statuses;
           if (!recordStatuses) {
             recordStatuses = [];
@@ -1218,10 +1219,16 @@ function OrdersTable(props: PropTypes) {
                   ) : "-"}
                 </div>
                 <div className="single">
-                  <div>
-                    <strong>Đơn hàng: </strong>
+                  <div className="coordinator-item">
+                    <strong>NV điều phối: </strong>
+                    {record.coordinator?(
+                      <React.Fragment>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}ssssss</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}ssssss</Link>
+                      </React.Fragment>
+                    ):"N/a"}
                   </div>
-                  {record.status === OrderStatus.DRAFT && (
+                  {/* {record.status === OrderStatus.DRAFT && (
                     <div
                       style={{
                         color: "#737373",
@@ -1255,7 +1262,7 @@ function OrdersTable(props: PropTypes) {
                       }}>
                       {status?.name}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>
@@ -1301,6 +1308,18 @@ function OrdersTable(props: PropTypes) {
         align: "left",
         width: 120,
       },
+      // {
+      //   title:"NV điều phối",
+      //   key:"coordinator",
+      //   visible: !isShowOfflineOrder,
+      //   width: 80,
+      //   align: "left",
+      //   render: (value, record: OrderModel) => record.coordinator_code && (
+      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}>
+      //       {`${record.coordinator_code} - ${record.coordinator}`}
+      //     </Link>
+      //   ),
+      // },
       {
         title: !isShowOfflineOrder ? "NV bán hàng" : "Chuyên gia tư vấn",
         render: (value, record: OrderModel) => (
@@ -1309,7 +1328,7 @@ function OrdersTable(props: PropTypes) {
           </Link>
         ),
         key: "assignee",
-        visible: !isShowOfflineOrder,
+        visible: false,
         align: "center",
         width: 80,
       },
@@ -1321,7 +1340,7 @@ function OrdersTable(props: PropTypes) {
           </Link>
         ),
         key: "account",
-        visible: !isShowOfflineOrder,
+        visible: false,
         align: "center",
         width: 80,
       },
