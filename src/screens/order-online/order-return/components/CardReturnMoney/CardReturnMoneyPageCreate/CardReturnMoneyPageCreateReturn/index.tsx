@@ -3,7 +3,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../../ReturnMoneySelect";
 
-type PropType = {
+type PropTypes = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   totalAmountCustomerNeedToPay?: number;
   returnMoneyType?: string;
@@ -14,7 +14,7 @@ type PropType = {
  * input: listPaymentMethod, returnMoneyType
  * output: setReturnMoneyType
  */
-function CardReturnMoneyPageCreateReturn(props: PropType) {
+function CardReturnMoneyPageCreateReturn(props: PropTypes) {
   const {
     listPaymentMethods,
     totalAmountCustomerNeedToPay,

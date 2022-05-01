@@ -1710,7 +1710,9 @@ ShippingServiceConfigDetailResponseModel[]
   useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
-        let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
+        // let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
+        // update: ko bỏ quẹt thẻ nữa
+        let result = response.filter((single) => single.code);
         setListPaymentMethods(result);
         let cash = response.find(single => single.code === PaymentMethodCode.CASH);
         if(cash) {
