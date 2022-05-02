@@ -304,7 +304,7 @@ const ProductDetailScreen: React.FC = () => {
         let variantSelect = data.variants[active].id;
         dispatch(
           inventoryGetDetailAction(
-            { variant_id: variantSelect, page: page },
+            { variant_id: variantSelect, page: page,limit: 500 },
             onResultDetail
           )
         );
@@ -319,7 +319,7 @@ const ProductDetailScreen: React.FC = () => {
         let variantSelect = data.variants[active].id;
         dispatch(
           inventoryGetHistoryAction(
-            { variant_id: variantSelect, page: page },
+            { variant_id: variantSelect, page: page,limit: 300 },
             onResultInventoryHistory
           )
         );       
@@ -341,11 +341,11 @@ const ProductDetailScreen: React.FC = () => {
     if (data && data?.variants.length > 0) {
       let variantSelect = data.variants[active].id;
       dispatch(
-        inventoryGetDetailAction({ variant_id: variantSelect }, onResultDetail)
+        inventoryGetDetailAction({ variant_id: variantSelect,limit: 500 }, onResultDetail)
       );
       dispatch(
         inventoryGetHistoryAction(
-          { variant_id: variantSelect },
+          { variant_id: variantSelect,limit: 300 },
           onResultInventoryHistory
         )
       );

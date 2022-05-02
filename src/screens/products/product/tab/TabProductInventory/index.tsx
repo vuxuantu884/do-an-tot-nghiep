@@ -8,18 +8,13 @@ interface IProps {
 }
 
 const TabProductInventory: React.FC<IProps> = (props: IProps) => {
-  const { data, onChange } = props;
+  const { data } = props;
   return (
     <div>
       <CustomTable
         className="small-padding"
         dataSource={data.items}
-        pagination={{
-          total: data.metadata.total,
-          pageSize: data.metadata.limit,
-          current: data.metadata.page,
-          onChange: onChange
-        }}
+        pagination={false}        
         sticky={{offsetHeader: 55, offsetScroll: 10}}
         rowKey={(record) => record.id}
         columns={[
@@ -31,52 +26,81 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             align: "right",
             title: "Tổng tồn",
             dataIndex: "total_stock",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Tồn trong kho",
             dataIndex: "on_hand",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Đang giao dịch",
             dataIndex: "committed",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Có thể bán",
             dataIndex: "available",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Tạm giữ",
             dataIndex: "on_hold",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Hàng lỗi",
             dataIndex: "defect",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Chờ nhập",
             dataIndex: "in_coming",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Đang chuyển đến",
             dataIndex: "transferring",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Đang chuyển đi",
-
             dataIndex: "on_way",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
           {
             align: "right",
             title: "Hàng đang giao",
             dataIndex: "shipping",
+            render: (value)=>{
+              return value===0 ? "": value;
+            }
           },
         ]}
       />
