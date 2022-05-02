@@ -1707,6 +1707,10 @@ function OrdersTable(props: PropTypes) {
     setMetaData(data.metadata)
   }, [data.metadata])
 
+  if(!subStatuses || subStatuses.length === 0) {
+    return "Đang tải dữ liệu ...";
+  }
+
   return (
     <StyledComponent isShowOfflineOrder = {isShowOfflineOrder}>
       <CustomTable
