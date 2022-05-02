@@ -299,7 +299,7 @@ function OrdersTable(props: PropTypes) {
         }
       );
       return (
-        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`}>
+        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={payment.id}>
           <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
               <img src={selectedPayment?.icon} alt="" />
               <span className="amount">{formatCurrency(payment.paid_amount)}</span>
@@ -1350,15 +1350,23 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt_id",
         align: "center",
         render: (value, record: OrderModel) => {
-          if (value) {
-            return (
-              <Link to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
-                {value}
-              </Link>
-            );
-          } else {
-            return "-";
-          }
+          let result: ReactNode = (
+            <span>-</span>
+          );
+          let arr = record.goods_receipts;
+          if(arr && arr.length > 0) {
+            result = arr.map((single, index) => {
+              return (
+                <React.Fragment key={index}>
+                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>
+                    {single.id}
+                  </Link>
+                  {arr &&index < arr.length -1 && ", "}
+                </React.Fragment>
+              )
+            })
+          } 
+          return result;
         },
         visible: false,
         width: 160,
@@ -1725,6 +1733,10 @@ function OrdersTable(props: PropTypes) {
   useEffect(() => {
     setMetaData(data.metadata)
   }, [data.metadata])
+
+  if(!subStatuses || subStatuses.length === 0) {
+    return <span>Đang tải dữ liệu ...</span>;
+  }
 
   return (
     <StyledComponent isShowOfflineOrder = {isShowOfflineOrder}>
