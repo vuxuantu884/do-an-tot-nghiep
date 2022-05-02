@@ -742,6 +742,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     };
 
     switch (activeTab) {
+      // case InventoryTransferTabUrl.LIST:
       case InventoryTransferTabUrl.LIST_CONFIRMED:
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
         newParams = {
