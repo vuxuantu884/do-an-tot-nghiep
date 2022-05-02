@@ -298,7 +298,7 @@ function OrdersTable(props: PropTypes) {
         }
       );
       return (
-        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`}>
+        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={payment.id}>
           <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
               <img src={selectedPayment?.icon} alt="" />
               <span className="amount">{formatCurrency(payment.paid_amount)}</span>
@@ -1708,7 +1708,7 @@ function OrdersTable(props: PropTypes) {
   }, [data.metadata])
 
   if(!subStatuses || subStatuses.length === 0) {
-    return "Đang tải dữ liệu ...";
+    return <span>Đang tải dữ liệu ...</span>;
   }
 
   return (
