@@ -20,7 +20,6 @@ import {
   deleteInventoryTransferAction,
   getCopyDetailInventoryTransferAction,
   getDetailInventoryTransferAction,
-  inventoryGetDetailVariantIdsAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
   updateInventoryTransferAction,
@@ -228,7 +227,7 @@ const UpdateTicket: FC = () => {
 
   const [resultSearch, setResultSearch] = useState<
     PageResponse<VariantResponse> | any
-  >();
+    >();
 
   const onSearch = useCallback((value: string)=>{
     setKeySearch(value);
@@ -254,7 +253,7 @@ const UpdateTicket: FC = () => {
           )
         );
       }
-  },[dispatch, setResultSearch, form]);
+    },[dispatch, setResultSearch, form]);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -441,20 +440,11 @@ const UpdateTicket: FC = () => {
 
       let newDataTable = [...dataTable];
 
-      const storeId = form.getFieldValue("from_store_id");
+      if (newDataTable.length === 0) return;
 
       for (let i = 0; i < newDataTable.length; i++) {
-        for (let j = 0; j < result.length; j++) {
-          if (storeId === result[j].store_id && newDataTable[i].variant_id === result[j].variant_id) {
-            newDataTable[i].available = result[j].available;
-            newDataTable[i].on_hand = result[j].on_hand;
-            break;
-          }
-
-          if (j === result.length - 1 && i === newDataTable.length - 1) {
-            newDataTable = [];
-          }
-        }
+        newDataTable[i].available = result.items[i].available;
+        newDataTable[i].on_hand = result.items[i].on_hand;
       }
 
       setDataTable(newDataTable);
@@ -465,6 +455,20 @@ const UpdateTicket: FC = () => {
     }
     setModalConfirm({ visible: false });
   }, [dataTable, form])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const changeFromStore = async (variants_id: any, storeData: Store) => {
+    const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
+      status: "active",
+      store_ids: storeData.id,
+      variant_ids: variants_id.join(','),
+      page: 1,
+      limit: 1000
+    })
+    if (response) {
+      onResultGetDetailVariantIds(response);
+    }
+  };
 
   const onChangeFromStore = useCallback(
     (storeData: Store) => {
@@ -483,15 +487,13 @@ const UpdateTicket: FC = () => {
           const variants_id = dataTable?.map((item: VariantResponse) => item.variant_id);
           if (variants_id?.length > 0) {
             setIsLoadingTable(true);
-            dispatch(
-              inventoryGetDetailVariantIdsAction(variants_id, storeData.id, onResultGetDetailVariantIds)
-            );
+            changeFromStore(variants_id, storeData).then();
           } else {
             setModalConfirm({ visible: false })
           }
         },
       });
-    }, [dataTable, dispatch, form, fromStoreData, initDataForm, onResultGetDetailVariantIds]
+    }, [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id, initDataForm?.from_store_name]
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
@@ -700,65 +702,65 @@ const UpdateTicket: FC = () => {
   }, [dataTable]);
 
   const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
-    if (keyCode === "Enter" && code){
-      barCode ="";
-      setKeySearch("");
+      if (keyCode === "Enter" && code){
+        barCode ="";
+        setKeySearch("");
 
-      if (RegUtil.BARCODE_NUMBER.test(code)) {
-        const storeId = form.getFieldValue("from_store_id");
-        if (!storeId) {
-          showError("Vui lòng chọn kho gửi");
-          return;
-        }
-        let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
-        if (res && res.items && res.items.length > 0) {
-          onSelectProduct(res.items[0].id.toString(),res.items[0]);
+        if (RegUtil.BARCODE_NUMBER.test(code)) {
+          const storeId = form.getFieldValue("from_store_id");
+          if (!storeId) {
+            showError("Vui lòng chọn kho gửi");
+            return;
+          }
+          let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
+          if (res && res.items && res.items.length > 0) {
+            onSelectProduct(res.items[0].id.toString(),res.items[0]);
+          }
         }
       }
-    }
-    else{
-      const txtSearchProductElement: any =
-        document.getElementById("product_search_variant");
+      else{
+        const txtSearchProductElement: any =
+          document.getElementById("product_search_variant");
 
-      onSearchProduct(txtSearchProductElement?.value);
-    }
-  },
-   // eslint-disable-next-line react-hooks/exhaustive-deps
-   [onSelectProduct,form, dispatch, onSearchProduct]
+        onSearchProduct(txtSearchProductElement?.value);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onSelectProduct,form, dispatch, onSearchProduct]
   );
 
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
 
-     if (event.target instanceof HTMLInputElement) {
-       if (event.target.id === "product_search_variant") {
-         if (event.key !== "Enter" && event.key !== "Shift")
-           barCode = barCode + event.key;
+      if (event.target instanceof HTMLInputElement) {
+        if (event.target.id === "product_search_variant") {
+          if (event.key !== "Enter" && event.key !== "Shift")
+            barCode = barCode + event.key;
 
-         handleDelayActionWhenInsertTextInSearchInput(
-           productAutoCompleteRef,
-           () => handleSearchProduct(event.key, barCode),
-           500
-         );
-         return;
-       }
-     }
+          handleDelayActionWhenInsertTextInSearchInput(
+            productAutoCompleteRef,
+            () => handleSearchProduct(event.key, barCode),
+            500
+          );
+          return;
+        }
+      }
 
-   },
-   // eslint-disable-next-line react-hooks/exhaustive-deps
-   [onSelectProduct,form, dispatch, onSearchProduct]
- );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onSelectProduct,form, dispatch, onSearchProduct]
+  );
 
- const onSelect = useCallback((o)=>{
-   onSelectProduct(o);
- },[onSelectProduct])
+  const onSelect = useCallback((o)=>{
+    onSelectProduct(o);
+  },[onSelectProduct])
 
- useEffect(() => {
-     window.addEventListener("keydown", eventKeydown);
-     return () => {
-       window.removeEventListener("keydown", eventKeydown);
-     };
- }, [eventKeydown]);
+  useEffect(() => {
+    window.addEventListener("keydown", eventKeydown);
+    return () => {
+      window.removeEventListener("keydown", eventKeydown);
+    };
+  }, [eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -860,199 +862,199 @@ const UpdateTicket: FC = () => {
   ];
 
   return (
-     <ContentContainer
-        title={ (CopyId || stateImport) ? 'Thêm mới Phiếu chuyển hàng' : `Sửa phiếu chuyển hàng ${initDataForm? initDataForm.code : ''}`}
-        breadcrumb={CopyId ? [] : [
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Chuyển hàng",
-            path: `${UrlConfig.INVENTORY_TRANSFERS}`,
-          },
-          {
-            name: stateImport ? 'Thêm mới' : `${initDataForm? initDataForm.code : ''}`,
-          },
-        ]}
-      >
-        {initDataForm && (
-          <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
-            <Form.Item noStyle hidden name="version">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="store_transfer">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="store_receive">
-              <Input />
-            </Form.Item>
-            <Row gutter={24}>
-              <Col span={18}>
-                <Card
-                  title="KHO HÀNG"
-                  bordered={false}
-                  className={"inventory-selectors"}
-                >
-                  <Row gutter={24}>
-                    <Col span={12}>
-                      <Form.Item
-                        name="from_store_id"
-                        label={<b>Kho gửi</b>}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn kho gửi",
-                          },
-                          {
-                            validator: validateStore,
-                          },
-                        ]}
-                        labelCol={{ span: 24, offset: 0 }}
-                      >
-                        <Select
-                          placeholder="Chọn kho gửi"
-                          showArrow
-                          showSearch
-                          optionFilterProp="children"
-                          onChange={(value: number) => {
-                            stores.forEach((element) => {
-                              if (element.id === value) {
-                                onChangeFromStore(element);
-                              }
-                            });
-                          }}
-                          filterOption={(input: String, option: any) => {
-                            if (option.props.value) {
-                              return strForSearch(option.props.children).includes(strForSearch(input));
+    <ContentContainer
+      title={ (CopyId || stateImport) ? 'Thêm mới Phiếu chuyển hàng' : `Sửa phiếu chuyển hàng ${initDataForm? initDataForm.code : ''}`}
+      breadcrumb={CopyId ? [] : [
+        {
+          name: "Tổng quan",
+          path: UrlConfig.HOME,
+        },
+        {
+          name: "Chuyển hàng",
+          path: `${UrlConfig.INVENTORY_TRANSFERS}`,
+        },
+        {
+          name: stateImport ? 'Thêm mới' : `${initDataForm? initDataForm.code : ''}`,
+        },
+      ]}
+    >
+      {initDataForm && (
+        <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
+          <Form.Item noStyle hidden name="version">
+            <Input />
+          </Form.Item>
+          <Form.Item noStyle hidden name="store_transfer">
+            <Input />
+          </Form.Item>
+          <Form.Item noStyle hidden name="store_receive">
+            <Input />
+          </Form.Item>
+          <Row gutter={24}>
+            <Col span={18}>
+              <Card
+                title="KHO HÀNG"
+                bordered={false}
+                className={"inventory-selectors"}
+              >
+                <Row gutter={24}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="from_store_id"
+                      label={<b>Kho gửi</b>}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn kho gửi",
+                        },
+                        {
+                          validator: validateStore,
+                        },
+                      ]}
+                      labelCol={{ span: 24, offset: 0 }}
+                    >
+                      <Select
+                        placeholder="Chọn kho gửi"
+                        showArrow
+                        showSearch
+                        optionFilterProp="children"
+                        onChange={(value: number) => {
+                          stores.forEach((element) => {
+                            if (element.id === value) {
+                              onChangeFromStore(element);
                             }
+                          });
+                        }}
+                        filterOption={(input: String, option: any) => {
+                          if (option.props.value) {
+                            return strForSearch(option.props.children).includes(strForSearch(input));
+                          }
 
-                            return false;
-                          }}
-                        >
-                          {fromStores &&
-                            fromStores.map((item, index) => (
-                              <Option
-                                key={"from_store_id" + index}
-                                value={item.store_id || 0}
-                              >
-                                {item.store}
-                              </Option>
-                            ))}
-                        </Select>
-                      </Form.Item>
-                      {fromStoreData ? (
-                        <>
-                          <RowDetail title="Mã CH" value={fromStoreData.code} />
-                          <RowDetail
-                            title="SĐT"
-                            value={fromStoreData.hotline}
-                          />
-                          <RowDetail
-                            title="Địa chỉ"
-                            value={ConvertFullAddress(fromStoreData)}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <RowDetail
-                            title="Mã CH"
-                            value={initDataForm.from_store_code?.toString()}
-                          />
-                          <RowDetail
-                            title="SĐT"
-                            value={initDataForm.from_store_phone?.toString()}
-                          />
-                          <RowDetail
-                            title="Địa chỉ"
-                            value={ConvertFullAddress(initDataForm.store_transfer)}
-                          />
-                        </>
-                      )}
-                    </Col>{" "}
-                    <Col span={12}>
-                      <Form.Item
-                        name="to_store_id"
-                        label={<b>Kho nhận</b>}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn kho nhận",
-                          },
-                          {
-                            validator: validateStore,
-                          },
-                        ]}
-                        labelCol={{ span: 24, offset: 0 }}
+                          return false;
+                        }}
                       >
-                        <Select
-                          placeholder="Chọn kho nhận"
-                          showArrow
-                          showSearch
-                          optionFilterProp="children"
-                          onChange={(value: number) => {
-                            stores.forEach((element) => {
-                              if (element.id === value) {
-                                setToStoreData(element);
-                              }
-                            });
-                          }}
-                          filterOption={(input: String, option: any) => {
-                            if (option.props.value) {
-                              return strForSearch(option.props.children).includes(strForSearch(input));
+                        {fromStores &&
+                        fromStores.map((item, index) => (
+                          <Option
+                            key={"from_store_id" + index}
+                            value={item.store_id || 0}
+                          >
+                            {item.store}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    {fromStoreData ? (
+                      <>
+                        <RowDetail title="Mã CH" value={fromStoreData.code} />
+                        <RowDetail
+                          title="SĐT"
+                          value={fromStoreData.hotline}
+                        />
+                        <RowDetail
+                          title="Địa chỉ"
+                          value={ConvertFullAddress(fromStoreData)}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <RowDetail
+                          title="Mã CH"
+                          value={initDataForm.from_store_code?.toString()}
+                        />
+                        <RowDetail
+                          title="SĐT"
+                          value={initDataForm.from_store_phone?.toString()}
+                        />
+                        <RowDetail
+                          title="Địa chỉ"
+                          value={ConvertFullAddress(initDataForm.store_transfer)}
+                        />
+                      </>
+                    )}
+                  </Col>{" "}
+                  <Col span={12}>
+                    <Form.Item
+                      name="to_store_id"
+                      label={<b>Kho nhận</b>}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn kho nhận",
+                        },
+                        {
+                          validator: validateStore,
+                        },
+                      ]}
+                      labelCol={{ span: 24, offset: 0 }}
+                    >
+                      <Select
+                        placeholder="Chọn kho nhận"
+                        showArrow
+                        showSearch
+                        optionFilterProp="children"
+                        onChange={(value: number) => {
+                          stores.forEach((element) => {
+                            if (element.id === value) {
+                              setToStoreData(element);
                             }
+                          });
+                        }}
+                        filterOption={(input: String, option: any) => {
+                          if (option.props.value) {
+                            return strForSearch(option.props.children).includes(strForSearch(input));
+                          }
 
-                            return false;
-                          }}
-                        >
-                          {Array.isArray(stores) &&
-                            stores.length > 0 &&
-                            stores.map((item, index) => (
-                              <Option
-                                key={"to_store_id" + index}
-                                value={item.id}
-                              >
-                                {item.name}
-                              </Option>
-                            ))}
-                        </Select>
-                      </Form.Item>
-                      {toStoreData ? (
-                        <>
-                          <RowDetail title="Mã CH" value={toStoreData.code} />
-                          <RowDetail title="SĐT" value={toStoreData.hotline} />
-                          <RowDetail
-                            title="Địa chỉ"
-                            value={ConvertFullAddress(toStoreData)}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <RowDetail
-                            title="Mã CH"
-                            value={initDataForm.to_store_code?.toString()}
-                          />
-                          <RowDetail
-                            title="SĐT"
-                            value={initDataForm.to_store_phone?.toString()}
-                          />
-                          <RowDetail
-                            title="Địa chỉ"
-                            value={ConvertFullAddress(initDataForm.store_receive)}
-                          />
-                        </>
-                      )}
-                    </Col>
-                  </Row>
-                </Card>
+                          return false;
+                        }}
+                      >
+                        {Array.isArray(stores) &&
+                        stores.length > 0 &&
+                        stores.map((item, index) => (
+                          <Option
+                            key={"to_store_id" + index}
+                            value={item.id}
+                          >
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    {toStoreData ? (
+                      <>
+                        <RowDetail title="Mã CH" value={toStoreData.code} />
+                        <RowDetail title="SĐT" value={toStoreData.hotline} />
+                        <RowDetail
+                          title="Địa chỉ"
+                          value={ConvertFullAddress(toStoreData)}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <RowDetail
+                          title="Mã CH"
+                          value={initDataForm.to_store_code?.toString()}
+                        />
+                        <RowDetail
+                          title="SĐT"
+                          value={initDataForm.to_store_phone?.toString()}
+                        />
+                        <RowDetail
+                          title="Địa chỉ"
+                          value={ConvertFullAddress(initDataForm.store_receive)}
+                        />
+                      </>
+                    )}
+                  </Col>
+                </Row>
+              </Card>
 
-                <Card
-                  title="THÔNG TIN SẢN PHẨM"
-                  bordered={false}
-                  className={"product-detail"}
-                >
-                  <div>
-                    <Input.Group className="display-flex">
+              <Card
+                title="THÔNG TIN SẢN PHẨM"
+                bordered={false}
+                className={"product-detail"}
+              >
+                <div>
+                  <Input.Group className="display-flex">
                     <AutoComplete
                       notFoundContent={
                         keySearch.length >= 3
@@ -1079,142 +1081,142 @@ const UpdateTicket: FC = () => {
                         ref={productSearchRef}
                       />
                     </AutoComplete>
-                      <Button
-                        onClick={() => {
-                          if (form.getFieldValue("from_store_id")) {
-                            setVisibleManyProduct(true);
-                            return;
-                          }
-                          showError("Vui lòng chọn kho gửi");
-                        }}
-                        style={{ width: 132, marginLeft: 10 }}
-                        icon={<img src={PlusOutline} alt="" />}
-                      >
-                        &nbsp;&nbsp; Chọn nhiều
-                      </Button>
-                    </Input.Group>
-                    {/*table*/}
-                    <Table
-                      scroll={{ x: "max-content" }}
-                      className="inventory-table"
-                      rowClassName="product-table-row"
-                      tableLayout="fixed"
-                      pagination={false}
-                      columns={columns}
-                      loading={isLoadingTable}
-                      dataSource={dataTable}
-                    />
-                    <div className={"sum-qty"}>
-                      <span>Tổng số lượng:</span> <b>{getTotalQuantity()}</b>
-                    </div>
-                  </div>
-                </Card>
-              </Col>
-              <Col span={6}>
-                <Card
-                  title={"GHI CHÚ"}
-                  bordered={false}
-                  className={"inventory-note"}
-                >
-                  <Form.Item
-                    name={"note"}
-                    label={<b>Ghi chú nội bộ:</b>}
-                    colon={false}
-                    labelCol={{ span: 24, offset: 0 }}
-                  >
-                    <TextArea
-                      maxLength={250}
-                      placeholder="Nhập ghi chú nội bộ"
-                      autoSize={{ minRows: 4, maxRows: 6 }}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    labelCol={{ span: 24, offset: 0 }}
-                    label={<b>File đính kèm:</b>}
-                    colon={false}
-                  >
-                    <Upload
-                      beforeUpload={onBeforeUpload}
-                      multiple={true}
-                      fileList={fileList}
-                      onChange={onChangeFile}
-                      customRequest={onCustomRequest}
-                      onRemove={onRemoveFile}
+                    <Button
+                      onClick={() => {
+                        if (form.getFieldValue("from_store_id")) {
+                          setVisibleManyProduct(true);
+                          return;
+                        }
+                        showError("Vui lòng chọn kho gửi");
+                      }}
+                      style={{ width: 132, marginLeft: 10 }}
+                      icon={<img src={PlusOutline} alt="" />}
                     >
-                      <Button icon={<UploadOutlined />}>Chọn file</Button>
-                    </Upload>
-                  </Form.Item>
-                  <Form.Item noStyle hidden name="attached_files">
-                    <Input />
-                  </Form.Item>
-                </Card>
-              </Col>
-            </Row>
-            <BottomBarContainer
-              leftComponent = {
-                <div onClick={() => setIsVisibleModalWarning(true)} style={{ cursor: "pointer" }}>
-                  <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-                  {"Quay lại trang chi tiết"}
+                      &nbsp;&nbsp; Chọn nhiều
+                    </Button>
+                  </Input.Group>
+                  {/*table*/}
+                  <Table
+                    scroll={{ x: "max-content" }}
+                    className="inventory-table"
+                    rowClassName="product-table-row"
+                    tableLayout="fixed"
+                    pagination={false}
+                    columns={columns}
+                    loading={isLoadingTable}
+                    dataSource={dataTable}
+                  />
+                  <div className={"sum-qty"}>
+                    <span>Tổng số lượng:</span> <b>{getTotalQuantity()}</b>
+                  </div>
                 </div>
-              }
-              rightComponent={
-                <Space>
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card
+                title={"GHI CHÚ"}
+                bordered={false}
+                className={"inventory-note"}
+              >
+                <Form.Item
+                  name={"note"}
+                  label={<b>Ghi chú nội bộ:</b>}
+                  colon={false}
+                  labelCol={{ span: 24, offset: 0 }}
+                >
+                  <TextArea
+                    maxLength={250}
+                    placeholder="Nhập ghi chú nội bộ"
+                    autoSize={{ minRows: 4, maxRows: 6 }}
+                  />
+                </Form.Item>
 
-                  {(!CopyId || !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
-
-                  <Button
-                    disabled={isLoading}
-                    htmlType={"submit"}
-                    type="primary"
-                    loading={isLoading}
+                <Form.Item
+                  labelCol={{ span: 24, offset: 0 }}
+                  label={<b>File đính kèm:</b>}
+                  colon={false}
+                >
+                  <Upload
+                    beforeUpload={onBeforeUpload}
+                    multiple={true}
+                    fileList={fileList}
+                    onChange={onChangeFile}
+                    customRequest={onCustomRequest}
+                    onRemove={onRemoveFile}
                   >
-                    {(CopyId || stateImport) ? 'Tạo' : 'Lưu'}
-                  </Button>
-                </Space>
-              }
+                    <Button icon={<UploadOutlined />}>Chọn file</Button>
+                  </Upload>
+                </Form.Item>
+                <Form.Item noStyle hidden name="attached_files">
+                  <Input />
+                </Form.Item>
+              </Card>
+            </Col>
+          </Row>
+          <BottomBarContainer
+            leftComponent = {
+              <div onClick={() => setIsVisibleModalWarning(true)} style={{ cursor: "pointer" }}>
+                <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+                {"Quay lại trang chi tiết"}
+              </div>
+            }
+            rightComponent={
+              <Space>
+
+                {(!CopyId || !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
+
+                <Button
+                  disabled={isLoading}
+                  htmlType={"submit"}
+                  type="primary"
+                  loading={isLoading}
+                >
+                  {(CopyId || stateImport) ? 'Tạo' : 'Lưu'}
+                </Button>
+              </Space>
+            }
+          />
+          {visibleManyProduct && (
+            <PickManyProductModal
+              isTransfer
+              storeID={form.getFieldValue("from_store_id")}
+              selected={[]}
+              onSave={onPickManyProduct}
+              onCancel={() => setVisibleManyProduct(false)}
+              visible={visibleManyProduct}
             />
-            {visibleManyProduct && (
-              <PickManyProductModal
-                isTransfer
-                storeID={form.getFieldValue("from_store_id")}
-                selected={[]}
-                onSave={onPickManyProduct}
-                onCancel={() => setVisibleManyProduct(false)}
-                visible={visibleManyProduct}
-              />
-            )}
-          </Form>
-        )}
-        <ModalConfirm {...modalConfirm} />
-        {
-          isDeleteTicket &&
-          <DeleteTicketModal
-            onOk={onDeleteTicket}
-            onCancel={() => setIsDeleteTicket(false)}
-            visible={isDeleteTicket}
-            icon={WarningRedIcon}
-            textStore={initDataForm?.from_store_name}
-            okText="Đồng ý"
-            cancelText="Thoát"
-            title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${initDataForm?.code}`}
-          />
-        }
-        {
-          isVisibleModalWarning &&
-          <ModalConfirm
-            onCancel={() => {
-              setIsVisibleModalWarning(false);
-            }}
-            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)}
-            okText="Đồng ý"
-            cancelText="Tiếp tục"
-            title={`Bạn có muốn rời khỏi trang?`}
-            subTitle="Thông tin trên trang này sẽ không được lưu."
-            visible={isVisibleModalWarning}
-          />
-        }
-     </ContentContainer>
+          )}
+        </Form>
+      )}
+      <ModalConfirm {...modalConfirm} />
+      {
+        isDeleteTicket &&
+        <DeleteTicketModal
+          onOk={onDeleteTicket}
+          onCancel={() => setIsDeleteTicket(false)}
+          visible={isDeleteTicket}
+          icon={WarningRedIcon}
+          textStore={initDataForm?.from_store_name}
+          okText="Đồng ý"
+          cancelText="Thoát"
+          title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${initDataForm?.code}`}
+        />
+      }
+      {
+        isVisibleModalWarning &&
+        <ModalConfirm
+          onCancel={() => {
+            setIsVisibleModalWarning(false);
+          }}
+          onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)}
+          okText="Đồng ý"
+          cancelText="Tiếp tục"
+          title={`Bạn có muốn rời khỏi trang?`}
+          subTitle="Thông tin trên trang này sẽ không được lưu."
+          visible={isVisibleModalWarning}
+        />
+      }
+    </ContentContainer>
   );
 };
 
