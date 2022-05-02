@@ -1,14 +1,14 @@
 import { Button, Form, Input, Modal, Radio, Space } from "antd";
 import CustomSelect from "component/custom/select.custom";
-import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
+import { FilterConfig } from "model/other";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
-  filterType: string,
   visible: boolean;
   onOk: (values: any) => void;
   setVisible: (isVisible: boolean) => void;
+  filterConfigs: FilterConfig[];
 };
 
 const FILTER_TYPE_CONSTANT = {
@@ -22,7 +22,7 @@ type FormValueType = {
 };
 
 function FilterConfigModal(props: PropTypes) {
-  const { visible, setVisible, onOk, filterType } = props;
+  const { visible, setVisible, onOk, filterConfigs } = props;
   const [form] = Form.useForm();
 
   const initialFormValues: FormValueType = {
@@ -36,11 +36,7 @@ function FilterConfigModal(props: PropTypes) {
     setFilterTypeRadio(e.target.value);
   }, []);
 
-  const { filterConfigs } = useHandleFilterConfigs(
-    filterType,
-    form,
-  );
-
+  console.log('filterConfigs', filterConfigs)
   // const getData = useCallback(() => {
   //   setLstFilterConfig(lstConfigFilter);
   // }, [lstConfigFilter]);

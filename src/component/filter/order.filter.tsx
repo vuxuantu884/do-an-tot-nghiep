@@ -1924,8 +1924,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           onOk={(formValues) => {
             setIsShowModalSaveFilter(false)
             onSaveFilter(formValues)
-          }} 
-          filterType={filterConfigType}
+          }}
+          filterConfigs={filterConfigs}
         />
         <ModalDeleteConfirm
           visible={isShowConfirmDelete}
