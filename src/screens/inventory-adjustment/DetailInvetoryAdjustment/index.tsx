@@ -1278,7 +1278,7 @@ const DetailInvetoryAdjustment: FC = () => {
                           <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
                         </Col>
                       </Row>
-                      {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ? (
+                      {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && isPermissionAudit ? (
                         <Form.Item
                           name="audited_bys"
                           label={<b>Người kiểm</b>}
