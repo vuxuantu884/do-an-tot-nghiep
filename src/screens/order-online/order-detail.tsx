@@ -51,6 +51,7 @@ import {
   getAmountPayment,
   handleFetchApiError,
   isFetchApiSuccessful,
+  isOrderFromPOS,
   sortFulfillments,
   SumCOD
 } from "utils/AppUtils";
@@ -762,15 +763,15 @@ const OrderDetail = (props: PropType) => {
     <ContentContainer
       isLoading={loadingData}
       isError={isError}
-      title="Đơn hàng"
+      title= {isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`}
       breadcrumb={[
         {
           name: "Tổng quan",
           path: `${UrlConfig.HOME}`,
         },
         {
-          name: "Danh sách đơn hàng",
-          path: OrderDetail?.source_code !== "POS" ? UrlConfig.ORDER : UrlConfig.OFFLINE_ORDERS,
+          name: isOrderFromPOS(OrderDetail) ? `Danh sách đơn hàng offline` : `Danh sách đơn hàng online`,
+          path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
         },
         {
           name: OrderDetail?.code
