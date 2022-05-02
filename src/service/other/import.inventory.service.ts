@@ -22,6 +22,12 @@ export const getFile = (
   return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/excel/job/${code}`);
 };
 
+export const getFileV2 = (
+  params: ImportRequest
+): Promise<BaseResponse<ImportResponse>> => {
+  return BaseAxios.post(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs`,params);
+};
+
 export const getVariantByBarcode = (barcode: string): Promise<BaseResponse<VariantModel>> => {
   let link = `${ApiConfig.PRODUCT}/variants/barcode/${barcode}`;
   return BaseAxios.get(link);

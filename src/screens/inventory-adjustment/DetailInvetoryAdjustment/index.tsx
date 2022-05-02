@@ -60,7 +60,7 @@ import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { exportFile, getFile, importFile } from "service/other/import.inventory.service";
+import { getFile, getFileV2, importFile } from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -888,60 +888,40 @@ const DetailInvetoryAdjustment: FC = () => {
     debounceSearchVariant(code);
   },[debounceSearchVariant]);
 
-  const onExport = useCallback(() => {
-    exportFile({
-      conditions: data?.id.toString(),
-      type: "EXPORT_INVENTORY_ADJUSTMENT",
-    })
-      .then((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-          showSuccess("Đã gửi yêu cầu xuất file");
-          setListExportFile([...listExportFile, response.data.code]);
-        }
-      })
-      .catch(() => {
-        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
-        showError("Có lỗi xảy ra, vui lòng thử lại sau");
-      });
-  }, [data?.id, listExportFile]);
-
   const checkExportFile = useCallback(() => {
-    let getFilePromises = listExportFile.map((code) => {
-      return getFile(code);
-    });
-    Promise.all(getFilePromises).then((responses) => {
+    Promise.all([getFileV2({
+      conditions: data?.id.toString(),
+      type: "EXPORT_INVENTORY_ADJUSTMENT"
+    })]).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (response.data.percent) {
-            setExportProgress(response.data.percent);
-          }
+          // if (response.data.percent) {
+          //   setExportProgress(response.data.num_of_record / response.data.total);
+          // }
           if (response.data && response.data.status === "FINISH") {
+            setExportProgress(100);
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
-            const fileCode = response.data.code;
-            const newListExportFile = listExportFile.filter((item) => {
-              return item !== fileCode;
-            });
+           
             var downLoad = document.createElement("a");
             downLoad.href = response.data.url;
             downLoad.download = "download";
 
             downLoad.click();
 
-            setListExportFile(newListExportFile);
+            setListExportFile([]);
           }
         }
       });
     });
-  }, [listExportFile]);
+  }, [data?.id]);
 
   useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3) return;
+    if (listExportFile.length ===0|| statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH || statusExport === STATUS_IMPORT_EXPORT.ERROR) return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
-  }, [listExportFile, checkExportFile, statusExport]);
+  }, [checkExportFile, listExportFile.length, statusExport]);
 
   const onImport = useCallback(() => {
     importFile({
@@ -1501,7 +1481,8 @@ const DetailInvetoryAdjustment: FC = () => {
                           icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
                           onClick={() => {
                             setShowExportModal(true);
-                            onExport();
+                            setListExportFile(["EXPORT_ADJUST"]);
+                            checkExportFile();
                           }}
                           disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
                         >
@@ -1551,7 +1532,7 @@ const DetailInvetoryAdjustment: FC = () => {
                   setExportProgress(0);
                   setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
                 }}
-                onOk={() => onExport()}
+                onOk={() => checkExportFile()}
                 exportProgress={exportProgress}
                 statusExport={statusExport}
               />
