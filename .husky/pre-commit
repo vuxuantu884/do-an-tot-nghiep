@@ -1,5 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-#yarn run eslint --no-eslintrc -c pre-commit.eslint.json . --ext .ts,.tsx --cache
-yarn lint-staged
