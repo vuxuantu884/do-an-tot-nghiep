@@ -1879,10 +1879,8 @@ ShippingServiceConfigDetailResponseModel[]
             path: `${UrlConfig.HOME}`,
           },
           {
-            name: "Đơn hàng",
-          },
-          {
-            name: "Trả hàng",
+            name: isOrderFromPOS(OrderDetail) ? `Danh sách đơn trả hàng offline` : `Danh sách đơn trả hàng online`,
+            path: isOrderFromPOS(OrderDetail) ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}` : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
           },
           {
             name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
