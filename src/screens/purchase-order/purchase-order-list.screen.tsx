@@ -594,6 +594,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   }, [deleteCallback, dispatch, selected]);
 
   const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<PurchaseOrder>>) => {
+    console.log('data', data)
       let config = lstConfig.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_PO) as FilterConfigRequest;
       if (!config) config = {} as FilterConfigRequest;
 

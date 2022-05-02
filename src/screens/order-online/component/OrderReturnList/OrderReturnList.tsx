@@ -37,14 +37,20 @@ import moment from "moment";
 import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
 import ExportModal from "screens/order-online/modal/export.modal";
 import {StyledComponent} from "./OrderReturnList.styles";
+import { OrderTypeModel } from "model/order/order.model";
+import { ORDER_TYPES } from "utils/Order.constants";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
   location: any;
+  orderType: OrderTypeModel;
 }
 
 function OrderReturnList(props: PropTypes) {
-  const {initQuery, location} = props;
+  const {initQuery, location, orderType} = props;
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -74,7 +80,7 @@ function OrderReturnList(props: PropTypes) {
     items: [],
   });
 
-  const [columns, setColumn] = useState<
+  const [columns, setColumns] = useState<
     Array<ICustomTableColumType<ReturnModel>>
   >([
     {
@@ -391,6 +397,12 @@ function OrderReturnList(props: PropTypes) {
     });
   }, [listExportFile]);
 
+  // cột column
+  const columnConfigType = orderType === ORDER_TYPES.offline ? COLUMN_CONFIG_TYPE.orderReturnOffline : COLUMN_CONFIG_TYPE.orderReturnOnline
+  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(columnConfigType)
+  //cột của bảng
+  useSetTableColumns(columnConfigType, tableColumnConfigs, columns, setColumns)
+
   useEffect(() => {
     if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
     checkExportFile();
@@ -501,6 +513,7 @@ function OrderReturnList(props: PropTypes) {
             reasons={reasons}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
+            orderType={orderType}
           />
           <CustomTable
             isRowSelection
@@ -535,7 +548,8 @@ function OrderReturnList(props: PropTypes) {
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
             setShowSettingColumn(false);
-            setColumn(data);
+            setColumns(data);
+            onSaveConfigTableColumn(data );
           }}
           data={columns}
         />

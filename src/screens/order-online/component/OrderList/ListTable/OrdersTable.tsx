@@ -11,13 +11,14 @@ import UrlConfig from "config/url.config";
 import {
   getTrackingLogFulfillmentAction, updateOrderPartial
 } from "domain/actions/order/order.action";
-import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-// import { AccountResponse } from "model/account/account.model";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
-import { OrderExtraModel, OrderModel } from "model/order/order.model";
+import { OrderExtraModel, OrderModel, OrderTypeModel } from "model/order/order.model";
+import { FilterConfig } from "model/other";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse, ShipmentResponse
@@ -40,7 +41,7 @@ import {
   isOrderFromPOS, sortFulfillments
 } from "utils/AppUtils";
 import {
-  COD, DELIVERY_SERVICE_PROVIDER_CODE, FACEBOOK,
+  COD, COLUMN_CONFIG_TYPE, DELIVERY_SERVICE_PROVIDER_CODE, FACEBOOK,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
@@ -49,8 +50,8 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS } from "utils/Order.constants";
+import { dangerColor, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
+import { ORDER_SUB_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
@@ -70,6 +71,7 @@ import IconStore from "./images/store.svg";
 import IconPaymentReturn from "./images/tien-hoan.svg";
 import IconPaymentCash from "./images/tien-mat.svg";
 import InventoryTable from "./InventoryTable";
+import { ORDER_TYPES } from "utils/Order.constants";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
@@ -86,7 +88,9 @@ type PropTypes = {
   onSelectedChange: (selectedRows: any[], selected?: boolean, changeRow?: any[]) => void;
   setShowSettingColumn: (value: boolean) => void;
   onFilterPhoneCustomer: (value: string) => void;
-  isShowOfflineOrder?: boolean;
+  orderType: OrderTypeModel;
+  tableColumnConfigs: FilterConfig[];
+  subStatuses: OrderProcessingStatusModel[];
 };
 
 type dataExtra = PageResponse<OrderExtraModel>;
@@ -112,7 +116,9 @@ function OrdersTable(props: PropTypes) {
     setColumns,
     setData,
     onFilterPhoneCustomer,
-    isShowOfflineOrder = false,
+    orderType,
+    tableColumnConfigs,
+    subStatuses,
   } = props;
 
   const dispatch = useDispatch();
@@ -140,7 +146,7 @@ function OrdersTable(props: PropTypes) {
 
   // console.log('isVisiblePopup', isVisiblePopup)
 
-  const subStatuses = useGetOrderSubStatuses();
+  
   console.log('subStatuses', subStatuses)
 
   itemResult = data.items;
@@ -267,7 +273,7 @@ function OrdersTable(props: PropTypes) {
               {formatCurrency(totalPayment)}
             </Tooltip>
           </div> */}
-          {!isShowOfflineOrder ? (
+          {orderType === ORDER_TYPES.online ? (
             <div className="orderTotalLeftAmount">
               <Tooltip title="Tiền còn thiếu">
                 {formatCurrency(orderDetail.total - totalPayment)}
@@ -277,7 +283,7 @@ function OrdersTable(props: PropTypes) {
         </React.Fragment>
       );
     },
-    [isShowOfflineOrder],
+    [orderType],
   )
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -521,9 +527,6 @@ function OrdersTable(props: PropTypes) {
   };
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
-    if (data.items.length === 0) {
-      return [];
-    }
     return [
       {
         title: "ID đơn hàng",
@@ -556,12 +559,12 @@ function OrdersTable(props: PropTypes) {
                   </Link>
                 </Tooltip>
               </div>
-              {isShowOfflineOrder ? null : (
+              {orderType === ORDER_TYPES.offline ? null : (
                 <div className="textSmall single">
                   <Tooltip title="Nguồn">{i.source}</Tooltip>
                 </div>
               )}
-              { isShowOfflineOrder ? (
+              { orderType === ORDER_TYPES.offline ? (
                 <React.Fragment>
                   <div className="textSmall single mainColor">
                     <Tooltip title="Chuyên gia tư vấn">
@@ -579,7 +582,7 @@ function OrdersTable(props: PropTypes) {
                   </div>
                 </React.Fragment>
               ) :null}
-              { !isShowOfflineOrder && i.source && (
+              { orderType === ORDER_TYPES.online && i.source && (
                 <div className="textSmall single">
                   <Tooltip title="Nhân viên bán hàng">{i.assignee}</Tooltip>
                 </div>
@@ -1142,7 +1145,7 @@ function OrdersTable(props: PropTypes) {
           }
           return "";
         },
-        visible: !isShowOfflineOrder,
+        visible: orderType === ORDER_TYPES.online,
         width: 80,
         align: "left",
       },
@@ -1268,7 +1271,7 @@ function OrdersTable(props: PropTypes) {
             </div>
           );
         },
-        visible: !isShowOfflineOrder,
+        visible: orderType === ORDER_TYPES.online,
         align: "left",
         width: 95,
       },
@@ -1321,26 +1324,26 @@ function OrdersTable(props: PropTypes) {
       //   ),
       // },
       {
-        title: !isShowOfflineOrder ? "NV bán hàng" : "Chuyên gia tư vấn",
+        title: orderType === ORDER_TYPES.online ? "NV bán hàng" : "Chuyên gia tư vấn",
         render: (value, record: OrderModel) => (
           <Link to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
             {`${record.assignee_code} - ${record.assignee}`}
           </Link>
         ),
         key: "assignee",
-        visible: false,
+        visible: orderType === ORDER_TYPES.online,
         align: "center",
         width: 80,
       },
       {
-        title: !isShowOfflineOrder ? "NV tạo đơn" : "Thu ngân",
+        title: orderType === ORDER_TYPES.online ? "NV tạo đơn" : "Thu ngân",
         render: (value, record: OrderModel) => (
           <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
             {`${record.account_code} - ${record.account}`}
           </Link>
         ),
         key: "account",
-        visible: false,
+        visible: orderType === ORDER_TYPES.online,
         align: "center",
         width: 80,
       },
@@ -1687,6 +1690,10 @@ function OrdersTable(props: PropTypes) {
     return html;
   };
 
+  //cột của bảng
+  const columnConfigType = orderType === ORDER_TYPES.offline ? COLUMN_CONFIG_TYPE.orderOffline : COLUMN_CONFIG_TYPE.orderOnline
+  useSetTableColumns(columnConfigType, tableColumnConfigs, initColumns, setColumns)
+
   useEffect(() => {
     if (columns.length === 0) {
       setColumns(initColumns);
@@ -1739,7 +1746,7 @@ function OrdersTable(props: PropTypes) {
   }
 
   return (
-    <StyledComponent isShowOfflineOrder = {isShowOfflineOrder}>
+    <StyledComponent>
       <CustomTable
         isRowSelection
         isLoading={tableLoading}

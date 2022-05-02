@@ -1,6 +1,7 @@
 import { BaseObject } from "model/base/base.response";
 import { BillingAddress, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
+import { ORDER_TYPES } from "utils/Order.constants";
 
 export interface OrderItemModel {
   product_id: number;
@@ -304,3 +305,5 @@ export type ChangeOrderStatusHtmlModel = {
   isSuccess: boolean;
   text: string;
 }
+
+export type OrderTypeModel = typeof ORDER_TYPES[keyof typeof ORDER_TYPES];

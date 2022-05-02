@@ -2,6 +2,7 @@ import UrlConfig from "config/url.config";
 import { OrderSearchQuery } from "model/order/order.model";
 import React from "react";
 import { withRouter } from "react-router-dom";
+import { ORDER_TYPES } from "utils/Order.constants";
 import OrderList from "./component/OrderList/OrderList";
 
 
@@ -81,7 +82,7 @@ function OrdersScreen(props: PropTypes) {
   };
 
   return (
-    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} isHideTab />
+    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} isHideTab orderType={ORDER_TYPES.online} />
   );
 };
 export default withRouter(OrdersScreen);
