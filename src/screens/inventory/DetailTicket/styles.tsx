@@ -223,4 +223,9 @@ export const StyledWrapper = styled.div`
   .checkbox {
     margin-right: 20px;
   }
+  
+  .ant-btn {
+    display: flex;
+    align-items: center;
+  }
 `;
