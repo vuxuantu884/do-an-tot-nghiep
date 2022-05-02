@@ -16,7 +16,7 @@ function OrdersScreen(props: PropTypes) {
     title: "Danh sách đơn hàng online",
     breadcrumb: [
       {
-        name: "Đơn hàng",
+        name: "Đơn hàng online",
       },
       {
         name: "Danh sách đơn hàng online",
