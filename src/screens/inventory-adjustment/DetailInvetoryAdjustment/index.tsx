@@ -60,7 +60,7 @@ import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { getFile, getFileV2, importFile } from "service/other/import.inventory.service";
+import { getFile, getFileV2, importFile,exportFileV2 } from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -888,32 +888,55 @@ const DetailInvetoryAdjustment: FC = () => {
     debounceSearchVariant(code);
   },[debounceSearchVariant]);
 
-  const checkExportFile = useCallback(() => {
-    Promise.all([getFileV2({
+  const onExport = useCallback(() => {
+    exportFileV2({
       conditions: data?.id.toString(),
-      type: "EXPORT_INVENTORY_ADJUSTMENT"
-    })]).then((responses) => {
+      type: "EXPORT_INVENTORY_ADJUSTMENT",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch(() => {
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [data?.id, listExportFile]);
+
+
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = listExportFile.map((code) => {
+      return getFileV2(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          // if (response.data.percent) {
-          //   setExportProgress(response.data.num_of_record / response.data.total);
-          // }
+          if (response.data.percent) {
+            setExportProgress((response.data.num_of_record/response.data.total)*100);
+          }
           if (response.data && response.data.status === "FINISH") {
             setExportProgress(100);
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
-           
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
             var downLoad = document.createElement("a");
             downLoad.href = response.data.url;
             downLoad.download = "download";
 
             downLoad.click();
 
-            setListExportFile([]);
+            setListExportFile(newListExportFile);
           }
         }
       });
     });
-  }, [data?.id]);
+  }, [listExportFile]);
+
 
   useEffect(() => {
     if (listExportFile.length ===0|| statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH || statusExport === STATUS_IMPORT_EXPORT.ERROR) return;
@@ -1461,8 +1484,7 @@ const DetailInvetoryAdjustment: FC = () => {
                           icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
                           onClick={() => {
                             setShowExportModal(true);
-                            setListExportFile(["EXPORT_ADJUST"]);
-                            checkExportFile();
+                            onExport();
                           }}
                         >
                           Xuất excel
@@ -1527,7 +1549,7 @@ const DetailInvetoryAdjustment: FC = () => {
                   setExportProgress(0);
                   setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
                 }}
-                onOk={() => checkExportFile()}
+                onOk={() => onExport()}
                 exportProgress={exportProgress}
                 statusExport={statusExport}
               />
