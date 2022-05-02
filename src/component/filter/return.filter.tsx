@@ -669,7 +669,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             setIsShowModalSaveFilter(false)
             onSaveFilter(formValues)
           }} 
-          filterType={filterConfigType}
+          filterConfigs={filterConfigs}
         />
         <ModalDeleteConfirm
           visible={isShowConfirmDelete}
