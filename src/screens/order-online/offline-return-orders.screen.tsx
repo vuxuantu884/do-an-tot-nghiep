@@ -1,5 +1,6 @@
 import { ReturnSearchQuery } from "model/order/return.model";
 import { withRouter } from "react-router-dom";
+import { ORDER_TYPES } from "utils/Order.constants";
 import OrderReturnList from "./component/OrderReturnList/OrderReturnList";
 
 const initQuery: ReturnSearchQuery = {
@@ -33,7 +34,7 @@ type PropTypes = {
 
 function OfflineReturnOrdersScreen(props: PropTypes) {
   const { location } = props;
-  return <OrderReturnList initQuery={initQuery} location={location}/>
+  return <OrderReturnList initQuery={initQuery} location={location} orderType={ORDER_TYPES.offline}/>
 };
 
 export default withRouter(OfflineReturnOrdersScreen);

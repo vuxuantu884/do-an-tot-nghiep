@@ -25,9 +25,17 @@ import TreeStore from "component/tree-node/tree-store";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
-import { POS } from "utils/Constants";
+import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { ChannelResponse } from "model/response/product/channel.response";
+import UserCustomFilterTag from "./UserCustomFilterTag";
+import { OrderTypeModel } from "model/order/order.model";
+import { ORDER_TYPES } from "utils/Order.constants";
+import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
+import BaseResponse from "base/base.response";
+import { FilterConfig } from "model/other";
+import FilterConfigModal from "component/modal/FilterConfigModal";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
@@ -42,6 +50,7 @@ type ReturnFilterProps = {
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
   setListSource?: (values: SourceResponse[]) => void;
+  orderType: OrderTypeModel;
 };
 
 const { Item } = Form;
@@ -60,7 +69,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     onClearFilter,
     onFilter,
     onShowColumnSetting,
-    setListSource
+    setListSource,
+    orderType,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -71,6 +81,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
 
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
+  const [form] = Form.useForm();
   const formSearchRef = createRef<FormInstance>();
 
   const onFilterClick = useCallback(() => {
@@ -155,6 +166,50 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
 
   const [isReceived, setIsReceived] = useState<any[]>(initialValues.is_received);
   const [paymentStatus, setPaymentStatus] = useState<any[]>(initialValues.payment_status);
+
+  // lưu bộ lọc
+  const onShowSaveFilter = useCallback(() => {
+    // setModalAction("create");
+    let values = formRef.current?.getFieldsValue();
+    setFormSearchValuesToSave(values)
+    setIsShowModalSaveFilter(true);
+  }, [formRef]);
+
+  const onHandleFilterTagSuccessCallback = (res: BaseResponse<FilterConfig>) => {
+    setTagActive(res.data.id)
+  };
+
+  const filterConfigType = orderType === ORDER_TYPES.offline ? FILTER_CONFIG_TYPE.orderReturnOffline : FILTER_CONFIG_TYPE.orderReturnOnline
+
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
+
+  const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({})
+  
+  const [isShowModalSaveFilter, setIsShowModalSaveFilter] = useState(false);
+
+  const [tagActive, setTagActive] = useState<number|null>();
+
+  const {
+    filterConfigs, 
+    onSaveFilter, 
+    configId, 
+    setConfigId, 
+    handleDeleteFilter,
+    onSelectFilterConfig,
+  } = useHandleFilterConfigs(
+    filterConfigType, 
+    form,
+    {
+      ...formSearchValuesToSave
+    }, 
+    setTagActive,
+    onHandleFilterTagSuccessCallback
+  )
+
+  const onMenuDeleteConfigFilter = () => {
+    handleDeleteFilter(configId)
+    setIsShowConfirmDelete(false)
+  };
 
   const changeIsReceived = useCallback((status) => {
     let newIsReceived = [...isReceived]
@@ -424,13 +479,23 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           visible={visible}
           className="order-filter-drawer"
           width={widthScreen()}
+          allowSave
+          onSaveFilter={onShowSaveFilter}
         >
           {rerender && <Form
             onFinish={onFinish}
+            form={form}
             ref={formRef}
             initialValues={params}
             layout="vertical"
           >
+            {( filterConfigs && filterConfigs.length > 0) &&
+                <div style={{ marginBottom: 20 }}>
+                  {filterConfigs?.map((e, index)=>{
+                    return <UserCustomFilterTag key={index} tagId={e.id} name={e.name} onSelectFilterConfig={onSelectFilterConfig} setConfigId={setConfigId} setIsShowConfirmDelete={setIsShowConfirmDelete} tagActive={tagActive} />
+                  })}
+                </div>
+              }
             <Row gutter={20}>
               <Col span={12}>
                 <p>Kho cửa hàng</p>
@@ -597,6 +662,30 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             </Row>
           </Form>}
         </BaseFilter>
+        <FilterConfigModal 
+          setVisible={setIsShowModalSaveFilter} 
+          visible={isShowModalSaveFilter} 
+          onOk={(formValues) => {
+            setIsShowModalSaveFilter(false)
+            onSaveFilter(formValues)
+          }} 
+          filterType={filterConfigType}
+        />
+        <ModalDeleteConfirm
+          visible={isShowConfirmDelete}
+          onOk={onMenuDeleteConfigFilter}
+          onCancel={() => setIsShowConfirmDelete(false)}
+          title="Xác nhận"
+          subTitle={(
+            <span>Bạn có chắc muốn xóa bộ lọc {" "}
+              <strong>
+                "{
+                  filterConfigs.find(single => single.id === configId)?.name || null
+                }"
+              </strong>
+            </span>
+          )}
+        />
       </div>
       <div className="order-filter-tags">
         {filters && filters.map((filter: any, index) => {

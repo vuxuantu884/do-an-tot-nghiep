@@ -1,5 +1,10 @@
 import { FulFillmentStatus } from "./Constants";
 
+export const ORDER_TYPES = {
+  online: "online",
+  offline: "offline",
+} as const
+
 export const DELIVER_SERVICE_STATUS = {
   active: "active",
   inactive: "inactive",

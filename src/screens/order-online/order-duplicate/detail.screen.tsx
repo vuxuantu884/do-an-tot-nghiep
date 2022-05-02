@@ -55,6 +55,7 @@ import MergeOrderModel from "./modal/merge-order.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { getDetailOrderDuplicateAction, putOrderDuplicateCancel, putOrderDuplicateMerge } from "domain/actions/order/order-duplicate.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { ORDER_TYPES } from "utils/Order.constants";
 
 const ACTION_ID = {
   mergeOrder: 1,
@@ -1139,6 +1140,7 @@ const OrderDuplicate: React.FC = () => {
             listShippers={listShippers}
             initSubStatus={listOrderProcessingStatus}
             isHideTab={true}
+            orderType={ORDER_TYPES.online}
           />
           <CustomTable
             isRowSelection

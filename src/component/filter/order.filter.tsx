@@ -19,7 +19,7 @@ import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { OrderSearchQuery } from "model/order/order.model";
+import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -37,11 +37,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import { POS } from "utils/Constants";
+import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
 import { fullTextSearch } from "utils/StringUtils";
 import TreeSource from "../treeSource";
+import FilterConfigModal from "component/modal/FilterConfigModal";
+import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
+import UserCustomFilterTag from "./UserCustomFilterTag";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import BaseResponse from "base/base.response";
+import { FilterConfig } from "model/other";
+import { ORDER_TYPES } from "utils/Order.constants";
 
 type PropTypes = {
   params: OrderSearchQuery;
@@ -63,7 +70,7 @@ type PropTypes = {
   onClearFilter?: () => void;
   setListSource?: (values: SourceResponse[]) => void;
   setListOrderProcessingStatus?: (values: OrderProcessingStatusModel[]) => void;
-  isShowOfflineOrder?: boolean;
+  orderType: OrderTypeModel;
 };
 
 type ListFilterTagTypes = {
@@ -111,7 +118,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onFilter,
     onShowColumnSetting,
     setListOrderProcessingStatus,
-    isShowOfflineOrder,
+    orderType,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -124,6 +131,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
   const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
+
+  const [services, setServices] = useState<any[]>([]);
 
 const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
@@ -203,6 +212,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  const [form] = Form.useForm();
   const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
@@ -211,41 +221,55 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>([]);
   const [coordinatorFound, setCoordinatorFound] = useState<Array<AccountResponse>>([]);
 
-  useEffect(() => {
-    if (params.assignee_codes && params.assignee_codes?.length > 0) {
-      searchAccountApi({
-        codes: params.assignee_codes,
-      }).then((response) => {
-        setAssigneeFound(response.data.items);
-      });
+  const [isShowModalSaveFilter, setIsShowModalSaveFilter] = useState(false);
+
+  // lưu bộ lọc
+  const onShowSaveFilter = useCallback(() => {
+    // setModalAction("create");
+    let values = formRef.current?.getFieldsValue();
+    if(values) {
+      values.services = services;
+      if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
+        values = {
+          ...values,
+          price_min: values?.price_max,
+          price_max: values?.price_min,
+        };
+      }
+
     }
-    if (params.account_codes && params.account_codes?.length > 0) {
-      searchAccountApi({
-        codes: params.account_codes,
-      }).then((response) => {
-        setAccountFound(response.data.items);
-      });
-    }
-    if (params.marketer_codes && params.marketer_codes?.length > 0) {
-      searchAccountApi({
-        codes: params.marketer_codes,
-      }).then((response) => {
-        setMarketerFound(response.data.items);
-      });
-    }
-    if (params.coordinator_codes && params.coordinator_codes?.length > 0) {
-      searchAccountApi({
-        codes: params.coordinator_codes,
-      }).then((response) => {
-        setCoordinatorFound(response.data.items);
-      });
-    }
-  }, [
-    params.assignee_codes,
-    params.account_codes,
-    params.marketer_codes,
-    params.coordinator_codes,
-  ]);
+    setFormSearchValuesToSave(values)
+    setIsShowModalSaveFilter(true);
+  }, [formRef, services]);
+
+  const filterConfigType = orderType === ORDER_TYPES.offline ? FILTER_CONFIG_TYPE.orderOffline : FILTER_CONFIG_TYPE.orderOnline
+
+  const onHandleFilterTagSuccessCallback = (res: BaseResponse<FilterConfig>) => {
+    setTagActive(res.data.id)
+  };
+
+  const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({})
+
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
+
+  const [tagActive, setTagActive] = useState<number|null>();
+
+  const {
+    filterConfigs, 
+    onSaveFilter, 
+    configId, 
+    setConfigId, 
+    handleDeleteFilter,
+    onSelectFilterConfig,
+  } = useHandleFilterConfigs(
+    filterConfigType, 
+    form,
+    {
+      ...formSearchValuesToSave
+    }, 
+    setTagActive,
+    onHandleFilterTagSuccessCallback
+  )
 
   const onChangeOrderOptions = useCallback(
     (e) => {
@@ -257,13 +281,16 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const onFilterClick = useCallback(() => {
     formRef.current?.submit();
   }, [formRef]);
+
   const openFilter = useCallback(() => {
     setVisible(true);
     setRerender(true);
   }, []);
+
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
+
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -490,8 +517,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       },
     });
   }, [initialValues]);
-
-  const [services, setServices] = useState<any[]>([]);
+  
   const onFinish = useCallback(
     (values) => {
       let error = false;
@@ -1160,7 +1186,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   };
 
   const renderTabHeader = () => {
-    if(isShowOfflineOrder) {
+    if(orderType === ORDER_TYPES.offline) {
       return null
     }
     if(!isHideTab) {
@@ -1179,6 +1205,42 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   useLayoutEffect(() => {
     window.addEventListener("resize", () => setVisible(false));
   }, []);
+
+  useEffect(() => {
+    if (params.assignee_codes && params.assignee_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.assignee_codes,
+      }).then((response) => {
+        setAssigneeFound(response.data.items);
+      });
+    }
+    if (params.account_codes && params.account_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.account_codes,
+      }).then((response) => {
+        setAccountFound(response.data.items);
+      });
+    }
+    if (params.marketer_codes && params.marketer_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.marketer_codes,
+      }).then((response) => {
+        setMarketerFound(response.data.items);
+      });
+    }
+    if (params.coordinator_codes && params.coordinator_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.coordinator_codes,
+      }).then((response) => {
+        setCoordinatorFound(response.data.items);
+      });
+    }
+  }, [
+    params.assignee_codes,
+    params.account_codes,
+    params.marketer_codes,
+    params.coordinator_codes,
+  ]);
 
   useEffect(() => {
     formSearchRef.current?.setFieldsValue({
@@ -1241,6 +1303,11 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     return <React.Fragment>{filter.value}</React.Fragment>;
   };
 
+  const onMenuDeleteConfigFilter = () => {
+    handleDeleteFilter(configId)
+    setIsShowConfirmDelete(false)
+  };
+
   return (
     <StyledComponent>
       {renderTabHeader()}
@@ -1253,7 +1320,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
             layout="inline">
             <div style={{ width: "100%" }}>
               <Row gutter={12}>
-                <Col span={isShowOfflineOrder ? 12 : 7}>
+                <Col span={orderType === ORDER_TYPES.offline ? 12 : 7}>
                   <Item name="search_term" className="input-search">
                     <Input
                       prefix={<img src={search} alt="" />}
@@ -1266,7 +1333,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     />
                   </Item>
                 </Col>
-                {isShowOfflineOrder ? null : (
+                {orderType === ORDER_TYPES.offline ? null : (
                   <Col span={6}>
                     <Item name="sub_status_code" style={{marginRight: 0}}>
                       <CustomSelectWithButtonCheckAll
@@ -1312,7 +1379,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     </Item>
                   </Col>
                 )}
-                {isShowOfflineOrder ? null : (
+                {orderType === ORDER_TYPES.offline ? null : (
                   <Col span={5}>
                     <Item name="tracking_codes" className="input-search">
                       <Input
@@ -1327,7 +1394,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     </Item>
                   </Col>
                 )}
-                <Col span={isShowOfflineOrder ? 12 : 6}>
+                <Col span={orderType === ORDER_TYPES.offline ? 12 : 6}>
                   {rerenderSearchVariant && (
                     <Item name="variant_ids" style={{marginRight: 0}}>
                       <DebounceSelect
@@ -1365,9 +1432,18 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           onCancel={onCancelFilter}
           visible={visible}
           className="order-filter-drawer"
+          allowSave
+          onSaveFilter={onShowSaveFilter}
           width={widthScreen()}>
           {rerender && (
-            <Form onFinish={onFinish} ref={formRef} initialValues={initialValues} layout="vertical">
+            <Form onFinish={onFinish} form={form} ref={formRef} initialValues={initialValues} layout="vertical">
+              {( filterConfigs && filterConfigs.length > 0) &&
+                <div style={{ marginBottom: 20 }}>
+                  {filterConfigs?.map((e, index)=>{
+                    return <UserCustomFilterTag key={index} tagId={e.id} name={e.name} onSelectFilterConfig={onSelectFilterConfig} setConfigId={setConfigId} setIsShowConfirmDelete={setIsShowConfirmDelete} tagActive={tagActive} />
+                  })}
+                </div>
+              }
               <Row gutter={20}>
                 <Col span={8} xxl={8}>
                   <Item name="store_ids" label="Kho cửa hàng">
@@ -1841,6 +1917,31 @@ const status = bootstrapReducer.data?.order_main_status.filter(
             </Form>
           )}
         </BaseFilter>
+
+        <FilterConfigModal 
+          setVisible={setIsShowModalSaveFilter} 
+          visible={isShowModalSaveFilter} 
+          onOk={(formValues) => {
+            setIsShowModalSaveFilter(false)
+            onSaveFilter(formValues)
+          }} 
+          filterType={filterConfigType}
+        />
+        <ModalDeleteConfirm
+          visible={isShowConfirmDelete}
+          onOk={onMenuDeleteConfigFilter}
+          onCancel={() => setIsShowConfirmDelete(false)}
+          title="Xác nhận"
+          subTitle={(
+            <span>Bạn có chắc muốn xóa bộ lọc {" "}
+              <strong>
+                "{
+                  filterConfigs.find(single => single.id === configId)?.name || null
+                }"
+              </strong>
+            </span>
+          )}
+        />
       </div>
       {filters && filters.length > 0 && (
         <div className="order-filter-tags">
