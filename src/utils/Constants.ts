@@ -317,11 +317,20 @@ export const SHIPPING_REQUIREMENT = {
 export const FILTER_CONFIG_TYPE = {
   FILTER_PO: "filter_po",
   FILTER_INVENTORY:  "filter_inventory",
+  orderOnline: "filter_order_online",
+  orderOffline: "filter_order_offline",
+  orderReturnOnline: "filter_order_return_online",
+  orderReturnOffline: "filter_order_return_offline",
 };
 
 export const COLUMN_CONFIG_TYPE = {
   COLUMN_INVENTORY: "column_inventory",
-  COLUMN_PO:  "column_po"
+  COLUMN_PO:  "column_po",
+  orderOnline: "column_order_online",
+  orderOffline: "column_order_offline",
+  orderReturnOnline: "column_order_return_online",
+  orderReturnOffline: "column_order_return_offline",
+  orderDuplicatedOnline: "column_order_duplicated_online",
 };
 
 export const ACCOUNT_ROLE_ID = {

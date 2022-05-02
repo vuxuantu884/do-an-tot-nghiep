@@ -22,10 +22,12 @@ import {
 } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { ChangeOrderStatusHtmlModel, OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { ChangeOrderStatusHtmlModel, OrderModel, OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel
@@ -46,7 +48,9 @@ import ExportModal from "screens/order-online/modal/export.modal";
 import { changeOrderStatusToPickedService, setSubStatusService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import { dangerColor, successColor } from "utils/global-styles/variables";
+import { ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -62,8 +66,8 @@ type PropTypes = {
       path?: string;
     }[];
   };
+  orderType: OrderTypeModel;
   isHideTab?: boolean;
-  isShowOfflineOrder?: boolean;
 };
 
 let isLoadingSetSubStatus = false
@@ -89,10 +93,14 @@ function OrderList(props: PropTypes) {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { location, initQuery, pageTitle, isHideTab = false, isShowOfflineOrder = false } = props;
+  const { location, initQuery, pageTitle, isHideTab = false, orderType } = props;
   const queryParamsParsed: any = queryString.parse(
     location.search
   );
+
+  // cột column
+  const columnConfigType = orderType === ORDER_TYPES.offline ? COLUMN_CONFIG_TYPE.orderOffline : COLUMN_CONFIG_TYPE.orderOnline
+  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(columnConfigType)
 
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
@@ -114,12 +122,16 @@ function OrderList(props: PropTypes) {
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
+
   const [deliveryServices, setDeliveryServices] = useState<
     Array<DeliveryServiceResponse>
   >([]);
+
+  const subStatuses = useGetOrderSubStatuses();
+
   const type = useMemo(() => {
-    return !isShowOfflineOrder ? "orders_online" : "orders_offline"
-  }, [isShowOfflineOrder])
+    return orderType === ORDER_TYPES.online ? "orders_online" : "orders_offline"
+  }, [orderType])
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -792,7 +804,7 @@ function OrderList(props: PropTypes) {
                   </Button>
                 )}
               </AuthWrapper>
-              {!isShowOfflineOrder ? (
+              {orderType === ORDER_TYPES.online ? (
                 <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
                   {(isPassed: boolean) => (
                     <ButtonCreate
@@ -826,7 +838,7 @@ function OrderList(props: PropTypes) {
         <Card>
           <OrdersFilter
             onMenuClick={onMenuClick}
-            actions={isShowOfflineOrder? actions.filter(single => single.id !== ACTION_ID.changeOrderStatus) : actions}
+            actions={orderType === ORDER_TYPES.offline ? actions.filter(single => single.id !== ACTION_ID.changeOrderStatus) : actions}
             onFilter={onFilter}
             isLoading={isFilter}
             params={params}
@@ -841,12 +853,12 @@ function OrderList(props: PropTypes) {
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
             isHideTab={isHideTab}
-            isShowOfflineOrder={isShowOfflineOrder}
+            orderType={orderType}
             setListSource={setListSource}
             setListOrderProcessingStatus={setListOrderProcessingStatus}
           />
 
-          {deliveryServices.length > 0 ? (
+          {deliveryServices.length > 0 && subStatuses.length > 0 ? (
             <OrdersTable
               tableLoading={tableLoading}
               data={data}
@@ -860,7 +872,9 @@ function OrderList(props: PropTypes) {
               selectedRowKeys={selectedRowKeys}
               onFilterPhoneCustomer={onFilterPhoneCustomer}
               listStore={listStore}
-              isShowOfflineOrder={isShowOfflineOrder}
+              orderType={orderType}
+              tableColumnConfigs={tableColumnConfigs}
+              subStatuses={subStatuses}
             />
           ) : "Đang tải dữ liệu..."
           }
@@ -872,6 +886,8 @@ function OrderList(props: PropTypes) {
           onOk={(data) => {
             setShowSettingColumn(false);
             setColumns(data);
+            console.log('data', data)
+            onSaveConfigTableColumn(data );
           }}
           data={columns}
         />

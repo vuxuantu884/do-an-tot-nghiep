@@ -1,6 +1,7 @@
 import { OrderSearchQuery } from "model/order/order.model";
 import React from "react";
 import { withRouter } from "react-router-dom";
+import { ORDER_TYPES } from "utils/Order.constants";
 import OrderList from "../component/OrderList/OrderList";
 
 
@@ -78,7 +79,7 @@ function PosOrders(props: PropTypes) {
   };
 
   return (
-    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} isShowOfflineOrder />
+    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} orderType={ORDER_TYPES.offline} />
   );
 };
 export default withRouter(PosOrders);

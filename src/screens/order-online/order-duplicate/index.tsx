@@ -21,6 +21,9 @@ import { generateQuery } from "utils/AppUtils";
 import { getOrderDuplicateAction } from "domain/actions/order/order-duplicate.action";
 import { CustomerDuplicateModel } from "model/order/duplicate.model";
 import './order-duplicate.scss';
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 
 const ACTION_ID = {
   printShipment: 4,
@@ -71,7 +74,7 @@ const CustomerDuplicate: React.FC = () => {
     items: dataTest,
   });
 
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<CustomerDuplicateModel>>>([
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<CustomerDuplicateModel>>>([
     {
       title: (
         <div style={{ display: "-webkit-flex" }}>
@@ -174,6 +177,12 @@ const CustomerDuplicate: React.FC = () => {
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
+  // cột column
+  const columnConfigType =  COLUMN_CONFIG_TYPE.orderDuplicatedOnline;
+  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(columnConfigType)
+  //cột của bảng
+  useSetTableColumns(columnConfigType, tableColumnConfigs, columns, setColumns)
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -253,7 +262,7 @@ const CustomerDuplicate: React.FC = () => {
       }
     };
 
-    setColumn(items);
+    setColumns(items);
     history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
   }, [history, params, columns]);
 
@@ -372,7 +381,8 @@ const CustomerDuplicate: React.FC = () => {
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
             setShowSettingColumn(false);
-            setColumn(data);
+            setColumns(data);
+            onSaveConfigTableColumn(data );
           }}
           data={columns}
         />
