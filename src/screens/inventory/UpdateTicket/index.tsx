@@ -20,7 +20,6 @@ import {
   deleteInventoryTransferAction,
   getCopyDetailInventoryTransferAction,
   getDetailInventoryTransferAction,
-  inventoryGetDetailVariantIdsAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
   updateInventoryTransferAction,
@@ -441,20 +440,11 @@ const UpdateTicket: FC = () => {
 
       let newDataTable = [...dataTable];
 
-      const storeId = form.getFieldValue("from_store_id");
+      if (newDataTable.length === 0) return;
 
       for (let i = 0; i < newDataTable.length; i++) {
-        for (let j = 0; j < result.length; j++) {
-          if (storeId === result[j].store_id && newDataTable[i].variant_id === result[j].variant_id) {
-            newDataTable[i].available = result[j].available;
-            newDataTable[i].on_hand = result[j].on_hand;
-            break;
-          }
-
-          if (j === result.length - 1 && i === newDataTable.length - 1) {
-            newDataTable = [];
-          }
-        }
+        newDataTable[i].available = result.items[i].available;
+        newDataTable[i].on_hand = result.items[i].on_hand;
       }
 
       setDataTable(newDataTable);
@@ -497,16 +487,13 @@ const UpdateTicket: FC = () => {
           const variants_id = dataTable?.map((item: VariantResponse) => item.variant_id);
           if (variants_id?.length > 0) {
             setIsLoadingTable(true);
-            dispatch(
-              inventoryGetDetailVariantIdsAction(variants_id, storeData.id, onResultGetDetailVariantIds)
-            );
             changeFromStore(variants_id, storeData).then();
           } else {
             setModalConfirm({ visible: false })
           }
         },
       });
-    }, [changeFromStore, dataTable, dispatch, form, fromStoreData, initDataForm?.from_store_id, initDataForm?.from_store_name, onResultGetDetailVariantIds]
+    }, [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id, initDataForm?.from_store_name]
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
