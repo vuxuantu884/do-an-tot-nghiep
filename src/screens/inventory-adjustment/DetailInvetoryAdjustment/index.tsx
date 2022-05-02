@@ -6,7 +6,7 @@ import { Button, Card, Col, Form, Input, Row, Space, Tabs, Tag, Upload } from "a
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
-import { PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { PaperClipOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -70,9 +70,15 @@ import TextArea from "antd/es/input/TextArea";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
-import { addLineItem, deleteLineItem, getTotalOnHand } from "service/inventory/adjustment/index.service";
+import {
+  addLineItem,
+  deleteLineItem,
+  getTotalOnHand,
+  updateOnHandItemOnlineInventoryApi,
+} from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
+import { searchVariantsApi } from "../../../service/product/product.service";
 
 const { TabPane } = Tabs;
 
@@ -499,6 +505,27 @@ const DetailInvetoryAdjustment: FC = () => {
     }
   };
 
+  const reloadOnHand = async (item: any) => {
+    setTableLoading(true);
+    const product = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
+      status: "active",
+      variant_ids: item.variant_id,
+    })
+
+    if (product) {
+      const res = await callApiNative({isShowError: false}, dispatch, updateOnHandItemOnlineInventoryApi,data?.id ?? 0, item.id, {
+        on_hand: product?.items.length > 0 ? product?.items[0].on_hand : 0
+      });
+
+      if (res) {
+        showSuccess("Cập nhật tồn trong kho thành công");
+        setIsReRender(!isReRender);
+      }
+    } else {
+      setTableLoading(false);
+    }
+  };
+
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -648,6 +675,18 @@ const DetailInvetoryAdjustment: FC = () => {
           return <div style={{ color: "green" }}>+{item.on_hand_adj}</div>;
         }
       },
+    },
+    {
+      title: "",
+      fixed: dataLinesItem?.items.length !== 0 && "right",
+      width: 30,
+      render: (value: string, row) => {
+        return <>
+          {data?.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
+            <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
+          )}
+        </>
+      }
     },
     {
       title: "",
@@ -953,6 +992,7 @@ const DetailInvetoryAdjustment: FC = () => {
   }, [dispatch, idNumber, listJobImportFile, onResult, statusImport]);
 
   const onDeleteItem = async (adjustmentId: number, variantId: number) => {
+    setTableLoading(true);
     const response = await callApiNative(
       { isShowError: false },
       dispatch,
@@ -961,7 +1001,10 @@ const DetailInvetoryAdjustment: FC = () => {
       variantId,
     );
 
-    if (response.code !== HttpStatus.SUCCESS) return;
+    if (response.code !== HttpStatus.SUCCESS) {
+      setTableLoading(false);
+      return;
+    }
     dispatch(
       getLinesItemAdjustmentAction(
         idNumber,
