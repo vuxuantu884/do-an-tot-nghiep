@@ -1454,6 +1454,19 @@ const DetailInvetoryAdjustment: FC = () => {
                       </Button>
                     </AuthWrapper>
                   )}
+                  <Button
+                          type="default"
+                          className="light"
+                          size="large"
+                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                          onClick={() => {
+                            setShowExportModal(true);
+                            setListExportFile(["EXPORT_ADJUST"]);
+                            checkExportFile();
+                          }}
+                        >
+                          Xuất excel
+                   </Button>
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
                     data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <>
@@ -1470,24 +1483,6 @@ const DetailInvetoryAdjustment: FC = () => {
                           <Button disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
                                   icon={<UploadOutlined />}>Nhập excel</Button>
                         </Upload>
-                      </AuthWrapper>
-                      <AuthWrapper
-                        acceptPermissions={[InventoryAdjustmentPermission.export]}
-                      >
-                        <Button
-                          type="default"
-                          className="light"
-                          size="large"
-                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                          onClick={() => {
-                            setShowExportModal(true);
-                            setListExportFile(["EXPORT_ADJUST"]);
-                            checkExportFile();
-                          }}
-                          disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
-                        >
-                          Xuất excel
-                        </Button>
                       </AuthWrapper>
                       <AuthWrapper
                         acceptPermissions={[InventoryAdjustmentPermission.audit]}
