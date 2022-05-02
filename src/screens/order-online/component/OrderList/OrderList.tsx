@@ -23,10 +23,7 @@ import {
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
-<<<<<<< HEAD
-=======
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
->>>>>>> hotfix/OR-2583-luu-bo-loc-don-hang-delay
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -130,11 +127,8 @@ function OrderList(props: PropTypes) {
     Array<DeliveryServiceResponse>
   >([]);
 
-<<<<<<< HEAD
-=======
   const subStatuses = useGetOrderSubStatuses();
 
->>>>>>> hotfix/OR-2583-luu-bo-loc-don-hang-delay
   const type = useMemo(() => {
     return orderType === ORDER_TYPES.online ? "orders_online" : "orders_offline"
   }, [orderType])

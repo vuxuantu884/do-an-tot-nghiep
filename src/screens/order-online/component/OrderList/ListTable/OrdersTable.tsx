@@ -50,7 +50,7 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -71,7 +71,6 @@ import IconStore from "./images/store.svg";
 import IconPaymentReturn from "./images/tien-hoan.svg";
 import IconPaymentCash from "./images/tien-mat.svg";
 import InventoryTable from "./InventoryTable";
-import { ORDER_TYPES } from "utils/Order.constants";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
