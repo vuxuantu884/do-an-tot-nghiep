@@ -466,6 +466,7 @@ const UpdateTicket: FC = () => {
     setModalConfirm({ visible: false });
   }, [dataTable, form])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const changeFromStore = async (variants_id: any, storeData: Store) => {
     const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
       status: "active",
