@@ -1331,15 +1331,23 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt_id",
         align: "center",
         render: (value, record: OrderModel) => {
-          if (value) {
-            return (
-              <Link to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
-                {value}
-              </Link>
-            );
-          } else {
-            return "-";
-          }
+          let result: ReactNode = (
+            <span>-</span>
+          );
+          let arr = record.goods_receipts;
+          if(arr && arr.length > 0) {
+            result = arr.map((single, index) => {
+              return (
+                <React.Fragment key={index}>
+                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>
+                    {single.id}
+                  </Link>
+                  {arr &&index < arr.length -1 && ", "}
+                </React.Fragment>
+              )
+            })
+          } 
+          return result;
         },
         visible: false,
         width: 160,
