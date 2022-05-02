@@ -109,6 +109,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         ...params,
         to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected?.toString(),
       });
+    } else if (activeTab === InventoryTransferTabUrl.LIST) {
+      return;
     } else {
       formSearchRef.current?.setFieldsValue({
         ...params,
