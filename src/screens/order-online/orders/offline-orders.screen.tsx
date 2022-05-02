@@ -12,13 +12,13 @@ function PosOrders(props: PropTypes) {
   const { location } = props;
 
   const pageTitle = {
-    title: "Danh sách đơn hàng bán lẻ",
+    title: "Danh sách đơn hàng offline",
     breadcrumb: [
       {
-        name: "Đơn hàng bán lẻ",
+        name: "Bán lẻ offline",
       },
       {
-        name: "Danh sách đơn hàng bán lẻ",
+        name: "Danh sách đơn hàng offline",
       },
     ]
   } 
