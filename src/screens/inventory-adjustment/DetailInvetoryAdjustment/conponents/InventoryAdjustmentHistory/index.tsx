@@ -3,7 +3,7 @@ import {
   InventoryAdjustmentDetailItem,
   LineItemAdjustment,
 } from "model/inventoryadjustment";
-import {Col, Input, Radio, Row, Space, Table, Tooltip} from "antd";
+import { Col, Input, Radio, Row, Space, Table, Tooltip } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import {Link} from "react-router-dom";
 import { InventoryTabUrl } from "config/url.config";
@@ -18,16 +18,29 @@ import {
   INVENTORY_AUDIT_TYPE_CONSTANTS,
   STATUS_INVENTORY_ADJUSTMENT_CONSTANTS,
 } from "screens/inventory-adjustment/constants";
-import {CodepenOutlined, InfoCircleOutlined, PieChartOutlined, SearchOutlined, UserSwitchOutlined} from "@ant-design/icons";
+import {
+  CodepenOutlined,
+  InfoCircleOutlined,
+  PieChartOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  UserSwitchOutlined,
+} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
-import { getLinesItemAdjustmentApi, updateReasonItemOnlineInventoryApi } from "service/inventory/adjustment/index.service";
+import {
+  getLinesItemAdjustmentApi,
+  updateOnHandItemOnlineInventoryApi,
+  updateReasonItemOnlineInventoryApi,
+} from "service/inventory/adjustment/index.service";
 import { formatCurrency } from "../../../../../utils/AppUtils";
 import EditNote from "screens/order-online/component/edit-note";
+import { searchVariantsApi } from "service/product/product.service";
+import { STATUS_INVENTORY_ADJUSTMENT } from "../../../ListInventoryAdjustment/constants";
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
@@ -60,6 +73,9 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     },
     items: [],
   });
+
+  const [loadingTable, setLoadingTable] = useState(false);
+
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
     TotalMiss: 0,
@@ -136,6 +152,27 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       onChangeReason(item.note, item, dataLinesItem);
     }
   },[dispatch, data?.id, onChangeReason, dataLinesItem]);
+
+  const reloadOnHand = async (item: any) => {
+    setLoadingTable(true);
+    const product = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
+      status: "active",
+      variant_ids: item.variant_id,
+    })
+
+    if (product) {
+      const res = await callApiNative({isShowError: false}, dispatch, updateOnHandItemOnlineInventoryApi,data?.id ?? 0, item.id, {
+        on_hand: product?.items.length > 0 ? product?.items[0].on_hand : 0
+      });
+
+      if (res) {
+        showSuccess("Cập nhật tồn trong kho thành công");
+        getLinesItemAdjustment(dataLinesItem.metadata.page, dataLinesItem.metadata.limit, '');
+      }
+    } else {
+      setLoadingTable(false);
+    }
+  };
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -333,10 +370,21 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
         return value || "";
       },
     },
+    {
+      title: "",
+      fixed: dataLinesItem?.items.length !== 0 && "right",
+      width: 30,
+      render: (value: string, row) => {
+        return <>
+          {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && (
+            <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
+          )}
+        </>
+      }
+    },
   ];
 
-  const getLinesItemAdjustment= useCallback(async (page: number,size: number, keySearch: string|null)=>{
-
+  const getLinesItemAdjustment = useCallback(async (page: number,size: number, keySearch: string|null)=>{
     const res = await callApiNative(
       { isShowError: false },
       dispatch,
@@ -344,6 +392,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       idNumber,
       `page=${page}&limit=${size}&type=deviant&condition=${keySearch?.toString()}`
     );
+    setLoadingTable(false);
     if (res) {
       setDataLinesItem({...res});
       setDataTab(res.metadata.total);
@@ -432,6 +481,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
 
       {/* Danh sách */}
       <Table
+        loading={loadingTable}
         rowClassName="product-table-row"
         style={{paddingTop: 16}}
         pagination={false}
