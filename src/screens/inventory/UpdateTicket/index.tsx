@@ -89,7 +89,6 @@ const UpdateTicket: FC = () => {
 
   const location = useLocation();
   const stateImport: any = location.state;
-
   const query = useQuery();
   const queryParam: any = getQueryParams(query);
 
@@ -169,11 +168,17 @@ const UpdateTicket: FC = () => {
 
   // get store
   useEffect(() => {
-    if ( CopyId ) {
+    if (stores.length === 0) return;
+    if (CopyId) {
       dispatch(getCopyDetailInventoryTransferAction(CopyId, onResult));
     } else if (stateImport) {
 
       if (stateImport) {
+        if (stateImport.isFastCreate) {
+          onFinish(stateImport.data);
+          return;
+        }
+
         form.setFieldsValue(stateImport);
         setInitDataForm(stateImport);
         setDataTable(stateImport.line_items);
@@ -182,7 +187,7 @@ const UpdateTicket: FC = () => {
       dispatch(getDetailInventoryTransferAction(idNumber, onResult));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [CopyId]);
+  }, [CopyId, stores]);
 
   useEffect(() => {
     if (stores.length === 0) return;
@@ -548,12 +553,14 @@ const UpdateTicket: FC = () => {
         }
       });
 
-      if (dataTable.length === 0) {
+      if (dataTable.length === 0 && data.line_items.length === 0) {
         showError("Vui lòng chọn sản phẩm");
         return;
       }
 
-      dataCreate.line_items = dataTable.map((item: any) => {
+      const newDataTable = dataTable.length === 0 ? data.line_items : dataTable;
+
+      dataCreate.line_items = newDataTable.map((item: any) => {
         return {
           sku: item.sku,
           barcode: item.barcode,
