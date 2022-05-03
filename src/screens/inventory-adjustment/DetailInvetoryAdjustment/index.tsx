@@ -6,7 +6,7 @@ import { Button, Card, Col, Form, Input, Row, Space, Tabs, Tag, Upload } from "a
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
-import { PaperClipOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -60,7 +60,7 @@ import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { getFile, getFileV2, importFile,exportFileV2 } from "service/other/import.inventory.service";
+import { getFileV2, importFile,exportFileV2 } from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -70,15 +70,8 @@ import TextArea from "antd/es/input/TextArea";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
-import {
-  addLineItem,
-  deleteLineItem,
-  getTotalOnHand,
-  updateOnHandItemOnlineInventoryApi,
-} from "service/inventory/adjustment/index.service";
+import { addLineItem, deleteLineItem, getTotalOnHand } from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
-import { searchVariantsApi } from "../../../service/product/product.service";
 
 const { TabPane } = Tabs;
 
@@ -470,27 +463,6 @@ const DetailInvetoryAdjustment: FC = () => {
     }
   };
 
-  const reloadOnHand = async (item: any) => {
-    setTableLoading(true);
-    const product = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
-      status: "active",
-      variant_ids: item.variant_id,
-    })
-
-    if (product) {
-      const res = await callApiNative({isShowError: false}, dispatch, updateOnHandItemOnlineInventoryApi,data?.id ?? 0, item.id, {
-        on_hand: product?.items.length > 0 ? product?.items[0].on_hand : 0
-      });
-
-      if (res) {
-        showSuccess("Cập nhật tồn trong kho thành công");
-        setIsReRender(!isReRender);
-      }
-    } else {
-      setTableLoading(false);
-    }
-  };
-
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -619,25 +591,13 @@ const DetailInvetoryAdjustment: FC = () => {
     },
     {
       title: "",
-      fixed: dataLinesItem?.items.length !== 0 && "right",
-      width: 30,
-      render: (value: string, row) => {
-        return <>
-          {data?.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
-            <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
-          )}
-        </>
-      }
-    },
-    {
-      title: "",
       fixed: "right",
       width: 50,
       render: (value: string, row) => {
         return <>
           {
             data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL &&
-            row.on_hand === 0 && isPermissionAudit &&
+              row.on_hand === 0 && isPermissionAudit &&
             <Button
               onClick={() => onDeleteItem(Number(id), row.id)}
               className="item-delete"
@@ -676,43 +636,35 @@ const DetailInvetoryAdjustment: FC = () => {
   );
 
   const updateAdjustment = React.useMemo(() =>
-      _.debounce((isUpdateFile = false) => {
-        const dataUpdate = {...data,
-          note: form.getFieldValue('note'),
-          version: form.getFieldValue('version'),
-          line_items: dataLinesItem.items,
-          list_attached_files: form.getFieldValue('list_attached_files')} as InventoryAdjustmentDetailItem;
+  _.debounce((isUpdateFile = false) => {
+    const dataUpdate = {...data,
+      note: form.getFieldValue('note'),
+      version: form.getFieldValue('version'),
+      line_items: dataLinesItem.items,
+      list_attached_files: form.getFieldValue('list_attached_files')} as InventoryAdjustmentDetailItem;
 
-        if (data && dataUpdate) {
-          dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, (res)=>{
-            showSuccess("Cập nhật phiếu kiểm kho thành công");
-            if (isUpdateFile) {
-              setData({
-                ...data,
-                list_attached_files: res.list_attached_files
-              });
-            }
-          }));
+    if (data && dataUpdate) {
+      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, (res)=>{
+        showSuccess("Cập nhật phiếu kiểm kho thành công");
+        if (isUpdateFile) {
+          setData({
+            ...data,
+            list_attached_files: res.list_attached_files
+          });
         }
-      }, 500),
-    [dispatch, data, form, dataLinesItem])
-
-  const onChangeNote = useCallback(
-    (note: string) => {
-      if (note && note.length > 500) return;
-      updateAdjustment();
-    },
-    [updateAdjustment]
-  )
-
-  const updateAuditedBys = () => {
-    const dataUpdate = form.getFieldsValue(true);
-    if (data && dataUpdate && dataUpdate.audited_bys.length > 0) {
-      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, ()=>{
-        showSuccess("Cập nhật người kiểm kho thành công");
       }));
     }
-  }
+  }, 500),
+  [dispatch, data, form, dataLinesItem]
+)
+
+const onChangeNote = useCallback(
+  (note: string) => {
+    if (note && note.length > 500) return;
+    updateAdjustment();
+  },
+  [updateAdjustment]
+)
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -822,8 +774,8 @@ const DetailInvetoryAdjustment: FC = () => {
         setTableLoading(true);
         onEnterFilterVariant(code);
       }, 300),
-    [onEnterFilterVariant]
-  );
+   [onEnterFilterVariant]
+   );
 
   const onChangeKeySearch = useCallback((code: string)=>{
     debounceSearchVariant(code);
@@ -847,7 +799,6 @@ const DetailInvetoryAdjustment: FC = () => {
       });
   }, [data?.id, listExportFile]);
 
-
   const checkExportFile = useCallback(() => {
     let getFilePromises = listExportFile.map((code) => {
       return getFileV2(code);
@@ -859,7 +810,6 @@ const DetailInvetoryAdjustment: FC = () => {
             setExportProgress((response.data.num_of_record/response.data.total)*100);
           }
           if (response.data && response.data.status === "FINISH") {
-            setExportProgress(100);
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
             const newListExportFile = listExportFile.filter((item) => {
@@ -878,14 +828,13 @@ const DetailInvetoryAdjustment: FC = () => {
     });
   }, [listExportFile]);
 
-
   useEffect(() => {
-    if (listExportFile.length ===0|| statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH || statusExport === STATUS_IMPORT_EXPORT.ERROR) return;
+    if (listExportFile.length === 0 || statusExport === 3) return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
-  }, [checkExportFile, listExportFile.length, statusExport]);
+  }, [listExportFile, checkExportFile, statusExport]);
 
   const onImport = useCallback(() => {
     importFile({
@@ -909,7 +858,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const checkImportFile = useCallback(() => {
     if (statusImport !== STATUS_IMPORT_EXPORT.DEFAULT) {
       let getFilePromises = listJobImportFile.map((code) => {
-        return getFile(code);
+        return getFileV2(code);
       });
       Promise.all(getFilePromises).then((responses) => {
         responses.forEach((response) => {
@@ -936,7 +885,6 @@ const DetailInvetoryAdjustment: FC = () => {
   }, [dispatch, idNumber, listJobImportFile, onResult, statusImport]);
 
   const onDeleteItem = async (adjustmentId: number, variantId: number) => {
-    setTableLoading(true);
     const response = await callApiNative(
       { isShowError: false },
       dispatch,
@@ -945,10 +893,7 @@ const DetailInvetoryAdjustment: FC = () => {
       variantId,
     );
 
-    if (response.code !== HttpStatus.SUCCESS) {
-      setTableLoading(false);
-      return;
-    }
+    if (response.code !== HttpStatus.SUCCESS) return;
     dispatch(
       getLinesItemAdjustmentAction(
         idNumber,
@@ -1060,8 +1005,8 @@ const DetailInvetoryAdjustment: FC = () => {
         );
       },0),
     // eslint-disable-next-line react-hooks/exhaustive-deps,
-    [data, dispatch, onRealQuantityChange, onEnterFilterVariant, form, keySearch]
-  );
+ [data, dispatch, onRealQuantityChange, onEnterFilterVariant, form, keySearch]
+ );
 
   return (
     <StyledWrapper>
@@ -1091,246 +1036,225 @@ const DetailInvetoryAdjustment: FC = () => {
       >
         {data && (
           <>
-            <Form form={form}>
-              <Row gutter={24}>
-                <Col span={18}>
-                  <Card
-                    title="KHO HÀNG"
-                    bordered={false}
-                    extra={
-                      <Space size={20}>
+          <Form form={form}>
+            <Row gutter={24}>
+              <Col span={18}>
+                <Card
+                  title="KHO HÀNG"
+                  bordered={false}
+                  extra={
+                    <Space size={20}>
                       <span>
                         <b>Loại kiểm:</b>
                       </span>
-                        <span>
+                      <span>
                         {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(
                           (e) => e.value === data.audit_type
                         )?.name ?? ""}
                       </span>
-                      </Space>
-                    }
-                  >
-                    {formStoreData && (
-                      <Row className="pd16">
-                        <Col span={31}>
-                          <>
+                    </Space>
+                  }
+                >
+                  {formStoreData && (
+                    <Row className="pd16">
+                      <Col span={31}>
+                        <>
                           <span>
                             <b>{formStoreData?.name}:</b>
                           </span>{" "}
-                            {formStoreData?.code} - {formStoreData?.hotline} -{" "}
-                            {ConvertFullAddress(formStoreData)}
-                          </>
-                        </Col>
-                      </Row>
-                    )}
-                  </Card>
-                  {
-                    //case trạng thái
-                    (data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
-                      data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) ? (
-                      <Card>
-                        <Tabs
-                          style={{overflow: "initial"}}
-                          activeKey={activeTab}
-                          onChange={(active) => setActiveTab(active)}
-                        >
-                          <TabPane tab={`Thừa/Thiếu (${formatCurrency(dataTab?.total_variant_deviant) ?? 0})`} key="1">
-                            <InventoryAdjustmentHistory
-                              objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
-                              data={data}
-                              setDataTab={(value: number) => setDataTab({
-                                ...dataTab,
-                                total_variant_deviant: value
-                              })}
-                              idNumber={idNumber}
-                            />
-                          </TabPane>
-                          <TabPane tab={`Tất cả (${dataLinesItem.metadata.total ?? 0})`} key="2">
-                            <InventoryAdjustmentListAll
-                              objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
-                              idNumber={idNumber}
-                              data={data}
-                            />
-                          </TabPane>
-                        </Tabs>
-                      </Card>
-                    ) : (
-                      <Card title="Thông tin sản phẩm" bordered={false}>
-                        <AuthWrapper
-                          acceptPermissions={[InventoryAdjustmentPermission.update]}
-                        >
-                          <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                            <CustomAutoComplete
-                              id="#product_search_variant"
-                              dropdownClassName="product"
-                              placeholder="Thêm sản phẩm vào phiếu kiểm"
-                              onSearch={onSearchProduct}
-                              dropdownMatchSelectWidth={456}
-                              style={{ width: "100%" }}
-                              showAdd={true}
-                              isNotPermissionAudit={!isPermissionAudit}
-                              textAdd="Thêm mới sản phẩm"
-                              onSelect={onSelectProduct}
-                              options={renderResult}
-                              ref={productSearchRef}
-                              onClickAddNew={() => {
-                                window.open(
-                                  `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                                  "_blank",
-                                );
-                              }}
-                            />
-                            <Button
-                              disabled={!isPermissionAudit}
-                              onClick={() => {
-                                setVisibleManyProduct(true);
-                                return;
-                              }}
-                              style={{ width: 132, marginLeft: 10 }}
-                              icon={<img src={PlusOutline} alt="" />}
-                            >
-                              &nbsp;&nbsp; Chọn nhiều
-                            </Button>
-
-                            <Input
-                              name="key_search"
-                              value={keySearch}
-                              onChange={(e) => {
-                                setKeySearch(e.target.value);
-                                onChangeKeySearch(e.target.value);
-                              }}
-                              style={{ marginLeft: 8 }}
-                              placeholder="Tìm kiếm sản phẩm trong phiếu"
-                              addonAfter={
-                                <SearchOutlined
-                                  onClick={() => {
-                                    onChangeKeySearch(keySearch);
-                                  }}
-                                  style={{ color: "#2A2A86" }}
-                                />
-                              }
-                            />
-                          </Input.Group>
-                        </AuthWrapper>
-                        {data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING && (
-                          <div className="text-center font-weight-500 margin-top-20">
-                            Đang xử lý sản phẩm cần kiểm kho, vui lòng đợi giây lát...
-                          </div>
-                        )}
-                        <CustomTable
-                          isLoading={tableLoading}
-                          tableLayout="fixed"
-                          style={{ paddingTop: 20 }}
-                          columns={defaultColumns}
-                          pagination={false}
-                          sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-                          dataSource={dataLinesItem.items}
-                          rowKey={(item: LineItemAdjustment) => item.id}
-                        />
-                        <CustomPagination
-                          pagination={{
-                            pageSize: dataLinesItem.metadata.limit,
-                            total: dataLinesItem.metadata.total,
-                            current: dataLinesItem.metadata.page,
-                            showSizeChanger: true,
-                            onChange: onPageChange,
-                            onShowSizeChange: onPageChange,
-                          }}
-                        />
-                      </Card>
-                    )
-                  }
-                </Col>
-                <Col span={6}>
-                  <Card
-                    title={"THÔNG TIN PHIẾU"}
-                    bordered={false}
-                    className={"inventory-info"}
-                    extra={<Tag className={classTag}>{textTag}</Tag>}
-                  >
-                    <Col>
-                      <Row>
-                        <Col span={10}>
-                          <div className="label">ID phiếu:</div>
-                        </Col>
-                        <Col span={14}>
-                          <div className="data">{data.code}</div>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col span={10}>
-                          <div className="label">Người tạo:</div>
-                        </Col>
-                        <Col span={14}>
-                          <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
-                        </Col>
-                      </Row>
-                      {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && isPermissionAudit ? (
-                        <Form.Item
-                          name="audited_bys"
-                          label={<b>Người kiểm</b>}
-                          labelCol={{span: 24, offset: 0}}
-                          colon={false}
-                          rules={[{
-                            required: true,
-                            message: "Vui lòng chọn người kiểm",
-                          }]}
-                        >
-                          <AccountSearchPaging
-                            onSelect={updateAuditedBys}
-                            onDeselect={updateAuditedBys}
-                            mode="multiple"
-                            placeholder="Chọn người kiểm"
-                            style={{width: "100%"}}
-                          />
-                        </Form.Item>
-                      ) : (
-                        <Row>
-                          <Col span={10}>
-                            <div className="label">Người kiểm:</div>
-                          </Col>
-                          <Col span={14}>
-                            <div className="data">
-                              {
-                                <StyledComponent>
-                                  <Row className="audit_by">
-                                    <Col span={24}>
-                                      {data.audited_bys?.map((item: string) => {
-                                        return (
-                                          <RenderItemAuditBy
-                                            key={item?.toString()}
-                                            user_name={item?.toString()}
-                                          />
-                                        );
-                                      })}
-                                    </Col>
-                                  </Row>
-                                </StyledComponent>
-                              }
-                            </div>
-                          </Col>
-                        </Row>
-                      )}
-                    </Col>
-                  </Card>
-                  <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
-                    <Row className="" gutter={5} style={{flexDirection: "column"}}>
-                      <Form.Item
-                        name={"note"}
-                        label={<b>Ghi chú nội bộ:</b>}
-                        colon={false}
-                        labelCol={{span: 24, offset: 0}}
-                        rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
-                      >
-                        <TextArea onChange={(e)=>{onChangeNote(e.target.value)}} placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
-                      </Form.Item>
+                          {formStoreData?.code} - {formStoreData?.hotline} -{" "}
+                          {ConvertFullAddress(formStoreData)}
+                        </>
+                      </Col>
                     </Row>
-                    <Row
-                      className="margin-top-10"
-                      gutter={5}
-                      style={{flexDirection: "column"}}
+                  )}
+                </Card>
+                {
+                  //case trạng thái
+                  (data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
+                    data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) ? (
+                    <Card>
+                      <Tabs
+                        style={{overflow: "initial"}}
+                        activeKey={activeTab}
+                        onChange={(active) => setActiveTab(active)}
+                      >
+                        <TabPane tab={`Thừa/Thiếu (${formatCurrency(dataTab?.total_variant_deviant) ?? 0})`} key="1">
+                          <InventoryAdjustmentHistory
+                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
+                            data={data}
+                            setDataTab={(value: number) => setDataTab({
+                              ...dataTab,
+                              total_variant_deviant: value
+                            })}
+                            idNumber={idNumber}
+                          />
+                        </TabPane>
+                        <TabPane tab={`Tất cả (${dataLinesItem.metadata.total ?? 0})`} key="2">
+                          <InventoryAdjustmentListAll
+                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
+                            idNumber={idNumber}
+                            data={data}
+                          />
+                        </TabPane>
+                      </Tabs>
+                    </Card>
+                  ) : (
+                    <Card title="Thông tin sản phẩm" bordered={false}>
+                      <AuthWrapper
+                        acceptPermissions={[InventoryAdjustmentPermission.update]}
+                      >
+                        <Input.Group style={{ paddingTop: 16 }} className="display-flex">
+                          <CustomAutoComplete
+                            id="#product_search_variant"
+                            dropdownClassName="product"
+                            placeholder="Thêm sản phẩm vào phiếu kiểm"
+                            onSearch={onSearchProduct}
+                            dropdownMatchSelectWidth={456}
+                            style={{ width: "100%" }}
+                            showAdd={true}
+                            isNotPermissionAudit={!isPermissionAudit}
+                            textAdd="Thêm mới sản phẩm"
+                            onSelect={onSelectProduct}
+                            options={renderResult}
+                            ref={productSearchRef}
+                            onClickAddNew={() => {
+                              window.open(
+                                `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                                "_blank",
+                              );
+                            }}
+                          />
+                          <Button
+                            disabled={!isPermissionAudit}
+                            onClick={() => {
+                              setVisibleManyProduct(true);
+                              return;
+                            }}
+                            style={{ width: 132, marginLeft: 10 }}
+                            icon={<img src={PlusOutline} alt="" />}
+                          >
+                            &nbsp;&nbsp; Chọn nhiều
+                          </Button>
+
+                          <Input
+                            name="key_search"
+                            value={keySearch}
+                            onChange={(e) => {
+                              setKeySearch(e.target.value);
+                              onChangeKeySearch(e.target.value);
+                            }}
+                            style={{ marginLeft: 8 }}
+                            placeholder="Tìm kiếm sản phẩm trong phiếu"
+                            addonAfter={
+                              <SearchOutlined
+                                onClick={() => {
+                                  onChangeKeySearch(keySearch);
+                                }}
+                                style={{ color: "#2A2A86" }}
+                              />
+                            }
+                          />
+                        </Input.Group>
+                      </AuthWrapper>
+                      {data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING && (
+                        <div className="text-center font-weight-500 margin-top-20">
+                          Đang xử lý sản phẩm cần kiểm kho, vui lòng đợi giây lát...
+                        </div>
+                      )}
+                      <CustomTable
+                        isLoading={tableLoading}
+                        tableLayout="fixed"
+                        style={{ paddingTop: 20 }}
+                        columns={defaultColumns}
+                        pagination={false}
+                        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                        dataSource={dataLinesItem.items}
+                        rowKey={(item: LineItemAdjustment) => item.id}
+                      />
+                      <CustomPagination
+                        pagination={{
+                          pageSize: dataLinesItem.metadata.limit,
+                          total: dataLinesItem.metadata.total,
+                          current: dataLinesItem.metadata.page,
+                          showSizeChanger: true,
+                          onChange: onPageChange,
+                          onShowSizeChange: onPageChange,
+                        }}
+                      />
+                    </Card>
+                  )
+                }
+              </Col>
+              <Col span={6}>
+                <Card
+                  title={"THÔNG TIN PHIẾU"}
+                  bordered={false}
+                  className={"inventory-info"}
+                  extra={<Tag className={classTag}>{textTag}</Tag>}
+                >
+                  <Col>
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">ID phiếu:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">{data.code}</div>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">Người tạo:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">Người kiểm:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">
+                          {
+                            <StyledComponent>
+                              <Row className="audit_by">
+                                <Col span={24}>
+                                  {data.audited_bys?.map((item: string) => {
+                                    return (
+                                      <RenderItemAuditBy
+                                        key={item?.toString()}
+                                        user_name={item?.toString()}
+                                      />
+                                    );
+                                  })}
+                                </Col>
+                              </Row>
+                            </StyledComponent>
+                          }
+                        </div>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Card>
+                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
+                  <Row className="" gutter={5} style={{flexDirection: "column"}}>
+                    <Form.Item
+                      name={"note"}
+                      label={<b>Ghi chú nội bộ:</b>}
+                      colon={false}
+                      labelCol={{span: 24, offset: 0}}
+                      rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                     >
-                      <Col span={24}>
+                      <TextArea onChange={(e)=>{onChangeNote(e.target.value)}} placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
+                    </Form.Item>
+                  </Row>
+                  <Row
+                    className="margin-top-10"
+                    gutter={5}
+                    style={{flexDirection: "column"}}
+                  >
+                    <Col span={24}>
                       <span className="text-focus">
                         {Array.isArray(data.list_attached_files) && data.list_attached_files.length > 0 && data.list_attached_files?.map((link: string, index: number) => {
                           return (
@@ -1346,39 +1270,39 @@ const DetailInvetoryAdjustment: FC = () => {
                           );
                         })}
                       </span>
-                      </Col>
+                    </Col>
 
-                      <Form.Item
-                        labelCol={{span: 24, offset: 0}}
-                        label={<b>File đính kèm:</b>}
-                        colon={false}
-                      >
-                        {
-                          data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED &&
+                    <Form.Item
+                      labelCol={{span: 24, offset: 0}}
+                      label={<b>File đính kèm:</b>}
+                      colon={false}
+                    >
+                      {
+                       data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED &&
                           <Upload
-                            beforeUpload={onBeforeUpload}
-                            multiple={true}
-                            fileList={fileListUpdate}
-                            onChange={onChangeFileUpdate}
-                            customRequest={onCustomUpdateRequest}
-                            showUploadList={false}
-                          >
-                            <Button icon={<UploadOutlined />}>Chọn file</Button>
-                          </Upload>
-                        }
+                          beforeUpload={onBeforeUpload}
+                          multiple={true}
+                          fileList={fileListUpdate}
+                          onChange={onChangeFileUpdate}
+                          customRequest={onCustomUpdateRequest}
+                          showUploadList={false}
+                        >
+                          <Button icon={<UploadOutlined />}>Chọn file</Button>
+                        </Upload>
+                      }
                       </Form.Item>
 
-                      <Form.Item noStyle hidden name="list_attached_files">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item noStyle hidden name="version">
-                        <Input />
-                      </Form.Item>
-                    </Row>
-                  </Card>
-                </Col>
-              </Row>
-            </Form>
+                    <Form.Item noStyle hidden name="list_attached_files">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item noStyle hidden name="version">
+                      <Input />
+                    </Form.Item>
+                  </Row>
+                </Card>
+              </Col>
+            </Row>
+          </Form>
             <div style={{display: "none"}}>
               <Upload fileList={fileList} />
               <div className="printContent" ref={printElementRef}>
