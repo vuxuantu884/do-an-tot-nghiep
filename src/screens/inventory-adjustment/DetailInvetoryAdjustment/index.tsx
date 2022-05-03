@@ -158,13 +158,6 @@ const DetailInvetoryAdjustment: FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [isPermissionAudit, setIsPermissionAudit] = useState(false);
 
-  const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
-    TotalExcess: 0,
-    TotalMiss: 0,
-    TotalOnHand: 0,
-    TotalRealOnHand: 0,
-  });
-
   const [objSummaryTableByAuditTotal, setObjSummaryTableByAuditTotal] = useState<any>({
     onHand: 0,
     realOnHand: 0,
@@ -187,8 +180,6 @@ const DetailInvetoryAdjustment: FC = () => {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-
-  console.log(userReducer)
 
   useEffect(() => {
     if (!data) return;
@@ -254,41 +245,15 @@ const DetailInvetoryAdjustment: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
-    let totalExcess = 0,
-      totalMiss = 0,
-      totalQuantity = 0,
-      totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-      let on_hand_adj = element.on_hand_adj ?? 0;
-      if (on_hand_adj > 0) {
-        totalExcess += on_hand_adj;
-      }
-      if (on_hand_adj < 0) {
-        totalMiss += -on_hand_adj;
-      }
-    });
-
-    setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss,
-      TotalRealOnHand: totalReal,
-    });
-  }, []);
-
   const onResultDataTable = useCallback(
     (result: PageResponse<LineItemAdjustment> | false) => {
       setTableLoading(false);
       if (result) {
         setDatalinesItem({...result});
-        drawColumns(result?.items);
         setHasError(false);
       }
     },
-    [drawColumns]
+    []
   );
 
   const addItemApi = async (adjustmentId: number, data: any) => {
@@ -575,9 +540,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
-              ? formatCurrency(objSummaryTable.TotalOnHand)
-              : formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
+            <div>({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
         );
       },
@@ -593,9 +556,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn thực tế</div>
-            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
-              ? formatCurrency(objSummaryTable.TotalRealOnHand)
-              : formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
+            <div>({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
       },
@@ -623,43 +584,23 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Thừa/Thiếu</div>
-            {data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ? (
-              <Row align="middle" justify="center">
-                {objSummaryTable.TotalExcess === 0 || !objSummaryTable.TotalExcess ? (
-                  ""
-                ) : (
-                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTable.TotalExcess)}</div>
-                )}
-                {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
-                  <Space>/</Space>
-                ) : (
-                  ""
-                )}
-                {objSummaryTable.TotalMiss === 0 || !objSummaryTable.TotalExcess ? (
-                  ""
-                ) : (
-                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTable.TotalMiss)}</div>
-                )}
-              </Row>
-            ) : (
-              <Row align="middle" justify="center">
-                {(objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess) ? (
-                  ""
-                ) : (
-                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</div>
-                )}
-                {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
-                  <Space>/</Space>
-                ) : (
-                  ""
-                )}
-                {(objSummaryTableByAuditTotal.totalMissing === 0 || !objSummaryTableByAuditTotal.totalMissing) ? (
-                  ""
-                ) : (
-                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
-                )}
-              </Row>
-            )}
+            <Row align="middle" justify="center">
+              {(objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess) ? (
+                ""
+              ) : (
+                <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</div>
+              )}
+              {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
+                <Space>/</Space>
+              ) : (
+                ""
+              )}
+              {(objSummaryTableByAuditTotal.totalMissing === 0 || !objSummaryTableByAuditTotal.totalMissing) ? (
+                ""
+              ) : (
+                <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
+              )}
+            </Row>
           </>
         );
       },
@@ -1059,6 +1000,8 @@ const DetailInvetoryAdjustment: FC = () => {
         setData((data) => {
           if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING || !data) {
             dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
+          } else {
+            setIsReRender(!isReRender);
           }
 
           return data;
@@ -1073,12 +1016,13 @@ const DetailInvetoryAdjustment: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [idNumber, onResult, dispatch, isReRender]);
 
+
   useEffect(()=>{
     dispatch(searchAccountPublicAction({}, setDataAccounts));
   },[dispatch,setDataAccounts]);
 
   const debounceChangeRealOnHand = useMemo(()=>
-      _.debounce((row: LineItemAdjustment, realOnHand: number)=>{
+      _.debounce((row: LineItemAdjustment, realOnHand: number) => {
         if (row.real_on_hand === realOnHand && realOnHand !== 0) {
           return;
         }
@@ -1101,23 +1045,20 @@ const DetailInvetoryAdjustment: FC = () => {
           return null;
         }
 
+        setTableLoading(true);
+
         dispatch(
           updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
+            setTableLoading(false);
             if (result) {
               showSuccess("Nhập tồn thực tế thành công.");
               const version = form.getFieldValue("version");
               form.setFieldsValue({ version: version + 1 });
-
-              if (data.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
-                getTotalOnHandApi().then((res) => {
-                  if (!res) return;
-                  setObjSummaryTableByAuditTotal(res);
-                });
-              }
+              setIsReRender(!isReRender);
             }
           }),
         );
-      },300),
+      },0),
     // eslint-disable-next-line react-hooks/exhaustive-deps,
     [data, dispatch, onRealQuantityChange, onEnterFilterVariant, form, keySearch]
   );
