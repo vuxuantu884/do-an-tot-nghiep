@@ -1,4 +1,4 @@
-import React, { ChangeEvent, createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
 import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form, Checkbox } from "antd";
@@ -53,7 +53,7 @@ import { showSuccess } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
-import _, { debounce } from "lodash";
+import _  from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -936,18 +936,6 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateNote = (key: string) => {
-    updateNoteApi(key);
-  };
-
-  const updateNoteDebounce = debounce((key: string) => {
-    updateNote(key);
-  }, 500);
-
-  const changeNote = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    updateNoteDebounce(e.target.value);
-  };
-
   const onMenuClick = React.useCallback(
     (menuId: number) => {
       switch (menuId) {
@@ -1293,7 +1281,6 @@ const DetailTicket: FC = () => {
                   className={"inventory-note"}
                 >
                   <Row
-                    className=""
                     gutter={5}
                     style={{ flexDirection: "column" }}
                   >
@@ -1305,12 +1292,21 @@ const DetailTicket: FC = () => {
                         <Form.Item name="note">
                           <TextArea
                             disabled={isDisableEditNote}
-                            onChange={changeNote}
                             maxLength={250}
                             placeholder="Nhập ghi chú nội bộ"
                             autoSize={{ minRows: 4, maxRows: 6 }}
                           />
                         </Form.Item>
+                        <div className="button-save">
+                          <Button
+                            disabled={isDisableEditNote}
+                            onClick={() => updateNoteApi(form.getFieldValue('note'))}
+                            size="small"
+                            type="primary"
+                          >
+                            Lưu
+                          </Button>
+                        </div>
                       </Form>
                     </Col>
                   </Row>

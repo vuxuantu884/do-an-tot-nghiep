@@ -58,6 +58,10 @@ export const StyledWrapper = styled.div`
     .ant-card-body {
       padding: 10px 20px;
     }
+    
+    .ant-row {
+      margin-bottom: 0 !important;
+    }
   }
 
   .sum-qty {
@@ -227,5 +231,11 @@ export const StyledWrapper = styled.div`
   .ant-btn {
     display: flex;
     align-items: center;
+  }
+  
+  .button-save {
+    display: flex;
+    justify-content: right;
+    margin-top: 10px;
   }
 `;
