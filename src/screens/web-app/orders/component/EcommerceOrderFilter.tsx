@@ -36,6 +36,8 @@ import {WEB_APP_LIST} from "screens/web-app/common/commonAction";
 import UrlConfig from "../../../../config/url.config";
 import {searchAccountApi} from "../../../../service/accounts/account.service";
 import {Link} from "react-router-dom";
+import { getSourceListAction } from "domain/actions/web-app/web-app.actions";
+import { useDispatch } from "react-redux";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -75,9 +77,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     onFilter,
     onShowColumnSetting,
   } = props;
-
+  const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
+  const [sourceList,setSourceList] = useState<Array<SourceResponse>>([]);
 
   const status = useMemo(() => [
     {name: "Nháp", value: "draft"},
@@ -267,6 +270,19 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     onFilter && onFilter({...params, channel_codes: []});
   }, [form, onFilter, params]);
   // end handle Select Ecommerce
+
+  //get source list
+  useEffect(() => {
+    const getSourceList = () => {
+      dispatch(getSourceListAction((result: Array<SourceResponse>) => {
+        if(result){
+          setSourceList(result); 
+        }
+      }))
+    }
+    getSourceList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
 
   const actionDropdown = () => {
     return (
@@ -921,7 +937,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               maxTagCount='responsive'
               disabled={isLoading}
             >
-              {listSources.map((item, index) => (
+              {sourceList && sourceList.map((item, index) => (
                 <Select.Option
                   style={{ width: "100%" }}
                   key={index.toString()}

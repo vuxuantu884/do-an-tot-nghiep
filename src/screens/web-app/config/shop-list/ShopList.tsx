@@ -6,31 +6,26 @@ import { useHistory } from "react-router-dom";
 import { StyledComponent } from "screens/web-app/config/shop-list/StyledSyncShopList";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import {getWebAppById} from "screens/web-app/common/commonAction";
 import {WebAppConfigTabUrl} from "config/url.config";
 
 type SyncShopListProps = {
-  configData: any;
-  setConfigToView: (value: WebAppResponse) => void;
-  reloadConfigData: () => void;
+  data: any;
   showDeleteModal: (value: WebAppResponse) => void;
+  loading?: boolean;
 };
 
 const SyncShopList: React.FC<SyncShopListProps> = (
   props: SyncShopListProps
 ) => {
-  const { configData, setConfigToView, showDeleteModal } = props;
+  const { data, showDeleteModal,loading } = props;
   const history = useHistory();
 
   const handleUpdate = (item: any) => {
-    setConfigToView(item);
-    history.push(`${WebAppConfigTabUrl.CONFIG_SHOP}`);
+    history.push(`${WebAppConfigTabUrl.CONFIG_SHOP}/${item.id}`);
   };
-
   const handleShowDeleteModal = (item: WebAppResponse) => {
     showDeleteModal(item);
   };
-
   const [columns] = useState<any>([
     {
       title: "STT",
@@ -42,8 +37,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       }
     },
     {
-      title: "Shop ID | Tên shop",
-      width: "20%",
+      title: "Tên gian hàng",
+      //width: "20%",
       fixed: "left",
       render: (value: any, data: any) => {
         return (
@@ -54,20 +49,15 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       }
     },
     {
-      title: "Tên gian hàng",
-      // width: "20%",
-      dataIndex: "ecommerce_id",
-      render: (value: any) => (
+      title: "Website",
+      width: "20%",
+      dataIndex: "website",
+      render: (value: any, data: any) => (
         <div className="shop-show-style" style={{ textAlign: "left", minWidth:"150px"}}>
-          {getWebAppById(value)?.title}
+          <a href={`http://${data.website}`} target="_blank" rel="noopener noreferrer">{data.website}</a> 
         </div>
 
       ),
-    },
-    {
-      title: "Cửa hàng",
-      width: "20%",
-      dataIndex: "store"
     },
     {
       title: "Ngày kết nối",
@@ -83,14 +73,14 @@ const SyncShopList: React.FC<SyncShopListProps> = (
     actionColumn(handleUpdate, handleShowDeleteModal),
   ]);
 
-
   return (
     <StyledComponent>
       <div>
         <CustomTable
           bordered
+          isLoading={loading}
           columns={columns}
-          dataSource={configData}
+          dataSource={data}
           sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
           pagination={false}
           rowKey={(data) => data.id}
@@ -99,5 +89,4 @@ const SyncShopList: React.FC<SyncShopListProps> = (
     </StyledComponent>
   );
 };
-
 export default SyncShopList;

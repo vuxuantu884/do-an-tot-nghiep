@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
-import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import { Row, Col, Form, Select, Button, Spin } from "antd";
+import { Row, Col, Form, Select, Button } from "antd";
 
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
@@ -14,8 +13,7 @@ import {
 } from "model/query/web-app.query";
 
 import {
-  webAppUpdateConfigAction,
-  webAppConfigCreateAction,
+  webAppUpdateConfigAction
 } from "domain/actions/web-app/web-app.actions";
 import CustomInput from "screens/customer/common/customInput";
 
@@ -32,6 +30,7 @@ import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
 import { OrderSourceModel, OrderSourceResponseModel } from "model/response/order/order-source.response";
+import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 
 const { Option } = Select;
 
@@ -45,218 +44,128 @@ const initQueryAccount: AccountSearchQuery = {
 };
 
 type ConfigShopProps = {
-  listStores: Array<StoreResponse>;
-  storeChangeSearch: (value: string) => void;
-  form: any;
-  configData: Array<WebAppResponse>;
-  configToView: WebAppResponse | undefined;
-  reloadConfigData: () => void;
-  setConfigToView: (value: any) => void;
-  configFromEcommerce: any | undefined;
-  setConfigFromEcommerce: (value: any) => void;
+  shopList: Array<WebAppResponse>;
   showDeleteModal: (value: WebAppResponse) => void;
+  id: string;
 };
 
 const ConfigShop: React.FC<ConfigShopProps> = (
   props: ConfigShopProps
 ) => {
   const {
-    listStores,
-    form,
-    configToView,
-    configData,
-    reloadConfigData,
-    setConfigToView,
-    configFromEcommerce,
-    setConfigFromEcommerce,
+    shopList,
     showDeleteModal,
-    storeChangeSearch,
+    id
   } = props;
 
   const dispatch = useDispatch();
-  const history = useHistory();
-  const [configDetail, setConfigDetail] = useState<
-    WebAppResponse | undefined
-  >(undefined);
-  const [inventories, setInventories] = React.useState<
-    Array<WebAppShopInventoryDto>
-  >([]);
-  const [isConfigExist, setIsConfigExist] = useState<boolean>(false);
+  const [configDetail, setConfigDetail] = useState<WebAppResponse | undefined>(undefined);
+  const [inventories, setInventories] = useState<Array<WebAppShopInventoryDto>>([]);
+  const [storeList, setStoreList] = useState<Array<StoreResponse>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [form] = Form.useForm();
   
   const [allowShopsUpdate] = useAuthorization({
     acceptPermissions: shopsUpdatePermission,
     not: false,
   });
-
   const [allowShopsDelete] = useAuthorization({
     acceptPermissions: shopsDeletePermission,
     not: false,
   });
-
-  // handle search account
-  const [accountList, setAccountList] = React.useState<Array<AccountResponse>>([]);
-  const [accountSearching, setAccountSearching] = React.useState<boolean>(false);
-
-  const updateAccountData = useCallback(
-    (response: PageResponse<AccountResponse> | false) => {
-      if (response) {
-        setAccountList(response.items);
-        setAccountSearching(false);
-      }
-    },
-    []
-  );
-
-  const handleSearchingAccount = useCallback(
-    (searchValue: string) => {
-      setAccountList([]);
-      setAccountSearching(true);
-
-      initQueryAccount.info = searchValue;
-      dispatch(AccountSearchAction(initQueryAccount, updateAccountData));
-    },
-    [dispatch, updateAccountData]
-  );
-
-  const onSearchAccount = debounce((value: string) => {
-    handleSearchingAccount(value);
-  }, 500);
-
-  useEffect(() => {
-    dispatch(AccountSearchAction(initQueryAccount, updateAccountData));
-  }, [dispatch, updateAccountData]);
-  // end handle search account
-
-  // handle search account
+  const [accountList, setAccountList] = useState<Array<AccountResponse>>([]);
   const [sourceList, setSourceList] = useState<OrderSourceModel[]>([]);
-  const [sourceSearching, setSourceSearching] = React.useState<boolean>(false);
 
-  const updateSourceData = useCallback(
-    (response: OrderSourceResponseModel) => {
-      if (response) {
-        setSourceList(response.items);
-        setSourceSearching(false);
+  //shop
+  useEffect(() => {
+    if(shopList && shopList.length > 0){
+      const shopInfo = shopList.find((a) => a.id === parseFloat(id));
+      if(shopInfo){
+        setConfigDetail(shopInfo);
       }
-    },
-    []
-  );
+    }
+  }, [id,shopList]);
+  const handleShopChange = (id: number) => {
+    if(shopList && shopList.length > 0){
+      const shopInfo = shopList.find((a) => a.id === id);
+      if(shopInfo){
+        setConfigDetail(shopInfo);
+      }
+    }
+  }
 
-  const handleSearchingSource = useCallback(
-    (searchValue: string) => {
-      setSourceList([]);
-      setSourceSearching(true);
+  //get store list
+  useEffect(() => {
+    dispatch(getListStoresSimpleAction((stores) => {
+      setStoreList(stores);
+    }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+   },[])
 
-      dispatch(
-        actionFetchListOrderSources({name: searchValue} , updateSourceData)
-      );
-    },
-    [dispatch, updateSourceData]
-  );
-
-  const onSearchSource = debounce((value: string) => {
-    handleSearchingSource(value);
+  //get account list
+  useEffect(() => {
+    handleSearchAccount("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const handleSearchAccount = (searchValue: string) => {
+    setAccountList([]);
+    initQueryAccount.info = searchValue;
+    dispatch(AccountSearchAction(initQueryAccount, updateAccountData));
+  }
+  const updateAccountData = (response: PageResponse<AccountResponse> | false) => {
+    if (response) {
+      setAccountList(response.items);
+    }
+  }
+  
+  //get source list
+  useEffect(() => {
+    handleSearchingSource("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const updateSourceData = (response: OrderSourceResponseModel) => {
+    if (response) {
+      setSourceList(response.items);
+    }
+  }
+  const handleSearchingSource = debounce((value: string) => {
+    dispatch(
+      actionFetchListOrderSources({name: value} , updateSourceData)
+    );
   }, 800);
 
-  useEffect(() => {
-    dispatch(actionFetchListOrderSources({}, updateSourceData));
-  }, [dispatch, updateSourceData]);
-  // end handle search account
-
-  useEffect(() => {
-    setConfigDetail(configToView);
-  }, [configToView]);
-
-  useEffect(() => {
-    const id = configDetail?.id;
-    const _isExist = configData && configData?.some((item) => item.id === id);
-    if (_isExist) {
-      setIsConfigExist(true);
-    } else {
-      setIsConfigExist(false);
+  //save
+  const callbackUpdateConfigSetting = (result: WebAppResponse) => {
+    setIsLoading(false);
+    if (result) {
+      showSuccess("Cập nhật cấu hình thành công");
     }
-  }, [configDetail, configData]);
-
-  const handleConfigCallback = React.useCallback(
-    (value: WebAppResponse) => {
-      setIsLoading(false);
-      if (value) {
-        setConfigToView(null);
-        setConfigDetail(undefined);
-        setConfigFromEcommerce(undefined);
-        showSuccess("Cập nhật cấu hình thành công");
-        history.replace(`${history.location.pathname}#sync`);
-        reloadConfigData();
-      }
-    },
-    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
-  );
-
-  const handleCreateConfigCallback = React.useCallback(
-    (value: WebAppResponse) => {
-      setIsLoading(false);
-      if (value) {
-        setConfigToView(null);
-        setConfigDetail(undefined);
-        setConfigFromEcommerce(undefined);
-        showSuccess("Đồng bộ cấu hình thành công");
-        history.replace(`${history.location.pathname}#sync`);
-        reloadConfigData();
-      }
-    },
-    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
-  );
-
-  const handleConfigSetting = React.useCallback(
-    (value: WebAppConfigRequest) => {
-      if (configDetail) {
-        const id = configDetail?.id;
-        const _isExist =
-          configData && configData?.some((item) => item.id === id);
-        let request = {
-          ...configDetail,
-          ...value,
-          inventories: inventories,
-          assign_account:
-            accountList?.find((item) => item.code === value.assign_account_code)?.full_name || "",
-          source:
-            sourceList?.find((item) => item.id === value.source_id)?.name || "",
-          store:
-            listStores?.find((item) => item.id === value.store_id)?.name || "",
-        };
-
-        setIsLoading(true);
-        if (_isExist) {
-          dispatch(
-            webAppUpdateConfigAction(id, request, handleConfigCallback)
-          );
-        } else {
-          dispatch(
-            webAppConfigCreateAction(request, handleCreateConfigCallback)
-          );
-        }
-      }
-    },
-    [
-      dispatch,
-      handleConfigCallback,
-      handleCreateConfigCallback,
-      configDetail,
-      inventories,
-      accountList,
-      configData,
-      sourceList,
-      listStores,
-    ]
-  );
+  }
+  const handleConfigSetting = (value: WebAppConfigRequest) => {
+    if (configDetail) {
+      let request = {
+        ...configDetail,
+        ...value,
+        inventories: inventories,
+        assign_account: accountList?.find((item) => item.code === value.assign_account_code)?.full_name || "",
+        source: sourceList?.find((item) => item.id === value.source_id)?.name || "",
+        store: storeList?.find((item) => item.id === value.store_id)?.name || "",
+      };
+      setIsLoading(true);
+      dispatch(
+        webAppUpdateConfigAction(request.id, request, callbackUpdateConfigSetting)
+      );
+    }
+  }
   const handleDisconnectEcommerce = () => {
     if (configDetail) showDeleteModal(configDetail);
   };
 
+  //store
   const handleStoreChange = (event: any) => {
     let _inventories = [];
     for (let id of event) {
-      const _store = listStores.find((store) => store.id === id);
+      const _store = storeList.find((store) => store.id === id);
       if (_store) {
         _inventories.push({
           store: _store.name,
@@ -267,11 +176,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     setInventories(_inventories);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (configDetail) {
-      const _inventories = configDetail.inventories?.filter(
-        (item: any) => !item.deleted
-      );
+      const _inventories = configDetail.inventories?.filter((item: any) => !item.deleted);
       setInventories(_inventories);
       form.setFieldsValue({
         id: configDetail.id,
@@ -282,23 +189,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         product_sync: configDetail.product_sync,
         inventory_sync: configDetail.inventory_sync,
         store: configDetail.store,
-        source_id: configDetail.source_id,
+        source_id:configDetail.source_id ? configDetail.source_id.split(",").map((item: any) => parseFloat(item)) : [], 
         inventories: _inventories?.map((item: any) => item.store_id),
       });
     } else {
       form.resetFields();
       setInventories([]);
     }
-  }, [configDetail, form, setInventories]);
-
-  const handleShopChange = React.useCallback(
-    (id: any) => {
-      let _configData = [...configData];
-      const data = _configData?.find((item) => item.id === id);
-      setConfigToView(data);
-    },
-    [configData, setConfigToView]
-  );
+  }, [configDetail, form]);
 
   const convertToCapitalizedString = () => {
     if (configDetail) {
@@ -308,7 +206,6 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       );
     }
   };
-
 
   const renderComponent = () => {
     return (
@@ -321,7 +218,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn cửa hàng",
+                    message: "Vui lòng chọn gian hàng",
                   },
                 ]}
               >
@@ -329,7 +226,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   onChange={handleShopChange}
                   showArrow
                   showSearch
-                  placeholder="Chọn cửa hàng"
+                  placeholder="Chọn cửa gian hàng"
                   notFoundContent="Không tìm thấy kết quả"
                   disabled={!allowShopsUpdate}
                   filterOption={(input, option) => {
@@ -343,24 +240,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                     return false;
                   }}
                 >
-                  {configFromEcommerce ? (
-                    <CustomSelect.Option
-                      style={{ width: "100%" }}
-                      key={configFromEcommerce.id}
-                      value={configFromEcommerce.id}
-                    >
-                      {
-                        <img
-                          style={{ marginRight: 8, paddingBottom: 4 }}
-                          src={ECOMMERCE_ICON[configFromEcommerce.ecommerce.toLowerCase()]}
-                          alt=""
-                        />
-                      }
-                      {configFromEcommerce.name}
-                    </CustomSelect.Option>
-                  ) : (
-                    configData &&
-                    configData?.map((item: any) => (
+                  {shopList &&
+                    shopList?.map((item: any) => (
                       <CustomSelect.Option
                         style={{ width: "100%" }}
                         key={item.id}
@@ -375,8 +256,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                         }
                         {item.name}
                       </CustomSelect.Option>
-                    ))
-                  )}
+                    ))}
                 </CustomSelect>
               </Form.Item>
             </Col>
@@ -479,10 +359,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   disabled={!configDetail || !allowShopsUpdate}
                   allowClear
                   optionFilterProp="children"
-                  onSearch={(value) => storeChangeSearch(value)}
                 >
-                  {listStores &&
-                    listStores?.map((item, index) => (
+                  {storeList &&
+                    storeList?.map((item, index) => (
                       <Option
                         style={{ width: "100%" }}
                         key={index.toString()}
@@ -510,10 +389,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   placeholder="Chọn nhân viên bán hàng"
                   allowClear
                   optionFilterProp="children"
-                  onSearch={(value) => onSearchAccount(value.trim() || "")}
-                  loading={accountSearching}
-                  onClear={() => onSearchAccount("")}
-                  notFoundContent={accountSearching ? <Spin size="small" /> : "Không có dữ liệu"}
+                  onSearch={(value) => handleSearchAccount(value.trim() || "")}
+                  onClear={() => handleSearchAccount("")}
+                  notFoundContent="Không có dữ liệu"
                 >
                   {accountList?.map((account) => (
                     <Option key={account.id} value={account.code}>
@@ -538,11 +416,11 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   showSearch
                   placeholder="Chọn nguồn đơn hàng"
                   allowClear
+                  mode="multiple"
                   optionFilterProp="children"
-                  onSearch={(value) => onSearchSource(value.trim() || "")}
-                  loading={sourceSearching}
-                  onClear={() => onSearchSource("")}
-                  notFoundContent={sourceSearching ? <Spin size="small" /> : "Không có dữ liệu"}
+                  onSearch={(value) => handleSearchingSource(value.trim() || "")}
+                  onClear={() => handleSearchingSource("")}
+                  notFoundContent= "Không có dữ liệu"
                 >
                   {sourceList?.map((source: any) => (
                       <Option key={source.id} value={source.id}>
@@ -599,7 +477,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   optionFilterProp="children"
                   getPopupContainer={(trigger) => trigger.parentNode}
                 >
-                  {listStores?.map((item) => (
+                  {storeList?.map((item) => (
                     <CustomSelect.Option key={item.id} value={item.id}>
                       {item.name}
                     </CustomSelect.Option>
@@ -687,7 +565,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
             </Col>
           </Row>
           <div className="config-setting-footer">
-            {(isConfigExist && allowShopsDelete) ?
+            {(configDetail && allowShopsDelete) ?
               <Button
                 className="delete-shop-btn"
                 icon={<img src={disconnectIcon} alt="" />}
@@ -707,7 +585,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 disabled={!configDetail || isLoading}
                 icon={<img src={saveIcon} alt="" />}
               >
-                {isConfigExist ? "Lưu cấu hình" : "Tạo cấu hình"}
+                {configDetail ? "Lưu cấu hình" : "Tạo cấu hình"}
               </Button>
             }
           </div>

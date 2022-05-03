@@ -118,7 +118,7 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
               placeholder="Chọn gian hàng"
               allowClear
               onSelect={(value) => selectShop(value)}
-              disabled={true}
+              disabled={false}
               onClear={onClearShop}
               notFoundContent="Không có dữ liệu gian hàng"
               filterOption={(input, option) => {

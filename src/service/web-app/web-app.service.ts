@@ -177,6 +177,27 @@ export const webAppGetPrintForm = (
   return BaseAxios.post(requestUrl, requestBody);
 };
 
+//get info shopify
+const webAppGetInfoShopify = (
+  reqrequestBody: any
+): Promise<BaseResponse<any>> => {
+  const params = generateQuery(reqrequestBody);
+  const requestUrl = `${ApiConfig.WEB_APP}/shopify/shops/web-store?${params}`;
+  return BaseAxios.get(requestUrl);
+}
+const webAppCreateShopify = (
+  reqrequestBody: any
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.WEB_APP}/shopify/shops`;
+  return BaseAxios.post(requestUrl,reqrequestBody);
+}
+
+//get source list
+const webAppGetSourceList = (reqrequestBody: any) : Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.WEB_APP}/shop_source/sources`);
+}
+
+
 export {
   webAppCreateConfigApi,
   webAppGetShopApi,
@@ -197,5 +218,8 @@ export {
   getProgressDownloadEcommerceApi,
   webAppGetOrderMappingListApi,
   webAppGetStoreAddressApi,
-  webAppCreateLogisticApi
+  webAppCreateLogisticApi,
+  webAppGetInfoShopify,
+  webAppCreateShopify,
+  webAppGetSourceList
 };

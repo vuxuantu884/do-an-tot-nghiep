@@ -134,7 +134,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
               placeholder="Chọn gian hàng"
               allowClear
               onSelect={(value) => selectShop(value)}
-              disabled={true}
+              disabled={false}
               showSearch
               onClear={onClearShop}
               notFoundContent="Không có dữ liệu gian hàng"
