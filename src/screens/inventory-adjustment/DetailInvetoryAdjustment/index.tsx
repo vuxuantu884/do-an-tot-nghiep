@@ -914,9 +914,7 @@ const DetailInvetoryAdjustment: FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (response.data.percent) {
             setExportProgress((response.data.num_of_record/response.data.total)*100);
-          }
           if (response.data && response.data.status === "FINISH") {
             setExportProgress(100);
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
