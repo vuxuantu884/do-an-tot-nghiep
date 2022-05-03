@@ -1182,7 +1182,7 @@ export default function Order() {
 	 * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
 	 */
 	const totalAmountOrder = useMemo(() => {
-		return (
+		return Math.ceil(
 			orderAmount +
 			(shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
 			(promotion?.value || 0)
@@ -1192,7 +1192,7 @@ export default function Order() {
 	 * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
 	 */
 	const totalAmountCustomerNeedToPay = useMemo(() => {
-		return totalAmountOrder - totalAmountPayment;
+		return Math.ceil(totalAmountOrder - totalAmountPayment);
 	}, [totalAmountOrder, totalAmountPayment]);
 
 	const eventFunctional=useCallback((event: KeyboardEvent)=>{

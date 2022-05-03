@@ -138,6 +138,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
+  const isPaymentAlreadyChanged = useSelector((state: RootReducerType) => state.orderReducer.orderPayment.isAlreadyChanged);
+
   const [storeId, setStoreId] = useState<number | null>(null);
 
   // const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
@@ -302,13 +304,13 @@ ShippingServiceConfigDetailResponseModel[]
         },
       ],
       account_code: recentAccountCode.accountCode,
-      assignee_code: recentAccountCode.accountCode || null,
+      assignee_code: isExchange ? recentAccountCode.accountCode :  OrderDetail?.assignee_code,
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
     }
-  }, [OrderDetail, initialForm, listPaymentMethodsReturnToCustomer?.id, recentAccountCode.accountCode])
+  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.id, recentAccountCode.accountCode])
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -341,12 +343,12 @@ ShippingServiceConfigDetailResponseModel[]
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = totalAmountOrder - totalAmountReturnProducts;
+    let result = (totalAmountOrder - totalAmountReturnProducts);
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
 
   let totalAmountOrderAfterPayments = useMemo(() => {
-    let result = totalAmountCustomerNeedToPay - totalAmountPayment;
+    let result = Math.floor(totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
@@ -540,7 +542,7 @@ ShippingServiceConfigDetailResponseModel[]
         total_discount: getTotalOrderDiscount(discounts),
         total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
-        assignee_code: recentAccountCode.accountCode || null,
+        assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
         reference_code: "",
         customer_note: "",
@@ -623,11 +625,13 @@ ShippingServiceConfigDetailResponseModel[]
     })
   };
 
+  console.log('payments', payments)
   const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
     // khách cần trả
     /**
      * tổng số tiền đã trả
      */
+    console.log('payments', payments)
     if (totalAmountOrderAfterPayments < 0) {
       let returnAmount = Math.abs(totalAmountOrderAfterPayments);
       let _payments = _.cloneDeep(payments);
@@ -676,8 +680,8 @@ ShippingServiceConfigDetailResponseModel[]
           return single.quantity > 0;
         });
         if (!checkIfHasReturnProduct) {
-          showError("Vui lòng chọn ít nhất 1 sản phẩm!");
-          const element: any = document.getElementById("search_product");
+          showError("Vui lòng chọn ít nhất 1 sản phẩm để trả!");
+          const element: any = document.getElementById("search_product_return");
           scrollAndFocusToDomElement(element);
           return;
         }
@@ -786,6 +790,7 @@ ShippingServiceConfigDetailResponseModel[]
           if(!valuesResult) {
             return;
           }
+          console.log('valuesResult', valuesResult)
           valuesResult.channel_id = OrderDetail.channel_id;
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code");
@@ -1717,24 +1722,6 @@ ShippingServiceConfigDetailResponseModel[]
         // update: ko bỏ quẹt thẻ nữa
         let result = response.filter((single) => single.code);
         setListPaymentMethods(result);
-        let cash = response.find(single => single.code === PaymentMethodCode.CASH);
-        if(cash) {
-          setPayments([{
-            amount: 0,
-            customer_id: customer?.id || null,
-            name: cash.name,
-            note: "",
-            paid_amount: 0,
-            payment_method: "Tiền mặt",
-            payment_method_code: PaymentMethodCode.CASH,
-            payment_method_id: cash.id,
-            reference: "",
-            return_amount: 0,
-            source: "",
-            status: "paid",
-            type: "",
-          }])
-        }
       })
     );
 
@@ -1742,13 +1729,13 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
     let cash = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
-    if(cash) {
+    if(cash && !isPaymentAlreadyChanged) {
       setPayments([{
-        amount: 0,
+        amount: Math.ceil(totalAmountCustomerNeedToPay),
         customer_id: customer?.id || null,
         name: cash.name,
         note: "",
-        paid_amount: 0,
+        paid_amount: Math.ceil(totalAmountCustomerNeedToPay),
         payment_method: "Tiền mặt",
         payment_method_code: PaymentMethodCode.CASH,
         payment_method_id: cash.id,
@@ -1759,7 +1746,9 @@ ShippingServiceConfigDetailResponseModel[]
         type: "",
       }])
     }
-  }, [customer?.id, listPaymentMethods])
+  }, [customer?.id, isPaymentAlreadyChanged, listPaymentMethods, totalAmountCustomerNeedToPay])
+
+  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
   useEffect(() => {
     /**
@@ -1845,6 +1834,12 @@ ShippingServiceConfigDetailResponseModel[]
       dispatch(StoreDetailAction(storeIdLogin, setStoreReturn))
     }
   }, [dispatch, storeIdLogin])
+
+  useEffect(() => {
+   if(isExchange) {
+     form.setFieldsValue(initialFormValueWithReturn)
+   }
+  }, [form, initialFormValueWithReturn, isExchange])
 
   useEffect(()=>{
     window.addEventListener("keydown",eventKeydown);

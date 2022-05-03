@@ -841,7 +841,7 @@ ShippingServiceConfigDetailResponseModel[]
 	 * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
 	 */
 	const totalAmountOrder = useMemo(() => {
-		return (
+		return Math.ceil(
 			orderAmount +
 			(shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
 			(promotion?.value || 0)
