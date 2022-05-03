@@ -21,6 +21,9 @@ import { StyledEcommerceOrderBaseFilter } from "screens/web-app/orders/orderStyl
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import 'component/filter/order.filter.scss'
 import {WEB_APP_LIST} from "screens/web-app/common/commonAction";
+import { SourceResponse } from "model/response/order/source.response";
+import { useDispatch } from "react-redux";
+import { getSourceListAction } from "domain/actions/web-app/web-app.actions";
 
 type AllOrdersMappingFilterProps = {
   params: WebAppGetOrdersMappingQuery;
@@ -67,11 +70,12 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     onFilter,
     handleDownloadSelectedOrders,
   } = props;
-
+  const dispatch = useDispatch();
   const [formFilter] = Form.useForm();
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
   const [webAppIdSelected, setWebAppIdSelected] = useState<any>(null);
+  const [sourceList,setSourceList] = useState<Array<SourceResponse>>([]);
 
   let initialValues = useMemo(() => {
     return {
@@ -85,6 +89,19 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   const isDisableAction = () => {
     return !selectedRowKeys || selectedRowKeys.length === 0;
   };
+
+  //get source list
+  useEffect(() => {
+    const getSourceList = () => {
+      dispatch(getSourceListAction((result: Array<SourceResponse>) => {
+        if(result){
+          setSourceList(result); 
+        }
+      }))
+    }
+    getSourceList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
 
   const actionList = (
     <Menu>
@@ -476,9 +493,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
               onSelect={(value) => handleSelectWebApp(value)}
               onClear={handleClearWebApp}
             >
-              {WEB_APP_LIST?.map((item: any) => (
-                <Select.Option key={item.ecommerce_id} value={item.ecommerce_id.toString()}>
-                  {item.title}
+              {sourceList && sourceList.map((item: any) => (
+                <Select.Option key={item.id} value={item.id.toString()}>
+                  {item.name}
                 </Select.Option>
               ))}
             </Select>

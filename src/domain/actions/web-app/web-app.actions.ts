@@ -7,9 +7,37 @@ import {
   WebAppRequestSyncStockQuery,
   WebAppDownloadOrderQuery,
   WebAppConfigRequest,
+  WebAppCreateShopifyRequest,
 } from "model/query/web-app.query";
 import {PageResponse} from "model/base/base-metadata.response";
 import {EcommerceStoreAddress} from "model/ecommerce/ecommerce.model";
+import { SourceResponse } from "model/response/order/source.response";
+
+//create shopify
+export const webAppGetInfoShopify = (
+  api_key: string,
+  api_secret: string,
+  setData: (data: WebAppResponse) => void
+) => {
+  const request = {
+    api_key: api_key,
+    api_secret: api_secret,
+    access_token: "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"
+  }
+  return BaseAction(WebAppType.WEB_APP_GET_INFO_SHOPIFY,{
+    request,
+    setData
+  })
+}
+export const webAppCreateShopify = (
+  request: WebAppCreateShopifyRequest,
+  setData: (data: WebAppResponse) => void
+) => {
+  return BaseAction(WebAppType.WEB_APP_CRATE_SHOPIFY,{
+    request,
+    setData
+  })
+}
 
 // config
 export const webAppConfigCreateAction = (
@@ -182,3 +210,8 @@ export const exitWebAppJobsAction = (
     callback
   });
 };
+
+//get source
+export const getSourceListAction = (setData: (data: Array<SourceResponse>) => void) => {
+  return BaseAction(WebAppType.WEB_APP_GET_LIST_SOURCE_REQUEST, {setData});
+}

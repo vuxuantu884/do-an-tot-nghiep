@@ -96,6 +96,17 @@ const webAppRoute: Array<RouteMenu> = [
         subMenu: [],
       },
       {
+        path: `${UrlConfig.WEB_APP_CONFIGS}/config-shop/:id`,
+        exact: true,
+        title: "Cấu hình gian hàng",
+        icon: "icon-dot",
+        component: WebAppConfig,
+        key: "web-app-config-shop",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
         path: `${UrlConfig.WEB_APP_CONFIGS}/config-shop`,
         exact: true,
         title: "Cấu hình gian hàng",

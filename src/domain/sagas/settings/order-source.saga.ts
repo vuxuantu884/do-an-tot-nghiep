@@ -18,7 +18,6 @@ import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listAllOrderSourceSaga(action: YodyAction) {
   const { queryParams, handleData } = action.payload;
-  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(getSourcesWithParamsService, queryParams);
@@ -29,7 +28,6 @@ function* listAllOrderSourceSaga(action: YodyAction) {
 			yield put(fetchApiErrorAction(response, "Danh sách nguồn đơn hàng"));
 		}
   } catch (error) {
-    console.log("error", error);
     showError("Có lỗi khi lấy danh sách nguồn đơn hàng. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());

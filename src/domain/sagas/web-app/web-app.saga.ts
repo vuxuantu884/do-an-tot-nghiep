@@ -29,6 +29,9 @@ import {
   webAppConcatenateByExcelApi,
   webAppGetPrintForm,
   webAppExitJobsApi,
+  webAppGetInfoShopify,
+  webAppCreateShopify,
+  webAppGetSourceList
 } from "service/web-app/web-app.service";
 import { showError } from "utils/ToastUtils";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
@@ -145,6 +148,7 @@ function* webAppUpdateConfigSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(setData);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -240,7 +244,7 @@ function* webAppGetShopSaga(action: YodyAction) {
 
 function* webAppDownloadProductSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-
+  yield put(showLoading());
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       webAppDownloadProductApi,
@@ -261,6 +265,8 @@ function* webAppDownloadProductSaga(action: YodyAction) {
   } catch (error) {
     setData(false);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -572,9 +578,83 @@ function* webAppDownloadPrintForm(action: YodyAction) {
   }
 }
 
+function* webAppGetInfoShopifySaga(action: YodyAction){
+  const { request, setData } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(webAppGetInfoShopify,request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  }
+  catch (error){
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+  finally {
+    yield put(hideLoading());
+  }
+}
+function* webAppCreateShopifySaga(action: YodyAction){
+  const { request, setData } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(webAppCreateShopify,request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  }
+  catch (error){
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+  finally {
+    yield put(hideLoading());
+  }
+}
 function* webAppExitJobsSaga(action: YodyAction) {
   const { query, callback } = action.payload;
   yield callApiSaga({isShowLoading:true}, callback, webAppExitJobsApi, query);
+}
+
+//get source list
+function* webAppGetSourceListSaga(action: YodyAction){
+  const { setData } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(webAppGetSourceList,null);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  }
+  catch (error){
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+  finally {
+    yield put(hideLoading());
+  }
 }
 
 export function* webAppSaga() {
@@ -600,4 +680,7 @@ export function* webAppSaga() {
   yield takeLatest(WebAppType.WEB_APP_CONCANATE_BY_EXCEL, webAppConcatenateByExcelSaga);  // concatenate By Excel
   yield takeLatest(WebAppType.WEB_APP_DOWNLOAD_PRINT_FORM, webAppDownloadPrintForm);   // download web app print form
   yield takeLatest(WebAppType.WEB_APP_EXIT_JOBS, webAppExitJobsSaga); // exit web app jobs
+  yield takeLatest(WebAppType.WEB_APP_GET_INFO_SHOPIFY,webAppGetInfoShopifySaga); //get info shopify
+  yield takeLatest(WebAppType.WEB_APP_CRATE_SHOPIFY,webAppCreateShopifySaga); //create shopify
+  yield takeLatest(WebAppType.WEB_APP_GET_LIST_SOURCE_REQUEST,webAppGetSourceListSaga); //get source list
 }
