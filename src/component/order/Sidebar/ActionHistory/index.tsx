@@ -29,6 +29,10 @@ function ActionHistory(props: PropType) {
       action: "cancel",
       displayName: "Hủy đơn hàng",
     },
+    {
+      action: "delivery_update",
+      displayName: "Hãng vận chuyển đổi trạng thái",
+    },
   ];
   const { orderId, countChangeSubStatus, reload } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
@@ -100,7 +104,7 @@ function ActionHistory(props: PropType) {
       <Card title={renderCardTitle()}>
         {actionLog &&
           actionLog.length > 0 &&
-          actionLog.map((singleActionHistory, index) => {
+          actionLog.sort((a, b) =>(moment(b.updated_date).diff(moment(a.updated_date)))).map((singleActionHistory, index) => {
             return (
               <div
                 className="singleActionHistory"
