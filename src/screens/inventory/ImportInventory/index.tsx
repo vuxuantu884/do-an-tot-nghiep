@@ -377,6 +377,17 @@ const UpdateTicket: FC = () => {
                 }}>
                 Xác nhận
               </Button>,
+              <Button
+                disabled={!!dataUploadError}
+                type="primary"
+                onClick={() => {
+                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
+                    data,
+                    isFastCreate: true
+                  });
+                }}>
+                Tạo và xác nhận
+              </Button>,
             ]}
           >
             <ImportStatusWrapper>
