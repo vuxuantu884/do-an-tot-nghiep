@@ -13,8 +13,12 @@ import {
 } from "react-icons/hi";
 import imgDefIcon from "assets/img/img-def.svg";
 import { formatCurrency } from "utils/AppUtils";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import { Link } from "react-router-dom";
 
-type TabInventoryProps = {};
+type TabInventoryProps = {
+  poId?: number
+};
 const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
   return (
     <Form.Item
@@ -122,7 +126,16 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                   </div>
                 ),
                 dataIndex: "code",
-                render: (value, item, index) => <div>{value}</div>,
+                render: (value, item, index) => {
+                  return (props.poId &&
+                    <div>
+                      <Link to="#" onClick={() => {
+                        const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${props.poId}/procurements/${item.id}`
+                        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+                        if (newWindow) newWindow.opener = null
+                      }}>{value}</Link>
+                    </div>)
+                },
               },
               {
                 title: "Kho nhận hàng",

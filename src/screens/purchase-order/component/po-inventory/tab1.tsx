@@ -12,6 +12,8 @@ import { useDispatch } from "react-redux";
 import { PoProcumentFinishAction } from "domain/actions/po/po-procument.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import { Link } from "react-router-dom";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 
 type TabAllProps = {
   id?: number;
@@ -106,7 +108,13 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                   ) => (
                     <div>
                       <div>
-                        <div className="product-item-sku">{item.sku}</div>
+                        <div className="product-item-sku">
+                          <Link to="#" onClick={() => {
+                            const url = `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`
+                            const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+                            if (newWindow) newWindow.opener = null
+                          }}>{item.sku}</Link>
+                        </div>
                         <div className="product-item-name text-truncate-1">
                           <div className="product-item-name-detail">
                             {value}

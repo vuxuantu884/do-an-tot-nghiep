@@ -43,7 +43,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         case 1:
           return <TabAll onSuccess={onSuccess} id={poId} code={code} />;
         case 2:
-          return <TabInvetory />;
+          return <TabInvetory poId={poId} />;
         case 3:
           return <TabConfirmed confirmInventory={confirmInventory} />;
         case 4:
