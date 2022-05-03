@@ -429,7 +429,7 @@ const POProductForm = ({
     {
       title: <div>Tổng SL
         <br />
-        ({sumOfQty})
+        ({formatCurrency(sumOfQty)})
       </div>,
       align: "center",
       dataIndex: "color",
