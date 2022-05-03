@@ -1173,6 +1173,20 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     [serviceVariables.deliver4h, serviceVariables.deliverStandard, services]
   );
 
+  const handleClearFilterConfig = () => {
+    setTagActive(undefined);
+    // formRef.current?.resetFields(initialValues)
+    let fields = formRef.current?.getFieldsValue(true);
+    for (let key in fields) {
+      if(fields[key] instanceof Array) {
+        fields[key] = [];
+      } else {
+        fields[key] = null;
+      }
+    }
+    formRef.current?.setFieldsValue(fields);
+  };
+
   const clearFilter = () => {
     onClearFilter && onClearFilter();
     setIssuedClick("");
@@ -1183,6 +1197,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
     setVisible(false);
     setRerender(false);
+
+    handleClearFilterConfig();
   };
 
   const renderTabHeader = () => {

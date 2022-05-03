@@ -405,6 +405,21 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       return 800
     }
   }
+ 
+  const handleClearFilterConfig = () => {
+    setTagActive(undefined);
+    // formRef.current?.resetFields(initialValues)
+    let fields = formRef.current?.getFieldsValue(true);
+    for (let key in fields) {
+      if(fields[key] instanceof Array) {
+        fields[key] = [];
+      } else {
+        fields[key] = null;
+      }
+    }
+    formRef.current?.setFieldsValue(fields);
+  };
+
   const clearFilter = () => {
     onClearFilter && onClearFilter();
     setCreatedClick('')
@@ -412,7 +427,10 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
 
     setVisible(false);
     setRerender(false);
+
+    handleClearFilterConfig();
   };
+
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
   }, []);
