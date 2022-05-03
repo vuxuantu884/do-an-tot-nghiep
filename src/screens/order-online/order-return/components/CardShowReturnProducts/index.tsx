@@ -291,21 +291,6 @@ function CardShowReturnProducts(props: PropType) {
               </Row>
             )}
             <Row className="payment-row" justify="space-between">
-                <span className="font-size-text">Chiết khấu: 
-								<Tag
-									style={{
-										marginTop: 0,
-										color: "#E24343",
-										backgroundColor: "#F5F5F5",
-									}}
-									className="orders-tag orders-tag-danger"
-								>
-									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0]?.rate ||0) *100 )/100 : 0}%{" "}
-								</Tag>
-                </span>
-                {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0]?.amount||0) : 0} đ`} 
-              </Row>
-            <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>
                 {totalAmountReturnToCustomer

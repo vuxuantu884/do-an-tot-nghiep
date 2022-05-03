@@ -20,4 +20,7 @@ export interface OrderReducerType {
     isExportBill: boolean,
   },
   isLoadingDiscount: boolean;
+  orderPayment: {
+    isAlreadyChanged: boolean;
+  }
 }

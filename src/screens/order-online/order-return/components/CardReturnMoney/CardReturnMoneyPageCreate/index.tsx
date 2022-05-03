@@ -55,7 +55,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const isReturnMoneyToCustomer =
     totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
-
+console.log('listPaymentMethods', listPaymentMethods)
   const renderWhenReturnMoneyToCustomer = () => {
     return (
       <div className="create-order-payment">

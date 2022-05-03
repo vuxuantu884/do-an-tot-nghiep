@@ -351,6 +351,7 @@ function CardReturnProducts(props: PropTypes) {
                           if (value)
                             onChangeStoreReturrn(value)
                         }}
+                        id="selectStoreReturn"
                       >
                         {dataCanAccess?.map((item, index) => (
                           <Select.Option key={index} value={item.id}>

@@ -5,7 +5,7 @@ import Cash from "component/icon/Cash";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 import YdCoin from "component/icon/YdCoin";
-import { changeSelectedStoreBankAccountAction, setIsExportBillAction } from "domain/actions/order/order.action";
+import { changeIfPaymentAlreadyChangedAction, changeSelectedStoreBankAccountAction, setIsExportBillAction } from "domain/actions/order/order.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
@@ -65,7 +65,8 @@ function OrderPayments(props: PropType): JSX.Element {
    
 
   const ListPaymentMethods = useMemo(() => {
-    return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
+    // return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
+    return listPaymentMethod.filter((item) => item.code);
   }, [listPaymentMethod]);
 
   const usageRate = useMemo(() => {
@@ -92,7 +93,8 @@ function OrderPayments(props: PropType): JSX.Element {
     //   }
     // }
     setPayments(paymentsResult);
-  }, [setPayments]);
+    dispatch(changeIfPaymentAlreadyChangedAction(true))
+  }, [dispatch, setPayments]);
 
   /**
    * tổng số tiền đã trả
