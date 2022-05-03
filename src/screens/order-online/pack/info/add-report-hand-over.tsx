@@ -157,7 +157,8 @@ const AddReportHandOver: React.FC = () => {
       goodsReceiptsForm
     ]
   );
-
+  
+  // console.log("goodsReceipts",goodsReceipts)
   const handOrderAddGoodsReceipts = useCallback(() => {
     if (!goodsReceipts) {
       showWarning("Chưa chọn biên bản bàn giao");
@@ -211,7 +212,7 @@ const AddReportHandOver: React.FC = () => {
       ...goodsReceipts,
       codes: codes,
     };
-    console.log(param);
+    // console.log(param);
 
     dispatch(
       updateGoodsReceipts(
@@ -266,6 +267,7 @@ const AddReportHandOver: React.FC = () => {
 
   const selectGoodsReceipts = useCallback(
     (value: number) => {
+      // console.log("selectGoodsReceipts",value)
       let indexGoods = listGoodsReceipts.findIndex(
         (data: GoodsReceiptsResponse) => data.id === value
       );

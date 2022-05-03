@@ -154,7 +154,7 @@ function PackList() {
     // console.log("code", isFulFillmentPackCopy);
   };
 
-  console.log("isFulFillmentPack",isFulFillmentPack)
+  // console.log("isFulFillmentPack",isFulFillmentPack)
 
   return (
     <Card
@@ -174,11 +174,9 @@ function PackList() {
             current: resultPaging.currentPage,
             showSizeChanger: true,
             onChange: (page, size) => {
-              console.log("page", page, size);
               setPagingParam({ perPage: size || 10, currentPage: page })
             },
             onShowSizeChange: (page, size) => {
-              console.log("page", page, size);
               setPagingParam({ perPage: size || 10, currentPage: page })
             },
           }}
