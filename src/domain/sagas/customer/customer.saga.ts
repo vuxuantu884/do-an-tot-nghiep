@@ -170,7 +170,7 @@ function* getCustomerOrderHistorySaga(action: YodyAction) {
   const { queryParams, callback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderHistoryApi, queryParams );
+    const response: BaseResponse<any> = yield call( getCustomerOrderHistoryApi, queryParams );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -192,7 +192,7 @@ function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
   const { customer_id, callback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<CustomerResponse> = yield call( getCustomerOrderReturnHistoryApi, customer_id );
+    const response: BaseResponse<any> = yield call( getCustomerOrderReturnHistoryApi, customer_id );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
