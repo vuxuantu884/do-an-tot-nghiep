@@ -1850,13 +1850,10 @@ export const convertStringDistrictWithoutLine = (text: string) => {
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
-  .replace("thi xa", "")
-  .replace("xa", "")
   .replace("huyen", "")
   .replace("thanh pho", "")
   .replace("thi tran", "")
   .replace("tp", "")
-  .replace("phuong", "")
   .replace("p.", "")
   .replace("hcm", "ho chi minh")
   .replace("hn", "ha noi")
@@ -1874,11 +1871,11 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
   let districtArr = districtConvert.split("-");
   console.log('districtArr', districtArr)
   let valueResult = convertStringDistrict(newValue);
-  districtArr.forEach(ddd => {
-    console.log('ddd', ddd)
+  districtArr.forEach(district => {
+    console.log('district', district)
     console.log('valueResult', valueResult)
-    // valueResult = valueResult.replace(ddd.trim(), "");
-    valueResult = replaceLast(valueResult, convertStringDistrict(ddd));
+    // valueResult = valueResult.replace(district.trim(), "");
+    valueResult = replaceLast(valueResult, convertStringDistrict(district));
   })
   console.log('valueResult', valueResult)
   const findWard = newWards.find((ward: any) => {

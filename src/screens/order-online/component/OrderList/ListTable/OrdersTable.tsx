@@ -95,6 +95,10 @@ type PropTypes = {
 
 type dataExtra = PageResponse<OrderExtraModel>;
 
+type ICustomTableColumTypeExtra = (ICustomTableColumType<OrderModel> & {
+  isHideInOffline?: boolean;
+})[]
+
 let itemResult:OrderModel[] = [];
 let metadataResult:BaseMetadata = {
   limit: 0,
@@ -526,7 +530,7 @@ function OrdersTable(props: PropTypes) {
     return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
   };
 
-  const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
+  const initColumnsDefault: ICustomTableColumTypeExtra = useMemo(() => {
     return [
       {
         title: "ID đơn hàng",
@@ -1148,6 +1152,7 @@ function OrdersTable(props: PropTypes) {
         visible: orderType === ORDER_TYPES.online,
         width: 80,
         align: "left",
+        isHideInOffline: true,
       },
       {
         title: "Trạng thái",
@@ -1274,6 +1279,7 @@ function OrdersTable(props: PropTypes) {
         visible: orderType === ORDER_TYPES.online,
         align: "left",
         width: 95,
+        isHideInOffline: true,
       },
       {
         title: "Ghi chú",
@@ -1356,6 +1362,7 @@ function OrdersTable(props: PropTypes) {
         visible: orderType === ORDER_TYPES.online,
         align: "center",
         width: 80,
+        isHideInOffline: true,
       },
       {
         title: orderType === ORDER_TYPES.online ? "NV tạo đơn" : "Thu ngân",
@@ -1368,6 +1375,7 @@ function OrdersTable(props: PropTypes) {
         visible: orderType === ORDER_TYPES.online,
         align: "center",
         width: 80,
+        isHideInOffline: true,
       },
       {
         title: "Biên bản bàn giao",
@@ -1395,6 +1403,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: false,
         width: 160,
+        isHideInOffline: true,
       },
       {
         title: "Mã Afilliate",
@@ -1439,6 +1448,13 @@ function OrdersTable(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.items.length, deliveryServices, editNote, status_order]);
 
+  const initColumns = useMemo(() => {
+    if(orderType === ORDER_TYPES.online) {
+      return initColumnsDefault;
+    } else {
+      return initColumnsDefault.filter((single) => !single.isHideInOffline)
+    }
+  }, [initColumnsDefault, orderType])
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const [inventoryData, setInventoryData] = useState<AllInventoryProductInStore[]>([]);

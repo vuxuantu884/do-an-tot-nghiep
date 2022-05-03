@@ -98,11 +98,11 @@ function* getGoodsReceiptsSerchSaga(action: YodyAction) {
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setData(null);
+        setData(undefined);
         yield put(unauthorizedAction());
         break;
       default:
-        setData(null);
+        setData(undefined);
         response.errors.forEach((e: any) => showError(e));
         break;
     }
@@ -209,6 +209,7 @@ function* deleteAllGoodsReceipSaga(action: YodyAction)
  */
 function* getByIdGoodsReceiptsSaga(action: YodyAction) {
   let {goodsReceiptsId, setData} = action.payload;
+  yield put(showLoading())
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       getByIdGoodsReceiptsService,
@@ -227,6 +228,9 @@ function* getByIdGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch {
     showError("Có lỗi xảy ra vui lòng thử lại");
+  }
+  finally{
+    yield put(hideLoading())
   }
 }
 

@@ -5,7 +5,7 @@ import Cash from "component/icon/Cash";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 import YdCoin from "component/icon/YdCoin";
-import { changeSelectedStoreBankAccountAction, setIsExportBillAction } from "domain/actions/order/order.action";
+import { changeIfPaymentAlreadyChangedAction, changeSelectedStoreBankAccountAction, setIsExportBillAction } from "domain/actions/order/order.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
@@ -65,7 +65,8 @@ function OrderPayments(props: PropType): JSX.Element {
    
 
   const ListPaymentMethods = useMemo(() => {
-    return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
+    // return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
+    return listPaymentMethod.filter((item) => item.code);
   }, [listPaymentMethod]);
 
   const usageRate = useMemo(() => {
@@ -73,8 +74,15 @@ function OrderPayments(props: PropType): JSX.Element {
     return usageRate;
   }, [loyaltyRate]);
 
+  const isPaymentAlreadyChanged = useSelector((state: RootReducerType) => state.orderReducer.orderPayment.isAlreadyChanged);
+
   const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
-    let paymentsResult = [...payments]
+    let paymentsResult = [...payments].map(payment => ({
+      ...payment,
+      amount: Math.ceil(payment.amount),
+      paid_amount: Math.ceil(payment.paid_amount),
+      return_amount: Math.round(payment.return_amount),
+    }))
     // let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
     // if(bankPaymentIndex > -1) {
     //   if(selectedStoreBankAccount) {
@@ -92,7 +100,10 @@ function OrderPayments(props: PropType): JSX.Element {
     //   }
     // }
     setPayments(paymentsResult);
-  }, [setPayments]);
+    if(!isPaymentAlreadyChanged) {
+      dispatch(changeIfPaymentAlreadyChangedAction(true))
+    }
+  }, [dispatch, isPaymentAlreadyChanged, setPayments]);
 
   /**
    * tổng số tiền đã trả

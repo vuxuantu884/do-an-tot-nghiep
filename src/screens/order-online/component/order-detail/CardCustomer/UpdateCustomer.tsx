@@ -318,9 +318,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         _shippingAddress.splice(index, 1);
       }
 
-      let shipping_district = newAreas.find((area: any) => area.id === value.shipping_addresses_district_id);
+      let shipping_district = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
       let shipping_ward=shippingWards.find((ward:any)=>ward.id===value.shipping_addresses_ward_id)
-      let customer_district = newAreas.find((area: any) => area.id === value.district_id);
+      let customer_district = areas.find((area: any) => area.id === value.district_id);
       let customer_ward= wards.find((ward:any)=>ward.id===value.ward_id);
 
       let paramShipping = {
@@ -412,7 +412,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
       }));
     },
-    [customerItem, shippingAddress, newAreas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
+    [customerItem, shippingAddress, areas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
   );
 
   const onOkPress = useCallback(() => {

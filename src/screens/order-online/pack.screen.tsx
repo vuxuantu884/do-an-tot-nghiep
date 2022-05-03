@@ -125,7 +125,7 @@ const PackSupportScreen: React.FC = () => {
           setPackModel({ ...packData,store_id:packData.store_id ,order: orderEnd });
           setPackInfo({ ...packData,store_id:packData.store_id, order: orderEnd });
         }
-        else handleFetchApiError(response, "Danh sách Fullfiment", dispatch)
+        else handleFetchApiError(response, "Danh sách fulfillment", dispatch)
       }).catch((err) => {
         console.log(err);
       }).finally(() => { dispatch(hideLoading()); });

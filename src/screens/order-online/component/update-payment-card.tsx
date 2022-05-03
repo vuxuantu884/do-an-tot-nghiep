@@ -162,7 +162,7 @@ console.log('paymentData', paymentData)
           setPayments={setPaymentData}
           paymentMethod={paymentMethod}
           shipmentMethod={shipmentMethod}
-          totalAmountOrder={amount}
+          totalAmountOrder={Math.ceil(amount)}
           loyaltyRate={loyaltyRate}
           listPaymentMethod={listPaymentMethods}
           isDisablePostPayment={isDisablePostPayment}

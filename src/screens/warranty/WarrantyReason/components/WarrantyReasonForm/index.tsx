@@ -73,7 +73,7 @@ function WarrantyReasonForm(props: PropTypes) {
               }}
               replace={(a: string) => replaceFormatString(a)}
               placeholder="Nhập phí thực tế"
-              maxLength={14}
+              maxLength={10}
               minLength={0}
               style={{
                 textAlign: "left",
@@ -105,7 +105,7 @@ function WarrantyReasonForm(props: PropTypes) {
               }}
               replace={(a: string) => replaceFormatString(a)}
               placeholder="Nhập phí báo khách"
-              maxLength={14}
+              maxLength={10}
               minLength={0}
               style={{
                 textAlign: "left",

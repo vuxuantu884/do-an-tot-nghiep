@@ -4,7 +4,7 @@ import { formatCurrency } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   totalAmountCustomerNeedToPay: number;
   isShowButtonReturnMoney: boolean;
   listPaymentMethods: PaymentMethodResponse[];
@@ -15,14 +15,13 @@ type PropType = {
  * input: totalAmountCustomerNeedToPay
  * output: setReturnMoneyType, setReturnMoneyMethod
  */
-function ReturnMoneySelect(props: PropType) {
+function ReturnMoneySelect(props: PropTypes) {
   /**
-   * payment method bỏ tiêu điểm và qr pay và card
+   * payment method bỏ tiêu điểm và qr pay
    */
   const exceptMethods = [
     PaymentMethodCode.QR_CODE,
     PaymentMethodCode.POINT,
-    PaymentMethodCode.CARD,
   ];
 
   const {
@@ -31,6 +30,8 @@ function ReturnMoneySelect(props: PropType) {
     listPaymentMethods,
     handleReturnMoney,
   } = props;
+
+  console.log('listPaymentMethods', listPaymentMethods)
 
   let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
     return !exceptMethods.includes(single.code);

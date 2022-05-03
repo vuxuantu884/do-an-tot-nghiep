@@ -224,13 +224,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
   const handleSubmit = useCallback(
     (values: any) => {
-      let area = newAreas.find((area: any) => area.id === values.district_id);
+      let area = areas.find((area: any) => area.id === values.district_id);
       values.full_name = values.full_name.trim();
 
-      let area_shipping_district = newAreas.find((area: any) => area.id === values.shipping_addresses_district_id);
+      let area_shipping_district = areas.find((area: any) => area.id === values.shipping_addresses_district_id);
       let area_shipping_ward=shippingWards.find((ward:any)=>ward.id===values.shipping_addresses_ward_id)
 
-      let customer_district = newAreas.find((area: any) => area.id === values.district_id);
+      let customer_district = areas.find((area: any) => area.id === values.district_id);
       let customer_ward= wards.find((ward:any)=>ward.id===values.ward_id);
 
       let shipping_addresses: CustomerShippingAddress[] | null = isVisibleShipping === false ? [
@@ -285,7 +285,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback)
       );
     },
-    [dispatch, createCustomerCallback, newAreas, isVisibleShipping,shippingWards,wards]
+    [areas, shippingWards, wards, isVisibleShipping, dispatch, createCustomerCallback]
   );
 
   const onOkPress = useCallback(() => {
