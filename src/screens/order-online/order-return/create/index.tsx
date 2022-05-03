@@ -302,7 +302,7 @@ ShippingServiceConfigDetailResponseModel[]
         },
       ],
       account_code: recentAccountCode.accountCode,
-      assignee_code: !isOrderFromPOS(OrderDetail) ? recentAccountCode.accountCode :  OrderDetail?.assignee_code,
+      assignee_code: recentAccountCode.accountCode || null,
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
       note: OrderDetail?.note,
@@ -540,6 +540,7 @@ ShippingServiceConfigDetailResponseModel[]
         total_discount: getTotalOrderDiscount(discounts),
         total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
+        assignee_code: recentAccountCode.accountCode || null,
         // clear giá trị
         reference_code: "",
         customer_note: "",
@@ -547,7 +548,7 @@ ShippingServiceConfigDetailResponseModel[]
         url: "",
         tags: null,
         type: orderReturnType,
-        channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
+        channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log('orderDetailResult', orderDetailResult);
       dispatch(showLoading())
@@ -768,6 +769,8 @@ ShippingServiceConfigDetailResponseModel[]
             sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
             discounts: handleRecalculateOriginDiscount(itemsResult),
+            account_code: recentAccountCode.accountCode,
+            assignee_code: recentAccountCode.accountCode || null,
             // clear giá trị
             reference_code: "",
             customer_note: "",
