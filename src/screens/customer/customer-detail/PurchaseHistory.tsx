@@ -595,6 +595,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           if (record.code_order_return && record.discounts?.length > 0) {
             orderReturnAmount = orderReturnAmount - record.discounts[0].amount;
           }
+          const discountAmount = record.discounts && record.discounts[0]?.amount;
           return (
             <>
               {/*Đơn hàng*/}
@@ -614,7 +615,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                       <div>
                         <span>- </span>
                         <NumberFormat
-                          value={record.discounts[0]?.amount || 0}
+                          value={discountAmount || 0}
                           className="foo"
                           displayType={"text"}
                           thousandSeparator={true}
