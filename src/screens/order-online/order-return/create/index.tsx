@@ -1719,7 +1719,7 @@ ShippingServiceConfigDetailResponseModel[]
     dispatch(
       PaymentMethodGetList((response) => {
         // let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
-        // có cả quẹt thẻ
+        // update: ko bỏ quẹt thẻ nữa
         let result = response.filter((single) => single.code);
         setListPaymentMethods(result);
       })
@@ -1731,11 +1731,11 @@ ShippingServiceConfigDetailResponseModel[]
     let cash = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
     if(cash && !isPaymentAlreadyChanged) {
       setPayments([{
-        amount: Math.ceil(totalAmountCustomerNeedToPay),
+        amount: (totalAmountCustomerNeedToPay),
         customer_id: customer?.id || null,
         name: cash.name,
         note: "",
-        paid_amount: Math.ceil(totalAmountCustomerNeedToPay),
+        paid_amount: (totalAmountCustomerNeedToPay),
         payment_method: "Tiền mặt",
         payment_method_code: PaymentMethodCode.CASH,
         payment_method_id: cash.id,
@@ -1834,6 +1834,12 @@ ShippingServiceConfigDetailResponseModel[]
       dispatch(StoreDetailAction(storeIdLogin, setStoreReturn))
     }
   }, [dispatch, storeIdLogin])
+
+  useEffect(() => {
+   if(isExchange) {
+     form.setFieldsValue(initialFormValueWithReturn)
+   }
+  }, [form, initialFormValueWithReturn, isExchange])
 
   useEffect(()=>{
     window.addEventListener("keydown",eventKeydown);

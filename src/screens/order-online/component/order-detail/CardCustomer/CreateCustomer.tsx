@@ -285,7 +285,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback)
       );
     },
-    [dispatch, createCustomerCallback, newAreas, isVisibleShipping,shippingWards,wards]
+    [areas, shippingWards, wards, isVisibleShipping, dispatch, createCustomerCallback]
   );
 
   const onOkPress = useCallback(() => {

@@ -324,10 +324,15 @@ function CardReturnProducts(props: PropTypes) {
 		return newData;
 	}, [listStores, setStoreReturn, storeIdLogin, storeReturn]);
 
-  const onChangeStoreReturrn=(value:number)=>{
-    const newStoreIndex = listStores.findIndex((p)=>p.id===value);
-    if(newStoreIndex!==-1 && setStoreReturn)
-      setStoreReturn(listStores[newStoreIndex]);
+  const onChangeStoreReturn=(value?:number)=>{
+    if(!value) {
+      setStoreReturn && setStoreReturn(null)
+      return;
+    }
+    const newStore = listStores.find((p)=>p.id===value);
+    if(setStoreReturn) {
+      setStoreReturn(newStore || null);
+    }
   }
   return (
     <StyledComponent>
@@ -348,8 +353,7 @@ function CardReturnProducts(props: PropTypes) {
                         notFoundContent="Không tìm thấy kết quả"
                         value={storeReturn?.id}
                         onChange={(value?: number) => {
-                          if (value)
-                            onChangeStoreReturrn(value)
+                          onChangeStoreReturn(value)
                         }}
                         id="selectStoreReturn"
                       >

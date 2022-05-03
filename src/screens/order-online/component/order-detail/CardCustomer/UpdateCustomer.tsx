@@ -412,7 +412,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
       }));
     },
-    [customerItem, shippingAddress, newAreas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
+    [customerItem, shippingAddress, areas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
   );
 
   const onOkPress = useCallback(() => {

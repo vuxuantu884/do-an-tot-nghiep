@@ -74,6 +74,8 @@ function OrderPayments(props: PropType): JSX.Element {
     return usageRate;
   }, [loyaltyRate]);
 
+  const isPaymentAlreadyChanged = useSelector((state: RootReducerType) => state.orderReducer.orderPayment.isAlreadyChanged);
+
   const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
     let paymentsResult = [...payments]
     // let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
@@ -93,8 +95,10 @@ function OrderPayments(props: PropType): JSX.Element {
     //   }
     // }
     setPayments(paymentsResult);
-    dispatch(changeIfPaymentAlreadyChangedAction(true))
-  }, [dispatch, setPayments]);
+    if(!isPaymentAlreadyChanged) {
+      dispatch(changeIfPaymentAlreadyChangedAction(true))
+    }
+  }, [dispatch, isPaymentAlreadyChanged, setPayments]);
 
   /**
    * tổng số tiền đã trả

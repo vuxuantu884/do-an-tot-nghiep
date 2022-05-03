@@ -1,12 +1,12 @@
-import { Card, Col, Popover, Row, Table, Tag, Tooltip, Typography } from "antd";
+import { Card, Col, Popover, Row, Table, Tooltip, Typography } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import UrlConfig from "config/url.config";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
-	OrderLineItemResponse,
-	OrderResponse,
-	ReturnProductModel
+  OrderLineItemResponse,
+  OrderResponse,
+  ReturnProductModel
 } from "model/response/order/order.response";
 import React from "react";
 import { Link } from "react-router-dom";
