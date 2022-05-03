@@ -676,17 +676,23 @@ function CreateWarranty(props: Props) {
             customer_id: data.customer_id,
             customer: data.customer,
             customer_mobile: data.customer_phone_number,
-            customer_address: data.customer_address
-              ? data.customer_address
-              : warrantyForm.getFieldValue("type") === WarrantyFormType.STORE
-                ? "Nhận tại cửa hàng"
-                : "",
+            customer_address: data.billing_address?.full_address + " " + data.billing_address?.ward + " " + data.billing_address?.district + " " + data.billing_address?.city,
             store_id: data.store_id,
             assignee_code: data.assignee_code,
           });
-          data.items.forEach(item => {
-            addItemsWarranty({ ...item, finished_on: data.finished_on, finalized_on: data.finalized_on })
-          })
+          const newWarrantyItems = data.items.map((item, index) => {
+            return {
+              ...item,
+              index,
+              finished_on: data.finished_on,
+              finalized_on: data.finalized_on,
+              type: null,
+              reason_id: null,
+              price: 0,
+              customer_fee: 0,
+            }
+          });
+          setWarrantyItems(newWarrantyItems);
         }
       }));
     } else {

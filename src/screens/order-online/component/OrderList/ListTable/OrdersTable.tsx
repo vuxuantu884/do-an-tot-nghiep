@@ -1469,13 +1469,16 @@ function OrdersTable(props: PropTypes) {
             >
               <img alt="" src={iconPrint} className="iconReturn"/>
             </Link>
-
+          </div>
+        ) : null}
+        {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
+          <div className="actionButton">
             <Link
               to={`${UrlConfig.WARRANTY}/create?orderID=${record.id}`}
               title="Bảo hành"
               target = "_blank"
             >
-              <img alt="" src={iconWarranty} className="iconReturn" style={{ marginTop: '5px', filter: 'brightness(0.5)' }}/>
+              <img alt="" src={iconWarranty} className="iconReturn" style={{ filter: 'brightness(0.5)' }}/>
             </Link>
           </div>
         ) : null}
