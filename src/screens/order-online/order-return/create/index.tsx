@@ -1731,11 +1731,11 @@ ShippingServiceConfigDetailResponseModel[]
     let cash = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
     if(cash && !isPaymentAlreadyChanged) {
       setPayments([{
-        amount: (totalAmountCustomerNeedToPay),
+        amount: Math.ceil(totalAmountCustomerNeedToPay),
         customer_id: customer?.id || null,
         name: cash.name,
         note: "",
-        paid_amount: (totalAmountCustomerNeedToPay),
+        paid_amount: Math.ceil(totalAmountCustomerNeedToPay),
         payment_method: "Tiền mặt",
         payment_method_code: PaymentMethodCode.CASH,
         payment_method_id: cash.id,

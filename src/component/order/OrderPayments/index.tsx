@@ -77,7 +77,12 @@ function OrderPayments(props: PropType): JSX.Element {
   const isPaymentAlreadyChanged = useSelector((state: RootReducerType) => state.orderReducer.orderPayment.isAlreadyChanged);
 
   const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
-    let paymentsResult = [...payments]
+    let paymentsResult = [...payments].map(payment => ({
+      ...payment,
+      amount: Math.ceil(payment.amount),
+      paid_amount: Math.ceil(payment.paid_amount),
+      return_amount: Math.round(payment.return_amount),
+    }))
     // let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
     // if(bankPaymentIndex > -1) {
     //   if(selectedStoreBankAccount) {
