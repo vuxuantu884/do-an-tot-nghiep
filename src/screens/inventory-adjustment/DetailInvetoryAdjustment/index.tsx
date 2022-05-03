@@ -806,9 +806,7 @@ const onChangeNote = useCallback(
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (response.data.percent) {
             setExportProgress((response.data.num_of_record/response.data.total)*100);
-          }
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
