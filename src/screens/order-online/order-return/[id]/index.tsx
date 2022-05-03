@@ -6,12 +6,12 @@ import { OrderReturnSingleContext } from "contexts/order-return/order-return-sin
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import {
   getLoyaltyPoint,
-  getLoyaltyUsage,
+  getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
   actionGetOrderReturnDetails,
   actionOrderRefund,
-  actionSetIsReceivedOrderReturn,
+  actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -21,14 +21,14 @@ import {
   OrderPaymentResponse,
   OrderResponse,
   OrderReturnModel,
-  ReturnProductModel,
+  ReturnProductModel
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { isOrderFromPOS } from "utils/AppUtils";
-import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
+import { FulFillmentStatus } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -221,8 +221,12 @@ const ScreenReturnDetail = (props: PropType) => {
   useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
+        // let result = response.filter(
+        //   (single) => single.code !== PaymentMethodCode.CARD
+        // );
+        // update: ko bỏ quẹt thẻ nữa
         let result = response.filter(
-          (single) => single.code !== PaymentMethodCode.CARD
+          (single) => single.code
         );
         setListPaymentMethods(result);
       })
