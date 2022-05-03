@@ -17,6 +17,9 @@ const initialState = {
   },
   shippingServiceConfig: [],
   isLoadingDiscount: false,
+  orderPayment: {
+    isAlreadyChanged: false,
+  }
 };
 
 const orderReducer = (state = initialState, action: YodyAction) => {
@@ -99,6 +102,14 @@ const orderReducer = (state = initialState, action: YodyAction) => {
       return {
         ...state,
         isLoadingDiscount: payload.isLoadingDiscount,
+      };
+
+    case OrderType.CHANGE_IF_ORDER_PAYMENT_CHANGED:
+      return {
+        ...state,
+        orderPayment: {
+          isAlreadyChanged: payload.isAlreadyChangedPayment,
+        }
       };
 
     default:

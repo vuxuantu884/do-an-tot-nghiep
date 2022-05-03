@@ -609,3 +609,14 @@ export const changeIsLoadingDiscountAction = (
     }
   }
 };
+
+export const changeIfPaymentAlreadyChangedAction = (
+  isAlreadyChangedPayment: boolean
+) => {
+  return {
+    type: OrderType.CHANGE_IF_ORDER_PAYMENT_CHANGED,
+    payload: {
+      isAlreadyChangedPayment,
+    }
+  }
+};

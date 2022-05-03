@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {Link} from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import {StyledComponent} from "./styles";
 
 type PropTypes = {
@@ -151,8 +151,23 @@ function SidebarOrderDetailInformation(props: PropTypes) {
             </span>
           </Col>
         </Row>
+        {isOrderFromPOS(OrderDetail) ? (
+          <Row gutter={5}>
+            <Col span={10}>NV thu ngân:</Col>
+            <Col span={14}>
+              <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ORDER}?page=1&limit=30&assignee_codes=${OrderDetail?.account_code}`}
+                >
+                  {OrderDetail?.account_code} - {OrderDetail?.account}
+                </Link>
+              </span>
+            </Col>
+          </Row>
+        ) : null}
         <Row gutter={5}>
-          <Col span={10}>NV bán hàng:</Col>
+          <Col span={10}>{isOrderFromPOS(OrderDetail) ? "NV tư vấn:" : "NV bán hàng:"}</Col>
           <Col span={14}>
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
               <Link

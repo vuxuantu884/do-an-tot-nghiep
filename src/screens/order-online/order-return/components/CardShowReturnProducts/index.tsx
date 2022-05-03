@@ -1,12 +1,12 @@
-import { Card, Col, Popover, Row, Table, Tag, Tooltip, Typography } from "antd";
+import { Card, Col, Popover, Row, Table, Tooltip, Typography } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import UrlConfig from "config/url.config";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
-	OrderLineItemResponse,
-	OrderResponse,
-	ReturnProductModel
+  OrderLineItemResponse,
+  OrderResponse,
+  ReturnProductModel
 } from "model/response/order/order.response";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -290,21 +290,6 @@ function CardShowReturnProducts(props: PropType) {
                 {`${pointUsing ? pointUsing : 0} điểm`}
               </Row>
             )}
-            <Row className="payment-row" justify="space-between">
-                <span className="font-size-text">Chiết khấu: 
-								<Tag
-									style={{
-										marginTop: 0,
-										color: "#E24343",
-										backgroundColor: "#F5F5F5",
-									}}
-									className="orders-tag orders-tag-danger"
-								>
-									{OrderDetail?.discounts ? Math.round((OrderDetail?.discounts[0]?.rate ||0) *100 )/100 : 0}%{" "}
-								</Tag>
-                </span>
-                {`${OrderDetail?.discounts ? formatCurrency(OrderDetail?.discounts[0]?.amount||0) : 0} đ`} 
-              </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>
