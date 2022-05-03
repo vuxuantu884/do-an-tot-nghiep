@@ -2,6 +2,7 @@ import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-des
 import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconPrint from "assets/icon/Print.svg";
+import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
 import search from "assets/img/search.svg";
@@ -1467,6 +1468,14 @@ function OrdersTable(props: PropTypes) {
               target = "_blank"
             >
               <img alt="" src={iconPrint} className="iconReturn"/>
+            </Link>
+
+            <Link
+              to={`${UrlConfig.WARRANTY}/create?orderID=${record.id}`}
+              title="Bảo hành"
+              target = "_blank"
+            >
+              <img alt="" src={iconWarranty} className="iconReturn" style={{ marginTop: '5px', filter: 'brightness(0.5)' }}/>
             </Link>
           </div>
         ) : null}

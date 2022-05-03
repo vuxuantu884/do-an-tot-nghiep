@@ -19,6 +19,7 @@ import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CustomerSearchSo, getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { OrderDetailAction } from "domain/actions/order/order.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import {
   createWarrantyAction,
@@ -50,6 +51,7 @@ import {
 import { DATE_FORMAT } from "utils/DateUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 import HistoryPurchaseModal from "../HistoryPurchase/HistoryPurchase.modal";
 import { StyledComponent } from "./index.styles";
 // import { AiOutlinePlusCircle } from 'react-icons/ai';
@@ -78,6 +80,10 @@ const initQueryCustomer: CustomerSearchQuery = {
 function CreateWarranty(props: Props) {
   const dispatch = useDispatch();
   const history = useHistory();
+  const isFirstLoad = useRef(true);
+  const query = useQuery();
+  const orderID = query.get("orderID");
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const [warrantyForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -332,8 +338,8 @@ function CreateWarranty(props: Props) {
                 customer_address: data.full_address
                   ? data.full_address
                   : warrantyForm.getFieldValue("type") === WarrantyFormType.STORE
-                  ? "Nhận tại cửa hàng"
-                  : "",
+                    ? "Nhận tại cửa hàng"
+                    : "",
               });
             }
           })
@@ -661,6 +667,32 @@ function CreateWarranty(props: Props) {
   };
 
   useEffect(() => {
+    if (isFirstLoad.current && orderID) {
+      dispatch(OrderDetailAction(orderID, (data) => {
+        setLoadingData(false);
+        if (data) {
+          setHadCustomer(true);
+          warrantyForm.setFieldsValue({
+            customer_id: data.customer_id,
+            customer: data.customer,
+            customer_mobile: data.customer_phone_number,
+            customer_address: data.customer_address
+              ? data.customer_address
+              : warrantyForm.getFieldValue("type") === WarrantyFormType.STORE
+                ? "Nhận tại cửa hàng"
+                : "",
+            store_id: data.store_id,
+            assignee_code: data.assignee_code,
+          });
+          data.items.forEach(item => {
+            addItemsWarranty({ ...item, finished_on: data.finished_on, finalized_on: data.finalized_on })
+          })
+        }
+      }));
+    } else {
+      setLoadingData(false);
+    }
+    isFirstLoad.current = false;
     dispatch(
       searchAccountPublicAction({ limit: 30 }, (data) => {
         setAccounts(data.items);
@@ -672,12 +704,12 @@ function CreateWarranty(props: Props) {
         setReasons(data.filter((reason) => reason.status === "ACTIVE"))
       )
     );
-  }, [dispatch]);
+  }, [addItemsWarranty, dispatch, orderID, warrantyForm]);
 
   return (
     <StyledComponent>
       <ContentContainer
-        // isLoading={loadingData}
+        isLoading={loadingData}
         title="Thêm mới phiếu bảo hành"
         breadcrumb={[
           {

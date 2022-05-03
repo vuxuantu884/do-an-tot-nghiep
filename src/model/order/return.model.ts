@@ -46,6 +46,7 @@ export interface ReturnSearchQuery {
   price_max: number|null;
   store_ids: [],
   is_received: [];
+  assignee_codes: [];
   account_codes: [];
   reason_ids: [];
   is_online?: boolean|null;
