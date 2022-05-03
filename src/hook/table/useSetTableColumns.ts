@@ -2,7 +2,7 @@ import { FilterConfig } from "model/other";
 import { useEffect, useMemo } from "react";
 import { ICustomTableColumType } from "screens/ecommerce/table/CustomTable";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
-import { ORDER_TYPES } from "utils/Order.constants";
+// import { ORDER_TYPES } from "utils/Order.constants";
 
 function useSetTableColumns(
   columnType: string,
