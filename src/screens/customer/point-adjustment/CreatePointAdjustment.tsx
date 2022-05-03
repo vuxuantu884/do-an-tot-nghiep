@@ -101,7 +101,7 @@ const CreatePointAdjustment = () => {
   const initFormValues = {
     type: type,
     reason: "Khác",
-    value_change: 1,
+    value_change: null,
     note: null,
     search: "",
     name: ""
@@ -327,7 +327,7 @@ const CreatePointAdjustment = () => {
 
   const onFinish = useCallback(
     (values) => {
-      if (values.value_change === 0) {
+      if (!values.value_change) {
         showError("Giá trị điều chỉnh phải lớn hơn 0");
         return;
       }
