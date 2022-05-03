@@ -335,11 +335,7 @@ function CreateWarranty(props: Props) {
                 customer_id: data.id,
                 customer: data.full_name,
                 customer_mobile: data.phone,
-                customer_address: data.full_address
-                  ? data.full_address
-                  : warrantyForm.getFieldValue("type") === WarrantyFormType.STORE
-                    ? "Nhận tại cửa hàng"
-                    : "",
+                customer_address: `${data.full_address ? data.full_address : ""} ${data.ward ? data.ward : ""} ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim()
               });
             }
           })
@@ -669,14 +665,25 @@ function CreateWarranty(props: Props) {
   useEffect(() => {
     if (isFirstLoad.current && orderID) {
       dispatch(OrderDetailAction(orderID, (data) => {
-        setLoadingData(false);
         if (data) {
-          setHadCustomer(true);
+          dispatch(
+            getCustomerDetailAction(data.customer_id, (data: CustomerResponse) => {
+
+              if (data) {
+                setCustomerID(data.id);
+                setHadCustomer(true);
+                console.log('data', data.full_address, data.ward, data.district, data.city);
+                
+                warrantyForm.setFieldsValue({
+                  customer_id: data.id,
+                  customer: data.full_name,
+                  customer_mobile: data.phone,
+                  customer_address: `${data.full_address ? data.full_address : ""} ${data.ward ? data.ward : ""} ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim()
+                });
+              }
+            })
+          );
           warrantyForm.setFieldsValue({
-            customer_id: data.customer_id,
-            customer: data.customer,
-            customer_mobile: data.customer_phone_number,
-            customer_address: data.billing_address?.full_address + " " + data.billing_address?.ward + " " + data.billing_address?.district + " " + data.billing_address?.city,
             store_id: data.store_id,
             assignee_code: data.assignee_code,
           });
@@ -693,6 +700,7 @@ function CreateWarranty(props: Props) {
             }
           });
           setWarrantyItems(newWarrantyItems);
+          setLoadingData(false);
         }
       }));
     } else {
