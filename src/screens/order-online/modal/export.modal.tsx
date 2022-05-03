@@ -76,6 +76,8 @@ const ExportModal: React.FC<ExportModalProps> = (
   const [fieldsExport, setFieldsExport] = useState<Array<any>>(fields.map(i => {
     return i.value
   }));
+  const [selectAll, setSelectAll] = useState<boolean>(false);
+  const [indeterminate, setIndeterminate] = useState(true);
 
   useEffect(() => {
     switch (type) {
@@ -183,28 +185,39 @@ const ExportModal: React.FC<ExportModalProps> = (
       </div>
       )}
       {editFields && statusExport === 1 && (
-        <Checkbox.Group
-          name="radiogroup"
-          defaultValue={fieldsExport}
-          onChange={e => setFieldsExport(e)}
-        >
-          <Row>
-            {fields?.map((field) => (
-              <Col span={8}><Checkbox value={field.value}>{field.name}</Checkbox></Col>
-            ))}
-          </Row>
-        </Checkbox.Group>
-        // <Checkbox.Group
-        //   options={fields.map(i => {
-        //     return {
-        //       label: i.name,
-        //       value: i.value
-        //     }
-        //   })}
-        //   // disabled
-        //   defaultValue={['Apple']}
-        //   // onChange={onChange}
-        // />
+        <>
+          <Checkbox
+            checked={selectAll}
+            indeterminate={indeterminate}
+            onChange={(e) => {
+              
+              const newFieldsExport = e.target.checked ? fields.map(i => {
+                return i.value
+              }) : [];
+              console.log('newFieldsExport', newFieldsExport);
+              setFieldsExport(newFieldsExport);
+              setIndeterminate(false);
+              setSelectAll(e.target.checked);
+
+
+            }}
+          >Chọn tất cả</Checkbox>
+          <Checkbox.Group
+            name="radiogroup"
+            value={fieldsExport}
+            onChange={e => {
+              setFieldsExport(e);
+              setIndeterminate(!!e.length && e.length < fields.length);
+            }}
+          >
+            <Row>
+              {fields?.map((field) => (
+                <Col span={8}><Checkbox value={field.value}>{field.name}</Checkbox></Col>
+              ))}
+            </Row>
+          </Checkbox.Group>
+        
+        </>
       )}
       {statusExport !== 1 && (
       <Row style={{ justifyContent: 'center'}}>

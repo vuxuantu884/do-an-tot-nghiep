@@ -464,6 +464,7 @@ export interface ErrorLogResponse extends BaseObject {
 export interface OrderReturnModel extends OrderResponse {
   received: boolean;
   total_amount: number;
+  code_order_return?:string;
 }
 
 export interface OrderReasonModel {

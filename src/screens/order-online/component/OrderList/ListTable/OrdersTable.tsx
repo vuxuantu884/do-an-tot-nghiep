@@ -2,6 +2,7 @@ import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-des
 import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconPrint from "assets/icon/Print.svg";
+import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
 import search from "assets/img/search.svg";
@@ -50,7 +51,7 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, successColor, yellowColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -174,7 +175,7 @@ function OrdersTable(props: PropTypes) {
     {
       payment_method_code: PaymentMethodCode.CASH,
       icon: IconPaymentCash,
-      tooltip: "Đã thanh toán tiền mặt",
+      tooltip: "Tiền khách đưa",
     },
     {
       payment_method_code: COD.code,
@@ -1162,7 +1163,7 @@ function OrdersTable(props: PropTypes) {
           if (!record || !status_order) {
             return null;
           }
-          const status = status_order.find((status) => status.value === record.status);
+          //const status = status_order.find((status) => status.value === record.status);
           let recordStatuses = record?.statuses;
           if (!recordStatuses) {
             recordStatuses = [];
@@ -1226,10 +1227,16 @@ function OrdersTable(props: PropTypes) {
                   ) : "-"}
                 </div>
                 <div className="single">
-                  <div>
-                    <strong>Đơn hàng: </strong>
+                  <div className="coordinator-item">
+                    <strong>NV điều phối: </strong>
+                    {record.coordinator?(
+                      <React.Fragment>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}ssssss</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}ssssss</Link>
+                      </React.Fragment>
+                    ):"N/a"}
                   </div>
-                  {record.status === OrderStatus.DRAFT && (
+                  {/* {record.status === OrderStatus.DRAFT && (
                     <div
                       style={{
                         color: "#737373",
@@ -1263,7 +1270,7 @@ function OrdersTable(props: PropTypes) {
                       }}>
                       {status?.name}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>
@@ -1277,39 +1284,73 @@ function OrdersTable(props: PropTypes) {
       {
         title: "Ghi chú",
         className: "notes",
-        render: (value: string, record: OrderModel) => (
-          <div className="orderNotes">
-            <div className="inner">
-              <div className="single">
-                <EditNote
-                  note={record.customer_note}
-                  title="Khách hàng: "
-                  color={primaryColor}
-                  onOk={(newNote) => {
-                    editNote(newNote, "customer_note", record.id, record);
-                  }}
-                // isDisable={record.status === OrderStatus.FINISHED}
-                />
-              </div>
-              <div className="single">
-                <EditNote
-                  note={record.note}
-                  title="Nội bộ: "
-                  color={primaryColor}
-                  onOk={(newNote) => {
-                    editNote(newNote, "note", record.id, record);
-                  }}
-                // isDisable={record.status === OrderStatus.FINISHED}
-                />
+        render: (value: string, record: OrderModel) => {
+          const noteReturnPay=record.order_return_origin?.total;
+          const noteReturnPayCustomer=record.total- (record.order_return_origin?.total?record.order_return_origin?.total:0);
+          return (
+            <div className="orderNotes">
+              <div className="inner">
+                <div className="single">
+                  <EditNote
+                    note={record.customer_note}
+                    title="Khách hàng: "
+                    color={primaryColor}
+                    onOk={(newNote) => {
+                      editNote(newNote, "customer_note", record.id, record);
+                    }}
+                  // isDisable={record.status === OrderStatus.FINISHED}
+                  />
+                </div>
+                <div className="single">
+                  <EditNote
+                  
+                    // note={`Đơn trả: ${noteReturnPay} ${noteReturnPayCustomer>0?` ,Khách trả lại :${noteReturnPayCustomer}`:` ,Trả lại khách: ${(noteReturnPayCustomer*-1)}`} ${record.note}`}
+                    note={`${record.note}`}
+                    title="Nội bộ: "
+                    color={primaryColor}
+                    onOk={(newNote) => {
+                      editNote(newNote, "note", record.id, record);
+                    }}
+                    defaultNote={record.order_return_origin&&(
+                      <React.Fragment>
+                        {noteReturnPay && (
+                          <div className="textSmall">Đơn trả: {formatCurrency(noteReturnPay)}</div>
+                        )}
+                        {noteReturnPayCustomer&&(
+                          <div className="textSmall">
+                            {` ${noteReturnPayCustomer>0?`, Khách trả lại :${formatCurrency(noteReturnPayCustomer)}`
+                            :noteReturnPayCustomer<0?` Trả lại khách: ${formatCurrency(noteReturnPayCustomer*-1)}`
+                            :``}`}
+                         </div>
+                        )}
+                       
+                      </React.Fragment>
+                      )
+                    }
+                  // isDisable={record.status === OrderStatus.FINISHED}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ),
+          )
+        },
         key: "note",
         visible: true,
         align: "left",
         width: 120,
       },
+      // {
+      //   title:"NV điều phối",
+      //   key:"coordinator",
+      //   visible: !isShowOfflineOrder,
+      //   width: 80,
+      //   align: "left",
+      //   render: (value, record: OrderModel) => record.coordinator_code && (
+      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}>
+      //       {`${record.coordinator_code} - ${record.coordinator}`}
+      //     </Link>
+      //   ),
+      // },
       {
         title: orderType === ORDER_TYPES.online ? "NV bán hàng" : "Chuyên gia tư vấn",
         render: (value, record: OrderModel) => (
@@ -1468,6 +1509,17 @@ function OrdersTable(props: PropTypes) {
             </Link>
           </div>
         ) : null}
+        {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
+          <div className="actionButton">
+            <Link
+              to={`${UrlConfig.WARRANTY}/create?orderID=${record.id}`}
+              title="Bảo hành"
+              target = "_blank"
+            >
+              <img alt="" src={iconWarranty} className="iconReturn" style={{ filter: 'brightness(0.5)' }}/>
+            </Link>
+          </div>
+        ) : null}
       </React.Fragment>
     );
   };
@@ -1515,6 +1567,11 @@ function OrdersTable(props: PropTypes) {
           </Popover>
         </div>
         {renderActionButton(record)}
+        {record?.order_returns && record?.order_returns?.length > 0 ? (
+          <div className="actionButton" title="Đơn hàng có đổi trả">
+            <b>[Đ]</b>
+          </div>
+        ) : null}
       </React.Fragment>
     );
   };

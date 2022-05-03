@@ -1,82 +1,45 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Card, Tabs, Form, Button, Dropdown, Menu, Modal } from "antd";
+import { Card, Tabs, Button, Modal } from "antd";
+
+import { StyledComponent, StyledConfirmUpdateShopModal } from "screens/web-app/config/styles";
+import { PlusOutlined } from "@ant-design/icons";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg"
+import connectedShopIcon from "assets/icon/connected_shop.svg";
+import CreateShopModal from "./CreateShopModal";
+
+import RenderTabBar from "component/table/StickyTabBar";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import SyncShopList from "screens/web-app/config/shop-list/ShopList";
+import ConfigShop from "screens/web-app/config/config-shop/ConfigShop";
+import { WebAppResponse } from "model/response/web-app/ecommerce.response";
+import { getWebAppShopList, webAppConfigDeleteAction } from "domain/actions/web-app/web-app.actions";
+import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import UrlConfig, {WebAppConfigTabUrl} from "config/url.config";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
-import { WebAppResponse } from "model/response/web-app/ecommerce.response";
-import { getWebAppShopList, webAppConfigDeleteAction } from "domain/actions/web-app/web-app.actions";
-import { useQuery } from "utils/useQuery";
-import { EcommerceSearchQuery } from "model/request/ecommerce.request";
-import {
-  webAppConnectAction,
-  webAppConfigInfoAction,
-} from "domain/actions/web-app/web-app.actions";
-import { showSuccess, showWarning } from "utils/ToastUtils";
-
-
-import RenderTabBar from "component/table/StickyTabBar";
-
-import AuthWrapper from "component/authorization/AuthWrapper";
-import NoPermission from "screens/no-permission.screen";
-import useAuthorization from "hook/useAuthorization";
-
-import SyncShopList from "screens/web-app/config/shop-list/SyncShopList";
-import ConfigShop from "screens/web-app/config/config-shop/ConfigShop";
-
-import { StyledComponent, StyledConfirmUpdateShopModal } from "screens/web-app/config/styles";
-import { DownOutlined } from "@ant-design/icons";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import connectedShopIcon from "assets/icon/connected_shop.svg";
-
-
+type WebAppShopParams = {
+  id: string;
+}
 const { TabPane } = Tabs;
-
-let isConnectedShop = false;
-let connectedShopList: Array<WebAppResponse> = [];
-
 const shopsReadPermission = [EcommerceConfigPermission.shops_read];
-const shopsConnectPermission = [EcommerceConfigPermission.shops_connect];
-
 
 const WebAppConfig: React.FC = () => {
   const dispatch = useDispatch();
-  const connectQuery = useQuery();
-  const [configForm] = Form.useForm();
-
-  const [allowShopsConnect] = useAuthorization({
-    acceptPermissions: shopsConnectPermission,
-    not: false,
-  });
-
-
   const [activeTab, setActiveTab] = useState<string>(WebAppConfigTabUrl.SHOP_LIST);
-
   const history = useHistory();
+  const {id} = useParams<WebAppShopParams>();
   
-  const [isLoading, setIsLoading] = useState(false);
-  const [stores, setStores] = useState<Array<StoreResponse>>([]);
-  const [configData, setConfigData] = React.useState<Array<WebAppResponse>>(
-    []
-  );
-  const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false)
-  const [configToView, setConfigToView] = React.useState<WebAppResponse | undefined>();
-  const [initQueryConnect] = React.useState<EcommerceSearchQuery>({
-    shop_id: connectQuery.get("shop_id") || "",
-    code: connectQuery.get("code"),
-  });
-  const [isGetAllShop, setIsGetAllShop] = React.useState(false);
-  const [configFromEcommerce, setConfigFromEcommerce] = React.useState<WebAppResponse | undefined>()
-  const [modalShopInfo, setModalShopInfo] = React.useState<WebAppResponse>()
+  const [isLoading, setIsLoading] = useState(true);
+  const [shopList, setShopList] = useState<Array<WebAppResponse>>([]);
+  const [isShowDeleteModal, setIsShowDeleteModal] = useState<boolean>(false)
+  const [isShowCreateShopModal,setIsShowCreateShopModal] = useState(false);
+  const [modalShopInfo, setModalShopInfo] = useState<WebAppResponse>()
   const [isConfirmUpdateShop, setIsConfirmUpdateShop] = useState(false);
+
 
   useEffect(() => {
     switch (history.location.pathname) {
@@ -87,178 +50,46 @@ const WebAppConfig: React.FC = () => {
         setActiveTab(WebAppConfigTabUrl.CONFIG_SHOP);
         break;
       default:
+        if(history.location.pathname.includes(WebAppConfigTabUrl.CONFIG_SHOP))
+          setActiveTab(WebAppConfigTabUrl.CONFIG_SHOP);
+        else
         setActiveTab(WebAppConfigTabUrl.SHOP_LIST);
         break;
     }
   }, [history.location]);
 
-  const reloadConfigData = React.useCallback(() => {
-    setIsLoading(true);
+  const getShopList = () => {
     dispatch(getWebAppShopList({}, (responseData) => {
       setIsLoading(false);
-      setConfigData(responseData);
+      setShopList(responseData);
     }));
-  }, [dispatch])
-
+  }
   const handleShowDeleteModal = (item: any) => {
     setModalShopInfo(item)
     setIsShowDeleteModal(true)
   }
-  const deleteCallback = React.useCallback((value: any) => {
-    if (value) {
+  const deleteShopCallback = (result: any) => {
+    if (result) {
       showSuccess("Xóa gian hàng thành công")
-      reloadConfigData()
-      setConfigToView(undefined);
-      history.replace(`${history.location.pathname}#sync`);
+      getShopList()
+      history.push(`${WebAppConfigTabUrl.SHOP_LIST}`);
     }
-  }, [reloadConfigData, history])
-
-  const onOkDeleteEcommerce = React.useCallback(() => {
+  }
+  const handleDeleteShop = () => {
     setIsShowDeleteModal(false)
-    if (modalShopInfo) dispatch(webAppConfigDeleteAction(modalShopInfo?.id, deleteCallback))
-  }, [deleteCallback, dispatch, modalShopInfo])
-
-
-  const storeChangeSearch = React.useCallback(() => { }, []);
-
-  // link to ecommerce
-  const redirectCallback = React.useCallback((value: any) => {
-    if (value) {
-      window.open(`${value}`, "_self");
-    }
-  }, []);
-
-  const handleConnectEcommerce = React.useCallback((ecommerceId) => {
-    dispatch(webAppConnectAction(ecommerceId, redirectCallback));
-  }, [dispatch, redirectCallback]);
-
-  const ECOMMERCE_ID = {
-    shopee: 1,
-    lazada: 2,
-    tiki: 3,
-    sendo: 4
+    if (modalShopInfo) 
+      dispatch(webAppConfigDeleteAction(modalShopInfo.id, deleteShopCallback))
   }
 
-  // tiki
-  const handleConnectTiki = React.useCallback(() => {
-    showWarning("Chức năng này làm sau bạn nhé!");
+  useEffect(() => {
+    getShopList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // end
-
-  // shopee
-  const handleConnectShopee = React.useCallback(() => {
-    handleConnectEcommerce(ECOMMERCE_ID.shopee);
-  }, [ECOMMERCE_ID.shopee, handleConnectEcommerce]);
-  // end
-
-  
-  // lazada
-  const handleConnectLazada = React.useCallback(() => {
-    handleConnectEcommerce(ECOMMERCE_ID.lazada);
-  }, [ECOMMERCE_ID.lazada, handleConnectEcommerce]);
-  //end
-
-  // lazada
-  const handleConnectSendo = React.useCallback(() => {
-    showWarning("Chức năng này làm sau bạn nhé!");
-  }, []);
-  //end
-  // end link to ecommerce
-
-  // get all ecommerce
-  React.useEffect(() => {
-    setIsLoading(true);
-    dispatch(getWebAppShopList({}, (responseData) => {
-      setIsLoading(false);
-      setIsGetAllShop(true);
-      setConfigData(responseData);
-      connectedShopList = responseData;
-    }));
-  }, [dispatch]);
-  //end
-
-  const configInfoCallback = React.useCallback(
-    (data: any) => {
-      if (data) {
-        setConfigFromEcommerce(data);
-        const shop = connectedShopList?.find((item: any) => item.id === data.id);
-        if (shop) {
-          setIsConfirmUpdateShop(true);
-        } else {
-          history.replace(`${history.location.pathname}#setting`);
-        }
-      }
-    },
-    [history]
-  );
-
-  //listening callback after connect shop
-  React.useEffect(() => {
-    if (initQueryConnect.code && !isConnectedShop && isGetAllShop) {
-      isConnectedShop = true;
-      const generatedParams = `shop_id=${initQueryConnect.shop_id}&code=${initQueryConnect.code}`;
-      dispatch(webAppConfigInfoAction(generatedParams, configInfoCallback));
-    }
-  }, [initQueryConnect, configInfoCallback, dispatch, isGetAllShop]);
-
-  React.useEffect(() => {
-    dispatch(
-      getListStoresSimpleAction((stores) => {
-        setStores(stores);
-      })
-    );
-  }, [dispatch]);
-
-  //Thêm kết nối sàn mới
-  const ECOMMERCE_LIST = useMemo(() => [
-    {
-      title: "Kết nối Tiki",
-      icon: tikiIcon,
-      key: "tiki",
-      action: handleConnectTiki
-    },
-    {
-      title: "Kết nối Shopee",
-      icon: shopeeIcon,
-      key: "shopee",
-      action: handleConnectShopee
-    },
-    {
-      title: "Kết nối Lazada",
-      icon: lazadaIcon,
-      key: "lazada",
-      action: handleConnectLazada
-    },
-    {
-      title: "Kết nối Sendo",
-      icon: sendoIcon,
-      key: "sendo",
-      action: handleConnectSendo
-    }
-  ], [handleConnectLazada, handleConnectSendo, handleConnectShopee, handleConnectTiki]);
-
-  const ecommerceList = (
-    <Menu>
-      {ECOMMERCE_LIST?.map((ecommerce: any) => (
-        <Menu.Item key={ecommerce.key} onClick={ecommerce.action}>
-          <img
-            src={ecommerce.icon}
-            alt={ecommerce.key}
-            style={{ marginRight: "10px" }}
-          />
-          <span>{ecommerce.title}</span>
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
-  //Kết thúc
 
   const handleOnchangeTab = (active: any) => {
-    reloadConfigData();
-    setConfigFromEcommerce(undefined);
+    getShopList();
     history.push(active);
   }
-
   return (
     <StyledComponent>
       <ContentContainer
@@ -274,21 +105,16 @@ const WebAppConfig: React.FC = () => {
         ]}
         extra={
           <>
-            {activeTab === WebAppConfigTabUrl.SHOP_LIST && allowShopsConnect &&
-              <div hidden>
-                <Dropdown
-                    overlay={ecommerceList}
-                    trigger={["click"]}
-                    disabled={isLoading}
-                    className="connect-ecommerce-dropdown"
-                >
-                    <Button size="large">
-                        <span>Thêm kết nối mới</span>
-                        <DownOutlined />
-                    </Button>
-                </Dropdown>
-              </div>
-            }
+            <div>
+              <Button
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<PlusOutlined />}
+                onClick={() =>setIsShowCreateShopModal(true)}
+              >
+                Tạo mới gian hàng
+              </Button>
+            </div>
           </>
         }
       >
@@ -303,40 +129,41 @@ const WebAppConfig: React.FC = () => {
                   <TabPane tab="Gian hàng" key={WebAppConfigTabUrl.SHOP_LIST} />
                   <TabPane tab="Cấu hình gian hàng" key={WebAppConfigTabUrl.CONFIG_SHOP} />
                 </Tabs>
-
                 {activeTab === WebAppConfigTabUrl.SHOP_LIST &&
                   <SyncShopList
-                    configData={configData}
-                    setConfigToView={setConfigToView}
-                    reloadConfigData={reloadConfigData}
+                    data={shopList}
                     showDeleteModal={handleShowDeleteModal}
+                    loading={isLoading}
                   />
                 }
-
                 {activeTab === WebAppConfigTabUrl.CONFIG_SHOP &&
                   <ConfigShop
-                    listStores={stores}
-                    form={configForm}
-                    configData={configData}
-                    configToView={configToView}
-                    reloadConfigData={reloadConfigData}
-                    setConfigToView={setConfigToView}
-                    configFromEcommerce={configFromEcommerce}
-                    setConfigFromEcommerce={setConfigFromEcommerce}
+                    shopList={shopList}
                     showDeleteModal={handleShowDeleteModal}
-                    storeChangeSearch={storeChangeSearch}
+                    id={id}
                   />
                 }
               </Card>
-
+              <CreateShopModal
+                visible={isShowCreateShopModal}
+                onOK={()=>{
+                  getShopList();
+                  setIsShowCreateShopModal(false);
+                  showSuccess("Thêm mới gian hàng thành công");
+                }}
+                onCancel={()  => {
+                  setIsShowCreateShopModal(false);
+                }}
+              >
+              </CreateShopModal>
               {/* Confirm modal to delete shop */}
               <Modal
                 onCancel={() => setIsShowDeleteModal(false)}
-                onOk={onOkDeleteEcommerce}
+                onOk={handleDeleteShop}
                 visible={isShowDeleteModal}
                 okText="Đồng ý"
                 cancelText="Hủy"
-                title=""
+                title="Xoá gian hàng?"
                 width={600}
                 centered
               >
@@ -345,12 +172,10 @@ const WebAppConfig: React.FC = () => {
                   <span style={{ fontSize: 16, marginLeft: 15}}>Bạn có chắc chắn xóa gian hàng <strong>{modalShopInfo?.name}</strong> này không?</span>
                 </div>
               </Modal>
-
               {isConfirmUpdateShop &&
                 <Modal
                   visible={isConfirmUpdateShop}
                   onCancel={() => {
-                    setConfigFromEcommerce(undefined);
                     setIsConfirmUpdateShop(false);
                   }}
                   okText="Đồng ý"
@@ -369,8 +194,7 @@ const WebAppConfig: React.FC = () => {
                     </div>
                   </StyledConfirmUpdateShopModal>
                 </Modal>
-              }
-              
+              }     
             </>
             : <NoPermission />)}
         </AuthWrapper>

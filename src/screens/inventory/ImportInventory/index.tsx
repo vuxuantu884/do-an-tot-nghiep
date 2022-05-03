@@ -199,7 +199,7 @@ const UpdateTicket: FC = () => {
             <Row gutter={24}>
               <Col span={18}>
                 <Card
-                  title="Hướng dẫn import"
+                  title="Hướng dẫn Nhập file"
                   bordered={false}
                 >
                   <div className="guide">
@@ -215,7 +215,7 @@ const UpdateTicket: FC = () => {
                   </div>
                 </Card>
                 <Card
-                  title="Thông tin import"
+                  title="Thông tin nhập file"
                   bordered={false}
                   className={"inventory-selectors"}
                 >
@@ -351,7 +351,7 @@ const UpdateTicket: FC = () => {
                     disabled={isLoading}
                     loading={isLoading}
                   >
-                    Import
+                    Nhập file
                   </Button>
                 </Space>
               }
@@ -376,6 +376,17 @@ const UpdateTicket: FC = () => {
                   history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, data);
                 }}>
                 Xác nhận
+              </Button>,
+              <Button
+                disabled={!!dataUploadError}
+                type="primary"
+                onClick={() => {
+                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
+                    data,
+                    isFastCreate: true
+                  });
+                }}>
+                Tạo và xác nhận
               </Button>,
             ]}
           >

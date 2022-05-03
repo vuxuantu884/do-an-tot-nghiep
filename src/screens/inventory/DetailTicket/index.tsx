@@ -1,4 +1,4 @@
-import React, { ChangeEvent, createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
 import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form, Checkbox } from "antd";
@@ -9,7 +9,7 @@ import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model"
 import PlusOutline from "assets/icon/plus-outline.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import {
-  CloseCircleOutlined,
+  CloseCircleOutlined, CopyOutlined,
   EditOutlined,
   ImportOutlined,
   PaperClipOutlined,
@@ -53,7 +53,7 @@ import { showSuccess } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
-import _, { debounce } from "lodash";
+import _  from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -70,6 +70,8 @@ import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import { getAccountDetail } from "../../../service/accounts/account.service";
 import { searchVariantsApi } from "service/product/product.service";
 import ImportExcel from "./components/ImportExcel";
+import ActionButton, { MenuAction } from "../../../component/table/ActionButton";
+import useAuthorization from "../../../hook/useAuthorization";
 export interface InventoryParams {
   id: string;
 }
@@ -218,6 +220,31 @@ const DetailTicket: FC = () => {
         );
     }
   },[dispatch,setResultSearch, data]);
+
+  //phân quyền
+  const [allowCancel] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.cancel],
+  });
+  const [allowClone] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.clone],
+  });
+
+  const actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "Hủy phiếu",
+      icon: <CloseCircleOutlined />,
+      color: "#E24343",
+      disabled: !((data?.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+        && data?.shipment === null) || !allowCancel
+    },
+    {
+      id: 2,
+      name: "Tạo bản sao",
+      icon: <CopyOutlined />,
+      disabled: !allowClone,
+    },
+  ];
 
   let textTag: string;
   let classTag: string;
@@ -909,17 +936,19 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateNote = (key: string) => {
-    updateNoteApi(key);
-  };
-
-  const updateNoteDebounce = debounce((key: string) => {
-    updateNote(key);
-  }, 500);
-
-  const changeNote = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    updateNoteDebounce(e.target.value);
-  };
+  const onMenuClick = React.useCallback(
+    (menuId: number) => {
+      switch (menuId) {
+        case 1:
+          setIsDeleteTicket(true);
+          break;
+        case 2:
+          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update?cloneId=${data?.id}`)
+          break;
+      }
+    },
+    [data?.id, history]
+  );
 
   return (
     <StyledWrapper>
@@ -1252,7 +1281,6 @@ const DetailTicket: FC = () => {
                   className={"inventory-note"}
                 >
                   <Row
-                    className=""
                     gutter={5}
                     style={{ flexDirection: "column" }}
                   >
@@ -1264,12 +1292,21 @@ const DetailTicket: FC = () => {
                         <Form.Item name="note">
                           <TextArea
                             disabled={isDisableEditNote}
-                            onChange={changeNote}
                             maxLength={250}
                             placeholder="Nhập ghi chú nội bộ"
                             autoSize={{ minRows: 4, maxRows: 6 }}
                           />
                         </Form.Item>
+                        <div className="button-save">
+                          <Button
+                            disabled={isDisableEditNote}
+                            onClick={() => updateNoteApi(form.getFieldValue('note'))}
+                            size="small"
+                            type="primary"
+                          >
+                            Lưu
+                          </Button>
+                        </div>
                       </Form>
                     </Col>
                   </Row>
@@ -1338,16 +1375,12 @@ const DetailTicket: FC = () => {
                       {" In phiếu chuyển"}
                     </Button>
                   </AuthWrapper>
-                  {
-                   ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && data.shipment === null) &&
-                    <AuthWrapper
-                      acceptPermissions={[InventoryTransferPermission.cancel]}
-                    >
-                      <Button danger onClick={() => setIsDeleteTicket(true)}>
-                        <CloseCircleOutlined style={{ color: '#E24343' }} /> Hủy phiếu
-                      </Button>
-                    </AuthWrapper>
-                  }
+                  <ActionButton
+                    type="text"
+                    placement="topLeft"
+                    menu={actions}
+                    onMenuClick={onMenuClick}
+                  />
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status ) && (
                       <>
@@ -1384,18 +1417,6 @@ const DetailTicket: FC = () => {
                         }}
                       >
                         <EditOutlined /> Sửa thông tin
-                      </Button>
-                    </AuthWrapper>
-                  }
-                  {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) &&
-                    <AuthWrapper
-                      acceptPermissions={[InventoryTransferPermission.clone]}
-                    >
-                      <Button
-                        onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data.id}/update?cloneId=${data.id}`)}
-                      >
-                        Tạo bản sao
                       </Button>
                     </AuthWrapper>
                   }

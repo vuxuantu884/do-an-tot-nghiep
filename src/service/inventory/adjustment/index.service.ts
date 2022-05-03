@@ -76,6 +76,17 @@ const updateReasonItemOnlineInventoryApi = (
   );
 };
 
+const updateOnHandItemOnlineInventoryApi = (
+  id: number,
+  lineId: number,
+  data: any
+): Promise<BaseResponse<string>> => {
+  return BaseAxios.put(
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item/${lineId}/update-on-hand`,
+    data
+  );
+};
+
 const updateOnlineInventoryApi = (id: number): Promise<BaseResponse<string>> => {
   return BaseAxios.put(
     `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/audit/${id}`
@@ -139,4 +150,5 @@ export {
   addLineItem,
   getTotalOnHand,
   updateReasonItemOnlineInventoryApi,
+  updateOnHandItemOnlineInventoryApi
 };

@@ -1,7 +1,7 @@
 import { Fragment, useMemo } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
-import CreateBillStep from "component/header/create-bill-step";
+// import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
 import React, { useCallback } from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
@@ -11,7 +11,8 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { sortFulfillments } from "utils/AppUtils";
+import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
+import CreateBillStep from "component/header/create-bill-step";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -115,8 +116,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
         <Row gutter={24}>
           <Col md={12}>
             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", height: "100%" }}>
-              <CreateBillStep orderDetail={orderDetail} status={stepsStatusValue} />
-
+              {!isOrderFromPOS(orderDetail) ? <CreateBillStep orderDetail={orderDetail} status={stepsStatusValue} /> : null}
             </div>
           </Col>
           {isVisibleGroupButtons &&

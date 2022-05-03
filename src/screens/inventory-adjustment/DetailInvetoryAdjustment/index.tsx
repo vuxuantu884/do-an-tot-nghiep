@@ -60,7 +60,7 @@ import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { exportFile, getFile, importFile } from "service/other/import.inventory.service";
+import { getFileV2, importFile,exportFileV2 } from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -72,6 +72,7 @@ import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
 import { addLineItem, deleteLineItem, getTotalOnHand } from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
 
 const { TabPane } = Tabs;
 
@@ -151,13 +152,6 @@ const DetailInvetoryAdjustment: FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [isPermissionAudit, setIsPermissionAudit] = useState(false);
 
-  const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
-    TotalExcess: 0,
-    TotalMiss: 0,
-    TotalOnHand: 0,
-    TotalRealOnHand: 0,
-  });
-
   const [objSummaryTableByAuditTotal, setObjSummaryTableByAuditTotal] = useState<any>({
     onHand: 0,
     realOnHand: 0,
@@ -180,8 +174,6 @@ const DetailInvetoryAdjustment: FC = () => {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-
-  console.log(userReducer)
 
   useEffect(() => {
     if (!data) return;
@@ -247,41 +239,15 @@ const DetailInvetoryAdjustment: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
-    let totalExcess = 0,
-      totalMiss = 0,
-      totalQuantity = 0,
-      totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-      let on_hand_adj = element.on_hand_adj ?? 0;
-      if (on_hand_adj > 0) {
-        totalExcess += on_hand_adj;
-      }
-      if (on_hand_adj < 0) {
-        totalMiss += -on_hand_adj;
-      }
-    });
-
-    setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss,
-      TotalRealOnHand: totalReal,
-    });
-  }, []);
-
   const onResultDataTable = useCallback(
     (result: PageResponse<LineItemAdjustment> | false) => {
       setTableLoading(false);
       if (result) {
         setDatalinesItem({...result});
-        drawColumns(result?.items);
         setHasError(false);
       }
     },
-    [drawColumns]
+    []
   );
 
   const addItemApi = async (adjustmentId: number, data: any) => {
@@ -547,9 +513,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
-              ? formatCurrency(objSummaryTable.TotalOnHand)
-              : formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
+            <div>({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
         );
       },
@@ -565,9 +529,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn thực tế</div>
-            <div>({data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY
-              ? formatCurrency(objSummaryTable.TotalRealOnHand)
-              : formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
+            <div>({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
       },
@@ -595,43 +557,23 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Thừa/Thiếu</div>
-            {data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ? (
-              <Row align="middle" justify="center">
-                {objSummaryTable.TotalExcess === 0 || !objSummaryTable.TotalExcess ? (
-                  ""
-                ) : (
-                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTable.TotalExcess)}</div>
-                )}
-                {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
-                  <Space>/</Space>
-                ) : (
-                  ""
-                )}
-                {objSummaryTable.TotalMiss === 0 || !objSummaryTable.TotalExcess ? (
-                  ""
-                ) : (
-                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTable.TotalMiss)}</div>
-                )}
-              </Row>
-            ) : (
-              <Row align="middle" justify="center">
-                {(objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess) ? (
-                  ""
-                ) : (
-                  <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</div>
-                )}
-                {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
-                  <Space>/</Space>
-                ) : (
-                  ""
-                )}
-                {(objSummaryTableByAuditTotal.totalMissing === 0 || !objSummaryTableByAuditTotal.totalMissing) ? (
-                  ""
-                ) : (
-                  <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
-                )}
-              </Row>
-            )}
+            <Row align="middle" justify="center">
+              {(objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess) ? (
+                ""
+              ) : (
+                <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</div>
+              )}
+              {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
+                <Space>/</Space>
+              ) : (
+                ""
+              )}
+              {(objSummaryTableByAuditTotal.totalMissing === 0 || !objSummaryTableByAuditTotal.totalMissing) ? (
+                ""
+              ) : (
+                <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
+              )}
+            </Row>
           </>
         );
       },
@@ -724,6 +666,15 @@ const onChangeNote = useCallback(
   },
   [updateAdjustment]
 )
+
+  const updateAuditedBys = () => {
+    const dataUpdate = form.getFieldsValue(true);
+    if (data && dataUpdate && dataUpdate.audited_bys.length > 0) {
+      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, ()=>{
+        showSuccess("Cập nhật người kiểm kho thành công");
+      }));
+    }
+  }
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -841,7 +792,7 @@ const onChangeNote = useCallback(
   },[debounceSearchVariant]);
 
   const onExport = useCallback(() => {
-    exportFile({
+    exportFileV2({
       conditions: data?.id.toString(),
       type: "EXPORT_INVENTORY_ADJUSTMENT",
     })
@@ -860,14 +811,12 @@ const onChangeNote = useCallback(
 
   const checkExportFile = useCallback(() => {
     let getFilePromises = listExportFile.map((code) => {
-      return getFile(code);
+      return getFileV2(code);
     });
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (response.data.percent) {
-            setExportProgress(response.data.percent);
-          }
+            setExportProgress((response.data.num_of_record/response.data.total)*100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
@@ -917,7 +866,7 @@ const onChangeNote = useCallback(
   const checkImportFile = useCallback(() => {
     if (statusImport !== STATUS_IMPORT_EXPORT.DEFAULT) {
       let getFilePromises = listJobImportFile.map((code) => {
-        return getFile(code);
+        return getFileV2(code);
       });
       Promise.all(getFilePromises).then((responses) => {
         responses.forEach((response) => {
@@ -1004,6 +953,8 @@ const onChangeNote = useCallback(
         setData((data) => {
           if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING || !data) {
             dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
+          } else {
+            setIsReRender(!isReRender);
           }
 
           return data;
@@ -1018,51 +969,49 @@ const onChangeNote = useCallback(
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [idNumber, onResult, dispatch, isReRender]);
 
+
   useEffect(()=>{
     dispatch(searchAccountPublicAction({}, setDataAccounts));
   },[dispatch,setDataAccounts]);
 
   const debounceChangeRealOnHand = useMemo(()=>
-  _.debounce((row: LineItemAdjustment, realOnHand: number)=>{
-    if (row.real_on_hand === realOnHand && realOnHand !== 0) {
-      return;
-    }
-    onRealQuantityChange(realOnHand, row);
-    let value = realOnHand;
-    row.real_on_hand = realOnHand;
-    let totalDiff: number;
-    totalDiff = value - row.on_hand;
-    if (totalDiff === 0) {
-      row.on_hand_adj = null;
-      row.on_hand_adj_dis = null;
-    } else if (row.on_hand < value) {
-      row.on_hand_adj = totalDiff;
-      row.on_hand_adj_dis = `+${totalDiff}`;
-    } else if (row.on_hand > value) {
-      row.on_hand_adj = totalDiff;
-      row.on_hand_adj_dis = `${totalDiff}`;
-    }
-    if (!data || (!data.id)) {
-      return null;
-    }
-
-    dispatch(
-      updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
-        if (result) {
-          showSuccess("Nhập tồn thực tế thành công.");
-          const version = form.getFieldValue("version");
-          form.setFieldsValue({ version: version + 1 });
-
-          if (data.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
-            getTotalOnHandApi().then((res) => {
-              if (!res) return;
-              setObjSummaryTableByAuditTotal(res);
-            });
-          }
+      _.debounce((row: LineItemAdjustment, realOnHand: number) => {
+        if (row.real_on_hand === realOnHand && realOnHand !== 0) {
+          return;
         }
-      }),
-    );
-    },300),
+        onRealQuantityChange(realOnHand, row);
+        let value = realOnHand;
+        row.real_on_hand = realOnHand;
+        let totalDiff: number;
+        totalDiff = value - row.on_hand;
+        if (totalDiff === 0) {
+          row.on_hand_adj = null;
+          row.on_hand_adj_dis = null;
+        } else if (row.on_hand < value) {
+          row.on_hand_adj = totalDiff;
+          row.on_hand_adj_dis = `+${totalDiff}`;
+        } else if (row.on_hand > value) {
+          row.on_hand_adj = totalDiff;
+          row.on_hand_adj_dis = `${totalDiff}`;
+        }
+        if (!data || (!data.id)) {
+          return null;
+        }
+
+        setTableLoading(true);
+
+        dispatch(
+          updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
+            setTableLoading(false);
+            if (result) {
+              showSuccess("Nhập tồn thực tế thành công.");
+              const version = form.getFieldValue("version");
+              form.setFieldsValue({ version: version + 1 });
+              setIsReRender(!isReRender);
+            }
+          }),
+        );
+      },0),
     // eslint-disable-next-line react-hooks/exhaustive-deps,
  [data, dispatch, onRealQuantityChange, onEnterFilterVariant, form, keySearch]
  );
@@ -1269,31 +1218,52 @@ const onChangeNote = useCallback(
                         <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
                       </Col>
                     </Row>
-                    <Row>
-                      <Col span={10}>
-                        <div className="label">Người kiểm:</div>
-                      </Col>
-                      <Col span={14}>
-                        <div className="data">
-                          {
-                            <StyledComponent>
-                              <Row className="audit_by">
-                                <Col span={24}>
-                                  {data.audited_bys?.map((item: string) => {
-                                    return (
-                                      <RenderItemAuditBy
-                                        key={item?.toString()}
-                                        user_name={item?.toString()}
-                                      />
-                                    );
-                                  })}
-                                </Col>
-                              </Row>
-                            </StyledComponent>
-                          }
-                        </div>
-                      </Col>
-                    </Row>
+                    {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && isPermissionAudit ? (
+                      <Form.Item
+                        name="audited_bys"
+                        label={<b>Người kiểm</b>}
+                        labelCol={{span: 24, offset: 0}}
+                        colon={false}
+                        rules={[{
+                          required: true,
+                          message: "Vui lòng chọn người kiểm",
+                        }]}
+                      >
+                        <AccountSearchPaging
+                          onSelect={updateAuditedBys}
+                          onDeselect={updateAuditedBys}
+                          mode="multiple"
+                          placeholder="Chọn người kiểm"
+                          style={{width: "100%"}}
+                        />
+                      </Form.Item>
+                    ) : (
+                      <Row>
+                        <Col span={10}>
+                          <div className="label">Người kiểm:</div>
+                        </Col>
+                        <Col span={14}>
+                          <div className="data">
+                            {
+                              <StyledComponent>
+                                <Row className="audit_by">
+                                  <Col span={24}>
+                                    {data.audited_bys?.map((item: string) => {
+                                      return (
+                                        <RenderItemAuditBy
+                                          key={item?.toString()}
+                                          user_name={item?.toString()}
+                                        />
+                                      );
+                                    })}
+                                  </Col>
+                                </Row>
+                              </StyledComponent>
+                            }
+                          </div>
+                        </Col>
+                      </Row>
+                    )}
                   </Col>
                 </Card>
                 <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
@@ -1401,6 +1371,18 @@ const onChangeNote = useCallback(
                       </Button>
                     </AuthWrapper>
                   )}
+                  <Button
+                          type="default"
+                          className="light"
+                          size="large"
+                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                          onClick={() => {
+                            setShowExportModal(true);
+                            onExport();
+                          }}
+                        >
+                          Xuất excel
+                   </Button>
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
                     data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <>
@@ -1417,23 +1399,6 @@ const onChangeNote = useCallback(
                           <Button disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
                                   icon={<UploadOutlined />}>Nhập excel</Button>
                         </Upload>
-                      </AuthWrapper>
-                      <AuthWrapper
-                        acceptPermissions={[InventoryAdjustmentPermission.export]}
-                      >
-                        <Button
-                          type="default"
-                          className="light"
-                          size="large"
-                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                          onClick={() => {
-                            setShowExportModal(true);
-                            onExport();
-                          }}
-                          disabled={data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status || !isPermissionAudit}
-                        >
-                          Xuất excel
-                        </Button>
                       </AuthWrapper>
                       <AuthWrapper
                         acceptPermissions={[InventoryAdjustmentPermission.audit]}

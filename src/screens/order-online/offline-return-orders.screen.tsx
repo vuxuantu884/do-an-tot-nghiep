@@ -25,7 +25,8 @@ const initQuery: ReturnSearchQuery = {
   reason_ids: [],
   is_online: false,
   source_ids: [],
-  channel_codes: []
+  channel_codes: [],
+  assignee_codes: [],
 };
 
 type PropTypes = {

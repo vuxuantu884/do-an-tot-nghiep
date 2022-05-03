@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Button,
   Col,
@@ -36,17 +37,21 @@ import BaseResponse from "base/base.response";
 import { FilterConfig } from "model/other";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { Link } from "react-router-dom";
+import UrlConfig from "config/url.config";
+import { searchAccountApi } from "service/accounts/account.service";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
   actions: Array<MenuAction>;
   listSource: Array<SourceResponse>;
-  listStore: Array<StoreResponse>| undefined;
+  listStore: Array<StoreResponse> | undefined;
   accounts: Array<AccountResponse>;
-  reasons: Array<{id: number; name: string}>;
+  reasons: Array<{ id: number; name: string }>;
   isLoading?: boolean;
   onMenuClick?: (index: number) => void;
-  onFilter?: (values: ReturnSearchQuery| Object) => void;
+  onFilter?: (values: ReturnSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
   setListSource?: (values: SourceResponse[]) => void;
@@ -65,6 +70,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     listSource,
     reasons,
     isLoading,
+    accounts,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -106,33 +112,39 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     (e, tag) => {
       e.preventDefault();
       setRerender(false)
-      switch(tag.key) {
+      switch (tag.key) {
         case 'store':
-          onFilter && onFilter({...params, store_ids: []});
+          onFilter && onFilter({ ...params, store_ids: [] });
           break;
 
         case 'created':
           setCreatedClick('')
-          onFilter && onFilter({...params, created_on_min: null, created_on_max: null});
+          onFilter && onFilter({ ...params, created_on_min: null, created_on_max: null });
           break;
         case 'received':
           setReceivedClick('')
-          onFilter && onFilter({...params, received_on_min: null, received_on_max: null});
+          onFilter && onFilter({ ...params, received_on_min: null, received_on_max: null });
           break;
         case 'reason_ids':
-          onFilter && onFilter({...params, reason_ids: []});
+          onFilter && onFilter({ ...params, reason_ids: [] });
           break;
         case 'is_received':
-          onFilter && onFilter({...params, is_received: []});
+          onFilter && onFilter({ ...params, is_received: [] });
           break;
         case 'payment_status':
-          onFilter && onFilter({...params, payment_status: []});
+          onFilter && onFilter({ ...params, payment_status: [] });
           break;
         case "source":
           onFilter && onFilter({ ...params, source_ids: [] });
           break;
         case "channel_codes":
           onFilter && onFilter({ ...params, channel_codes: [] });
+          break;
+        case "assignee_codes":
+          onFilter && onFilter({ ...params, assignee_codes: [] });
+          break;
+        case "account_codes":
+          onFilter && onFilter({ ...params, account_codes: [] });
           break;
 
         default: break
@@ -156,8 +168,15 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       channel_codes: Array.isArray(params.channel_codes)
         ? params.channel_codes
         : [params.channel_codes],
-  }}, [params]);
-  
+      assignee_codes: Array.isArray(params.assignee_codes)
+        ? params.assignee_codes
+        : [params.assignee_codes],
+      account_codes: Array.isArray(params.account_codes)
+        ? params.account_codes
+        : [params.account_codes],
+    }
+  }, [params]);
+
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);
@@ -184,24 +203,24 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
   const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({})
-  
+
   const [isShowModalSaveFilter, setIsShowModalSaveFilter] = useState(false);
 
-  const [tagActive, setTagActive] = useState<number|null>();
+  const [tagActive, setTagActive] = useState<number | null>();
 
   const {
-    filterConfigs, 
-    onSaveFilter, 
-    configId, 
-    setConfigId, 
+    filterConfigs,
+    onSaveFilter,
+    configId,
+    setConfigId,
     handleDeleteFilter,
     onSelectFilterConfig,
   } = useHandleFilterConfigs(
-    filterConfigType, 
+    filterConfigType,
     form,
     {
       ...formSearchValuesToSave
-    }, 
+    },
     setTagActive,
     onHandleFilterTagSuccessCallback
   )
@@ -226,7 +245,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         const index2 = newIsReceived.indexOf('false');
         if (index2 > -1) {
           newIsReceived.splice(index2, 1);
-        }  else {
+        } else {
           newIsReceived.push('false')
         }
         break;
@@ -252,7 +271,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         const index2 = newPaymentStatus.indexOf('partial_paid');
         if (index2 > -1) {
           newPaymentStatus.splice(index2, 1);
-        }  else {
+        } else {
           newPaymentStatus.push('partial_paid')
         }
         break;
@@ -294,27 +313,96 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     },
     [formRef, isReceived, paymentStatus, onFilter]
   );
+
+  const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
+  const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>([]);
+  const [accountFound, setAccountFound] = useState<Array<AccountResponse>>([]);
+
+  useEffect(() => {
+    if (params.assignee_codes && params.assignee_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.assignee_codes,
+      }).then((response) => {
+        setAssigneeFound(response.data.items);
+      });
+    }
+    if (params.account_codes && params.account_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.account_codes,
+      }).then((response) => {
+        setAccountFound(response.data.items);
+      });
+    }
+    
+  }, [
+    params.assignee_codes,
+    params.account_codes,
+  ]);
   let filters = useMemo(() => {
+    const splitCharacter = ", ";
+
+    const renderSplitCharacter = (index: number, mappedArray: any[]) => {
+      let result = null;
+      if (index !== mappedArray.length - 1) {
+        result = (
+          <React.Fragment>
+            {splitCharacter}
+          </React.Fragment>
+        )
+      }
+      return result;
+    };
+
+    const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string, type?: string) => {
+      let result = null;
+      if (!mappedArray) {
+        return null;
+      };
+      if (type === "account_codes" || type === "assignee_codes") {
+        result = mappedArray.map((single, index) => {
+          return (
+            <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+              {single.code} - {single.full_name}
+              {renderSplitCharacter(index, mappedArray)}
+            </Link>
+          )
+        })
+      } else {
+        result = mappedArray.map((single, index) => {
+          if (objectLink && endPoint && single[objectLink]) {
+            return (
+              <Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
+                {single[keyValue]}
+                {renderSplitCharacter(index, mappedArray)}
+              </Link>
+            )
+          }
+          return (
+            <React.Fragment>
+              {single[keyValue]}
+              {renderSplitCharacter(index, mappedArray)}
+            </React.Fragment>
+          )
+        })
+
+      }
+      return <React.Fragment>{result}</React.Fragment>;
+    };
     let list = []
     if (initialValues.store_ids.length) {
-      let textStores = ""
-      initialValues.store_ids.forEach((store_id:number,index) => {
-        const store = listStore?.find(store => store.id.toString() === store_id?.toString())
-        console.log("listStore",listStore)
-        console.log("store",store_id)
-        textStores = store ? textStores + `${index>0?", " + store.name:store.name}`: textStores
-      })
+      let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+      let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
       list.push({
         key: 'store',
         name: 'Cửa hàng',
-        value: textStores
+        value: text,
       })
     }
     if (initialValues.reason_ids.length) {
       let textReason = ""
       initialValues.reason_ids.forEach(reason_id => {
         const reason = reasons?.find(reason => reason.id.toString() === reason_id)
-        textReason = reason ? textReason + `${initialValues.reason_ids.length>1?reason.name + ";":reason.name}` : textReason
+        textReason = reason ? textReason + `${initialValues.reason_ids.length > 1 ? reason.name + ";" : reason.name}` : textReason
       })
       list.push({
         key: 'reason_ids',
@@ -337,9 +425,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     if (initialValues.payment_status.length) {
       let paymentStt = ""
       const payments = [
-        {name: "Chưa hoàn tiền", value: 'unpaid'},
-        {name: "Hoàn tiền một phần", value: 'partial_paid'},
-        {name: "Đã hoàn tiền", value: 'paid'},
+        { name: "Chưa hoàn tiền", value: 'unpaid' },
+        { name: "Hoàn tiền một phần", value: 'partial_paid' },
+        { name: "Đã hoàn tiền", value: 'paid' },
       ]
       initialValues.payment_status.forEach(status => {
         const findStatus = payments.find(item => item.value === status)
@@ -394,12 +482,29 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       })
     }
 
+    if (initialValues.assignee_codes.length) {
+      let text = getFilterString(assigneeFound, "full_name", UrlConfig.ACCOUNTS, "code", "assignee_codes");
+      list.push({
+        key: 'assignee_codes',
+        name: 'Nhân viên bán hàng',
+        value: text,
+      })
+    }
+    if (initialValues.account_codes.length) {
+      let text = getFilterString(accountFound, "full_name", UrlConfig.ACCOUNTS, "code", "account_codes");
+      list.push({
+        key: 'account_codes',
+        name: 'Nhân viên tạo đơn',
+        value: text,
+      })
+    }
+
     return list
-  }, [initialValues, listChannel, listStore, listSource, reasons]);
+  }, [initialValues.store_ids, initialValues.reason_ids, initialValues.is_received, initialValues.payment_status, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.source_ids, initialValues.channel_codes, initialValues.assignee_codes.length, initialValues.account_codes.length, listStore, reasons, listSource, listChannel, assigneeFound, accountFound]);
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
       return 1400
-    } else if (window.innerWidth < 1600 && window.innerWidth >=1200){
+    } else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
       return 1000
     } else {
       return 800
@@ -461,7 +566,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-            <Item name="search_term" className="input-search" style={{ width: "68%"}}>
+            <Item name="search_term" className="input-search" style={{ width: "68%" }}>
               <Input
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo mã đơn trả hàng, tên, sđt khách hàng"
@@ -486,7 +591,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             <Item>
               <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
-            <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
+            <Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
           </Form>
         </CustomFilter>
 
@@ -507,13 +612,13 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            {( filterConfigs && filterConfigs.length > 0) &&
-                <div style={{ marginBottom: 20 }}>
-                  {filterConfigs?.map((e, index)=>{
-                    return <UserCustomFilterTag key={index} tagId={e.id} name={e.name} onSelectFilterConfig={onSelectFilterConfig} setConfigId={setConfigId} setIsShowConfirmDelete={setIsShowConfirmDelete} tagActive={tagActive} />
-                  })}
-                </div>
-              }
+            {(filterConfigs && filterConfigs.length > 0) &&
+              <div style={{ marginBottom: 20 }}>
+                {filterConfigs?.map((e, index) => {
+                  return <UserCustomFilterTag key={index} tagId={e.id} name={e.name} onSelectFilterConfig={onSelectFilterConfig} setConfigId={setConfigId} setIsShowConfirmDelete={setIsShowConfirmDelete} tagActive={tagActive} />
+                })}
+              </div>
+            }
             <Row gutter={20}>
               <Col span={12}>
                 <p>Kho cửa hàng</p>
@@ -536,13 +641,13 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                       </CustomSelect.Option>
                     ))}
                   </CustomSelect> */}
-                  <TreeStore listStore={listStore} placeholder="Cửa hàng"/>
+                  <TreeStore listStore={listStore} placeholder="Cửa hàng" />
                 </Item>
                 <p>Lý do trả hàng</p>
                 <Item name="reason_ids">
                   <CustomSelect
                     mode="multiple" showSearch placeholder="Chọn lý do trả hàng"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
                     optionFilterProp="children" maxTagCount='responsive' showArrow
                     getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
@@ -556,7 +661,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
               </Col>
               <Col span={12}>
                 <p>Trạng thái nhận hàng</p>
-                <div className="button-option-1" style={{marginBottom: '20px'}}>
+                <div className="button-option-1" style={{ marginBottom: '20px' }}>
                   <Button
                     onClick={() => changeIsReceived('true')}
                     className={isReceived.includes('true') ? 'active' : 'deactive'}
@@ -593,7 +698,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   </Button>
                 </div>
               </Col>
-              <Col span={12} style={{ marginBottom: 20}}>
+              <Col span={12} style={{ marginBottom: 20 }}>
                 <p>Ngày tạo đơn</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="created_on_min"
@@ -605,7 +710,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                 />
               </Col>
 
-              <Col span={12} style={{ marginBottom: 20}}>
+              <Col span={12} style={{ marginBottom: 20 }}>
                 <p>Ngày trả hàng</p>
                 <CustomRangeDatePicker
                   fieldNameFrom="received_on_min"
@@ -677,16 +782,64 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   </CustomSelect>
                 </Item>
               </Col>
+              <Col span={12}>
+                <Item name="channel_codes" label="Kênh bán hàng">
+                  <CustomSelect
+                    mode="multiple"
+                    showSearch
+                    allowClear
+                    showArrow
+                    placeholder="Chọn kênh bán hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    style={{ width: "100%" }}
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                    maxTagCount="responsive">
+                    {listChannel &&
+                      listChannel.map((channel) => (
+                        <CustomSelect.Option key={channel.code} value={channel.code}>
+                          {channel.code} - {channel.name}
+                        </CustomSelect.Option>
+                      ))}
+                  </CustomSelect>
+                </Item>
+              </Col>
+              <Col span={12}>
+                <Item name="account_codes" label="Nhân viên tạo đơn">
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={accounts}
+                    mode="multiple"
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    maxTagCount='responsive'
+                  />
+                </Item>
+              </Col>
+              <Col span={12}>
+                <Item name="assignee_codes" label="Nhân viên bán hàng">
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={accounts}
+                    mode="multiple"
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    maxTagCount='responsive'
+                  />
+                </Item>
+              </Col>
             </Row>
           </Form>}
         </BaseFilter>
-        <FilterConfigModal 
-          setVisible={setIsShowModalSaveFilter} 
-          visible={isShowModalSaveFilter} 
+        <FilterConfigModal
+          setVisible={setIsShowModalSaveFilter}
+          visible={isShowModalSaveFilter}
           onOk={(formValues) => {
             setIsShowModalSaveFilter(false)
             onSaveFilter(formValues)
-          }} 
+          }}
           filterConfigs={filterConfigs}
         />
         <ModalDeleteConfirm

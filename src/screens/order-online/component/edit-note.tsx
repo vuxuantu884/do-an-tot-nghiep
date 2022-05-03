@@ -1,39 +1,44 @@
 import {
-  EditOutlined,
+	EditOutlined,
 } from "@ant-design/icons";
 import { Button, Input, Popover } from "antd";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 type EditNoteProps = {
-  note: any;
+	note: any;
 	title?: string;
 	color?: string;
 	isDisable?: boolean;
-  onOk: (newNote: string) => void;
+	defaultNote?:ReactNode;
+	onOk: (newNote: string) => void;
 };
 const EditNote: React.FC<EditNoteProps> = (
-  props: EditNoteProps
+	props: EditNoteProps
 ) => {
-  const { note, title, onOk, isDisable=false } = props;
-  const [visible, setVisible] = useState(false);
-  const [newNote, setNewNote] = useState(note); 
-  const handleVisibleChange = (visible: boolean) => {
-    setVisible(visible)
-  };
+	const { note, title,defaultNote, onOk, isDisable = false } = props;
+	const [visible, setVisible] = useState(false);
+	const [newNote, setNewNote] = useState(note);
+	const handleVisibleChange = (visible: boolean) => {
+		setVisible(visible)
+	};
 
-  const onChangeNote = (e: any) => {
-    setNewNote(e.target.value)
-  };
-  return (
-    <div className="wrapper">
+	const onChangeNote = (e: any) => {
+		setNewNote(e.target.value)
+	};
+	return (
+		<div className="wrapper">
+			<div style={{display:"flex", flexWrap:"wrap"}}>
+				{defaultNote}
+			</div>
+			
 			<Popover
 				content={
 					<div>
-						<Input.TextArea value={newNote} onChange={(e) => onChangeNote(e)} style={{ width: 300}} disabled={isDisable}/>
+						<Input.TextArea value={newNote} onChange={(e) => onChangeNote(e)} style={{ width: 300 }} disabled={isDisable} />
 						<div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
 							<Button
 								type="primary"
-								style={{ marginRight: 10}}
+								style={{ marginRight: 10 }}
 								onClick={() => {
 									onOk(newNote)
 									setVisible(false);
@@ -51,19 +56,21 @@ const EditNote: React.FC<EditNoteProps> = (
 				trigger="click"
 				visible={visible}
 				onVisibleChange={handleVisibleChange}
-				
+
 			>
-				<EditOutlined style={{ marginRight: 5, color: props.color}} title="Sửa ghi chú"/>
+				<EditOutlined style={{ marginRight: 5, color: props.color }} title="Sửa ghi chú" />
 			</Popover>
+			
 			<span>
+				
 				{title && (
 					<strong>{title}</strong>
 				)}
 				<span className="noteText">{note}</span>
-
+				
 			</span>
-    </div>
-  );
+		</div>
+	);
 };
 
 export default EditNote;

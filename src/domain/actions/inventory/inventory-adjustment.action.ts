@@ -48,10 +48,10 @@ const createInventoryAdjustmentAction = (
 };
 
 const updateItemOnlineInventoryAction = (
-  id: number,
+  id: number | undefined,
   lineId: number,
   data: Partial<LineItemAdjustment>,
-  onResult: (data: LineItemAdjustment) => void
+  onResult: (data: LineItemAdjustment) => void,
 ) => {
   return BaseAction(InventoryType.UPDATE_ITEM_ONLINE_INVENTORY, {
     id,

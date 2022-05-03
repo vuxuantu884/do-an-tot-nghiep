@@ -1,4 +1,4 @@
-import { Card, Col, Divider, Image, Row, Table, Tabs, Typography } from 'antd';
+import { Button, Card, Col, Divider, Image, Modal, Row, Table, Tabs, Typography } from 'antd';
 import BaseTagStatus from 'component/base/BaseTagStatus';
 import BottomBarContainer from 'component/container/bottom-bar.container';
 import ContentContainer from 'component/container/content.container';
@@ -7,24 +7,26 @@ import UrlConfig, { PurchaseOrderTabUrl } from 'config/url.config';
 import { isEmpty } from 'lodash';
 import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
 import { POProcumentField, POProcumentLineItemField, PurchaseProcument, PurchaseProcumentLineItem } from 'model/purchase-order/purchase-procument';
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { Link, useHistory, useParams } from 'react-router-dom'
 import PurchaseOrderHistory from 'screens/purchase-order/tab/PurchaseOrderHistory';
 import { getPurchaseOrderApi } from 'service/purchase-order/purchase-order.service';
 import { callApiNative } from 'utils/ApiUtils';
 import { OFFSET_HEADER_TABLE, ProcurementStatus, ProcurementStatusName } from 'utils/Constants';
-import arrowLeft from "assets/icon/arrow-back.svg";
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
 import { StyledComponent } from '../styles';
 import ImageProduct from 'screens/products/product/component/image-product.component';
 import { POUtils } from 'utils/POUtils';
 import { formatCurrency } from 'utils/AppUtils';
-import { PhoneOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PhoneOutlined } from '@ant-design/icons';
 import EditNote from 'screens/order-online/component/edit-note';
 import { primaryColor } from 'utils/global-styles/variables';
-import { updatePurchaseProcumentNoteService } from 'service/purchase-order/purchase-procument.service';
+import AuthWrapper from 'component/authorization/AuthWrapper';
+import { PurchaseOrderPermission } from 'config/permissions/purchase-order.permission';
+import { PoProcumentDeleteAction } from 'domain/actions/po/po-procument.action';
 import { showSuccess } from 'utils/ToastUtils';
+import { updatePurchaseProcumentNoteService } from 'service/purchase-order/purchase-procument.service';
 
 type ProcurementParam = {
   id: string;
@@ -38,6 +40,7 @@ const ProcurementDetailScreen: React.FC = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isError, setError] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(PurchaseOrderTabUrl.INVENTORY);
+  const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
   const history = useHistory()
   const dispatch = useDispatch()
   const { TabPane } = Tabs
@@ -103,10 +106,28 @@ const ProcurementDetailScreen: React.FC = () => {
     ))
   }
 
-  // if(!poData && !procurementData){
-  //   return <div>Not Found</div>
-  // }
-  console.log(procurementData, 'procurementData')
+  const confirmDeletePhrase: string = useMemo(() => {
+    if (!procurementData) return "";
+    let prefix = "phiếu nháp";
+    if (procurementData.status === ProcurementStatus.not_received) prefix = "phiếu duyệt";
+    else if (procurementData.status === ProcurementStatus.received) prefix = "phiếu nhập kho";
+    return `Bạn chắc chắn huỷ ${prefix} ${procurementData?.code}?`;
+  }, [procurementData]);
+
+  const onDeleteProcumentCallback = (result: any) => {
+    if (result !== null) {
+      showSuccess("Huỷ phiếu thành công");
+      history.push(`${UrlConfig.PROCUREMENT}`)
+    }
+  }
+
+  const onDeleteProcument = (value: PurchaseProcument) => {
+    if (poID && value.id) {
+      dispatch(
+        PoProcumentDeleteAction(parseInt(poID), value.id, onDeleteProcumentCallback)
+      );
+    }
+  }
 
   return (
     <ContentContainer
@@ -118,8 +139,8 @@ const ProcurementDetailScreen: React.FC = () => {
           name: "Kho hàng",
         },
         {
-          name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDERS}`,
+          name: "Nhập kho",
+          path: `${UrlConfig.PROCUREMENT}`,
         },
         {
           name: `${poData?.code || ""}`,
@@ -140,7 +161,7 @@ const ProcurementDetailScreen: React.FC = () => {
         >
           <TabPane tab="Tồn kho" key={PurchaseOrderTabUrl.INVENTORY}>
             <div style={{ marginTop: 10, marginBottom: 15 }}>
-              <Row align='middle' gutter={{ md: 24, lg: 32 }}>
+              <Row gutter={{ md: 24, lg: 32 }}>
                 <Col span={4}>
                   <div>Mã phiếu nhập kho:</div>
                   <div >
@@ -329,14 +350,54 @@ const ProcurementDetailScreen: React.FC = () => {
       <BottomBarContainer
         leftComponent={
           <div
-            onClick={() => history.push(`${UrlConfig.PROCUREMENT}`)}
-            style={{ cursor: "pointer" }}
           >
-            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-            {"Quay lại danh sách"}
+            {poData && procurementData?.status !== ProcurementStatus.cancelled && (
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
+                <Button
+                  type="default"
+                  className="danger"
+                  style={{
+                    position: "absolute",
+                    bottom: 10,
+                    left: 30,
+                  }}
+                  onClick={() => {
+                    setVisibleDelete(true);
+                  }}
+                >
+                  Hủy phiếu
+                </Button>
+              </AuthWrapper>
+            )}
           </div>
         }
       />
+      <Modal
+        width={500}
+        centered
+        visible={visibleDelete}
+        onCancel={() => setVisibleDelete(false)}
+        onOk={() => {
+          setVisibleDelete(false);
+          if (procurementData) onDeleteProcument(procurementData);
+        }}
+        cancelText={`Hủy`}
+        okText={`Đồng ý`}
+      >
+        <Row align="top">
+          <DeleteOutlined
+            style={{
+              fontSize: 40,
+              background: "#e24343",
+              color: "white",
+              borderRadius: "50%",
+              padding: 10,
+              marginRight: 10,
+            }}
+          />
+          <strong className="margin-top-10">{confirmDeletePhrase}</strong>
+        </Row>
+      </Modal>
     </ContentContainer>
   )
 }

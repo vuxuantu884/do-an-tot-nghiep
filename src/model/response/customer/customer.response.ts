@@ -2,7 +2,7 @@ import { BaseObject } from "model/base/base.response";
 
 export interface CustomerResponse extends BaseObject {
   id:number;
-  full_address: string;
+  full_address: string | null;
   full_name: string;
   phone: string | null;
   email: string | null;

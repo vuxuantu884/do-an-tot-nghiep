@@ -10,7 +10,7 @@ function useSetTableColumns(
   setColumns: (columns: ICustomTableColumType<any>[]) => void
 ) {
 
-  
+
   const orderVariable = useMemo(() => {
     const orderArr = [COLUMN_CONFIG_TYPE.orderOffline, COLUMN_CONFIG_TYPE.orderOnline]
     if(orderArr.includes(columnType)) {
@@ -35,7 +35,7 @@ function useSetTableColumns(
       })
       setColumns(columnResult);
     }
-  // bỏ initColumns, thêm orderVariable 
+  // bỏ initColumns, thêm orderVariable
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columnType, setColumns, tableColumnConfigs, orderVariable]);
 }

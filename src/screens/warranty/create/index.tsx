@@ -19,6 +19,7 @@ import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CustomerSearchSo, getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { OrderDetailAction } from "domain/actions/order/order.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import {
   createWarrantyAction,
@@ -50,6 +51,7 @@ import {
 import { DATE_FORMAT } from "utils/DateUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 import HistoryPurchaseModal from "../HistoryPurchase/HistoryPurchase.modal";
 import { StyledComponent } from "./index.styles";
 // import { AiOutlinePlusCircle } from 'react-icons/ai';
@@ -78,6 +80,10 @@ const initQueryCustomer: CustomerSearchQuery = {
 function CreateWarranty(props: Props) {
   const dispatch = useDispatch();
   const history = useHistory();
+  const isFirstLoad = useRef(true);
+  const query = useQuery();
+  const orderID = query.get("orderID");
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const [warrantyForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -329,11 +335,7 @@ function CreateWarranty(props: Props) {
                 customer_id: data.id,
                 customer: data.full_name,
                 customer_mobile: data.phone,
-                customer_address: data.full_address
-                  ? data.full_address
-                  : warrantyForm.getFieldValue("type") === WarrantyFormType.STORE
-                  ? "Nhận tại cửa hàng"
-                  : "",
+                customer_address: `${data.full_address ? data.full_address : ""} ${data.ward ? data.ward : ""} ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim()
               });
             }
           })
@@ -661,6 +663,50 @@ function CreateWarranty(props: Props) {
   };
 
   useEffect(() => {
+    if (isFirstLoad.current && orderID) {
+      dispatch(OrderDetailAction(orderID, (data) => {
+        if (data) {
+          dispatch(
+            getCustomerDetailAction(data.customer_id, (data: CustomerResponse) => {
+
+              if (data) {
+                setCustomerID(data.id);
+                setHadCustomer(true);
+                console.log('data', data.full_address, data.ward, data.district, data.city);
+                
+                warrantyForm.setFieldsValue({
+                  customer_id: data.id,
+                  customer: data.full_name,
+                  customer_mobile: data.phone,
+                  customer_address: `${data.full_address ? data.full_address : ""} ${data.ward ? data.ward : ""} ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim()
+                });
+              }
+            })
+          );
+          warrantyForm.setFieldsValue({
+            store_id: data.store_id,
+            assignee_code: data.assignee_code,
+          });
+          const newWarrantyItems = data.items.map((item, index) => {
+            return {
+              ...item,
+              index,
+              finished_on: data.finished_on,
+              finalized_on: data.finalized_on,
+              type: null,
+              reason_id: null,
+              price: 0,
+              customer_fee: 0,
+            }
+          });
+          setWarrantyItems(newWarrantyItems);
+          setLoadingData(false);
+        }
+      }));
+    } else {
+      setLoadingData(false);
+    }
+    isFirstLoad.current = false;
     dispatch(
       searchAccountPublicAction({ limit: 30 }, (data) => {
         setAccounts(data.items);
@@ -672,12 +718,12 @@ function CreateWarranty(props: Props) {
         setReasons(data.filter((reason) => reason.status === "ACTIVE"))
       )
     );
-  }, [dispatch]);
+  }, [addItemsWarranty, dispatch, orderID, warrantyForm]);
 
   return (
     <StyledComponent>
       <ContentContainer
-        // isLoading={loadingData}
+        isLoading={loadingData}
         title="Thêm mới phiếu bảo hành"
         breadcrumb={[
           {

@@ -85,4 +85,11 @@ export interface WebAppConfigRequest {
   source: String;
   source_id: number;
 }
+export interface WebAppCreateShopifyRequest {
+  id: number;
+  ecommerce_shop: string;
+  website: string;
+  name: string;
+  inventorySync: string;
+}
 
