@@ -63,7 +63,7 @@ const PackInfo: React.FC = () => {
   const btnFinishPackElement = document.getElementById("btnFinishPack");
   const btnClearPackElement = document.getElementById("btnClearPack");
   const OrderRequestElement: any = document.getElementById("order_request");
-  const ProductRequestElement: any = document.getElementById("product_request");
+  const ProductRequestElement: any = document.getElementById("inputProduct");
 
   OrderRequestElement?.addEventListener("focus", (e: any) => {
     OrderRequestElement.select();
@@ -149,7 +149,6 @@ const PackInfo: React.FC = () => {
               let storeId: number | null | undefined = data[0]?.stock_location_id ?
                 listStoresDataCanAccess?.findIndex((p) => p.id === data[0]?.stock_location_id) !== -1
                   ? data[0]?.stock_location_id : null : null;
-              console.log(storeId);
               if (storeId) {
                 setPackFulFillmentResponse(fMSuccess[0]);
                 setDisableStoreId(true);
@@ -244,7 +243,7 @@ const PackInfo: React.FC = () => {
           formRef.current?.setFieldsValue({ product_request: "" });
       }
 
-      formRef.current?.setFieldsValue({ quality_request: "" });
+      formRef.current?.setFieldsValue({ quality_request: "",inputProduct:""  });
     } else {
       showError("Sản phẩm này không có trong đơn hàng");
     }
@@ -293,7 +292,7 @@ const PackInfo: React.FC = () => {
 
   useEffect(() => {
     if (packFulFillmentResponse) {
-      console.log("packFulFillmentResponse", packFulFillmentResponse);
+      // console.log("packFulFillmentResponse", packFulFillmentResponse);
       let item: OrderLineItemResponseExt[] = [];
       packFulFillmentResponse.items.forEach(function (i: OrderLineItemResponse) {
 
@@ -303,7 +302,7 @@ const PackInfo: React.FC = () => {
 
           //item.push({ ...i, quantity: quantity || 0, pick: 0, color: "#E24343" });
           item[indexDuplicate].quantity = quantity;
-          console.log("indexDuplicate", item[indexDuplicate]);
+          // console.log("indexDuplicate", item[indexDuplicate]);
         }
         else
           item.push({ ...i, pick: 0, color: "#E24343" });
@@ -322,7 +321,7 @@ const PackInfo: React.FC = () => {
         (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
       );
 
-      console.log("indexPack", indexPack)
+      // console.log("indexPack", indexPack)
 
       if (indexPack === undefined || indexPack.length === 0) {
         let request = {
@@ -332,7 +331,7 @@ const PackInfo: React.FC = () => {
         };
 
         let packData: PackModel = { ...new PackModelDefaltValue(), ...packModel };
-        console.log("PackModel", packData);
+        // console.log("PackModel", packData);
 
         dispatch(
           getFulfillmentsPack(request, (data: any) => {
