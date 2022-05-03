@@ -1529,6 +1529,11 @@ function OrdersTable(props: PropTypes) {
           </Popover>
         </div>
         {renderActionButton(record)}
+        {record?.order_returns && record?.order_returns?.length > 0 ? (
+          <div className="actionButton" title="Đơn hàng có đổi trả">
+            <b>[Đ]</b>
+          </div>
+        ) : null}
       </React.Fragment>
     );
   };

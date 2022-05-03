@@ -26,7 +26,7 @@ const EditNote: React.FC<EditNoteProps> = (
 		setNewNote(e.target.value)
 	};
 	return (
-		<div className="wrapper" style={{flexWrap: "wrap"}}>
+		<div className="wrapper">
 			<div style={{display:"flex", flexWrap:"wrap"}}>
 				{defaultNote}
 			</div>
