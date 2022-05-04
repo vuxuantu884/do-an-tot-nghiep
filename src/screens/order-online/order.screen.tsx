@@ -77,7 +77,7 @@ import {
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
-	DEFAULT_COMPANY,
+	DEFAULT_COMPANY, FACEBOOK,
 	OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
@@ -90,7 +90,6 @@ import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-import {ECOMMERCE_CHANNEL} from "screens/ecommerce/common/commonAction";
 
 let typeButton = "";
 
@@ -769,7 +768,7 @@ export default function Order() {
 							);
 						}
 						if (response) {
-							const isEcommerceOrder = ECOMMERCE_CHANNEL.includes(response.channel_code?.toLowerCase() || "");
+							const isFBOrder = response.channel_id === FACEBOOK.channel_id;
 							let giftResponse = response.items.filter((item) => {
 								return item.type === Type.GIFT;
 							});
@@ -864,7 +863,7 @@ export default function Order() {
 										? response.code
 											? response.code
 											: ""
-										: (isEcommerceOrder ? "" : response.reference_code),
+										: isFBOrder ? "" : response.reference_code,
 								url: response.url,
 								note: response.note,
 								tags: response.tags,
