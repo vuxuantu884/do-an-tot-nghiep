@@ -77,7 +77,7 @@ import {
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
-	DEFAULT_COMPANY,
+	DEFAULT_COMPANY, FACEBOOK,
 	OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
@@ -768,6 +768,7 @@ export default function Order() {
 							);
 						}
 						if (response) {
+							const isFBOrder = response.channel_id === FACEBOOK.channel_id;
 							let giftResponse = response.items.filter((item) => {
 								return item.type === Type.GIFT;
 							});
@@ -862,7 +863,7 @@ export default function Order() {
 										? response.code
 											? response.code
 											: ""
-										: response.reference_code,
+										: isFBOrder ? "" : response.reference_code,
 								url: response.url,
 								note: response.note,
 								tags: response.tags,
