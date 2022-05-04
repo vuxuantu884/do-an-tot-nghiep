@@ -31,7 +31,7 @@ import {
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
+import { inventoryGetDetailVariantIdsExt, inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
 	getLoyaltyPoint,
 	getLoyaltyRate,
@@ -1251,12 +1251,13 @@ ShippingServiceConfigDetailResponseModel[]
 	}, [id]);
 
 	useEffect(() => {
-		if (items && items != null) {
+		if (items && items.length!==0 && OrderDetail?.store_id) {
 			let variant_id: Array<number> = [];
 			items.forEach((element) => variant_id.push(element.variant_id));
-			dispatch(inventoryGetDetailVariantIdsSaga(variant_id, null, setInventoryResponse));
+			// let store_id=OrderDetail?.store_id;
+			dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
 		}
-	}, [dispatch, items]);
+	}, [OrderDetail?.store_id, dispatch, items]);
 
 	const checkIfOrderCanBeSplit = useMemo(() => {
 		// có tách đơn, có shipment trong fulfillments, trường hợp giao hàng sau vẫn có fulfillment mà ko có shipment
