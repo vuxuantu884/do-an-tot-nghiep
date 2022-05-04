@@ -114,7 +114,6 @@ const ProcurementResult: React.FC<ProcurementFormProps> = (props: ProcurementFor
       </div>
     )
   }
-
   return (
     <Tabs defaultActiveKey={listPO[0].code}>
       

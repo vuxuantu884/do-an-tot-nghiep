@@ -125,7 +125,8 @@ export interface ImportProcument {
   url: string;
   conditions: string;
   type: string;
-  url_template?: string
+  url_template?: string;
+  note?: string;
 }
 export interface ProcurementConfirm {
   procurement_items: Array<PurchaseProcumentLineItem>;

@@ -114,6 +114,35 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
     }
   }, [listStore, accountStores, formMain]);
 
+
+	useEffect(() => {
+		getMe()
+		getStores()
+	}, [dispatch, getMe, getStores])
+
+	useEffect(() => {
+    if (listStore.length === 0) return;
+
+    if (accountStores?.length === 1) {
+      listStore.forEach((element) => {
+        if (element.id === accountStores[0].store_id) {
+					formMain.setFieldsValue({ [ProcurementField.store_id]: element.id })
+					setStoreID(element.id)
+        }
+      });
+    }
+
+    if (accountStores?.length === 0) {
+      const newStore = listStore.map((i) => {
+        return {
+          store_id: i.id,
+          store: i.name,
+        }
+      });
+      setAccountStores(newStore);
+    }
+  }, [listStore, accountStores, formMain]);
+
 	const renderResult = useMemo(() => {
 		let options: any[] = [];
 		data.forEach((item: SupplierResponse, index: number) => {
@@ -268,10 +297,12 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 			setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
 			const supplier_id = formMain.getFieldValue([ProcurementField.supplier_id])
 			const store_id = formMain.getFieldValue([ProcurementField.store_id])
+			const note = formMain.getFieldValue([ProcurementField.note])
 			const params: ImportProcument = {
 				url: linkFileImport,
 				conditions: `${supplier_id},${store_id}`,
-				type: "IMPORT_PROCUREMENT_CREATE"
+				type: "IMPORT_PROCUREMENT_CREATE",
+				note: note
 			}
 			setJobImportStatus(EnumJobStatus.processing);
 			dispatch(importProcumentAction(params, onResultImport))
@@ -403,7 +434,6 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 						placeholder="Chọn kho nhận"
 						onChange={onChangeStore}
 					>
-
 						{!isEmpty(accountStores) && accountStores.map((item) => (
 							<Select.Option key={item.id} value={item.store_id || 0}>
 								{item.store}
