@@ -105,6 +105,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     className: "yody-pos-quantity text-center",
     width: "15%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
+      console.log('item', item)
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
   };
