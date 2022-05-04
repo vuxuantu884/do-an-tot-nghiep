@@ -23,6 +23,7 @@ const InventoryScreen: React.FC = () => {
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const {path} = useRouteMatch();
   const [vExportProduct,setVExportProduct] = useState(false);
+  const [showExportModal,setShowExportModal] = useState(false);
   const [vExportInventory,setVExportInventory] = useState(false);
 
   useEffect(() => {
@@ -82,7 +83,7 @@ const InventoryScreen: React.FC = () => {
                 className="light"
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                onClick={() => {setVExportInventory(true)}}
+                onClick={() => {setShowExportModal(true)}}
               >
                 Xuất file
             </Button>
@@ -98,7 +99,12 @@ const InventoryScreen: React.FC = () => {
           renderTabBar={RenderTabBar}
         >
           <TabPane tab="Tồn kho" key={InventoryTabUrl.ALL}>
-            <AllTab vExportInventory={vExportInventory} setVExportInventory={setVExportInventory} stores={stores} current={activeTab} />
+            <AllTab
+             showExportModal={showExportModal} 
+             setShowExportModal={setShowExportModal} 
+             vExportInventory={vExportInventory}
+             setVExportInventory={setVExportInventory}
+             stores={stores} current={activeTab} />
           </TabPane>
           <TabPane tab="Lịch sử tồn kho" key={InventoryTabUrl.HISTORIES}>
             <HistoryTab vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} stores={stores} current={activeTab} />

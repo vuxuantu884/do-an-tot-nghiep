@@ -35,6 +35,8 @@ export interface ImportRequest {
   url?: string;
   conditions?: string;
   type: string;
+  store_ids?: string,
+  remain?: string
 }
 
 export interface ImportResponse extends BaseObject {

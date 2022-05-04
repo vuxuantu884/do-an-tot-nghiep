@@ -10,9 +10,6 @@ import { InventoryTabUrl } from "config/url.config";
 import {VariantResponse} from "model/product/product.model";
 import {useDispatch} from "react-redux";
 import _ from "lodash";
-import {
-  updateReasonItemOnlineInventoryAction,
-} from "domain/actions/inventory/inventory-adjustment.action";
 import {showSuccess} from "utils/ToastUtils";
 import {
   STATUS_INVENTORY_ADJUSTMENT_CONSTANTS,
@@ -96,7 +93,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       });
 
       setDataLinesItem({...dataItems});
-      debounceChangeReason(row);
+      debounceChangeReason();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps,
     []
@@ -124,6 +121,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     setLoadingTable(true);
     const product = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
       status: "active",
+      store_ids: data.store.id,
       variant_ids: item.variant_id,
     })
 
@@ -142,12 +140,6 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   };
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
-    {
-      title: "STT",
-      align: "center",
-      width: "70px",
-      render: (value: string, record: VariantResponse, index: number) => index + 1,
-    },
     {
       title: "Ảnh",
       width: "60px",
@@ -203,7 +195,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       title: () => {
         return (
           <>
-            <div>Tồn thực tế</div>
+            <div>Số kiểm</div>
             <div>({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
@@ -350,24 +342,9 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     [keySearch, getLinesItemAdjustment]
   );
 
-  const debounceChangeReason = useMemo(()=>
-      _.debounce((row: LineItemAdjustment)=>{
-        const newData = {
-          real_on_hand: row.real_on_hand,
-          note: row.note,
-        };
-
-        dispatch(
-          updateReasonItemOnlineInventoryAction(data?.id, row.id, newData, (result) => {
-            if (result) {
-              showSuccess("Nhập lý do thành công.");
-            }
-          })
-        );
-
-    }, 500),
-    [data?.id, dispatch]
-  );
+  const debounceChangeReason = () => {
+    showSuccess("Nhập lý do thành công.");
+  };
 
   const onEnterFilterVariant = useCallback(
     (code: string) => {

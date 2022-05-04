@@ -404,3 +404,10 @@ export const DELIVERY_SERVICE_PROVIDER_CODE = {
   ghn: "ghn",
   vtp: "vtp"
 }
+
+export const STATUS_IMPORT_EXPORT = {
+  DEFAULT: 1,
+  CREATE_JOB_SUCCESS: 2,
+  JOB_FINISH: 3,
+  ERROR: 4,
+};

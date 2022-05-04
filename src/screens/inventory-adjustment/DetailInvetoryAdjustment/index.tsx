@@ -2,11 +2,19 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState
 import { StyledWrapper } from "./styles";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig, { BASE_NAME_ROUTER, InventoryTabUrl } from "config/url.config";
-import { Button, Card, Col, Form, Input, Row, Space, Tabs, Tag, Upload } from "antd";
+import { Button, Card, Col, Form, Input, Radio, Row, Space, Tabs, Tag, Tooltip, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
-import { PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  CodepenOutlined,
+  InfoCircleOutlined,
+  PaperClipOutlined, PieChartOutlined,
+  PrinterOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  UploadOutlined, UserSwitchOutlined,
+} from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -70,9 +78,15 @@ import TextArea from "antd/es/input/TextArea";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
-import { addLineItem, deleteLineItem, getTotalOnHand } from "service/inventory/adjustment/index.service";
+import {
+  addLineItem,
+  deleteLineItem,
+  getTotalOnHand,
+  updateOnHandItemOnlineInventoryApi, updateReasonItemOnlineInventoryApi,
+} from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
+import { searchVariantsApi } from "../../../service/product/product.service";
+import EditNote from "../../order-online/component/edit-note";
 
 const { TabPane } = Tabs;
 
@@ -97,6 +111,12 @@ export const STATUS_IMPORT_EXPORT = {
   JOB_FINISH: 3,
   ERROR: 4,
 };
+
+const arrTypeNote = [
+  {key: 1,value: "XNK sai quy trình"},
+  {key: 2,value: "Sai trạng thái đơn hàng"},
+  {key: 3,value: "Thất thoát"},
+]
 
 const DetailInvetoryAdjustment: FC = () => {
   const [form] = Form.useForm();
@@ -464,15 +484,68 @@ const DetailInvetoryAdjustment: FC = () => {
     }
   };
 
-  const defaultColumns: Array<ICustomTableColumType<any>> = [
-    {
-      title: "STT",
-      align: "center",
-      width: "70px",
-      render: (value, row, index) => {
-        return <span>{(dataLinesItem.metadata.page - 1) * dataLinesItem.metadata.limit + index + 1}</span>;
-      },
+  const reloadOnHand = async (item: any) => {
+    setTableLoading(true);
+    const product = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
+      status: "active",
+      store_ids: data?.store.id,
+      variant_ids: item.variant_id,
+    })
+
+    if (product) {
+      const res = await callApiNative({isShowError: false}, dispatch, updateOnHandItemOnlineInventoryApi,data?.id ?? 0, item.id, {
+        on_hand: product?.items.length > 0 ? product?.items[0].on_hand : 0
+      });
+
+      if (res) {
+        showSuccess("Cập nhật tồn trong kho thành công");
+        setIsReRender(!isReRender);
+      }
+    } else {
+      setTableLoading(false);
+    }
+  };
+
+  const debounceChangeReason = () => {
+    showSuccess("Nhập lý do thành công.");
+  }
+
+  const onChangeReason = useCallback(
+    (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
+      row.note = value;
+
+      dataItems.items.forEach((e)=>{
+        if (e.variant_id === row.id) {
+          e.note = row.note;
+        }
+      });
+
+      setDatalinesItem({...dataItems});
+      debounceChangeReason();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+    []
+  );
+
+  const handleNoteChange = useCallback(async (index:number, newValue: string,item: LineItemAdjustment) => {
+    const value = newValue;
+    if (value && value.indexOf('##') !== -1) {
+      return;
+    }
+
+    item.note = value ?? "";
+    if (item.note) {
+      item.note = item.note.substring(item.note.lastIndexOf("#")+1,item.note.length);
+    }
+
+    const res = await callApiNative({isShowError: false},dispatch,updateReasonItemOnlineInventoryApi,data?.id ?? 0,item.id,item);
+
+    if (res) {
+      onChangeReason(item.note, item, dataLinesItem);
+    }
+  },[dispatch, data?.id, onChangeReason, dataLinesItem]);
+
+  const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "Ảnh",
       width: "60px",
@@ -487,7 +560,7 @@ const DetailInvetoryAdjustment: FC = () => {
     },
     {
       title: "Sản phẩm",
-      width: "200px",
+      width: "120px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: VariantResponse) => (
@@ -528,7 +601,7 @@ const DetailInvetoryAdjustment: FC = () => {
       title: () => {
         return (
           <>
-            <div>Tồn thực tế</div>
+            <div>Số kiểm</div>
             <div>({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
@@ -589,6 +662,78 @@ const DetailInvetoryAdjustment: FC = () => {
           return <div style={{ color: "green" }}>+{item.on_hand_adj}</div>;
         }
       },
+    },
+    {
+      title: <div>
+        Lý do <Tooltip title={
+        <div>
+          <div>1.XNK sai quy trình</div>
+          <div>2.Sai trạng thái đơn hàng</div>
+          <div>3.Thất thoát</div>
+        </div>
+      }><InfoCircleOutlined type="primary" color="primary" /></Tooltip>
+      </div>,
+      dataIndex: "note",
+      align: "left",
+      width: 165,
+      render: (value, row: LineItemAdjustment, index: number) => {
+        let note = `${index}#${value}`;
+        let tooltip = null;
+
+        if (!arrTypeNote.find(e=>e.value === value)) {
+          note = `${index}##${value}`;
+          tooltip= value;
+        }
+
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate) {
+          return (
+            <Radio.Group value={note} buttonStyle="solid" onChange={(e)=>{
+              handleNoteChange(index,e.target.value,row).then();
+            }}>
+              <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
+                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[0].value}`}>
+                  <UserSwitchOutlined />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
+                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[1].value}`}>
+                  <CodepenOutlined />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
+                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[2].value}`}>
+                  <PieChartOutlined />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip placement="topLeft" title={tooltip}>
+                <Radio.Button
+                  style={{paddingLeft: 8,paddingRight:8}}
+                  value={`${index}##${value}`}>
+                  <EditNote
+                    note={tooltip}
+                    title=""
+                    onOk={(newNote) => {
+                      handleNoteChange(index, newNote, row).then();
+                    }}
+                  /></Radio.Button>
+              </Tooltip>
+            </Radio.Group>
+          );
+        }
+        return value || "";
+      },
+    },
+    {
+      title: "",
+      fixed: dataLinesItem?.items.length !== 0 && "right",
+      width: 30,
+      render: (value: string, row) => {
+        return <>
+          {data?.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
+            <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
+          )}
+        </>
+      }
     },
     {
       title: "",
@@ -666,15 +811,6 @@ const onChangeNote = useCallback(
   },
   [updateAdjustment]
 )
-
-  const updateAuditedBys = () => {
-    const dataUpdate = form.getFieldsValue(true);
-    if (data && dataUpdate && dataUpdate.audited_bys.length > 0) {
-      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, ()=>{
-        showSuccess("Cập nhật người kiểm kho thành công");
-      }));
-    }
-  }
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -816,7 +952,10 @@ const onChangeNote = useCallback(
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-            setExportProgress((response.data.num_of_record/response.data.total)*100);
+          if (response.data.total) {
+            const percent =(Math.round(response.data.num_of_record/response.data.total))*100;
+            setExportProgress(percent);
+          }
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
@@ -920,7 +1059,7 @@ const onChangeNote = useCallback(
     );
   }
 
-  useEffect(() => {
+  const getTotalOnHandFunc = () => {
     getTotalOnHandApi().then((res) => {
       if (!res) return;
       setObjSummaryTableByAuditTotal({
@@ -930,6 +1069,10 @@ const onChangeNote = useCallback(
         totalMissing: res.totalMissing || 0,
       });
     });
+  };
+
+  useEffect(() => {
+    getTotalOnHandFunc();
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [isReRender]);
 
@@ -954,7 +1097,8 @@ const onChangeNote = useCallback(
           if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING || !data) {
             dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
           } else {
-            setIsReRender(!isReRender);
+            getTotalOnHandFunc();
+            clearInterval(interval);
           }
 
           return data;
@@ -1004,7 +1148,7 @@ const onChangeNote = useCallback(
           updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
             setTableLoading(false);
             if (result) {
-              showSuccess("Nhập tồn thực tế thành công.");
+              showSuccess("Nhập số kiểm thành công.");
               const version = form.getFieldValue("version");
               form.setFieldsValue({ version: version + 1 });
               setIsReRender(!isReRender);
@@ -1218,52 +1362,31 @@ const onChangeNote = useCallback(
                         <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
                       </Col>
                     </Row>
-                    {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && isPermissionAudit ? (
-                      <Form.Item
-                        name="audited_bys"
-                        label={<b>Người kiểm</b>}
-                        labelCol={{span: 24, offset: 0}}
-                        colon={false}
-                        rules={[{
-                          required: true,
-                          message: "Vui lòng chọn người kiểm",
-                        }]}
-                      >
-                        <AccountSearchPaging
-                          onSelect={updateAuditedBys}
-                          onDeselect={updateAuditedBys}
-                          mode="multiple"
-                          placeholder="Chọn người kiểm"
-                          style={{width: "100%"}}
-                        />
-                      </Form.Item>
-                    ) : (
-                      <Row>
-                        <Col span={10}>
-                          <div className="label">Người kiểm:</div>
-                        </Col>
-                        <Col span={14}>
-                          <div className="data">
-                            {
-                              <StyledComponent>
-                                <Row className="audit_by">
-                                  <Col span={24}>
-                                    {data.audited_bys?.map((item: string) => {
-                                      return (
-                                        <RenderItemAuditBy
-                                          key={item?.toString()}
-                                          user_name={item?.toString()}
-                                        />
-                                      );
-                                    })}
-                                  </Col>
-                                </Row>
-                              </StyledComponent>
-                            }
-                          </div>
-                        </Col>
-                      </Row>
-                    )}
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">Người kiểm:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">
+                          {
+                            <StyledComponent>
+                              <Row className="audit_by">
+                                <Col span={24}>
+                                  {data.audited_bys?.map((item: string) => {
+                                    return (
+                                      <RenderItemAuditBy
+                                        key={item?.toString()}
+                                        user_name={item?.toString()}
+                                      />
+                                    );
+                                  })}
+                                </Col>
+                              </Row>
+                            </StyledComponent>
+                          }
+                        </div>
+                      </Col>
+                    </Row>
                   </Col>
                 </Card>
                 <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
