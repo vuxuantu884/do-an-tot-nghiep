@@ -241,9 +241,8 @@ function WarrantyStatusModal(props: PropTypes) {
                 style={{
                   textAlign: "left",
                 }}
-                maxLength={14}
+                maxLength={10}
                 minLength={0}
-                disabled
               />
             </Form.Item>
           </React.Fragment>
