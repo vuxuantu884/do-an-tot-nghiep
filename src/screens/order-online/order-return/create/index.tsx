@@ -179,7 +179,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 
-  const [isReturnAll, setIsReturnAll] = useState(true)
+  const [isReturnAll, setIsReturnAll] = useState(true);
+
+  const [isAlreadyShowWarningPoint, setIsAlreadyShowWarningPoint] = useState(false)
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -575,9 +577,9 @@ ShippingServiceConfigDetailResponseModel[]
         order_returns: [],
         automatic_discount: form.getFieldValue("automatic_discount"),
         discounts: discounts,
-        total: (totalAmountReturnProducts),
-        total_discount: getTotalOrderDiscount(discounts),
-        total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
+        total: Math.ceil(totalAmountReturnProducts),
+        total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
+        total_line_amount_after_line_discount: Math.ceil(getTotalAmountAfterDiscount(itemsResult)),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
@@ -832,7 +834,7 @@ ShippingServiceConfigDetailResponseModel[]
             return;
           }
           console.log('valuesResult', valuesResult)
-          valuesResult.channel_id = OrderDetail.channel_id;
+          valuesResult.channel_id = getChannelIdExchange(OrderDetail);
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code");
           values.assignee_code = form.getFieldValue("assignee_code");
@@ -948,7 +950,7 @@ ShippingServiceConfigDetailResponseModel[]
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
-      getTotalAmountAfterDiscount(listExchangeProducts);
+      Math.ceil(getTotalAmountAfterDiscount(listExchangeProducts));
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     if (totalAmountCustomerNeedToPay > 0) {
@@ -956,7 +958,7 @@ ShippingServiceConfigDetailResponseModel[]
     } else {
       values.payments = [];
     }
-    values.total = totalAmountExchangeFinal;
+    values.total = Math.ceil(totalAmountExchangeFinal);
     if (
       values?.fulfillments &&
       values.fulfillments.length > 0 &&
@@ -1347,6 +1349,7 @@ ShippingServiceConfigDetailResponseModel[]
                   searchVariantInputValue={searchVariantInputValue}
                   setSearchVariantInputValue={setSearchVariantInputValue}
                   setListOrderProductsResult={setListOrderProductsResult}
+                  isAlreadyShowWarningPoint={isAlreadyShowWarningPoint}
                 />
                 <OrderCreateProduct
                   orderAmount={orderAmount}
@@ -1513,7 +1516,10 @@ ShippingServiceConfigDetailResponseModel[]
             setIsVisibleModalWarningPointRefund(false);
           }}
           footer={(
-            <Button type="primary" onClick={() =>setIsVisibleModalWarningPointRefund(false)}>
+            <Button type="primary" onClick={() =>{
+              setIsAlreadyShowWarningPoint(true)
+              setIsVisibleModalWarningPointRefund(false)}
+            } >
               Đồng ý
             </Button>
           )}

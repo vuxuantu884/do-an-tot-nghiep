@@ -31,26 +31,18 @@ import {
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt, inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
 	getLoyaltyPoint,
 	getLoyaltyRate,
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	orderConfigSaga,
-	DeliveryServicesGetList,
-	getListSubStatusAction,
-	getTrackingLogFulfillmentAction,
-	OrderDetailAction,
+	changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, DeliveryServicesGetList,
+	getListSubStatusAction, getStoreBankAccountNumbersAction, getTrackingLogFulfillmentAction, orderConfigSaga, OrderDetailAction,
 	orderUpdateAction,
-	PaymentMethodGetList,
-	getStoreBankAccountNumbersAction,
-	changeSelectedStoreBankAccountAction,
-	setIsExportBillAction,
-	setIsShouldSetDefaultStoreBankAccountAction,
-	changeOrderCustomerAction,
-	changeShippingServiceConfigAction
+	PaymentMethodGetList, setIsExportBillAction,
+	setIsShouldSetDefaultStoreBankAccountAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useFetchStores from "hook/useFetchStores";
@@ -117,12 +109,12 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { yellowColor } from "utils/global-styles/variables";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
+import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
-import {ECOMMERCE_CHANNEL} from "../ecommerce/common/commonAction";
 
 // let typeButton = "";
 type PropTypes = {
