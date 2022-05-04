@@ -310,16 +310,20 @@ function OrderCreateProduct(props: PropTypes) {
 				findProductInput?.focus()
 				break;
 			case "F12":
-				form.setFieldsValue({
-					automatic_discount: !isAutomaticDiscount
-				})
-				if (isAutomaticDiscount) {
-					showSuccess("Tắt chiết khấu tự động thành công!")
-					handleRemoveAllAutomaticDiscount();
-				} else {
-					handleApplyDiscount(items);
-					showSuccess("Bật chiết khấu tự động thành công!")
+				if(levelOrder <= 3){
+					console.log("111111111111")
+					form.setFieldsValue({
+						automatic_discount: !isAutomaticDiscount
+					})
+					if (isAutomaticDiscount) {
+						showSuccess("Tắt chiết khấu tự động thành công!")
+						handleRemoveAllAutomaticDiscount();
+					} else {
+						handleApplyDiscount(items);
+						showSuccess("Bật chiết khấu tự động thành công!")
+					}
 				}
+				
 				break;
 			default:
 				break;
@@ -2255,7 +2259,7 @@ function OrderCreateProduct(props: PropTypes) {
 				title={returnOrderInformation ? "Thông tin sản phẩm đổi" : "Sản phẩm"}
 				extra={
 					<Space size={window.innerWidth > 1366 ? 20 : 10}>
-						<Checkbox onChange={() => setSplitLine(!splitLine)} disabled={isOrderFinishedOrCancel(orderDetail)}>Tách dòng</Checkbox>
+						<Checkbox onChange={() => setSplitLine(!splitLine)} disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}>Tách dòng</Checkbox>
 						{/* <span>Chính sách giá:</span> */}
 						<Form.Item name="price_type" hidden>
 							<Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
@@ -2296,7 +2300,7 @@ function OrderCreateProduct(props: PropTypes) {
 							</Select.Option>
 						</Select> */}
 						<Button
-							disabled={isOrderFinishedOrCancel(orderDetail)}
+							disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}
 							onClick={() => {
 								showInventoryModal();
 							}}
