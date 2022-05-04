@@ -232,9 +232,9 @@ function CardShowReturnProducts(props: PropTypes) {
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
-              Math.round(value.price - discountPerProduct - discountPerOrder) *
+              Math.ceil((value.price - discountPerProduct - discountPerOrder) *
                 value.quantity
-            )}
+            ))}
           </div>
         );
       },
