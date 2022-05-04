@@ -494,9 +494,11 @@ const CustomerDetail = () => {
                   </TabPane>
 
                   <TabPane tab="Lịch sử thao tác" key="activity-log">
-                    <CustomerActivityLog
-                      customer={customer}
-                    />
+                    {activeTab === "activity-log" &&
+                      <CustomerActivityLog
+                        customer={customer}
+                      />
+                    }
                   </TabPane>
 
                   <TabPane tab="Ghi chú" key="notes">
