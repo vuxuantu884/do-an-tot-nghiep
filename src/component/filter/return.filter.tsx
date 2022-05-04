@@ -87,7 +87,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
 
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
-  const [form] = Form.useForm();
   const formSearchRef = createRef<FormInstance>();
 
   const onFilterClick = useCallback(() => {
@@ -217,7 +216,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     onSelectFilterConfig,
   } = useHandleFilterConfigs(
     filterConfigType,
-    form,
+    formRef,
     {
       ...formSearchValuesToSave
     },
@@ -607,7 +606,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         >
           {rerender && <Form
             onFinish={onFinish}
-            form={form}
             ref={formRef}
             initialValues={params}
             layout="vertical"
