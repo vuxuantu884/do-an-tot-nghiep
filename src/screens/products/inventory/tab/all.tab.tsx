@@ -28,7 +28,7 @@ import {Link, useHistory} from "react-router-dom";
 import { getInventoryConfigService } from "service/inventory";
 import {formatCurrency, generateQuery, Products, splitEllipsis} from "utils/AppUtils";
 import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
-import { showError, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
 import "./index.scss"
@@ -39,6 +39,15 @@ import moment from "moment";
 import { callApiNative } from "utils/ApiUtils";
 import { searchVariantsInventoriesApi } from "service/product/product.service";
 import FileSaver from "file-saver";
+import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
+import InventoryExportModal from "../component/InventoryExportV2";
+
+export const STATUS_IMPORT_EXPORT = {
+  DEFAULT: 1,
+  CREATE_JOB_SUCCESS: 2,
+  JOB_FINISH: 3,
+  ERROR: 4,
+};
 
 type ConfigColumnInventory = {
   Columns: Array<ICustomTableColumType<InventoryResponse>>,
@@ -60,7 +69,7 @@ export interface SummaryInventory {
 }
 
 const AllTab: React.FC<any> = (props) => {
-  const { stores,vExportInventory,setVExportInventory } = props;
+  const { stores,showExportModal,setShowExportModal,setVExportInventory,vExportInventory} = props;
   const history = useHistory();
   const pageSizeOptions: Array<string> =["50","100"];
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
@@ -93,6 +102,9 @@ const AllTab: React.FC<any> = (props) => {
   const {account} = userReducer;
   const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -757,7 +769,76 @@ const AllTab: React.FC<any> = (props) => {
     Cancel: () => {
       setVExportInventory(false);
     },
+    OnExport: useCallback(()=>{
+      let remain = "total_stock";
+      if (params.remain) {
+        remain= params.remain;
+      }
+      
+      let objConditions = {
+        store_ids: params.store_ids?.toString(),
+        remain: remain
+      };
+      let conditions = "remain=total_stock";
+      if (params.store_ids) {
+        conditions = `store_ids=${objConditions.store_ids}&remain=${objConditions.remain}`;
+      }
+      
+      exportFileV2({
+        conditions: conditions,
+        type: "TYPE_EXPORT_INVENTORY",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch(() => {
+          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },[listExportFile, params.remain, params.store_ids])
   }
+
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = listExportFile.map((code) => {
+      return getFileV2(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.total) {
+            const percent =(Math.round(response.data.num_of_record/response.data.total))*100;
+            setExportProgress(percent);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            var downLoad = document.createElement("a");
+            downLoad.href = response.data.url;
+            downLoad.download = "download";
+
+            downLoad.click();
+
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [listExportFile]);
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
 
   useEffect(()=>{
     getConfigColumnInventory();
@@ -766,7 +847,6 @@ const AllTab: React.FC<any> = (props) => {
   useEffect(() => {
     setColumns(defaultColumns);
   }, [params,defaultColumns, selected, objSummaryTable]);
-
 
   return (
     <div>
@@ -889,6 +969,19 @@ const AllTab: React.FC<any> = (props) => {
         onOk={actionExport.Ok}
         visible={vExportInventory}
       />
+       {showExportModal && (
+         <InventoryExportModal
+           visible={showExportModal}
+           onCancel={() => {
+             setShowExportModal(false);
+             setExportProgress(0);
+             setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+           }}
+           onOk={actionExport.OnExport}
+           exportProgress={exportProgress}
+           statusExport={statusExport}
+         />
+       )}
     </div>
   );
 };
