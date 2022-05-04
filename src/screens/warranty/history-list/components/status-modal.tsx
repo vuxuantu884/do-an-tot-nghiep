@@ -220,6 +220,16 @@ function WarrantyStatusModal(props: PropTypes) {
                   required: true,
                   message: "Vui lòng điền thanh toán!",
                 },
+                {
+                  validator(_, value) {
+                    if (value > (record?.customer_fee || 0)) {
+                      return Promise.reject(
+                        new Error("Vui lòng nhập đủ, không nhập thừa tiền!")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                }
               ]}
             >
               <NumberInput
@@ -233,7 +243,7 @@ function WarrantyStatusModal(props: PropTypes) {
                 }}
                 maxLength={14}
                 minLength={0}
-                disabled={isReturned}
+                disabled
               />
             </Form.Item>
           </React.Fragment>
