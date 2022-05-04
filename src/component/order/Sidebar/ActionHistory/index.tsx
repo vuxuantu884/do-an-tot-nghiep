@@ -113,6 +113,9 @@ function ActionHistory(props: PropType) {
         {actionLog &&
           actionLog.length > 0 &&
           actionLog.sort((a, b) =>(moment(b.updated_date).diff(moment(a.updated_date)))).map((singleActionHistory, index) => {
+            if(!singleActionHistory.action) {
+              return null
+            }
             return (
               <div
                 className="singleActionHistory"
