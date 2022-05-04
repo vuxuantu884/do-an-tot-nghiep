@@ -474,6 +474,40 @@ ShippingServiceConfigDetailResponseModel[]
 
   }, [dispatch, handlePrint]);
 
+  /**
+  * Lấy channel ID đơn trả
+  * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
+  * Đơn gốc offline: POS
+  */
+  const getChannelIdReturn = (OrderDetail: OrderResponse) => {
+    if(isOrderFromPOS(OrderDetail)) {
+      return POS.channel_id
+    } else {
+      if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+        return POS.channel_id
+      } else {
+        return OrderDetail.channel_id
+      }
+    }
+  };
+
+  /**
+  * Lấy channel ID đơn đổi
+  * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
+  * Đơn gốc offline: POS
+  */
+   const getChannelIdExchange = (OrderDetail: OrderResponse) => {
+    if(isOrderFromPOS(OrderDetail)) {
+      return POS.channel_id
+    } else {
+      if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+        return POS.channel_id
+      } else {
+        return OrderDetail.channel_id
+      }
+    }
+  };
+
   const handleSubmitFormReturn = () => {
     let formValue = form.getFieldsValue();
 
@@ -515,6 +549,7 @@ ShippingServiceConfigDetailResponseModel[]
       }
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
+        source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
         store_id: storeReturn ? storeReturn.id : null,
         store: storeReturn ? storeReturn.name : "",
         store_code: storeReturn ? storeReturn.code : "",
@@ -550,7 +585,8 @@ ShippingServiceConfigDetailResponseModel[]
         url: "",
         tags: null,
         type: orderReturnType,
-        channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
+        channel_id: getChannelIdReturn(OrderDetail),
+        // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log('orderDetailResult', orderDetailResult);
       dispatch(showLoading())
@@ -752,6 +788,7 @@ ShippingServiceConfigDetailResponseModel[]
           }
           let orderDetailResult: ReturnRequest = {
             ...OrderDetail,
+            source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
             store_id: storeReturn ? storeReturn.id : null,
             store: storeReturn ? storeReturn.name : "",
             store_code: storeReturn ? storeReturn.code : "",
@@ -782,7 +819,8 @@ ShippingServiceConfigDetailResponseModel[]
             url: "",
             tags: null,
             type: orderReturnType,
-            channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
+            channel_id: getChannelIdExchange(OrderDetail),
+            // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
