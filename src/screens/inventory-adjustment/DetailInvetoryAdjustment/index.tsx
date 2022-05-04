@@ -87,7 +87,6 @@ import {
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import { searchVariantsApi } from "../../../service/product/product.service";
 import EditNote from "../../order-online/component/edit-note";
-import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
 
 const { TabPane } = Tabs;
 
@@ -813,15 +812,6 @@ const onChangeNote = useCallback(
   [updateAdjustment]
 )
 
-  const updateAuditedBys = () => {
-    const dataUpdate = form.getFieldsValue(true);
-    if (data && dataUpdate && dataUpdate.audited_bys.length > 0) {
-      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, ()=>{
-        showSuccess("Cập nhật người kiểm kho thành công");
-      }));
-    }
-  }
-
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
     dispatch(
@@ -962,7 +952,10 @@ const onChangeNote = useCallback(
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-            setExportProgress((response.data.num_of_record/response.data.total)*100);
+          if (response.data.total) {
+            const percent =(Math.round(response.data.num_of_record/response.data.total))*100;
+            setExportProgress(percent);
+          }
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
@@ -1369,52 +1362,31 @@ const onChangeNote = useCallback(
                         <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
                       </Col>
                     </Row>
-                    {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && isPermissionAudit ? (
-                      <Form.Item
-                        name="audited_bys"
-                        label={<b>Người kiểm</b>}
-                        labelCol={{span: 24, offset: 0}}
-                        colon={false}
-                        rules={[{
-                          required: true,
-                          message: "Vui lòng chọn người kiểm",
-                        }]}
-                      >
-                        <AccountSearchPaging
-                          onSelect={updateAuditedBys}
-                          onDeselect={updateAuditedBys}
-                          mode="multiple"
-                          placeholder="Chọn người kiểm"
-                          style={{width: "100%"}}
-                        />
-                      </Form.Item>
-                    ) : (
-                      <Row>
-                        <Col span={10}>
-                          <div className="label">Người kiểm:</div>
-                        </Col>
-                        <Col span={14}>
-                          <div className="data">
-                            {
-                              <StyledComponent>
-                                <Row className="audit_by">
-                                  <Col span={24}>
-                                    {data.audited_bys?.map((item: string) => {
-                                      return (
-                                        <RenderItemAuditBy
-                                          key={item?.toString()}
-                                          user_name={item?.toString()}
-                                        />
-                                      );
-                                    })}
-                                  </Col>
-                                </Row>
-                              </StyledComponent>
-                            }
-                          </div>
-                        </Col>
-                      </Row>
-                    )}
+                    <Row>
+                      <Col span={10}>
+                        <div className="label">Người kiểm:</div>
+                      </Col>
+                      <Col span={14}>
+                        <div className="data">
+                          {
+                            <StyledComponent>
+                              <Row className="audit_by">
+                                <Col span={24}>
+                                  {data.audited_bys?.map((item: string) => {
+                                    return (
+                                      <RenderItemAuditBy
+                                        key={item?.toString()}
+                                        user_name={item?.toString()}
+                                      />
+                                    );
+                                  })}
+                                </Col>
+                              </Row>
+                            </StyledComponent>
+                          }
+                        </div>
+                      </Col>
+                    </Row>
                   </Col>
                 </Card>
                 <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
