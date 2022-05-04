@@ -198,7 +198,7 @@ const OrderDetail = (props: PropType) => {
       let payments: UpdateOrderPaymentRequest[] = [];
       const formReturnMoney = formValue.returnMoneyField[0];
       let returnMoneyMethod = listPaymentMethods.find((single) => {
-        return single.id === formReturnMoney.returnMoneyMethod;
+        return single.code === formReturnMoney.returnMoneyMethod;
       });
       if (returnMoneyMethod) {
         payments = [

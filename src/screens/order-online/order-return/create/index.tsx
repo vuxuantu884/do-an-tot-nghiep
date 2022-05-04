@@ -147,6 +147,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
+  console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [tags, setTags] = useState<string>("");
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -178,7 +179,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 
-  const [isReturnAll, setIsReturnAll] = useState(true)
+  const [isReturnAll, setIsReturnAll] = useState(true);
+
+  const [isAlreadyShowWarningPoint, setIsAlreadyShowWarningPoint] = useState(false)
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -299,7 +302,7 @@ ShippingServiceConfigDetailResponseModel[]
       ...initialForm,
       returnMoneyField: [
         {
-          returnMoneyMethod: listPaymentMethodsReturnToCustomer?.id,
+          returnMoneyMethod: listPaymentMethodsReturnToCustomer?.code,
           returnMoneyNote: undefined,
         },
       ],
@@ -310,7 +313,7 @@ ShippingServiceConfigDetailResponseModel[]
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
     }
-  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.id, recentAccountCode.accountCode])
+  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.code, recentAccountCode.accountCode])
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -320,11 +323,22 @@ ShippingServiceConfigDetailResponseModel[]
     return total;
   };
 
-  const totalAmountExchange = getTotalPrice(listExchangeProducts);
+  const totalAmountExchange = useMemo(() => {
+    return getTotalPrice(listExchangeProducts)
+  }, [listExchangeProducts])
 
-  const totalAmountExchangePlusShippingFee =
-    totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
+  const totalAmountExchangePlusShippingFee = useMemo(() => {
+    return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0)
+  }, [shippingFeeInformedToCustomer, totalAmountExchange])
 
+  const totalAmountExchangeFinal = useMemo(() => {
+   return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
+  }, [shippingFeeInformedToCustomer, totalAmountExchange])
+
+  console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
+  console.log('totalAmountExchange', totalAmountExchange)
+  console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer)
+  
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
@@ -335,6 +349,8 @@ ShippingServiceConfigDetailResponseModel[]
       (promotion?.value || 0)
     );
   }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
+
+  console.log('totalAmountOrder', totalAmountOrder)
 
   const totalAmountPayment = getAmountPayment(payments);
 
@@ -348,7 +364,7 @@ ShippingServiceConfigDetailResponseModel[]
   }, [totalAmountOrder, totalAmountReturnProducts]);
 
   let totalAmountOrderAfterPayments = useMemo(() => {
-    let result = Math.floor(totalAmountCustomerNeedToPay - totalAmountPayment);
+    let result = (totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
@@ -474,6 +490,40 @@ ShippingServiceConfigDetailResponseModel[]
 
   }, [dispatch, handlePrint]);
 
+  /**
+  * Lấy channel ID đơn trả
+  * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
+  * Đơn gốc offline: POS
+  */
+  const getChannelIdReturn = (OrderDetail: OrderResponse) => {
+    if(isOrderFromPOS(OrderDetail)) {
+      return POS.channel_id
+    } else {
+      if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+        return POS.channel_id
+      } else {
+        return OrderDetail.channel_id
+      }
+    }
+  };
+
+  /**
+  * Lấy channel ID đơn đổi
+  * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
+  * Đơn gốc offline: POS
+  */
+   const getChannelIdExchange = (OrderDetail: OrderResponse) => {
+    if(isOrderFromPOS(OrderDetail)) {
+      return POS.channel_id
+    } else {
+      if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+        return POS.channel_id
+      } else {
+        return OrderDetail.channel_id
+      }
+    }
+  };
+
   const handleSubmitFormReturn = () => {
     let formValue = form.getFieldsValue();
 
@@ -492,17 +542,17 @@ ShippingServiceConfigDetailResponseModel[]
       if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
         const formReturnMoney = formValue.returnMoneyField[0];
         let returnMoneyMethod = listPaymentMethods.find((single) => {
-          return single.id === formReturnMoney.returnMoneyMethod;
+          return single.code === formReturnMoney.returnMoneyMethod;
         });
         if (returnMoneyMethod) {
           payments = [
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
-              amount: Math.abs(totalAmountCustomerNeedToPay),
+              amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
               reference: "",
               source: "",
-              paid_amount: Math.abs(totalAmountCustomerNeedToPay),
+              paid_amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
               return_amount: 0.0,
               status: "paid",
               customer_id: customer?.id || null,
@@ -515,6 +565,7 @@ ShippingServiceConfigDetailResponseModel[]
       }
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
+        source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
         store_id: storeReturn ? storeReturn.id : null,
         store: storeReturn ? storeReturn.name : "",
         store_code: storeReturn ? storeReturn.code : "",
@@ -538,9 +589,9 @@ ShippingServiceConfigDetailResponseModel[]
         order_returns: [],
         automatic_discount: form.getFieldValue("automatic_discount"),
         discounts: discounts,
-        total: totalAmountReturnProducts,
-        total_discount: getTotalOrderDiscount(discounts),
-        total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
+        total: Math.ceil(totalAmountReturnProducts),
+        total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
+        total_line_amount_after_line_discount: Math.ceil(getTotalAmountAfterDiscount(itemsResult)),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
@@ -550,9 +601,11 @@ ShippingServiceConfigDetailResponseModel[]
         url: "",
         tags: null,
         type: orderReturnType,
-        channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
+        channel_id: getChannelIdReturn(OrderDetail),
+        // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log('orderDetailResult', orderDetailResult);
+      // return;
       dispatch(showLoading())
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
@@ -729,7 +782,7 @@ ShippingServiceConfigDetailResponseModel[]
             let formValue = form.getFieldsValue();
             const formReturnMoney = formValue.returnMoneyField[0];
             let returnMoneyMethod = listPaymentMethods.find((single) => {
-              return single.id === formReturnMoney.returnMoneyMethod;
+              return single.code === formReturnMoney.returnMoneyMethod;
             });
             if (returnMoneyMethod) {
               payments = [
@@ -752,6 +805,7 @@ ShippingServiceConfigDetailResponseModel[]
           }
           let orderDetailResult: ReturnRequest = {
             ...OrderDetail,
+            source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
             store_id: storeReturn ? storeReturn.id : null,
             store: storeReturn ? storeReturn.name : "",
             store_code: storeReturn ? storeReturn.code : "",
@@ -775,6 +829,9 @@ ShippingServiceConfigDetailResponseModel[]
             discounts: handleRecalculateOriginDiscount(itemsResult),
             account_code: recentAccountCode.accountCode,
             assignee_code: recentAccountCode.accountCode || null,
+            total: Math.ceil(totalAmountReturnProducts),
+            total_discount: Math.ceil(discountValue),
+            total_line_amount_after_line_discount: Math.ceil(totalAmountReturnProducts - discountValue),
             // clear giá trị
             reference_code: "",
             customer_note: "",
@@ -782,7 +839,9 @@ ShippingServiceConfigDetailResponseModel[]
             url: "",
             tags: null,
             type: orderReturnType,
-            channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
+            channel_id: getChannelIdExchange(OrderDetail),
+
+            // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
@@ -791,7 +850,7 @@ ShippingServiceConfigDetailResponseModel[]
             return;
           }
           console.log('valuesResult', valuesResult)
-          valuesResult.channel_id = OrderDetail.channel_id;
+          valuesResult.channel_id = getChannelIdExchange(OrderDetail);
           values.company_id = DEFAULT_COMPANY.company_id;
           values.account_code = form.getFieldValue("account_code");
           values.assignee_code = form.getFieldValue("assignee_code");
@@ -907,7 +966,7 @@ ShippingServiceConfigDetailResponseModel[]
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
-      getTotalAmountAfterDiscount(listExchangeProducts);
+      Math.ceil(getTotalAmountAfterDiscount(listExchangeProducts));
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     if (totalAmountCustomerNeedToPay > 0) {
@@ -915,17 +974,16 @@ ShippingServiceConfigDetailResponseModel[]
     } else {
       values.payments = [];
     }
-    values.total = totalAmountExchange;
+    console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
+    values.total = Math.ceil(totalAmountOrder);
     if (
       values?.fulfillments &&
       values.fulfillments.length > 0 &&
       values.fulfillments[0].shipment
     ) {
       let priceToShipper =
-        totalAmountExchange +
-        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+        totalAmountOrder -
         getAmountPaymentRequest(payments) -
-        discountValue -
         (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
       values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
     }
@@ -1308,6 +1366,7 @@ ShippingServiceConfigDetailResponseModel[]
                   searchVariantInputValue={searchVariantInputValue}
                   setSearchVariantInputValue={setSearchVariantInputValue}
                   setListOrderProductsResult={setListOrderProductsResult}
+                  isAlreadyShowWarningPoint={isAlreadyShowWarningPoint}
                 />
                 <OrderCreateProduct
                   orderAmount={orderAmount}
@@ -1474,7 +1533,10 @@ ShippingServiceConfigDetailResponseModel[]
             setIsVisibleModalWarningPointRefund(false);
           }}
           footer={(
-            <Button type="primary" onClick={() =>setIsVisibleModalWarningPointRefund(false)}>
+            <Button type="primary" onClick={() =>{
+              setIsAlreadyShowWarningPoint(true)
+              setIsVisibleModalWarningPointRefund(false)}
+            } >
               Đồng ý
             </Button>
           )}
@@ -1837,7 +1899,9 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
    if(isExchange) {
-     form.setFieldsValue(initialFormValueWithReturn)
+     form.setFieldsValue({
+      assignee_codes: initialFormValueWithReturn.assignee_code,
+     })
    }
   }, [form, initialFormValueWithReturn, isExchange])
 
