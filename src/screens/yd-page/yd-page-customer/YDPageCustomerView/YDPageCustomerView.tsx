@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Table, Card, Tooltip, Tag, Input, Button} from "antd";
 
@@ -347,15 +348,6 @@ const YDPageCustomerView = (props: any) => {
   ]
   // end customer purchase info
 
-	useEffect(() => {
-		window.parent.postMessage({
-			service: 'notes',
-			action: 'list',
-			params: {}
-		}, '*');
-	}, []);
-
-
 	// handle note
 	const [notes, setNotes] = React.useState<any>([]);
 	const [note, setNote] = React.useState<string>('');
@@ -369,6 +361,14 @@ const YDPageCustomerView = (props: any) => {
 	}, false);
 
 	const handleNote = {
+		get: (e: any) => {
+			e.preventDefault()
+			window.parent.postMessage({
+				service: 'notes',
+				action: 'list',
+				params: {}
+			}, '*');
+		},
 		create: (noteContent: any) => {
 			if (noteContent) {
 				window.parent.postMessage({
@@ -502,13 +502,14 @@ const YDPageCustomerView = (props: any) => {
               placeholder="Nhập ghi chú"
               value={note}
 							onChange={(e: any) => setNote(e.target.value)}
-							onPressEnter={(e: any) => {
-								handleNote.create(e.target.value)
+							onPressEnter={async (e: any) => {
+								await handleNote.get(e)
+								await handleNote.create(e.target.value)
 								setNote('')
 							}}
             />
 
-						{notes && notes.map((note: any, index: number) => (
+						{notes.length > 0 ? notes.map((note: any, index: number) => (
 							<div className="customer-note-item" key={index}>
 								<span key={note.id}>{note.content}</span>
 								{allowUpdateCustomer && (
@@ -525,7 +526,11 @@ const YDPageCustomerView = (props: any) => {
 									/>
 								)}
 							</div>
-						))}
+						)) : (
+							<div style={{textAlign: "right"}}>
+								<a href="#" onClick={(e) => handleNote.get(e)}>Xem ghi chú</a>
+							</div>
+						)}
 					</div>
 
           {/*Lịch sử mua hàng*/}
