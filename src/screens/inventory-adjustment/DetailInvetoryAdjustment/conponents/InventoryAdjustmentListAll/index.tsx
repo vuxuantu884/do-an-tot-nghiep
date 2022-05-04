@@ -11,7 +11,6 @@ import { InventoryTabUrl } from "config/url.config";
 import {useDispatch} from "react-redux";
 import {
   getLinesItemAdjustmentAction,
-  updateReasonItemOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
 import {showSuccess} from "utils/ToastUtils";
 import {
@@ -83,25 +82,10 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     acceptPermissions: [InventoryAdjustmentPermission.update],
   });
 
-  const debounceChangeReason = useMemo(()=>
-  _.debounce((row: LineItemAdjustment)=>{
-
-    const newData = {
-      real_on_hand: row.real_on_hand,
-      note: row.note,
-    };
-
-    dispatch(
-      updateReasonItemOnlineInventoryAction(data?.id, row.id, newData, (result) => {
-        if (result) {
-          showSuccess("Nhập lý do thành công.");
-        }
-      })
-    );
-
-}, 500),
-[data?.id, dispatch]
-);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceChangeReason = () => {
+    showSuccess("Nhập lý do thành công.");
+  };
 
   const onChangeReason = useCallback(
     (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
@@ -114,7 +98,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       });
 
       setDataLinesItem({...dataItems});
-      debounceChangeReason(row);
+      debounceChangeReason();
     },
     [debounceChangeReason]
   );
@@ -141,6 +125,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     setLoadingTable(true);
     const product = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
       status: "active",
+      store_ids: data.store.id,
       variant_ids: item.variant_id,
     })
 
@@ -159,12 +144,6 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   };
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
-    {
-      title: "STT",
-      align: "center",
-      width: "70px",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => index + 1,
-    },
     {
       title: "Ảnh",
       width: "60px",
@@ -220,7 +199,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       title: () => {
         return (
           <>
-            <div>Tồn thực tế</div>
+            <div>Số kiểm</div>
             <div>({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
