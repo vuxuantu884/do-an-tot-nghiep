@@ -123,13 +123,13 @@ function OrderReturnList(props: PropTypes) {
           <div className="name p-b-3" style={{ color: "#2A2A86" }}>
             <Link
               target="_blank"
-              to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+              to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
             >
-              {record.customer_name}
+              {record.account_code} - {record.account}
             </Link>
           </div>
-          <div className="p-b-3">{record.customer_phone_number}</div>
-          <div className="p-b-3">{record.customer_email}</div>
+          {/* <div className="p-b-3">{record.account_code}</div> */}
+          {/* <div className="p-b-3">{record.customer_email}</div> */}
         </div>
       ),
       key: "customer",
