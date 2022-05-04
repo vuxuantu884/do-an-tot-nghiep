@@ -124,6 +124,9 @@ export const ListAnalyticsStyle = styled.div`
                 width: 320px;
             }
         }
+        .m-0 {
+            margin: 0;
+        }
     }
     .ana-list {
         &__link{

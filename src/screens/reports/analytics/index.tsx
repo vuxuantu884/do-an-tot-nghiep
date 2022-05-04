@@ -1,5 +1,4 @@
-import { Button, Card, Form, Input, Table } from 'antd'
-import Item from 'antd/lib/descriptions/Item'
+import { Button, Card, Checkbox, Form, Input, Table } from 'antd'
 import Color from "assets/css/export-variable.module.scss"
 import search from "assets/img/search.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
@@ -8,12 +7,13 @@ import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from 'config/report/report-templates'
 import UrlConfig from 'config/url.config'
 import _ from 'lodash'
-import { AnalyticCube } from 'model/report/analytics.model'
+import { RootReducerType } from 'model/reducers/RootReducerType'
+import { AnalyticCube, FormFilterCustomReport } from 'model/report/analytics.model'
 import { FormFinishInfo } from 'rc-field-form/es/FormContext'
 import React, { useCallback, useEffect } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { FaTrashAlt } from 'react-icons/fa'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useRouteMatch } from 'react-router-dom'
 import { deleteAnalyticsCustomService, getAnalyticsCustomByService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
@@ -27,6 +27,7 @@ import ListAnalyticsBlock from './shared/list-analytics-block'
 function Analytics() {
     const [form] = Form.useForm()
     const [formCreateReport] = Form.useForm()
+    const [formFilterCustomReport] = Form.useForm()
     const dispatch = useDispatch()
     const { path: matchPath } = useRouteMatch();
 
@@ -38,17 +39,22 @@ function Analytics() {
     const [handlingReportId, setHanlingReportId] = React.useState<number>()
     const [filteredAnalyticList, setFilteredAnalyticList] = React.useState<Array<any>>()
 
-
+    const currentUsername = useSelector((state: RootReducerType) => state.userReducer.account?.user_name);
 
     const fetchCustomAnalytics = useCallback(async () => {
         setIsLoadingAnalyticList(true)
         const cubes = REPORT_CUBES[matchPath]
-        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, { "cube.in": cubes });
+        const onlyMe = formFilterCustomReport.getFieldValue(FormFilterCustomReport.OnlyMyReport);
+        if (onlyMe === undefined) {
+            formFilterCustomReport.setFieldsValue({[FormFilterCustomReport.OnlyMyReport]: true})
+        }
+        
+        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, { "cube.in": cubes, onlyMe: onlyMe ?? true });
         if (response) {
             setAnalyticList(response.analytics)
         }
         setIsLoadingAnalyticList(false)
-    }, [dispatch, matchPath])
+    }, [dispatch, formFilterCustomReport, matchPath])
 
 
     const handleFormFinish = async (name: string, values: FormFinishInfo) => {
@@ -172,9 +178,12 @@ function Analytics() {
 
                     <Card title="Báo cáo tuỳ chỉnh" className='card-custom-report'
                         extra={
-                            <div className="btn-group">
-                                <Form>
-                                    <Item>
+                            <div>
+                                <Form className="btn-group" form={formFilterCustomReport}>
+                                    <Form.Item className="m-0" name={FormFilterCustomReport.OnlyMyReport} valuePropName="checked">
+                                        <Checkbox onChange={fetchCustomAnalytics}>Báo cáo của tôi</Checkbox>
+                                    </Form.Item>
+                                    <Form.Item className="m-0">
                                         <Input
                                             className="search"
                                             allowClear
@@ -182,11 +191,11 @@ function Analytics() {
                                             placeholder="Tìm kiếm theo Tên báo cáo tuỳ chỉnh"
                                             onChange={_.debounce((event) => onSearchCustomReport(event.target.value), 200)}
                                         />
-                                    </Item>
+                                    </Form.Item>
+                                    <Button type='primary' onClick={() => setIsModalCreateVisible(true)}>
+                                        Tạo báo cáo tuỳ chỉnh
+                                    </Button>
                                 </Form>
-                                <Button type='primary' onClick={() => setIsModalCreateVisible(true)}>
-                                    Tạo báo cáo tuỳ chỉnh
-                                </Button>
                             </div>
                         }
                     >
@@ -207,6 +216,12 @@ function Analytics() {
                                     )
                                 },
                                 {
+                                    title: 'Người tạo',
+                                    dataIndex: 'created_by',
+                                    key: 'created_by',
+                                    className: 'ana-list__item--created-by',
+                                },
+                                {
                                     title: 'Thao tác',
                                     key: 'action',
                                     dataIndex: 'id',
@@ -214,8 +229,14 @@ function Analytics() {
                                     width: 200,
                                     render: (id, item) => (
                                         <div className='ana-list__action'>
-                                            <Button icon={<AiOutlineEdit />} onClick={(e: React.MouseEvent<HTMLElement>) => handleEditName(e, item.id, item.name)}></Button>
-                                            <Button icon={<FaTrashAlt color={Color.red} />} onClick={() => handleDelete(item.id)}></Button>
+                                            {
+                                                currentUsername && currentUsername.toLocaleLowerCase() === item.created_by.toLocaleLowerCase() ? (
+                                                    <>
+                                                        <Button icon={<AiOutlineEdit />} onClick={(e: React.MouseEvent<HTMLElement>) => handleEditName(e, item.id, item.name)}></Button>
+                                                        <Button icon={<FaTrashAlt color={Color.red} />} onClick={() => handleDelete(item.id)}></Button>
+                                                    </>
+                                                ) : ('-')
+                                            }
                                         </div>
                                     )
                                 }

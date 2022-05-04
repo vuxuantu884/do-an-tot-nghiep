@@ -53,6 +53,10 @@ export enum TimeAtOptionValue {
   CancelledAt = `time:"cancelled_at"`,
 }
 
+export enum FormFilterCustomReport {
+  OnlyMyReport = 'onlyMyReport'
+}
+
 export declare type QueryMode = "table" | "chart"
 export declare type ArrayString = Array<string>;
 export declare type ArrayAny = Array<any>;
@@ -141,6 +145,7 @@ export interface AnalyticCustomize {
   group: string;
   chart_query?: string;
   options: string;
+  created_by?: string;
 }
 
 export interface AnalyticChartInfo {
