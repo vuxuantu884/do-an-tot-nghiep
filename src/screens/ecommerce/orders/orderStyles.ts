@@ -1,11 +1,20 @@
 import styled from "styled-components";
 import {borderColor, primaryColor} from "utils/global-styles/variables";
+import {StyledComponent} from "screens/order-online/component/OrderList/ListTable/OrdersTable.styles";
 export const nameQuantityWidth = 300;
 const quantityWidth = 50;
 const priceWidth = 85;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
-export const StyledComponent = styled.div`
+export const StyledComponentEcommerceOrder = styled(StyledComponent)`
+  .ant-table-thead > tr > th {
+    border-right: 1px solid #ddd !important;
+    text-align: center;
+  }
+  .ant-table-body>table>tbody>tr>td {
+    border-right: 1px solid #ddd !important;
+  }
+	
 	.custom-table {
 		.custom-table-pagination {
 			.ant-col-12 {

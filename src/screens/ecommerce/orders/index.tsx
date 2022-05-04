@@ -1,24 +1,31 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Divider } from "antd";
+import {Button, Card, Select} from "antd";
 import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { primaryColor } from "utils/global-styles/variables";
+import {dangerColor, primaryColor, successColor} from "utils/global-styles/variables";
 import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
 import {
   OrderModel,
   EcommerceOrderSearchQuery,
+  ChangeOrderStatusHtmlModel,
+  OrderExtraModel,
 } from "model/order/order.model";
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceId, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 
-import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import {
+  DeliveryServicesGetList,
+  getListOrderAction,
+  getTrackingLogFulfillmentAction,
+  PaymentMethodGetList,
+} from "domain/actions/order/order.action";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
@@ -52,7 +59,7 @@ import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
-import { nameQuantityWidth, StyledComponent, } from "screens/ecommerce/orders/orderStyles";
+import { nameQuantityWidth, StyledComponentEcommerceOrder } from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
 import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -69,7 +76,14 @@ import {
   getAddressByShopIdAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { changeEcommerceOrderStatus } from "domain/actions/ecommerce/ecommerce.actions";
-import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
+import {
+  checkIfFulfillmentCanceled,
+  generateQuery,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isNullOrUndefined,
+  sortFulfillments,
+} from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { getEcommerceJobsApi, getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
@@ -77,7 +91,7 @@ import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModa
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { changeOrderStatusToPickedService } from "service/order/order.service";
+import {changeOrderStatusToPickedService, setSubStatusService} from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import ExportModal from "screens/order-online/modal/export.modal";
 import EditNote from "screens/order-online/component/edit-note";
@@ -91,6 +105,12 @@ import { ErrorMessageBatchShipping, ShopAddressByShopId } from "model/ecommerce/
 import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
 import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
 import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
+import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
+import {ORDER_SUB_STATUS} from "utils/Order.constants";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
+import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import _ from "lodash";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -149,6 +169,9 @@ const initQuery: EcommerceOrderSearchQuery = {
 
 const ALL_CHANNEL = ["Shopee", "lazada", "sendo", "tiki"];
 
+type dataExtra = PageResponse<OrderExtraModel>;
+let isLoadingSetSubStatus = false
+
 const ordersViewPermission = [EcommerceOrderPermission.orders_read];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
@@ -196,7 +219,24 @@ const EcommerceOrders: React.FC = () => {
   const [orderSuccessMessage, setOrderSuccessMessage] = useState<any>([]);
   const [orderErrorMessage, setOrderErrorMessage] = useState<any>([]);
   const [batchShippingType, setBatchShippingType] = useState("");
-  
+
+  // change order status
+  let newResult: ChangeOrderStatusHtmlModel[] = [];
+  const [isShowChangeOrderStatusModal, setIsShowChangeOrderStatusModal] = useState(false);
+  const [changeOrderStatusHtml, setChangeOrderStatusHtml] = useState<JSX.Element>()
+  const subStatuses = useGetOrderSubStatuses();
+  const [typeAPi, setTypeAPi] = useState("");
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
+  const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
+  const status_order = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.order_status
+  );
+  const type = {
+    trackingCode: "trackingCode",
+    subStatus: "subStatus",
+    setSubStatus: "setSubStatus",
+  };
+
   //export order
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -206,6 +246,7 @@ const EcommerceOrders: React.FC = () => {
 
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
 
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<OrderModel>>>([]);
   const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
@@ -338,18 +379,6 @@ const EcommerceOrders: React.FC = () => {
     });
   }, [listExportFile]);
 
-
-  const status_order = [
-    { name: "Nháp", value: "draft", className: "gray-status" },
-    { name: "Đóng gói", value: "packed", className: "blue-status" },
-    { name: "Xuất kho", value: "shipping", className: "blue-status" },
-    { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
-    { name: "Hoàn thành", value: "completed", className: "green-status" },
-    { name: "Kết thúc", value: "finished", className: "green-status" },
-    { name: "Đã huỷ", value: "cancelled", className: "red-status" },
-    { name: "Đã hết hạn", value: "expired", className: "red-status" },
-  ];
-
   const convertProgressStatus = (value: any) => {
     switch (value) {
       case "partial_paid":
@@ -428,6 +457,26 @@ const EcommerceOrders: React.FC = () => {
     }));
   }, [dispatch, params, setSearchResult]);
 
+  const onSuccessEditNote = useCallback(
+    (newNote, noteType, orderID) => {
+      let itemResult =  _.cloneDeep(data.items);
+      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
+      if (indexOrder > -1) {
+        if (noteType === "note") {
+          itemResult[indexOrder].note = newNote;
+        } else if (noteType === "customer_note") {
+          itemResult[indexOrder].customer_note = newNote;
+        }
+      }
+      
+      setData({
+        metadata: data.metadata,
+        items: itemResult,
+      })
+    },
+    [data.items, data.metadata]
+  );
+
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
       let params: any = {};
@@ -438,62 +487,135 @@ const EcommerceOrders: React.FC = () => {
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () => {
-          getEcommerceOrderList();
-        })
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID))
       );
     },
-    [dispatch, getEcommerceOrderList]
+    [dispatch, onSuccessEditNote]
   );
 
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<OrderModel>>
-  >([
-    {
-      title: "ID",
-      key: "order_id",
-      visible: true,
-      fixed: "left",
-      className: "custom-shadow-td",
-      width: 175,
-      render: (data: any, item: OrderModel) => (
-        <div>
-          <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong>{data.code}</strong></Link>
-          <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
-          <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
-          <div>({data.reference_code})</div>
-          <div>
-            {
-              data?.fulfillments.length > 0 
-              && data?.fulfillments[0].shipment !== null
-              && data?.fulfillments[0].shipment.tracking_code !== null 
-              && `(${data?.fulfillments[0].shipment.tracking_code})`
+  // handle change single order status
+  const checkIfOrderCannotChangeToWarehouseChange = (orderDetail: OrderExtraModel) => {
+    const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
+      return (
+        !orderDetail.fulfillments?.some(single => {
+            return single.shipment && !checkIfFulfillmentCanceled(single)
+          }
+        ))
+    }
+    const checkIfOrderIsNew = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation
+      )
+    }
+    const checkIfOrderIsConfirm = (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming
+      )
+    }
+    const checkIfOrderIsAwaitSaleConfirm= (orderDetail: OrderExtraModel) => {
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation
+      )
+    }
+    return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
+  };
+
+  const changeSubStatusCallback = (value: string) => {
+    const index = data.items?.findIndex(
+      (single) => single.id === selectedOrder?.id
+    );
+    if (index > -1) {
+      let dataResult: dataExtra = { ...data };
+      // selected = value;
+      dataResult.items[index].sub_status_code = value;
+      dataResult.items[index].sub_status = subStatuses?.find(
+        (single) => single.code === value
+      )?.sub_status;
+      setData(dataResult);
+    }
+  };
+  // end handle change single order status
+
+  useEffect(() => {
+    if (!data?.items) {
+      return;
+    }
+    if (typeAPi === type.trackingCode) {
+      if (selectedOrder && selectedOrder.fulfillments) {
+        const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments);
+        if (!sortedFulfillments[0].code) {
+          return;
+        }
+        dispatch(
+          getTrackingLogFulfillmentAction(sortedFulfillments[0].code, (response) => {
+            // setIsVisiblePopup(true)
+            const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
+            if (index > -1) {
+              let dataResult: dataExtra = { ...data };
+              dataResult.items[index].trackingLog = response;
+              dataResult.items[index].isShowTrackingLog = true;
+              setData(dataResult);
             }
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Khách hàng",
-      key: "customer",
-      visible: true,
-      width: 160,
-      render: (record) =>
-        record.shipping_address ? (
-          <div className="customer custom-td">
-            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              <Link
-                target="_blank"
-                to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
-                style={{ fontSize: "16px" }}
-              >
-                {record.shipping_address.name}
-              </Link>{" "}
+          })
+        );
+      }
+    } else if (typeAPi === type.setSubStatus) {
+    }
+    //xóa data
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
+
+  // handle set table columns
+  const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
+    if (data.items.length === 0) {
+      return [];
+    }
+    return [
+      {
+        title: "ID",
+        key: "order_id",
+        visible: true,
+        fixed: "left",
+        className: "custom-shadow-td",
+        width: 175,
+        render: (data: any, item: OrderModel) => (
+          <div>
+            <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong>{data.code}</strong></Link>
+            <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
+            <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
+            <div>({data.reference_code})</div>
+            <div>
+              {
+                data?.fulfillments.length > 0
+                && data?.fulfillments[0].shipment !== null
+                && data?.fulfillments[0].shipment.tracking_code !== null
+                && `(${data?.fulfillments[0].shipment.tracking_code})`
+              }
             </div>
-            <div className="p-b-3">{record.shipping_address.phone}</div>
-            <div><strong>{record.ecommerce_shop_name}</strong></div>
           </div>
-        ) : (
+        ),
+      },
+      {
+        title: "Khách hàng",
+        key: "customer",
+        visible: true,
+        width: 160,
+        render: (record) =>
+          record.shipping_address ? (
+            <div className="customer custom-td">
+              <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+                  style={{ fontSize: "16px" }}
+                >
+                  {record.shipping_address.name}
+                </Link>{" "}
+              </div>
+              <div className="p-b-3">{record.shipping_address.phone}</div>
+              <div><strong>{record.ecommerce_shop_name}</strong></div>
+            </div>
+          ) : (
             <div className="customer custom-td">
               <div className="name p-b-3" style={{ color: "#2A2A86" }}>
                 {record.customer}
@@ -501,325 +623,414 @@ const EcommerceOrders: React.FC = () => {
               <div className="p-b-3">{record.customer_phone_number}</div>
             </div>
           ),
-    },
-    {
-      title: (
-        <div className="product-and-quantity-header">
-          <span className="product-name">Sản phẩm</span>
-          <span className="quantity">SL</span>
-          <span className="item-price">Giá</span>
-        </div>
-      ),
-      dataIndex: "items",
-      key: "items.name11",
-      className: "product-and-quantity",
-      render: (items: any) => {
-        return (
-          <>
-            {items.map((item: any, index: number) => {
-              return (
-                <div className="item-custom-td" key={index}>
-                  <div className="product">
-                    <Link
-                      target="_blank"
-                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                    >
-                      <div>({item.sku})</div>
-                      {item.variant}
-                    </Link>
-                  </div>
-                  <div className="quantity">{item.quantity}</div>
-                  <div className="item-price">
-                    <div>
-                      <NumberFormat
-                        value={item.price}
-                        className="foo"
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
-                    </div>
-                    {item.discount_items.map((discount: any, index: number) => {
-                      return (
-                        <div style={{ color: "#EF5B5B" }} key={index}>
-                          -
-                          <NumberFormat
-                            value={discount.amount || 0}
-                            className="foo"
-                            displayType={"text"}
-                            thousandSeparator={true}
-                          />
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </>
-        );
       },
-      visible: true,
-      width: nameQuantityWidth,
-    },
-    {
-      title: "Doanh thu",
-      key: "customer_amount_money",
-      visible: true,
-      align: "right",
-      width: 95,
-      render: (record: any) => (
-        <>
-          <div>
-            <NumberFormat
-              value={record.total_line_amount_after_line_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
+      {
+        title: (
+          <div className="product-and-quantity-header">
+            <span className="product-name">Sản phẩm</span>
+            <span className="quantity">SL</span>
+            <span className="item-price">Giá</span>
           </div>
-          <div style={{ color: "#EF5B5B" }}>
-            -
-            <NumberFormat
-              value={record.total_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
+        ),
+        dataIndex: "items",
+        key: "items.name11",
+        className: "product-and-quantity",
+        render: (items: any) => {
+          return (
+            <>
+              {items.map((item: any, index: number) => {
+                return (
+                  <div className="item-custom-td" key={index}>
+                    <div className="product">
+                      <Link
+                        target="_blank"
+                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                      >
+                        <div>({item.sku})</div>
+                        {item.variant}
+                      </Link>
+                    </div>
+                    <div className="quantity">{item.quantity}</div>
+                    <div className="item-price">
+                      <div>
+                        <NumberFormat
+                          value={item.price}
+                          className="foo"
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                      </div>
+                      {item.discount_items.map((discount: any, index: number) => {
+                        return (
+                          <div style={{ color: "#EF5B5B" }} key={index}>
+                            -
+                            <NumberFormat
+                              value={discount.amount || 0}
+                              className="foo"
+                              displayType={"text"}
+                              thousandSeparator={true}
+                            />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </>
+          );
+        },
+        visible: true,
+        width: nameQuantityWidth,
+      },
+      {
+        title: "Doanh thu",
+        key: "customer_amount_money",
+        visible: true,
+        width: 95,
+        render: (record: any) => (
+          <div style={{ textAlign: "right" }}>
+            <div>
+              <NumberFormat
+                value={record.total_line_amount_after_line_discount}
+                className="foo"
+                displayType={"text"}
+                thousandSeparator={true}
+              />
+            </div>
+            <div style={{ color: "#EF5B5B" }}>
+              -
+              <NumberFormat
+                value={record.total_discount}
+                className="foo"
+                displayType={"text"}
+                thousandSeparator={true}
+              />
+            </div>
           </div>
-        </>
-      ),
-    },
-    {
-      title: "TT Xử lý",
-      dataIndex: "",
-      key: "",
-      visible: true,
-      width: 145,
-      align: "center",
-      render: (item: any) => {
-        return (
-          <div
-            style={{
-              borderRadius: "2px",
-              color: "#fff",
-              width: "fit-content",
-              padding: "5px 10px",
-              margin: "0 auto",
-            }}
-            className={
-              item.sub_status_code === "coordinator_confirmed" 
-              ? "confirmed-status" 
-              : item.sub_status_code === "awaiting_saler_confirmation"
-              ? "waiting-status" 
-              : item.sub_status === "Hết Hàng" 
-              ? "out-product-status" 
-              : item.sub_status_code === "cancelled" 
-              ? "cancel-order-status" 
-              : item.sub_status_code === "merchandise_picking" 
-              ? "picking-status"
-              : item.sub_status_code === "awaiting_shipper"
-              ? "collect-status" 
-              : item.sub_status_code === "shipping" 
-              ? "delivery-status" 
-              : item.sub_status_code === "require_warehouse_change" 
-              ? "change-warehouse-status" 
-              : "rest-status"
+        ),
+      },
+      {
+        title: "TT Xử lý",
+        dataIndex: "status",
+        key: "status",
+        visible: true,
+        width: 145,
+        className: "orderStatus",
+        render: (value: string, record: OrderExtraModel) => {
+          if (!record || !status_order) {
+            return null;
           }
-          >
-           {item.sub_status}
-          </div>
-        );
-      },
-    },
-    {
-      title: "Ghi chú",
-      className: "notes",
-      render: (value: string, record: OrderModel) => (
-        <div className="orderNotes">
-          <div className="inner">
-            <div className="single">
-              <EditNote
-                note={record.customer_note}
-                title="KH:"
-                color={primaryColor}
-                onOk={(newNote) => {
-                  editNote(newNote, "customer_note", record.id);
-                }}
-                isDisable={record.status === OrderStatus.FINISHED}
-              />
-            </div>
-            <Divider />
-            <div className="single">
-              <EditNote
-                note={record.note}
-                title="NB:"
-                color={primaryColor}
-                onOk={(newNote) => {
-                  editNote(newNote, "note", record.id);
-                }}
-                isDisable={record.status === OrderStatus.FINISHED}
-              />
-            </div>
-          </div>
-        </div>
-      ),
-      key: "note",
-      visible: true,
-      align: "left",
-      width: 150,
-    },
-    {
-      title: "Vận chuyển",
-      key: "",
-      visible: true,
-      width: 130,
-      align: "center",
-      render: (item: any) => {
-        const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
-        return (
-          <>
-            {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
-                <>
-                    <strong>{shipment?.delivery_service_provider_name}</strong>
-                    <div>
-                        <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
-                        <NumberFormat
-                            value={shipment?.shipping_fee_informed_to_customer}
-                            className="foo"
-                            displayType={"text"}
-                            thousandSeparator={true}
-                        />
+          //const status = status_order.find((status) => status.value === record.status);
+          let recordStatuses = record?.statuses;
+          if (!recordStatuses) {
+            recordStatuses = [];
+          }
+          let selected = record.sub_status_code ? record.sub_status_code : "finished";
+          if (!recordStatuses.some((single) => single.code === selected)) {
+            recordStatuses.push({
+              name: record.sub_status,
+              code: record.sub_status_code,
+            });
+          }
+          let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery ? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
+          return (
+            <div className="orderStatus">
+              <div className="inner">
+                <div className="single">
+                  <div>
+                    <strong>Xử lý đơn: </strong>
+                  </div>
+
+                  {/* {record.sub_status ? record.sub_status : "-"} */}
+                  {subStatuses ? (
+                    <Select
+                      style={{ width: "100%" }}
+                      placeholder="Chọn trạng thái xử lý đơn"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
+                      notFoundContent="Không tìm thấy trạng thái xử lý đơn"
+                      value={record.sub_status_code}
+                      onClick={() => {
+                        setTypeAPi(type.subStatus);
+                        setSelectedOrder(record);
+                      }}
+                      className={className}
+                      onChange={(value) => {
+                        if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
+                          showError("Bạn không thể đổi sang trạng thái khác!")
+                          return;
+                        }
+                        if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
+                          return;
+                        }
+                        // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
+                        // if (!isChange) {
+                        //   return;
+                        // }
+                        setToSubStatusCode(value);
+                      }}>
+                      {subStatuses &&
+                        subStatuses.map((single: any, index: number) => {
+                          return (
+                            <Select.Option value={single.code} key={index}>
+                              {single.sub_status}
+                            </Select.Option>
+                          );
+                        })}
+                    </Select>
+                  ) : "-"}
+                </div>
+                <div className="single">
+                  <div className="coordinator-item">
+                    <strong>NV điều phối: </strong>
+                    {record.coordinator?(
+                      <React.Fragment>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}ssssss</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}ssssss</Link>
+                      </React.Fragment>
+                    ):"N/a"}
+                  </div>
+                  {/* {record.status === OrderStatus.DRAFT && (
+                    <div
+                      style={{
+                        color: "#737373",
+                      }}>
+                      {status?.name}
                     </div>
-                    <div>
-                        <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
-                        <NumberFormat
-                            value={shipment?.shipping_fee_paid_to_three_pls}
-                            className="foo"
-                            displayType={"text"}
-                            thousandSeparator={true}
-                        />
+                  )}
+
+                  {record.status === OrderStatus.FINALIZED && (
+                    <div
+                      style={{
+                        color: "#FCAF17",
+                      }}>
+                      {status?.name}
                     </div>
-                </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
+                  )}
+
+                  {record.status === OrderStatus.FINISHED && (
+                    <div
+                      style={{
+                        color: successColor,
+                      }}>
+                      {status?.name}
+                    </div>
+                  )}
+
+                  {record.status === OrderStatus.CANCELLED && (
+                    <div
+                      style={{
+                        color: "#E24343",
+                      }}>
+                      {status?.name}
+                    </div>
+                  )} */}
+                </div>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        title: "Ghi chú",
+        className: "notes",
+        render: (value: string, record: OrderModel) => (
+          <div className="orderNotes">
+            <div className="inner">
+              <div className="single">
+                <EditNote
+                  note={record.customer_note}
+                  title="Khách hàng: "
+                  color={primaryColor}
+                  onOk={(newNote) => {
+                    editNote(newNote, "customer_note", record.id);
+                  }}
+                  isDisable={record.status === OrderStatus.CANCELLED}
+                />
+              </div>
+              <div className="single">
+                <EditNote
+                  note={record.note}
+                  title="Nội bộ: "
+                  color={primaryColor}
+                  onOk={(newNote) => {
+                    editNote(newNote, "note", record.id);
+                  }}
+                  isDisable={record.status === OrderStatus.CANCELLED}
+                />
+              </div>
+            </div>
+          </div>
+        ),
+        key: "note",
+        visible: true,
+        width: 150,
+      },
+      {
+        title: "Vận chuyển",
+        key: "",
+        visible: true,
+        width: 130,
+        align: "center",
+        render: (item: any) => {
+          const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
+          return (
+            <>
+              {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
                 <>
-                    <strong>Nhận tại cửa hàng</strong>
+                  <strong>{shipment?.delivery_service_provider_name}</strong>
+                  <div>
+                    <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
+                    <NumberFormat
+                      value={shipment?.shipping_fee_informed_to_customer}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                  <div>
+                    <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
+                    <NumberFormat
+                      value={shipment?.shipping_fee_paid_to_three_pls}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
                 </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "Shipper" &&
+              }
+              {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
                 <>
-                    <strong>Tự giao hàng</strong>
+                  <strong>Nhận tại cửa hàng</strong>
                 </>
-            }
-          </>
-        );
+              }
+              {shipment && shipment.delivery_service_provider_type === "Shipper" &&
+                <>
+                  <strong>Tự giao hàng</strong>
+                </>
+              }
+            </>
+          );
+        },
       },
-    },
-    {
-      title: "TT Đơn hàng",
-      dataIndex: "status",
-      key: "order_status",
-      visible: true,
-      align: "center",
-      width: 150,
-      render: (status_value: string) => {
-        const status = status_order.find(
-          (status) => status.value === status_value
-        );
-        return (
-          <StyledStatus>
-            <div className={status?.className}>{status?.name}</div>
-          </StyledStatus>
-        );
+      {
+        title: "TT Đơn hàng",
+        dataIndex: "status",
+        key: "order_status",
+        visible: true,
+        align: "center",
+        width: 150,
+        render: (status_value: string) => {
+          const status = status_order?.find(
+            (status) => status.value === status_value
+          );
+          return (
+            <StyledStatus>
+              <div>{status?.name}</div>
+            </StyledStatus>
+          );
+        },
       },
-    },
-    {
-      title: "Địa chỉ giao hàng",
-      key: "shipping_address",
-      visible: true,
-      width: 200,
-      render: (item: any) => {
-        return (
-          <div className="p-b-3">{item.shipping_address.full_address}</div>
-        )
+      {
+        title: "Địa chỉ giao hàng",
+        key: "shipping_address",
+        visible: true,
+        width: 200,
+        render: (item: any) => {
+          return (
+            <div className="p-b-3">{item.shipping_address.full_address}</div>
+          )
+        },
       },
-    },
-    {
-      title: "Đóng gói",
-      dataIndex: "packed_status",
-      key: "packed_status",
-      visible: true,
-      align: "center",
-      width: 100,
-      render: (value: string) => {
-        const processIcon = convertProgressStatus(value);
-        return <img src={processIcon} alt="" />;
+      {
+        title: "Đóng gói",
+        dataIndex: "packed_status",
+        key: "packed_status",
+        visible: true,
+        align: "center",
+        width: 100,
+        render: (value: string) => {
+          const processIcon = convertProgressStatus(value);
+          return <img src={processIcon} alt="" />;
+        },
       },
-    },
-    {
-      title: "Xuất kho",
-      dataIndex: "received_status",
-      key: "received_status",
-      visible: true,
-      align: "center",
-      width: 100,
-      render: (value: string) => {
-        const processIcon = convertProgressStatus(value);
-        return <img src={processIcon} alt="" />;
+      {
+        title: "Xuất kho",
+        dataIndex: "received_status",
+        key: "received_status",
+        visible: true,
+        align: "center",
+        width: 100,
+        render: (value: string) => {
+          const processIcon = convertProgressStatus(value);
+          return <img src={processIcon} alt="" />;
+        },
       },
-    },
-    {
-      title: "Thanh toán",
-      dataIndex: "payment_status",
-      key: "payment_status",
-      visible: true,
-      align: "center",
-      width: 100,
-      render: (value: string) => {
-        const processIcon = convertProgressStatus(value);
-        return <img src={processIcon} alt="" />;
+      {
+        title: "Thanh toán",
+        dataIndex: "payment_status",
+        key: "payment_status",
+        visible: true,
+        align: "center",
+        width: 100,
+        render: (value: string) => {
+          const processIcon = convertProgressStatus(value);
+          return <img src={processIcon} alt="" />;
+        },
       },
-    },
-    {
-      title: "Trả hàng",
-      dataIndex: "return_status",
-      key: "return_status",
-      visible: true,
-      align: "center",
-      width: 100,
-      render: (value: string) => {
-        const processIcon = convertProgressStatus(value);
-        return <img src={processIcon} alt="" />;
+      {
+        title: "Trả hàng",
+        dataIndex: "return_status",
+        key: "return_status",
+        visible: true,
+        align: "center",
+        width: 100,
+        render: (value: string) => {
+          const processIcon = convertProgressStatus(value);
+          return <img src={processIcon} alt="" />;
+        },
       },
-    },
-    {
-      title: "NV bán hàng",
-      key: "assignee",
-      visible: true,
-      align: "center",
-      width: 200,
-      render: (data) => <div>{`${data.assignee_code} - ${data.assignee}`}</div>,
-    },
-    {
-      title: "Ngày hoàn tất",
-      dataIndex: "completed_on",
-      key: "completed_on",
-      visible: true,
-      align: "center",
-      width: 150,
-      render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on, "DD/MM/YYYY")}</div>,
-    },
-    {
-      title: "Ngày huỷ",
-      dataIndex: "cancelled_on",
-      key: "cancelled_on",
-      visible: true,
-      align: "center",
-      render: (cancelled_on) => (
-        <div>{ConvertUtcToLocalDate(cancelled_on, "DD/MM/YYYY")}</div>
-      ),
-    },
-  ]);
+      {
+        title: "NV bán hàng",
+        key: "assignee",
+        visible: true,
+        align: "center",
+        width: 200,
+        render: (data) => <div>{`${data.assignee_code} - ${data.assignee}`}</div>,
+      },
+      {
+        title: "Ngày hoàn tất",
+        dataIndex: "completed_on",
+        key: "completed_on",
+        visible: true,
+        align: "center",
+        width: 150,
+        render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on, "DD/MM/YYYY")}</div>,
+      },
+      {
+        title: "Ngày huỷ",
+        dataIndex: "cancelled_on",
+        key: "cancelled_on",
+        visible: true,
+        align: "center",
+        render: (cancelled_on) => (
+          <div>{ConvertUtcToLocalDate(cancelled_on, "DD/MM/YYYY")}</div>
+        ),
+      },
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.items.length, deliveryServices, editNote, status_order]);
+
+  useEffect(() => {
+    if (columns.length === 0) {
+      setColumns(initColumns);
+    }
+  }, [columns, initColumns, setColumns]);
+  // handle set table columns
 
   const onSelectTableRow = useCallback((selectedRowTable) => {
     setReportShopeeSelected(false)
@@ -1256,6 +1467,114 @@ const EcommerceOrders: React.FC = () => {
     setShowExportModal(true);
   }
 
+  // handle change order status
+  const handleChangeOrderStatus = () => {
+    setIsShowChangeOrderStatusModal(true);
+  }
+
+  const changeOrderStatusInTable = (currentOrder: OrderResponse, toStatus: string) => {
+    const index = data.items?.findIndex((single) => single.id === currentOrder.id);
+    if (index > -1) {
+      let dataResult = { ...data };
+      dataResult.items[index].sub_status_code = toStatus
+      dataResult.items[index].sub_status = listOrderProcessingStatus.find(single => single.code === toStatus)?.sub_status
+      setData(dataResult);
+    }
+  };
+
+  const changeStatus = (id: number, toStatus: string, reason_id = 0, sub_reason_id = 0, ) => {
+    return new Promise((resolve, reject) => {
+      // setIsLoadingSetSubStatus(true)
+      isLoadingSetSubStatus = true;
+      dispatch(showLoading())
+      setSubStatusService(id, toStatus, reason_id, sub_reason_id).then(response => {
+        // setIsLoadingSetSubStatus(false)
+        isLoadingSetSubStatus = false;
+        dispatch(hideLoading())
+        resolve(response);
+      }).catch(error => {
+        // setIsLoadingSetSubStatus(false)
+        isLoadingSetSubStatus = false;
+        dispatch(hideLoading())
+        reject()
+      })
+    })
+  };
+
+  const renderResultBlock = (newResult: any[]) => {
+    let html = null;
+    html=newResult.map(single => {
+      return(
+        <li key={single.id} style={{marginBottom: 10}}>
+          Đơn hàng<strong> {single.id}</strong>: <strong>{single.isSuccess ? <span style={{color: successColor}}>Thành công</span> : <span style={{color: dangerColor}}>Thất bại</span>}</strong>. {single.text}
+        </li>
+      )
+    })
+    return html;
+  };
+
+  const handleChangeSingleOrderStatus = async (i: number, toStatus: string) => {
+    let selectedRowLength = selectedRow.length;
+    if(i >=selectedRowLength) {
+      return;
+    }
+    let currentOrder =selectedRow[i];
+
+    // let {isCanChange, textResult} = handleIfIsChange(currentOrder, toStatus);
+
+    // Không validate nữa
+    let isCanChange = true;
+    let textResult = "";
+
+    if(isCanChange) {
+      // setIsLoadingSetSubStatus(true);
+      isLoadingSetSubStatus = true;
+      let response:any = await changeStatus(currentOrder.id, toStatus);
+      if(isFetchApiSuccessful(response)) {
+        isCanChange = true;
+        textResult = "Chuyển trạng thái thành công";
+        changeOrderStatusInTable(selectedRow[i], toStatus);
+      } else {
+        isCanChange = false;
+        textResult = "Có lỗi khi cập nhật trạng thái"
+        handleFetchApiError(response, "Cập nhật trạng thái", dispatch)
+      }
+      // setIsLoadingSetSubStatus(false)
+      isLoadingSetSubStatus = false;
+    }
+
+    const newStatusHtml:ChangeOrderStatusHtmlModel = {
+      id: currentOrder.id,
+      isSuccess: isCanChange,
+      text: textResult,
+    }
+    newResult[i] = newStatusHtml;
+    let renderListHtml = renderResultBlock(newResult);
+    let htmlResult = (
+      <React.Fragment>
+        <div style={{marginBottom: 10}}>Đã xử lý: {i+1} / {selectedRow.length}</div>
+        <ul>
+          {renderListHtml}
+        </ul>
+        {isLoadingSetSubStatus ? "Loading ..." : null}
+      </React.Fragment>
+    )
+    setChangeOrderStatusHtml(htmlResult)
+    let m=i+1;
+    handleChangeSingleOrderStatus(m, toStatus)
+  };
+
+  const handleConfirmOk = (status: string|undefined) => {
+    let i = 0;
+    if(!status) {
+      return;
+    }
+    setChangeOrderStatusHtml(undefined)
+    handleChangeSingleOrderStatus(i, status);
+  };
+  // end handle change order status
+
+  // actions list
   const actions = [
     {
       id: 1,
@@ -1283,7 +1602,14 @@ const EcommerceOrders: React.FC = () => {
       icon: <PrinterOutlined />,
       disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: handlePrintEcommerceDeliveryNote
-    }
+    },
+    {
+      id: "change-order-status",
+      name: "Chuyển trạng thái đơn hàng",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRow.length,
+      onClick: handleChangeOrderStatus
+    },
   ];
 
   const lazadaActions = [
@@ -1538,7 +1864,7 @@ const EcommerceOrders: React.FC = () => {
 
 
   return (
-    <StyledComponent>
+    <StyledComponentEcommerceOrder>
       <ContentContainer
         title="Danh sách đơn hàng"
         breadcrumb={[
@@ -1616,6 +1942,12 @@ const EcommerceOrders: React.FC = () => {
                 isShowPaginationAtHeader
                 rowKey={(item: OrderModel) => item.id}
                 className="ecommerce-order-list"
+              />
+              <SubStatusChange
+                orderId={selectedOrder?.id}
+                toSubStatus={toSubStatusCode}
+                setToSubStatusCode={setToSubStatusCode}
+                changeSubStatusCallback={changeSubStatusCallback}
               />
             </Card>
             : <NoPermission />)}
@@ -1696,7 +2028,7 @@ const EcommerceOrders: React.FC = () => {
             onCancel={() => setShowSettingColumn(false)}
             onOk={(data) => {
               setShowSettingColumn(false);
-              setColumn(data);
+              setColumns(data);
             }}
             data={columns}
           />
@@ -1773,8 +2105,19 @@ const EcommerceOrders: React.FC = () => {
              orderErrorMessage={orderErrorMessage}
           />
         )}
+
+        <ChangeOrderStatusModal
+          visible={isShowChangeOrderStatusModal}
+          onCancelChangeStatusModal={() => {
+            setIsShowChangeOrderStatusModal(false)
+            setChangeOrderStatusHtml(undefined)
+          }}
+          listOrderProcessingStatus={listOrderProcessingStatus}
+          handleConfirmOk = {handleConfirmOk}
+          changeOrderStatusHtml = {changeOrderStatusHtml}
+        />
       </ContentContainer>
-    </StyledComponent>
+    </StyledComponentEcommerceOrder>
   );
 };
 
