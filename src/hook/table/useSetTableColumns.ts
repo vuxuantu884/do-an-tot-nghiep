@@ -33,7 +33,6 @@ function useSetTableColumns(
           render: selected?.render || undefined,
         };
       })
-      console.log('columnResult', columnResult)
       const filterColumns = columnResult.filter(single => {
         return [...initColumns].map(init => init.key).includes(single.key)
       })

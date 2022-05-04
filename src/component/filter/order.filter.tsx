@@ -1456,7 +1456,18 @@ const status = bootstrapReducer.data?.order_main_status.filter(
               {( filterConfigs && filterConfigs.length > 0) &&
                 <div style={{ marginBottom: 20 }}>
                   {filterConfigs?.map((e, index)=>{
-                    return <UserCustomFilterTag key={index} tagId={e.id} name={e.name} onSelectFilterConfig={onSelectFilterConfig} setConfigId={setConfigId} setIsShowConfirmDelete={setIsShowConfirmDelete} tagActive={tagActive} />
+                    return (
+                      <UserCustomFilterTag 
+                        key={index} 
+                        tagId={e.id} 
+                        name={e.name} 
+                        onSelectFilterConfig={ (tagId) =>{
+                          onSelectFilterConfig(tagId)
+                        }} 
+                        setConfigId={setConfigId} 
+                        setIsShowConfirmDelete={setIsShowConfirmDelete} 
+                        tagActive={tagActive} />
+                    )
                   })}
                 </div>
               }
