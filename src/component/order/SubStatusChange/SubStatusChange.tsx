@@ -18,7 +18,6 @@ function SubStatusChange(props: PropTypes): JSX.Element {
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [subText, setSubText] = useState("");
 
-  console.log("toSubStatus", toSubStatus);
   const dispatch = useDispatch();
 
   const checkIfCanChange = useCallback(() => {
