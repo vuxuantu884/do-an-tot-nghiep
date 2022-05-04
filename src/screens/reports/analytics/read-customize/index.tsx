@@ -7,7 +7,7 @@ import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 import { AnnotationDataList, TIME_GROUP_BY } from 'config/report'
 import UrlConfig from 'config/url.config'
 import { RootReducerType } from 'model/reducers/RootReducerType'
-import { AnalyticChartInfo, AnalyticCube, AnalyticCustomize, AnalyticQuery, AnnotationData, FIELD_FORMAT, SUBMIT_MODE } from 'model/report/analytics.model'
+import { AnalyticChartInfo, AnalyticCube, AnalyticCustomize, AnalyticQuery, AnnotationData, ChartTypeValue, FIELD_FORMAT, SUBMIT_MODE } from 'model/report/analytics.model'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
@@ -205,8 +205,8 @@ function CreateAnalytics() {
                     [ReportifyFormFields.timeGroupBy]: timeGroup,
                     [ReportifyFormFields.where]: whereValue,
                     [ReportifyFormFields.orderBy]: orderBy,
-                    [ReportifyFormFields.timeAtOption]: report.options
-
+                    [ReportifyFormFields.timeAtOption]: report.options,
+                    [ReportifyFormFields.chartType]: ChartTypeValue.VerticalColumn,
                 })
 
                 if (rows && rows.length) {
