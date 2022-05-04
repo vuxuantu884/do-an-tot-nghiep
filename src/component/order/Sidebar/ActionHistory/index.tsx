@@ -23,15 +23,23 @@ function ActionHistory(props: PropType) {
     },
     {
       action: "update",
-      displayName: "Cập nhật đơn hàng",
+      displayName: "Sửa đơn hàng",
     },
     {
       action: "cancel",
-      displayName: "Hủy đơn hàng",
+      displayName: "Sửa đơn hàng",
     },
     {
       action: "delivery_update",
-      displayName: "Hãng vận chuyển đổi trạng thái",
+      displayName: "Hãng vận chuyển cập nhật trạng thái",
+    },
+    {
+      action: "update_status",
+      displayName: "Đổi trạng thái",
+    },
+    {
+      action: "system_update",
+      displayName: "Hệ thống tự cập nhật",
     },
   ];
   const { orderId, countChangeSubStatus, reload } = props;
