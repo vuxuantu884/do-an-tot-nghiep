@@ -323,12 +323,19 @@ ShippingServiceConfigDetailResponseModel[]
     return total;
   };
 
-  const totalAmountExchange = getTotalPrice(listExchangeProducts);
+  const totalAmountExchange = useMemo(() => {
+    return getTotalPrice(listExchangeProducts)
+  }, [listExchangeProducts])
 
-  const totalAmountExchangePlusShippingFee =
-    totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
+  const totalAmountExchangePlusShippingFee = useMemo(() => {
+    return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0)
+  }, [shippingFeeInformedToCustomer, totalAmountExchange])
 
-  const totalAmountExchangeFinal = totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - discountValue;
+  const totalAmountExchangeFinal = useMemo(() => {
+   return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - discountValue;
+  }, [discountValue, shippingFeeInformedToCustomer, totalAmountExchange])
+
+  console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
