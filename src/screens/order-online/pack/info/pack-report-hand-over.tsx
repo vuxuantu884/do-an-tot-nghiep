@@ -16,7 +16,7 @@ import {
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
-import { FulFillmentStatus } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, FulFillmentStatus } from "utils/Constants";
 import { getQueryParams } from "utils/useQuery";
 import { useHistory } from "react-router";
 import { convertFromStringToDate, generateQuery } from "utils/AppUtils";
@@ -35,6 +35,8 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import moment, { Moment } from "moment";
 import EditNote from "screens/order-online/component/edit-note";
 import { GoodsReceiptsRequest } from "model/request/pack.request";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -481,7 +483,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     );
   },[dispatch, params])
 
-  const [columns, setColumn] = useState<
+  const [columns, setColumns] = useState<
     Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
   >([
     {
@@ -693,6 +695,12 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     [columns]
   );
 
+   // cột column
+   const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.orderDeliveryRecord)
+
+   //cột của bảng
+  useSetTableColumns(COLUMN_CONFIG_TYPE.orderDeliveryRecord, tableColumnConfigs, columns, setColumns)
+
   useEffect(() => {
     
     setTableLoading(true);
@@ -774,7 +782,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
             setShowSettingColumn(false);
-            setColumn(data);
+            setColumns(data);
+            onSaveConfigTableColumn(data);
           }}
           data={columns}
         />

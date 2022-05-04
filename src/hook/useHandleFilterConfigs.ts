@@ -109,6 +109,7 @@ function useHandleFilterConfigs(
         if (json_content[key] == null) json_content[key] = undefined;
       }, json_content);
       form?.setFieldsValue(json_content);
+      form?.submit();
     }
 },[filterConfigs, form, setTagActive]);
 console.log('filterConfigs', filterConfigs)

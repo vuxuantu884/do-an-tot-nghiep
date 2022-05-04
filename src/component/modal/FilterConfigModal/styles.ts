@@ -8,9 +8,6 @@ export const StyledComponent = styled.div`
   .item-radio-option {
     margin-top: 10px;
   }
-  .ant-form-item {
-    margin-bottom: 0;
-  }
   .ant-radio-wrapper {
     display: block;
     margin: 0;

@@ -331,6 +331,7 @@ export const COLUMN_CONFIG_TYPE = {
   orderReturnOnline: "column_order_return_online",
   orderReturnOffline: "column_order_return_offline",
   orderDuplicatedOnline: "column_order_duplicated_online",
+  orderDeliveryRecord: "column_order_delivery_record",
 };
 
 export const ACCOUNT_ROLE_ID = {
