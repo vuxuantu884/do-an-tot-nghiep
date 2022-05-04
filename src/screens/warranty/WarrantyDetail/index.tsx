@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Row } from "antd";
+import { Button, Card, Col, Form, Row, Select } from "antd";
 import iconPerson from "assets/icon/person.png";
 import iconCalendar from "assets/icon/calendar.png";
 import iconPhone from "assets/icon/phone.png";
@@ -19,7 +19,9 @@ import { useDispatch } from "react-redux";
 import { Link, RouterProps, useParams } from "react-router-dom";
 import {
   getWarrantyDetailService,
+  sendToWarrantyCentersService,
   updateWarrantyDetailFeeService,
+  updateWarrantyLineItemService,
 } from "service/warranty/warranty.service";
 import {
   formatCurrency,
@@ -35,6 +37,9 @@ import {
   WARRANTY_RETURN_STATUS,
   WARRANTY_TYPE,
 } from "utils/Warranty.constants";
+import CustomDatePicker from "component/custom/date-picker.custom";
+import CustomSelect from "component/custom/select.custom";
+import useGetWarrantyCenters from "hook/warranty/useGetWarrantyCenters";
 
 type PropTypes = RouterProps & {};
 
@@ -56,9 +61,9 @@ function ReadWarranty(props: PropTypes) {
   const dispatch = useDispatch();
   const [textResult, setTextResult] = useState("Đang tải ...");
   const [warranty, setWarranty] = React.useState<WarrantyItemModel>();
-  console.log("id", id);
-  console.log("warranty", warranty);
   const [form] = Form.useForm();
+
+  const warrantyCenters = useGetWarrantyCenters();
 
   const tagStatusArr: TagStatusType[] = [
     {
@@ -89,7 +94,7 @@ function ReadWarranty(props: PropTypes) {
         }
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSubmitRepairFeeForm = () => {
@@ -121,7 +126,9 @@ function ReadWarranty(props: PropTypes) {
 
   const renderTagStatus = () => {
     let html = null;
-    const tagStatus = tagStatusArr.find((tag) => tag.status === warranty?.status);
+    const tagStatus = tagStatusArr.find(
+      (tag) => tag.status === warranty?.status,
+    );
     if (tagStatus) {
       html = tagStatus.name;
     }
@@ -194,7 +201,9 @@ function ReadWarranty(props: PropTypes) {
               <Card
                 title={<div>Khách hàng</div>}
                 className="cardCustomer"
-                extra={<TagStatus type="success">{renderTagStatus()}</TagStatus>}
+                extra={
+                  <TagStatus type="success">{renderTagStatus()}</TagStatus>
+                }
               >
                 <div className="single">
                   {" "}
@@ -216,11 +225,42 @@ function ReadWarranty(props: PropTypes) {
                     : "-"}
                 </div>
                 <div className="single">
-                  <img src={iconCalendar} alt="" />
-                  Ngày hẹn trả:{" "}
-                  {warranty?.appointment_date
-                    ? moment(warranty?.appointment_date).format(formatDate)
-                    : "-"}
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{whiteSpace: "nowrap", marginRight: 30}}>
+                      <img src={iconCalendar} alt="" />
+                      Ngày hẹn trả:{" "}
+                    </div>
+
+                    <CustomDatePicker
+                      format={DATE_FORMAT.DD_MM_YYYY}
+                      placeholder="Chọn ngày hẹn trả khách"
+                      style={{
+                        width: "100%",
+                      }}
+                      onChange={(value) => {
+                        const params: any = {
+                          ...warranty,
+                          appointment_date: value,
+                        };
+                        updateWarrantyLineItemService(
+                          warranty.id,
+                          warranty.warranty.id,
+                          params,
+                        )
+                          .then((response) => {
+                            if (isFetchApiSuccessful(response)) {
+                              showSuccess("Cập nhật ngày hẹn trả thành công!");
+                            } else {
+                              handleFetchApiError(response, "Cập nhật ngày hẹn trả", dispatch);
+                            }
+                          })
+                          .finally(() => {
+                            dispatch(hideLoading());
+                          });
+                      }}
+                      defaultValue={moment(warranty?.appointment_date)}
+                    />
+                  </div>
                 </div>
               </Card>
               <Card title={"Thông tin"} className="cardInformation">
@@ -234,7 +274,9 @@ function ReadWarranty(props: PropTypes) {
                   <Col span={8}>Người tạo:</Col>
                   <Col span={16}>
                     {warranty?.created_by && warranty?.created_name ? (
-                      <Link to={`${UrlConfig.ACCOUNTS}/${warranty?.created_by}`}>
+                      <Link
+                        to={`${UrlConfig.ACCOUNTS}/${warranty?.created_by}`}
+                      >
                         <b>{warranty?.created_name}</b>
                       </Link>
                     ) : (
@@ -245,8 +287,11 @@ function ReadWarranty(props: PropTypes) {
                 <Row>
                   <Col span={8}>Nhân viên tiếp nhận:</Col>
                   <Col span={16}>
-                    {warranty?.warranty?.assignee && warranty?.warranty?.assignee_code ? (
-                      <Link to={`${UrlConfig.ACCOUNTS}/${warranty?.warranty?.assignee_code}`}>
+                    {warranty?.warranty?.assignee &&
+                    warranty?.warranty?.assignee_code ? (
+                      <Link
+                        to={`${UrlConfig.ACCOUNTS}/${warranty?.warranty?.assignee_code}`}
+                      >
                         <b>{warranty?.warranty?.assignee}</b>
                       </Link>
                     ) : (
@@ -260,8 +305,9 @@ function ReadWarranty(props: PropTypes) {
                   <Col span={8}>Trạng thái xử lý sản phẩm:</Col>
                   <Col span={16}>
                     <b>
-                      {WARRANTY_ITEM_STATUS.find((status) => status.code === warranty.status)
-                        ?.name || "-"}
+                      {WARRANTY_ITEM_STATUS.find(
+                        (status) => status.code === warranty.status,
+                      )?.name || "-"}
                     </b>
                   </Col>
                 </Row>
@@ -270,7 +316,7 @@ function ReadWarranty(props: PropTypes) {
                   <Col span={16}>
                     <b>
                       {WARRANTY_RETURN_STATUS.find(
-                        (status) => status.code === warranty.return_status
+                        (status) => status.code === warranty.return_status,
                       )?.name || "-"}
                     </b>
                   </Col>
@@ -302,7 +348,9 @@ function ReadWarranty(props: PropTypes) {
                       () => ({
                         validator(_, value) {
                           if (value && value < 1000) {
-                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                            return Promise.reject(
+                              new Error("Nhập 0 hoặc ít nhất 4 chữ số!"),
+                            );
                           }
                           return Promise.resolve();
                         },
@@ -332,7 +380,9 @@ function ReadWarranty(props: PropTypes) {
                       () => ({
                         validator(_, value) {
                           if (value && value < 1000) {
-                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                            return Promise.reject(
+                              new Error("Nhập 0 hoặc ít nhất 4 chữ số!"),
+                            );
                           }
                           return Promise.resolve();
                         },
@@ -356,23 +406,61 @@ function ReadWarranty(props: PropTypes) {
                 </Form>
               </Card>
               <Card title="Sản phẩm" className="cardProduct">
-                {warranty?.variant ? renderWarrantyItemHtml() : "Không có sản phẩm nào!"}
+                {warranty?.variant
+                  ? renderWarrantyItemHtml()
+                  : "Không có sản phẩm nào!"}
               </Card>
               <Card title="Loại bảo hành" className="cardProduct">
                 <Row>
                   <Col span={8}>Loại bảo hành:</Col>
                   <Col span={16}>
                     <b>
-                      {WARRANTY_TYPE.find((status) => status.code === warranty.type)?.name || "-"}
+                      {WARRANTY_TYPE.find(
+                        (status) => status.code === warranty.type,
+                      )?.name || "-"}
                     </b>
                   </Col>
                 </Row>
               </Card>
               <Card title="Trung tâm bảo hành" className="cardProduct">
-                <Row>
+                <Row align="middle">
                   <Col span={8}>Trung tâm bảo hành:</Col>
                   <Col span={16}>
-                    <b>{warranty.warranty_center || "-"}</b>
+                    <CustomSelect
+                      className="select-with-search"
+                      showSearch
+                      style={{ width: "100%" }}
+                      placeholder="Chọn cửa hàng"
+                      notFoundContent="Không tìm thấy kết quả"
+                      defaultValue={warranty.warranty_center_id}
+                      onChange={(value) => {
+                        const params: any = {
+                          ...warranty,
+                          warranty_center_id: value,
+                        };
+                        sendToWarrantyCentersService(
+                          warranty.warranty.id,
+                          warranty.id,
+                          params,
+                        )
+                          .then((response) => {
+                            if (isFetchApiSuccessful(response)) {
+                              showSuccess("Chuyển trung tâm bảo hành thành công!");
+                            } else {
+                              handleFetchApiError(response, "Chuyển trung tâm bảo hành", dispatch);
+                            }
+                          })
+                          .finally(() => {
+                            dispatch(hideLoading());
+                          });
+                      }}
+                    >
+                      {warrantyCenters.map((item, index) => (
+                        <Select.Option key={index} value={item.id}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </CustomSelect>
                   </Col>
                 </Row>
               </Card>
