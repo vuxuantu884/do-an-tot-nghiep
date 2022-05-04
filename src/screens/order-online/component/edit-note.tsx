@@ -2,20 +2,21 @@ import {
 	EditOutlined,
 } from "@ant-design/icons";
 import { Button, Input, Popover } from "antd";
-import { ReactNode, useState } from "react";
+import React, { ReactNode, useState } from "react";
 
 type EditNoteProps = {
 	note: any;
 	title?: string;
 	color?: string;
 	isDisable?: boolean;
+	isGroupButton?: boolean;
 	defaultNote?:ReactNode;
 	onOk: (newNote: string) => void;
 };
 const EditNote: React.FC<EditNoteProps> = (
 	props: EditNoteProps
 ) => {
-	const { note, title,defaultNote, onOk, isDisable = false } = props;
+	const { note, title,defaultNote, onOk, isDisable = false, isGroupButton = false } = props;
 	const [visible, setVisible] = useState(false);
 	const [newNote, setNewNote] = useState(note);
 	const handleVisibleChange = (visible: boolean) => {
@@ -30,7 +31,7 @@ const EditNote: React.FC<EditNoteProps> = (
 			<div style={{display:"flex", flexWrap:"wrap"}}>
 				{defaultNote}
 			</div>
-			
+
 			<Popover
 				content={
 					<div>
@@ -58,17 +59,31 @@ const EditNote: React.FC<EditNoteProps> = (
 				onVisibleChange={handleVisibleChange}
 
 			>
-				<EditOutlined style={{ marginRight: 5, color: props.color }} title="Sửa ghi chú" />
+				{!isGroupButton ? (
+					<EditOutlined style={{ marginRight: 5, color: props.color }} title="Sửa ghi chú" />
+				) : (
+					<Button className="custom-group-btn">
+						<>
+							<EditOutlined style={{ marginRight: 5, color: props.color }} title="Sửa ghi chú" />
+							<span>
+							{title && (
+								<strong>{title}</strong>
+							)}
+								<span className="noteText">{note}</span>
+						</span>
+						</>
+					</Button>
+				)}
 			</Popover>
-			
-			<span>
-				
+
+			{!isGroupButton && (
+				<span>
 				{title && (
 					<strong>{title}</strong>
 				)}
-				<span className="noteText">{note}</span>
-				
-			</span>
+					<span className="noteText">{note}</span>
+				</span>
+			)}
 		</div>
 	);
 };

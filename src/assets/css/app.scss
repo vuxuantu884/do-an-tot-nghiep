@@ -572,3 +572,18 @@ label {
 .mb-10 {
     margin-bottom: 10px;
 }
+
+.ant-tag {
+    white-space: unset !important;
+}
+
+.custom-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.custom-group-btn {
+    height: 32px !important;
+    display: flex;
+    align-items: center;
+}
