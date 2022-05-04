@@ -15,7 +15,7 @@ import { showSuccess } from "utils/ToastUtils";
 
 function useHandleFilterConfigs(
   filterType: string,
-  form: FormInstance<any>,
+  formRef: React.RefObject<FormInstance<any>>,
   filterParams?: {
     [key: string]: any
   },
@@ -108,10 +108,10 @@ function useHandleFilterConfigs(
       Object.keys(json_content).forEach(function(key, index) {
         if (json_content[key] == null) json_content[key] = undefined;
       }, json_content);
-      form?.setFieldsValue(json_content);
-      form?.submit();
+      formRef.current?.setFieldsValue(json_content);
+      formRef.current?.submit();
     }
-},[filterConfigs, form, setTagActive]);
+},[filterConfigs, formRef, setTagActive]);
 console.log('filterConfigs', filterConfigs)
 
   useEffect(() => {
