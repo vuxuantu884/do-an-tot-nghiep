@@ -7,7 +7,7 @@ import { AnnotationDataList } from 'config/report/annotation-data'
 import REPORT_TEMPLATES, { REPORT_NAMES, TIME_GROUP_BY } from "config/report/report-templates"
 import UrlConfig from 'config/url.config'
 import _ from 'lodash'
-import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticDataQuery, AnalyticQuery, AnalyticTemplateData, AnnotationData, FIELD_FORMAT, SUBMIT_MODE } from 'model/report/analytics.model'
+import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticDataQuery, AnalyticQuery, AnalyticTemplateData, AnnotationData, ChartTypeValue, FIELD_FORMAT, SUBMIT_MODE } from 'model/report/analytics.model'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
@@ -174,6 +174,7 @@ function UpdateAnalytics() {
                     [ReportifyFormFields.chartFilter]: CURRENT_REPORT_TEMPLATE.chartColumnSelected,
                     [ReportifyFormFields.orderBy]: orderBy,
                     [ReportifyFormFields.timeAtOption]: CURRENT_REPORT_TEMPLATE.timeAtOption,
+                    [ReportifyFormFields.chartType]: ChartTypeValue.VerticalColumn,
                 })
 
                 if (rows && rows.length) {

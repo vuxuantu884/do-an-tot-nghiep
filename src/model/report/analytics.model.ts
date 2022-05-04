@@ -53,6 +53,11 @@ export enum TimeAtOptionValue {
   CancelledAt = `time:"cancelled_at"`,
 }
 
+export enum ChartTypeValue {
+  VerticalColumn = "VerticalColumn",
+  Pie = "Pie",
+}
+
 export enum FormFilterCustomReport {
   OnlyMyReport = 'onlyMyReport'
 }
