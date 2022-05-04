@@ -19,3 +19,18 @@
     }
   }
 }
+
+// custom tree select shop
+.ant-tree-select-dropdown {
+  width: 300px !important;
+}
+
+.ant-select-tree-switcher-noop {
+  display: none;
+}
+.ant-select-tree-checkbox {
+  margin: 4px 5px 0 5px;
+}
+.ant-select-tree-title {
+  word-break: break-all;
+}

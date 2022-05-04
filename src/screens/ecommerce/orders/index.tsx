@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {ReactNode, useCallback, useEffect, useMemo, useState} from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import NumberFormat from "react-number-format";
-import {Button, Card, Select} from "antd";
+import {Button, Card, Select, Tooltip} from "antd";
 import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -89,7 +89,6 @@ import { getEcommerceJobsApi, getProgressDownloadEcommerceApi } from "service/ec
 
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
-import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {changeOrderStatusToPickedService, setSubStatusService} from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
@@ -383,6 +382,7 @@ const EcommerceOrders: React.FC = () => {
     switch (value) {
       case "partial_paid":
         return CircleHalfFullIcon;
+      case ORDER_SUB_STATUS.order_return:
       case "paid":
         return CircleFullIcon;
       default:
@@ -566,6 +566,24 @@ const EcommerceOrders: React.FC = () => {
   }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
 
   // handle set table columns
+
+  const renderOrderReturn = (item: any) => {
+    let result = null;
+    if (item?.order_returns && item?.order_returns.length > 0) {
+      const returnedArr = item?.order_returns;
+      result = returnedArr.map((single: any) => {
+        return(
+          <div key={single.id}>
+            <Link to={`${UrlConfig.ORDERS_RETURN}/${single.id}`} target="_blank">
+              {single.code_order_return}
+            </Link>
+          </div>
+        )
+      })
+    }
+    return result;
+  }
+
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
     if (data.items.length === 0) {
       return [];
@@ -652,25 +670,27 @@ const EcommerceOrders: React.FC = () => {
                     </div>
                     <div className="quantity">{item.quantity}</div>
                     <div className="item-price">
-                      <div>
+                      <Tooltip title="Giá sản phẩm">
                         <NumberFormat
                           value={item.price}
                           className="foo"
                           displayType={"text"}
                           thousandSeparator={true}
                         />
-                      </div>
+                      </Tooltip>
                       {item.discount_items.map((discount: any, index: number) => {
                         return (
-                          <div style={{ color: "#EF5B5B" }} key={index}>
-                            -
-                            <NumberFormat
-                              value={discount.amount || 0}
-                              className="foo"
-                              displayType={"text"}
-                              thousandSeparator={true}
-                            />
-                          </div>
+                          <Tooltip title="Khuyến mại sản phẩm">
+                            <div style={{ color: "#EF5B5B" }} key={index}>
+                              {"- "}
+                              <NumberFormat
+                                value={discount.amount || 0}
+                                className="foo"
+                                displayType={"text"}
+                                thousandSeparator={true}
+                              />
+                            </div>
+                          </Tooltip>
                         )
                       })}
                     </div>
@@ -688,27 +708,44 @@ const EcommerceOrders: React.FC = () => {
         key: "customer_amount_money",
         visible: true,
         width: 95,
-        render: (record: any) => (
-          <div style={{ textAlign: "right" }}>
-            <div>
-              <NumberFormat
-                value={record.total_line_amount_after_line_discount}
-                className="foo"
-                displayType={"text"}
-                thousandSeparator={true}
-              />
+        render: (record: any) => {
+          const discountAmount = record.discounts && record.discounts[0]?.amount;
+          return (
+            <div style={{ textAlign: "right" }}>
+              <Tooltip title="Tổng tiền">
+                <NumberFormat
+                  value={record.total_line_amount_after_line_discount}
+                  className="foo"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                />
+              </Tooltip>
+
+              <Tooltip title="Chiết khấu đơn hàng">
+                <div style={{color: "#EF5B5B"}}>
+                  <span>- </span>
+                  <NumberFormat
+                    value={discountAmount || 0}
+                    className="foo"
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                </div>
+              </Tooltip>
+
+              <Tooltip title="Doanh thu">
+                <div style={{fontWeight: "bold"}}>
+                  <NumberFormat
+                    value={record.total}
+                    className="foo"
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                </div>
+              </Tooltip>
             </div>
-            <div style={{ color: "#EF5B5B" }}>
-              -
-              <NumberFormat
-                value={record.total_discount}
-                className="foo"
-                displayType={"text"}
-                thousandSeparator={true}
-              />
-            </div>
-          </div>
-        ),
+          )
+        },
       },
       {
         title: "TT Xử lý",
@@ -872,7 +909,7 @@ const EcommerceOrders: React.FC = () => {
       },
       {
         title: "Vận chuyển",
-        key: "",
+        key: "delivery_service",
         visible: true,
         width: 130,
         align: "center",
@@ -918,21 +955,30 @@ const EcommerceOrders: React.FC = () => {
         },
       },
       {
-        title: "TT Đơn hàng",
-        dataIndex: "status",
-        key: "order_status",
-        visible: true,
+        title: "Biên bản bàn giao",
+        dataIndex: "goods_receipt_id",
+        key: "goods_receipt_id",
         align: "center",
-        width: 150,
-        render: (status_value: string) => {
-          const status = status_order?.find(
-            (status) => status.value === status_value
+        visible: true,
+        width: 140,
+        render: (value, record: OrderModel) => {
+          let result: ReactNode = (
+            <span>-</span>
           );
-          return (
-            <StyledStatus>
-              <div>{status?.name}</div>
-            </StyledStatus>
-          );
+          let arr = record.goods_receipts;
+          if(arr && arr.length > 0) {
+            result = arr.map((single, index) => {
+              return (
+                <React.Fragment key={index}>
+                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>
+                    {single.id}
+                  </Link>
+                  {arr && index < arr.length -1 && ", "}
+                </React.Fragment>
+              )
+            })
+          }
+          return result;
         },
       },
       {
@@ -944,30 +990,6 @@ const EcommerceOrders: React.FC = () => {
           return (
             <div className="p-b-3">{item.shipping_address.full_address}</div>
           )
-        },
-      },
-      {
-        title: "Đóng gói",
-        dataIndex: "packed_status",
-        key: "packed_status",
-        visible: true,
-        align: "center",
-        width: 100,
-        render: (value: string) => {
-          const processIcon = convertProgressStatus(value);
-          return <img src={processIcon} alt="" />;
-        },
-      },
-      {
-        title: "Xuất kho",
-        dataIndex: "received_status",
-        key: "received_status",
-        visible: true,
-        align: "center",
-        width: 100,
-        render: (value: string) => {
-          const processIcon = convertProgressStatus(value);
-          return <img src={processIcon} alt="" />;
         },
       },
       {
@@ -983,16 +1005,15 @@ const EcommerceOrders: React.FC = () => {
         },
       },
       {
-        title: "Trả hàng",
-        dataIndex: "return_status",
-        key: "return_status",
+        title: "Đơn trả hàng",
+        dataIndex: "sub_status_code",
+        key: "sub_status_code",
         visible: true,
         align: "center",
-        width: 100,
-        render: (value: string) => {
-          const processIcon = convertProgressStatus(value);
-          return <img src={processIcon} alt="" />;
-        },
+        width: 150,
+        render: (value: any, item: any) => (
+          renderOrderReturn(item)
+        ),
       },
       {
         title: "NV bán hàng",
@@ -1003,9 +1024,9 @@ const EcommerceOrders: React.FC = () => {
         render: (data) => <div>{`${data.assignee_code} - ${data.assignee}`}</div>,
       },
       {
-        title: "Ngày hoàn tất",
-        dataIndex: "completed_on",
-        key: "completed_on",
+        title: "Ngày thành công",
+        dataIndex: "finished_on",
+        key: "finished_on",
         visible: true,
         align: "center",
         width: 150,
@@ -1921,8 +1942,7 @@ const EcommerceOrders: React.FC = () => {
                 isRowSelection
                 bordered
                 isLoading={tableLoading}
-                showColumnSetting={true}
-                scroll={{ x: 2400 }}
+                scroll={{ x: 2300 }}
                 sticky={{ offsetScroll: 10, offsetHeader: 55 }}
                 pagination={
                   tableLoading
