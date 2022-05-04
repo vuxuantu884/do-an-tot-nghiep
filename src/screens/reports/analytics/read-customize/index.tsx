@@ -6,11 +6,12 @@ import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 import { AnnotationDataList, TIME_GROUP_BY } from 'config/report'
 import UrlConfig from 'config/url.config'
+import { RootReducerType } from 'model/reducers/RootReducerType'
 import { AnalyticChartInfo, AnalyticCube, AnalyticCustomize, AnalyticQuery, AnnotationData, FIELD_FORMAT, SUBMIT_MODE } from 'model/report/analytics.model'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, saveAnalyticsCustomService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
@@ -30,7 +31,7 @@ function CreateAnalytics() {
     let { id } = useParams<{ id: string }>();
 
     const [reportInfo, setReportInfo] = React.useState<AnalyticCustomize>({} as AnalyticCustomize);
-    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected } = useContext(AnalyticsContext)
+    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport } = useContext(AnalyticsContext)
     const [mode, setMode] = React.useState<SUBMIT_MODE>(SUBMIT_MODE.GET_DATA);
     const [isLoadingExport, setIsLoadingExport] = React.useState<boolean>(false);
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
@@ -38,6 +39,8 @@ function CreateAnalytics() {
     const [chartInfo, setChartInfo] = React.useState<AnalyticChartInfo>({ showChart: true, message: '' });
     const [visiableCloneReportModal, setVisiableCloneReportModal] = React.useState(false);
     const [isVisibleAnnotation, setIsVisibleAnnotation] = React.useState(false);
+
+    const username = useSelector((state: RootReducerType) => state.userReducer.account?.user_name);
 
     const currentAnnotation: AnnotationData | undefined = useMemo(() => {
         return AnnotationDataList.find((item) => dataQuery && item.cubes.includes(dataQuery.query.cube as AnalyticCube));
@@ -171,6 +174,11 @@ function CreateAnalytics() {
         const report: AnalyticCustomize = await callApiNative({ isShowLoading: true }, dispatch, getAnalyticsCustomByIdService, Number(id));
         setReportInfo(report);
         if (report && report.query) {
+            if (username && username.toLocaleLowerCase() === report.created_by?.toLocaleLowerCase()) {
+                setIsMyReport(true);
+            } else {
+                setIsMyReport(false);
+            }
 
             formEditInfo.setFieldsValue({
                 name: report.name,
@@ -234,7 +242,7 @@ function CreateAnalytics() {
                 })
             }
         }
-    }, [dispatch, id, formEditInfo, formCloneReport, cubeRef, setDataQuery, setMetadata, form, setRowsInQuery, setActiveFilters, setChartColumnSelected])
+    }, [dispatch, id, username, formEditInfo, formCloneReport, cubeRef, setDataQuery, setIsMyReport, form, setMetadata, setRowsInQuery, setActiveFilters, setChartColumnSelected])
 
     useEffect(() => {
 
@@ -333,28 +341,41 @@ function CreateAnalytics() {
                                 </Button>
                             )
                         }
-                        <Button danger
-                            onClick={() => { setIsConfirmDeleteVisible(true) }}
-                        >
-                            Xoá
-                        </Button>
+                        {
+                            isMyReport && (
+                                <>
+                                    <Button danger
+                                        onClick={() => { setIsConfirmDeleteVisible(true) }}
+                                    >
+                                        Xoá
+                                    </Button>
+                                    <Button
+                                        onClick={() => setIsModalEditNameVisible(true)} icon={<AiOutlineEdit />}>
+                                        &nbsp; Đổi tên
+                                    </Button>
+                                </>
+                            )
+                        }
 
-                        <Button
-                            onClick={() => setIsModalEditNameVisible(true)} icon={<AiOutlineEdit />}>
-                            &nbsp; Đổi tên
-                        </Button>
-
-                        <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
-                            Nhân bản báo cáo
-                        </Button>
+                        {
+                            !isMyReport && (
+                                <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
+                                    Nhân bản báo cáo
+                                </Button>
+                            )
+                        }
 
                         <Button icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />} loading={isLoadingExport} onClick={handleExportReport}>
                             Xuất báo cáo
                         </Button>
 
-                        <Button type="primary" onClick={handleSaveReport}>
-                            Lưu báo cáo
-                        </Button>
+                        {
+                            isMyReport && (
+                                <Button type="primary" onClick={handleSaveReport}>
+                                    Lưu báo cáo
+                                </Button>
+                            )
+                        }
                     </div>
                 }
             />
