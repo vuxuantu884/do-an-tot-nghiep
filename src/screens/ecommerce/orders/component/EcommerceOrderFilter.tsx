@@ -14,7 +14,7 @@ import {
   Menu,
   TreeSelect,
 } from "antd";
-import { SettingOutlined, FilterOutlined, DownOutlined } from "@ant-design/icons";
+import { FilterOutlined, DownOutlined } from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
 import DebounceSelect from "component/filter/component/debounce-select";
@@ -34,7 +34,7 @@ import { getVariantApi, searchVariantsApi } from "service/product/product.servic
 import { StyledOrderFilter } from "screens/ecommerce/orders/orderStyles";
 import 'component/filter/order.filter.scss'
 
-import search from "assets/img/search.svg";
+// import search from "assets/img/search.svg";
 import { ECOMMERCE_LIST, getEcommerceIcon, getEcommerceIdByChannelCode } from "screens/ecommerce/common/commonAction";
 import TreeStore from "component/tree-node/tree-store";
 import "screens/ecommerce/orders/ecommerce-order.scss"
@@ -54,7 +54,6 @@ type EcommerceOrderFilterProps = {
   subStatus: Array<OrderProcessingStatusModel>;
   isLoading?: boolean | undefined;
   onFilter?: (values: OrderSearchQuery| Object) => void;
-  onShowColumnSetting?: () => void;
   setEcommerceShopListByAddress: (item: any) => void;
 
   onClearFilter?: () => void;
@@ -95,7 +94,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     isLoading,
     onClearFilter,
     onFilter,
-    onShowColumnSetting,
     setEcommerceShopListByAddress
 
   } = props;
@@ -1052,8 +1050,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               <Item name="reference_code" className="search-id-order-ecommerce">
                 <Input
                   disabled={isLoading}
-                  prefix={<img src={search} alt="" />}
+                  // prefix={<img src={search} alt="" />}
                   placeholder="ID đơn hàng (sàn)"
+                  allowClear
                   onBlur={(e) => {
                     form?.setFieldsValue({
                       reference_code: e.target.value.trim(),
@@ -1070,8 +1069,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               <Item name="search_term" className="search-term-input">
                 <Input
                   disabled={isLoading}
-                  prefix={<img src={search} alt="" />}
+                  // prefix={<img src={search} alt="" />}
                   placeholder="ID đơn hàng, SĐT KH"
+                  allowClear
                   onBlur={(e) => {
                     form?.setFieldsValue({
                       search_term: e.target.value.trim(),
@@ -1120,20 +1120,18 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   disabled={isLoading}
                 />
               </div>
-
-              <Button
-                className="setting-button"
-                icon={<SettingOutlined />}
-                onClick={onShowColumnSetting}
-                disabled={isLoading}
-              />
             </div>
 
             <div>
-              <Item name="tracking_codes" className="input-search-tracking_codes">
+              <Item
+                name="tracking_codes"
+                className="input-search-tracking_codes"
+                label={"Mã vận đơn: "}
+              >
                 <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Mã vận đơn"
+                  // prefix={<img src={search} alt="" />}
+                  placeholder="Nhập mã vận đơn"
+                  allowClear
                   onBlur={(e) => {
                     form?.setFieldsValue({
                       tracking_codes: e.target.value.trim(),

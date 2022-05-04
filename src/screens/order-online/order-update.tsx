@@ -31,7 +31,7 @@ import {
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt, inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
 	getLoyaltyPoint,
 	getLoyaltyRate,

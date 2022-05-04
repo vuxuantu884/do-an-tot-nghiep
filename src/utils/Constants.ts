@@ -332,6 +332,7 @@ export const COLUMN_CONFIG_TYPE = {
   orderReturnOffline: "column_order_return_offline",
   orderDuplicatedOnline: "column_order_duplicated_online",
   orderDeliveryRecord: "column_order_delivery_record",
+  CUSTOMER_COLUMNS: "customer_columns",
 };
 
 export const ACCOUNT_ROLE_ID = {

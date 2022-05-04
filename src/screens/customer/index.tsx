@@ -51,6 +51,9 @@ import {getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import NumberFormat from "react-number-format";
 import ExportCustomerFile from "screens/customer/export-file/ExportCustomerFile";
+import {COLUMN_CONFIG_TYPE} from "utils/Constants";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -151,201 +154,236 @@ const Customer = () => {
   const [types, setTypes] = useState<Array<any>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([
-    {
-      title: "Mã khách hàng",
-      dataIndex: "code",
-      visible: true,
-      fixed: "left",
-      // align: "center",
-      render: (value: string, item: any) => (
-        <Link to={`/customers/${item.id}`}>{value ? value : item.id}</Link>
-      ),
-      width: 130,
-    },
-    {
-      title: "Tên khách hàng",
-      dataIndex: "full_name",
-      visible: true,
-      width: 160,
-      render: (value: string, item: any) => (
-        <span className="customer-name-textoverflow">{item.full_name}</span>
-      ),
-    },
-    {
-      title: "SĐT",
-      dataIndex: "phone",
-      visible: true,
-      width: 120,
-      align: "center",
-    },
-    {
-      title: "Giới tính",
-      dataIndex: "gender",
-      visible: true,
-      width: 80,
-      align: "center",
-      render: (value: any) => (
-        <div>
-          {LIST_GENDER?.find((item) => item.value === value)?.name}
-        </div>
-      ),
-    },
-    {
-      title: "Ngày sinh",
-      dataIndex: "birthday",
-      visible: true,
-      width: 110,
-      align: "center",
-      render: (value: string) => (
-        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
-    },
-    {
-      title: "Điểm",
-      dataIndex: "point",
-      visible: true,
-      width: 100,
-      align: "center",
-      render: (value: any) => (
-        <div style={{ textAlign: "right" }}>
-          {!isNullOrUndefined(value) ?
-            <NumberFormat
-              value={value}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-            : ""
-          }
-        </div>
-      )
-    },
-    {
-      title: "Hạng thẻ",
-      dataIndex: "customer_level",
-      visible: true,
-      width: 90,
-      align: "center",
-    },
-    {
-      title: "Nhóm khách hàng",
-      dataIndex: "customer_group",
-      visible: true,
-      width: 150,
-      align: "center",
-    },
-    {
-      title: "Tiền tích lũy",
-      dataIndex: "total_paid_amount",
-      visible: true,
-      width: 120,
-      align: "center",
-      render: (value: any) => (
-        <div style={{ textAlign: "right" }}>
-          {!isNullOrUndefined(value) ?
-            <NumberFormat
-              value={value}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-            : ""
-          }
-        </div>
-      )
-    },
-    {
-      title: "Ngày mua đầu",
-      dataIndex: "first_order_time",
-      visible: true,
-      width: 110,
-      align: "center",
-      render: (value: string) => (
-        <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
-    },
-    {
-      title: "Ngày mua cuối",
-      dataIndex: "last_order_time",
-      visible: true,
-      width: 110,
-      align: "center",
-      render: (value: string) => (
-        <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
-    },
-    {
-      title: "Loại khách hàng",
-      dataIndex: "customer_type",
-      visible: true,
-      width: 150,
-      align: "center",
-    },
-    {
-      title: "Nhân viên phụ trách",
-      // dataIndex: "responsible_staff",
-      visible: true,
-      width: 180,
-      align: "center",
-      render: (item: any) => {
-        const staff = (item.responsible_staff_code ? item.responsible_staff_code + " - " : "") + (item.responsible_staff ? item.responsible_staff  : "");
-        return (
-          <div>{staff}</div>
+  // handle columns
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<any>>>([]);
+
+  const initColumns: Array<ICustomTableColumType<any>> = useMemo(() => {
+    return [
+      {
+        title: "Mã khách hàng",
+        dataIndex: "code",
+        key: "code",
+        visible: true,
+        fixed: "left",
+        // align: "center",
+        render: (value: string, item: any) => (
+          <Link to={`/customers/${item.id}`}>{value ? value : item.id}</Link>
+        ),
+        width: 130,
+      },
+      {
+        title: "Tên khách hàng",
+        dataIndex: "full_name",
+        key: "full_name",
+        visible: true,
+        width: 160,
+        render: (value: string, item: any) => (
+          <span className="customer-name-textoverflow">{item.full_name}</span>
+        ),
+      },
+      {
+        title: "SĐT",
+        dataIndex: "phone",
+        key: "phone",
+        visible: true,
+        width: 120,
+        align: "center",
+      },
+      {
+        title: "Giới tính",
+        dataIndex: "gender",
+        key: "gender",
+        visible: true,
+        width: 80,
+        align: "center",
+        render: (value: any) => (
+          <div>
+            {LIST_GENDER?.find((item) => item.value === value)?.name}
+          </div>
+        ),
+      },
+      {
+        title: "Ngày sinh",
+        dataIndex: "birthday",
+        key: "birthday",
+        visible: true,
+        width: 110,
+        align: "center",
+        render: (value: string) => (
+          <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+        ),
+      },
+      {
+        title: "Điểm",
+        dataIndex: "point",
+        key: "point",
+        visible: true,
+        width: 100,
+        align: "center",
+        render: (value: any) => (
+          <div style={{textAlign: "right"}}>
+            {!isNullOrUndefined(value) ?
+              <NumberFormat
+                value={value}
+                displayType={"text"}
+                thousandSeparator={true}
+              />
+              : ""
+            }
+          </div>
         )
       },
-    },
-    {
-      title: "Ngày cưới",
-      dataIndex: "wedding_date",
-      visible: true,
-      width: 110,
-      align: "center",
-      render: (value: string) => (
-        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
-    },
-    {
-      title: "Mã số thẻ",
-      dataIndex: "card_number",
-      visible: false,
-      width: 150,
-      align: "center",
-    },
-    {
-      title: "Ngày kích hoạt thẻ",
-      dataIndex: "assigned_date",
-      visible: false,
-      width: 110,
-      align: "center",
-      render: (value: string) => (
-        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-      ),
-    },
-    {
-      title: "Cửa hàng kích hoạt",
-      dataIndex: "assigned_store",
-      visible: false,
-      width: 150,
-      align: "center",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "website/facebook",
-      dataIndex: "website",
-      visible: false,
-      width: 200,
-    },
-    {
-      title: "Đơn vị",
-      dataIndex: "company",
-      visible: false,
-      width: 200,
-    },
-  ]);
+      {
+        title: "Hạng thẻ",
+        dataIndex: "customer_level",
+        key: "customer_level",
+        visible: true,
+        width: 90,
+        align: "center",
+      },
+      {
+        title: "Nhóm khách hàng",
+        dataIndex: "customer_group",
+        key: "customer_group",
+        visible: true,
+        width: 150,
+        align: "center",
+      },
+      {
+        title: "Tiền tích lũy",
+        dataIndex: "total_paid_amount",
+        key: "total_paid_amount",
+        visible: true,
+        width: 120,
+        align: "center",
+        render: (value: any) => (
+          <div style={{ textAlign: "right" }}>
+            {!isNullOrUndefined(value) ?
+              <NumberFormat
+                value={value}
+                displayType={"text"}
+                thousandSeparator={true}
+              />
+              : ""
+            }
+          </div>
+        )
+      },
+      {
+        title: "Ngày mua đầu",
+        dataIndex: "first_order_time",
+        key: "first_order_time",
+        visible: true,
+        width: 110,
+        align: "center",
+        render: (value: string) => (
+          <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
+        ),
+      },
+      {
+        title: "Ngày mua cuối",
+        dataIndex: "last_order_time",
+        key: "last_order_time",
+        visible: true,
+        width: 110,
+        align: "center",
+        render: (value: string) => (
+          <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
+        ),
+      },
+      {
+        title: "Loại khách hàng",
+        dataIndex: "customer_type",
+        key: "customer_type",
+        visible: true,
+        width: 150,
+        align: "center",
+      },
+      {
+        title: "Nhân viên phụ trách",
+        dataIndex: "responsible_staff_code",
+        key: "responsible_staff_code",
+        visible: true,
+        width: 180,
+        align: "center",
+        render: (value: string, item: any) => {
+          const staff = (item.responsible_staff_code ? item.responsible_staff_code + " - " : "") + (item.responsible_staff ? item.responsible_staff  : "");
+          return (
+            <div>{staff}</div>
+          )
+        },
+      },
+      {
+        title: "Ngày cưới",
+        dataIndex: "wedding_date",
+        key: "wedding_date",
+        visible: true,
+        width: 110,
+        align: "center",
+        render: (value: string) => (
+          <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+        ),
+      },
+      {
+        title: "Mã số thẻ",
+        dataIndex: "card_number",
+        key: "card_number",
+        visible: false,
+        width: 150,
+        align: "center",
+      },
+      {
+        title: "Ngày kích hoạt thẻ",
+        dataIndex: "assigned_date",
+        key: "assigned_date",
+        visible: false,
+        width: 110,
+        align: "center",
+        render: (value: string) => (
+          <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+        ),
+      },
+      {
+        title: "Cửa hàng kích hoạt",
+        dataIndex: "assigned_store",
+        key: "assigned_store",
+        visible: false,
+        width: 150,
+        align: "center",
+      },
+      {
+        title: "Email",
+        dataIndex: "email",
+        key: "email",
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "website/facebook",
+        dataIndex: "website",
+        key: "website",
+        visible: false,
+        width: 200,
+      },
+      {
+        title: "Đơn vị",
+        dataIndex: "company",
+        key: "company",
+        visible: false,
+        width: 200,
+      },
+    ];
+  }, [LIST_GENDER]);
+
+  useEffect(() => {
+    if (columns.length === 0) {
+      setColumns(initColumns);
+    }
+  }, [columns, initColumns]);
+
+  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.CUSTOMER_COLUMNS);
+  useSetTableColumns(COLUMN_CONFIG_TYPE.CUSTOMER_COLUMNS, tableColumnConfigs, initColumns, setColumns)
+  // end handle columns
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -427,6 +465,7 @@ const Customer = () => {
   const getCustomerList = useCallback(
     (params) => {
       window.scrollTo(0, 0);
+      setIsLoading(true);
       dispatch(getCustomerListAction(params, setResult));
     },
     [dispatch, setResult]
@@ -584,7 +623,8 @@ const Customer = () => {
           }}
           onOk={(data) => {
             setShowSettingColumn(false);
-            setColumn(data);
+            setColumns(data);
+            onSaveConfigTableColumn(data);
           }}
           data={columns}
         />

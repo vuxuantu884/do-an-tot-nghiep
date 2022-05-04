@@ -1,4 +1,3 @@
-import { Button, Modal, Progress } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
@@ -6,7 +5,6 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
-import { HttpStatus } from "config/http-status.config";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig, { BASE_NAME_ROUTER, ProductTabUrl } from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
@@ -36,7 +34,7 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { getJobByCode, searchVariantsApi } from "service/product/product.service";
+import { searchVariantsApi } from "service/product/product.service";
 import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -110,12 +108,8 @@ const TabProduct: React.FC<any> = (props) => {
   const [rowKey, setRowKey] = useState<Array<any>>([]);
   const dispatch = useDispatch();
   const [totalVariant,setTotalVariant] = useState<number>(0)
-  // process export modal
-  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
-  const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
-  //const [process,setProcess] = useState<number>(0);
-  //const [totalProcess,setTotalProcess] = useState<number>(0);
+  const [loadingExport, setLoadingExport] = useState<boolean>(false);
 
   const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
@@ -454,11 +448,6 @@ const TabProduct: React.FC<any> = (props) => {
     });
   }, [canPrintBarcode, canDeleteVariants, canUpdateProduct, actionsDefault]);
 
-  const onCancelProgressModal = () => {
-    setExportCodeList([]);
-    setIsVisibleProgressModal(false);
-  };
-
   const onSelect = useCallback(
     (selectedRow: Array<VariantResponse>) => {
       setSelected(
@@ -513,14 +502,15 @@ const TabProduct: React.FC<any> = (props) => {
     let times = 0;
     switch (type) {
       case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, params);
+        res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, params);
         if (res) {
           items = res.items;
         }
+        setExportProgress(100);
         break;
       case TYPE_EXPORT.selected:
         const ids = selected.map(e => e.id);
-        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { variant_ids: ids.toString() });
+        res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, { variant_ids: ids.toString() });
         items = res.items;
         break;
       case TYPE_EXPORT.all:
@@ -530,10 +520,13 @@ const TabProduct: React.FC<any> = (props) => {
           const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
-          const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
+          
+          const percent = Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100;
+          setExportProgress(percent);
         }
         break;
       case TYPE_EXPORT.allin:
@@ -546,10 +539,13 @@ const TabProduct: React.FC<any> = (props) => {
           const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
-          const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
+
+          const percent = Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100;
+          setExportProgress(percent);
         }
         break;
       default:
@@ -560,6 +556,7 @@ const TabProduct: React.FC<any> = (props) => {
 
   const actionExport = {
     Ok: async (typeExport: string) => {
+      setLoadingExport(true);
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
@@ -588,56 +585,13 @@ const TabProduct: React.FC<any> = (props) => {
       const year  = today.format('YYYY');
       XLSX.writeFile(workbook, `products_${day}_${month}_${year}.xlsx`);
       setVExportProduct(false);
+      setLoadingExport(false);
     },
     Cancel: () => {
       setVExportProduct(false);
+      setLoadingExport(false);
     },
   }
-
-  const checkExportFile = useCallback(() => {
-    let getFilePromises = exportCodeList.map((code) => {
-      return getJobByCode(code);
-    });
-
-    Promise.all(getFilePromises).then((responses) => {
-      responses.forEach((response) => {
-        if (
-          response.code === HttpStatus.SUCCESS &&
-          response.data &&
-          response.data.total > 0
-        ) {
-          if (!!response.data.url) {
-            const newExportCode = exportCodeList.filter((item) => {
-              return item !== response.data.code;
-            });
-            setExportCodeList(newExportCode);
-            setExportProgress(100);
-            setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
-            window.open(response.data.url);
-          } else {
-            if (response.data.num_of_record >= response.data.total) {
-              setExportProgress(response.data.processed);
-            } else {
-              const percent = Math.round(
-                (response.data.num_of_record / response.data.total) * 100
-              );
-              setExportProgress(percent);
-            }
-          }
-        }
-      });
-    });
-  }, [exportCodeList]);
-
-  useEffect(() => {
-    if (exportProgress === 100 || exportCodeList.length === 0) return;
-
-    checkExportFile();
-
-    const getFileInterval = setInterval(checkExportFile, 3000);
-    return () => clearInterval(getFileInterval);
-  }, [checkExportFile, exportProgress, exportCodeList]);
 
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountry));
@@ -717,34 +671,10 @@ const TabProduct: React.FC<any> = (props) => {
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportProduct}
+        loading={loadingExport}
+        exportProgress={exportProgress}
       />
-
-      {/* Progress export customer data */}
-      <Modal
-        onCancel={onCancelProgressModal}
-        visible={isVisibleProgressModal}
-        title="Xuất file"
-        centered
-        width={600}
-        footer={[
-          <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
-            Thoát
-          </Button>,
-        ]}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ marginBottom: 15 }}>
-            Đang tạo file, vui lòng đợi trong giây lát
-          </div>
-          <Progress
-            type="circle"
-            strokeColor={{
-              "0%": "#108ee9",
-              "100%": "#87d068",
-            }}
-            percent={exportProgress}
-          />
-        </div>
-      </Modal>
+ 
     </StyledComponent>
   );
 };

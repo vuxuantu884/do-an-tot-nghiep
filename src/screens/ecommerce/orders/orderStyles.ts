@@ -1,11 +1,20 @@
 import styled from "styled-components";
 import {borderColor, primaryColor} from "utils/global-styles/variables";
+import {StyledComponent} from "screens/order-online/component/OrderList/ListTable/OrdersTable.styles";
 export const nameQuantityWidth = 300;
 const quantityWidth = 50;
 const priceWidth = 85;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
-export const StyledComponent = styled.div`
+export const StyledComponentEcommerceOrder = styled(StyledComponent)`
+  .ant-table-thead > tr > th {
+    border-right: 1px solid #ddd !important;
+    text-align: center;
+  }
+  .ant-table-body>table>tbody>tr>td {
+    border-right: 1px solid #ddd !important;
+  }
+	
 	.custom-table {
 		.custom-table-pagination {
 			.ant-col-12 {
@@ -71,6 +80,7 @@ export const StyledComponent = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
+		text-align: right;
     &:before {
       content: "";
       display: block;
@@ -150,16 +160,21 @@ export const StyledOrderFilter = styled.div`
       display: flex;
       flex-direction: column;
       width: 100%;
+      .ant-input-affix-wrapper {
+				padding-right: 5px;
+        .ant-input {
+					padding-left: 10px;
+					padding-right: 0;
+				}
+			}
+			
 			.first-line {
 				display: flex;
 			}
 			.input-search-tracking_codes {
-        width: 200px;
-        min-width: 200px;
+        width: 300px;
+        min-width: 250px;
         margin: 10px auto;
-				.ant-input-affix-wrapper {
-					padding: 0;
-				}
 			}
 		}
 		
