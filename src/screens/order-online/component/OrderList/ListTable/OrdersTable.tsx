@@ -145,13 +145,6 @@ function OrdersTable(props: PropTypes) {
 
   const [items, setItems] = useState(data.items);
   const [metadata, setMetaData] = useState(data.metadata);
-  // const [isVisiblePopup, setIsVisiblePopup] =
-  // useState(false);
-
-  // console.log('isVisiblePopup', isVisiblePopup)
-
-  
-  console.log('subStatuses', subStatuses)
 
   itemResult = data.items;
   metadataResult = data.metadata;

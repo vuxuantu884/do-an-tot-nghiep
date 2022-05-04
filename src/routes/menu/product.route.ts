@@ -231,7 +231,7 @@ const product: Array<RouteMenu> = [
     title: "Chuyển đổi mã vạch",
     icon: "icon-dot",
     component: ImportFileProducts,
-    key: "submenu22",
+    key: "submenu2201",
     isShow: true,
     header: null,
     subMenu: []
