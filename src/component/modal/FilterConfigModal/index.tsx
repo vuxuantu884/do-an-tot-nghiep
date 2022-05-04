@@ -62,7 +62,10 @@ function FilterConfigModal(props: PropTypes) {
               onClick={() => {
                 form.validateFields().then(() => {
                   const values = form.getFieldsValue();
-                  if(values.save_filter_type === FILTER_TYPE_CONSTANT.NEW) {
+                  console.log('values', values);
+                  // return;
+                  values.save_filter_type = filterTypeRadio;
+                  if(filterTypeRadio === FILTER_TYPE_CONSTANT.NEW) {
                     values.id = undefined;
                   } else {
                     values.name = filterConfigs.find(single => single.id.toString() === values.id.toString())?.name

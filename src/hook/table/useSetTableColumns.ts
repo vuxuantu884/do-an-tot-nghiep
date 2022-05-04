@@ -33,7 +33,11 @@ function useSetTableColumns(
           render: selected?.render || undefined,
         };
       })
-      setColumns(columnResult);
+      console.log('columnResult', columnResult)
+      const filterColumns = columnResult.filter(single => {
+        return [...initColumns].map(init => init.key).includes(single.key)
+      })
+      setColumns(filterColumns);
     }
   // bỏ initColumns, thêm orderVariable 
   // eslint-disable-next-line react-hooks/exhaustive-deps
