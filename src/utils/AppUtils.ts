@@ -1228,10 +1228,10 @@ export const convertItemToArray = (item: any) => {
 export const convertActionLogDetailToText = (data?: string, dateFormat: string = "HH:mm DD/MM/YYYY") => {
   const renderAddress = (dataJson: any) => {
     let result = "-";
-    let textFullAddress = null;
-    let textWard = null;
-    let textDistrict = null;
-    let textCity = null;
+    let textFullAddress = "";
+    let textWard = "";
+    let textDistrict = "";
+    let textCity = "";
     if(dataJson.shipping_address?.full_address) {
       textFullAddress = dataJson.shipping_address?.full_address;
     }

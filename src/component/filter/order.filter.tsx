@@ -212,7 +212,6 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
-  const [form] = Form.useForm();
   const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
@@ -263,7 +262,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     onSelectFilterConfig,
   } = useHandleFilterConfigs(
     filterConfigType, 
-    form,
+    formRef,
     {
       ...formSearchValuesToSave
     }, 
@@ -1452,7 +1451,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           onSaveFilter={onShowSaveFilter}
           width={widthScreen()}>
           {rerender && (
-            <Form onFinish={onFinish} form={form} ref={formRef} initialValues={initialValues} layout="vertical">
+            <Form onFinish={onFinish} ref={formRef} initialValues={initialValues} layout="vertical">
               {( filterConfigs && filterConfigs.length > 0) &&
                 <div style={{ marginBottom: 20 }}>
                   {filterConfigs?.map((e, index)=>{
