@@ -160,7 +160,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
       is_received: Array.isArray(params.is_received) ? params.is_received : [params.is_received],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
@@ -390,7 +390,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     };
     let list = []
     if (initialValues.store_ids.length) {
-      let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+      let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single.toString() === store.id.toString()))
       let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
       list.push({
         key: 'store',
