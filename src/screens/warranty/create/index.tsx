@@ -673,7 +673,7 @@ function CreateWarranty(props: Props) {
                 setCustomerID(data.id);
                 setHadCustomer(true);
                 console.log('data', data.full_address, data.ward, data.district, data.city);
-                
+
                 warrantyForm.setFieldsValue({
                   customer_id: data.id,
                   customer: data.full_name,
@@ -944,8 +944,15 @@ function CreateWarranty(props: Props) {
                         warrantyForm.setFieldsValue({
                           customer_address: "Nhận tại cửa hàng",
                         });
+                      } else if (value === WarrantyFormType.SHIPPING &&
+                        warrantyForm.getFieldValue("customer_address") === "Nhận tại cửa hàng")
+                        {
+                          warrantyForm.setFieldsValue({
+                            customer_address: "",
+                          });
+                        }
                       }
-                    }}
+                    }
                   >
                     <CustomSelect.Option key={"SHIPPING"} value={WarrantyFormType.SHIPPING}>
                       Giao trả hàng tận nhà khách
