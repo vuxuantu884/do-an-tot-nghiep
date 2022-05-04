@@ -1,9 +1,10 @@
 import { Card, Form, FormInstance, Select, Table, Tooltip } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
 import { AppConfig } from 'config/app.config';
+import { chartTypes } from 'config/report/chart-types';
 import { DETAIL_LINKS, TIME_AT_OPTION, TIME_GROUP_BY } from 'config/report/report-templates';
 import _ from 'lodash';
-import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
+import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ChartTypeValue, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
 import moment from 'moment';
 import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -22,6 +23,7 @@ import { AnalyticsContext } from './analytics-provider';
 import CustomPropertiesModal from './custom-properties-modal';
 import FilterResults from './filter-results';
 import ReportifyBarChart from './reportify-bar-chart';
+import ReportifyPieChart from './reportify-pie-chart';
 
 type Props = {
     form: FormInstance;
@@ -39,13 +41,15 @@ export const ReportifyFormFields = {
     column: "column",
     chartFilter: "chart-filter",
     orderBy: "orderBy",
-    timeAtOption: 'timeAtOption'
+    timeAtOption: 'timeAtOption',
+    chartType: "chartType",
 };
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
 function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
     const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery, setRowsInQuery } = useContext(AnalyticsContext)
     const [loadingTable, setLoadingTable] = useState<boolean>(false);
+    const [chartType, setChartType] = useState<ChartTypeValue>(ChartTypeValue.VerticalColumn);
 
     const dispatch = useDispatch();
     const [warningChooseColumn, setWarningChooseColumn] = useState(false);
@@ -211,6 +215,17 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         if ([YEAR, MONTH, DAY].includes(field)) {
             setRelatedTimeFields(field, selectedData);
         } else {
+            if (metadata) {
+                Object.keys(metadata.properties).forEach(property => {
+                    const keyIdx = Object.keys(metadata.properties[property]).findIndex(propertyKey => propertyKey === field);
+                    if (keyIdx !== -1 && Object.keys(metadata.properties[property])[keyIdx + 1]) {
+                        const nextRow = Object.keys(metadata.properties[property])[keyIdx + 1];
+                        setRowsInQuery((prev: string[]) => nextRow ? [...prev, nextRow] : [...prev]);
+                        form.setFieldsValue({ properties: { ...fieldsValue.properties, [property]: nextRow ? [...fieldsValue.properties[property], nextRow] : fieldsValue.properties[property] } });
+                    }
+                })
+            }
+
             form.setFieldsValue({ where: { ...fieldsValue.where, [field]: [selectedData] } });
         }
         form.submit();
@@ -320,6 +335,16 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 activeFilters.delete(fieldFilter);
                 setActiveFilters(activeFilters);
             }
+            if (metadata) {
+                Object.keys(metadata.properties).forEach(property => {
+                    const keyIdx = Object.keys(metadata.properties[property]).findIndex(propertyKey => propertyKey === fieldFilter);
+                    if (keyIdx !== -1) {
+                        const nextRow = Object.keys(metadata.properties[property])[keyIdx + 1];
+                        setRowsInQuery((prev: string[]) => [...prev.filter(item => item !== nextRow)]);
+                        form.setFieldsValue({ properties: { ...fieldsValue.properties, [property]: fieldsValue.properties[property].filter((item: string) => item !== nextRow) } });
+                    }
+                })
+            }
         }
         form.submit();
     }
@@ -421,46 +446,67 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 <Card
                     title="Biểu đồ"
                     extra={
-                        <Form.Item name={ReportifyFormFields.chartFilter} help={false} noStyle>
-                            {metadata && (
+                        <div className="chart-filter-container">
+                            <Form.Item name={ReportifyFormFields.chartType} help={false} noStyle>
                                 <Select
-                                    placeholder="Tuỳ chọn hiển thị"
-                                    mode="multiple"
-                                    className="input-width"
+                                    placeholder="Chọn loại biểu đồ"
+                                    className="input-width mr-20"
                                     showArrow
-                                    maxTagCount={"responsive"}
-                                    onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST)}
-                                    filterOption={(input, option) => {
-                                        if (option?.props.children) {
-                                            return strForSearch(option.props.children.toLowerCase()).includes(strForSearch(input.toLowerCase()))
-                                        }
-                                        return false
-                                    }
-                                    }>
-                                    {Object.keys(metadata.aggregates).map((key: string) => {
-                                        const value = Object.values(metadata.aggregates)[
-                                            Object.keys(metadata.aggregates).indexOf(key)
-                                        ].name;
+                                    onChange={(value: ChartTypeValue) => setChartType(value)}
+                                >
+                                    {chartTypes.map((chartTypeItem: any) => {
                                         return (
                                             <Select.Option
-                                                value={key}
-                                                key={key}
-                                                disabled={
-                                                    chartColumnSelected && chartColumnSelected.length >= MAX_CHART_COLUMNS
-                                                        ? chartColumnSelected.includes(key)
-                                                            ? false
-                                                            : true
-                                                        : false
-                                                }>
-                                                {value}
+                                                value={chartTypeItem.value}
+                                                key={chartTypeItem.value}
+                                            >
+                                                {chartTypeItem.label}
                                             </Select.Option>
                                         );
                                     })}
                                 </Select>
-                            )}
-                        </Form.Item>
+                            </Form.Item>
+                            <Form.Item name={ReportifyFormFields.chartFilter} help={false} noStyle>
+                                {metadata && (
+                                    <Select
+                                        placeholder="Tuỳ chọn hiển thị"
+                                        mode="multiple"
+                                        className="input-width"
+                                        showArrow
+                                        maxTagCount={"responsive"}
+                                        onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST)}
+                                        filterOption={(input, option) => {
+                                            if (option?.props.children) {
+                                                return strForSearch(option.props.children.toLowerCase()).includes(strForSearch(input.toLowerCase()))
+                                            }
+                                            return false
+                                        }
+                                        }>
+                                        {Object.keys(metadata.aggregates).map((key: string) => {
+                                            const value = Object.values(metadata.aggregates)[
+                                                Object.keys(metadata.aggregates).indexOf(key)
+                                            ].name;
+                                            return (
+                                                <Select.Option
+                                                    value={key}
+                                                    key={key}
+                                                    disabled={
+                                                        chartColumnSelected && chartColumnSelected.length >= MAX_CHART_COLUMNS
+                                                            ? chartColumnSelected.includes(key)
+                                                                ? false
+                                                                : true
+                                                            : false
+                                                    }>
+                                                    {value}
+                                                </Select.Option>
+                                            );
+                                        })}
+                                    </Select>
+                                )}
+                            </Form.Item>
+                        </div>
                     }>
-                    {chartDataQuery && (!chartInfo || chartInfo.showChart) && (
+                    {chartDataQuery && (!chartInfo || chartInfo.showChart) && chartType === ChartTypeValue.VerticalColumn && (
                         <ReportifyBarChart
                             data={chartDataQuery.result.data}
                             leftLegendName={
@@ -490,6 +536,78 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                 chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1].format
                             }
                             chartColumnNumber={chartColumnSelected?.length || 0}
+                        />
+                    )}
+                    {chartDataQuery && (!chartInfo || chartInfo.showChart) && chartType === ChartTypeValue.Pie && (
+                        <ReportifyPieChart
+                            data={chartDataQuery.result.data.reduce((res, chartDataItem) => {
+                                const piePartName = chartDataItem.filter((item: string, index) => index < rowsInQuery.length).reduce((res: string, item: string) => {
+                                    if (item) {
+                                        return res ? `${res} | ${item}` : `${item}`;
+                                    } else {
+                                        return res ? `${res} | -` : `-`;
+                                    }
+                                }, '');
+                                const pieLegend1 = metadata
+                                    ? getTranslatePropertyKey(
+                                        metadata,
+                                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1]
+                                            .field
+                                    ) : undefined;
+                                const pieLegend2 = metadata && chartColumnSelected?.length === 2
+                                    ? getTranslatePropertyKey(
+                                        metadata,
+                                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2]
+                                            .field
+                                    )
+                                    : undefined;
+                                const pieUnit1 = chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1].format
+                                const pieUnit2 = chartColumnSelected && chartColumnSelected.length > 1
+                                    ? chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2].format
+                                    : undefined
+                                if (chartColumnSelected?.length === 1) {
+                                    res.pieChart1 = [...res.pieChart1, {
+                                        label: pieLegend1,
+                                        name: piePartName,
+                                        value: chartDataItem[chartDataItem.length - 1],
+                                        unit: pieUnit1
+                                    }]
+                                } else if (chartColumnSelected?.length === 2) {
+                                    res.pieChart1 = [...res.pieChart1, {
+                                        label: pieLegend1,
+                                        name: piePartName,
+                                        value: chartDataItem[chartDataItem.length - 1],
+                                        unit: pieUnit1
+                                    }]
+                                    res.pieChart2 = [...res.pieChart2, {
+                                        label: pieLegend2,
+                                        name: piePartName,
+                                        value: chartDataItem[chartDataItem.length - 2],
+                                        unit: pieUnit2
+                                    }]
+                                }
+                                return res;
+
+                            }, { pieChart1: [] as any[], pieChart2: [] as any[] })}
+                            legends={[{
+                                value: metadata
+                                    ? getTranslatePropertyKey(
+                                        metadata,
+                                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1]
+                                            .field
+                                    )
+                                    : undefined, type: 'square', id: 1
+                            },
+                            {
+                                value: metadata && chartColumnSelected?.length === 2
+                                    ? getTranslatePropertyKey(
+                                        metadata,
+                                        chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2]
+                                            .field
+                                    )
+                                    : undefined, type: 'square', id: 2
+                            }
+                            ]}
                         />
                     )}
                     {

@@ -220,6 +220,24 @@ function WarrantyStatusModal(props: PropTypes) {
                   required: true,
                   message: "Vui lòng điền thanh toán!",
                 },
+                {
+                  validator(_, value) {
+                    if (value > (record?.customer_fee || 0)) {
+                      return Promise.reject(
+                        new Error("Vui lòng nhập đủ, không nhập thừa tiền!")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+                () => ({
+                  validator(_, value) {
+                    if (value && value < 1000) {
+                      return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                    }
+                    return Promise.resolve();
+                  },
+                }),
               ]}
             >
               <NumberInput
@@ -231,9 +249,8 @@ function WarrantyStatusModal(props: PropTypes) {
                 style={{
                   textAlign: "left",
                 }}
-                maxLength={14}
+                maxLength={10}
                 minLength={0}
-                disabled={isReturned}
               />
             </Form.Item>
           </React.Fragment>

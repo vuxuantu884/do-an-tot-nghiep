@@ -121,6 +121,9 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     line-height: 1.25;
   }
   .orderId {
+    .noWrap {
+      white-space: nowrap;
+    }
     .single {
       margin-top: 2px;
     }

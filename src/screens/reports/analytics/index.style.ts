@@ -49,6 +49,16 @@ export const AnalyticsStyle = styled.div`
     }
 }
 
+.chart-filter-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.mr-20 {
+    margin-right: 20px;
+}
+
 `;
 
 export const AddPropertiesModalStyle = styled.div`
@@ -123,6 +133,9 @@ export const ListAnalyticsStyle = styled.div`
             .search {
                 width: 320px;
             }
+        }
+        .m-0 {
+            margin: 0;
         }
     }
     .ana-list {

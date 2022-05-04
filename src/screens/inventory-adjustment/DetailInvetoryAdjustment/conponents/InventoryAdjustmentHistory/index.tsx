@@ -269,7 +269,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
 
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
-            <Radio.Group value={note} buttonStyle="solid" onChange={(e)=>{
+            <Radio.Group className="custom-radio-group" value={note} buttonStyle="solid" onChange={(e)=>{
               handleNoteChange(index,e.target.value,row);
             }}>
               <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
@@ -288,16 +288,14 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
                 </Radio.Button>
               </Tooltip>
                <Tooltip placement="topLeft" title={tooltip}>
-                <Radio.Button
-                  style={{paddingLeft: 8,paddingRight:8}}
-                  value={`${index}##${value}`}>
-                  <EditNote
-                    note={tooltip}
-                    title=""
-                    onOk={(newNote) => {
-                      handleNoteChange(index,newNote,row);
-                    }}
-                /></Radio.Button>
+                 <EditNote
+                   isGroupButton
+                   note={tooltip}
+                   title=""
+                   onOk={(newNote) => {
+                     handleNoteChange(index, newNote, row).then();
+                   }}
+                 />
               </Tooltip>
           </Radio.Group>
           );

@@ -3,7 +3,7 @@ import { UploadFile } from "antd/lib/upload/interface";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import _, { sortBy } from "lodash";
+import _, { cloneDeep, sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DepartmentResponse, DepartmentView } from "model/account/department.model";
 import { BaseMetadata } from "model/base/base-metadata.response";
@@ -1050,14 +1050,15 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   if(!OrderDetail) {
     return [];
   }
+  const OrderDetailClone = cloneDeep(OrderDetail)
   let result:OrderLineItemResponse[] = [];
-	let listReturned = getListReturnedOrders(OrderDetail)
+	let listReturned = getListReturnedOrders(OrderDetailClone)
   let orderReturnItems = [...listReturned]
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
-	let newReturnItems = _.cloneDeep(_orderReturnItems);
+	let newReturnItems = cloneDeep(_orderReturnItems);
 	// let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
 
-  for (const singleOrder of OrderDetail.items) {
+  for (const singleOrder of OrderDetailClone.items) {
 		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau)
     let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id && single.type === singleOrder.type);
     if(duplicatedItem) {
@@ -1338,7 +1339,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 export const reCalculatePaymentReturn = (payments: OrderPaymentRequest[], totalAmountCustomerNeedToPay: number, listPaymentMethod: PaymentMethodResponse[]) => {
   if (totalAmountCustomerNeedToPay < 0) {
     let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
-    let _payments = _.cloneDeep(payments);
+    let _payments = cloneDeep(payments);
     let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
     if (paymentCashIndex > -1) {
       _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;

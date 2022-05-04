@@ -17,6 +17,7 @@ const FILTER_TYPE_CONSTANT = {
 };
 
 type FormValueType = {
+  id: string | undefined;
   name: string | undefined;
   save_filter_type: number | undefined;
 };
@@ -26,6 +27,7 @@ function FilterConfigModal(props: PropTypes) {
   const [form] = Form.useForm();
 
   const initialFormValues: FormValueType = {
+    id: undefined,
     name: undefined,
     save_filter_type: FILTER_TYPE_CONSTANT.NEW,
   };
@@ -34,12 +36,10 @@ function FilterConfigModal(props: PropTypes) {
 
   const onChangeSaveFilterType = useCallback((e) => {
     setFilterTypeRadio(e.target.value);
-  }, []);
-
-  console.log('filterConfigs', filterConfigs)
-  // const getData = useCallback(() => {
-  //   setLstFilterConfig(lstConfigFilter);
-  // }, [lstConfigFilter]);
+    form.setFieldsValue({
+      save_filter_type: e.target.value
+    })
+  }, [form]);
 
   useEffect(() => {
     if (visible) {
@@ -62,6 +62,14 @@ function FilterConfigModal(props: PropTypes) {
               onClick={() => {
                 form.validateFields().then(() => {
                   const values = form.getFieldsValue();
+                  console.log('values', values);
+                  // return;
+                  values.save_filter_type = filterTypeRadio;
+                  if(filterTypeRadio === FILTER_TYPE_CONSTANT.NEW) {
+                    values.id = undefined;
+                  } else {
+                    values.name = filterConfigs.find(single => single.id.toString() === values.id.toString())?.name
+                  }
                   onOk(values);
                 });
               }}
@@ -97,7 +105,6 @@ function FilterConfigModal(props: PropTypes) {
             <div>
               <Form.Item name="save_filter_type">
                 <Radio.Group
-                  onChange={onChangeSaveFilterType}
                   value={filterTypeRadio}
                   className="display-block"
                 >
@@ -105,73 +112,75 @@ function FilterConfigModal(props: PropTypes) {
                     <Radio
                       value={FILTER_TYPE_CONSTANT.NEW}
                       className="display-block"
+                      onChange={onChangeSaveFilterType}
                     >
                       Lưu bộ lọc mới
-                      <Form.Item
-                        name="name"
-                        rules={[
-                          {
-                            required:
-                              filterTypeRadio === FILTER_TYPE_CONSTANT.NEW
-                                ? true
-                                : false,
-                            message: "Bạn chưa nhập tên bộ lọc mới",
-                          },
-                          {
-                            max: 50,
-                            message: "Tên bộ lọc mới không vượt quá 50 ký tự",
-                          },
-                        ]}
-                      >
-                        <Input
-                          className="item-radio-option"
-                          placeholder="Nhập tên bộ lọc mới"
-                        />
-                      </Form.Item>
                     </Radio>
+                    <Form.Item
+                      name="name"
+                      rules={[
+                        {
+                          required:
+                            filterTypeRadio === FILTER_TYPE_CONSTANT.NEW
+                              ? true
+                              : false,
+                          message: "Bạn chưa nhập tên bộ lọc mới",
+                        },
+                        {
+                          max: 50,
+                          message: "Tên bộ lọc mới không vượt quá 50 ký tự",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="item-radio-option"
+                        placeholder="Nhập tên bộ lọc mới"
+                      />
+                    </Form.Item>
                     <Radio
                       value={FILTER_TYPE_CONSTANT.UPDATE}
                       className="display-block"
+                      onChange={onChangeSaveFilterType}
                     >
                       Lưu vào bộ lọc đã có
-                      <div className="item-radio-option">
-                        <Form.Item
-                          name="id"
-                          rules={[
-                            {
-                              required:
-                              filterTypeRadio === FILTER_TYPE_CONSTANT.UPDATE
-                                  ? true
-                                  : false,
-                              message: "Bạn chưa chọn tên bộ lọc",
-                            },
-                          ]}
-                        >
-                          <CustomSelect
-                            showArrow
-                            allowClear
-                            showSearch
-                            placeholder="Chọn tên bộ lọc"
-                            notFoundContent="Không tìm thấy kết quả"
-                            style={{
-                              width: "100%",
-                            }}
-                            optionFilterProp="children"
-                            getPopupContainer={(trigger) => trigger.parentNode}
-                            maxTagCount="responsive"
-                          >
-                            {filterConfigs?.map((item) => (
-                              <CustomSelect.Option
-                                key={item.id}
-                                value={item.id.toString()}
-                              >
-                                {item.name}
-                              </CustomSelect.Option>
-                            ))}
-                          </CustomSelect>
-                        </Form.Item>
-                      </div>
                     </Radio>
+                    <div className="item-radio-option">
+                      <Form.Item
+                        name="id"
+                        rules={[
+                          {
+                            required:
+                            filterTypeRadio === FILTER_TYPE_CONSTANT.UPDATE
+                                ? true
+                                : false,
+                            message: "Bạn chưa chọn tên bộ lọc",
+                          },
+                        ]}
+                      >
+                        <CustomSelect
+                          showArrow
+                          allowClear
+                          showSearch
+                          placeholder="Chọn tên bộ lọc"
+                          notFoundContent="Không tìm thấy kết quả"
+                          style={{
+                            width: "100%",
+                          }}
+                          optionFilterProp="children"
+                          getPopupContainer={(trigger) => trigger.parentNode}
+                          maxTagCount="responsive"
+                        >
+                          {filterConfigs?.map((item) => (
+                            <CustomSelect.Option
+                              key={item.id}
+                              value={item.id.toString()}
+                            >
+                              {item.name}
+                            </CustomSelect.Option>
+                          ))}
+                        </CustomSelect>
+                      </Form.Item>
+                    </div>
                   </Space>
                 </Radio.Group>
                 <div

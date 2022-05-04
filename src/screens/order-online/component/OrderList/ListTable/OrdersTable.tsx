@@ -539,7 +539,7 @@ function OrdersTable(props: PropTypes) {
         render: (value: string, i: OrderModel) => {
           return (
             <React.Fragment>
-              <div>
+              <div className="noWrap">
                 <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
                   {value}
                 </Link>
@@ -587,8 +587,12 @@ function OrdersTable(props: PropTypes) {
                 </React.Fragment>
               ) :null}
               { orderType === ORDER_TYPES.online && i.source && (
-                <div className="textSmall single">
-                  <Tooltip title="Nhân viên bán hàng">{i.assignee}</Tooltip>
+                <div className="textSmall single mainColor">
+                  <Tooltip title="Nhân viên bán hàng">
+                    <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
+                      <strong>NV bán hàng: </strong>{i.assignee}
+                    </Link>
+                  </Tooltip>
                 </div>
               )}
               <div className="textSmall single">
@@ -601,7 +605,7 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         fixed: "left",
         className: "orderId custom-shadow-td",
-        width: 90,
+        width: 120,
       },
       {
         title: "Khách hàng",
@@ -1200,6 +1204,7 @@ function OrdersTable(props: PropTypes) {
                         setSelectedOrder(record);
                       }}
                       className={className}
+                      dropdownStyle={{minWidth: 200}}
                       onChange={(value) => {
                         if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
                           showError("Bạn không thể đổi sang trạng thái khác!")
@@ -1278,7 +1283,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: orderType === ORDER_TYPES.online,
         align: "left",
-        width: 95,
+        width: 155,
         isHideInOffline: true,
       },
       {
@@ -1340,43 +1345,31 @@ function OrdersTable(props: PropTypes) {
         width: 120,
       },
       // {
-      //   title:"NV điều phối",
-      //   key:"coordinator",
-      //   visible: !isShowOfflineOrder,
-      //   width: 80,
-      //   align: "left",
-      //   render: (value, record: OrderModel) => record.coordinator_code && (
-      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}>
-      //       {`${record.coordinator_code} - ${record.coordinator}`}
+      //   title: orderType === ORDER_TYPES.online ? "NV bán hàng" : "Chuyên gia tư vấn",
+      //   render: (value, record: OrderModel) => (
+      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
+      //       {`${record.assignee_code} - ${record.assignee}`}
       //     </Link>
       //   ),
+      //   key: "assignee",
+      //   visible: orderType === ORDER_TYPES.online,
+      //   align: "center",
+      //   width: 80,
+      //   isHideInOffline: true,
       // },
-      {
-        title: orderType === ORDER_TYPES.online ? "NV bán hàng" : "Chuyên gia tư vấn",
-        render: (value, record: OrderModel) => (
-          <Link to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
-            {`${record.assignee_code} - ${record.assignee}`}
-          </Link>
-        ),
-        key: "assignee",
-        visible: orderType === ORDER_TYPES.online,
-        align: "center",
-        width: 80,
-        isHideInOffline: true,
-      },
-      {
-        title: orderType === ORDER_TYPES.online ? "NV tạo đơn" : "Thu ngân",
-        render: (value, record: OrderModel) => (
-          <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
-            {`${record.account_code} - ${record.account}`}
-          </Link>
-        ),
-        key: "account",
-        visible: orderType === ORDER_TYPES.online,
-        align: "center",
-        width: 80,
-        isHideInOffline: true,
-      },
+      // {
+      //   title: orderType === ORDER_TYPES.online ? "NV tạo đơn" : "Thu ngân",
+      //   render: (value, record: OrderModel) => (
+      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
+      //       {`${record.account_code} - ${record.account}`}
+      //     </Link>
+      //   ),
+      //   key: "account",
+      //   visible: orderType === ORDER_TYPES.online,
+      //   align: "center",
+      //   width: 80,
+      //   isHideInOffline: true,
+      // },
       {
         title: "Biên bản bàn giao",
         dataIndex: "goods_receipt_id",
@@ -1402,7 +1395,7 @@ function OrdersTable(props: PropTypes) {
           return result;
         },
         visible: false,
-        width: 160,
+        width: 120,
         isHideInOffline: true,
       },
       {
