@@ -80,6 +80,7 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
     display: flex;
     flex-direction: column;
     justify-content: center;
+		text-align: right;
     &:before {
       content: "";
       display: block;
@@ -159,16 +160,21 @@ export const StyledOrderFilter = styled.div`
       display: flex;
       flex-direction: column;
       width: 100%;
+      .ant-input-affix-wrapper {
+				padding-right: 5px;
+        .ant-input {
+					padding-left: 10px;
+					padding-right: 0;
+				}
+			}
+			
 			.first-line {
 				display: flex;
 			}
 			.input-search-tracking_codes {
-        width: 200px;
-        min-width: 200px;
+        width: 300px;
+        min-width: 250px;
         margin: 10px auto;
-				.ant-input-affix-wrapper {
-					padding: 0;
-				}
 			}
 		}
 		
