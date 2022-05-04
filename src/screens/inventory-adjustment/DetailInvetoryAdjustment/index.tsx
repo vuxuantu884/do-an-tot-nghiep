@@ -68,7 +68,7 @@ import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { getFileV2, importFile,exportFileV2 } from "service/other/import.inventory.service";
+import { getFile, getFileV2, importFile,exportFileV2 } from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -1003,7 +1003,7 @@ const onChangeNote = useCallback(
   const checkImportFile = useCallback(() => {
     if (statusImport !== STATUS_IMPORT_EXPORT.DEFAULT) {
       let getFilePromises = listJobImportFile.map((code) => {
-        return getFileV2(code);
+        return getFile(code);
       });
       Promise.all(getFilePromises).then((responses) => {
         responses.forEach((response) => {
