@@ -147,6 +147,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
+  console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [tags, setTags] = useState<string>("");
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -325,6 +326,7 @@ ShippingServiceConfigDetailResponseModel[]
   const totalAmountExchangePlusShippingFee =
     totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
 
+  const totalAmountExchangeFinal = totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - discountValue;
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
@@ -573,7 +575,7 @@ ShippingServiceConfigDetailResponseModel[]
         order_returns: [],
         automatic_discount: form.getFieldValue("automatic_discount"),
         discounts: discounts,
-        total: totalAmountReturnProducts,
+        total: (totalAmountReturnProducts),
         total_discount: getTotalOrderDiscount(discounts),
         total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
@@ -589,6 +591,7 @@ ShippingServiceConfigDetailResponseModel[]
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log('orderDetailResult', orderDetailResult);
+      // return;
       dispatch(showLoading())
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
@@ -953,17 +956,15 @@ ShippingServiceConfigDetailResponseModel[]
     } else {
       values.payments = [];
     }
-    values.total = totalAmountExchange;
+    values.total = totalAmountExchangeFinal;
     if (
       values?.fulfillments &&
       values.fulfillments.length > 0 &&
       values.fulfillments[0].shipment
     ) {
       let priceToShipper =
-        totalAmountExchange +
-        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+        totalAmountExchangeFinal -
         getAmountPaymentRequest(payments) -
-        discountValue -
         (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
       values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
     }
@@ -1875,7 +1876,9 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
    if(isExchange) {
-     form.setFieldsValue(initialFormValueWithReturn)
+     form.setFieldsValue({
+      assignee_codes: initialFormValueWithReturn.assignee_code,
+     })
    }
   }, [form, initialFormValueWithReturn, isExchange])
 
