@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {createRef, useEffect, useState} from "react";
 import {Form, Button, Card, Tag, Input, Select, DatePicker, Divider, FormInstance} from "antd";
 
@@ -90,14 +91,6 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     }
     // eslint-disable-next-line
   }, [customer, customerFbName, customerPhone]);
-
-	useEffect(() => {
-		window.parent.postMessage({
-			service: 'notes',
-			action: 'list',
-			params: {}
-		}, '*');
-	}, []);
 
   const handleBlurName = (value: any) => {
     updateNewCustomerInfo("full_name", value.trim());
@@ -230,6 +223,14 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 	}, false);
 
 	const handleNote = {
+		get: (e: any) => {
+			e.preventDefault()
+			window.parent.postMessage({
+				service: 'notes',
+				action: 'list',
+				params: {}
+			}, '*');
+		},
 		create: (noteContent: any) => {
 			if (noteContent) {
 				window.parent.postMessage({
@@ -455,8 +456,9 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 						<Input
 							maxLength={1000}
 							placeholder="Nhập ghi chú"
-							onPressEnter={(e: any) => {
-								handleNote.create(e.target.value)
+							onPressEnter={async (e: any) => {
+								await handleNote.get(e)
+								await handleNote.create(e.target.value)
 								setNote('')
 							}}
 							onChange={(e: any) => setNote(e.target.value)}
@@ -465,8 +467,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 					</Form.Item>
 
 					<div className="customer-note-wrapper">
-						{notes &&
-							notes.map((note: any, index: number) => (
+						{notes.length > 0 ? notes.map((note: any, index: number) => (
 								<div className="customer-note-item" key={index}>
 									<span key={note.id}>{note.content}</span>
 									<img
@@ -476,7 +477,11 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 										src={XCloseBtn}
 									/>
 								</div>
-							))}
+							)) : (
+								<div style={{textAlign: "right"}}>
+									<a href="#" onClick={(e) => handleNote.get(e)}>Xem ghi chú</a>
+								</div>
+							)}
 					</div>
 				</Card>
 			</Form>
