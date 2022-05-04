@@ -126,15 +126,15 @@ const AddReportHandOver: React.FC = () => {
             setVisibleModal(false);
             goodsReceiptsForm.resetFields()
 
-            const fromDate = moment().startOf("days");
-            const toDate = moment().endOf("days");
+            let fromDate: Moment|undefined = convertFromStringToDate(moment(new Date().setHours(-72)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
+            let toDate: Moment|undefined =convertFromStringToDate(new Date(),"yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
 
             initQueryGoodsReceipts.limit = 1000;
             initQueryGoodsReceipts.page = 1;
             //initQueryGoodsReceipts.sort_type = "desc";
             //initQueryGoodsReceipts.sort_column = "updated_date";
-            initQueryGoodsReceipts.from_date = moment(fromDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
-            initQueryGoodsReceipts.to_date = moment(toDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+            initQueryGoodsReceipts.from_date =fromDate;
+            initQueryGoodsReceipts.to_date = toDate;
 
             dispatch(
               getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
