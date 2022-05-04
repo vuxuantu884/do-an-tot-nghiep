@@ -412,12 +412,6 @@ const CreateInventoryAdjustment: FC = () => {
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
-      title: "STT",
-      align: "center",
-      width: "50px",
-      render: (value: string, record: VariantResponse, index: number) => index + 1,
-    },
-    {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_images",
@@ -479,7 +473,7 @@ const CreateInventoryAdjustment: FC = () => {
       title: () => {
         return (
           <>
-            <div>Tồn thực tế</div>
+            <div>Số kiểm</div>
             <div>({formatCurrency(objSummaryTable.TotalRealOnHand)})</div>
           </>
         );
