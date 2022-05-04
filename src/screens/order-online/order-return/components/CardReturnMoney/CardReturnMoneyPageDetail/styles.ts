@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const StyledComponent = styled.div`
 	.ant-timeline-item:first-child {
 		> .ant-timeline-item-tail {
-			top: -6px;
+			/* top: -6px; */
 		}
 	}
   .ant-timeline-item-last {

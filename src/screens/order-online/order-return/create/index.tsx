@@ -302,7 +302,7 @@ ShippingServiceConfigDetailResponseModel[]
       ...initialForm,
       returnMoneyField: [
         {
-          returnMoneyMethod: listPaymentMethodsReturnToCustomer?.id,
+          returnMoneyMethod: listPaymentMethodsReturnToCustomer?.code,
           returnMoneyNote: undefined,
         },
       ],
@@ -313,7 +313,7 @@ ShippingServiceConfigDetailResponseModel[]
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
     }
-  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.id, recentAccountCode.accountCode])
+  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.code, recentAccountCode.accountCode])
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -364,7 +364,7 @@ ShippingServiceConfigDetailResponseModel[]
   }, [totalAmountOrder, totalAmountReturnProducts]);
 
   let totalAmountOrderAfterPayments = useMemo(() => {
-    let result = Math.floor(totalAmountCustomerNeedToPay - totalAmountPayment);
+    let result = (totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
@@ -542,17 +542,17 @@ ShippingServiceConfigDetailResponseModel[]
       if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
         const formReturnMoney = formValue.returnMoneyField[0];
         let returnMoneyMethod = listPaymentMethods.find((single) => {
-          return single.id === formReturnMoney.returnMoneyMethod;
+          return single.code === formReturnMoney.returnMoneyMethod;
         });
         if (returnMoneyMethod) {
           payments = [
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
-              amount: Math.abs(totalAmountCustomerNeedToPay),
+              amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
               reference: "",
               source: "",
-              paid_amount: Math.abs(totalAmountCustomerNeedToPay),
+              paid_amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
               return_amount: 0.0,
               status: "paid",
               customer_id: customer?.id || null,
@@ -782,7 +782,7 @@ ShippingServiceConfigDetailResponseModel[]
             let formValue = form.getFieldsValue();
             const formReturnMoney = formValue.returnMoneyField[0];
             let returnMoneyMethod = listPaymentMethods.find((single) => {
-              return single.id === formReturnMoney.returnMoneyMethod;
+              return single.code === formReturnMoney.returnMoneyMethod;
             });
             if (returnMoneyMethod) {
               payments = [
