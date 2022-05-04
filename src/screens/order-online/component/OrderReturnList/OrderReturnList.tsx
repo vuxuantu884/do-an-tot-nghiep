@@ -3,7 +3,7 @@ import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import ReturnFilter from "component/filter/return.filter";
@@ -42,6 +42,8 @@ import { ORDER_TYPES } from "utils/Order.constants";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
+import { dangerColor } from "utils/global-styles/variables";
+import { OrderLineItemResponse } from "model/response/order/order.response";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -104,7 +106,7 @@ function OrderReturnList(props: PropTypes) {
       ),
       visible: true,
       fixed: "left",
-      // width: "10%",
+      width: 140,
     },
     {
       title: "Mã đơn hàng",
@@ -114,7 +116,7 @@ function OrderReturnList(props: PropTypes) {
         </Link>
       ),
       visible: true,
-      // width: "10%",
+      width: 140,
     },
     {
       title: "Người nhận",
@@ -134,13 +136,86 @@ function OrderReturnList(props: PropTypes) {
       ),
       key: "customer",
       visible: true,
-      // width: "20%",
+      width: 160,
+    },
+    {
+      title: (
+        <div className="productNameQuantityPriceHeader">
+          <span className="productNameWidth">
+            Sản phẩm
+            <span className="separator">, </span>
+          </span>
+          <span className="quantity quantityWidth">
+            <span>
+              SL
+              <span className="separator">, </span>
+            </span>
+          </span>
+          <span className="price priceWidth">
+            <span>Giá </span>
+          </span>
+
+        </div>
+      ),
+      dataIndex: "items",
+      key: "productNameQuantityPrice",
+      className: "productNameQuantityPrice",
+      render: (record: Array<OrderLineItemResponse>) => {
+        return (
+          <div className="items">
+            {record.map((item, i) => {
+              return (
+                <div className="item custom-td" key={i}>
+                  <div className="product productNameWidth 2">
+                    <div className="inner">
+                      <Link
+                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
+                        {item.sku}
+                      </Link>
+                      <br />
+                      <div className="productNameText textSmall" title={item.variant}>
+                        {item.variant}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="quantity quantityWidth">
+                    <NumberFormat
+                      value={item.quantity}
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                  <div className="price priceWidth">
+                    <div>
+                      <Tooltip title="Giá sản phẩm">
+                        <span>{formatCurrency(item.price)}</span>
+                      </Tooltip>
+
+                      {item?.discount_items && item.discount_items[0]?.value ? (
+                        <Tooltip title="Khuyến mại sản phẩm">
+                          <div className="itemDiscount" style={{ color: dangerColor }}>
+                            <span> - {formatCurrency(item.discount_items[0].value)}</span>
+                          </div>
+                        </Tooltip>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      },
+      visible: true,
+      align: "left",
+      //width: nameQuantityWidth,
     },
     {
       title: "Kho cửa hàng",
       dataIndex: "store",
       key: "store",
       visible: true,
+      width: 140,
     },
     {
       title: "Trạng thái nhận hàng",
@@ -164,7 +239,7 @@ function OrderReturnList(props: PropTypes) {
       },
       visible: true,
       align: "center",
-      // width: "10%",
+      width: 140,
     },
     {
       title: "Hoàn tiền",
@@ -196,10 +271,12 @@ function OrderReturnList(props: PropTypes) {
       key: "total_amount",
       visible: true,
       align: "center",
+      width: 140,
     },
 
     {
       title: "Tổng tiền",
+      width: 140,
       render: (record: any) => (
         <>
           <Tooltip title="Tổng thanh toán">
@@ -254,6 +331,7 @@ function OrderReturnList(props: PropTypes) {
       key: "total_amount",
       visible: true,
       align: "center",
+      width: 130,
     },
     {
       title: "Lý do trả",
@@ -261,6 +339,7 @@ function OrderReturnList(props: PropTypes) {
       key: "reason",
       visible: true,
       align: "center",
+      width: 160,
       render:(value: any, record: ReturnModel, index: number)=><div>{record?.return_reason?.name}</div>
     },
   ]);
