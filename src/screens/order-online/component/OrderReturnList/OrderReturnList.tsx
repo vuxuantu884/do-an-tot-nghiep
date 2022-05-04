@@ -170,6 +170,9 @@ function OrderReturnList(props: PropTypes) {
       title: "Hoàn tiền",
       //dataIndex: "total_amount",
       render: (record: any) => {
+        if(!record?.payment_status) {
+          return null
+        }
         let processIcon = "";
         switch (record.payment_status) {
           case "unpaid":
