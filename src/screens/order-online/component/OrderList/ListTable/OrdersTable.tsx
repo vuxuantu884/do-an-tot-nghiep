@@ -573,14 +573,14 @@ function OrdersTable(props: PropTypes) {
                   <div className="textSmall single mainColor">
                     <Tooltip title="Chuyên gia tư vấn">
                       <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
-                        <strong>CGTV: </strong>{i.assignee}
+                        <strong>CGTV: </strong>{i.assignee_code} - {i.assignee}
                       </Link>
                     </Tooltip>
                   </div>
                   <div className="textSmall single mainColor">
                     <Tooltip title="Thu ngân">
                       <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
-                        <strong>Thu ngân: </strong>{i.account}
+                        <strong>Thu ngân: </strong>{i.account_code} - {i.account}
                       </Link>
                     </Tooltip>
                   </div>
@@ -590,7 +590,7 @@ function OrdersTable(props: PropTypes) {
                 <div className="textSmall single mainColor">
                   <Tooltip title="Nhân viên bán hàng">
                     <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
-                      <strong>NV bán hàng: </strong>{i.assignee}
+                      <strong>NV bán hàng: </strong>{i.assignee_code} - {i.assignee}
                     </Link>
                   </Tooltip>
                 </div>
@@ -1236,8 +1236,8 @@ function OrdersTable(props: PropTypes) {
                     <strong>NV điều phối: </strong>
                     {record.coordinator?(
                       <React.Fragment>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}ssssss</Link>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}ssssss</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}</Link>
                       </React.Fragment>
                     ):"N/a"}
                   </div>
