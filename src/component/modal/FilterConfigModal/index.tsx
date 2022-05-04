@@ -64,6 +64,8 @@ function FilterConfigModal(props: PropTypes) {
                   const values = form.getFieldsValue();
                   if(values.save_filter_type === FILTER_TYPE_CONSTANT.NEW) {
                     values.id = undefined;
+                  } else {
+                    values.name = filterConfigs.find(single => single.id.toString() === values.id.toString())?.name
                   }
                   onOk(values);
                 });

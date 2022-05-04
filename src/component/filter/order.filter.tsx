@@ -1938,7 +1938,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           setVisible={setIsShowModalSaveFilter} 
           visible={isShowModalSaveFilter} 
           onOk={(formValues) => {
-            setIsShowModalSaveFilter(false)
+            setIsShowModalSaveFilter(false);
             onSaveFilter(formValues)
           }}
           filterConfigs={filterConfigs}
