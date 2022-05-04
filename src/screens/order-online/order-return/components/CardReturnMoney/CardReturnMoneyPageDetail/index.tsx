@@ -7,7 +7,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   totalAmountReturnToCustomer: number | undefined;
@@ -16,7 +16,7 @@ type PropType = {
   setIsShowPaymentMethod: (value: boolean) => void;
 };
 
-function CardReturnMoneyPageDetail(props: PropType) {
+function CardReturnMoneyPageDetail(props: PropTypes) {
   const {
     payments,
     totalAmountReturnToCustomer = 0,
@@ -52,6 +52,9 @@ function CardReturnMoneyPageDetail(props: PropType) {
       return (
         <Timeline>
           {payments.map((single, index) => {
+            if(single.amount === 0) {
+              return null
+            }
             return (
               <Timeline.Item key={index} color="#27AE60">
                 <Row gutter={24}>

@@ -66,7 +66,7 @@ function ReturnMoneySelect(props: PropTypes) {
                             {listPaymentMethodsResult &&
                               listPaymentMethodsResult.map((single) => {
                                 return (
-                                  <Select.Option value={single.id} key={single.id}>
+                                  <Select.Option value={single.code} key={single.code}>
                                     {single.name}
                                   </Select.Option>
                                 );
@@ -80,7 +80,7 @@ function ReturnMoneySelect(props: PropTypes) {
                           <Input
                             value={
                               totalAmountCustomerNeedToPay < 0
-                                ? formatCurrency(Math.abs(totalAmountCustomerNeedToPay))
+                                ? formatCurrency(Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
                                 : 0
                             }
                             disabled

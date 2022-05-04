@@ -24,11 +24,11 @@ import {
   ReturnProductModel
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { isOrderFromPOS } from "utils/AppUtils";
-import { FulFillmentStatus } from "utils/Constants";
+import { getOrderTotalPaymentAmount, isOrderFromPOS } from "utils/AppUtils";
+import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -98,7 +98,7 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const initialFormValue = {
     returnMoneyField: [
-      { returnMoneyMethod: undefined, returnMoneyNote: undefined },
+      { returnMoneyMethod: PaymentMethodCode.CASH, returnMoneyNote: undefined },
     ],
   };
 
@@ -108,7 +108,7 @@ const ScreenReturnDetail = (props: PropType) => {
       if (formValue.returnMoneyField && formValue.returnMoneyField[0]) {
         const formValuePayment = formValue.returnMoneyField[0];
         let returnMoneyMethod = listPaymentMethods.find((single) => {
-          return single.id === formValuePayment.returnMoneyMethod;
+          return single.code === formValuePayment.returnMoneyMethod;
         });
         if (returnMoneyMethod) {
           const payments = [
@@ -119,9 +119,9 @@ const ScreenReturnDetail = (props: PropType) => {
               note: formValuePayment.returnMoneyNote || "",
               amount: 0,
               paid_amount:
-                totalAmountReturnToCustomer || 0,
+                Math.ceil(totalAmountReturnToCustomer || 0) ,
               return_amount:
-                totalAmountReturnToCustomer || 0,
+                Math.ceil(totalAmountReturnToCustomer || 0),
               customer_id: OrderDetail?.customer_id,
             },
           ];
@@ -152,14 +152,21 @@ const ScreenReturnDetail = (props: PropType) => {
     });
   };
 
-  const totalAmountReturnToCustomer = OrderDetail?.total;
-
+  const totalAmountReturnToCustomer = useMemo(() => {
+    return OrderDetail?.total || 0 - getOrderTotalPaymentAmount(OrderDetail?.payments || [] )
+  }, [OrderDetail?.payments, OrderDetail?.total])
+ 
   /**
    * theme context data
    */
   const orderReturnSingleContextData = {
     orderDetail: OrderDetail,
     listReturnProducts,
+  };
+
+  const checkIfHasReturnMoneyAll = (OrderDetail?: OrderResponse ) => {
+    const total = getOrderTotalPaymentAmount(OrderDetail?.payments || []);
+    return total >= Math.floor(OrderDetail?.money_refund || 0)
   };
 
   useEffect(() => {
@@ -189,8 +196,13 @@ const ScreenReturnDetail = (props: PropType) => {
                 });
               setListReturnProducts(returnProductFormatted);
             }
+
             if (_data.payments) {
               setPayments(_data.payments);
+            }
+
+            if(!checkIfHasReturnMoneyAll(_data)) {
+              setIsShowPaymentMethod(true)
             }
           }
         })
