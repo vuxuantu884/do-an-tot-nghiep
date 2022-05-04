@@ -85,7 +85,15 @@ const InventoryScreen: React.FC = () => {
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
                 onClick={() => {setShowExportModal(true)}}
               >
-                Xuất file
+                Xuất tồn CH
+            </Button>
+            <Button
+                className="light"
+                size="large"
+                icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                onClick={() => {setVExportInventory(true)}}
+              >
+                Xuất tồn chi tiết
             </Button>
         </Space>
       </Row>
