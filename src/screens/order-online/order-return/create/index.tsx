@@ -332,10 +332,13 @@ ShippingServiceConfigDetailResponseModel[]
   }, [shippingFeeInformedToCustomer, totalAmountExchange])
 
   const totalAmountExchangeFinal = useMemo(() => {
-   return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - discountValue;
-  }, [discountValue, shippingFeeInformedToCustomer, totalAmountExchange])
+   return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
+  }, [shippingFeeInformedToCustomer, totalAmountExchange])
 
   console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
+  console.log('totalAmountExchange', totalAmountExchange)
+  console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer)
+  
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
@@ -346,6 +349,8 @@ ShippingServiceConfigDetailResponseModel[]
       (promotion?.value || 0)
     );
   }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
+
+  console.log('totalAmountOrder', totalAmountOrder)
 
   const totalAmountPayment = getAmountPayment(payments);
 
@@ -824,6 +829,9 @@ ShippingServiceConfigDetailResponseModel[]
             discounts: handleRecalculateOriginDiscount(itemsResult),
             account_code: recentAccountCode.accountCode,
             assignee_code: recentAccountCode.accountCode || null,
+            total: Math.ceil(totalAmountReturnProducts),
+            total_discount: Math.ceil(discountValue),
+            total_line_amount_after_line_discount: Math.ceil(totalAmountReturnProducts - discountValue),
             // clear giá trị
             reference_code: "",
             customer_note: "",
@@ -832,6 +840,7 @@ ShippingServiceConfigDetailResponseModel[]
             tags: null,
             type: orderReturnType,
             channel_id: getChannelIdExchange(OrderDetail),
+
             // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
           };
 
@@ -965,14 +974,15 @@ ShippingServiceConfigDetailResponseModel[]
     } else {
       values.payments = [];
     }
-    values.total = Math.ceil(totalAmountExchangeFinal);
+    console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
+    values.total = Math.ceil(totalAmountOrder);
     if (
       values?.fulfillments &&
       values.fulfillments.length > 0 &&
       values.fulfillments[0].shipment
     ) {
       let priceToShipper =
-        totalAmountExchangeFinal -
+        totalAmountOrder -
         getAmountPaymentRequest(payments) -
         (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
       values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
