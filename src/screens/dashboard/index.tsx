@@ -37,13 +37,13 @@ const Dashboard = () => {
       <BusinessResult />
       <Card title="BẢNG THI ĐUA">
         <Row className="rank-container">
-          <Col span={8} className="user-rank">
+          <Col xs={24} md={8} className="user-rank">
             <RankVerticalChart data={topSale.get(TOP_CHARTS_KEY.TOP_STAFF_SALES) || []} />
           </Col>
-          <Col span={8} className="store-rank">
+          <Col xs={24} md={8} className="store-rank">
             <RankHorizontalChart data={topSale.get(TOP_CHARTS_KEY.TOP_SHOP_SALES) || []} />
           </Col>
-          <Col span={8} className="department-rank">
+          <Col xs={24} md={8} className="department-rank">
             <RankHorizontalChart data={topSale.get(TOP_CHARTS_KEY.TOP_DEPARTMENT_SALES) || []}
               title="Bảng thi đua giữa các bộ phận"
               subTitle="Top 5 bộ phận có doanh thu cao nhất"

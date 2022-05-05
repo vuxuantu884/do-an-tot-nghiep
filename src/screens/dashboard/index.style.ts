@@ -1,6 +1,6 @@
+import color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-import color from "assets/css/export-variable.module.scss";
 const { grayE5, white } = color;
 export const ChartColor = {
   primary: "#2A2A86",
@@ -43,6 +43,11 @@ export const DashboardContainer = styled.div`
     display: flex;
     align-items: center;
     column-gap: 20px;
+    @media screen and (max-width: 576px) {
+      flex-direction: column;
+      align-items: start;
+      gap: 16px;
+    }
     .title {
       margin: 0;
     }
@@ -55,6 +60,9 @@ export const DashboardContainer = styled.div`
     display: flex;
     flex-direction: column;
     padding: 16px 20px;
+    @media screen and (max-width: 576px) {
+      padding: 16px 0;
+    }
     .title {
       font-size: 14px;
       color: #2a2a86;
@@ -88,10 +96,13 @@ export const DashboardContainer = styled.div`
 
   .horiz-grid {
     width: 100%;
-    height: 110px;
     &__item {
+      height: 110px;
       border-left: 1px solid ${borderColor};
       border-bottom: 1px solid ${borderColor};
+      @media screen and (max-width: 576px) {
+        border-left: none;
+      }
     }
   }
 
@@ -101,6 +112,10 @@ export const DashboardContainer = styled.div`
     padding: 20px;
     border-left: 1px solid ${borderColor};
     border-bottom: 1px solid ${borderColor};
+    @media screen and (max-width: 576px) {
+      height: auto;
+      border-left: none;
+    }
   }
   .monthly-chart {
     &__info {
