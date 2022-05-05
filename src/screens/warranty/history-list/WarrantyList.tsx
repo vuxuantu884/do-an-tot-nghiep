@@ -1047,7 +1047,7 @@ function WarrantyHistoryList(props: PropTypes) {
                       onClick={() => {
                         let queryParamOrder = generateQuery({
                           "action": "print",
-                          "ids": [record.warranty.id],
+                          "ids": [record.id],
                           "print-type": "warranty",
                           "print-dialog": true,
                         });
