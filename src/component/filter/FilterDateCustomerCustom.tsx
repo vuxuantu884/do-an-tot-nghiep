@@ -61,7 +61,7 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
             Tuần này
           </Button>
         </div>
-        
+
         <div className="date-option">
           <Button
             onClick={() => clickOptionDate(dateType, "lastWeek")}
@@ -76,7 +76,7 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
           >
             Tháng này
           </Button>
-          
+
           <Button
             onClick={() => clickOptionDate(dateType, "lastMonth")}
             className={dateSelected === "lastMonth" ? "active-btn" : ""}
@@ -89,13 +89,14 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
           <SettingOutlined style={{ marginRight: "5px" }} />
           Tùy chọn khoảng thời gian:
         </div>
-        
+
         <div className="date-picker-styled">
           <div className="date-picker-select">
             <DatePicker
               allowClear
               placeholder="Ngày bắt đầu"
               format={DATE_FORMAT.DD_MM_YYYY}
+              getPopupContainer={(trigger: any) => trigger.parentElement}
               value={startDateValue}
               onChange={handleSelectDateStart}
             />
@@ -110,12 +111,13 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
               allowClear
               placeholder="Ngày kết thúc"
               format={DATE_FORMAT.DD_MM_YYYY}
+              getPopupContainer={(trigger: any) => trigger.parentElement}
               value={endDateValue}
               onChange={handleSelectDateEnd}
             />
           </div>
         </div>
-        
+
       </div>
     </StyledSelectDateFilter>
   );
