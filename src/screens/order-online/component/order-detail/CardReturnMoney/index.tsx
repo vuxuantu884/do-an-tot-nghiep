@@ -43,7 +43,7 @@ function CardReturnMoney(props: PropTypes) {
                 color: "#27AE60",
               }}
             >
-              Đã thanh toán 3
+              Đã thanh toán
             </Tag>
           )}
         </span>
