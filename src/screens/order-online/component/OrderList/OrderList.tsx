@@ -425,6 +425,7 @@ function OrderList(props: PropTypes) {
   const onExport = useCallback(
     (optionExport, hiddenFieldsExport) => {
       let newParams: any = { ...params };
+      console.log("newParams",params)
       // let hiddenFields = [];
       switch (optionExport) {
         case EXPORT_IDs.allOrders:
@@ -446,6 +447,7 @@ function OrderList(props: PropTypes) {
       }
 
       let queryParams = generateQuery(newParams);
+      console.log("queryParams",queryParams)
       exportFile({
         conditions: queryParams,
         type: "EXPORT_ORDER",

@@ -103,8 +103,8 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
       const code = [reason];
       getOrderReasonService(code).then((response) => {
         if (isFetchApiSuccessful(response)) {
-          setReasonID(response.data[0].id.toString());
-          setReasonSubs(response.data[0].sub_reasons);
+          setReasonID(response.data[0]?.id.toString());
+          setReasonSubs(response.data[0]?.sub_reasons);
         } else {
           handleFetchApiError(response, "Danh sách lý do hủy", dispatch);
         }

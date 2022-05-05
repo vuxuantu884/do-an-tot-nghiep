@@ -5,6 +5,7 @@ import {
 } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import { MenuAction } from "component/table/ActionButton";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { getByIdGoodsReceipts, getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
 import {
@@ -18,6 +19,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { useReactToPrint } from "react-to-print";
+import { exportFile } from "service/other/export.service";
+import { generateQuery } from "utils/AppUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import PackDetailInfo from "./pack/detail/pack-detail-info";
 import PackListOrder from "./pack/detail/pack-list-order";
 import PackQuantityProduct from "./pack/detail/pack-quantity-product";
@@ -232,17 +236,40 @@ const PackDetail: React.FC = () => {
 
   const handlePrintPack = useCallback((type:string) => { 
     dispatch(getPrintGoodsReceipts([PackId],type,(data:GoodReceiptPrint[])=>{
-      setHtmlContent(data[0].html_content);
-      setTimeout(() => {
-        if (handlePrint) {
-          handlePrint();
-        }
-      }, 500);
+      if(data && data.length>0){
+        setHtmlContent(data[0].html_content);
+        setTimeout(() => {
+          if (handlePrint) {
+            handlePrint();
+          }
+        }, 500);
+      }
     }))
   },[dispatch,PackId,handlePrint]);
 
   const handleExportExcelOrderPack = useCallback(() => {
-  },[]);
+    let codes:any=[];
+    packDetail?.orders?.map((p)=>codes.push(p.code));
+    let queryParams = generateQuery({code:codes});
+    console.log("queryParams",queryParams)
+    exportFile({
+      conditions: queryParams,
+      type: "EXPORT_ORDER"
+      //hidden_fields: hiddenFieldsExport,
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          //setStatusExport(2);
+          showSuccess("Đã gửi yêu cầu xuất file");
+          //setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        //setStatusExport(4);
+        console.log("orders export file error", error);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  },[packDetail?.orders]);
 
   const handleAddOrderInPack = () => { };
 
