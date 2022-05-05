@@ -64,13 +64,19 @@ function Greeting(props: Props): ReactElement {
                     <h1 className='greeting__title'>Tổng quan</h1>
                 </Row>
                 <Row gutter={16}>
-                    <Col span={18} className="greeting">
-                        <img src={greetingImg} alt={timeOfDay} className="greeting__img" />
-                        <div className="greeting__content">
-                            <span className="name">{timeOfDayVietnamese[timeOfDay]} {userName}!</span>
-                            <p className="quote">“Luôn đặt sự hài lòng của khách hàng là ưu tiên số 1 trong mọi suy nghĩ và hành động của mình.
-                                Luôn Chủ động, Cười, Chào, Cảm ơn.”</p>
-                        </div>
+                    <Col xs={24} md={24} lg={18} className="greeting">
+                        <Row>
+                            <Col md={4}>
+                                <img src={greetingImg} alt={timeOfDay} className="greeting__img" />
+                            </Col>
+                            <Col xs={24} md={20}>
+                                <div className="greeting__content">
+                                    <span className="name">{timeOfDayVietnamese[timeOfDay]} {userName}!</span>
+                                    <p className="quote">“Luôn đặt sự hài lòng của khách hàng là ưu tiên số 1 trong mọi suy nghĩ và hành động của mình.
+                                        Luôn Chủ động, Cười, Chào, Cảm ơn.”</p>
+                                </div>
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
             </Card>

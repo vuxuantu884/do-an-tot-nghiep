@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   listReturnProducts: OrderLineItemResponse[];
   pointUsing?: number;
   totalAmountReturnToCustomer: number | undefined;
@@ -21,7 +21,7 @@ type PropType = {
 	OrderDetail?: OrderResponse | null;
 };
 
-function CardShowReturnProducts(props: PropType) {
+function CardShowReturnProducts(props: PropTypes) {
   const {
     listReturnProducts,
 		OrderDetail,
@@ -207,7 +207,7 @@ function CardShowReturnProducts(props: PropType) {
             title={renderPopOverPriceTitle(record.price)}
           >
             {formatCurrency(
-              Math.round(record.price - discountPerProduct - discountPerOrder)
+              Math.ceil(record.price - discountPerProduct - discountPerOrder)
             )}
           </Popover>
         );
@@ -232,9 +232,9 @@ function CardShowReturnProducts(props: PropType) {
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
-              Math.round(value.price - discountPerProduct - discountPerOrder) *
+              Math.ceil((value.price - discountPerProduct - discountPerOrder) *
                 value.quantity
-            )}
+            ))}
           </div>
         );
       },
@@ -294,7 +294,7 @@ function CardShowReturnProducts(props: PropType) {
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>
                 {totalAmountReturnToCustomer
-                  ? formatCurrency(totalAmountReturnToCustomer)
+                  ? formatCurrency(Math.ceil(totalAmountReturnToCustomer))
                   : 0}
               </strong>
             </Row>

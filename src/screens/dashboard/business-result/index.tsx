@@ -23,7 +23,7 @@ function BusinessResult(props: Props) {
         <Card title="KẾT QUẢ KINH DOANH" className="business-results">
 
             <Row className="verti-grid">
-                <Col span={6}>
+                <Col xs={24} md={8} lg={6}>
                     <div className="verti-grid__item">
                         <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.online} loading={isFetchingBusinessResultComplete} />
                     </div>
@@ -37,25 +37,26 @@ function BusinessResult(props: Props) {
                         <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.return} loading={isFetchingBusinessResultComplete} />
                     </div>
                 </Col>
-                <Col span={18}>
+                <Col xs={24} md={16} lg={18}>
                     <Row className="horiz-grid">
-                        <Col span={8} className="horiz-grid__item">
+                        <Col xs={24} lg={8} className="horiz-grid__item">
                             <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.conversionRate} />
                         </Col>
-                        <Col span={8} className="horiz-grid__item">
+                        <Col xs={24} lg={8} className="horiz-grid__item">
                             <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.averageOrder} loading={isFetchingAverageOrder} />
                         </Col>
-                        <Col span={8} className="horiz-grid__item">
+                        <Col xs={24} lg={8} className="horiz-grid__item">
                             <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.successRate} loading={isFetchingSuccessRate} type="percent"/>
                         </Col>
                     </Row>
-                    <div className="chart-monthly-container">
-
-                        {isFetchingChartData ?
-                            <Skeleton active /> :
-                            <TotalSaleByMonthChartArea monthTotalSalesOverDay={dataSrcChartBusinessResult} totalSalesToday={totalSalesToday} />
-                        }
-                    </div>
+                    <Row>
+                        <div className="chart-monthly-container">
+                            {isFetchingChartData ?
+                                <Skeleton active /> :
+                                <TotalSaleByMonthChartArea monthTotalSalesOverDay={dataSrcChartBusinessResult} totalSalesToday={totalSalesToday} />
+                            }
+                        </div>
+                    </Row>
                 </Col>
                 <div className="padding-20" />
             </Row>

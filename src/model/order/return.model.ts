@@ -1,3 +1,5 @@
+import { OrderLineItemResponse } from "model/response/order/order.response";
+
 export interface ReturnModel {
   assignee: string;
   assignee_code: string;
@@ -26,6 +28,7 @@ export interface ReturnModel {
   updated_by: string;
   updated_date: string;
   updated_name: string;
+  items: Array<OrderLineItemResponse>;
 }
 
 export interface ReturnSearchQuery {

@@ -79,6 +79,7 @@ import CardShowReturnProducts from "./order-return/components/CardShowReturnProd
 import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import CreateBillStep from "component/header/create-bill-step";
+import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
 
 const {Panel} = Collapse;
 
@@ -198,7 +199,7 @@ const OrderDetail = (props: PropType) => {
       let payments: UpdateOrderPaymentRequest[] = [];
       const formReturnMoney = formValue.returnMoneyField[0];
       let returnMoneyMethod = listPaymentMethods.find((single) => {
-        return single.id === formReturnMoney.returnMoneyMethod;
+        return single.code === formReturnMoney.returnMoneyMethod;
       });
       if (returnMoneyMethod) {
         payments = [
@@ -845,27 +846,7 @@ const OrderDetail = (props: PropType) => {
                         <div className="d-flex">
                           <span className="title-card">THANH TOÁN</span>
                         </div>
-                        {checkPaymentStatusToShow(OrderDetail) === -1 && (
-                          <Tag className="orders-tag orders-tag-default">
-                            Chưa thanh toán
-                          </Tag>
-                        )}
-                        {checkPaymentStatusToShow(OrderDetail) === 0 && (
-                          <Tag className="orders-tag orders-tag-warning">
-                            Thanh toán 1 phần
-                          </Tag>
-                        )}
-                        {checkPaymentStatusToShow(OrderDetail) === 1 && (
-                          <Tag
-                            className="orders-tag orders-tag-success"
-                            style={{
-                              backgroundColor: "rgba(39, 174, 96, 0.1)",
-                              color: "#27AE60",
-                            }}
-                          >
-                            Đã thanh toán
-                          </Tag>
-                        )}
+                        <PaymentStatusTag orderDetail={OrderDetail} />
                       </Space>
                     }
                   >

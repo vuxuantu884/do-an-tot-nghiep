@@ -15,14 +15,14 @@ function TotalSaleByMonthChartArea(props: BusinessResultChart) {
   return (
     <div>
       <Row className="monthly-chart__info">
-        <Col span={16}>
+        <Col xs={24} md={16}>
           <p className="title">Doanh thu thành công theo ngày trong tháng</p>
           <div className="monthly-chart__currency">
             <span className="price">{formatCurrency(totalSalesToday)}&nbsp;</span>
             <span className="day">(Hôm nay)</span>
           </div>
         </Col>
-        <Col span={8}>
+        <Col xs={24} md={8}>
           <div className="guild">
             <div>
               <img src={LegendLineRed} alt="" /> &nbsp;Tháng này

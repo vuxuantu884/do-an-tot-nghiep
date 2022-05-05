@@ -1276,7 +1276,7 @@ function OrdersTable(props: PropTypes) {
         },
         visible: orderType === ORDER_TYPES.online,
         align: "left",
-        width: 155,
+        width: 105,
         isHideInOffline: true,
       },
       {

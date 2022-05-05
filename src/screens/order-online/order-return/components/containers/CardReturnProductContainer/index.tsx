@@ -25,7 +25,7 @@ import { fullTextSearch } from "utils/StringUtils";
 // import { fullTextSearch } from "utils/StringUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
-type PropType = {
+type PropTypes = {
   autoCompleteRef: React.RefObject<RefSelectProps>;
   isDetailPage?: boolean;
   discountRate?: number;
@@ -36,11 +36,10 @@ type PropType = {
   listStores: StoreResponse[];
   setSearchVariantInputValue: (value: string) => void;
   setListOrderProductsResult:(value:OrderLineItemResponse[])=>void;
+  isAlreadyShowWarningPoint: boolean;
 };
 
-let isAlreadyShowWarningPoint = false;
-
-function CardReturnProductContainer(props: PropType) {
+function CardReturnProductContainer(props: PropTypes) {
   const {
     handleCanReturn,
     isDetailPage,
@@ -50,6 +49,7 @@ function CardReturnProductContainer(props: PropType) {
     setSearchVariantInputValue,
     setListOrderProductsResult,
     listStores,
+    isAlreadyShowWarningPoint,
   } = props;
 
   const dispatch = useDispatch();
@@ -424,7 +424,6 @@ function CardReturnProductContainer(props: PropType) {
                 if(!isAlreadyShowWarningPoint) {
                   setIsVisibleModalWarningPointRefund && setIsVisibleModalWarningPointRefund(true)
                   // setIsAlreadyShowWarningPoint(true)
-                  isAlreadyShowWarningPoint = true;
                 }
               }
               setPointRefund(response.point_refund);
@@ -442,6 +441,8 @@ function CardReturnProductContainer(props: PropType) {
         }
       }
     }
+  // bỏ isAlreadyShowWarningPoint
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setIsVisibleModalWarningPointRefund, setMoneyRefund]);
 
   useEffect(() => {

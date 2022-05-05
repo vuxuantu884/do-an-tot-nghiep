@@ -7,7 +7,7 @@ import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   returnMoneyAmount: number;
@@ -16,7 +16,7 @@ type PropType = {
   setIsShowPaymentMethod: (value: boolean) => void;
 };
 
-function CardReturnMoney(props: PropType) {
+function CardReturnMoney(props: PropTypes) {
   const {
     payments,
     returnMoneyAmount,
@@ -26,12 +26,16 @@ function CardReturnMoney(props: PropType) {
     setIsShowPaymentMethod,
   } = props;
 
+  const checkIfHasReturnMoney = (payments: OrderPaymentResponse[]) => {
+    return payments.some(payment => payment.amount > 0)
+  };
+
   const renderCardTitle = () => {
     return (
       <React.Fragment>
         <span className="title-card">
           Hoàn tiền {" "}
-          {payments && payments.length > 0 && (
+          {payments && payments.length > 0 && checkIfHasReturnMoney(payments) && (
             <Tag
               className="orders-tag orders-tag-success"
               style={{
