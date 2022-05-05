@@ -824,8 +824,8 @@ const AllTab: React.FC<any> = (props) => {
             downLoad.download = "download";
 
             downLoad.click();
-
             setListExportFile(newListExportFile);
+            setExportProgress(100);
           }
         }
       });
