@@ -12,6 +12,7 @@ import CustomPagination from "component/table/CustomPagination";
 import ProductItem from "../component/product-item";
 import { inventoryGetVariantByStoreAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import debounce from "lodash/debounce";
+import { showError } from "utils/ToastUtils";
 
 type PickManyProductModalType = {
   visible: boolean;
@@ -55,6 +56,10 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   );
   const onCheckedChange = useCallback(
     (checked, variantResponse: VariantResponse) => {
+      if (variantResponse && variantResponse.status === 'inactive') {
+        showError('Sản phẩm đã ngừng hoạt động')
+        return
+      }
       if (checked) {
         let index = selection.findIndex(
           (item) => item.id === variantResponse.id
@@ -85,6 +90,11 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     (checked: boolean) => {
       if (checked) {
         if (data) setSelection([...selection,...data?.items]);
+        if (data && data.items.some(el => el.status === 'inactive')) {
+          const variantsClone = [...data?.items]
+          const filterVariantsInactive = variantsClone.filter((el) => el.status !== 'inactive')
+          setSelection([...selection, ...filterVariantsInactive]);
+        }
       } else {
         setSelection([]);
       }
@@ -110,6 +120,14 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const searchVariantDebounce = debounce((e) => {
     setQuery({ ...query, info: e.target.value });
   }, 300);
+
+  const fillAllChecked = () => {
+    if(data){
+      const dataClone = [...data.items]
+      const filterVariantsInactive = dataClone.filter((el) => el.status !== 'inactive')
+      return filterVariantsInactive.every(item => selection.findIndex(s => s.id === item.id) > -1)
+    }
+  }
 
   return (
     <Modal
@@ -140,7 +158,8 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       <Checkbox
         style={{ marginLeft: 12 }}
         // checked={selection.length === data?.metadata.limit}
-        checked={data?.items.every(item => selection.findIndex(s => s.id === item.id) > -1)}
+        // checked={data?.items.every(item => selection.findIndex(s => s.id === item.id) > -1)}
+        checked={fillAllChecked()}
         onChange={(e) => {
           fillAll(e.target.checked);
         }}

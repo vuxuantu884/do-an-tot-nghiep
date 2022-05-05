@@ -91,6 +91,11 @@ const POProductForm = ({
 
     dispatch(
       productGetDetail(value, (data: ProductResponse) => {
+        if(data.status === 'inactive'){
+          showError('Sản phẩm đã ngừng hoạt động')
+          setIsSelecttingProduct(false);
+          return
+        }
 
         if (data.variants) {
 

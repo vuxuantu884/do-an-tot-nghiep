@@ -1779,6 +1779,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showSearch
                     placeholder="Chọn giới tính"
                     allowClear
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     optionFilterProp="children">
                     {LIST_GENDER &&
                       LIST_GENDER.map((c: any) => (
@@ -1800,6 +1801,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showArrow
                     allowClear
                     placeholder="Chọn nhóm khách hàng"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     optionFilterProp="children">
                     {groups.map((group: any) => (
                       <Option key={group.id} value={group.id?.toString()}>
@@ -1819,6 +1821,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showSearch
                     showArrow
                     allowClear
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     placeholder="Chọn hạng thẻ">
                     {loyaltyUsageRules?.map((loyalty: any) => (
                       <Option key={loyalty.id} value={loyalty.rank_id?.toString()}>
@@ -1853,6 +1856,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showSearch
                     placeholder="Chọn loại khách hàng"
                     allowClear
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     optionFilterProp="children">
                     {types.map((type: any) => (
                       <Option key={type.id} value={type.id?.toString()}>
@@ -1874,6 +1878,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     placeholder="Chọn cửa hàng"
                     optionFilterProp="children"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     defaultValue={undefined}>
                     {listStore?.map((item) => (
                       <Option key={item.id} value={item.id?.toString()}>
@@ -1896,6 +1901,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showArrow
                     allowClear
                     placeholder="Chọn kênh"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     optionFilterProp="children">
                     {listChannel?.map((item) => (
                       <Option key={item.id} value={item.id?.toString()}>
@@ -1917,6 +1923,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showArrow
                     allowClear
                     placeholder="Chọn nguồn"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     optionFilterProp="children">
                     {listSource?.map((item) => (
                       <Option key={item.id} value={item.id?.toString()}>
@@ -1980,7 +1987,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="title">Ngày sinh</div>
                   <div className="select-scope">
                     <Form.Item name="day_of_birth_from" className="select-item">
-                      <Select showSearch allowClear placeholder="Từ ngày">
+                      <Select
+                        showSearch
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        placeholder="Từ ngày">
                         {INIT_FROM_DATE_LIST.map((item: any) => (
                           <Option
                             key={item.value}
@@ -1995,7 +2006,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <img src={rightArrow} alt="" />
 
                     <Form.Item name="day_of_birth_to" className="select-item">
-                      <Select showSearch allowClear placeholder="Đến ngày">
+                      <Select
+                        showSearch
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        placeholder="Đến ngày">
                         {INIT_TO_DATE_LIST.map((item: any) => (
                           <Option
                             key={item.value}
@@ -2020,6 +2035,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         placeholder="Từ năm"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
                         onSelect={onSelectFromYear}
                         onClear={onClearFromYear}>
                         {fromYearList.map((item: any) => (
@@ -2040,6 +2056,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         placeholder="Đến năm"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
                         onSelect={onSelectToYear}
                         onClear={onClearToYear}>
                         {toYearList.map((item: any) => (
@@ -2069,7 +2086,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       placeholder="Chọn Tỉnh/Thành phố"
                       notFoundContent="Không tìm thấy Tỉnh/Thành phố"
                       optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
+                      getPopupContainer={(trigger: any) => trigger.parentElement}
                       onSelect={handleSelectProvince}
                       onDeselect={handleDeselectProvince}
                       onClear={handleClearProvince}>
@@ -2088,7 +2105,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <Form.Item
                       name="month_of_birth_from"
                       className="select-item">
-                      <Select showSearch allowClear placeholder="Từ tháng">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Từ tháng"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                      >
                         {INIT_FROM_MONTH_LIST.map((item: any) => (
                           <Option
                             key={item.value}
@@ -2103,7 +2125,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <img src={rightArrow} alt="" />
 
                     <Form.Item name="month_of_birth_to" className="select-item">
-                      <Select showSearch allowClear placeholder="Đến tháng">
+                      <Select
+                        showSearch
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        placeholder="Đến tháng">
                         {INIT_TO_MONTH_LIST.map((item: any) => (
                           <Option
                             key={item.value}
@@ -2162,7 +2188,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       placeholder="Chọn Quận/Huyện"
                       notFoundContent="Không tìm thấy Quận/Huyện"
                       optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
+                      getPopupContainer={(trigger: any) => trigger.parentElement}
                       maxTagCount="responsive"
                       onSelect={handleSelectDistrict}
                       onDeselect={handleDeselectDistrict}
@@ -2275,7 +2301,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       placeholder="Chọn Phường/Xã"
                       notFoundContent="Không tìm thấy Phường/Xã"
                       optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
+                      getPopupContainer={(trigger: any) => trigger.parentElement}
                       maxTagCount="responsive"
                       onSelect={handleSelectWard}
                       onDeselect={handleDeselectWard}
@@ -2384,6 +2410,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showArrow
                     allowClear
                     placeholder="Chọn cửa hàng"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     optionFilterProp="children">
                     {listStore?.map((item) => (
                       <Option key={item.id} value={item.id?.toString()}>
@@ -2404,6 +2431,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showArrow
                     allowClear
                     placeholder="Chọn cửa hàng"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     optionFilterProp="children">
                     {listStore?.map((item) => (
                       <Option key={item.id} value={item.id?.toString()}>

@@ -111,8 +111,7 @@ function useHandleFilterConfigs(
       formRef.current?.setFieldsValue(json_content);
       formRef.current?.submit();
     }
-},[filterConfigs, formRef, setTagActive]);
-console.log('filterConfigs', filterConfigs)
+  },[filterConfigs, formRef, setTagActive]);
 
   useEffect(() => {
     let account = userReducer.account;
@@ -121,7 +120,6 @@ console.log('filterConfigs', filterConfigs)
         if (isFetchApiSuccessful(response)) {
           if (response && response.data && response.data.length > 0) {
             const configFilters = response.data.filter((e) => e.type === filterType);
-            console.log('configFilters', configFilters)
             setFilterConfigs(configFilters);
           } else {
             setFilterConfigs([]);
