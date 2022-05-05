@@ -1,4 +1,4 @@
-import { Card, Col, Form, FormInstance, Input, Modal, Row, Table, Tooltip } from "antd";
+import {Card, Col, Divider, Form, FormInstance, Input, Modal, Row, Table, Tooltip} from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { Type } from "config/type.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -83,7 +83,9 @@ import './styles.scss'
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
-import useFetchStores from "../../../hook/useFetchStores";
+import useFetchStores from "hook/useFetchStores";
+import {dangerColor, yellowColor} from "utils/global-styles/variables";
+import NumberFormat from "react-number-format";
 
 let typeButton = "";
 
@@ -183,12 +185,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
-  const status_order = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.order_status
-  );
-
-  const [listNewOrder, setListNewOrder] = useState<any>();
-
+  const [newOrderData, setNewOrderData] = useState<any>();
 
   // const [shippingServiceConfig, setShippingServiceConfig] = useState<
   //   ShippingServiceConfigDetailResponseModel[]
@@ -497,7 +494,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      setListNewOrder(value)
+      setNewOrderData(value)
       setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
@@ -1213,62 +1210,61 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
 
   const getNewOrderDetail = () => {
-    if (listNewOrder !== undefined) {
-      const status = status_order?.find((status) => status.value === listNewOrder.status);
+    if (newOrderData) {
       return [
         {
           name: "Mã đơn hàng",
           value:
-            <Link target="_blank" to={`${UrlConfig.ORDER}/${listNewOrder.id}`}>
-              {listNewOrder.code}
+            <Link target="_blank" to={`${UrlConfig.ORDER}/${newOrderData.id}`}>
+              {newOrderData.code}
             </Link>,
-          key: "Mã đơn hàng"
+          key: "code"
         },
         {
           name: "Trạng thái:",
-          value: status?.name,
-          key: "status",
+          value: newOrderData.sub_status,
+          key: "sub_status",
         },
         {
           name: "Ngày giao hàng:",
-          value: ConvertUtcToLocalDate(listNewOrder.fulfillments[0]?.shipment?.expected_received_date, DATE_FORMAT.DDMMYYY),
-          key: "finished_on",
+          value: ConvertUtcToLocalDate(newOrderData.fulfillments && newOrderData.fulfillments[0]?.shipment?.expected_received_date, DATE_FORMAT.DDMMYYY),
+          key: "expected_received_date",
         },
         {
           name: "Nhân viên bán hàng:",
           value: 
-              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${listNewOrder.account_code}`}>
-                {`${listNewOrder.assignee_code} - ${listNewOrder.assignee}`}
-              </Link>,
-          key: "staff-order",
+            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${newOrderData.assignee_code}`}>
+              {`${newOrderData.assignee_code} - ${newOrderData.assignee}`}
+            </Link>,
+          key: "assignee_code",
         },
         {
           name: "Nhân viên Marketing:",
-          value: <span>
-                  {listNewOrder.marketer_code
-                    && listNewOrder.marketer
-                    ? `${listNewOrder.marketer_code} - ${listNewOrder.marketer}`
-                    : "_-_"
-                  }
-                 </span>,
-          key: "marketing",
+          value: 
+            <span>
+              {newOrderData.marketer_code && newOrderData.marketer
+                ? `${newOrderData.marketer_code} - ${newOrderData.marketer}`
+                : "_-_"
+              }
+            </span>,
+          key: "marketer",
         },
         {
-          name: "Người mua:",
+          name: "Khách hàng:",
           value:
-              <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${listNewOrder.customer_id}`}>
-                  {`${listNewOrder.customer} - ${listNewOrder.customer_phone_number}`}
-              </Link>,
-          key: "order-buy",
+            <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${newOrderData.customer_id}`}>
+                {`${newOrderData.customer} - ${newOrderData.customer_phone_number}`}
+            </Link>,
+          key: "customer",
         },
         {
           name: "Địa chỉ:",
-          value: getFulfillmentShippingAddress(listNewOrder),
+          value: getFulfillmentShippingAddress(newOrderData),
           key: "full_address",
         },
       ];
-    }else {
-      return []
+    } else {
+      return [];
     }
   };
 
@@ -1310,38 +1306,59 @@ export default function Order(props: OrdersCreatePermissionProps) {
     },
   };
 
-  const PriceColumnt = {
+  const PriceColumn = {
     title: () => (
       <div style={{ color: "#222222", textAlign: "center" }}>Đơn giá</div>
     ),
     width: "76px",
     align: "right",
-    render: (data: OrderLineItemResponse) => {
-      return <div>{formatCurrency(data.price)}</div>;
+    render: (item: OrderLineItemResponse) => {
+      return (
+        <div>
+          <Tooltip title="Giá sản phẩm">
+            <span>{formatCurrency(item.price)}</span>
+          </Tooltip>
+
+          {item?.discount_items && item.discount_items[0]?.value && (
+            <Tooltip title="Khuyến mại sản phẩm">
+              <div style={{ color: dangerColor, textAlign: "right" }}>
+                {"- "}{formatCurrency(item.discount_items[0]?.value)}
+              </div>
+            </Tooltip>
+          )}
+        </div>
+      )
     },
   };
 
-  const AmountColumnt = {
+  const QuantityColumn = {
     title: () => (
       <div style={{ textAlign: "center" }}>SL</div>
     ),
     align: "right",
     width: "40px",
     render: (data: OrderLineItemResponse) => {
-      return <div>{data.quantity}</div>;
+      return (
+        <NumberFormat
+          value={data.quantity}
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      )
     },
   };
 
   const TotalPriceColumn = {
     title: () => (
-      <div style={{ textAlign: "center" }}>Tổng tiền</div>
+      <div style={{ textAlign: "center" }}>Thành tiền</div>
     ),
     align: "right",
     width: "80px",
     render: (data: OrderLineItemResponse) => {
+      const discountItem = data?.discount_items && data.discount_items[0]?.value;
       return (
         <div>
-          {formatCurrency(data.price * data.quantity)}
+          {formatCurrency((data.price - discountItem) * data.quantity)}
         </div>
       );
     },
@@ -1350,8 +1367,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const columns = [
     ProductColumn,
-    PriceColumnt,
-    AmountColumnt,
+    PriceColumn,
+    QuantityColumn,
     TotalPriceColumn,
   ];
 
@@ -1542,60 +1559,76 @@ export default function Order(props: OrdersCreatePermissionProps) {
             className="create-order-table"
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={listNewOrder?.items}
+            dataSource={newOrderData?.items}
             tableLayout="fixed"
             pagination={false}
           />
 
-         <Row gutter={24} style={{ padding: "12px 12px 4px 12px", alignItems: "center" }}>
-            <Col span={10} style={{ padding: "0" }}>
-              <b>Phí ship báo khách:</b>
-            </Col>
-            <Col
-            span={14}
-            style={{
-              textAlign: "right",
-              fontWeight: 500,
-              fontSize: "16px",
-              padding: "0",
-            }}>
-            <span className="t-result-blue">{shippingFeeInformedToCustomer}</span>
-          </Col>
-         </Row>
+          {newOrderData &&
+            <div style={{ padding: "12px", alignItems: "center" }}>
+              <Row gutter={24}>
+                <Col span={10}>Tổng tiền:</Col>
+                <Col span={14} style={{ textAlign: "right" }}>
+                  <span>{formatCurrency(newOrderData.total_line_amount_after_line_discount)}</span>
+                </Col>
+              </Row>
 
-         <Row gutter={24} style={{ padding: "0 12px", alignItems: "center" }}>
-            <Col span={10} style={{ padding: "0" }}>
-              <b>Khách cần trả:</b>
-            </Col>
-            <Col
-            span={14}
-            style={{
-              color: "#2a2a86",
-              textAlign: "right",
-              fontWeight: 500,
-              fontSize: "16px",
-              padding: "0",
-            }}>
-            <span className="t-result-blue">{formatCurrency(totalAmountOrder)}</span>
-          </Col>
-         </Row>
+              <Row gutter={24}>
+                <Col span={10} style={{ padding: "0" }}>Chiết khấu đơn hàng:</Col>
+                <Col span={14}
+                  style={{ textAlign: "right" }}>
+                  <div style={{color: "#EF5B5B"}}>
+                    <div>
+                      <span>- </span>
+                      <NumberFormat
+                        value={(newOrderData.discounts && newOrderData.discounts[0]?.amount) || 0}
+                        className="foo"
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                  </div>
+                </Col>
+              </Row>
 
-         <Row gutter={24} style={{ padding: "0 12px", alignItems: "center" }}>
-            <Col span={10} style={{ padding: "0" }}>
-              <b>COD:</b>
-            </Col>
-            <Col
-            span={14}
-            style={{
-              textAlign: "right",
-              fontWeight: 500,
-              fontSize: "16px",
-              padding: "0",
-            }}>
-            <span className="t-result-blue">{shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0}</span>
-          </Col>
-         </Row>
+              <Row gutter={24}>
+                <Col span={10} style={{ padding: "0" }}>Phí ship báo khách:</Col>
+                <Col span={14} style={{ textAlign: "right" }}>
+                  <span className="t-result-blue">
+                    {newOrderData.shipping_fee_informed_to_customer
+                      ? formatCurrency(newOrderData.shipping_fee_informed_to_customer)
+                      : "--"}
+                  </span>
+                </Col>
+              </Row>
 
+              <Divider style={{margin: "2px 0"}} />
+
+              <Row gutter={24}>
+                <Col span={10}>Khách cần trả:</Col>
+                <Col span={14} style={{ color: "#2a2a86", textAlign: "right" }}>
+                  <span className="t-result-blue">{formatCurrency(newOrderData.total)}</span>
+                </Col>
+              </Row>
+
+              <Row gutter={24}>
+                <Col span={10}> Đã thanh toán: </Col>
+                <Col span={14} style={{  color: "#2a2a86", textAlign: "right" }}>
+                  <span style={{color: yellowColor}}>{formatCurrency(getAmountPayment(newOrderData.payments))}</span>
+                </Col>
+              </Row>
+
+              <Row gutter={24}>
+                <Col span={10}>Còn phải trả:</Col>
+                <Col span={14} style={{ textAlign: "right" }}>
+                  {newOrderData.fulfillments && newOrderData.fulfillments[0]?.shipment?.cod
+                    ? <span style={{color: dangerColor}}>{formatCurrency(newOrderData.fulfillments[0]?.shipment?.cod)}</span>
+                    : <span>{"--"}</span>
+                  }
+                </Col>
+              </Row>
+            </div>
+          }
       </Modal>
     </div>
   );
