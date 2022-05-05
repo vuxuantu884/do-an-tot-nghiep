@@ -85,6 +85,9 @@ const TabProduct: React.FC<any> = (props) => {
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.variant_status;
   });
+  const userAccount = useSelector((state: RootReducerType) => {
+    return state.userReducer.account;
+  })
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listCountry, setCountry] = useState<Array<CountryResponse>>();
@@ -284,6 +287,16 @@ const TabProduct: React.FC<any> = (props) => {
     [dispatch, params, setSearchResult]
   );
 
+  const ckeckPermissionReadCostPrice = (): boolean => {
+    if(userAccount){
+      const userProductsPermission = userAccount.permissions.modules.find((el) => el.code === 'products')
+      if(userProductsPermission && userProductsPermission.permissions.find((i) => i.code === 'read_cost')) return true
+      else return false
+    }else {
+      return false
+    }
+  }
+
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
       width: 70,
@@ -328,6 +341,24 @@ const TabProduct: React.FC<any> = (props) => {
         )
       },
       visible: true,
+    },
+    {
+      title: "Giá vốn",
+      dataIndex: "variant_prices",
+      align: "right",
+      visible: ckeckPermissionReadCostPrice(),
+      width: 110,
+      render: (value) => {
+        let prices: VariantPricesResponse | null = Products.findPrice(
+          value,
+          AppConfig.currency
+        );
+        if (prices !== null) {
+
+          return formatCurrency(prices.cost_price);
+        }
+        return 0;
+      },
     },
     {
       title: "Giá bán",

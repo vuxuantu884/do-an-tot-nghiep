@@ -5,6 +5,7 @@ export interface PermissionsAuthorize {
   name: string;
   store_id: number;
   version?: number;
+  code?: string;
 }
 
 // export interface PermissionResponse {
