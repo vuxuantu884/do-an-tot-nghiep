@@ -828,7 +828,7 @@ ShippingServiceConfigDetailResponseModel[]
             received: isReceivedReturnProducts,
             discounts: handleRecalculateOriginDiscount(itemsResult),
             account_code: recentAccountCode.accountCode,
-            assignee_code: recentAccountCode.accountCode || null,
+            assignee_code: OrderDetail.assignee_code || null,
             total: Math.ceil(totalAmountReturnProducts),
             total_discount: Math.ceil(discountValue),
             total_line_amount_after_line_discount: Math.ceil(totalAmountReturnProducts - discountValue),
