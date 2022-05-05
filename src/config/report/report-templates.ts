@@ -362,6 +362,10 @@ export const DETAIL_LINKS = [
     field: "customer_code",
     link: "/customers",
   },
+  {
+    field: "order_code",
+    link: "/orders",
+  },
 ];
 
 export const TIME_GROUP_BY = [
