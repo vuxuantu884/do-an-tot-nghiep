@@ -97,3 +97,9 @@ export const ORDER_RETURN_SUB_STATUS = {
 };
 
 export const FulfillmentCancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING, FulFillmentStatus.CANCELLED];
+
+export const ORDER_PAYMENT_STATUS = {
+  paid: "paid", // đã trả
+  unpaid: "unpaid", // chưa trả
+  partial_paid: "partial_paid", // thanh toán một phần
+}

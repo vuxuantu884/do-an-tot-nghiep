@@ -83,7 +83,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-	checkPaymentStatus,
 	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
@@ -114,6 +113,7 @@ import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
+import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 
 // let typeButton = "";
@@ -1464,27 +1464,7 @@ ShippingServiceConfigDetailResponseModel[]
 														<div className="d-flex">
 															<span className="title-card">THANH TOÁN</span>
 														</div>
-														{checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === -1 && (
-															<Tag className="orders-tag orders-tag-default">
-																Chưa thanh toán
-															</Tag>
-														)}
-														{checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === 0 && (
-															<Tag className="orders-tag orders-tag-warning">
-																Thanh toán 1 phần
-															</Tag>
-														)}
-														{checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === 1 && (
-															<Tag
-																className="orders-tag orders-tag-success"
-																style={{
-																	backgroundColor: "rgba(39, 174, 96, 0.1)",
-																	color: "#27AE60",
-																}}
-															>
-																Đã thanh toán
-															</Tag>
-														)}
+														<PaymentStatusTag orderDetail={OrderDetail} />
 													</Space>
 												}
 											>
