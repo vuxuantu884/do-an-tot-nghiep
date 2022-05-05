@@ -8,7 +8,7 @@ function ProductDashboard() {
     return (
         <Card className="product-dashboard">
             <Row gutter={20}>
-                <Col span={10}>
+                <Col xs={24} md={10}>
                     <Card title="Doanh thu theo nhóm sản phẩm" className="product-group-cart">
                         <ProductSaleGroup  />
                     </Card>
