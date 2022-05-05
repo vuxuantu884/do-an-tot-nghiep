@@ -49,6 +49,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import BaseResponse from "base/base.response";
 import { FilterConfig } from "model/other";
 import { ORDER_TYPES } from "utils/Order.constants";
+import { isEqual } from "lodash";
 
 type PropTypes = {
   params: OrderSearchQuery;
@@ -71,6 +72,8 @@ type PropTypes = {
   setListSource?: (values: SourceResponse[]) => void;
   setListOrderProcessingStatus?: (values: OrderProcessingStatusModel[]) => void;
   orderType: OrderTypeModel;
+  initChannelCodes?: string[];
+  channels?: ChannelResponse[];
 };
 
 type ListFilterTagTypes = {
@@ -119,6 +122,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onShowColumnSetting,
     setListOrderProcessingStatus,
     orderType,
+    initChannelCodes,
+    channels,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -1042,7 +1047,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
 
-    if (initialValues.channel_codes.length) {
+    if(initialValues.channel_codes.length && (!isEqual(initialValues.channel_codes, initChannelCodes || orderType !== ORDER_TYPES.online))) {
       let mappedChannels = listChannel?.filter((channel) =>
         initialValues.channel_codes?.some((single) => single === channel.code.toString())
       );
@@ -1109,28 +1114,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
     return list;
-  }, [
-    filterTagFormatted,
-    initialValues,
-    assigneeFound,
-    listStore,
-    listSources,
-    status,
-    subStatus,
-    fulfillmentStatus,
-    paymentStatus,
-    optionsVariant,
-    services,
-    serviceListVariables,
-    accountFound,
-    coordinatorFound,
-    marketerFound,
-    listPaymentMethod,
-    serviceType,
-    deliveryService,
-    shippers,
-    listChannel,
-  ]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1304,8 +1288,12 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
   useEffect(() => {
     setServices(initialValues.services);
-    dispatch(getListChannelRequest(setListChannel));
-  }, [dispatch, initialValues.services]);
+    if(!channels || channels?.length === 0) {
+      dispatch(getListChannelRequest(setListChannel));
+    } else {
+      setListChannel(channels)
+    }
+  }, [channels, dispatch, initialValues.services]);
 
   // useEffect(() => {
   // setFiltersResult(filters);
