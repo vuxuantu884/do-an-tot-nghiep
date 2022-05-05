@@ -90,6 +90,7 @@ const TreeStore = (props: Props) => {
             return item?.title?.toString().toLowerCase().includes(search?.toString().toLowerCase());
         }}
         onClear={() => setIsSelectAll(false)}
+        getPopupContainer={(trigger: any) => trigger.parentElement}
     >
         {onSelectAll && (
             <TreeSelect.TreeNode
