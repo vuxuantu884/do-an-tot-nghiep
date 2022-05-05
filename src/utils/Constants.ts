@@ -278,7 +278,7 @@ export const POS = {
 
 export const SHOPEE = {
 	channel_id: 3,
-  channel_code: "Shopee"
+  channel_code: "SHOPEE"
 };
 
 export const WEB = {
@@ -292,23 +292,25 @@ export const WEB = {
 
 export const TIKI = {
 	channel_id: 17,
-  channel_code: "tiki"
+  channel_code: "TIKI"
 };
 
 export const LAZADA = {
 	channel_id: 15,
-  channel_code: "lazada"
+  channel_code: "LAZADA"
 };
 
 export const SENDO = {
 	channel_id: 16,
-  channel_code: "sendo"
+  channel_code: "SENDO"
 };
 
 export const FACEBOOK = {
 	channel_id: 2,
   channel_code: "FB"
 };
+
+export const ECOMMERCE_CHANNEL_CODES = [TIKI.channel_code, LAZADA.channel_code, SENDO.channel_code, SHOPEE.channel_code]
 
 export const SHIPPING_REQUIREMENT = {
   default: "open_try"

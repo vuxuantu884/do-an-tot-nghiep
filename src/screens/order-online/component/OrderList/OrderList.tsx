@@ -38,6 +38,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import queryString from "query-string";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { GoPlus } from "react-icons/go";
@@ -68,6 +69,8 @@ type PropTypes = {
   };
   orderType: OrderTypeModel;
   isHideTab?: boolean;
+  initChannelCodes?: string[];
+  channels?: ChannelResponse[];
 };
 
 let isLoadingSetSubStatus = false
@@ -93,7 +96,7 @@ function OrderList(props: PropTypes) {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { location, initQuery, pageTitle, isHideTab = false, orderType } = props;
+  const { location, initQuery, pageTitle, isHideTab = false, orderType, initChannelCodes, channels } = props;
   const queryParamsParsed: any = queryString.parse(
     location.search
   );
@@ -425,6 +428,7 @@ function OrderList(props: PropTypes) {
   const onExport = useCallback(
     (optionExport, hiddenFieldsExport) => {
       let newParams: any = { ...params };
+      console.log("newParams",params)
       // let hiddenFields = [];
       switch (optionExport) {
         case EXPORT_IDs.allOrders:
@@ -446,6 +450,7 @@ function OrderList(props: PropTypes) {
       }
 
       let queryParams = generateQuery(newParams);
+      console.log("queryParams",queryParams)
       exportFile({
         conditions: queryParams,
         type: "EXPORT_ORDER",
@@ -856,6 +861,8 @@ function OrderList(props: PropTypes) {
             orderType={orderType}
             setListSource={setListSource}
             setListOrderProcessingStatus={setListOrderProcessingStatus}
+            initChannelCodes={initChannelCodes}
+            channels={channels}
           />
 
           {deliveryServices.length > 0 && subStatuses.length > 0 ? (

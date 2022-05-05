@@ -28,6 +28,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getListOrderApi } from "service/order/order.service";
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { FulFillmentStatus } from "utils/Constants";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -100,10 +101,6 @@ const PackSupportScreen: React.FC = () => {
     }
   }, [listStores, userReducer.account]);
 
-  // useLayoutEffect(() => {
-  //   setActiveTab(newParam.tab);
-  // }, [newParam.tab]);
-
   useEffect(() => {
     let packInfo: string | null = getPackInfo();
     if (packInfo) {
@@ -119,7 +116,9 @@ const PackSupportScreen: React.FC = () => {
         if (isFetchApiSuccessful(response)) {
           let orderEnd = packData.order.filter((p) => 
             response.data.items.some(
-              p1 => p1.code === p.order_code && (!p1.goods_receipts ||(p1.goods_receipts &&p1.goods_receipts.length<=0) )
+              p1 => (p1.code === p.order_code && (!p1.goods_receipts ||(p1.goods_receipts &&p1.goods_receipts.length<=0) ))
+              &&
+              p1.fulfillments?.some(p2=>p2.code === p.code &&p2.status === FulFillmentStatus.PACKED)
             )
           );
           setPackModel({ ...packData,store_id:packData.store_id ,order: orderEnd });
