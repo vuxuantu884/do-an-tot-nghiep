@@ -40,6 +40,8 @@ import TreeStore from "component/tree-node/tree-store";
 import "screens/ecommerce/orders/ecommerce-order.scss"
 import CustomSelectTags from "component/custom/custom-select-tag";
 import moment from "moment";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import {searchAccountApi} from "service/accounts/account.service";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -155,6 +157,25 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const [ecommerceKeySelected, setEcommerceKeySelected] = useState<string>("");
   const [isEcommerceSelected, setIsEcommerceSelected] = useState<boolean>(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
+
+  const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
+  const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>([]);
+
+  useEffect(() => {
+    if (accounts) {
+      setAccountData(accounts);
+    }
+  }, [accounts]);
+
+  useEffect(() => {
+    if (params.assignee_codes && params.assignee_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.assignee_codes,
+      }).then((response) => {
+        setAssigneeFound(response.data.items);
+      });
+    }
+  }, [params.assignee_codes]);
 
   //handle tag filter
 	const [tags, setTags] = useState<Array<any>>([]);
@@ -553,7 +574,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     if (initialValues.assignee_codes.length) {
       let textAccount = ""
       initialValues.assignee_codes.forEach(i => {
-        const findAccount = accounts?.find(item => item.code === i)
+        const findAccount = assigneeFound?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
       list.push({
@@ -727,6 +748,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     paymentStatus,
     optionsVariant,
     accounts,
+    assigneeFound,
     listPaymentMethod,
     serviceType,
     deliveryService
@@ -1370,26 +1392,17 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     </CustomSelect.Option>
                   </CustomSelect>
                 </Item>
-                <p>Nhân viên bán hàng</p>
-                <Item name="assignee_codes">
-                  <CustomSelect
-                    mode="multiple" showSearch allowClear
-                    showArrow placeholder="Chọn nhân viên bán hàng"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                      {accounts.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.code.toString()}
-                        >
-                          {`${item.full_name} - ${item.code}`}
-                        </CustomSelect.Option>
-                      ))}
-                  </CustomSelect>
+
+                <Item name="assignee_codes" label="Nhân viên bán hàng">
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={accounts}
+                    mode="multiple"
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    maxTagCount="responsive"
+                  />
                 </Item>
               </Col>
               {/* <Col span={8} xxl={6}>
