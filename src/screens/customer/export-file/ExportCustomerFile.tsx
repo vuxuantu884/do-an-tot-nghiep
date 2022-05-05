@@ -160,6 +160,9 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
     {name: "Mã số thẻ", value: "card_number", isSelected: false},
     {name: "Đơn vị", value: "code", isSelected: false},
     {name: "Điểm hiện tại", value: "point", isSelected: false},
+    {name: "Tiền tích lũy", value: "total_paid_amount", isSelected: false},
+    {name: "Ngày mua đầu", value: "first_order_time", isSelected: false},
+    {name: "Ngày mua cuối", value: "last_order_time", isSelected: false},
   ];
 
   const [columnListOption, setColumnListOption] = useState<any>(columnListOptionDefault);
