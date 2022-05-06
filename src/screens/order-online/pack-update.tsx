@@ -31,6 +31,7 @@ import { Link } from "react-router-dom";
 import { StyledComponent } from "./scss/index.screen.styles";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
+import { FulFillmentStatus } from "utils/Constants";
 
 const { Item } = Form;
 type PackParam = {
@@ -254,13 +255,13 @@ const PackUpdate: React.FC = () => {
           if (item.fulfillments && item.fulfillments.length > 0) {
             let indexFFM = item.fulfillments.length - 1;
            
-            if (packDetail.receipt_type_id === 1 && item.fulfillments[indexFFM].status === "packed") {
+            if (packDetail.receipt_type_id === 1 && item.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
               let FFMCode: string | null = item.fulfillments[indexFFM].code;
               FFMCode && codes.push(FFMCode);
             }
             else if(packDetail.receipt_type_id === 2 
-              && item.fulfillments[indexFFM].return_status === "returning"
-              && item.fulfillments[indexFFM].status === "cancelled")
+              && item.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
+              && item.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED)
               {
                 let FFMCode: string | null = item.fulfillments[indexFFM].code;
                 FFMCode && codes.push(FFMCode);

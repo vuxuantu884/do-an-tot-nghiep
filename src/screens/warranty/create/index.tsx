@@ -95,6 +95,7 @@ function CreateWarranty(props: Props) {
   const [customerID, setCustomerID] = useState<number | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
   const [visibleHistory, setVisibleHistory] = useState(false);
+  const [isDisableSelectPurchaseDate, setIsDisableSelectPurchaseDate] = useState(false);
 
   const stores = useFetchStores();
 
@@ -112,6 +113,7 @@ function CreateWarranty(props: Props) {
   });
 
   const [printContent, setPrintContent] = useState("");
+  const pageBreak = "<div class='pageBreak'></div>";
   const printerContentHtml = () => {
     return `<div class='printerContent'>${printContent}<div>`;
   };
@@ -351,6 +353,10 @@ function CreateWarranty(props: Props) {
     return current && current < moment().subtract(1, 'days');
   };
 
+  const disabledDatePurchaseDate = (current: any) => {
+    return (current && current < moment().subtract(6, 'months')) || (current && current > moment().endOf('day'));
+  };
+
   const addItemsWarranty = useCallback(
     (item: any) => {
       let newWarrantyItems = [
@@ -519,11 +525,18 @@ function CreateWarranty(props: Props) {
         title: "Ngày mua",
         key: "purchase_date",
         render: (value: string, record: any) => {
-          return record.finished_on ? (
-            <div>{moment(record.finalized_on).format(DATE_FORMAT.fullDate)}</div>
-          ) : (
-            ""
-          );
+          return (
+            <DatePicker
+              style={{ width: "100%" }}
+              placeholder="Ngày mua"
+              format={DATE_FORMAT.DDMMYYY}
+              suffixIcon={<CalendarOutlined style={{ color: "#71767B", float: "left" }} />}
+              defaultValue={moment(record.finalized_on)}
+              onChange={(value) => onChangeItem(moment(value).format(), "finalized_on", record.index)}
+              disabledDate={disabledDatePurchaseDate}
+              disabled={isDisableSelectPurchaseDate}
+            />
+          )
         },
         visible: true,
         align: "center",
@@ -602,16 +615,17 @@ function CreateWarranty(props: Props) {
         width: 80,
       },
     ],
-    [deleteItemsWarranty, onChangeItem, reasons]
+    [deleteItemsWarranty, isDisableSelectPurchaseDate, onChangeItem, reasons]
   );
 
   const handleCreateCallback = (data: any) => {
     console.log("data", data);
-    getPrintFormByWarrantyIdsService(data.id, "warranty").then((response) => {
+    getPrintFormByWarrantyIdsService(data.line_items.map((single:any) => single.id), "warranty").then((response) => {
       if (isFetchApiSuccessful(response)) {
         //xóa thẻ p thừa
-        let textResponse = response.data[0].html_content;
-        let result = textResponse.replaceAll("<p></p>", "");
+        let textResponse = response.data.map((single:any) => single.html_content)
+        let textResponseFormatted = textResponse.join(pageBreak);
+        let result = textResponseFormatted.replaceAll("<p></p>", "");
         setPrintContent(result);
         handlePrint();
       } else {
@@ -619,7 +633,6 @@ function CreateWarranty(props: Props) {
       }
     });
   };
-
   const handleSubmit = (values: any) => {
     if (warrantyItems.length) {
       let typeOK = true;
@@ -636,7 +649,7 @@ function CreateWarranty(props: Props) {
           line_items: warrantyItems.map((i) => {
             return {
               ...i,
-              purchase_date: i.finished_on ? i.finished_on : null,
+              purchase_date: i.finalized_on ? i.finalized_on : null,
               expenses: [
                 {
                   reason_id: i.reason_id,
@@ -701,6 +714,9 @@ function CreateWarranty(props: Props) {
           });
           setWarrantyItems(newWarrantyItems);
           setLoadingData(false);
+          if(data.finalized_on) {
+            setIsDisableSelectPurchaseDate(true)
+          }
         }
       }));
     } else {

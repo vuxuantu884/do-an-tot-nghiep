@@ -143,6 +143,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
         disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
+        listHeight= {300}
         key={Math.random()}>
         {subStatuses &&
           subStatuses.map((single) => {
