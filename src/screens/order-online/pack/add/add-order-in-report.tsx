@@ -78,7 +78,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     [isOrderPack, orderListResponse, setOrderListResponse, codes]
   );
 
-  console.log("isOrderPack", formSearchOrderRef)
+  //console.log("isOrderPack", formSearchOrderRef)
 
   useEffect(() => {
     if (orderListResponse.length > 0) {
