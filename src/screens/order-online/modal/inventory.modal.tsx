@@ -3,6 +3,7 @@ import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { grayE5Color } from "utils/global-styles/variables";
 
 type InventoryModalProps = {
   isModalVisible: boolean;
@@ -130,7 +131,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
 
   return (
     <Modal
-      title="Check thông tin tồn kho"
+      title="Kiểm tra thông tin tồn kho"
       visible={isModalVisible}
       centered
       okText="Chọn kho"
@@ -157,7 +158,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
               style={{ width: "100%" }}
             >
               <table className="rules">
-                <thead>
+                <thead style={{position: "sticky", top: -1, zIndex: 99, background: grayE5Color}}>
                   <tr>
                     <th className="condition">Sản phẩm</th>
                     {columnsItem?.map((data, index) => (
@@ -165,7 +166,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                     ))}
                   </tr>
                 </thead>
-                <tbody>
+                <tbody style={{position: "sticky", top: 43, zIndex: 99, background: "white"}}>
                   <tr>
                     <td className="condition">Khách đặt</td>
                     {columnsItem?.map((data, index) => (
@@ -173,7 +174,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                     ))}
                   </tr>
                 </tbody>
-                <thead>
+                <thead style={{position: "sticky", top: 86, zIndex: 99, background: grayE5Color}}>
                   <tr>
                     <th className="condition">Tổng có thế bán</th>
                     {columnsItem?.map((data, index) => (
@@ -190,7 +191,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                       </th>
 
                       {columnsItem?.map((_itemi, index) => (
-                        <td className="condition" key={_itemi.variant_id}>
+                        <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 ? {color: "red"} : undefined}>
                           {item.data[_itemi.variant_id]}
                         </td>
                       ))}
