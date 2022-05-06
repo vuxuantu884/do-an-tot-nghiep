@@ -75,10 +75,9 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     }
   ];
 
-
-
-  const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest) => {
+  const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest, isBarcode?:boolean) => {
     if (param) {
+      console.log("ok")
       dispatch(
         getOrderConcernGoodsReceipts(
           param,
@@ -103,6 +102,10 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                 setCodes([...codes, ...newCodes]);
                 setOrderListResponse([...orderListResponse]);
               }
+
+              const searchTermElement:any= document.getElementById("search_term");
+              !isBarcode&&searchTermElement&&searchTermElement.select();
+              
             } else {
               showError("Không tìm thấy đơn hàng");
             }
@@ -131,9 +134,10 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           order_codes: barcode,
           store_id: store_id,
           delivery_service_provider_id: delivery_service_provider_id,
-          channel_id: channel_id
+          channel_id: channel_id,
+          receipt_type_id:receipt_type_id
         }
-        handleAddOrder(param)
+        handleAddOrder(param, true)
         barcode = "";
       }
     }
@@ -153,6 +157,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
       receipt_type_id:receipt_type_id
     }
     handleAddOrder(param)
+     
   }, [goodsReceiptsForm, handleAddOrder])
 
   useEffect(() => {
