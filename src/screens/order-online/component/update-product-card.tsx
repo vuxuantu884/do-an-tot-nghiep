@@ -137,8 +137,8 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
         <div>
-          {l.discount_items.length > 0 && l.discount_items[0].value !== null
-            ? formatCurrency(l.discount_items[0].value)
+          {l.discount_items.length > 0 && l.discount_items[0].amount !== null
+            ? formatCurrency(l.discount_items[0].amount)
             : 0}
             {l.discount_items[0]?.rate ? (
               <div className="d-flex justify-content-end yody-table-discount-converted">

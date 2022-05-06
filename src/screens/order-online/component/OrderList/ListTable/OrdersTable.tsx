@@ -1274,8 +1274,8 @@ function OrdersTable(props: PropTypes) {
         title: "Ghi chú",
         className: "notes",
         render: (value: string, record: OrderModel) => {
-          const noteReturnPay=record.order_return_origin?.total;
-          const noteReturnPayCustomer=record.total- (record.order_return_origin?.total?record.order_return_origin?.total:0);
+          // const noteReturnPay=record.order_return_origin?.total;
+          // const noteReturnPayCustomer=record.total- (record.order_return_origin?.total?record.order_return_origin?.total:0);
           return (
             <div className="orderNotes">
               <div className="inner">
@@ -1294,28 +1294,28 @@ function OrdersTable(props: PropTypes) {
                   <EditNote
                   
                     // note={`Đơn trả: ${noteReturnPay} ${noteReturnPayCustomer>0?` ,Khách trả lại :${noteReturnPayCustomer}`:` ,Trả lại khách: ${(noteReturnPayCustomer*-1)}`} ${record.note}`}
-                    note={`${record.note}`}
+                    note={record.note}
                     title="Nội bộ: "
                     color={primaryColor}
                     onOk={(newNote) => {
                       editNote(newNote, "note", record.id, record);
                     }}
-                    defaultNote={record.order_return_origin&&(
-                      <React.Fragment>
-                        {noteReturnPay && (
-                          <div className="textSmall">Đơn trả: {formatCurrency(noteReturnPay)}</div>
-                        )}
-                        {noteReturnPayCustomer&&(
-                          <div className="textSmall">
-                            {` ${noteReturnPayCustomer>0?`, Khách trả lại :${formatCurrency(noteReturnPayCustomer)}`
-                            :noteReturnPayCustomer<0?` Trả lại khách: ${formatCurrency(noteReturnPayCustomer*-1)}`
-                            :``}`}
-                         </div>
-                        )}
+                    // defaultNote={record.order_return_origin&&(
+                    //   <React.Fragment>
+                    //     {noteReturnPay && (
+                    //       <div className="textSmall">Đơn trả: {formatCurrency(noteReturnPay)}</div>
+                    //     )}
+                    //     {noteReturnPayCustomer&&(
+                    //       <div className="textSmall">
+                    //         {` ${noteReturnPayCustomer>0?`, Khách trả lại :${formatCurrency(noteReturnPayCustomer)}`
+                    //         :noteReturnPayCustomer<0?` Trả lại khách: ${formatCurrency(noteReturnPayCustomer*-1)}`
+                    //         :``}`}
+                    //      </div>
+                    //     )}
                        
-                      </React.Fragment>
-                      )
-                    }
+                    //   </React.Fragment>
+                    //   )
+                    // }
                   // isDisable={record.status === OrderStatus.FINISHED}
                   />
                 </div>
@@ -1516,7 +1516,7 @@ function OrdersTable(props: PropTypes) {
         <div className="actionButton">
           <Popover
             placement="right"
-            overlayStyle={{ zIndex: 1000, top: "150px" }}
+            overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
             title={
               <Row
                 justify="space-between"

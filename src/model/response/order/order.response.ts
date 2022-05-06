@@ -282,6 +282,7 @@ export interface ShipmentResponse extends BaseObject {
   delivery_service_provider_id: number | null;
   delivery_service_provider_name: string | null;
   delivery_service_provider_type: string | null;
+  delivery_service_note: string | null;
   delivery_transport_type: string | null;
   insurance_fee: number | null;
   shipper_code: string | null;
