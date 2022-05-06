@@ -615,7 +615,7 @@ function CreateWarranty(props: Props) {
         width: 80,
       },
     ],
-    [deleteItemsWarranty, onChangeItem, reasons]
+    [deleteItemsWarranty, isDisableSelectPurchaseDate, onChangeItem, reasons]
   );
 
   const handleCreateCallback = (data: any) => {
