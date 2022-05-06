@@ -105,7 +105,7 @@ import ReportPreparationShopeeProductModal from "./component/ReportPreparationSh
 import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
 import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
 import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
-import {ORDER_SUB_STATUS} from "utils/Order.constants";
+import {ORDER_EXPORT_TYPE, ORDER_SUB_STATUS} from "utils/Order.constants";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import {RootReducerType} from "model/reducers/RootReducerType";
@@ -240,6 +240,7 @@ const EcommerceOrders: React.FC = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
+  const [exportError, setExportError] = useState<string>("");
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
 
@@ -290,7 +291,7 @@ const EcommerceOrders: React.FC = () => {
   }, [dispatch]);
 
   const onExport = useCallback(
-    (optionExport, typeExport) => {
+    (optionExport, hiddenFieldsExport) => {
       let newParams: any = { ...params };
       if (!newParams.channel_codes?.length) {
         newParams.channel_codes = ALL_CHANNEL;
@@ -321,6 +322,7 @@ const EcommerceOrders: React.FC = () => {
       exportFile({
         conditions: queryParams,
         type: "EXPORT_ORDER",
+        hidden_fields: hiddenFieldsExport,
       })
         .then((response) => {
           if (response.code === HttpStatus.SUCCESS) {
@@ -354,7 +356,7 @@ const EcommerceOrders: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(Math.round(response.data?.num_of_record / response.data?.total * 100));
+          setExportProgress(Math.round(response.data?.num_of_record / response.data?.total * 10000) / 100);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -369,7 +371,8 @@ const EcommerceOrders: React.FC = () => {
             setStatusExport(4);
             setExportProgress(0);
             setListExportFile([]);
-            showError("Có lỗi xảy ra, vui lòng thử lại sau");
+            setExportError(response.data.message);
+            showError("Đã có lỗi xảy ra!");
           }
         } else {
           setStatusExport(4);
@@ -2062,11 +2065,12 @@ const EcommerceOrders: React.FC = () => {
               setExportProgress(0);
               setStatusExport(1);
             }}
-            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
-            type="orders"
+            onOk={(optionExport, hiddenFieldsExport) => onExport(optionExport, hiddenFieldsExport)}
+            type={ORDER_EXPORT_TYPE.ECOMMERCE}
             total={data.metadata.total}
             exportProgress={exportProgress}
             statusExport={statusExport}
+            exportError={exportError}
             selected={!!selectedRowCodes.length}
           />
         )}
