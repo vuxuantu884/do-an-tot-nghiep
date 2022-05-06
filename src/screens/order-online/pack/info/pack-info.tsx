@@ -327,7 +327,7 @@ const PackInfo: React.FC = () => {
         let request = {
           id: packFulFillmentResponse.id,
           code: packFulFillmentResponse.code,
-          items: itemProductList,
+          items: packFulFillmentResponse.items,
         };
 
         let packData: PackModel = { ...new PackModelDefaltValue(), ...packModel };
