@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {createRef, useEffect, useState} from "react";
+import React, {createRef, useEffect, useMemo, useState} from "react";
 import {Form, Button, Card, Tag, Input, Select, DatePicker, Divider, FormInstance} from "antd";
 
 import {
@@ -51,6 +51,10 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     tempNewCustomerInfo[fieldName] = value;
     setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
+
+	const isEditCustomer = useMemo(() => {
+		return !!customer;
+	}, [customer]);
 
   useEffect(() => {
     if (customer) {
@@ -342,102 +346,106 @@ const YDPageCustomerCreateUpdate = (props: any) => {
             </div>
           )}
 
-          <YDpageCustomerAreaInfo
-            form={form}
-						formRef={formRef}
-            areaList={areaList}
-            customer={customer}
-            isDisable={isDisableForm()}
-            newCustomerInfo={newCustomerInfo}
-            setNewCustomerInfo={setNewCustomerInfo}
-						updateNewCustomerInfo={(fieldName: string, value: any) => updateNewCustomerInfo(fieldName, value)}
-          />
+					{isEditCustomer &&
+						<>
+							<YDpageCustomerAreaInfo
+								form={form}
+								formRef={formRef}
+								areaList={areaList}
+								customer={customer}
+								isDisable={isDisableForm()}
+								newCustomerInfo={newCustomerInfo}
+								setNewCustomerInfo={setNewCustomerInfo}
+								updateNewCustomerInfo={(fieldName: string, value: any) => updateNewCustomerInfo(fieldName, value)}
+							/>
 
-          {/*customer card, group*/}
-          <div className="item-row">
-            <Form.Item
-              name="card_number"
-              className="left-item"
-            >
-              <Input
-                placeholder="Mã thẻ KH"
-                allowClear
-                onBlur={(e) => {
-                  form?.setFieldsValue({ card_number: e.target.value.trim() });
-                  updateNewCustomerInfo("card_number", e.target.value.trim());
-                }}
-              />
-            </Form.Item>
+							{/*customer card, group*/}
+							<div className="item-row">
+								<Form.Item
+									name="card_number"
+									className="left-item"
+								>
+									<Input
+										placeholder="Mã thẻ KH"
+										allowClear
+										onBlur={(e) => {
+											form?.setFieldsValue({ card_number: e.target.value.trim() });
+											updateNewCustomerInfo("card_number", e.target.value.trim());
+										}}
+									/>
+								</Form.Item>
 
-            <Form.Item
-              name="customer_group_id"
-              className="right-item"
-            >
-              <Select
-                showSearch
-                allowClear
-                optionFilterProp="children"
-                onChange={onSelectCustomer}
-                placeholder={
-                  <React.Fragment>
-                    <span> Nhóm khách hàng</span>
-                  </React.Fragment>
-                }
-                className="select-with-search"
-              >
-                {customerGroups &&
-                  customerGroups.map((group: any) => (
-                    <Select.Option key={group.id} value={group.id}>
-                      {group.name}
-                    </Select.Option>
-                  ))}
-              </Select>
-            </Form.Item>
-          </div>
+								<Form.Item
+									name="customer_group_id"
+									className="right-item"
+								>
+									<Select
+										showSearch
+										allowClear
+										optionFilterProp="children"
+										onChange={onSelectCustomer}
+										placeholder={
+											<React.Fragment>
+												<span> Nhóm khách hàng</span>
+											</React.Fragment>
+										}
+										className="select-with-search"
+									>
+										{customerGroups &&
+											customerGroups.map((group: any) => (
+												<Select.Option key={group.id} value={group.id}>
+													{group.name}
+												</Select.Option>
+											))}
+									</Select>
+								</Form.Item>
+							</div>
 
-          {/*gender, phone*/}
-          <div className="item-row">
-            <Form.Item
-              name="gender"
-              className="left-item"
-            >
-              <Select
-                onChange={onSelectGender}
-                placeholder="Giới tính"
-                allowClear
-              >
-                {GENDER_OPTIONS.map((gender: any) => (
-                  <Select.Option key={gender.value} value={gender.value}>
-                    {gender.label}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
+							{/*gender, phone*/}
+							<div className="item-row">
+								<Form.Item
+									name="gender"
+									className="left-item"
+								>
+									<Select
+										onChange={onSelectGender}
+										placeholder="Giới tính"
+										allowClear
+									>
+										{GENDER_OPTIONS.map((gender: any) => (
+											<Select.Option key={gender.value} value={gender.value}>
+												{gender.label}
+											</Select.Option>
+										))}
+									</Select>
+								</Form.Item>
 
 
-            <Form.Item
-              name="birthday"
-              className="right-item"
-            >
-              <DatePicker
-                style={{ width: "100%" }}
-                placeholder="Ngày sinh"
-                format={"DD/MM/YYYY"}
-                onChange={onChangeBirthDay}
-              />
-            </Form.Item>
-          </div>
+								<Form.Item
+									name="birthday"
+									className="right-item"
+								>
+									<DatePicker
+										style={{ width: "100%" }}
+										placeholder="Ngày sinh"
+										format={"DD/MM/YYYY"}
+										onChange={onChangeBirthDay}
+									/>
+								</Form.Item>
+							</div>
 
-          {/*submit button*/}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              type="primary"
-              style={{ height:"32px" }}
-              onClick={handleSubmitCreateUpdate}
-            >
-              Lưu
-            </Button>
-          </div>
+							{/*submit button*/}
+							<div style={{ display: "flex", justifyContent: "flex-end" }}>
+								<Button
+									type="primary"
+									style={{ height:"32px" }}
+									onClick={handleSubmitCreateUpdate}
+								>
+									Lưu
+								</Button>
+							</div>
+						</>
+					}
 
           <Divider style={{margin: "8px 0"}} />
 
@@ -467,7 +475,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 					</Form.Item>
 
 					<div className="customer-note-wrapper">
-						{notes.length > 0 ? notes.map((note: any, index: number) => (
+						{notes?.length > 0 ? notes.map((note: any, index: number) => (
 								<div className="customer-note-item" key={index}>
 									<span key={note.id}>{note.content}</span>
 									<img
