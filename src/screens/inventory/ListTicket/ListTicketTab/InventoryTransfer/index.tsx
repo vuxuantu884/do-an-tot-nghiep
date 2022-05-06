@@ -636,6 +636,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       case TYPE_EXPORT.all:
         const roundAll = Math.round(data.metadata.total / limit);
         times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
+        console.log('times',times);
 
         for (let index = 1; index <= times; index++) {
           const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
@@ -651,6 +652,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         }
         const roundAllin = Math.round(totalItems / limit);
         times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
+        
         for (let index = 1; index <= times; index++) {
 
           const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
@@ -685,11 +687,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
       if (vExportDetailTransfer) {
         for (let i = 0; i < res.length; i++) {
-          if (!res[i] || !res[i].line_items) return;
-
+          if (!res[i] || res[i].line_items?.length === 0) continue;
+          
+          if (workbook.Sheets[`${res[i].code}`]) {
+            continue;
+          }
           const item = convertTransferDetailExport(res[i].line_items);
 
           const ws = XLSX.utils.json_to_sheet(item);
+         
           XLSX.utils.book_append_sheet(workbook, ws, res[i].code);
         }
 
