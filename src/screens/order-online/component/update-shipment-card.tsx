@@ -1438,6 +1438,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																				}}
 																			>
 																				{TrackingCode(props.OrderDetail)}
+																				{fulfillment && fulfillment.shipment?.pushing_note ? ` - ${fulfillment.shipment.pushing_note}`: null}
 																			</Typography.Link>
 																			<div
 																				style={{

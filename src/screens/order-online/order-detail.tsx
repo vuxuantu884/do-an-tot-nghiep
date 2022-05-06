@@ -90,6 +90,8 @@ type OrderParam = {
   id: string;
 };
 
+let numberReloadGetTrackingCodeGHTK = 10;
+
 const OrderDetail = (props: PropType) => {
   let { id } = useParams<OrderParam>();
   const history = useHistory();
@@ -590,18 +592,19 @@ const OrderDetail = (props: PropType) => {
     if (!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
-    const trackingCode =  OrderDetail?.fulfillments[0].shipment?.tracking_code;
-    const pushingStatus =  OrderDetail?.fulfillments[0].shipment?.pushing_status;
     let isRequest = true;
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+    const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
+    const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
     let getTrackingCode = setInterval(()=> {
-      if (isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
+      if (numberReloadGetTrackingCodeGHTK < 10 && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
         getOrderDetail(id).then(response => {
+          numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
           if (response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
             onGetDetailSuccess(response.data);
-            clearInterval(getTrackingCode);
             isRequest = false;
             showSuccess("Lấy mã vận đơn thành công!")
+            clearInterval(getTrackingCode);
           }
         })
       } else {
