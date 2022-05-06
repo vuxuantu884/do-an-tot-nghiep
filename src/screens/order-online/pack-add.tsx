@@ -156,7 +156,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
       channel_id: channel_id,
       receipt_type_id:receipt_type_id
     }
-    handleAddOrder(param,)
+    handleAddOrder(param)
      
   }, [goodsReceiptsForm, handleAddOrder])
 
