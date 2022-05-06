@@ -1243,7 +1243,7 @@ const DetailTicket: FC = () => {
                 >
                   <Col>
                     <RowDetail title="ID Phiếu" value={data.code} />
-                    <RowDetail title="Người tạo" value={data.created_by} />
+                    <RowDetail title="Người tạo" value={data.created_name} />
                     <RowDetail
                       title="Ngày tạo"
                       value={ConvertUtcToLocalDate(

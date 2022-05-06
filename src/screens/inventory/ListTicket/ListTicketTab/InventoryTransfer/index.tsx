@@ -446,8 +446,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
   const setSearchResult = useCallback(
     (result: PageResponse<Array<InventoryTransferDetailItem>> | false) => {
+      setTableLoading(false);
       if (!!result) {
-        setTableLoading(false);
         setData(result);
         if (firstLoad) {
           setTotalItems(result.metadata.total);
@@ -719,6 +719,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }
 
   useEffect(() => {
+    setTableLoading(true);
     if (activeTab === '') return;
     if (accountStores?.length === 0) return;
     let status: string[] = [];

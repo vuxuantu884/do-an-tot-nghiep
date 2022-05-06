@@ -4,6 +4,7 @@ import { CheckCircleOutlined } from "@ant-design/icons";
 import { AllInventoryProductInStore } from "model/inventory";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { StoreResponse } from "model/core/store.model";
+import {StyledComponent} from "./InventoryTable.styles";
 
 type InventoryTableProps = {
     storeId: number;
@@ -12,7 +13,7 @@ type InventoryTableProps = {
     inventoryData: AllInventoryProductInStore[];
 };
 
-const pitority = {
+const priority = {
     ware_house: 2,
     store: 1,
     distribution_center: 1,
@@ -22,7 +23,7 @@ const pitority = {
 interface InventoryStore {
     id: number,
     name: string,
-    pitority: number,
+    priority: number,
     data: any,
 }
 
@@ -39,7 +40,7 @@ const InventoryTable: React.FC<InventoryTableProps> = (
             let store: InventoryStore = {
                 id: value.id,
                 name: value.name,
-                pitority: value.type === "ware_house" ? pitority.ware_house : 1,
+                priority: value.type === "ware_house" ? priority.ware_house : 1,
                 data: {},
             };
 
@@ -71,10 +72,10 @@ const InventoryTable: React.FC<InventoryTableProps> = (
                 totalAvaiable2 = totalAvaiable2 + b.data[key];
             })
             if (item1 === items?.length && item2 === items?.length) {
-                if (a.pitority >= b.pitority) {
+                if (a.priority >= b.priority) {
                     return totalAvaiable2 - totalAvaiable1;
                 } else {
-                    return b.pitority - a.pitority;
+                    return b.priority - a.priority;
                 }
             }
             if (totalAvaiable1 !== totalAvaiable2) {
@@ -95,37 +96,40 @@ const InventoryTable: React.FC<InventoryTableProps> = (
 
     return (
         <Row style={{ marginTop: 10 }}>
-            <Col span={24}>
-                <div className="overflow-table" style={{ overflowX: "auto" , WebkitScrollSnapPointsY:"2px" }}>
-                    <table className="rules">
-                        <thead>
-                            <tr>
-                                <th className="condition">Sản phẩm</th>
-                                {items?.map((data, index) => (
-                                    <th className="condition" key={index}>{data.variant}</th>
-                                ))}
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {data?.map((item, index) => (
-                                <tr key={index}>
-                                    <th className="condition" key={index}>
-                                        {item.name} <CheckCircleOutlined hidden={item.id === storeId ? false : true} style={{ color: "#2A2A86" }} />
-                                    </th>
-
-                                    {items?.map((_itemi, index) => (
-                                        <td className="condition" key={_itemi.variant_id}>
-                                            {item.data[_itemi.variant_id]}
-                                        </td>
+                <Col span={24}>
+                <StyledComponent>
+                    <div className="overflow-table" style={{ overflowX: "auto" , WebkitScrollSnapPointsY:"2px" }}>
+                        <table className="rules">
+                            <thead>
+                                <tr>
+                                    <th className="condition">Sản phẩm 1</th>
+                                    {items?.map((data, index) => (
+                                        <th className="condition" key={index}>{data.variant}</th>
                                     ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </Col>
-        </Row>
+                            </thead>
+
+                            <tbody>
+                                {data?.map((item, index) => (
+                                    <tr key={index}>
+                                        <th className="condition" key={index}>
+                                            {item.name} <CheckCircleOutlined hidden={item.id === storeId ? false : true} style={{ color: "#2A2A86" }} />
+                                        </th>
+
+                                        {items?.map((_itemi, index) => (
+                                            <td className={`condition ${item.data[_itemi.variant_id] <=0 ? "red" : null}`}  key={_itemi.variant_id}>
+                                                {item.data[_itemi.variant_id]}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+        </StyledComponent>
+                </Col>
+            </Row>
+
     );
 };
 export default InventoryTable;

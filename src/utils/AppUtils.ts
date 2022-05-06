@@ -973,11 +973,11 @@ export const TrackingCode = (item: OrderResponse | null) => {
   if (item) {
     if (item.fulfillments) {
       if (item.fulfillments.length > 0) {
-        if (item.fulfillments[0].shipment?.pushing_status === "waiting") {
-          return ErrorGHTK.WAITTING;
-        } else {
-          return item.fulfillments[0].shipment?.tracking_code;
-        }
+        // if (item.fulfillments[0].shipment?.pushing_status === "waiting") {
+        //   return ErrorGHTK.WAITTING;
+        // } else {
+        // }
+        return item.fulfillments[0].shipment?.tracking_code;
       }
     }
   }
@@ -1278,6 +1278,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		return result
 	};
   const renderDiscountItem = (singleItem: any) => {
+    console.log('singleItem', singleItem)
     let discountAmount = 0;
     if(singleItem?.discount_items && singleItem?.discount_items.length > 0) {
       singleItem?.discount_items.forEach((discount:any) => {
@@ -1303,7 +1304,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		${dataJson?.items
 			.map((singleItem: any, index: any) => {
 				return `
-		- Sản phẩm ${index + 1}: ${singleItem?.product} <br/>
+		- Sản phẩm ${index + 1}: ${singleItem?.variant} <br/>
 			+ Đơn giá: ${formatCurrency(singleItem?.price)} <br/>
 			+ Số lượng: ${singleItem?.quantity} <br/>
 			+ Thuế : ${singleItem?.tax_rate || 0} <br/>

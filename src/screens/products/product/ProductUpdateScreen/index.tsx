@@ -1266,11 +1266,6 @@ const ProductDetailScreen: React.FC = () => {
                                               name={[name, "sku"]}
                                               rules={[
                                                 {required: true},
-                                                {
-                                                  min: 10,
-                                                  message:
-                                                    "Mã sản phẩm tối thiểu 10 kí tự",
-                                                },
                                               ]}
                                               label="Mã sản phẩm"
                                             >
