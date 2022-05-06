@@ -31,7 +31,7 @@ import UrlConfig from "config/url.config";
 import {
 	StoreSearchListAction
 } from "domain/actions/core/store.action";
-import { changeIsLoadingDiscountAction, changeOrderLineItemsAction, setIsShouldSetDefaultStoreBankAccountAction, splitOrderAction } from "domain/actions/order/order.action";
+import { changeIsLoadingDiscountAction, changeOrderLineItemsAction, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import {
 	SearchBarCode,
 	searchVariantsOrderRequestAction
@@ -46,8 +46,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import {
 	OrderDiscountRequest,
 	OrderItemDiscountRequest,
-	OrderLineItemRequest,
-	SplitOrderRequest
+	OrderLineItemRequest
 } from "model/request/order.request";
 import {
 	DiscountRequestModel
@@ -120,7 +119,6 @@ type PropTypes = {
 	orderAmount: number;
 	totalAmountOrder: number;
 	updateOrder?: boolean;
-	isSplitOrder?: boolean;
 	isCreateReturn?: boolean;
 	orderDetail?: OrderResponse | null;
 	customer?: CustomerResponse | null;
@@ -212,7 +210,6 @@ function OrderCreateProduct(props: PropTypes) {
 		inventoryResponse,
 		levelOrder = 0,
 		coupon = "",
-		isSplitOrder,
 		orderDetail,
 		orderConfig,
 		shippingFeeInformedToCustomer,
@@ -226,7 +223,6 @@ function OrderCreateProduct(props: PropTypes) {
 		totalAmountOrder,
 		setStoreId,
 		setItems,
-		fetchData,
 		setCoupon,
 		setPromotion,
 		setShippingFeeInformedToCustomer,
@@ -272,8 +268,6 @@ function OrderCreateProduct(props: PropTypes) {
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
 	//tách đơn
-	const [splitOrderNumber, setSplitOrderNumber] = useState(0);
-	const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
 	const [isCouponValid, setIsCouponValid] = useState(false);
 	const [couponInputText, setCouponInputText] = useState(coupon);
 
@@ -2147,41 +2141,41 @@ function OrderCreateProduct(props: PropTypes) {
 		setIsInputSearchProductFocus(false);
 	};
 
-	const handleSplitOrder = () => {
-		if (!orderDetail || !userReducer.account) {
-			return;
-		}
-		if (splitOrderNumber === undefined) {
-			showError("Vui lòng điền số lượng tách đơn!");
-			return;
-		}
-		if (items && splitOrderNumber > getTotalQuantity(items)) {
-			showError("Số lượng tách đơn không được lớn hơn số lượng sản phẩm!");
-			return;
-		}
-		if (splitOrderNumber < 2 || splitOrderNumber > 20) {
-			showError("Số lượng tách đơn cần lớn hơn 1 và nhỏ hơn 20!");
-			return;
-		}
+	// const handleSplitOrder = () => {
+	// 	if (!orderDetail || !userReducer.account) {
+	// 		return;
+	// 	}
+	// 	if (splitOrderNumber === undefined) {
+	// 		showError("Vui lòng điền số lượng tách đơn!");
+	// 		return;
+	// 	}
+	// 	if (items && splitOrderNumber > getTotalQuantity(items)) {
+	// 		showError("Số lượng tách đơn không được lớn hơn số lượng sản phẩm!");
+	// 		return;
+	// 	}
+	// 	if (splitOrderNumber < 2 || splitOrderNumber > 20) {
+	// 		showError("Số lượng tách đơn cần lớn hơn 1 và nhỏ hơn 20!");
+	// 		return;
+	// 	}
 
-		const params: SplitOrderRequest = {
-			order_code: orderDetail.code,
-			quantity: splitOrderNumber,
-			updated_by: userReducer.account.updated_by || "",
-			updated_name: userReducer.account.updated_name || "",
-		};
-		dispatch(
-			splitOrderAction(params, (response) => {
-				if (response) {
-					response.data.forEach((singleOrderId: number) => {
-						const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update?isSplit=true`;
-						window.open(singleSplitLink, "_blank");
-					});
-					fetchData && fetchData();
-				}
-			})
-		);
-	};
+	// 	const params: SplitOrderRequest = {
+	// 		order_code: orderDetail.code,
+	// 		quantity: splitOrderNumber,
+	// 		updated_by: userReducer.account.updated_by || "",
+	// 		updated_name: userReducer.account.updated_name || "",
+	// 	};
+	// 	dispatch(
+	// 		splitOrderAction(params, (response) => {
+	// 			if (response) {
+	// 				response.data.forEach((singleOrderId: number) => {
+	// 					const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update?isSplit=true`;
+	// 					window.open(singleSplitLink, "_blank");
+	// 				});
+	// 				fetchData && fetchData();
+	// 			}
+	// 		})
+	// 	);
+	// };
 
 	const onClearVariant = () => {
 		setKeySearchVariant("");
@@ -2307,35 +2301,6 @@ function OrderCreateProduct(props: PropTypes) {
 						>
 							Kiểm tra tồn
 						</Button>
-						{isSplitOrder && (
-							<div className="splitOrder">
-								<Checkbox onChange={(e) => setIsShowSplitOrder(e.target.checked)}>
-									Tách đơn
-								</Checkbox>
-								{isShowSplitOrder && (
-									<React.Fragment>
-										<NumberInput
-											style={{ width: 50 }}
-											value={splitOrderNumber}
-											onChange={(value) => {
-												if (value) {
-													setSplitOrderNumber(value);
-												} else {
-													setSplitOrderNumber(0);
-												}
-											}}
-										/>
-										<Button
-											type="primary"
-											onClick={handleSplitOrder}
-											style={{ padding: "0 10px" }}
-										>
-											Thực hiện
-										</Button>
-									</React.Fragment>
-								)}
-							</div>
-						)}
 					</Space>
 				}
 			>
