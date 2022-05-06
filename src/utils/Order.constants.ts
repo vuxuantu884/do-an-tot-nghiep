@@ -103,3 +103,7 @@ export const ORDER_PAYMENT_STATUS = {
   unpaid: "unpaid", // chưa trả
   partial_paid: "partial_paid", // thanh toán một phần
 }
+
+export const ORDER_EXPORT_TYPE = {
+  ECOMMERCE: "ecommerce_orders",
+}
