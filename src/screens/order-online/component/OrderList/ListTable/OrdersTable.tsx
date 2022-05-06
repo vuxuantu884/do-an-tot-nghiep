@@ -126,7 +126,6 @@ function OrdersTable(props: PropTypes) {
   } = props;
 
   const dispatch = useDispatch();
-  // const history = useHistory();
   const status_order = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status
   );
@@ -145,7 +144,6 @@ function OrdersTable(props: PropTypes) {
 
   const [items, setItems] = useState(data.items);
   const [metadata, setMetaData] = useState(data.metadata);
-
   itemResult = data.items;
   metadataResult = data.metadata;
 
@@ -265,11 +263,6 @@ function OrdersTable(props: PropTypes) {
       const totalPayment = getOrderTotalPaymentAmount(orderDetail.payments);
       return (
         <React.Fragment>
-          {/* <div className="orderTotalPaymentAmount">
-            <Tooltip title="Tổng tiền thanh toán">
-              {formatCurrency(totalPayment)}
-            </Tooltip>
-          </div> */}
           {orderType === ORDER_TYPES.online ? (
             <div className="orderTotalLeftAmount">
               <Tooltip title="Tiền còn thiếu">
@@ -287,9 +280,6 @@ function OrdersTable(props: PropTypes) {
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
     let html = null;
     html = orderDetail.payments.map((payment) => {
-      // if (!payment.amount) {
-      //   return null;
-      // }
       let selectedPayment = paymentIcons.find(
         (single) => {
           if(single.payment_method_code === "cod") {

@@ -1489,9 +1489,7 @@ export const trimText = (text?: string) => {
 }
 
 export const sortFulfillments = (fulfillments: FulFillmentResponse[]) => {
-  return fulfillments.sort((a, b) =>
-  (b.id - a.id))
-  // moment(b?.updated_date).diff(moment(a?.updated_date)))
+  return fulfillments.sort((a, b) =>(b.id - a.id));
 }
 
 export const goToTopPage = () => {
