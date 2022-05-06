@@ -120,7 +120,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onClearFilter,
     onFilter,
     onShowColumnSetting,
-    setListOrderProcessingStatus,
+    // setListOrderProcessingStatus,
     orderType,
     initChannelCodes,
     channels,
@@ -1350,28 +1350,21 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                         optionFilterProp="children"
                         getPopupContainer={(trigger) => trigger.parentNode}
                         maxTagCount="responsive"
-                        onBlur={() =>
-                          setListOrderProcessingStatus && setListOrderProcessingStatus(initSubStatus)
-                        }
                         onChangeAllSelect={(e: CheckboxChangeEvent)=>{
                           if(e.target.checked) {
-                            formRef.current?.setFieldsValue({
+                            formSearchRef.current?.setFieldsValue({
                               sub_status_code: selectedSubStatusCodes
                             })
                           } else {
-                            formRef.current?.setFieldsValue({
+                            formSearchRef.current?.setFieldsValue({
                               sub_status_code: undefined
                             })
                           }
                         }}
                         getCurrentValue={() => {
-                          return formRef.current?.getFieldValue("sub_status_code")
+                          return formSearchRef.current?.getFieldValue("sub_status_code")
                         }}
                         allValues={subStatus}
-                        onSearch = {(value) => {
-                          const showed = initSubStatus.filter(single => fullTextSearch(value, single.sub_status)).map(gg => gg.code)
-                          setSelectedSubStatusCodes(showed)
-                        }}
                       >
                         {subStatus?.map((item: any) => (
                           <CustomSelect.Option key={item.id} value={item.code.toString()}>

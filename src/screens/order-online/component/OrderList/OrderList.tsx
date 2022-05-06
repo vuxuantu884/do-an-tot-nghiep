@@ -261,16 +261,7 @@ function OrderList(props: PropTypes) {
     setSelectedRowKeys(selectedRowKeysCopy);
     setSelectedRowCodes(selectedRowCodesCopy);
 
-    // setSelectedRow(selectedRow);
-
-    // const selectedRowKeys = selectedRow.map((row: any) => row.id);
-    // setSelectedRowKeys(selectedRowKeys);
-
-    // const selectedRowCodes = selectedRow.map((row: any) => row.code);
-    // setSelectedRowCodes(selectedRowCodes);
   }, [selectedRow, selectedRowCodes, selectedRowKeys]);
-
-  // console.log("selectedRowKeys",selectedRowKeys)
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -419,7 +410,6 @@ function OrderList(props: PropTypes) {
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         setDeliveryServices(response);
       })
     );
@@ -428,8 +418,6 @@ function OrderList(props: PropTypes) {
   const onExport = useCallback(
     (optionExport, hiddenFieldsExport) => {
       let newParams: any = { ...params };
-      console.log("newParams",params)
-      // let hiddenFields = [];
       switch (optionExport) {
         case EXPORT_IDs.allOrders:
           newParams = {};
@@ -616,16 +604,13 @@ function OrderList(props: PropTypes) {
 
   const changeStatus = (id: number, toStatus: string, reason_id = 0, sub_reason_id = 0, ) => {
     return new Promise((resolve, reject) => {
-      // setIsLoadingSetSubStatus(true)
       isLoadingSetSubStatus = true;
       dispatch(showLoading())
       setSubStatusService(id, toStatus, reason_id, sub_reason_id).then(response => {
-        // setIsLoadingSetSubStatus(false)
         isLoadingSetSubStatus = false;
         dispatch(hideLoading())
         resolve(response);
       }).catch(error => {
-        // setIsLoadingSetSubStatus(false)
         isLoadingSetSubStatus = false;
         dispatch(hideLoading())
         reject()
@@ -679,7 +664,6 @@ function OrderList(props: PropTypes) {
       text: textResult,
     }
     
-    // newResult.push(newStatusHtml)
     newResult[i] = newStatusHtml;
     console.log('newResult', newResult);
     let renderListHtml = renderResultBlock(newResult);
