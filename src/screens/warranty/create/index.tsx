@@ -364,7 +364,7 @@ function CreateWarranty(props: Props) {
         {
           ...item,
           type: null,
-          reason_id: null,
+          reason_ids: [],
           price: 0,
           customer_fee: 0,
         },
@@ -496,6 +496,7 @@ function CreateWarranty(props: Props) {
         render: (value: string, record: any) => {
           return (
             <CustomSelect
+              mode="multiple"
               allowClear
               optionFilterProp="children"
               showSearch
@@ -504,10 +505,10 @@ function CreateWarranty(props: Props) {
               placeholder="Lý do"
               getPopupContainer={(trigger) => trigger.parentNode}
               maxTagCount="responsive"
-              value={record.reason_id}
-              onChange={(value) => onChangeItem(value, "reason_id", record.index)}
+              value={record.reason_ids}
+              onChange={(value) => onChangeItem(value, "reason_ids", record.index)}
               style={{ width: "100%" }}
-              className={record.reason_id ? "" : "non-select"}
+              className={record.reason_ids.length ? "" : "non-select"}
             >
               {/* <Option value="">Hình thức vận chuyển</Option> */}
               {reasons.map((reason) => (
@@ -636,25 +637,30 @@ function CreateWarranty(props: Props) {
   const handleSubmit = (values: any) => {
     if (warrantyItems.length) {
       let typeOK = true;
-      let reasonIdOK = true;
+      let reasonIdsOK = true;
       warrantyItems.forEach((item) => {
         !item.type && (typeOK = false);
-        !item.reason_id && (reasonIdOK = false);
+        !item.reason_ids.length && (reasonIdsOK = false);
       });
       !typeOK && showError("Chọn trạng thái bảo hành");
-      !reasonIdOK && showError("Chọn lý do bảo hành");
-      if (typeOK && reasonIdOK) {
+      !reasonIdsOK && showError("Chọn lý do bảo hành");
+      if (typeOK && reasonIdsOK) {
         const body = {
           ...values,
           line_items: warrantyItems.map((i) => {
             return {
               ...i,
               purchase_date: i.finalized_on ? i.finalized_on : null,
-              expenses: [
-                {
-                  reason_id: i.reason_id,
-                },
-              ],
+              // expenses: [
+              //   {
+              //     reason_id: i.reason_id,
+              //   },
+              // ],
+              expenses: i.reason_ids.map((reason_id: any) => {
+                return {
+                  reason_id: reason_id
+                }
+              })
             };
           }),
         };
@@ -707,7 +713,7 @@ function CreateWarranty(props: Props) {
               finished_on: data.finished_on,
               finalized_on: data.finalized_on,
               type: null,
-              reason_id: null,
+              reason_ids: [],
               price: 0,
               customer_fee: 0,
             }
@@ -719,21 +725,22 @@ function CreateWarranty(props: Props) {
           }
         }
       }));
+      dispatch(
+        searchAccountPublicAction({ limit: 30 }, (data) => {
+          setAccounts(data.items);
+          setAccountData(data.items);
+        })
+      );
+      dispatch(
+        getWarrantyReasonsAction((data) =>
+          setReasons(data.filter((reason) => reason.status === "ACTIVE"))
+        )
+      );
     } else {
       setLoadingData(false);
     }
     isFirstLoad.current = false;
-    dispatch(
-      searchAccountPublicAction({ limit: 30 }, (data) => {
-        setAccounts(data.items);
-        setAccountData(data.items);
-      })
-    );
-    dispatch(
-      getWarrantyReasonsAction((data) =>
-        setReasons(data.filter((reason) => reason.status === "ACTIVE"))
-      )
-    );
+    
   }, [addItemsWarranty, dispatch, orderID, warrantyForm]);
 
   return (
