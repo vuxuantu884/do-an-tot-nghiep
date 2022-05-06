@@ -1,9 +1,8 @@
 import { Card, Form, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
-import { setSubStatusAction } from "domain/actions/order/order.action";
-import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-import { OrderResponse, OrderReturnReasonDetailModel } from "model/response/order/order.response";
+import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order/order.action";
+import { OrderResponse, OrderReturnReasonDetailModel, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
@@ -22,7 +21,7 @@ type PropTypes = {
 
 function SubStatusOrder(props: PropTypes): React.ReactElement {
   const {
-    // status,
+    status,
     orderId,
     subStatusCode,
     handleUpdateSubStatus,
@@ -45,7 +44,17 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     OrderReturnReasonDetailModel[]
   >([]);
 
-  const subStatuses = useGetOrderSubStatuses();
+  // const subStatuses = useGetOrderSubStatuses();
+  const [orderSubStatus, setOrderSubStatus] = useState<OrderSubStatusResponse[]>([]);
+  useEffect(() => {
+    if (status) {
+      dispatch(
+        getListSubStatusAction(status, (data: OrderSubStatusResponse[]) => {
+          setOrderSubStatus(data);
+        })
+      );
+    }
+  }, [dispatch, status]);
 
   const changeSubStatusCode = (
     sub_status_code: string,
@@ -145,8 +154,8 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
         disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
         listHeight= {300}
         key={Math.random()}>
-        {subStatuses &&
-          subStatuses.map((single) => {
+        {orderSubStatus &&
+          orderSubStatus.map((single) => {
             return (
               <Select.Option value={single.code} key={single.code}>
                 {single.sub_status}
