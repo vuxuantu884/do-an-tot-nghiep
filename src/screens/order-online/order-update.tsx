@@ -1093,13 +1093,12 @@ ShippingServiceConfigDetailResponseModel[]
 						sub_status_code: response.sub_status_code,
 						automatic_discount: response.automatic_discount,
 					});
-					let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
 					if (
 						response.fulfillments &&
 						response.fulfillments[0] &&
-						response?.fulfillments[0]?.shipment?.delivery_service_provider_type
+						response?.fulfillments[0]?.shipment
 					) {
-						setShipmentMethod(newShipmentMethod);
+						setShipmentMethod(0);
 						const newFulfillments = [...response.fulfillments];
 						setFulfillments(newFulfillments.reverse());
 						setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
