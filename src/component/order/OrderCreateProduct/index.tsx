@@ -202,7 +202,8 @@ function OrderCreateProduct(props: PropTypes) {
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
 	 */
-	const QUANTITY_DELAY_TIME = 1000;
+	const QUANTITY_DELAY_TIME_PROMOTION = 600;
+	const QUANTITY_DELAY_TIME = 300;
 	const {
 		form,
 		items,
@@ -546,14 +547,14 @@ function OrderCreateProduct(props: PropTypes) {
 						calculateChangeMoney(_items)
 					}
 				},
-				QUANTITY_DELAY_TIME
+				QUANTITY_DELAY_TIME_PROMOTION
 			);
 			//nếu có coupon
 		} else if (couponInputText) {
 			handleDelayActionWhenInsertTextInSearchInput(
 				inputRef,
 				() => handleApplyCouponWhenInsertCoupon(couponInputText, _items),
-				QUANTITY_DELAY_TIME
+				QUANTITY_DELAY_TIME_PROMOTION
 			);
 		} else {
 			handleDelayActionWhenInsertTextInSearchInput(
@@ -2532,17 +2533,20 @@ function OrderCreateProduct(props: PropTypes) {
 						/>
 					</React.Fragment>
 				)}
-				<InventoryModal
-					isModalVisible={isInventoryModalVisible}
-					setInventoryModalVisible={setInventoryModalVisible}
-					storeId={storeId}
-					setStoreId={setStoreId}
-					columnsItem={items}
-					inventoryArray={inventoryResponse}
-					storeArrayResponse={storeArrayResponse}
-					handleCancel={handleInventoryCancel}
-				// setStoreForm={setStoreForm}
-				/>
+				{isInventoryModalVisible && (
+					<InventoryModal
+						isModalVisible={isInventoryModalVisible}
+						setInventoryModalVisible={setInventoryModalVisible}
+						storeId={storeId}
+						setStoreId={setStoreId}
+						columnsItem={items}
+						inventoryArray={inventoryResponse}
+						storeArrayResponse={storeArrayResponse}
+						handleCancel={handleInventoryCancel}
+					// setStoreForm={setStoreForm}
+					/>
+
+				)}
 			</Card>
 		</StyledComponent>
 	);

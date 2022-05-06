@@ -3,7 +3,8 @@ import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { grayE5Color } from "utils/global-styles/variables";
+import { grayF5Color } from "utils/global-styles/variables";
+import { StyledComponent } from "./inventory.modal.styles";
 
 type InventoryModalProps = {
   isModalVisible: boolean;
@@ -42,8 +43,12 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     handleCancel,
   } = props;
 
+  const rowHeight = 45;
+
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
   const [storeData, setsStoreData] = useState<StoreResponse[] | null>(null);
+  
+  const [rowProductHeight, setRowProductHeight] = useState(rowHeight)
 
   const setAllAvailable = (variantId: number) => {
 
@@ -129,6 +134,17 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     if (storeArrayResponse) setsStoreData(storeArrayResponse);
   }, [storeArrayResponse]);
 
+  const element = document.getElementById("stickyRowProduct")
+
+  useEffect(() => {
+    setRowProductHeight(element?.clientHeight && element?.clientHeight > rowHeight ? element?.clientHeight : rowHeight)
+  }, [element])
+
+  useEffect(() => {
+    console.log('element?.clientHeight', element?.clientHeight)
+  }, [element?.clientHeight])
+  
+
   return (
     <Modal
       title="Kiểm tra thông tin tồn kho"
@@ -140,69 +156,72 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       onOk={handleOk}
       onCancel={handleCancel}
     >
-      <Row gutter={24}>
-        <Col md={12}>
-          <Input.Search
-            placeholder="Tìm kiếm kho"
-            allowClear
-            onSearch={onSearchInventory}
-          />
-        </Col>
-      </Row>
-      <Row gutter={24} className="margin-top-10">
-        <Col md={24}>
-          <div className="overflow-table">
-            <Radio.Group
-              onChange={onChange}
-              value={selectedStoreId}
-              style={{ width: "100%" }}
-            >
-              <table className="rules">
-                <thead style={{position: "sticky", top: -1, zIndex: 99, background: grayE5Color}}>
-                  <tr>
-                    <th className="condition">Sản phẩm</th>
-                    {columnsItem?.map((data, index) => (
-                      <th className="condition" key={index}>{data.variant}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody style={{position: "sticky", top: 43, zIndex: 99, background: "white"}}>
-                  <tr>
-                    <td className="condition">Khách đặt</td>
-                    {columnsItem?.map((data, index) => (
-                      <td className="condition" key={index}>{data.quantity}</td>
-                    ))}
-                  </tr>
-                </tbody>
-                <thead style={{position: "sticky", top: 86, zIndex: 99, background: grayE5Color}}>
-                  <tr>
-                    <th className="condition">Tổng có thế bán</th>
-                    {columnsItem?.map((data, index) => (
-                      <th className="condition" key={index}>{setAllAvailable(data.variant_id)}</th>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {data?.map((item, index) => (
-                    <tr key={index}>
-                      <th className="condition" key={index}>
-                        <Radio value={item.id}>{item.name}</Radio>
-                      </th>
-
-                      {columnsItem?.map((_itemi, index) => (
-                        <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 ? {color: "red"} : undefined}>
-                          {item.data[_itemi.variant_id]}
-                        </td>
+      <StyledComponent>
+        <Row gutter={24}>
+          <Col md={12}>
+            <Input.Search
+              placeholder="Tìm kiếm kho"
+              allowClear
+              onSearch={onSearchInventory}
+            />
+          </Col>
+        </Row>
+        <Row gutter={24} className="margin-top-10">
+          <Col md={24}>
+            <div className="overflow-table">
+              <Radio.Group
+                onChange={onChange}
+                value={selectedStoreId}
+                style={{ width: "100%" }}
+              >
+                <table className="rules">
+                  <thead id="stickyRowProduct" style={{top: -1, background: grayF5Color}} className="tableElementSticky" >
+                    <tr>
+                      <th className="condition">Sản phẩm</th>
+                      {columnsItem?.map((data, index) => (
+                        <th className="condition" key={index}>{data.variant}</th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Radio.Group>
-          </div>
-        </Col>
-      </Row>
+                  </thead>
+                  <tbody style={{top: rowProductHeight -5, background: "white"}} id="stickyRowCustomer" className="tableElementSticky">
+                    <tr>
+                      <td className="condition">Khách đặt</td>
+                      {columnsItem?.map((data, index) => (
+                        <td className="condition" key={index}>{data.quantity}</td>
+                      ))}
+                    </tr>
+                  </tbody>
+                  <thead style={{top: rowProductHeight -8 + rowHeight, background: grayF5Color}} className="tableElementSticky">
+                    <tr>
+                      <th className="condition">Tổng có thế bán</th>
+                      {columnsItem?.map((data, index) => (
+                        <th className="condition" key={index}>{setAllAvailable(data.variant_id)}</th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {data?.map((item, index) => (
+                      <tr key={index}>
+                        <th className="condition" key={index}>
+                          <Radio value={item.id}>{item.name}</Radio>
+                        </th>
+
+                        {columnsItem?.map((_itemi, index) => (
+                          <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 ? {color: "red"} : undefined}>
+                            {item.data[_itemi.variant_id]}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Radio.Group>
+            </div>
+          </Col>
+        </Row>
+
+      </StyledComponent>
     </Modal>
   );
 };

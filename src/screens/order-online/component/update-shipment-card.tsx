@@ -842,9 +842,12 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 								<p className="text-field">Trạng thái:</p>
 							</Col>
 							<Col span={14}>
-								<b className="text-field" style={{ color: dangerColor }}>
-									{failedFulfillment?.shipment.pushing_note}
-								</b>
+								<p>
+									<b className="text-field" style={{ color: dangerColor }}>
+										{failedFulfillment?.shipment.pushing_note}
+										{failedFulfillment?.shipment.delivery_service_note ? ` - ${failedFulfillment?.shipment.delivery_service_note}` : null}
+									</b>
+								</p>
 							</Col>
 						</Row>
 					</Col>
