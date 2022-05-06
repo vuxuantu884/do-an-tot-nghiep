@@ -1198,6 +1198,7 @@ function OrdersTable(props: PropTypes) {
                       }}
                       className={className}
                       dropdownStyle={{minWidth: 200}}
+                      listHeight= {300}
                       onChange={(value) => {
                         if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
                           showError("Bạn không thể đổi sang trạng thái khác!")
