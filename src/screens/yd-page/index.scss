@@ -119,7 +119,9 @@
 
   // tabs header
   .yd-page-admin {
+    height: 100%;
     .yd-page-admin-tabs {
+      height: 100%;
       .ant-tabs-nav-more {
         display: none;
       }
@@ -139,6 +141,9 @@
         border-bottom: 1px solid #e5e5e5;
         margin: 0;
         padding: 12px 0;
+      }
+      .ant-tabs-content {
+        height: 100%;
       }
     }
 
