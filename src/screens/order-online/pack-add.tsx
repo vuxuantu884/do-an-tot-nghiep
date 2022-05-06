@@ -144,6 +144,9 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   }, [goodsReceiptsForm, handleAddOrder]);
 
   const handleAddOrdersCode = useCallback((order_codes: string) => {
+    const searchTermElement: any = document.getElementById("search_term");
+    searchTermElement?.select();
+    
     goodsReceiptsForm.validateFields(['store_id', 'delivery_service_provider_id', 'channel_id','receipt_type_id']);
     const { store_id, delivery_service_provider_id, channel_id,receipt_type_id } = goodsReceiptsForm.getFieldsValue();
     if (!store_id || !delivery_service_provider_id || !channel_id || !receipt_type_id)
