@@ -720,7 +720,6 @@ function CreateWarranty(props: Props) {
               }
             });
             setWarrantyItems(newWarrantyItems);
-            setLoadingData(false);
             if(data.finalized_on) {
               setIsDisableSelectPurchaseDate(true)
             }
@@ -738,6 +737,8 @@ function CreateWarranty(props: Props) {
           setReasons(data.filter((reason) => reason.status === "ACTIVE"))
         )
       );
+      setLoadingData(false);
+
     } else {
       setLoadingData(false);
     }
