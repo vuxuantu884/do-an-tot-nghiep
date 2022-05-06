@@ -259,7 +259,7 @@ const PackUpdate: React.FC = () => {
               FFMCode && codes.push(FFMCode);
             }
             else if(packDetail.receipt_type_id === 2 
-              && item.fulfillments[indexFFM].status === "returning"
+              && item.fulfillments[indexFFM].return_status === "returning"
               && item.fulfillments[indexFFM].status === "cancelled")
               {
                 let FFMCode: string | null = item.fulfillments[indexFFM].code;
@@ -296,7 +296,7 @@ const PackUpdate: React.FC = () => {
         orderIdElement?.select();
       }
     },
-    [dispatch, packDetail, searchOrderForm]
+    [dispatch, packDetail]
   );
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
