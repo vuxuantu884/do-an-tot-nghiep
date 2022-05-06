@@ -14,9 +14,13 @@ function OrdersScreen(props: PropTypes) {
 
   const channels = useGetChannels();
 
-  const initChannelCodes = channels.map(single => single.code).filter((single) => {
-    return !ECOMMERCE_CHANNEL_CODES.includes(single);
-  });
+  const initChannelCodes = channels
+    .map((single) => single.code)
+    .filter((single) => {
+      return !ECOMMERCE_CHANNEL_CODES.map((code) =>
+        code.toLowerCase(),
+      ).includes(single.toLowerCase());
+    });
 
   const pageTitle = {
     title: "Danh sách đơn hàng online",
