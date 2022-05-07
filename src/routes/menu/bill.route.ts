@@ -4,11 +4,11 @@ import { RouteMenu } from "model/other";
 import React from "react";
 
 const OrderUpdate = React.lazy(() => import("screens/order-online/order-update"));
-const PackDetail = React.lazy(() => import("screens/order-online/pack-detail"));
-const PackSupportScreen = React.lazy(() => import("screens/order-online/pack.screen"));
+const PackDetail = React.lazy(() => import("screens/order-online/pack/pack-detail"));
+const PackSupportScreen = React.lazy(() => import("screens/order-online/pack/pack.screen"));
 const DeliveryRecordsScreen = React.lazy(() => import("screens/order-online/records.screen"));
-const AddReportHandOver = React.lazy(() => import("screens/order-online/pack-add"));
-const PackUpdate = React.lazy(() => import("screens/order-online/pack-update"));
+const AddReportHandOver = React.lazy(() => import("screens/order-online/pack/pack-add"));
+const PackUpdate = React.lazy(() => import("screens/order-online/pack/pack-update"));
 // const SplitOrdersScreen = React.lazy(() => import("screens/order-online/split-orders.screen"));
 const CustomerDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/index"));
 const OrderDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/detail.screen"));

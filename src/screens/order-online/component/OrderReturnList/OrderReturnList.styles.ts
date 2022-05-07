@@ -86,6 +86,39 @@ export const StyledComponent = styled.div`
       justify-content: center;
       padding: 0 10px;
     }
+    .text-center {
+      text-align: center;
+      .icon-partial {
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          border-color: #2a2a86;
+          border-width: 1px;
+          border-style: solid;
+          background-image: linear-gradient(to right, #2a2a86 50%, #ffffff 50%);
+      }
+      .icon-full {
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          border-color: #2a2a86;
+          border-width: 1px;
+          border-style: solid;
+          background-color: #2a2a86;
+      }
+      .icon-blank {
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          border-color: #2a2a86;
+          border-width: 1px;
+          border-style: solid;
+          background-color: #ffffff;
+      }
+    }
 
     .item.custom-td {
       height: 100%;

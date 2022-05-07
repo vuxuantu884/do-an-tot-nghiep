@@ -50,6 +50,8 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
     }
   }, [active])
 
+  console.log(productData)
+
   return (
     <StyledComponent>
       <List

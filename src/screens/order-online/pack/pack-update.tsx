@@ -25,10 +25,10 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import search from "assets/img/search.svg";
 import moment from "moment";
-import "./scss/index.screen.scss";
+import "./styles.scss";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import { Link } from "react-router-dom";
-import { StyledComponent } from "./scss/index.screen.styles";
+import { StyledComponent } from "./styles";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { FulFillmentStatus } from "utils/Constants";
@@ -215,7 +215,7 @@ const PackUpdate: React.FC = () => {
       if (!packDetail) return;
       const orderIdElement: any = document.getElementById("order_id");
       orderIdElement?.select();
-      let order_id = value.order_id?.trim();
+      let order_id = value.order_id?.trim().toUpperCase();
 
       if (!order_id) {
         showWarning("Vui lòng chọn đơn hàng cần thêm");

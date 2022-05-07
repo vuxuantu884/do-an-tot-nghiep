@@ -208,7 +208,7 @@ function OrderReturnList(props: PropTypes) {
       },
       visible: true,
       align: "left",
-      //width: nameQuantityWidth,
+      width: 350,
     },
     {
       title: "Kho cửa hàng",
@@ -217,6 +217,18 @@ function OrderReturnList(props: PropTypes) {
       visible: true,
       width: 140,
     },
+    {
+      title: "Nguồn",
+      dataIndex: "source",
+      key: "source",
+      visible: true,
+      width: 100,
+    },
+    // {orderType === ORDER_TYPES.offline ? null : (
+    //   <div className="textSmall single">
+    //     <Tooltip title="Nguồn">{i.source}</Tooltip>
+    //   </div>
+    // )}
     {
       title: "Trạng thái nhận hàng",
       dataIndex: "received",
@@ -281,7 +293,7 @@ function OrderReturnList(props: PropTypes) {
         <>
           <Tooltip title="Tổng thanh toán">
             <NumberFormat
-              value={record.total_amount}
+              value={record.total}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}

@@ -59,11 +59,13 @@ export const getDataManyQueryDashboard = async (dispatch: Dispatch<any>, showMyD
   const conditions = [...locationCondition, userCondition];
 
   queries.forEach((item: AnalyticSampleQuery) => {
+    item.query.conditions = [];
     // lọc theo cửa hàng 
     if (!Array(item.query.conditions)) {
       item.query.conditions = [];
     }
 
+    item.query.conditions = [...item.query.conditions, ...conditions];
     item.query.conditions?.concat(conditions);
     const q = generateRQuery(item.query);
     params.q.push(q);
@@ -83,7 +85,7 @@ export const getDataManyQueryDashboard = async (dispatch: Dispatch<any>, showMyD
  * @returns 
  */
 export const getDataOneQueryDashboard = async (dispatch: Dispatch<any>, showMyData: DashboardShowMyData, deparmentIdList: Array<string | number>, queries: AnalyticSampleQuery): Promise<AnalyticDataQuery> => {
-
+  queries.query.conditions = [];
   const { condition, isSeeMyData, myCode } = showMyData;
   // Data từ bộ lọc bộ phận
   const locationCondition = deparmentIdList ? setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField) : [];
@@ -95,7 +97,7 @@ export const getDataOneQueryDashboard = async (dispatch: Dispatch<any>, showMyDa
     queries.query.conditions = [];
   }
 
-  queries.query.conditions?.concat(conditions);
+  queries.query.conditions = [...queries.query.conditions, ...conditions];
   const q = generateRQuery(queries.query);
   const data: AnalyticDataQuery = await callApiNative({ notifyAction: "HIDE_ALL" }, dispatch, executeAnalyticsQueryService, { q, options: queries.options });
 

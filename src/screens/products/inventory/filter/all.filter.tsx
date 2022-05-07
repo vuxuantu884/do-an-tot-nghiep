@@ -519,7 +519,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 allowClear
               />
             </Item>
-            <Item name="remain" style={{ minWidth: 250,display: "none" }}>
+            <Item name="remain" style={{ minWidth: 250 }}>
                 <CustomSelect
                   showSearch
                   allowClear
@@ -704,8 +704,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       </CustomSelect>
                   </Item>
                 </Col>
-                <Col span={8} style={{display: "none"}}>
-                  <Item name="remain" hidden style={{ minWidth: 250 }} label="Trạng thái tồn">
+                <Col span={8}>
+                  <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
                     <CustomSelect
                       showSearch
                       allowClear
@@ -757,7 +757,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                    </Item>
                    </Col>
                   </Row>
-                </Col>         
+                </Col>
               </Row>
           </Form>
         </BaseFilter>
