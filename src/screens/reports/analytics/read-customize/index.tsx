@@ -210,7 +210,7 @@ function CreateAnalytics() {
                 })
 
                 if (rows && rows.length) {
-                    setRowsInQuery((prev: string[]) => [...prev, ...rows]);
+                    setRowsInQuery((prev: string[]) => [...prev.filter(item => !rows.includes(item)), ...rows]);
                 }
 
                 const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
@@ -358,11 +358,9 @@ function CreateAnalytics() {
                         }
 
                         {
-                            !isMyReport && (
-                                <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
-                                    Nhân bản báo cáo
-                                </Button>
-                            )
+                            <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
+                                Nhân bản báo cáo
+                            </Button>
                         }
 
                         <Button icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />} loading={isLoadingExport} onClick={handleExportReport}>
