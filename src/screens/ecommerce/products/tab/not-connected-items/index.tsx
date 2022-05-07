@@ -83,6 +83,7 @@ let suggestVariants = window.localStorage.getItem("suggest")
 
 type NotConnectedItemsPropsType = {
   isReloadPage: boolean;
+  setIsReloadPage: (value: any) => void;
   handleMappingVariantJob: (x: any) => void;
 };
 
@@ -96,7 +97,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
-  const {isReloadPage, handleMappingVariantJob} = props;
+  const {isReloadPage, setIsReloadPage, handleMappingVariantJob} = props;
 
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
@@ -304,6 +305,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
       if (data) {
         setProductSelected(null);
+        setIsReloadPage(false);
         handleMappingVariantJob(data.process_id);
       }
     }, []);
@@ -869,6 +871,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       updateConnectItemList(notMatchConnectItemList);
       setConnectItemList(tempConnectItemList);
       setSelectedRow(notMatchSelectedRow);
+      setIsReloadPage(false);
       handleMappingVariantJob(data.process_id);
       // setIsShowResultConnectProductModal(true);
     }

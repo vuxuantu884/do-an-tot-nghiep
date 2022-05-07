@@ -26,7 +26,7 @@ import useAuthorization from "hook/useAuthorization";
 
 import { StyledComponent } from "screens/ecommerce/products/styles";
 import { isNullOrUndefined } from "utils/AppUtils";
-import { ECOMMERCE_JOB_TYPE } from "../../../utils/Constants";
+import { ECOMMERCE_JOB_TYPE } from "utils/Constants";
 import { EcommerceProductTabUrl } from "config/url.config";
 
 const { TabPane } = Tabs;
@@ -101,11 +101,7 @@ const Products: React.FC = () => {
 
   const onOKProgressDownloadOrder = () => {
     resetProgress();
-    // redirectToNotConnectedItems();
     setIsVisibleProgressModal(false);
-    if (processType === "sync-variant") {
-      history.replace(EcommerceProductTabUrl.CONNECTED);
-    }
   }
   // handle exit download modal
   const onCancelExitDownloadProductsModal = () => {
@@ -141,9 +137,17 @@ const Products: React.FC = () => {
             setProcessId(null);
             setIsDownloading(false);
             if (!processData.api_error) {
-              processType === "variant" ? showSuccess("Tải sản phẩm thành công!")
-                : showSuccess("Đồng bộ tồn thành công!");
-              setIsReloadPage(true)
+              setIsReloadPage(true);
+              switch (processType) {
+                case ECOMMERCE_JOB_TYPE.VARIANT:
+                  return showSuccess("Tải sản phẩm thành công!");
+                case ECOMMERCE_JOB_TYPE.SYNC_VARIANT:
+                  return showSuccess("Ghép nối sản phẩm thành công!");
+                case ECOMMERCE_JOB_TYPE.STOCK:
+                  return showSuccess("Đồng bộ tồn thành công!");
+                default:
+                  return showSuccess("Thao tác thành công!");
+              }
             } else {
               resetProgress();
               setIsVisibleProgressModal(false);
@@ -281,7 +285,11 @@ const Products: React.FC = () => {
               }
 
               {activeTab === EcommerceProductTabUrl.NOT_CONNECTED &&
-                <NotConnectedItems isReloadPage={isReloadPage} handleMappingVariantJob={handleMappingVariantJob} />
+                <NotConnectedItems
+                  isReloadPage={isReloadPage}
+                  setIsReloadPage={setIsReloadPage}
+                  handleMappingVariantJob={handleMappingVariantJob}
+                />
               }
             </>
             : <NoPermission />)}

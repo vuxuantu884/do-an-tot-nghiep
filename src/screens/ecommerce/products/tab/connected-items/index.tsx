@@ -70,7 +70,6 @@ import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import SyncProductModal from "./SyncProductModal";
-import { EcommerceProductTabUrl } from "config/url.config";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
@@ -338,7 +337,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         disconnectEcommerceItem({ ids: idsItemSelected }, (result) => {
           if (result) {
             showSuccess("Ngắt kết nối sản phẩm thành công");
-            history.replace(EcommerceProductTabUrl.NOT_CONNECTED);
+            reloadPage();
           }
         })
       );
