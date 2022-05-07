@@ -215,7 +215,7 @@ const PackUpdate: React.FC = () => {
       if (!packDetail) return;
       const orderIdElement: any = document.getElementById("order_id");
       orderIdElement?.select();
-      let order_id = value.order_id?.trim();
+      let order_id = value.order_id?.trim().toUpperCase();
 
       if (!order_id) {
         showWarning("Vui lòng chọn đơn hàng cần thêm");
