@@ -7,11 +7,18 @@ import {
   WarrantiesValueUpdateGetModel,
   WarrantyItemModel,
   WarrantyItemStatus,
-  WarrantyReturnStatusModel
+  WarrantyReturnStatusModel,
 } from "model/warranty/warranty.model";
 import React, { useState } from "react";
-import { formatCurrency, formatCurrencyInputValue, replaceFormatString } from "utils/AppUtils";
-import { WARRANTY_ITEM_STATUS, WARRANTY_RETURN_STATUS } from "utils/Warranty.constants";
+import {
+  formatCurrency,
+  formatCurrencyInputValue,
+  replaceFormatString,
+} from "utils/AppUtils";
+import {
+  WARRANTY_ITEM_STATUS,
+  WARRANTY_RETURN_STATUS,
+} from "utils/Warranty.constants";
 
 export type initialFormModalWarrantiesStatusType = {
   status: string;
@@ -46,7 +53,8 @@ function WarrantyStatusModal(props: PropTypes) {
     ...rest
   } = props;
 
-  const [isShowPaymentInModalStatus, setIsShowPaymentInModalStatus] = useState(false);
+  const [isShowPaymentInModalStatus, setIsShowPaymentInModalStatus] =
+    useState(false);
 
   const checkIfFromUnreturnedToReturned = (record: any, value: string) => {
     return (
@@ -55,15 +63,18 @@ function WarrantyStatusModal(props: PropTypes) {
     );
   };
 
-  const handleChange = (value: string) => {
-    if (checkIfFromUnreturnedToReturned(record, value)) {
+  const handleChangeReturnStatus = (value: string) => {
+    if (selectedData?.status === WarrantyItemStatus.NOT_FIXED) {
+      setIsShowPaymentInModalStatus(false);
+    } else if (checkIfFromUnreturnedToReturned(record, value)) {
       setIsShowPaymentInModalStatus(true);
     } else {
       setIsShowPaymentInModalStatus(false);
     }
   };
 
-  const isReturned = record?.return_status === WarrantyReturnStatusModel.RETURNED;
+  const isReturned =
+    record?.return_status === WarrantyReturnStatusModel.RETURNED;
 
   return (
     <Modal
@@ -73,9 +84,11 @@ function WarrantyStatusModal(props: PropTypes) {
         handleCancel();
       }}
       onOk={(values) => {
-        handleOk(values)
+        handleOk(values);
       }}
-      okButtonProps={{ style: { display: isReturned ?'none' : "inline-flex" } }}
+      okButtonProps={{
+        style: { display: isReturned ? "none" : "inline-flex" },
+      }}
       {...rest}
     >
       <Form form={form} layout="vertical" initialValues={initialFormValues}>
@@ -98,10 +111,11 @@ function WarrantyStatusModal(props: PropTypes) {
             placeholder="Chọn trạng thái xử lý sản phẩm"
             onChange={(value) => {
               setSelectedData &&
-                setSelectedData({
-                  ...value,
-                  status: value,
-                });
+              setSelectedData({
+                ...value,
+                status: value,
+              });
+              setIsShowPaymentInModalStatus(false);
             }}
             disabled={isReturned}
           >
@@ -130,7 +144,9 @@ function WarrantyStatusModal(props: PropTypes) {
                   selectedData?.status === WarrantyItemStatus.RECEIVED
                 ) {
                   return Promise.reject(
-                    new Error("Trạng thái mới tiếp nhận, ko chuyển được đã trả khách!")
+                    new Error(
+                      "Trạng thái mới tiếp nhận, ko chuyển được đã trả khách!",
+                    ),
                   );
                 }
                 return Promise.resolve();
@@ -143,7 +159,9 @@ function WarrantyStatusModal(props: PropTypes) {
                   selectedData?.status === WarrantyItemStatus.FIXING
                 ) {
                   return Promise.reject(
-                    new Error("Trạng thái đang xử lý, ko chuyển được đã trả khách!")
+                    new Error(
+                      "Trạng thái đang xử lý, ko chuyển được đã trả khách!",
+                    ),
                   );
                 }
                 return Promise.resolve();
@@ -158,7 +176,7 @@ function WarrantyStatusModal(props: PropTypes) {
             optionFilterProp="children"
             placeholder="Chọn trạng thái trả khách"
             onChange={(value) => {
-              handleChange(value);
+              handleChangeReturnStatus(value);
             }}
             disabled={isReturned}
           >
@@ -210,7 +228,7 @@ function WarrantyStatusModal(props: PropTypes) {
             </Form.Item>
             <Form.Item
               label={`Thanh toán (thanh toán đủ phí báo khách: ${formatCurrency(
-                record?.customer_fee || 0
+                record?.customer_fee || 0,
               )})`}
               labelCol={{ span: 24 }}
               labelAlign={"left"}
@@ -224,7 +242,7 @@ function WarrantyStatusModal(props: PropTypes) {
                   validator(_, value) {
                     if (value > (record?.customer_fee || 0)) {
                       return Promise.reject(
-                        new Error("Vui lòng nhập đủ, không nhập thừa tiền!")
+                        new Error("Vui lòng nhập đủ, không nhập thừa tiền!"),
                       );
                     }
                     return Promise.resolve();
@@ -233,7 +251,9 @@ function WarrantyStatusModal(props: PropTypes) {
                 () => ({
                   validator(_, value) {
                     if (value && value < 1000) {
-                      return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
+                      return Promise.reject(
+                        new Error("Nhập 0 hoặc ít nhất 4 chữ số!"),
+                      );
                     }
                     return Promise.resolve();
                   },
@@ -242,7 +262,7 @@ function WarrantyStatusModal(props: PropTypes) {
             >
               <NumberInput
                 format={(a: string) => {
-                  return formatCurrencyInputValue(a)
+                  return formatCurrencyInputValue(a);
                 }}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="Nhập số tiền thanh toán"
