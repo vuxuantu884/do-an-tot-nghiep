@@ -82,6 +82,7 @@ import VariantList from "../component/VariantList";
 import { ProductParams } from "../ProductDetailScreen";
 import AddVariantsModal from "./add-variants-modal";
 import { StyledComponent } from "./styles";
+import { debounce } from "lodash";
 
 const {Item} = Form;
 let tempActive: number = 0;
@@ -273,7 +274,6 @@ const ProductDetailScreen: React.FC = () => {
     newSelected.forEach((value: string) => {
       careInformation.washing.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -283,7 +283,6 @@ const ProductDetailScreen: React.FC = () => {
 
       careInformation.beleaching.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -292,7 +291,6 @@ const ProductDetailScreen: React.FC = () => {
       });
       careInformation.ironing.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -301,7 +299,6 @@ const ProductDetailScreen: React.FC = () => {
       });
       careInformation.drying.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -310,7 +307,6 @@ const ProductDetailScreen: React.FC = () => {
       });
       careInformation.professionalCare.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -325,6 +321,21 @@ const ProductDetailScreen: React.FC = () => {
   const onChange = useCallback(() => {
     setChange(true);
   }, []);
+
+  const onChangeProductName = useCallback((e) => {
+    const newName = e.target.value;
+    const newData: any = { ...data };
+
+    if (!newData || !newData.variants || newData?.variants?.length === 0) return;
+
+    for (let i = 0; i < newData.variants.length; i++) {
+      if (newData.variants[i].name.slice(0, newData.variants[i].name.indexOf('-')).trim() === newData.name.trim()) {
+        newData.variants[i].name = newName + ' - ' + newData.variants[i].color + ' - ' + newData.variants[i].size;
+      }
+    }
+
+    setData(newData);
+  }, [data]);
 
   const onChangePrice = useCallback(() => {
     setChangePrice(true);
@@ -657,7 +668,6 @@ const ProductDetailScreen: React.FC = () => {
           tempActive = activeRow;
           setModalConfirm({
             onOk: () => {
-
               setModalConfirm({visible: false});
               form.submit();
             },
@@ -721,11 +731,11 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   /**
-   * Thêm sản phẩm 
+   * Thêm sản phẩm
    */
   const handleSubmitAddVariant = (values:any)=>{
       onFinish(values);
-     
+
   }
 
   /**
@@ -941,7 +951,7 @@ const ProductDetailScreen: React.FC = () => {
                             label="Tên sản phẩm"
                           >
                             <Input
-                              onChange={onChange}
+                              onChange={debounce(onChangeProductName, 500)}
                               maxLength={255}
                               placeholder="Nhập tên sản phẩm"
                             />
@@ -1206,7 +1216,7 @@ const ProductDetailScreen: React.FC = () => {
                         productData={data}
                       />
                     </Item>
-                    <Divider />                    
+                    <Divider />
                     <AddVariantsModal form={form} onFinish={handleSubmitAddVariant} onOk={focusLastestVariant}/>
                   </Col>
                   <Col className="right" span={24} md={17}>
@@ -1738,7 +1748,6 @@ const ProductDetailScreen: React.FC = () => {
         <CareModal
           onCancel={() => setShowCareModal(false)}
           onOk={(data) => {
-            console.log('data data', data);
             setCareLabelsString(data);
             setShowCareModal(false);
           }}
