@@ -21,6 +21,7 @@
     // YDpage customer style
     .yd-page-customer {
         margin-top: 40px;
+        height: 100%;
         .ant-card {
             padding: 12px;
         }
@@ -108,6 +109,13 @@
 
     //customer create update style
     .yd-page-customer-create-update {
+        height: 100%;
+        .ant-form {
+            height: 100%;
+            .ant-card {
+                height: 100%;
+            }
+        }
         .ant-form-item {
             flex-direction: column !important;
         }

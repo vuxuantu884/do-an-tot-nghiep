@@ -132,7 +132,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         {
           name: "Thẻ khách hàng",
           // value: loyaltyCard?.card_number,
-          value: customer?.card_number,
+          value: customer?.card_number?.trim() === "null" ? "" : customer?.card_number,   // fix card number: null
           position: "right",
           key: "4",
         },

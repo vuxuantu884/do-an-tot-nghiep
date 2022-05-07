@@ -509,7 +509,7 @@ const YDPageCustomerView = (props: any) => {
 							}}
             />
 
-						{notes.length > 0 ? notes.map((note: any, index: number) => (
+						{notes?.length > 0 ? notes.map((note: any, index: number) => (
 							<div className="customer-note-item" key={index}>
 								<span key={note.id}>{note.content}</span>
 								{allowUpdateCustomer && (
