@@ -717,11 +717,7 @@ ShippingServiceConfigDetailResponseModel[]
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
-		let _shippingAddressRequest:any={
-			...shippingAddress,
-			second_phone:shippingAddressesSecondPhone
-		}
-		values.shipping_address = _shippingAddressRequest;
+		values.shipping_address = shippingAddress ? { ...shippingAddress, second_phone:shippingAddressesSecondPhone } : OrderDetail.shipping_address;
 		values.billing_address = billingAddress;
 		values.customer_id = customer?.id;
 		values.customer_ward = customer?.ward;
@@ -1146,14 +1142,14 @@ ShippingServiceConfigDetailResponseModel[]
 				setLoyaltyPoint(data);
 				setCountFinishingUpdateCustomer(prev => prev + 1);
 			}));
-			let shippingAddressItem = customer.shipping_addresses.find(
-				(p: any) => p.default === true
-			);
-			if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
+			// let shippingAddressItem = customer.shipping_addresses.find(
+			// 	(p: any) => p.default === true && p.city_id && p.district_id && p.ward_id && p.full_address
+			// );
+			// if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
 		} else {
 			setLoyaltyPoint(null);
 			setCountFinishingUpdateCustomer(prev => prev + 1);
-			onChangeShippingAddress(null);
+			// onChangeShippingAddress(null);
 		}
 	}, [dispatch, customer]);
 
@@ -1787,10 +1783,7 @@ ShippingServiceConfigDetailResponseModel[]
 											</Card>
 										)}
 									{(!OrderDetail?.payments || !OrderDetail?.payments.length) &&
-										(!(
-											OrderDetail?.fulfillments?.length &&
-											OrderDetail.fulfillments[0].shipment?.cod
-										) ||
+										(!(OrderDetail?.fulfillments?.length && OrderDetail.fulfillments[0].shipment?.cod) ||
 											fulfillments[0].status === FulFillmentStatus.CANCELLED ||
 											fulfillments[0].status === FulFillmentStatus.RETURNING ||
 											fulfillments[0].status === FulFillmentStatus.RETURNED) && (
