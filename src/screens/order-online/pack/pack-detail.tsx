@@ -264,7 +264,9 @@ const PackDetail: React.FC = () => {
     })
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(2);
           showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
           if (response.data && response.data.status === "FINISH") {
             window.open(response.data.url);
             setStatusExport(3);
@@ -275,7 +277,7 @@ const PackDetail: React.FC = () => {
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }, [packDetail]);
+  }, [listExportFile, packDetail]);
 
   const checkExportFile = useCallback(() => {
 
