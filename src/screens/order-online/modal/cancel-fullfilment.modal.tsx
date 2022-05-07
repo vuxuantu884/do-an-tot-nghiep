@@ -66,6 +66,7 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
   };
 
   const onSubmit = (reasonID: string|undefined, reasonSub: string|undefined, reasonOtherDescription: string, type?: string) => {
+    console.log('reason', reason)
     if(!reasonID) {
       showError("Vui lòng chọn lý do!");
       const element = document.getElementById("selectFulfillmentCancelReasonId");
@@ -157,11 +158,9 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
           type="primary"
           style={{ display: shipping ? "inline" : "none" }}
           onClick={() => {
-            if (reasonID && reasonSub) {
-              onSubmit(reasonID, reasonSub, reasonOtherDescription, onOkAndMoreType);
-            } else {
-              showError("Vui lòng chọn lý do!")
-            }
+            console.log('reasonID', reasonID)
+            console.log('reasonSub', reasonSub)
+            onSubmit(reasonID, reasonSub, reasonOtherDescription, onOkAndMoreType);
           }}>
           Hủy giao và nhận lại hàng
         </Button>,
