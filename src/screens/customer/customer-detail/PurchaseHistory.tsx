@@ -473,14 +473,18 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         visible: true,
         fixed: "left",
         className: "custom-shadow-td",
-        width: 170,
+        width: 180,
         render: (item: any) => {
           return (
             <div>
               {item.code_order_return ?
-                <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">{item.code_order_return}</Link>
+                <Tooltip title="Mã đơn trả hàng">
+                  <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">{item.code_order_return}</Link>
+                </Tooltip>
                 :
-                <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">{item.code}</Link>
+                <Tooltip title="Mã đơn hàng">
+                  <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">{item.code}</Link>
+                </Tooltip>
               }
 
               <div style={{ fontSize: "12px", color: "#666666" }}>
@@ -504,7 +508,15 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               </div>
 
               {item.code_order_return ?
-                <div style={{ color: "red", fontWeight: "bold" }}>Trả hàng</div>
+                <>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontWeight: "bold" }}>Đơn gốc: </span>
+                    <Tooltip title="Mã đơn gốc">
+                      <Link to={`${UrlConfig.ORDER}/${item.order_id}`} target="_blank">{item.code_order}</Link>
+                    </Tooltip>
+                  </div>
+                  <div style={{ color: "red", fontWeight: "bold" }}>Trả hàng</div>
+                </>
                 :
                 renderReturn(item)
               }

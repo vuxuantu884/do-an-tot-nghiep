@@ -47,7 +47,7 @@ import { ShippingServiceConfigDetailResponseModel } from "model/response/setting
 import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { BaseFilterTag } from "../model/base/base-filter-tag";
-import { ErrorGHTK, FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
+import { FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
