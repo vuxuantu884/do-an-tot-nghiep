@@ -129,7 +129,7 @@ const ProcurementResult: React.FC<ProcurementFormProps> = (props: ProcurementFor
         const procureMentMappingPrice = latestProcurement.procurement_items.map((el: PurchaseProcumentLineItem) => {
           for(let i =0; i< item.line_items.length; i++){
             if(el.sku === item.line_items[i].sku){
-              return {...el, price: item.line_items[i].price}
+              return {...el, price: item.line_items[i].price, product_id: item.line_items[i].product_id, variant_id: item.line_items[i].variant_id}
             }
           }
           return {...el}
