@@ -19,7 +19,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { useReactToPrint } from "react-to-print";
-import { exportFile } from "service/other/export.service";
+import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import PackDetailInfo from "./pack/detail/pack-detail-info";
@@ -54,15 +54,15 @@ const actions: Array<MenuAction> = [
   }
 ];
 
-const typePrint={
-  simple:"simple",
-  detail:"detail"
+const typePrint = {
+  simple: "simple",
+  detail: "detail"
 }
 
-interface GoodReceiptPrint{
-  good_receipt_id:number;
-  html_content:string;
-  size:string;
+interface GoodReceiptPrint {
+  good_receipt_id: number;
+  html_content: string;
+  size: string;
 }
 
 const PackDetail: React.FC = () => {
@@ -113,8 +113,8 @@ const PackDetail: React.FC = () => {
 
           data.orders?.forEach(function (itemOrder) {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
-              if(data.receipt_type_id === 1) {
-                if(itemFFM.status === "packed") {
+              if (data.receipt_type_id === 1) {
+                if (itemFFM.status === "packed") {
                   itemFFM.items.forEach(function (itemProduct, index) {
                     ////
                     const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
@@ -129,14 +129,14 @@ const PackDetail: React.FC = () => {
                       price: itemProduct.price,
                       total_quantity: itemProduct.quantity,
                       total_incomplate: 0,
-                      on_hand: productOnHand? productOnHand.on_hand : undefined,
+                      on_hand: productOnHand ? productOnHand.on_hand : undefined,
                     });
-  
+
                     ///
                   });
                 }
-              } else if(data.receipt_type_id === 2) {
-                if(itemFFM.status === "cancelled") {
+              } else if (data.receipt_type_id === 2) {
+                if (itemFFM.status === "cancelled") {
                   itemFFM.items.forEach(function (itemProduct, index) {
                     ////
                     const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
@@ -151,15 +151,15 @@ const PackDetail: React.FC = () => {
                       price: itemProduct.price,
                       total_quantity: itemProduct.quantity,
                       total_incomplate: 0,
-                      on_hand: productOnHand? productOnHand.on_hand : undefined,
+                      on_hand: productOnHand ? productOnHand.on_hand : undefined,
                     });
-  
-                    
+
+
                     ///
                   });
                 }
               }
-              
+
             });
           });
 
@@ -170,23 +170,23 @@ const PackDetail: React.FC = () => {
             let total_price = 0;
             let postage = 0;
             let card_number = 0;
-            let ffrmCode=null;
-            let trackingCode=null;
+            let ffrmCode = null;
+            let trackingCode = null;
 
             let _itemProduct: FulfillmentsItemModel[] = [];
             const ffms = itemOrder.fulfillments?.filter(ffm => {
-              if(data.receipt_type_id === 1) {
-                return  ffm.status === 'packed'
+              if (data.receipt_type_id === 1) {
+                return ffm.status === 'packed'
               }
-              return  ffm.status === 'cancelled'
+              return ffm.status === 'cancelled'
             });
             ffms?.forEach(function (itemFFM) {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
               total_price += itemFFM.total ? itemFFM.total : 0;
               postage += itemFFM?.shipment?.shipping_fee_informed_to_customer ? itemFFM.shipment.shipping_fee_informed_to_customer : 0;
-              ffrmCode=itemFFM.code;
-              trackingCode=itemFFM.shipment?.tracking_code;
+              ffrmCode = itemFFM.code;
+              trackingCode = itemFFM.shipment?.tracking_code;
               itemFFM.items.forEach(function (itemProduct) {
                 _itemProduct.push({
                   sku: itemProduct.sku,
@@ -209,8 +209,8 @@ const PackDetail: React.FC = () => {
               key: keyOrder++,
               order_id: itemOrder.id,
               order_code: itemOrder.code,
-              ffm_code:ffrmCode||"",
-              tracking_code:trackingCode||"",
+              ffm_code: ffrmCode || "",
+              tracking_code: trackingCode || "",
               customer_name: itemOrder.customer ? itemOrder.customer : "n/a",
               total_quantity: total_quantity,
               total_price: total_price,
@@ -234,9 +234,9 @@ const PackDetail: React.FC = () => {
   const handleDownLoad = () => { };
   const handleDeleteFile = () => { };
 
-  const handlePrintPack = useCallback((type:string) => { 
-    dispatch(getPrintGoodsReceipts([PackId],type,(data:GoodReceiptPrint[])=>{
-      if(data && data.length>0){
+  const handlePrintPack = useCallback((type: string) => {
+    dispatch(getPrintGoodsReceipts([PackId], type, (data: GoodReceiptPrint[]) => {
+      if (data && data.length > 0) {
         setHtmlContent(data[0].html_content);
         setTimeout(() => {
           if (handlePrint) {
@@ -245,13 +245,18 @@ const PackDetail: React.FC = () => {
         }, 500);
       }
     }))
-  },[dispatch,PackId,handlePrint]);
+  }, [dispatch, PackId, handlePrint]);
 
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [statusExport, setStatusExport] = useState<number>(1);
+  // const [exportError, setExportError] = useState<string>("");
+  // const [exportProgress, setExportProgress] = useState<number>(0);
+  
   const handleExportExcelOrderPack = useCallback(() => {
-    let codes:any=[];
-    packDetail?.orders?.map((p)=>codes.push(p.code));
-    let queryParams = generateQuery({code:codes});
-    console.log("queryParams",queryParams)
+    let codes: any[] = [];
+    packDetail && packDetail.orders && packDetail.orders.forEach((p) => codes.push(p.code));
+    let queryParams = generateQuery({ code: codes });
+    console.log("queryParams", queryParams)
     exportFile({
       conditions: queryParams,
       type: "EXPORT_ORDER"
@@ -259,17 +264,48 @@ const PackDetail: React.FC = () => {
     })
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          //setStatusExport(2);
           showSuccess("Đã gửi yêu cầu xuất file");
-          //setListExportFile([...listExportFile, response.data.code]);
+          if (response.data && response.data.status === "FINISH") {
+            window.open(response.data.url);
+            setStatusExport(3);
+          }
         }
       })
       .catch((error) => {
-        //setStatusExport(4);
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  },[packDetail?.orders]);
+  }, [packDetail]);
+
+  const checkExportFile = useCallback(() => {
+
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.status === "FINISH") {
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+            setStatusExport(3);
+          }
+          if (response.data && response.data.status === "ERROR") {
+            setStatusExport(4);
+            showError("Có lỗi xảy ra, vui lòng thử lại sau");
+            // setExportError(response.data.message);
+          }
+        } else {
+          setStatusExport(4);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        }
+      });
+    });
+  }, [listExportFile]);
 
   const handleAddOrderInPack = () => { };
 
@@ -297,6 +333,14 @@ const PackDetail: React.FC = () => {
     },
     [handlePrintPack, handleExportExcelOrderPack, history, PackId]
   );
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
 
   return (
     <ContentContainer
@@ -334,19 +378,19 @@ const PackDetail: React.FC = () => {
         handleSearchOrder={handleSearchOrder}
         onMenuClick={onMenuListOrderClick}
       />
-			
-			<React.Fragment>
-				<div style={{ display: "none" }}>
-					<div className="printContent" ref={printElementRef}>
-						<div
-							dangerouslySetInnerHTML={{
-								__html: htmlContent,
-							}}
-						>
-						</div>
-					</div>
-				</div>
-			</React.Fragment>
+
+      <React.Fragment>
+        <div style={{ display: "none" }}>
+          <div className="printContent" ref={printElementRef}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: htmlContent,
+              }}
+            >
+            </div>
+          </div>
+        </div>
+      </React.Fragment>
     </ContentContainer>
   );
 };
