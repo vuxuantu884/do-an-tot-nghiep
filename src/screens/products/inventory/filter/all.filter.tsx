@@ -704,7 +704,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       </CustomSelect>
                   </Item>
                 </Col>
-                <Col span={8} style={{display: "none"}}>
+                <Col span={8}>
                   <Item name="remain" hidden style={{ minWidth: 250 }} label="Trạng thái tồn">
                     <CustomSelect
                       showSearch
@@ -757,7 +757,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                    </Item>
                    </Col>
                   </Row>
-                </Col>         
+                </Col>
               </Row>
           </Form>
         </BaseFilter>
