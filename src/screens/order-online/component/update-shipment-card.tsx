@@ -67,7 +67,7 @@ import {
 } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor } from "utils/global-styles/variables";
+import { dangerColor, successColor, yellowColor } from "utils/global-styles/variables";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
@@ -826,33 +826,32 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		}
 	};
 
-	const renderPushingStatusWhenDeliverPartnerFailed = () => {
-		if (!OrderDetail || !OrderDetail.fulfillments) {
-			return;
-		}
-		if (OrderDetail.fulfillments[0]?.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE) {
-			let failedFulfillment = OrderDetail.fulfillments.find((singleFulfillment) => {
-				return singleFulfillment.shipment?.pushing_status === "failed"
-			})
-			if (failedFulfillment && failedFulfillment?.shipment?.pushing_note) {
-				return (
-					<Col md={12}>
-						<Row gutter={30}>
-							<Col span={10}>
-								<p className="text-field">Trạng thái:</p>
-							</Col>
-							<Col span={14}>
-								<p>
-									<b className="text-field" style={{ color: dangerColor }}>
-										{failedFulfillment?.shipment.pushing_note}
-										{failedFulfillment?.shipment.delivery_service_note ? ` - ${failedFulfillment?.shipment.delivery_service_note}` : null}
-									</b>
-								</p>
-							</Col>
-						</Row>
-					</Col>
-				)
+	const renderPushingStatus = (fulfillment: any) => {
+		if (fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE) {
+			let color = "";
+			switch (fulfillment.shipment.pushing_status) {
+				case "failed": color = dangerColor; break;
+				case "waiting": color = yellowColor; break;
+				case "completed": color = successColor; break;
+				default: break;
 			}
+			return (
+				<Col md={12}>
+					<Row gutter={30}>
+						<Col span={10}>
+							<p className="text-field">Trạng thái:</p>
+						</Col>
+						<Col span={14}>
+							<p>
+								<b className="text-field" style={{ color }}>
+									{fulfillment?.shipment.pushing_note}
+									{/* {failedFulfillment?.shipment.delivery_service_note ? ` - ${failedFulfillment?.shipment.delivery_service_note}` : null} */}
+								</b>
+							</p>
+						</Col>
+					</Row>
+				</Col>
+			)
 		}
 	};
 
@@ -1252,7 +1251,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 														</Col>
 													</Row>
 												</Col>
-												{renderPushingStatusWhenDeliverPartnerFailed()}
+												{renderPushingStatus(fulfillment)}
 												{CheckShipmentType(props.OrderDetail!) === ShipmentMethod.EXTERNAL_SERVICE && (
 													<Col md={12}>
 														<Row gutter={30}>
@@ -1438,7 +1437,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																				}}
 																			>
 																				{TrackingCode(props.OrderDetail)}
-																				{fulfillment && fulfillment.shipment?.pushing_note ? ` - ${fulfillment.shipment.pushing_note}`: null}
+																				{/* {fulfillment && fulfillment.shipment?.pushing_note ? ` - ${fulfillment.shipment.pushing_note}`: null} */}
 																			</Typography.Link>
 																			<div
 																				style={{
