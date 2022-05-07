@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, LoadingOutlined, PhoneOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Modal, Row, Select, Upload } from "antd";
+import { Button, Col, Form, FormInstance, Input, Modal, Row, Select, Typography, Upload } from "antd";
 import { Store } from "antd/lib/form/interface";
 import Text from "antd/lib/typography/Text";
 import { UploadFile } from "antd/lib/upload/interface";
@@ -30,6 +30,7 @@ import { getStoreApi } from "service/inventory/transfer/index.service";
 import { listPurchaseOrderApi } from "service/purchase-order/purchase-order.service";
 import { getJobImport } from "service/purchase-order/purchase-procument.service";
 import { callApiNative } from "utils/ApiUtils";
+import excelIcon from "assets/icon/icon-excel.svg";
 
 interface ProcurementFormProps {
 	formMain: FormInstance;
@@ -236,6 +237,13 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 							setUploadStatus(EnumJobStatus.error);
 							setErrorMessage('Không tìm thấy đơn nào')
 						}
+						if(response.data.error > 0) {
+							var downLoad = document.createElement("a");
+							downLoad.href = response.data.url;
+							downLoad.download = "download";
+							downLoad.click()
+							setErrorMessage('Sản phẩm lỗi được hiển thị trong file tải về')
+						}
 						setJobImportStatus(EnumJobStatus.finish);
 						setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
 						const fileCode = response.data.code;
@@ -312,135 +320,152 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 
 	return (
 		<Row gutter={50}>
-			<Col span={8}>
-				<Form.Item
-					shouldUpdate={(prevValues, curValues) =>
-						prevValues[ProcurementField.supplier_id] !== curValues[ProcurementField.supplier_id]
-					}
-					className="margin-bottom-0">
-					{({ getFieldValue }) => {
-						let supplier_id = getFieldValue([ProcurementField.supplier_id]);
-						let supplier = getFieldValue([ProcurementField.supplier]);
-						let phone = getFieldValue([ProcurementField.supplier_phone])
-						return (
-							<>
-								{((isSelectSupplier) || supplier_id) ? (
-									<div style={{ marginBottom: 15 }}>
-										<div style={{ display: 'flex', alignItems: "center" }}>
-											<Link
-												to={`${UrlConfig.SUPPLIERS}/${supplier_id}`}
-												className="primary"
-												target="_blank"
-												style={{ fontSize: "16px", marginRight: 10 }}>
-												{supplier}
-											</Link>
-											{isSelectSupplier && (
-												<Button type="link" onClick={removeSupplier} style={{ display: "flex", alignItems: "center" }} icon={<AiOutlineClose />} />
-											)}
-										</div>
-										<>
-											<Form.Item hidden name={[ProcurementField.supplier_id]}>
-												<Input />
+			<Col span={16}>
+				<Row gutter={50}>
+					<Col span={12}>
+						<Form.Item
+							shouldUpdate={(prevValues, curValues) =>
+								prevValues[ProcurementField.supplier_id] !== curValues[ProcurementField.supplier_id]
+							}
+							className="margin-bottom-0">
+							{({ getFieldValue }) => {
+								let supplier_id = getFieldValue([ProcurementField.supplier_id]);
+								let supplier = getFieldValue([ProcurementField.supplier]);
+								let phone = getFieldValue([ProcurementField.supplier_phone])
+								return (
+									<>
+										{((isSelectSupplier) || supplier_id) ? (
+											<div style={{ marginBottom: 15 }}>
+												<div style={{ display: 'flex', alignItems: "center" }}>
+													<Link
+														to={`${UrlConfig.SUPPLIERS}/${supplier_id}`}
+														className="primary"
+														target="_blank"
+														style={{ fontSize: "16px", marginRight: 10 }}>
+														{supplier}
+													</Link>
+													{isSelectSupplier && (
+														<Button type="link" onClick={removeSupplier} style={{ display: "flex", alignItems: "center" }} icon={<AiOutlineClose />} />
+													)}
+												</div>
+												<>
+													<Form.Item hidden name={[ProcurementField.supplier_id]}>
+														<Input />
+													</Form.Item>
+													<Form.Item hidden name={[ProcurementField.supplier]}>
+														<Input />
+													</Form.Item>
+													<Form.Item hidden name={[ProcurementField.supplier_phone]}>
+														<Input />
+													</Form.Item>
+													<Row>
+														<div><PhoneOutlined />{" "} <Text strong>{phone}</Text></div>
+													</Row>
+												</>
+											</div>
+										) : <><Text strong>Chọn nhà cung cấp</Text><span style={{ color: 'red' }}>*</span>
+											<Form.Item
+												name={[ProcurementField.supplier_id]}
+												rules={[
+													{
+														required: true,
+														message: "Vui lòng chọn nhà cung cấp",
+													},
+												]}>
+												<CustomAutoComplete
+													loading={loadingSearch}
+													dropdownClassName="supplier"
+													placeholder="Tìm kiếm nhà cung cấp"
+													onSearch={onChangeKeySearchSupplier}
+													dropdownMatchSelectWidth={456}
+													style={{ width: "100%" }}
+													onSelect={(value) => {
+														if (!value) return
+														onSelect(value)
+													}}
+													options={renderResult}
+												/>
 											</Form.Item>
-											<Form.Item hidden name={[ProcurementField.supplier]}>
-												<Input />
-											</Form.Item>
-											<Form.Item hidden name={[ProcurementField.supplier_phone]}>
-												<Input />
-											</Form.Item>
-											<Row>
-												<div><PhoneOutlined />{" "} <Text strong>{phone}</Text></div>
-											</Row>
-										</>
-									</div>
-								) : <><Text strong>Chọn nhà cung cấp</Text><span style={{ color: 'red' }}>*</span>
-									<Form.Item
-										name={[ProcurementField.supplier_id]}
-										rules={[
-											{
-												required: true,
-												message: "Vui lòng chọn nhà cung cấp",
-											},
-										]}>
-										<CustomAutoComplete
-											loading={loadingSearch}
-											dropdownClassName="supplier"
-											placeholder="Tìm kiếm nhà cung cấp"
-											onSearch={onChangeKeySearchSupplier}
-											dropdownMatchSelectWidth={456}
-											style={{ width: "100%" }}
-											onSelect={(value) => {
-												if (!value) return
-												onSelect(value)
-											}}
-											options={renderResult}
-										/>
-									</Form.Item>
-								</>}
-							</>
-						);
-					}}
-				</Form.Item>
-				<Form.Item
-					name={[ProcurementField.file]}
-					rules={[
-						{
-							required: true,
-							message: "Vui lòng nhập file",
-						},
-					]}
-				>
-					<Upload
-						accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-						maxCount={1}
-						fileList={fileList}
-						onChange={onChangeFile}
-						onRemove={(file) => {
-							const index = fileList.indexOf(file);
-							const newFileList = [...fileList]
-							newFileList.splice(index, 1);
-							return setFileList(newFileList)
-						}}
-						customRequest={(option: any) => {
-							return dispatch(uploadFileAction([option.file],"stock-transfer", onResultChange));
-						}}
-					>
-						<Button
-							disabled={storeID === undefined || supplierID === undefined ? true : false}
-							size="middle"
-							icon={<UploadOutlined />}
+										</>}
+									</>
+								);
+							}}
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Text strong>Chọn kho nhận </Text><span style={{ color: 'red' }}>*</span>
+						<Form.Item
+							name={[ProcurementField.store_id]}
+							rules={[
+								{
+									required: true,
+									message: "Vui lòng chọn kho nhận hàng",
+								},
+							]}
 						>
-							Nhập file sản phẩm
-						</Button>
-					</Upload>
-				</Form.Item>
-			</Col>
-			<Col span={8}>
-				<Text strong>Chọn kho nhận </Text><span style={{ color: 'red' }}>*</span>
-				<Form.Item
-					name={[ProcurementField.store_id]}
-					rules={[
-						{
-							required: true,
-							message: "Vui lòng chọn kho nhận hàng",
-						},
-					]}
-				>
-					<Select
-						allowClear
-						showSearch
-						showArrow
-						optionFilterProp="children"
-						placeholder="Chọn kho nhận"
-						onChange={onChangeStore}
-					>
-						{!isEmpty(accountStores) && accountStores.map((item) => (
-							<Select.Option key={item.id} value={item.store_id || 0}>
-								{item.store}
-							</Select.Option>
-						))}
-					</Select>
-				</Form.Item>
+							<Select
+								allowClear
+								showSearch
+								showArrow
+								optionFilterProp="children"
+								placeholder="Chọn kho nhận"
+								onChange={onChangeStore}
+							>
+								{!isEmpty(accountStores) && accountStores.map((item) => (
+									<Select.Option key={item.id} value={item.store_id || 0}>
+										{item.store}
+									</Select.Option>
+								))}
+							</Select>
+						</Form.Item>
+					</Col>
+				</Row>
+				<Row align="middle">
+					<Col span={8}>
+						<Form.Item
+							name={[ProcurementField.file]}
+							rules={[
+								{
+									required: true,
+									message: "Vui lòng nhập file",
+								},
+							]}
+						>
+							<Upload
+								accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+								maxCount={1}
+								fileList={fileList}
+								onChange={onChangeFile}
+								onRemove={(file) => {
+									const index = fileList.indexOf(file);
+									const newFileList = [...fileList]
+									newFileList.splice(index, 1);
+									return setFileList(newFileList)
+								}}
+								customRequest={(option: any) => {
+									return dispatch(uploadFileAction([option.file], "stock-transfer", onResultChange));
+								}}
+							>
+								<Button
+									disabled={storeID === undefined || supplierID === undefined ? true : false}
+									size="middle"
+									icon={<UploadOutlined />}
+								>
+									Nhập file sản phẩm
+								</Button>
+							</Upload>
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item style={{ paddingTop: 10 }}>
+							<Typography.Text strong>Link file excel mẫu: </Typography.Text>
+							<Typography.Text>
+								<img src={excelIcon} alt="" />{" "}
+								<a href="https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_94ff77ce-d369-4732-b649-f1ba70e29b77_original.xlsx" download="Import_Procurement">Mẫu file nhập kho NCC(.xlsx)</a>
+							</Typography.Text>
+						</Form.Item>
+					</Col>
+				</Row>
 			</Col>
 			<Col span={8}>
 				<Text strong>Ghi chú </Text>
@@ -543,6 +568,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 												<strong style={{ color: "#2A2A86" }}>
 												</strong>{" "}
 											</h2>
+											<h4>{errorMessage ?? ""}</h4>
 										</Row>
 									</>
 								}

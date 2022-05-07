@@ -40,6 +40,19 @@ const ProcurementScanResult: React.FC<IProcurementScanResult> = ({ dataResult }:
 					</Typography.Title>
 				</Space>
 			</Col>
+			{
+				dataResult?.total &&
+				<Col span={3}>
+					<Space style={{ display: 'flex' }} align='center' direction='vertical'>
+						<Typography.Text>
+							Tổng số lượng nhập
+						</Typography.Text>
+						<Typography.Title level={5}>
+							{dataResult?.total}
+						</Typography.Title>
+					</Space>
+				</Col>
+			}
 			<Col span={3}>
 				<Space style={{ display: 'flex' }} align='center' direction='vertical'>
 					<Typography.Text >
