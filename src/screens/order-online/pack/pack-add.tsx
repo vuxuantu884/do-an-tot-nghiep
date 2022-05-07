@@ -17,9 +17,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import AddOrderBottombar from "./pack/add/add-order-bottombar";
-import AddOrderInReport from "./pack/add/add-order-in-report";
-import { StyledComponent } from "./pack/styles";
+import AddOrderBottombar from "./add/add-order-bottombar";
+import AddOrderInReport from "./add/add-order-in-report";
+import { StyledComponent } from "./styles";
 
 var barcode = "";
 // }

@@ -22,10 +22,10 @@ import { useReactToPrint } from "react-to-print";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import PackDetailInfo from "./pack/detail/pack-detail-info";
-import PackListOrder from "./pack/detail/pack-list-order";
-import PackQuantityProduct from "./pack/detail/pack-quantity-product";
-import './pack/styles.scss';
+import PackDetailInfo from "./detail/pack-detail-info";
+import PackListOrder from "./detail/pack-list-order";
+import PackQuantityProduct from "./detail/pack-quantity-product";
+import './styles.scss';
 
 type PackParam = {
   id: string;

@@ -2,9 +2,9 @@ import React from "react";
 import { Card, Row, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import PackInfo from "./pack/info/pack-info";
-import PackList from "./pack/info/pack-list";
-import AddReportHandOver from "./pack/info/add-report-hand-over";
+import PackInfo from "./info/pack-info";
+import PackList from "./info/pack-list";
+import AddReportHandOver from "./info/add-report-hand-over";
 import {
   DeliveryServicesGetList,
   getChannels,
@@ -20,8 +20,8 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
-import { StyledComponent } from "./pack/styles";
-import './pack/styles.scss';
+import { StyledComponent } from "./styles";
+import './styles.scss';
 import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
 import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { hideLoading, showLoading } from "domain/actions/loading.action";

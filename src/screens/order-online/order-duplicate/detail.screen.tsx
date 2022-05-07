@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import { CloseSquareOutlined, ShrinkOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Tag } from "antd";
 import exportIcon from "assets/icon/export.svg";
