@@ -52,6 +52,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+	OrderLineItemResponse,
 	OrderPaymentResponse,
 	OrderResponse,
 	StoreCustomResponse
@@ -769,9 +770,11 @@ export default function Order() {
 						}
 						if (response) {
 							const isFBOrder = response.channel_id === FACEBOOK.channel_id;
-							let giftResponse = response.items.filter((item) => {
-								return item.type === Type.GIFT;
-							});
+							let getGiftResponse = (itemNormal:OrderLineItemResponse ) => {
+								return response.items.filter((item) => {
+									return item.type === Type.GIFT && item.position === itemNormal.position;
+								}) 
+							};
 							let responseItems: OrderLineItemRequest[] = response.items
 								.filter((item) => {
 									return item.type !== Type.GIFT;
@@ -808,7 +811,7 @@ export default function Order() {
 										discount_value: item.discount_value,
 										discount_amount: item.discount_amount,
 										position: item.position,
-										gifts: giftResponse,
+										gifts: getGiftResponse(item),
 										available: item.available,
 									};
 								});
