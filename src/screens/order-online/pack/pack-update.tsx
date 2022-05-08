@@ -82,60 +82,88 @@ const PackUpdate: React.FC = () => {
         let product: VariantModel[] = [];
         let ship_price = 0;
         let total_price = 0;
+        let ffrmCode = null;
 
-        itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-          if (packDetail.receipt_type_id === 1) {
-            if (itemFulfillment.status === 'packed') {
-              ship_price =
-                ship_price +
-                (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
-                  ? itemFulfillment.shipment.shipping_fee_informed_to_customer
-                  : 0);
-              total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
+        // itemOrder.fulfillments?.forEach(function (itemFulfillment) {
+        //   if (packDetail.receipt_type_id === 1) {
+        //     if (itemFulfillment.status === 'packed') {
+        //       ship_price =
+        //         ship_price +
+        //         (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
+        //           ? itemFulfillment.shipment.shipping_fee_informed_to_customer
+        //           : 0);
+        //       total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
 
-              itemFulfillment.items.forEach(function (itemProduct) {
-                product.push({
-                  sku: itemProduct.sku,
-                  product_id: itemProduct.product_id,
-                  product: itemProduct.product,
-                  variant_id: itemProduct.variant_id,
-                  variant: itemProduct.variant,
-                  variant_barcode: itemProduct.variant_barcode,
-                  quantity: itemProduct.quantity,
-                  price: itemProduct.price
-                });
-              });
-            }
-          } else {
-            if (itemFulfillment.status === 'cancelled') {
-              ship_price =
-                ship_price +
-                (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
-                  ? itemFulfillment.shipment.shipping_fee_informed_to_customer
-                  : 0);
-              total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
+        //       itemFulfillment.items.forEach(function (itemProduct) {
+        //         product.push({
+        //           sku: itemProduct.sku,
+        //           product_id: itemProduct.product_id,
+        //           product: itemProduct.product,
+        //           variant_id: itemProduct.variant_id,
+        //           variant: itemProduct.variant,
+        //           variant_barcode: itemProduct.variant_barcode,
+        //           quantity: itemProduct.quantity,
+        //           price: itemProduct.price
+        //         });
+        //       });
+        //     }
+        //   } else {
+        //     if (itemFulfillment.status === 'cancelled') {
+        //       ship_price =
+        //         ship_price +
+        //         (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
+        //           ? itemFulfillment.shipment.shipping_fee_informed_to_customer
+        //           : 0);
+        //       total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
 
-              itemFulfillment.items.forEach(function (itemProduct) {
-                product.push({
-                  sku: itemProduct.sku,
-                  product_id: itemProduct.product_id,
-                  product: itemProduct.product,
-                  variant_id: itemProduct.variant_id,
-                  variant: itemProduct.variant,
-                  variant_barcode: itemProduct.variant_barcode,
-                  quantity: itemProduct.quantity,
-                  price: itemProduct.price
-                });
-              });
-            }
-          }
+        //       itemFulfillment.items.forEach(function (itemProduct) {
+        //         product.push({
+        //           sku: itemProduct.sku,
+        //           product_id: itemProduct.product_id,
+        //           product: itemProduct.product,
+        //           variant_id: itemProduct.variant_id,
+        //           variant: itemProduct.variant,
+        //           variant_barcode: itemProduct.variant_barcode,
+        //           quantity: itemProduct.quantity,
+        //           price: itemProduct.price
+        //         });
+        //       });
+        //     }
+        //   }
 
-        });
+        // });
+
+        if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
+          let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
+          let itemFFM = itemOrder.fulfillments[indexFFM];
+          ffrmCode = itemFFM.code;
+
+          ship_price =
+            ship_price +
+            (itemFFM?.shipment?.shipping_fee_informed_to_customer
+              ? itemFFM.shipment.shipping_fee_informed_to_customer
+              : 0);
+          total_price = total_price + (itemFFM.total ? itemFFM.total : 0);
+
+          itemFFM.items.forEach(function (itemProduct) {
+            product.push({
+              sku: itemProduct.sku,
+              product_id: itemProduct.product_id,
+              product: itemProduct.product,
+              variant_id: itemProduct.variant_id,
+              variant: itemProduct.variant,
+              variant_barcode: itemProduct.variant_barcode,
+              quantity: itemProduct.quantity,
+              price: itemProduct.price
+            });
+          });
+        }
 
         let resultItem: GoodsReceiptsInfoOrderModel = {
           key: index,
           order_id: itemOrder.id ? itemOrder.id : 0,
           order_code: itemOrder.code ? itemOrder.code : "",
+          fulfillment_code: ffrmCode,
           customer_id: itemOrder.customer_id || 0,
           customer_name: itemOrder.shipping_address ? itemOrder.shipping_address.name : "",
           customer_phone: itemOrder.shipping_address
@@ -158,7 +186,8 @@ const PackUpdate: React.FC = () => {
     selectedRowKeys: selectedRowKeys,
     onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
       const keys = selectedRows.map((row: any) => row.key);
-      const codes = selectedRows.map((row: any) => row.order_code);
+      const codes = selectedRows.map((row: any) => row.fulfillment_code);
+      console.log(codes);
       setSelectedRowKeys(keys);
       setSelectedRowCode(codes);
     }
@@ -174,14 +203,14 @@ const PackUpdate: React.FC = () => {
           }
           let _newItem: string[] = [];
 
-          packDetail?.orders?.forEach(function (data) {
-            let success = true;
-            selectedRowCode.forEach(function (item) {
-              if (data.code === item) success = false;
-            });
-
-            if (success === true) _newItem.push(data.code);
-          });
+          let orderRemaining= packDetail?.orders?.filter((p)=>!p.fulfillments?.some(p1=>selectedRowCode.some(p2=>p2===p1.code)));
+          orderRemaining?.forEach((itemOrder, index)=>{
+            if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0){
+              let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
+              let itemFFM = itemOrder.fulfillments[indexFFM];
+              itemFFM?.code&& _newItem.push(itemFFM?.code);
+            }
+          })
 
           let param: any = {
             ...packDetail,
@@ -250,49 +279,48 @@ const PackUpdate: React.FC = () => {
       //     }
       //   });
 
-      if (packDetail.orders){
+      if (packDetail.orders) {
         packDetail?.orders?.forEach((item) => {
           if (item.fulfillments && item.fulfillments.length > 0) {
             let indexFFM = item.fulfillments.length - 1;
-           
+
             if (packDetail.receipt_type_id === 1 && item.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
               let FFMCode: string | null = item.fulfillments[indexFFM].code;
               FFMCode && codes.push(FFMCode);
             }
-            else if(packDetail.receipt_type_id === 2 
+            else if (packDetail.receipt_type_id === 2
               && item.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
-              && item.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED)
-              {
-                let FFMCode: string | null = item.fulfillments[indexFFM].code;
-                FFMCode && codes.push(FFMCode);
-              }
+              && item.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED) {
+              let FFMCode: string | null = item.fulfillments[indexFFM].code;
+              FFMCode && codes.push(FFMCode);
+            }
           }
         });
       }
-      if (codes.indexOf(order_id) === -1){
-      
+      if (codes.indexOf(order_id) === -1) {
+
         codes = insert([...codes], 0, order_id);
 
         console.log("codes", codes)
-  
+
         let id = packDetail?.id ? packDetail?.id : 0;
         let param: any = {
           ...packDetail,
           codes: codes,
         };
-  
+
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
             if (data) {
               setPackDetail(data);
               showSuccess("Thêm đơn hàng vào biên bản thành công");
             }
-            
+
             orderIdElement?.select();
           })
         );
       }
-      else{
+      else {
         showWarning(`${order_id} đã có trong biên bản!`);
         orderIdElement?.select();
       }

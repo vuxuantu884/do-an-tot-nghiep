@@ -81,6 +81,7 @@ export interface GoodsReceiptsInfoOrderModel{
   key:number;
   order_id:number;
   order_code:string;
+  fulfillment_code?:string|null;
   customer_id:number;
   customer_name:string;
   customer_phone:string;
