@@ -318,7 +318,7 @@ export default function Order() {
 			discount_amount: null,
 			total_line_amount_after_line_discount: null,
 			shipment: shipmentRequest,
-			items: items,
+			items: [...items,...itemGifts],
 		};
 
 		let listFulfillmentRequest = [];
