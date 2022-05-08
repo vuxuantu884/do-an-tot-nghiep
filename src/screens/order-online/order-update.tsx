@@ -131,11 +131,11 @@ export default function Order(props: PropTypes) {
 	const queryParams = useQuery();
 	const isSplit = queryParams.get("isSplit") || null;
 	const isShouldSetDefaultStoreBankAccount = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
-  )
+		(state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
+	)
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
-	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
+	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
 	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
 	const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
 	const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
@@ -185,9 +185,6 @@ export default function Order(props: PropTypes) {
 	const handleCustomer = (_objCustomer: CustomerResponse | null) => {
 		setCustomer(_objCustomer);
 	};
-	const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
-		setShippingAddress(_objShippingAddress);
-	};
 
 	const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
 		setBillingAddress(_objBillingAddress);
@@ -198,8 +195,8 @@ export default function Order(props: PropTypes) {
 	);
 
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
-ShippingServiceConfigDetailResponseModel[]
->([]);
+		ShippingServiceConfigDetailResponseModel[]
+	>([]);
 
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
@@ -227,55 +224,55 @@ ShippingServiceConfigDetailResponseModel[]
 
 	const stepsStatusValue = useMemo(() => {
 		console.log('123', OrderDetail)
-    if (OrderDetail?.status === OrderStatus.DRAFT) {
-      return OrderStatus.DRAFT;
-    }
+		if (OrderDetail?.status === OrderStatus.DRAFT) {
+			return OrderStatus.DRAFT;
+		}
 
-    if (OrderDetail?.status === OrderStatus.CANCELLED) {
-      return OrderStatus.CANCELLED;
-    }
-    if (OrderDetail?.status === OrderStatus.FINISHED) {
-      return FulFillmentStatus.SHIPPED;
-    }
-    if (OrderDetail?.status === OrderStatus.FINALIZED) {
-      if (
-        OrderDetail.fulfillments === undefined ||
-        OrderDetail.fulfillments === null ||
-        OrderDetail.fulfillments.length === 0
-      ) {
-        return OrderStatus.FINALIZED;
-      } else {
-        if (
-          OrderDetail.fulfillments !== undefined &&
-          OrderDetail.fulfillments !== null &&
-          OrderDetail.fulfillments.length > 0
-        ) {
+		if (OrderDetail?.status === OrderStatus.CANCELLED) {
+			return OrderStatus.CANCELLED;
+		}
+		if (OrderDetail?.status === OrderStatus.FINISHED) {
+			return FulFillmentStatus.SHIPPED;
+		}
+		if (OrderDetail?.status === OrderStatus.FINALIZED) {
+			if (
+				OrderDetail.fulfillments === undefined ||
+				OrderDetail.fulfillments === null ||
+				OrderDetail.fulfillments.length === 0
+			) {
+				return OrderStatus.FINALIZED;
+			} else {
+				if (
+					OrderDetail.fulfillments !== undefined &&
+					OrderDetail.fulfillments !== null &&
+					OrderDetail.fulfillments.length > 0
+				) {
 					const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-          if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED
+					if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED
 						|| sortedFulfillments[0].status === FulFillmentStatus.CANCELLED
 						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNED
 						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNING) {
-            return OrderStatus.FINALIZED;
-          }
-          if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
-            return FulFillmentStatus.PICKED;
-          }
-          if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
-            return FulFillmentStatus.PACKED;
-          }
-          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
-            return FulFillmentStatus.SHIPPING;
-          }
-          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
-            return FulFillmentStatus.SHIPPED;
-          }
-        }
-      }
-    } else if (OrderDetail?.status === OrderStatus.FINISHED) {
-      return FulFillmentStatus.SHIPPED;
-    }
-    return "";
-  }, [OrderDetail]);
+						return OrderStatus.FINALIZED;
+					}
+					if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
+						return FulFillmentStatus.PICKED;
+					}
+					if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
+						return FulFillmentStatus.PACKED;
+					}
+					if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
+						return FulFillmentStatus.SHIPPING;
+					}
+					if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
+						return FulFillmentStatus.SHIPPED;
+					}
+				}
+			}
+		} else if (OrderDetail?.status === OrderStatus.FINISHED) {
+			return FulFillmentStatus.SHIPPED;
+		}
+		return "";
+	}, [OrderDetail]);
 
 	const setLevelOrder = useCallback(() => {
 		switch (OrderDetail?.status) {
@@ -314,7 +311,7 @@ ShippingServiceConfigDetailResponseModel[]
 					return 4;
 				}
 			default:
-				return undefined;
+				return 1;
 		}
 	}, [OrderDetail]);
 	let levelOrder = setLevelOrder();
@@ -410,7 +407,7 @@ ShippingServiceConfigDetailResponseModel[]
 			shipment: shipmentRequest,
 			items: items.map((item) => {
 				let index = sortedFulfillments[0]?.items.findIndex(single => single?.order_line_item_id === item.id);
-				if(index > -1) {
+				if (index > -1) {
 					return {
 						...item,
 						id: sortedFulfillments[0]?.items[index]?.id,
@@ -717,11 +714,9 @@ ShippingServiceConfigDetailResponseModel[]
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
-		let _shippingAddressRequest:any={
-			...shippingAddress,
-			second_phone:shippingAddressesSecondPhone
-		}
-		values.shipping_address = _shippingAddressRequest;
+		values.shipping_address = shippingAddress && levelOrder < 3 ?
+			{ ...shippingAddress, second_phone: shippingAddressesSecondPhone }
+			: (OrderDetail.shipping_address ? { ...OrderDetail.shipping_address, second_phone: shippingAddressesSecondPhone } : null);
 		values.billing_address = billingAddress;
 		values.customer_id = customer?.id;
 		values.customer_ward = customer?.ward;
@@ -827,7 +822,7 @@ ShippingServiceConfigDetailResponseModel[]
 	/**
 	 * tổng số tiền đã trả
 	 */
-	const totalAmountPayment = OrderDetail?.payments && OrderDetail?.payments?.length > 0 ? getAmountPayment(OrderDetail.payments) :getAmountPayment(payments);
+	const totalAmountPayment = OrderDetail?.payments && OrderDetail?.payments?.length > 0 ? getAmountPayment(OrderDetail.payments) : getAmountPayment(payments);
 
 	/**
 	 * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
@@ -886,21 +881,21 @@ ShippingServiceConfigDetailResponseModel[]
 
 
 	useEffect(() => {
-    if (storeId != null) {
-      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
-      getStoreBankAccountNumbersService({
+		if (storeId != null) {
+			dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+			getStoreBankAccountNumbersService({
 				store_ids: [storeId]
 			}).then((response) => {
 				if (isFetchApiSuccessful(response)) {
 					dispatch(getStoreBankAccountNumbersAction(response.data.items))
-          const selected = response.data.items.find(single => single.default && single.status);
-					if(isShouldSetDefaultStoreBankAccount) {
-						if(selected) {
+					const selected = response.data.items.find(single => single.default && single.status);
+					if (isShouldSetDefaultStoreBankAccount) {
+						if (selected) {
 							dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
 						} else {
 							let paymentsResult = [...payments]
-							let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
-							if(bankPaymentIndex > -1) {
+							let bankPaymentIndex = paymentsResult.findIndex((payment) => payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER);
+							if (bankPaymentIndex > -1) {
 								paymentsResult[bankPaymentIndex].paid_amount = 0;
 								paymentsResult[bankPaymentIndex].amount = 0;
 								paymentsResult[bankPaymentIndex].return_amount = 0;
@@ -917,9 +912,9 @@ ShippingServiceConfigDetailResponseModel[]
 			}).catch((error) => {
 				console.log('error', error)
 			})
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
 
 	//windows offset
 	useEffect(() => {
@@ -1120,13 +1115,13 @@ ShippingServiceConfigDetailResponseModel[]
 						setPromotion(response?.discounts[0])
 					}
 					setIsLoadForm(true);
-					if(response.export_bill) {
+					if (response.export_bill) {
 						dispatch(setIsExportBillAction(true))
 					} else {
 						dispatch(setIsExportBillAction(false))
 					}
 					const bankPayment = response.payments?.find(single => single.payment_method_code === PaymentMethodCode.BANK_TRANSFER && single.bank_account_number)
-					if(bankPayment) {
+					if (bankPayment) {
 						dispatch(changeSelectedStoreBankAccountAction(bankPayment.bank_account_number))
 					} else {
 						dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
@@ -1149,11 +1144,11 @@ ShippingServiceConfigDetailResponseModel[]
 			let shippingAddressItem = customer.shipping_addresses.find(
 				(p: any) => p.default === true
 			);
-			if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
+			if (shippingAddressItem) setShippingAddress(shippingAddressItem)
 		} else {
 			setLoyaltyPoint(null);
 			setCountFinishingUpdateCustomer(prev => prev + 1);
-			onChangeShippingAddress(null);
+			setShippingAddress(null);
 		}
 	}, [dispatch, customer]);
 
@@ -1242,7 +1237,7 @@ ShippingServiceConfigDetailResponseModel[]
 	}, [id]);
 
 	useEffect(() => {
-		if (items && items.length!==0 && OrderDetail?.store_id) {
+		if (items && items.length !== 0 && OrderDetail?.store_id) {
 			let variant_id: Array<number> = [];
 			items.forEach((element) => variant_id.push(element.variant_id));
 			// let store_id=OrderDetail?.store_id;
@@ -1267,7 +1262,7 @@ ShippingServiceConfigDetailResponseModel[]
 
 	useEffect(() => {
 		dispatch(
-			orderConfigSaga((data:OrderConfigResponseModel) => {
+			orderConfigSaga((data: OrderConfigResponseModel) => {
 				setConfigOrder(data);
 			})
 		);
@@ -1289,18 +1284,18 @@ ShippingServiceConfigDetailResponseModel[]
 	};
 
 	const renderBankAccount = (payment: any) => {
-    let arr = [payment.bank_account_number, payment.bank_account_holder];
-    let arrResult = arr.filter(single => single);
-    if(arrResult.length > 0) {
-      return ` (${arrResult.join(" - ")})`
-    }
-  };
+		let arr = [payment.bank_account_number, payment.bank_account_holder];
+		let arrResult = arr.filter(single => single);
+		if (arrResult.length > 0) {
+			return ` (${arrResult.join(" - ")})`
+		}
+	};
 
 	useEffect(() => {
-		if(OrderDetail?.status === OrderStatus.DRAFT) {
+		if (OrderDetail?.status === OrderStatus.DRAFT) {
 			return;
 		}
-		if(OrderDetail?.fulfillments && OrderDetail?.fulfillments[0] ) {
+		if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]) {
 			setIsDisableSelectSource(true);
 		}
 	}, [OrderDetail?.fulfillments, OrderDetail?.status])
@@ -1314,9 +1309,9 @@ ShippingServiceConfigDetailResponseModel[]
 		);
 	}, [dispatch]);
 
-	useEffect(()=>{
-		setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone||'');
-	},[OrderDetail?.shipping_address]);
+	useEffect(() => {
+		setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone || '');
+	}, [OrderDetail?.shipping_address]);
 
 	return (
 		<React.Fragment>
@@ -1376,7 +1371,9 @@ ShippingServiceConfigDetailResponseModel[]
 										handleCustomer={handleCustomer}
 										loyaltyPoint={loyaltyPoint}
 										loyaltyUsageRules={loyaltyUsageRules}
-										ShippingAddressChange={onChangeShippingAddress}
+										ShippingAddressChange={(address) => {
+											setShippingAddress(address);
+										}}
 										BillingAddressChange={onChangeBillingAddress}
 										levelOrder={levelOrder}
 										updateOrder={true}
@@ -1484,9 +1481,9 @@ ShippingServiceConfigDetailResponseModel[]
 															<span className="text-field margin-right-40">
 																Còn phải trả:
 															</span>
-															<b style={{color: "red"}}>
+															<b style={{ color: "red" }}>
 																{formatCurrency(
-																totalAmountCustomerNeedToPay > 0 ? totalAmountCustomerNeedToPay : 0
+																	totalAmountCustomerNeedToPay > 0 ? totalAmountCustomerNeedToPay : 0
 																)}
 															</b>
 														</Col>
@@ -1495,7 +1492,7 @@ ShippingServiceConfigDetailResponseModel[]
 																<span className="text-field margin-right-40">
 																	Đã hoàn tiền cho khách:
 																</span>
-																<b style={{color: yellowColor}}>
+																<b style={{ color: yellowColor }}>
 																	{formatCurrency(
 																		Math.abs(
 																			totalAmountCustomerNeedToPay
@@ -1503,7 +1500,7 @@ ShippingServiceConfigDetailResponseModel[]
 																	)}
 																</b>
 															</Col>
-														): null}
+														) : null}
 													</Row>
 												</div>
 												{OrderDetail?.payments && (
@@ -1544,10 +1541,10 @@ ShippingServiceConfigDetailResponseModel[]
 																											? "Hoàn tiền cho khách"
 																											: payment.payment_method}
 																									</b>
-																									<span style={{marginLeft: 12}}>
+																									<span style={{ marginLeft: 12 }}>
 																										{payment.reference}
 																									</span>
-																									{payment.bank_account_number ? renderBankAccount(payment): null}
+																									{payment.bank_account_number ? renderBankAccount(payment) : null}
 																									{payment.payment_method_id === 5 && (
 																										<span style={{ marginLeft: 10 }}>
 																											{payment.amount / 1000} điểm
@@ -1787,10 +1784,7 @@ ShippingServiceConfigDetailResponseModel[]
 											</Card>
 										)}
 									{(!OrderDetail?.payments || !OrderDetail?.payments.length) &&
-										(!(
-											OrderDetail?.fulfillments?.length &&
-											OrderDetail.fulfillments[0].shipment?.cod
-										) ||
+										(!(OrderDetail?.fulfillments?.length && OrderDetail.fulfillments[0].shipment?.cod) ||
 											fulfillments[0].status === FulFillmentStatus.CANCELLED ||
 											fulfillments[0].status === FulFillmentStatus.RETURNING ||
 											fulfillments[0].status === FulFillmentStatus.RETURNED) && (
