@@ -149,6 +149,7 @@ const TransferExportField = {
 }
 
 const TransferLineItemField = {
+  code: 'code',
   barcode: 'barcode',
   sku: 'sku',
   variant_name: 'variant_name',
@@ -159,6 +160,7 @@ const TransferLineItemField = {
 }
 
 const TransferExportLineItemField = {
+  [TransferLineItemField.code]: 'Mã phiếu chuyển',
   [TransferLineItemField.barcode]: 'Barcode',
   [TransferLineItemField.sku]: 'Mã sản phẩm',
   [TransferLineItemField.variant_name]: 'Tên sản phẩm',
