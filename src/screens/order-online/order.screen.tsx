@@ -998,7 +998,7 @@ export default function Order() {
 		};
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [cloneIdParam, dispatch, isCloneOrder]);
+	}, [cloneIdParam, dispatch, isCloneOrder, userReducer?.account?.code]);
 
 	useEffect(() => {
 		if (!isCloneOrder) {

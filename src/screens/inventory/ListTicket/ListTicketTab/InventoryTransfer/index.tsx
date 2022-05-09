@@ -593,19 +593,22 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       [TransferExportField.total_variant]: item.total_variant,
       [TransferExportField.total_quantity]: item.total_quantity,
       [TransferExportField.total_amount]: item.total_amount,
-      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date),
-      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date),
+      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYYY),
       [TransferExportField.note]: item.note,
-      [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date),
+      [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
     };
   }
 
-  const convertTransferDetailExport = (arrItem: Array<LineItem>) => {
+  const convertTransferDetailExport = (transfer:InventoryTransferDetailItem,arrItem: Array<LineItem>) => {
     let arr = [];
     for (let i = 0; i < arrItem.length; i++) {
       const item = arrItem[i];
 
       arr.push({
+        [TransferExportLineItemField.code]: transfer.code,
+        [TransferExportLineItemField.store]: `${transfer.from_store_name} tới ${transfer.to_store_name}`,
         [TransferExportLineItemField.barcode]: item.barcode,
         [TransferExportLineItemField.sku]: item.sku,
         [TransferExportLineItemField.variant_name]: item.variant_name,
@@ -613,6 +616,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
         [TransferExportLineItemField.total_amount]: (item.transfer_quantity ?? 0) * (item.price ?? 0),
         [TransferExportLineItemField.real_quantity]: item.real_quantity,
+        [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
+        [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
       });
     }
     return arr;
@@ -686,19 +691,18 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       const workbook = XLSX.utils.book_new();
 
       if (vExportDetailTransfer) {
+        let item: any = [];
         for (let i = 0; i < res.length; i++) {
           if (!res[i] || res[i].line_items?.length === 0) continue;
 
           if (workbook.Sheets[`${res[i].code}`]) {
             continue;
           }
-          const item = convertTransferDetailExport(res[i].line_items);
-
-          const ws = XLSX.utils.json_to_sheet(item);
-
-          XLSX.utils.book_append_sheet(workbook, ws, res[i].code);
+          item=item.concat(convertTransferDetailExport(res[i],res[i].line_items));
         }
-
+        const ws = XLSX.utils.json_to_sheet(item);
+         
+        XLSX.utils.book_append_sheet(workbook, ws, 'data');
       }else{
         for (let i = 0; i < res.length; i++) {
           const e = res[i];

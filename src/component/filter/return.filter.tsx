@@ -41,6 +41,7 @@ import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { searchAccountApi } from "service/accounts/account.service";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import TreeSource from "component/treeSource";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
@@ -163,7 +164,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       is_received: Array.isArray(params.is_received) ? params.is_received : [params.is_received],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids.map(i => Number(i)) : [Number(params.source_ids)],
       channel_codes: Array.isArray(params.channel_codes)
         ? params.channel_codes
         : [params.channel_codes],
@@ -176,9 +177,13 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
   }, [params]);
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.id !== POS.source_id);
-  }, [listSource]);
+  const sourcesResult = useMemo(() => {
+    if(orderType === ORDER_TYPES.online) {
+      return listSource.filter((item) => item.id !== POS.source_id);
+    } else {
+      return  listSource.filter((item) => item.id === POS.source_id);
+    }
+  }, [listSource, orderType]);
 
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
@@ -459,7 +464,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     if (initialValues.source_ids.length) {
       let textSource = ""
       initialValues.source_ids.forEach(source_id => {
-        const channel = listSource?.find(source => source.id.toString() === source_id)
+        const channel = listSource?.find(source => source.id.toString() === source_id.toString())
         textSource = channel ? textSource + channel.name + "; " : textSource
       })
       list.push({
@@ -607,7 +612,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           {rerender && <Form
             onFinish={onFinish}
             ref={formRef}
-            initialValues={params}
+            initialValues={initialValues}
             layout="vertical"
           >
             {(filterConfigs && filterConfigs.length > 0) &&
@@ -721,41 +726,11 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
               </Col>
               <Col span={12}>
                 <Item name="source_ids" label="Nguồn đơn hàng">
-                  <CustomSelect
-                    mode="multiple"
-                    style={{ width: "100%" }}
-                    showArrow
-                    allowClear
-                    showSearch
+                  <TreeSource
                     placeholder="Nguồn đơn hàng"
-                    notFoundContent="Không tìm thấy kết quả"
-                    optionFilterProp="children"
-                    getPopupContainer={(trigger) => trigger.parentNode}
-                    maxTagCount="responsive"
-                    onSearch={(value) => {
-                      if (value.length > 1) {
-                        const params = {
-                          name: value,
-                          limit: 200,
-                        };
-                        getSourcesWithParamsService(params).then((response) => {
-                          if (isFetchApiSuccessful(response)) {
-                            setListSource && setListSource(response.data.items);
-                          } else {
-                            handleFetchApiError(response, "Tìm nguồn đơn hàng", dispatch);
-                          }
-                        });
-                      }
-                    }}>
-                    {listSources.map((item, index) => (
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.id.toString()}>
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
+                    name="source_ids"
+                    listSource={sourcesResult}
+                  />
                 </Item>
               </Col>
               <Col span={12}>

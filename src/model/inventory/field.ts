@@ -132,6 +132,7 @@ const TransferColumnField = {
   receive_date: 'receive_date',
   note: 'note',
   created_date: 'created_date',
+  created_name: 'created_name',
 }
 
 const TransferExportField = {
@@ -145,20 +146,27 @@ const TransferExportField = {
   [TransferColumnField.transfer_date]: 'Ngày Chuyển',
   [TransferColumnField.receive_date]: 'Ngày nhận',
   [TransferColumnField.note]: 'Ghi chú',
+  [TransferColumnField.created_name]: 'Người tạo',
   [TransferColumnField.created_date]: 'Ngày tạo',
 }
 
 const TransferLineItemField = {
+  code: 'code',
   barcode: 'barcode',
   sku: 'sku',
   variant_name: 'variant_name',
   transfer_quantity: 'transfer_quantity',
   real_quantity: 'real_quantity',
   total_amount: 'total_amount',
-  price: 'price'
+  price: 'price',
+  created_date: 'created_date',
+  created_name: 'created_name',
+  store: 'store'
 }
 
 const TransferExportLineItemField = {
+  [TransferLineItemField.code]: 'Mã phiếu chuyển',
+  [TransferLineItemField.store]: 'Kho hàng',
   [TransferLineItemField.barcode]: 'Barcode',
   [TransferLineItemField.sku]: 'Mã sản phẩm',
   [TransferLineItemField.variant_name]: 'Tên sản phẩm',
@@ -166,6 +174,8 @@ const TransferExportLineItemField = {
   [TransferLineItemField.transfer_quantity]: 'Số lượng chuyển',
   [TransferLineItemField.total_amount]: 'Thành tiền',
   [TransferLineItemField.real_quantity]: 'SL thực nhận',
+  [TransferLineItemField.created_name]: 'Người tạo',
+  [TransferLineItemField.created_date]: 'Ngày tạo',
 }
 
 export {InventoryQueryField,

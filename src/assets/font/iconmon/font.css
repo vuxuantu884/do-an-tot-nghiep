@@ -47,7 +47,11 @@
 }
 
 .icon-order:before {
-    content: url("assets/icon/menu-order-paper.svg");
+    content: url("assets/icon/ban-online.svg");
+}
+
+.icon-offline-order:before {
+    content: url("assets/icon/ban-le.svg");
 }
 
 .icon-product:before {
