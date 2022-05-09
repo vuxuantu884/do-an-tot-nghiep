@@ -112,9 +112,6 @@ export const StyledCreatePointAdjustment= styled.div`
       .search-info-customer {
         flex-grow: 1;
         margin-right: 20px;
-        & .ant-form-item-control {
-          width: 712px;
-        }
       }
 			
 			.customer-adjustment-file-name {

@@ -634,18 +634,15 @@ const CreatePointAdjustment = () => {
                             />
                           </Item>
 
-                          <div>
-                            <div className="upload-file-customer">
-                              <Button
-                                size="large"
-                                icon={<UploadOutlined />}
-                                onClick={openImportFileModal}
-                                disabled={selectedCustomers.length > 0}
-                              >
-                                Nhập file
-                              </Button>
-                             </div>
-                          </div>
+                          <Button
+                            className="upload-file-customer"
+                            size="large"
+                            icon={<UploadOutlined />}
+                            onClick={openImportFileModal}
+                            disabled={selectedCustomers.length > 0}
+                          >
+                            Nhập file
+                          </Button>
                         </div>
                       </Col>
 
@@ -653,7 +650,7 @@ const CreatePointAdjustment = () => {
                         {fileImportCustomerAdjustment.length > 0 &&
                           <div style={{ marginTop: 10 }}>
                             <img src={excelIcon} alt="" style={{ marginRight: 5 }}/>
-                            <span style={{ padding: "0 2px" }}>{fileImportCustomerAdjustment[0].name}</span>
+                            <span style={{ padding: "0 2px", wordBreak: "break-all" }}>{fileImportCustomerAdjustment[0].name}</span>
                             <Tooltip
                               overlay="Xóa file"
                               placement="top"
