@@ -73,6 +73,8 @@ function OrderReturnList(props: PropTypes) {
     []
   );
 
+  const [isLoopInfoIfOrderHasMoreThanTwoProducts, setIsLoopInfoIfOrderHasMoreThanTwoProducts] = useState(false);
+
   const [data, setData] = useState<PageResponse<ReturnModel>>({
     metadata: {
       limit: 30,
@@ -445,7 +447,7 @@ function OrderReturnList(props: PropTypes) {
     let queryParams = generateQuery(newParams);
     exportFile({
       conditions: queryParams,
-      type: "TYPE_EXPORT_ORDER_RETURN",
+      type: isLoopInfoIfOrderHasMoreThanTwoProducts ? "EXPORT_ORDER_LOOP_RETURN" : "TYPE_EXPORT_ORDER_RETURN",
     })
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
@@ -459,7 +461,7 @@ function OrderReturnList(props: PropTypes) {
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }, [params, selectedRowCodes, listExportFile]);
+  }, [params, isLoopInfoIfOrderHasMoreThanTwoProducts, selectedRowCodes, listExportFile]);
 
   const checkExportFile = useCallback(() => {
     
@@ -660,6 +662,8 @@ function OrderReturnList(props: PropTypes) {
             exportProgress={exportProgress}
             statusExport={statusExport}
             selected={selectedRowCodes.length ? true : false}
+            isLoopInfoIfOrderHasMoreThanTwoProducts={isLoopInfoIfOrderHasMoreThanTwoProducts}
+            setIsLoopInfoIfOrderHasMoreThanTwoProducts={setIsLoopInfoIfOrderHasMoreThanTwoProducts}
           />}
       </ContentContainer>
     </StyledComponent>
