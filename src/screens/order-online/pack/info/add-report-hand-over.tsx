@@ -289,7 +289,7 @@ const AddReportHandOver: React.FC = () => {
           <div className="pack-give-card-row-item" style={{ width: "35%" }}>
             <Select
               className="select-with-search"
-              showSearch
+              //showSearch
               allowClear
               style={{ width: "100%" }}
               placeholder="Chọn biên bản"
@@ -297,16 +297,16 @@ const AddReportHandOver: React.FC = () => {
               onChange={(value: number) => {
                 selectGoodsReceipts(value);
               }}
-              filterOption={(input, option) => {
-                if (option) {
-                  return (
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  );
-                }
-                return false;
-              }}
+              // filterOption={(input, option) => {
+              //   if (option) {
+              //     return (
+              //       option?.children
+              //         .toLowerCase()
+              //         .indexOf(input.toLowerCase()) >= 0
+              //     );
+              //   }
+              //   return false;
+              // }}
               value={goodsReceipts?.id}
               ref={goodsReceiptsRef}
             >
