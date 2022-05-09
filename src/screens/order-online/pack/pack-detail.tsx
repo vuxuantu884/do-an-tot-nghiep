@@ -14,6 +14,7 @@ import {
   GoodsReceiptsOrderListModel,
   GoodsReceiptsTotalProductModel,
 } from "model/pack/pack.model";
+import { OrderLineItemResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -112,58 +113,32 @@ const PackDetail: React.FC = () => {
           let resultListOrder: GoodsReceiptsOrderListModel[] = [];
 
           data.orders?.forEach(function (itemOrder) {
-            itemOrder.fulfillments?.forEach(function (itemFFM) {
-              if (data.receipt_type_id === 1) {
-                if (itemFFM.status === "packed") {
-                  itemFFM.items.forEach(function (itemProduct, index) {
-                    ////
-                    const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
-                    resultListProduct.push({
-                      key: keyProduct++,
-                      barcode: itemProduct.variant_barcode,
-                      product_id: itemProduct.product_id,
-                      product_sku: itemProduct.sku,
-                      product_name: itemProduct.product,
-                      variant_id: itemProduct.variant_id,
-                      // inventory: itemProduct.available ? itemProduct.available : 0,
-                      price: itemProduct.price,
-                      total_quantity: itemProduct.quantity,
-                      total_incomplate: 0,
-                      on_hand: productOnHand ? productOnHand.on_hand : undefined,
-                    });
-
-                    ///
-                  });
-                }
-              } else if (data.receipt_type_id === 2) {
-                if (itemFFM.status === "cancelled") {
-                  itemFFM.items.forEach(function (itemProduct, index) {
-                    ////
-                    const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
-                    resultListProduct.push({
-                      key: keyProduct++,
-                      barcode: itemProduct.variant_barcode,
-                      product_id: itemProduct.product_id,
-                      product_sku: itemProduct.sku,
-                      product_name: itemProduct.product,
-                      variant_id: itemProduct.variant_id,
-                      // inventory: itemProduct.available ? itemProduct.available : 0,
-                      price: itemProduct.price,
-                      total_quantity: itemProduct.quantity,
-                      total_incomplate: 0,
-                      on_hand: productOnHand ? productOnHand.on_hand : undefined,
-                    });
-
-
-                    ///
-                  });
-                }
+            const setLineItemProduct: any = (key:number,itemProduct: OrderLineItemResponse) => {
+              const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
+              return {
+                key: key,
+                barcode: itemProduct.variant_barcode,
+                product_id: itemProduct.product_id,
+                product_sku: itemProduct.sku,
+                product_name: itemProduct.product,
+                variant_id: itemProduct.variant_id,
+                // inventory: itemProduct.available ? itemProduct.available : 0,
+                price: itemProduct.price,
+                total_quantity: itemProduct.quantity,
+                total_incomplate: 0,
+                on_hand: productOnHand ? productOnHand.on_hand : undefined,
               }
+            }
 
-            });
+            if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0){
+              let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
+              let itemFFM = itemOrder.fulfillments[indexFFM];
+              itemFFM.items?.forEach((itemProduct, index)=>{
+                let key= keyProduct++;
+                resultListProduct.push(setLineItemProduct(key,itemProduct));
+              })
+            }
           });
-
-
 
           data.orders?.forEach(function (itemOrder) {
             let total_quantity = 0;
@@ -174,13 +149,15 @@ const PackDetail: React.FC = () => {
             let trackingCode = null;
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-            const ffms = itemOrder.fulfillments?.filter(ffm => {
-              if (data.receipt_type_id === 1) {
-                return ffm.status === 'packed'
-              }
-              return ffm.status === 'cancelled'
-            });
-            ffms?.forEach(function (itemFFM) {
+            // const ffms = itemOrder.fulfillments?.filter(ffm => {
+            //   if(data.receipt_type_id === 1) {
+            //     return  ffm.status === 'packed'
+            //   }
+            //   return  ffm.status === 'cancelled'
+            // });
+            if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
+              let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
+              let itemFFM = itemOrder.fulfillments[indexFFM];
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
               total_price += itemFFM.total ? itemFFM.total : 0;
@@ -199,7 +176,7 @@ const PackDetail: React.FC = () => {
                   price: itemProduct.price
                 })
               });
-            });
+            }
 
             itemOrder.payments?.forEach(function (itemPayment) {
               card_number += itemPayment.amount;

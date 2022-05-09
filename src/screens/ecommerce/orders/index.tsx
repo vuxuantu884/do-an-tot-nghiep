@@ -827,12 +827,10 @@ const EcommerceOrders: React.FC = () => {
                 <div className="single">
                   <div className="coordinator-item">
                     <strong>NV điều phối: </strong>
-                    {record.coordinator?(
-                      <React.Fragment>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}ssssss</Link>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}ssssss</Link>
-                      </React.Fragment>
-                    ):"N/a"}
+                    {record.coordinator ?
+                      <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }} target="_blank">{record.coordinator_code + " - " + record.coordinator}</Link>
+                      : <span>{"---"}</span>
+                    }
                   </div>
                   {/* {record.status === OrderStatus.DRAFT && (
                     <div
