@@ -931,8 +931,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
               }
 
               setOrderAmount(
-                response.total - (response.shipping_fee_informed_to_customer || 0)
-              );
+								response.total_line_amount_after_line_discount
+							);
 
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (
@@ -998,7 +998,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     };
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cloneIdParam, dispatch, isCloneOrder]);
+  }, [cloneIdParam, dispatch, isCloneOrder, userReducer?.account?.code]);
 
   // useEffect(() => {
   //   if (customer) {
