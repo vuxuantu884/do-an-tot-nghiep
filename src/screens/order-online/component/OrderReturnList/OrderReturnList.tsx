@@ -1,49 +1,49 @@
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import { Button, Card, Radio, Row, Space, Tooltip } from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch } from "react-redux";
-import ReturnFilter from "component/filter/return.filter";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
-import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
-import { AccountResponse } from "model/account/account.model";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig from "config/url.config";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
+import ReturnFilter from "component/filter/return.filter";
+import { MenuAction } from "component/table/ActionButton";
+import CustomTable, {
+  ICustomTableColumType
+} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { HttpStatus } from "config/http-status.config";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import UrlConfig from "config/url.config";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   getListReasonRequest,
-  getReturnsAction,
+  getReturnsAction
 } from "domain/actions/order/order.action";
-import { DATE_FORMAT } from "utils/DateUtils";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import NumberFormat from "react-number-format";
-import { exportFile, getFile } from "service/other/export.service";
-import { HttpStatus } from "config/http-status.config";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import moment from "moment";
-import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
-import ExportModal from "screens/order-online/modal/export.modal";
-import {StyledComponent} from "./OrderReturnList.styles";
-import { OrderTypeModel } from "model/order/order.model";
-import { ORDER_TYPES } from "utils/Order.constants";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
-import { dangerColor } from "utils/global-styles/variables";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { OrderTypeModel } from "model/order/order.model";
+import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
+import moment from "moment";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import NumberFormat from "react-number-format";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import ExportModal from "screens/order-online/modal/export.modal";
+import { exportFile, getFile } from "service/other/export.service";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { dangerColor } from "utils/global-styles/variables";
+import { ORDER_TYPES } from "utils/Order.constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
+import { StyledComponent } from "./OrderReturnList.styles";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -72,6 +72,8 @@ function OrderReturnList(props: PropTypes) {
   const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
     []
   );
+
+  const [isLoopInfoIfOrderHasMoreThanTwoProducts, setIsLoopInfoIfOrderHasMoreThanTwoProducts] = useState(false);
 
   const [data, setData] = useState<PageResponse<ReturnModel>>({
     metadata: {
@@ -445,7 +447,7 @@ function OrderReturnList(props: PropTypes) {
     let queryParams = generateQuery(newParams);
     exportFile({
       conditions: queryParams,
-      type: "TYPE_EXPORT_ORDER_RETURN",
+      type: isLoopInfoIfOrderHasMoreThanTwoProducts ? "EXPORT_ORDER_LOOP_RETURN" : "TYPE_EXPORT_ORDER_RETURN",
     })
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
@@ -459,7 +461,7 @@ function OrderReturnList(props: PropTypes) {
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }, [params, selectedRowCodes, listExportFile]);
+  }, [params, isLoopInfoIfOrderHasMoreThanTwoProducts, selectedRowCodes, listExportFile]);
 
   const checkExportFile = useCallback(() => {
     
@@ -660,6 +662,8 @@ function OrderReturnList(props: PropTypes) {
             exportProgress={exportProgress}
             statusExport={statusExport}
             selected={selectedRowCodes.length ? true : false}
+            isLoopInfoIfOrderHasMoreThanTwoProducts={isLoopInfoIfOrderHasMoreThanTwoProducts}
+            setIsLoopInfoIfOrderHasMoreThanTwoProducts={setIsLoopInfoIfOrderHasMoreThanTwoProducts}
           />}
       </ContentContainer>
     </StyledComponent>

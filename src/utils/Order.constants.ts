@@ -106,4 +106,7 @@ export const ORDER_PAYMENT_STATUS = {
 
 export const ORDER_EXPORT_TYPE = {
   ECOMMERCE: "ecommerce_orders",
+  orders_online: "orders_online",
+  orders_offline: "orders_offline",
+  returns: "returns",
 }
