@@ -600,12 +600,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     };
   }
 
-  const convertTransferDetailExport = (arrItem: Array<LineItem>) => {
+  const convertTransferDetailExport = (code:string,arrItem: Array<LineItem>) => {
     let arr = [];
     for (let i = 0; i < arrItem.length; i++) {
       const item = arrItem[i];
 
       arr.push({
+        [TransferExportLineItemField.code]: code,
         [TransferExportLineItemField.barcode]: item.barcode,
         [TransferExportLineItemField.sku]: item.sku,
         [TransferExportLineItemField.variant_name]: item.variant_name,
@@ -686,19 +687,18 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       const workbook = XLSX.utils.book_new();
 
       if (vExportDetailTransfer) {
+        let item: any = [];
         for (let i = 0; i < res.length; i++) {
           if (!res[i] || res[i].line_items?.length === 0) continue;
 
           if (workbook.Sheets[`${res[i].code}`]) {
             continue;
           }
-          const item = convertTransferDetailExport(res[i].line_items);
-
-          const ws = XLSX.utils.json_to_sheet(item);
-
-          XLSX.utils.book_append_sheet(workbook, ws, res[i].code);
+          item=item.concat(convertTransferDetailExport(res[i].code,res[i].line_items));
         }
-
+        const ws = XLSX.utils.json_to_sheet(item);
+         
+        XLSX.utils.book_append_sheet(workbook, ws, 'data');
       }else{
         for (let i = 0; i < res.length; i++) {
           const e = res[i];
