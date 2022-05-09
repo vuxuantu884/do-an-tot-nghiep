@@ -652,7 +652,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         }
         const roundAllin = Math.round(totalItems / limit);
         times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
-        
+
         for (let index = 1; index <= times; index++) {
 
           const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
@@ -688,14 +688,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       if (vExportDetailTransfer) {
         for (let i = 0; i < res.length; i++) {
           if (!res[i] || res[i].line_items?.length === 0) continue;
-          
+
           if (workbook.Sheets[`${res[i].code}`]) {
             continue;
           }
           const item = convertTransferDetailExport(res[i].line_items);
 
           const ws = XLSX.utils.json_to_sheet(item);
-         
+
           XLSX.utils.book_append_sheet(workbook, ws, res[i].code);
         }
 
@@ -727,11 +727,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   useEffect(() => {
     setTableLoading(true);
     if (activeTab === '') return;
-    if (accountStores?.length === 0) return;
+
     let status: string[] = [];
-
-    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
-
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_CONFIRMED:
         status = ['confirmed'];
@@ -747,6 +744,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       ...params,
       status: params.status.length > 0 ? params.status : status,
     };
+    if (accountStores?.length === 0) {
+      dispatch(getListInventoryTransferAction(newParams, setSearchResult));
+      return;
+    }
+
+    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
 
     switch (activeTab) {
       // case InventoryTransferTabUrl.LIST:
