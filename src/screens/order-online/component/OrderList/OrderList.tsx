@@ -426,7 +426,8 @@ function OrderList(props: PropTypes) {
           break;
         case EXPORT_IDs.selectedOrders:
           newParams = {
-            code: selectedRowCodes
+            code: selectedRowCodes,
+            is_online: orderType === ORDER_TYPES.online
           };
           break;
         case EXPORT_IDs.ordersFound:
@@ -457,7 +458,7 @@ function OrderList(props: PropTypes) {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, EXPORT_IDs, selectedRowCodes, listExportFile]
+    [params, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, orderType, listExportFile]
   );
   const checkExportFile = useCallback(() => {
 

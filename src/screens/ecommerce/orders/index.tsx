@@ -306,7 +306,8 @@ const EcommerceOrders: React.FC = () => {
           break;
         case EXPORT_IDs.selectedOrders:
           newParams = {
-            code: selectedRowCodes
+            code: selectedRowCodes,
+            is_online: true,
           };
           break;
         case EXPORT_IDs.ordersFound:
