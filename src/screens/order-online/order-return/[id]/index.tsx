@@ -153,7 +153,7 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   const totalAmountReturnToCustomer = useMemo(() => {
-    return OrderDetail?.total || 0 - getOrderTotalPaymentAmount(OrderDetail?.payments || [] )
+    return (OrderDetail?.total || 0) - getOrderTotalPaymentAmount(OrderDetail?.payments || [] )
   }, [OrderDetail?.payments, OrderDetail?.total])
  
   /**
