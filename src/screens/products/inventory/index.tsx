@@ -80,6 +80,7 @@ const InventoryScreen: React.FC = () => {
         <Row>
         <Space>
             <Button
+                title="Xuất tồn cửa hàng: hiển thị excel các cửa hàng được chọn theo dạng cột"
                 className="light"
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
@@ -88,6 +89,7 @@ const InventoryScreen: React.FC = () => {
                 Xuất tồn CH
             </Button>
             <Button
+                title="Xuất tồn chi tiết: hiển thị excel như trên giao diện"
                 className="light"
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
