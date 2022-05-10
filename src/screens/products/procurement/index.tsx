@@ -12,13 +12,15 @@ import TabLogs from "./tabs/TabLogs";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { GoPlus } from "react-icons/go";
+import exportIcon from "assets/icon/export.svg";
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
   const history = useHistory();
   const path = history.location.pathname;
 
   const [activeTab, setActiveTab] = useState<string>(ProcurementTabUrl.ALL);
+  const [vExportDetailProcurement, setVExportDetailProcurement] = useState(false);
 
   useEffect(() => {
     if (Object.values(ProcurementTabUrl).includes(path)) {
@@ -45,6 +47,14 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
       extra={
         <Row>
           <Space>
+            {activeTab === ProcurementTabUrl.ALL && (<Button
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => { setVExportDetailProcurement(true) }}
+            >
+              Xuất file chi tiết
+            </Button>)}
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
               <Button
                 type="primary"
@@ -73,7 +83,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
     >
       <Card className="card-tab">
         <Tabs
-          style={{overflow: "initial"}}
+          style={{ overflow: "initial" }}
           activeKey={activeTab}
           onChange={(active) => {
             setActiveTab(active);
@@ -89,7 +99,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
             <TabSevenDays />
           </TabPane> */}
           <TabPane tab="Danh sách phiếu nhập kho" key={ProcurementTabUrl.ALL}>
-            <TabList />
+            <TabList vExportDetailProcurement={vExportDetailProcurement} setVExportDetailProcurement={setVExportDetailProcurement}/>
           </TabPane>
           <TabPane tab="Lịch sử phiếu nhập kho" key={ProcurementTabUrl.LOGS}>
             <TabLogs />
