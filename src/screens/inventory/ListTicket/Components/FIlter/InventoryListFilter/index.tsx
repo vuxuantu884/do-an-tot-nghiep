@@ -140,8 +140,53 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    formRef.current?.submit();
-  }, [formRef]);
+    let values = formAdv.getFieldsValue(true);
+
+    if (values?.from_total_variant > values?.to_total_variant) {
+      values = {
+        ...values,
+        from_total_variant: values?.to_total_variant,
+        to_total_variant: values?.from_total_variant,
+      }
+    }
+    if (values?.from_total_quantity > values?.to_total_quantity) {
+      values = {
+        ...values,
+        from_total_quantity: values?.to_total_quantity,
+        to_total_quantity: values?.from_total_quantity,
+      }
+    }
+    if (values?.from_total_amount > values?.to_total_amount) {
+      values = {
+        ...values,
+        from_total_amount: values?.to_total_amount,
+        to_total_amount: values?.from_total_amount,
+      }
+    }
+    const valuesForm = {
+      ...values,
+      condition: values.condition ? values.condition.trim() : null,
+      from_created_date: formAdv.getFieldValue('from_created_date')
+        ? getStartOfDayCommon(formAdv.getFieldValue('from_created_date'))?.format()
+        : null,
+      to_created_date: formAdv.getFieldValue('to_created_date')
+        ? getEndOfDayCommon(formAdv.getFieldValue('to_created_date'))?.format()
+        : null,
+      from_transfer_date: formAdv.getFieldValue('from_transfer_date')
+        ? getStartOfDayCommon(formAdv.getFieldValue('from_transfer_date'))?.format()
+        : null,
+      to_transfer_date: formAdv.getFieldValue('to_transfer_date')
+        ? getEndOfDayCommon(formAdv.getFieldValue('to_transfer_date'))?.format()
+        : null,
+      from_receive_date: formAdv.getFieldValue('from_receive_date')
+        ? getStartOfDayCommon(formAdv.getFieldValue('from_receive_date'))?.format()
+        : null,
+      to_receive_date: formAdv.getFieldValue('to_receive_date')
+        ? getEndOfDayCommon(formAdv.getFieldValue('to_receive_date'))?.format()
+        : null,
+    }
+    onFilter && onFilter(valuesForm);
+  }, [formAdv, onFilter]);
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
@@ -207,52 +252,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
   const onFinish = useCallback(
     (values) => {
-      if (values?.from_total_variant > values?.to_total_variant) {
-        values = {
-          ...values,
-          from_total_variant: values?.to_total_variant,
-          to_total_variant: values?.from_total_variant,
-        }
-      }
-      if (values?.from_total_quantity > values?.to_total_quantity) {
-        values = {
-          ...values,
-          from_total_quantity: values?.to_total_quantity,
-          to_total_quantity: values?.from_total_quantity,
-        }
-      }
-      if (values?.from_total_amount > values?.to_total_amount) {
-        values = {
-          ...values,
-          from_total_amount: values?.to_total_amount,
-          to_total_amount: values?.from_total_amount,
-        }
-      }
       const valuesForm = {
         ...values,
         condition: values.condition ? values.condition.trim() : null,
-        from_created_date: formAdv.getFieldValue('from_created_date')
-          ? getStartOfDayCommon(formAdv.getFieldValue('from_created_date'))?.format()
-          : null,
-        to_created_date: formAdv.getFieldValue('to_created_date')
-          ? getEndOfDayCommon(formAdv.getFieldValue('to_created_date'))?.format()
-          : null,
-        from_transfer_date: formAdv.getFieldValue('from_transfer_date')
-          ? getStartOfDayCommon(formAdv.getFieldValue('from_transfer_date'))?.format()
-          : null,
-        to_transfer_date: formAdv.getFieldValue('to_transfer_date')
-          ? getEndOfDayCommon(formAdv.getFieldValue('to_transfer_date'))?.format()
-          : null,
-        from_receive_date: formAdv.getFieldValue('from_receive_date')
-          ? getStartOfDayCommon(formAdv.getFieldValue('from_receive_date'))?.format()
-          : null,
-        to_receive_date: formAdv.getFieldValue('to_receive_date')
-          ? getEndOfDayCommon(formAdv.getFieldValue('to_receive_date'))?.format()
-          : null,
       }
       onFilter && onFilter(valuesForm);
     },
-    [formAdv, onFilter]
+    [onFilter]
   );
 
   let filters = useMemo(() => {
@@ -477,7 +483,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         width={700}
       >
         {visible && <Form
-          onFinish={onFinish}
           ref={formRef}
           form={formAdv}
           layout="vertical"
