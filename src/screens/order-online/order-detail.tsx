@@ -90,7 +90,7 @@ type OrderParam = {
   id: string;
 };
 
-let numberReloadGetTrackingCodeGHTK = 10;
+let maxNumberReloadGetTrackingCodeGHTK = 10;
 
 const OrderDetail = (props: PropType) => {
   let { id } = useParams<OrderParam>();
@@ -596,8 +596,16 @@ const OrderDetail = (props: PropType) => {
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
     const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
     const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
+    console.log('trackingCode', trackingCode)
+    console.log('stepsStatusValue', stepsStatusValue)
+    console.log('pushingStatus', pushingStatus)
+    console.log('isRequest', isRequest)
+    let numberReloadGetTrackingCodeGHTK = 1;
+    console.log('numberReloadGetTrackingCodeGHTK', numberReloadGetTrackingCodeGHTK)
+    console.log('sortedFulfillments[0]?.shipment?.delivery_service_provider_code', sortedFulfillments[0]?.shipment?.delivery_service_provider_code)
     let getTrackingCode = setInterval(()=> {
-      if (numberReloadGetTrackingCodeGHTK < 10 && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
+      if (numberReloadGetTrackingCodeGHTK < maxNumberReloadGetTrackingCodeGHTK && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
+        console.log('den day')
         getOrderDetail(id).then(response => {
           numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
           if (response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
@@ -610,7 +618,7 @@ const OrderDetail = (props: PropType) => {
       } else {
         clearInterval(getTrackingCode);
       }
-    }, 2000)
+    }, 3000)
     return () => {
       clearInterval(getTrackingCode)
     }

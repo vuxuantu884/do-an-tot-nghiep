@@ -1846,13 +1846,14 @@ export const replaceLast = (text: string, textShort: string) => {
 };
 
 export const convertStringDistrictWithoutLine = (text: string) => {
-  return text.toLowerCase().replace("tỉnh", "").replace("đường", "").replaceAll(".", "").replaceAll(",", " ").normalize("NFD")
+  return text.toLowerCase().replace("tỉnh", "").replaceAll("đường", "").replaceAll("thị xã", "").replaceAll("xã", "").replaceAll("phường", "").replace("quận", "").replaceAll(".", "").replaceAll("-", " ").replaceAll(",", " ").normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
   .replace("huyen", "")
   .replace("thanh pho", "")
   .replace("thi tran", "")
+  .replace("thi xa", "")
   .replace("tp", "")
   .replace("p.", "")
   .replace("hcm", "ho chi minh")
@@ -1869,40 +1870,55 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
   : "";
   console.log('districtConvert', districtConvert);
   let districtArr = districtConvert.split("-");
-  console.log('districtArr', districtArr)
+  console.log('districtArr', districtArr);
+  // if(cityName.length > 0) {
+  //   convertStringDistrict(cityName).split(" ").forEach(character => {
+  //     newValue = newValue.replace(character, "")
+  //   })
+
+  // }
   let valueResult = convertStringDistrict(newValue);
+  console.log('valueResult', valueResult)
   districtArr.forEach(district => {
     console.log('district', district)
     console.log('valueResult', valueResult)
     // valueResult = valueResult.replace(district.trim(), "");
-    valueResult = replaceLast(valueResult, convertStringDistrict(district));
+    // valueResult = replaceLast(valueResult, convertStringDistrict(district));
+    // phân cách bằng dấu cách, valueResult thêm dấu cách để chính xác
+    convertStringDistrict(district).split(" ").forEach((single) => {
+      valueResult = valueResult+" ";
+      valueResult = valueResult.replace(single.trim() + " ", "");
+    });
   })
   console.log('valueResult', valueResult)
-  const findWard = newWards.find((ward: any) => {
-    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ");
+  const findWard = newWards.filter((ward: any) => {
+    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ").filter(single => single);
     console.log('valueResultArr', valueResultArr)
-    const wardNameArr:any[] = convertStringDistrict(ward.name).split(" ");
+    const wardNameArr:any[] = convertStringDistrict(ward.name).split(" ").filter(x => x);
+    console.log('wardNameArr', wardNameArr)
     return !wardNameArr.some(single => !valueResultArr.includes(single))
-  });
+  }).reverse()[0];
   return findWard;
 };
 
 export const handleFindArea = (value: string, newAreas: any) => {
   const newValue = convertStringDistrict(value)
-      
     // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
-    const findArea = newAreas.find((area: any) => {
+    const findArea = newAreas.filter((area: any) => {
       // replace quận trong list danh sách tỉnh huyện có sẵn
-      const districtString = convertStringDistrict(area.name).replace("quan", "").replace("dao ", "");
+      const districtString = convertStringDistrict(area.name).replace("dao ", "");
        // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao: 
       // test Thị xã Phú Mỹ, bà rịa vũng tàu
       // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
       const cityString = convertStringDistrict(area.city_name);
       console.log('cityString', cityString)
-      console.log('districtString', districtString)
+      console.log('districtString', districtString);
       return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
     });
-    return findArea
+    console.log('findArea1111', findArea)
+    let result = findArea.reverse()[0];
+    
+    return result
 };
 
 export const changeMetaDataAfterDelete = (metadata: BaseMetadata, setMetaData: (value: BaseMetadata) => void, removedCount: number) => {

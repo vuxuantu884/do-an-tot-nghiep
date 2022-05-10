@@ -730,7 +730,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                to={`${detailLink.link}/${data}`}>
+                                                                to={`${detailLink.link}/${encodeURIComponent(data)}`}>
                                                                 <div className='external-link'>
                                                                     <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>
@@ -747,7 +747,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                to={`${detailLink.link}/${data}`}>
+                                                                to={`${detailLink.link}/${encodeURIComponent(data)}`}>
                                                                 <div className='external-link'>
                                                                     <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>

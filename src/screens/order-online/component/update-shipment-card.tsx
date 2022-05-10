@@ -1415,7 +1415,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 													}}
 												>
 													<Col span={24}>
-														<Collapse ghost>
+														<Collapse ghost defaultActiveKey={1}>
 															<Panel
 																header={
 																	<Row>
