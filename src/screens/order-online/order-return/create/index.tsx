@@ -458,17 +458,19 @@ ShippingServiceConfigDetailResponseModel[]
     }
   };
 
-  const handleRecalculateOriginDiscount = (itemsResult: any) => {
-    return OrderDetail?.discounts?.map(singleDiscount => {
-      let value = Math.ceil((singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult))
-      return {
-        ...singleDiscount,
-        value: value,
-        amount: value,
-      }
-    }) || null
-  };
-  
+  const handleRecalculateOriginDiscount = useCallback(
+    (itemsResult: any) => {
+      return OrderDetail?.discounts?.map(singleDiscount => {
+        let value = Math.ceil((singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult))
+        return {
+          ...singleDiscount,
+          value: value,
+          amount: value,
+        }
+      }) || null
+    },
+    [OrderDetail?.discounts],
+  )
 
   const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
     const orderIds = [orderId];
@@ -495,17 +497,20 @@ ShippingServiceConfigDetailResponseModel[]
   * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
   * Đơn gốc offline: POS
   */
-  const getChannelIdReturn = (OrderDetail: OrderResponse) => {
-    if(isOrderFromPOS(OrderDetail)) {
-      return POS.channel_id
-    } else {
-      if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+  const getChannelIdReturn = useCallback(
+    (OrderDetail: OrderResponse) => {
+      if(isOrderFromPOS(OrderDetail)) {
         return POS.channel_id
       } else {
-        return OrderDetail.channel_id
+        if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+          return POS.channel_id
+        } else {
+          return OrderDetail.channel_id
+        }
       }
-    }
-  };
+    },
+    [orderReturnType],
+  )
 
   /**
   * Lấy channel ID đơn đổi
@@ -524,115 +529,118 @@ ShippingServiceConfigDetailResponseModel[]
     }
   };
 
-  const handleSubmitFormReturn = () => {
-    let formValue = form.getFieldsValue();
+  const handleSubmitFormReturn = useCallback(
+    () => {
+      let formValue = form.getFieldsValue();
 
-    if (OrderDetail && listReturnProducts) {
+      if (OrderDetail && listReturnProducts) {
 
-      let items = listReturnProducts.map((single) => {
-        const { maxQuantityCanBeReturned, ...rest } = single;
-        return rest;
-      });
-      let itemsResult = items.filter((single) => {
-        return single.quantity > 0;
-      });
-      let payments: OrderPaymentRequest[] | null = [];
-      // tính toán lại discount
-      let discounts = handleRecalculateOriginDiscount(itemsResult);
-      if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
-        const formReturnMoney = formValue.returnMoneyField[0];
-        let returnMoneyMethod = listPaymentMethods.find((single) => {
-          return single.code === formReturnMoney.returnMoneyMethod;
+        let items = listReturnProducts.map((single) => {
+          const { maxQuantityCanBeReturned, ...rest } = single;
+          return rest;
         });
-        if (returnMoneyMethod) {
-          payments = [
-            {
-              payment_method_id: returnMoneyMethod.id,
-              payment_method: returnMoneyMethod.name,
-              amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
-              reference: "",
-              source: "",
-              paid_amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
-              return_amount: 0.0,
-              status: "paid",
-              customer_id: customer?.id || null,
-              type: "",
-              note: formReturnMoney.returnMoneyNote || "",
-              code: "",
-            },
-          ];
+        let itemsResult = items.filter((single) => {
+          return single.quantity > 0;
+        });
+        let payments: OrderPaymentRequest[] | null = [];
+        // tính toán lại discount
+        let discounts = handleRecalculateOriginDiscount(itemsResult);
+        if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+          const formReturnMoney = formValue.returnMoneyField[0];
+          let returnMoneyMethod = listPaymentMethods.find((single) => {
+            return single.code === formReturnMoney.returnMoneyMethod;
+          });
+          if (returnMoneyMethod) {
+            payments = [
+              {
+                payment_method_id: returnMoneyMethod.id,
+                payment_method: returnMoneyMethod.name,
+                amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
+                reference: "",
+                source: "",
+                paid_amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
+                return_amount: 0.0,
+                status: "paid",
+                customer_id: customer?.id || null,
+                type: "",
+                note: formReturnMoney.returnMoneyNote || "",
+                code: "",
+              },
+            ];
+          }
         }
-      }
-      let orderDetailResult: ReturnRequest = {
-        ...OrderDetail,
-        source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
-        store_id: storeReturn ? storeReturn.id : null,
-        store: storeReturn ? storeReturn.name : "",
-        store_code: storeReturn ? storeReturn.code : "",
-        store_full_address: storeReturn ? storeReturn.address : "",
-        store_phone_number: storeReturn ? storeReturn.hotline : "",
-        action: "",
-        delivery_service_provider_id: null,
-        delivery_fee: null,
-        shipper_code: "",
-        shipper_name: "",
-        shipping_fee_paid_to_three_pls: null,
-        requirements: null,
-        items: itemsResult,
-        fulfillments: [],
-        payments: payments,
-        reason_id: orderReturnReasonResponse?.id || 0,
-        reason_name: orderReturnReasonResponse?.sub_reasons.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
-        reason: form.getFieldValue("reason"),
-        sub_reason_id: form.getFieldValue("sub_reason_id") || null,
-        received: isReceivedReturnProducts,
-        order_returns: [],
-        automatic_discount: form.getFieldValue("automatic_discount"),
-        discounts: discounts,
-        total: Math.floor(totalAmountReturnProducts),
-        total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
-        total_line_amount_after_line_discount: Math.floor(getTotalAmountAfterDiscount(itemsResult)),
-        account_code: recentAccountCode.accountCode,
-        assignee_code: OrderDetail?.assignee_code,
-        // clear giá trị
-        reference_code: "",
-        customer_note: "",
-        note: "",
-        url: "",
-        tags: null,
-        type: orderReturnType,
-        channel_id: getChannelIdReturn(OrderDetail),
-        // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
-      };
-      console.log('orderDetailResult', orderDetailResult);
-      // return;
-      dispatch(showLoading())
-      dispatch(
-        actionCreateOrderReturn(orderDetailResult, (response) => {
-          setTimeout(() => {
-            isUserCanCreateOrder.current = true;
-          }, 1000);
-          if(isPrint) {
-            handlePrintOrderReturnOrExchange(response.id, printType.return).then(() => {
+        let orderDetailResult: ReturnRequest = {
+          ...OrderDetail,
+          source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
+          store_id: storeReturn ? storeReturn.id : null,
+          store: storeReturn ? storeReturn.name : "",
+          store_code: storeReturn ? storeReturn.code : "",
+          store_full_address: storeReturn ? storeReturn.address : "",
+          store_phone_number: storeReturn ? storeReturn.hotline : "",
+          action: "",
+          delivery_service_provider_id: null,
+          delivery_fee: null,
+          shipper_code: "",
+          shipper_name: "",
+          shipping_fee_paid_to_three_pls: null,
+          requirements: null,
+          items: itemsResult,
+          fulfillments: [],
+          payments: payments,
+          reason_id: orderReturnReasonResponse?.id || 0,
+          reason_name: orderReturnReasonResponse?.sub_reasons.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
+          reason: form.getFieldValue("reason"),
+          sub_reason_id: form.getFieldValue("sub_reason_id") || null,
+          received: isReceivedReturnProducts,
+          order_returns: [],
+          automatic_discount: form.getFieldValue("automatic_discount"),
+          discounts: discounts,
+          total: Math.ceil(totalAmountReturnProducts),
+          total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
+          total_line_amount_after_line_discount: Math.ceil(getTotalAmountAfterDiscount(itemsResult)),
+          account_code: recentAccountCode.accountCode,
+          assignee_code: OrderDetail?.assignee_code,
+          // clear giá trị
+          reference_code: "",
+          customer_note: "",
+          note: "",
+          url: "",
+          tags: null,
+          type: orderReturnType,
+          channel_id: getChannelIdReturn(OrderDetail),
+          // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
+        };
+        console.log('orderDetailResult', orderDetailResult);
+        // return;
+        dispatch(showLoading())
+        dispatch(
+          actionCreateOrderReturn(orderDetailResult, (response) => {
+            setTimeout(() => {
+              isUserCanCreateOrder.current = true;
+            }, 1000);
+            if(isPrint) {
+              handlePrintOrderReturnOrExchange(response.id, printType.return).then(() => {
+                setListReturnProducts([]);
+                dispatch(hideLoading())
+                setTimeout(() => {
+                  history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+                }, 500);
+              })
+            } else {
               setListReturnProducts([]);
               dispatch(hideLoading())
               setTimeout(() => {
                 history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
               }, 500);
-            })
-          } else {
-            setListReturnProducts([]);
+            }
+          }, () => {
             dispatch(hideLoading())
-            setTimeout(() => {
-              history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
-            }, 500);
-          }
-        }, () => {
-          dispatch(hideLoading())
-        })
-      );
-    }
-  };
+          })
+        );
+      }
+    },
+    [OrderDetail, customer?.id, dispatch, form, getChannelIdReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, history, isReceivedReturnProducts, listPaymentMethods, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, returnMoneyType, storeReturn, totalAmountCustomerNeedToPay, totalAmountReturnProducts],
+  )
 
   const checkIfHasReturnProduct = listReturnProducts.some((single) => {
     return single.quantity > 0;
@@ -817,12 +825,12 @@ ShippingServiceConfigDetailResponseModel[]
             }
           }
           order_return.payments = payments;
-          let abc = onFinish(values);
-          const bb = cloneDeep(OrderDetail);
-          let order_exchange:any = {
-            ...bb,
-            ...abc
-          };
+          let order_exchange = onFinish(values);
+          // const bb = cloneDeep(OrderDetail);
+          // let order_exchange:any = {
+          //   ...bb,
+          //   ...abc
+          // };
           if(!order_exchange) {
             return;
           }
@@ -889,72 +897,14 @@ ShippingServiceConfigDetailResponseModel[]
       });
   };
 
-	const getOrderSource = (form:FormInstance<any>) => {
-		let result = null;
-		result = form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
-		return result;
-	};
-
-  const onFinish = (values: OrderRequest) => {
-    if(!isUserCanCreateOrder.current) {
-			setTimeout(() => {
-				isUserCanCreateOrder.current = true
-			}, 5000);
-      showError("Không được thao tác liên tiếp! Vui lòng đợi 5 giây!")
-			return
-		}
-		isUserCanCreateOrder.current = false;
-    let lstFulFillment = createFulFillmentRequest(values);
-    let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount =
-      Math.ceil(getTotalAmountAfterDiscount(listExchangeProducts));
-    values.fulfillments = lstFulFillment;
-    values.action = OrderStatus.FINALIZED;
-    if (totalAmountCustomerNeedToPay > 0) {
-      values.payments = payments.filter((payment) => payment.amount > 0);
-    } else {
-      values.payments = [];
-    }
-    console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
-    values.total = Math.ceil(totalAmountOrder);
-    if (
-      values?.fulfillments &&
-      values.fulfillments.length > 0 &&
-      values.fulfillments[0].shipment
-    ) {
-      let priceToShipper =
-        totalAmountOrder -
-        getAmountPaymentRequest(payments) -
-        (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
-      values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
-    }
-    values.tags = tags;
-    values.items = listExchangeProducts;
-    values.discounts = lstDiscount;
-    let _shippingAddressRequest:any={
-			...shippingAddress,
-			second_phone:shippingAddressesSecondPhone
-		}
-		values.shipping_address = _shippingAddressRequest;
-    values.billing_address = billingAddress;
-    values.customer_id = customer?.id;
-    values.total_discount = discountValue;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
-    values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
-    values.currency = OrderDetail ? OrderDetail.currency : null;
-    values.account_code = OrderDetail ? OrderDetail.account_code : null;
-    values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
-    // values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
-    values.channel_id = orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
-    values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
-    values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
-    values.url = OrderDetail ? OrderDetail.url : null;
-    values.reference_code = OrderDetail ? OrderDetail.reference_code : null;
-    values.note = OrderDetail ? OrderDetail.note : null;
-    values.customer_note = OrderDetail ? OrderDetail.customer_note : null;
-
-    return values;
-  };
+  const getOrderSource = useCallback(
+    (form:FormInstance<any>) => {
+      let result = null;
+      result = form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
+      return result;
+    },
+    [OrderDetail],
+  )
 
   const checkPointFocus = (value: any) => {
     let pointFocus = payments.find((p) => p.code === "point");
@@ -989,7 +939,7 @@ ShippingServiceConfigDetailResponseModel[]
 				isUserCanCreateOrder.current = true;
 			}, 1000);
       if(isPrint) {
-        handlePrintOrderReturnOrExchange(order_return_id, printType.returnAndExchange).then(() => {
+        handlePrintOrderReturnOrExchange(value.id, printType.returnAndExchange).then(() => {
           setTimeout(() => {
             history.push(`${UrlConfig.ORDER}/${value.id}`);
           }, 500);
@@ -1003,101 +953,105 @@ ShippingServiceConfigDetailResponseModel[]
     [handlePrintOrderReturnOrExchange, history, printType.returnAndExchange]
   );
 
-  const createShipmentRequest = (value: OrderRequest) => {
-    let objShipment: ShipmentRequest = {
-      delivery_service_provider_id: null, //id đối tác vận chuyển
-      delivery_service_provider_type: "", //shipper
-      delivery_transport_type: "",
-      shipper_code: "",
-      shipper_name: "",
-      handover_id: null,
-      service: null,
-      fee_type: "",
-      fee_base_on: "",
-      delivery_fee: null,
-      shipping_fee_paid_to_three_pls: null,
-      expected_received_date: value.dating_ship?.utc().format(),
-      reference_status: "",
-      shipping_fee_informed_to_customer: null,
-      reference_status_explanation: "",
-      cod: null,
-      cancel_reason: "",
-      tracking_code: "",
-      tracking_url: "",
-      received_date: "",
-      sender_address_id: null,
-      note_to_shipper: "",
-      requirements: value.requirements,
-      sender_address: null,
-      office_time: form.getFieldValue("office_time"),
-    };
-
-    switch (shipmentMethod) {
-      case ShipmentMethodOption.DELIVER_PARTNER:
-        return {
-          ...objShipment,
-          delivery_service_provider_id: thirdPL.delivery_service_provider_id,
-          delivery_service_provider_type: "external_service",
-          delivery_transport_type: thirdPL.delivery_transport_type,
-          delivery_service_provider_code: thirdPL.delivery_service_provider_code,
-          delivery_service_provider_name: thirdPL.delivery_service_provider_name,
-          sender_address_id: storeId,
-          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          service: thirdPL.service,
-          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
-        };
-
-      case ShipmentMethodOption.SELF_DELIVER:
-        return {
-          ...objShipment,
-          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
-          service: thirdPL.service,
-          shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
-          cod:
-            totalAmountExchange +
-            (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-            getAmountPaymentRequest(payments) -
-            discountValue
-        };
-
-      case ShipmentMethodOption.PICK_AT_STORE:
-        objShipment.delivery_service_provider_type = ShipmentMethod.PICK_AT_STORE;
-        let newCod = totalAmountExchange;
-        if (shippingFeeInformedToCustomer !== null) {
-          if (
-            totalAmountExchange +
-            shippingFeeInformedToCustomer -
-            getAmountPaymentRequest(payments) >
-            0
-          ) {
-            newCod =
+  const createShipmentRequest = useCallback(
+    (value: OrderRequest) => {
+      let objShipment: ShipmentRequest = {
+        delivery_service_provider_id: null, //id đối tác vận chuyển
+        delivery_service_provider_type: "", //shipper
+        delivery_transport_type: "",
+        shipper_code: "",
+        shipper_name: "",
+        handover_id: null,
+        service: null,
+        fee_type: "",
+        fee_base_on: "",
+        delivery_fee: null,
+        shipping_fee_paid_to_three_pls: null,
+        expected_received_date: value.dating_ship?.utc().format(),
+        reference_status: "",
+        shipping_fee_informed_to_customer: null,
+        reference_status_explanation: "",
+        cod: null,
+        cancel_reason: "",
+        tracking_code: "",
+        tracking_url: "",
+        received_date: "",
+        sender_address_id: null,
+        note_to_shipper: "",
+        requirements: value.requirements,
+        sender_address: null,
+        office_time: form.getFieldValue("office_time"),
+      };
+  
+      switch (shipmentMethod) {
+        case ShipmentMethodOption.DELIVER_PARTNER:
+          return {
+            ...objShipment,
+            delivery_service_provider_id: thirdPL.delivery_service_provider_id,
+            delivery_service_provider_type: "external_service",
+            delivery_transport_type: thirdPL.delivery_transport_type,
+            delivery_service_provider_code: thirdPL.delivery_service_provider_code,
+            delivery_service_provider_name: thirdPL.delivery_service_provider_name,
+            sender_address_id: storeId,
+            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+            service: thirdPL.service,
+            shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
+          };
+  
+        case ShipmentMethodOption.SELF_DELIVER:
+          return {
+            ...objShipment,
+            delivery_service_provider_type: thirdPL.delivery_service_provider_code,
+            service: thirdPL.service,
+            shipper_code: value.shipper_code,
+            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+            shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
+            cod:
+              totalAmountExchange +
+              (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+              getAmountPaymentRequest(payments) -
+              discountValue
+          };
+  
+        case ShipmentMethodOption.PICK_AT_STORE:
+          objShipment.delivery_service_provider_type = ShipmentMethod.PICK_AT_STORE;
+          let newCod = totalAmountExchange;
+          if (shippingFeeInformedToCustomer !== null) {
+            if (
               totalAmountExchange +
               shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments);
+              getAmountPaymentRequest(payments) >
+              0
+            ) {
+              newCod =
+                totalAmountExchange +
+                shippingFeeInformedToCustomer -
+                getAmountPaymentRequest(payments);
+            }
+          } else {
+            if (totalAmountExchange - getAmountPaymentRequest(payments) > 0) {
+              newCod = totalAmountExchange - getAmountPaymentRequest(payments);
+            }
           }
-        } else {
-          if (totalAmountExchange - getAmountPaymentRequest(payments) > 0) {
-            newCod = totalAmountExchange - getAmountPaymentRequest(payments);
-          }
-        }
-        return {
-          ...objShipment,
-          delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
-          cod: newCod,
-        };
+          return {
+            ...objShipment,
+            delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
+            cod: newCod,
+          };
+  
+        case ShipmentMethodOption.DELIVER_LATER:
+          return null;
+  
+        default:
+          break;
+      }
+    },
+    [discountValue, form, payments, shipmentMethod, shippingFeeInformedToCustomer, storeId, thirdPL.delivery_service_provider_code, thirdPL.delivery_service_provider_id, thirdPL.delivery_service_provider_name, thirdPL.delivery_transport_type, thirdPL.service, thirdPL.shipping_fee_paid_to_three_pls, totalAmountExchange],
+  )
 
-      case ShipmentMethodOption.DELIVER_LATER:
-        return null;
-
-      default:
-        break;
-    }
-  };
-
-  const createFulFillmentRequest = (value: OrderRequest) => {
-    let shipmentRequest = createShipmentRequest(value);
+  const createFulFillmentRequest = useCallback(
+    (value: OrderRequest) => {
+      let shipmentRequest = createShipmentRequest(value);
     let request: FulFillmentRequest = {
       store_id: value.store_id,
       account_code: userReducer.account?.code,
@@ -1139,50 +1093,119 @@ ShippingServiceConfigDetailResponseModel[]
       listFulfillmentRequest.push(request);
     }
     return listFulfillmentRequest;
-  };
+    },
+    [createShipmentRequest, discountRate, discountValue, listExchangeProducts, paymentMethod, shipmentMethod, totalAmountExchange, userReducer.account?.code],
+  )
 
-  const createDiscountRequest = () => {
-    let objDiscount: OrderDiscountRequest = {
-      rate: promotion?.rate,
-      value: promotion?.value,
-      amount: promotion?.value,
-      promotion_id: null,
-      reason: "",
-      source: "",
-      discount_code: coupon,
-      order_id: null,
-    };
-    let listDiscountRequest = [];
-    if (coupon) {
-      listDiscountRequest.push({
-        discount_code: coupon,
+  const createDiscountRequest = useCallback(
+    () => {
+      let objDiscount: OrderDiscountRequest = {
         rate: promotion?.rate,
         value: promotion?.value,
         amount: promotion?.value,
         promotion_id: null,
         reason: "",
         source: "",
+        discount_code: coupon,
         order_id: null,
-      });
-    } else if (promotion?.promotion_id) {
-      listDiscountRequest.push({
-        discount_code: null,
-        rate: promotion?.rate,
-        value: promotion?.value,
-        amount: promotion?.value,
-        promotion_id: promotion?.promotion_id,
-        reason: promotion.reason,
-        source: "",
-        order_id: null,
-      });
-    } else if (!promotion) {
-      return null;
-    } else {
-      listDiscountRequest.push(objDiscount);
-    }
+      };
+      let listDiscountRequest = [];
+      if (coupon) {
+        listDiscountRequest.push({
+          discount_code: coupon,
+          rate: promotion?.rate,
+          value: promotion?.value,
+          amount: promotion?.value,
+          promotion_id: null,
+          reason: "",
+          source: "",
+          order_id: null,
+        });
+      } else if (promotion?.promotion_id) {
+        listDiscountRequest.push({
+          discount_code: null,
+          rate: promotion?.rate,
+          value: promotion?.value,
+          amount: promotion?.value,
+          promotion_id: promotion?.promotion_id,
+          reason: promotion.reason,
+          source: "",
+          order_id: null,
+        });
+      } else if (!promotion) {
+        return null;
+      } else {
+        listDiscountRequest.push(objDiscount);
+      }
+  
+      return listDiscountRequest;
+    },
+    [coupon, promotion],
+  )
 
-    return listDiscountRequest;
-  };
+  const onFinish = useCallback(
+    (values: OrderRequest) => {
+      if(!isUserCanCreateOrder.current) {
+        setTimeout(() => {
+          isUserCanCreateOrder.current = true
+        }, 3000);
+        showError("Không được thao tác liên tiếp! Vui lòng đợi 5 giây!")
+        return
+      }
+      isUserCanCreateOrder.current = false;
+      let lstFulFillment = createFulFillmentRequest(values);
+      let lstDiscount = createDiscountRequest();
+      let total_line_amount_after_line_discount =
+        Math.ceil(getTotalAmountAfterDiscount(listExchangeProducts));
+      values.fulfillments = lstFulFillment;
+      values.action = OrderStatus.FINALIZED;
+      if (totalAmountCustomerNeedToPay > 0) {
+        values.payments = payments.filter((payment) => payment.amount > 0);
+      } else {
+        values.payments = [];
+      }
+      console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
+      values.total = Math.ceil(totalAmountOrder);
+      if (
+        values?.fulfillments &&
+        values.fulfillments.length > 0 &&
+        values.fulfillments[0].shipment
+      ) {
+        let priceToShipper =
+          totalAmountOrder -
+          getAmountPaymentRequest(payments) -
+          (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
+        values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
+      }
+      values.tags = tags;
+      // values.items = listExchangeProducts;
+      values.discounts = lstDiscount;
+      let _shippingAddressRequest:any={
+        ...shippingAddress,
+        second_phone:shippingAddressesSecondPhone
+      }
+      values.shipping_address = _shippingAddressRequest;
+      values.billing_address = billingAddress;
+      values.customer_id = customer?.id;
+      values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+      values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
+      values.currency = OrderDetail ? OrderDetail.currency : null;
+      values.account_code = OrderDetail ? OrderDetail.account_code : null;
+      values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
+      // values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
+      values.channel_id = orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
+      values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
+      values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
+      values.url = OrderDetail ? OrderDetail.url : null;
+      values.reference_code = OrderDetail ? OrderDetail.reference_code : null;
+      values.note = OrderDetail ? OrderDetail.note : null;
+      values.customer_note = OrderDetail ? OrderDetail.customer_note : null;
+  
+      return values;
+    },
+    
+    [OrderDetail, billingAddress, createDiscountRequest, createFulFillmentRequest, customer?.id, form, getOrderSource, listExchangeProducts, orderReturnType, payments, shippingAddress, shippingAddressesSecondPhone, tags, totalAmountCustomerNeedToPay, totalAmountExchangeFinal, totalAmountOrder, totalAmountReturnProducts],
+  )
 
   const handleCancel = () => {
     history.push(`${UrlConfig.ORDER}/${orderId}`);
