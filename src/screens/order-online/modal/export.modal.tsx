@@ -13,6 +13,8 @@ type ExportModalProps = {
   statusExport: number;
   exportError?: string;
   selected?: boolean;
+  isLoopInfoIfOrderHasMoreThanTwoProducts?: boolean;
+  setIsLoopInfoIfOrderHasMoreThanTwoProducts?: (value: boolean) => void;
 };
 
 const ExportModal: React.FC<ExportModalProps> = (
@@ -20,7 +22,9 @@ const ExportModal: React.FC<ExportModalProps> = (
 ) => {
   const { visible, onCancel, onOk, type, total,
     exportProgress, statusExport, selected = false,
-    exportError = "Đã có lỗi xảy ra!!!"
+    exportError = "Đã có lỗi xảy ra!!!",
+    isLoopInfoIfOrderHasMoreThanTwoProducts,
+    setIsLoopInfoIfOrderHasMoreThanTwoProducts
   } = props;
   // statusExport: 1 not export, 2 exporting, 3 export success, 4 export error
   const text = useMemo(
@@ -188,10 +192,20 @@ const ExportModal: React.FC<ExportModalProps> = (
             <Radio value={2}>File chi tiết</Radio>
           </Space>
         </Radio.Group> */}
-        {(type === "orders_online" || type === "orders_offline"  || type === ORDER_EXPORT_TYPE.ECOMMERCE) &&
+        {(type === ORDER_EXPORT_TYPE.orders_online || type === ORDER_EXPORT_TYPE.orders_offline  || type === ORDER_EXPORT_TYPE.ECOMMERCE || setIsLoopInfoIfOrderHasMoreThanTwoProducts) &&
           <div>
             <Button type="link" style={{ padding: 0, color: "#2a2a86" }} onClick={() => setEditFields(true)}>Tuỳ chọn cột hiển thị</Button>
           </div>
+        }
+        {setIsLoopInfoIfOrderHasMoreThanTwoProducts &&
+          <Checkbox
+            value={isLoopInfoIfOrderHasMoreThanTwoProducts}
+            onChange={(e) => {
+              setIsLoopInfoIfOrderHasMoreThanTwoProducts(e.target.checked);
+            }}
+          >
+            Lặp lại thông tin đơn hàng ở từng dòng sản phẩm nếu đơn có từ 2 sản phẩm trở lên
+          </Checkbox>
         }
       </div>
       )}

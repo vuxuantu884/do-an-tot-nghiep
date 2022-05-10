@@ -51,7 +51,7 @@ import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import { dangerColor, successColor } from "utils/global-styles/variables";
-import { ORDER_TYPES } from "utils/Order.constants";
+import { ORDER_EXPORT_TYPE, ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -132,8 +132,10 @@ function OrderList(props: PropTypes) {
 
   const subStatuses = useGetOrderSubStatuses();
 
+  const [isLoopInfoIfOrderHasMoreThanTwoProducts, setIsLoopInfoIfOrderHasMoreThanTwoProducts] = useState(false);
+
   const type = useMemo(() => {
-    return orderType === ORDER_TYPES.online ? "orders_online" : "orders_offline"
+    return orderType === ORDER_TYPES.online ? ORDER_EXPORT_TYPE.orders_online : ORDER_EXPORT_TYPE.orders_offline
   }, [orderType])
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
@@ -441,7 +443,7 @@ function OrderList(props: PropTypes) {
       console.log("queryParams",queryParams)
       exportFile({
         conditions: queryParams,
-        type: "EXPORT_ORDER",
+        type: isLoopInfoIfOrderHasMoreThanTwoProducts ? "EXPORT_ORDER_LOOP" : "EXPORT_ORDER",
         hidden_fields: hiddenFieldsExport,
       })
         .then((response) => {
@@ -457,7 +459,7 @@ function OrderList(props: PropTypes) {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, EXPORT_IDs, selectedRowCodes, listExportFile]
+    [params, isLoopInfoIfOrderHasMoreThanTwoProducts, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, listExportFile]
   );
   const checkExportFile = useCallback(() => {
 
@@ -897,6 +899,8 @@ function OrderList(props: PropTypes) {
             statusExport={statusExport}
             exportError={exportError}
             selected={selectedRowCodes.length ? true : false}
+            isLoopInfoIfOrderHasMoreThanTwoProducts={isLoopInfoIfOrderHasMoreThanTwoProducts}
+            setIsLoopInfoIfOrderHasMoreThanTwoProducts={setIsLoopInfoIfOrderHasMoreThanTwoProducts}
           />
         )}
         <ChangeOrderStatusModal

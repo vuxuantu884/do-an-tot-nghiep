@@ -128,11 +128,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRefCustomer.current?.getFieldValue("full_address");
           if (value) {
-            const newValue = value.normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
-              .toLowerCase();
+            const newValue = value.toLowerCase();
 
             const newWards = data.map((ward: any) => {
               return {
@@ -165,11 +161,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
           if (value) {
-            const newValue = value.normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
-              .toLowerCase();
+            const newValue = value.toLowerCase();
             const newWards = data.map((ward: any) => {
               return {
                 ...ward,
@@ -635,7 +627,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   placeholder="Địa chỉ"
                   prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                   disabled={disableInput}
-                  onChange={(e) => checkAddress("shipping_addresses_full_address", e.target.value)}
+                  onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                    checkAddress("shipping_addresses_full_address", e.target.value)
+                  },500)}
                 />
               </Form.Item>
             </Col>

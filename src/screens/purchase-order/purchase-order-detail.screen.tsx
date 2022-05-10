@@ -298,16 +298,7 @@ const PODetailScreen: React.FC = () => {
 
   const handleClonePo = useCallback(() => {
     let params = formMain.getFieldsValue(true);
-    const procurements = params.procurements;
-    procurements.forEach((pro:any) => {
-      pro.code = null;
-      pro.id = null;
-      pro.procurement_items.forEach((item:any) => {
-        item.id = null;
-        item.code = null;
-      }
-      )
-    });
+    params.procurements=null;
     params = {
       ...params,
       id: null,
