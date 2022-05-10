@@ -90,7 +90,9 @@ type OrderParam = {
   id: string;
 };
 
+let numberReloadGetTrackingCodeGHTK = 1;
 let maxNumberReloadGetTrackingCodeGHTK = 10;
+let isRequest = true;
 
 const OrderDetail = (props: PropType) => {
   let { id } = useParams<OrderParam>();
@@ -592,7 +594,7 @@ const OrderDetail = (props: PropType) => {
     if (!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
-    let isRequest = true;
+    
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
     const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
     const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
@@ -600,7 +602,6 @@ const OrderDetail = (props: PropType) => {
     console.log('stepsStatusValue', stepsStatusValue)
     console.log('pushingStatus', pushingStatus)
     console.log('isRequest', isRequest)
-    let numberReloadGetTrackingCodeGHTK = 1;
     console.log('numberReloadGetTrackingCodeGHTK', numberReloadGetTrackingCodeGHTK)
     console.log('sortedFulfillments[0]?.shipment?.delivery_service_provider_code', sortedFulfillments[0]?.shipment?.delivery_service_provider_code)
     let getTrackingCode = setInterval(()=> {
@@ -608,7 +609,8 @@ const OrderDetail = (props: PropType) => {
         console.log('den day')
         getOrderDetail(id).then(response => {
           numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
-          if (response.data?.fulfillments && response.data?.fulfillments[0].shipment?.tracking_code) {
+          const sortedFulfillments = sortFulfillments(response.data?.fulfillments ? response.data?.fulfillments : []);
+          if (sortedFulfillments && sortedFulfillments[0].shipment?.tracking_code) {
             onGetDetailSuccess(response.data);
             isRequest = false;
             showSuccess("Lấy mã vận đơn thành công!")
@@ -618,7 +620,7 @@ const OrderDetail = (props: PropType) => {
       } else {
         clearInterval(getTrackingCode);
       }
-    }, 3000)
+    }, 2500)
     return () => {
       clearInterval(getTrackingCode)
     }
