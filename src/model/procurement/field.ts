@@ -4,7 +4,8 @@ const ProcurementField = {
     note: 'note',
     supplier_phone: 'supplier_phone',
     supplier: 'supplier',
-    file: 'file'
+    file: 'file',
+    po_code: 'po_code'
 }
 
 export {ProcurementField}

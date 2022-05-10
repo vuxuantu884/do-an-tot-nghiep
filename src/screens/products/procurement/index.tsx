@@ -1,4 +1,4 @@
-import { Card, Row, Space, Tabs } from "antd";
+import { Button, Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { ProcurementTabUrl } from "config/url.config";
@@ -10,8 +10,8 @@ import { useHistory } from "react-router-dom";
 import TabList from "./tabs/TabList/index";
 import TabLogs from "./tabs/TabLogs";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import ButtonCreate from "component/header/ButtonCreate";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import { GoPlus } from "react-icons/go";
 
 const {TabPane} = Tabs;
 const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
@@ -29,6 +29,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
     }
   }, [history, path]);
 
+
   return (
     <ContentContainer
       title="Danh sách phiếu nhập kho"
@@ -45,7 +46,26 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
         <Row>
           <Space>
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
-              <ButtonCreate child="Tạo phiếu nhập kho" path={`${UrlConfig.PROCUREMENT}/create`} />
+              <Button
+                type="primary"
+                className="ant-btn-primary"
+                size={"large"}
+                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                onClick={() => history.push(`${UrlConfig.PROCUREMENT}/create`)}
+              >
+                Nhập kho bằng tải file
+              </Button>
+            </AuthWrapper>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
+              <Button
+                type="primary"
+                className="ant-btn-primary"
+                size={"large"}
+                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                onClick={() => history.push(`${UrlConfig.PROCUREMENT}/create-manual`)}
+              >
+                Nhập kho thủ công
+              </Button>
             </AuthWrapper>
           </Space>
         </Row>
