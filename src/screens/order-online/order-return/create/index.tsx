@@ -615,20 +615,24 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
   };
 
+  const returnItems = useMemo(() => {
+    let items = listReturnProducts.map((single) => {
+      const { maxQuantityCanBeReturned, ...rest } = single;
+      return rest;
+    });
+    return  items.filter((single) => {
+      return single.quantity > 0;
+    });
+  }, [listReturnProducts])
+
   const handleSubmitFormReturn = useCallback(() => {
     let formValue = form.getFieldsValue();
 
     if (OrderDetail && listReturnProducts) {
-      let items = listReturnProducts.map((single) => {
-        const { maxQuantityCanBeReturned, ...rest } = single;
-        return rest;
-      });
-      let itemsResult = items.filter((single) => {
-        return single.quantity > 0;
-      });
+      
       let payments: OrderPaymentRequest[] | null = [];
       // tính toán lại discount
-      let discounts = handleRecalculateOriginDiscount(itemsResult);
+      let discounts = handleRecalculateOriginDiscount(returnItems);
       if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
         const formReturnMoney = formValue.returnMoneyField[0];
         let returnMoneyMethod = listPaymentMethods.find((single) => {
@@ -668,7 +672,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         shipper_name: "",
         shipping_fee_paid_to_three_pls: null,
         requirements: null,
-        items: itemsResult,
+        items: returnItems,
         fulfillments: [],
         payments: payments,
         reason_id: orderReturnReasonResponse?.id || 0,
@@ -685,7 +689,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         total: Math.ceil(totalAmountReturnProducts),
         total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.ceil(
-          getTotalAmountAfterDiscount(itemsResult),
+          getTotalAmountAfterDiscount(returnItems),
         ),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail?.assignee_code,
@@ -755,6 +759,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     storeReturn,
     totalAmountCustomerNeedToPay,
     totalAmountReturnProducts,
+    returnItems
   ]);
 
   const checkIfHasReturnProduct = listReturnProducts.some((single) => {
@@ -924,8 +929,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
       const order_return = cloneDeep(orderDetailResult);
       order_return.fulfillments = [];
-      order_return.items = listReturnProducts;
+      order_return.items = returnItems;
       order_return.total = Math.ceil(totalAmountReturnProducts);
+      order_return.total_discount = discountValue;
       let payments: OrderPaymentRequest[] | null = [];
       if (
         totalAmountCustomerNeedToPay < 0 &&
