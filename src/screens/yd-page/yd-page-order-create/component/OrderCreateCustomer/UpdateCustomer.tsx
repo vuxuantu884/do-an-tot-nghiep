@@ -116,10 +116,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRef.current?.getFieldValue("full_address");
           if (value) {
-            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
+            const newValue = value.toLowerCase();
 
             const newWards = data.map((ward: any) => {
               return {
