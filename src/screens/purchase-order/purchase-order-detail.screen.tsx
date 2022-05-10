@@ -789,6 +789,7 @@ const PODetailScreen: React.FC = () => {
               idNumber={idNumber}
               poData={poData}
               isEdit={true}
+              isEditDetail={isEditDetail}
               now={now}
               loadDetail={loadDetail}
               formMain={formMain}

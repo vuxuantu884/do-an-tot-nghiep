@@ -264,8 +264,6 @@ const EcommerceOrders: React.FC = () => {
     OrderProcessingStatusModel[]
   >([]);
 
-  const [pageQuery, setPageQuery] = useState(1);
-
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -306,7 +304,8 @@ const EcommerceOrders: React.FC = () => {
           break;
         case EXPORT_IDs.selectedOrders:
           newParams = {
-            code: selectedRowCodes
+            code: selectedRowCodes,
+            is_online: true,
           };
           break;
         case EXPORT_IDs.ordersFound:
@@ -1072,30 +1071,28 @@ const EcommerceOrders: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      setPageQuery(page)
       let newPrams = { ...params, page, limit: size };
       let queryParam = generateQuery(newPrams);
 			history.push(`${location.pathname}?${queryParam}`);
-      setPrams(newPrams)
     },
     [history, location.pathname, params]
   );
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: pageQuery };
-      let currentParam = generateQuery(params);
-      let queryParam = generateQuery(newPrams);
+      let newParams = { ...params, ...values };
+      const queryParam = generateQuery(newParams);
+      const currentParam = generateQuery(params);
       if (currentParam !== queryParam) {
-				history.push(`${location.pathname}?${queryParam}`);
-
+        newParams.page = 1;
+        const newQueryParam = generateQuery(newParams);
+        history.push(`${location.pathname}?${newQueryParam}`);
       }
     },
-    [history, location.pathname, pageQuery, params]
+    [history, location.pathname, params]
   );
 
   const onClearFilter = useCallback(() => {
-    setPrams(initQuery)
     let queryParam = generateQuery(initQuery);
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);
@@ -1879,10 +1876,10 @@ const EcommerceOrders: React.FC = () => {
     let dataQuery: EcommerceOrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
-    };    
+    };
     setPrams(dataQuery);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch,setSearchResult, location.search]);
+  }, [dispatch, location.search]);
 
 
   return (

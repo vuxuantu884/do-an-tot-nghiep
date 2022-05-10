@@ -3,7 +3,7 @@ import BaseTagStatus from 'component/base/BaseTagStatus';
 import BottomBarContainer from 'component/container/bottom-bar.container';
 import ContentContainer from 'component/container/content.container';
 import RenderTabBar from 'component/table/StickyTabBar';
-import UrlConfig, { PurchaseOrderTabUrl } from 'config/url.config';
+import UrlConfig, { BASE_NAME_ROUTER, PurchaseOrderTabUrl } from 'config/url.config';
 import { isEmpty } from 'lodash';
 import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
 import { POProcumentField, POProcumentLineItemField, PurchaseProcument, PurchaseProcumentLineItem } from 'model/purchase-order/purchase-procument';
@@ -174,7 +174,15 @@ const ProcurementDetailScreen: React.FC = () => {
                 </Col>
                 <Col span={5}>
                   <div>ID đơn đặt hàng:</div>
-                  <div><Text strong>{poData?.code}</Text></div>
+                  <div>
+                    <Link to={"#"} onClick={() => {
+                      const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${poData?.id}`
+                      const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+                      if (newWindow) newWindow.opener = null
+                    }}>
+                      {poData?.code}
+                    </Link>
+                  </div>
                 </Col>
                 <Col span={6}><div>Nhà cung cấp:</div>
                   <div>

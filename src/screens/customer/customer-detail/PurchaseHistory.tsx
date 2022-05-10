@@ -382,7 +382,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     (record: any) => {
       return (
         <React.Fragment>
-          {record.change_point?.add &&
+          {record.change_point?.add ?
             <Tooltip title="Hoàn điểm">
               <div>
                 <img src={IconPaymentPoint} alt="" />
@@ -395,6 +395,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                 />
               </div>
             </Tooltip>
+            : <></>
           }
 
           {record.total &&
@@ -579,14 +580,15 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                           <span>{formatCurrency(item.price)}</span>
                         </Tooltip>
 
-                        {item?.discount_items && item.discount_items[0]?.value && (
+                        {(item?.discount_items && item.discount_items[0]?.value) ?
                           <Tooltip title="Khuyến mại sản phẩm">
                             <div style={{ color: dangerColor, textAlign: "right" }}>
                               <div>{"- "}{formatCurrency(item.discount_items[0]?.value)}</div>
                               <div>({Math.round(item.discount_items[0]?.rate * 100) / 100}%)</div>
                             </div>
                           </Tooltip>
-                        )}
+                          : <></>
+                        }
                       </div>
                     </div>
                   </div>
@@ -633,8 +635,9 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                           thousandSeparator={true}
                         />
                       </div>
-                      {record.discounts && record.discounts[0]?.rate &&
+                      {(record.discounts && record.discounts[0]?.rate) ?
                         <div>({Math.round(record.discounts[0]?.rate * 100) / 100}%)</div>
+                        : <></>
                       }
                     </div>
                   </Tooltip>

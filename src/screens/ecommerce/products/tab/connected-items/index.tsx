@@ -178,24 +178,26 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     }
   }, []);
 
-  const getProductUpdated = useCallback(
+  const getEcommerceProduct = useCallback(
     (queryRequest: any) => {
-      setIsLoading(true);
-      dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+      if (queryRequest) {
+        window.scrollTo(0, 0);
+        setIsLoading(true);
+        dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+      }
     },
     [dispatch, updateVariantData]
   );
 
   useEffect(() => {
     if (isReloadPage) {
-      window.scrollTo(0, 0);
-      getProductUpdated(query);
+      getEcommerceProduct(query);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProductUpdated, isReloadPage]);
+  }, [getEcommerceProduct, isReloadPage]);
 
   const reloadPage = () => {
-    getProductUpdated(query);
+    getEcommerceProduct(query);
   };
 
   //handle sync stock
@@ -742,7 +744,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      let dataQuery: any = {}
+      let dataQuery: any;
       switch (tag.key) {
         case "shop_ids":
           dataQuery = {
@@ -779,18 +781,21 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   );
 
 
-  const onSearch = (value: ProductEcommerceQuery) => {
+  const onFinish = (value: ProductEcommerceQuery) => {
     if (value) {
       value.connected_date_from = connectionStartDate;
       value.connected_date_to = connectionEndDate;
 
-      const dataQuery: ProductEcommerceQuery = {
-        ...initialFormValues,
-        ...getQueryParamsFromQueryString(queryParamsParsed),
-        ...value
+      let newParams = { ...initialFormValues, ...query, ...value };
+      const queryParam = generateQuery(newParams);
+      const currentParam = generateQuery(query);
+      if (currentParam === queryParam) {
+        getEcommerceProduct(newParams);
+      } else {
+        newParams.page = 1;
+        const newQueryParam = generateQuery(newParams);
+        history.push(`${location.pathname}?${newQueryParam}`);
       }
-      let queryParam = generateQuery(dataQuery);
-      history.push(`${location.pathname}?${queryParam}`);
     }
   };
 
@@ -801,8 +806,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     };
     setFilterValueByQueryParam(dataQuery)
     setQuery(dataQuery);
-    getProductUpdated(dataQuery);
-    window.scrollTo(0, 0);
+    getEcommerceProduct(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
 
@@ -898,7 +902,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         page: page,
         limit: limit,
       }
-      let queryParam = generateQuery(dataQuery);
+      const queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1113,7 +1117,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <div className="filter">
             <Form
               form={formAdvance}
-              onFinish={onSearch}
+              onFinish={onFinish}
               initialValues={initialFormValues}>
               {isShowAction && (
                 <div className="action-dropdown">
@@ -1272,7 +1276,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         <StyledBaseFilter>
           <Form
             form={formAdvance}
-            onFinish={onSearch}
+            onFinish={onFinish}
             initialValues={initialFormValues}
             layout="vertical">
             <Form.Item

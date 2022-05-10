@@ -394,7 +394,7 @@ function OrderReturnList(props: PropTypes) {
 
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowCodes = selectedRow.map((row: any) => row.code);
+    const selectedRowCodes = selectedRow.map((row: any) => row.code_order_return);
     setSelectedRowCodes(selectedRowCodes);
   }, []);
 
@@ -422,7 +422,8 @@ function OrderReturnList(props: PropTypes) {
       case 2: break
       case 3:
         newParams = {
-          code_order_return: selectedRowCodes
+          code: selectedRowCodes,
+          is_onlinne: orderType === ORDER_TYPES.online
         };
         break
       case 4:
@@ -461,7 +462,7 @@ function OrderReturnList(props: PropTypes) {
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }, [params, isLoopInfoIfOrderHasMoreThanTwoProducts, selectedRowCodes, listExportFile]);
+  }, [params, isLoopInfoIfOrderHasMoreThanTwoProducts, selectedRowCodes, orderType, listExportFile]);
 
   const checkExportFile = useCallback(() => {
     

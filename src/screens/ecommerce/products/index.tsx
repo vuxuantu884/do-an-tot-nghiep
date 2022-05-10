@@ -277,7 +277,10 @@ const Products: React.FC = () => {
               </Tabs>
 
               {activeTab === EcommerceProductTabUrl.TOTAL_ITEM &&
-                <TotalItemsEcommerce isReloadPage={isReloadPage} />
+                <TotalItemsEcommerce
+                  isReloadPage={isReloadPage}
+                  setIsReloadPage={setIsReloadPage}
+                />
               }
 
               {activeTab === EcommerceProductTabUrl.CONNECTED &&

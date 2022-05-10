@@ -31,6 +31,7 @@ import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
 import { RegUtil } from "utils/RegUtils";
 import { FulFillmentStatus } from "utils/Constants";
 import { FulfillmentsOrderPackQuery } from "model/order/order.model";
+import { fullTextSearch } from "utils/StringUtils";
 
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
@@ -479,14 +480,9 @@ const PackInfo: React.FC = () => {
               onChange={(value?: number) => {
                 onChangeStoreId(value);
               }}
-              filterOption={(input, option) => {
-                if (option) {
-                  return (
-                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  );
-                }
-                return false;
-              }}
+              filterOption={(input, option) =>
+                fullTextSearch(input, option?.children)
+              }
               disabled={disableStoreId}
             >
               {listStoresDataCanAccess?.map((item, index) => (
@@ -517,6 +513,9 @@ const PackInfo: React.FC = () => {
                   notFoundContent="Không tìm thấy kết quả"
                   disabled={disableDeliveryPproviderId}
                   onChange={(value?: number) => onChangeDeliveryServiceId(value)}
+                  filterOption={(input, option) =>
+                    fullTextSearch(input, option?.children)
+                  }
                 >
                   <Select.Option key={-1} value={-1}>Tự giao hàng</Select.Option>
                   {
