@@ -25,7 +25,7 @@ import { actionListConfigurationShippingServiceAndShippingFee } from "domain/act
 import purify from "dompurify";
 import useFetchStores from "hook/useFetchStores";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -666,55 +666,20 @@ ShippingServiceConfigDetailResponseModel[]
       });
   };
 
-  const handleDispatchReturnAndExchange = (orderDetailResult: ReturnRequest) => {
-    return new Promise((resolve, reject) => {
-      dispatch(
-        actionCreateOrderReturn(orderDetailResult, (response) => {
-          resolve(response)
-        }, () => {
+  const handleCreateOrderExchangeByValue = (valuesExchange: ExchangeRequest) => {
+    dispatch(showLoading())
+    dispatch(
+      actionCreateOrderExchange(
+        valuesExchange,
+        (data => {
+          createOrderExchangeCallback(data)
+        }),
+        () => {
+          setIsErrorExchange(true);
           dispatch(hideLoading())
-        })
-      );
-    })
-  };
-
-  console.log('payments', payments)
-  const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
-    // khách cần trả
-    /**
-     * tổng số tiền đã trả
-     */
-    console.log('payments', payments)
-    if (totalAmountOrderAfterPayments < 0) {
-      let returnAmount = Math.abs(totalAmountOrderAfterPayments);
-      let _payments = _.cloneDeep(payments);
-      let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
-      if (paymentCashIndex > -1) {
-        _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
-				_payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
-				_payments[paymentCashIndex].return_amount = returnAmount;
-      } else {
-        let newPaymentCash: OrderPaymentRequest | undefined = undefined;
-        newPaymentCash = {
-          code: PaymentMethodCode.CASH,
-          payment_method_code: PaymentMethodCode.CASH,
-          payment_method_id: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
-          amount: 0,
-					paid_amount: -returnAmount,
-          return_amount: 0,
-          status: "",
-          payment_method: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
-          reference: '',
-          source: '',
-          customer_id: 1,
-          note: '',
-          type: '',
-        };
-        _payments.push(newPaymentCash)
-      }
-      return _payments;
-    }
-    return payments;
+        }
+      )
+    );
   };
 
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
@@ -803,6 +768,7 @@ ShippingServiceConfigDetailResponseModel[]
               ];
             }
           }
+          const origin_order_id = OrderDetail.id;
           let orderDetailResult: ReturnRequest = {
             ...OrderDetail,
             source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
@@ -843,68 +809,29 @@ ShippingServiceConfigDetailResponseModel[]
 
             // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
           };
-
-          let values: ExchangeRequest = form.getFieldsValue();
-          let valuesResult = onFinish(values);
-          if(!valuesResult) {
+          let values: OrderRequest = form.getFieldsValue();
+          const order_return = onFinish(values);
+          if(!order_return) {
             return;
           }
-          console.log('valuesResult', valuesResult)
-          valuesResult.channel_id = getChannelIdExchange(OrderDetail);
-          values.company_id = DEFAULT_COMPANY.company_id;
-          values.account_code = form.getFieldValue("account_code");
-          values.assignee_code = form.getFieldValue("assignee_code");
-          values.coordinator_code = form.getFieldValue("coordinator_code");
-          values.marketer_code = form.getFieldValue("marketer_code");
-          values.reference_code = form.getFieldValue("reference_code");
-          values.url = form.getFieldValue("url");
-          if (checkPointFocus(values)) {
-            const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
-              valuesResult.order_return_id = orderReturnId;
-              valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0)) : null;
-              valuesResult.items = listExchangeProducts.concat(itemGifts);
-              valuesResult.tags = tags;
-              valuesResult.note = form.getFieldValue("note");
-              valuesResult.customer_note = form.getFieldValue("customer_note");
-              if (isErrorExchange) {
-                // showWarning("Đã tạo đơn đổi hàng không thành công!");
-                dispatch(
-                  actionCreateOrderExchange(
-                    valuesResult,
-                    (data) => {
-                      createOrderExchangeCallback(data, order_return_id)
-                    },
-                    () => {
-                      setIsErrorExchange(true);
-                      dispatch(hideLoading())
-                    }
-                  )
-                );
-                return;
-              }
-              console.log('orderDetailResult', orderDetailResult)
-              dispatch(showLoading())
-              handleDispatchReturnAndExchange(orderDetailResult).then((response: any) => {
-                valuesResult.order_return_id = response.id;
-                let lstDiscount = createDiscountRequest();
-                valuesResult.discounts = lstDiscount;
-                setOrderReturnId(response.id);
-                console.log('valuesResult', valuesResult)
-                dispatch(
-                  actionCreateOrderExchange(
-                    valuesResult,
-                    (data => {
-                      createOrderExchangeCallback(data, response.id)
-                    }),
-                    () => {
-                      setIsErrorExchange(true);
-                      dispatch(hideLoading())
-                    }
-                  )
-                );
-              })
-            };
-            if (!values.customer_id) {
+          const order_exchange = cloneDeep(orderDetailResult);
+          order_exchange.channel_id = getChannelIdExchange(OrderDetail);
+          order_exchange.company_id = DEFAULT_COMPANY.company_id;
+          order_exchange.account_code = form.getFieldValue("account_code");
+          order_exchange.assignee_code = form.getFieldValue("assignee_code");
+          order_exchange.coordinator_code = form.getFieldValue("coordinator_code");
+          order_exchange.marketer_code = form.getFieldValue("marketer_code");
+          order_exchange.reference_code = form.getFieldValue("reference_code");
+          order_exchange.url = form.getFieldValue("url");
+          const valuesExchange = {
+            origin_order_id,
+            order_return,
+            order_exchange
+          }
+          console.log('valuesExchange', valuesExchange)
+          // return;
+          if (checkPointFocus(order_exchange)) {
+            if (!order_exchange.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
               const element: any = document.getElementById("search_customer");
               element?.focus();
@@ -915,10 +842,10 @@ ShippingServiceConfigDetailResponseModel[]
                 element?.focus();
               } else {
                 if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-                  if (valuesResult.delivery_service_provider_id === null) {
+                  if (order_exchange.delivery_service_provider_id === null) {
                     showError("Vui lòng chọn đối tác giao hàng!");
                   } else {
-                    handleCreateOrderExchangeByValue(valuesResult);
+                    handleCreateOrderExchangeByValue(valuesExchange);
                   }
                 } else {
                   if (
@@ -929,7 +856,7 @@ ShippingServiceConfigDetailResponseModel[]
                     const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
                     scrollAndFocusToDomElement(element)
                   } else {
-                    handleCreateOrderExchangeByValue(valuesResult);
+                    handleCreateOrderExchangeByValue(valuesExchange);
                   }
                 }
               }
@@ -954,7 +881,7 @@ ShippingServiceConfigDetailResponseModel[]
 		return result;
 	};
 
-  const onFinish = (values: ExchangeRequest) => {
+  const onFinish = (values: OrderRequest) => {
     if(!isUserCanCreateOrder.current) {
 			setTimeout(() => {
 				isUserCanCreateOrder.current = true
@@ -1004,7 +931,6 @@ ShippingServiceConfigDetailResponseModel[]
     values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
     // values.channel_id = !isShowSelectOrderSources ? POS.channel_id :ADMIN_ORDER.channel_id
     values.channel_id = orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
-    values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
     values.url = OrderDetail ? OrderDetail.url : null;
@@ -1043,7 +969,7 @@ ShippingServiceConfigDetailResponseModel[]
   };
 
   const createOrderExchangeCallback = useCallback(
-    (value: OrderResponse, order_return_id: number) => {
+    (value: OrderResponse) => {
       setTimeout(() => {
 				isUserCanCreateOrder.current = true;
 			}, 1000);
@@ -1503,15 +1429,7 @@ ShippingServiceConfigDetailResponseModel[]
             if (!isExchange) {
               handleSubmitFormReturn();
             } else {
-              if (isStepExchange) {
-                onReturnAndExchange();
-              } else {
-                setIsStepExchange(true);
-                setTimeout(() => {
-                  const element: any = document.getElementById("store_id");
-                  scrollAndFocusToDomElement(element);
-                }, 500);
-              }
+              onReturnAndExchange();
             }
             setIsVisibleModalWarning(false);
           }}
