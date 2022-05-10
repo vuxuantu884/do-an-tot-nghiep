@@ -1290,6 +1290,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
+    console.log('dataJson', dataJson)
 		result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
@@ -1298,7 +1299,8 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		- Cửa hàng : ${dataJson?.store || "-"}<br/>
 		- Địa chỉ cửa hàng : ${dataJson?.store_full_address}<br/>
 		- Thời gian: ${dataJson?.updated_date ? moment(dataJson?.updated_date).format(dateFormat) : "-"}<br/>
-		- Ghi chú: ${dataJson?.note || "-"} <br/>
+		- Ghi chú nội bộ: ${dataJson?.note || "-"} <br/>
+		- Ghi chú của khách: ${dataJson?.customer_note || "-"} <br/>
 		<br/>
 		<span style="color:red">Sản phẩm: </span><br/> 
 		${dataJson?.items
