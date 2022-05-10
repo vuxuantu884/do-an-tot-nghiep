@@ -1290,6 +1290,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
+    console.log('dataJson', dataJson)
 		result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
@@ -1298,7 +1299,8 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		- Cửa hàng : ${dataJson?.store || "-"}<br/>
 		- Địa chỉ cửa hàng : ${dataJson?.store_full_address}<br/>
 		- Thời gian: ${dataJson?.updated_date ? moment(dataJson?.updated_date).format(dateFormat) : "-"}<br/>
-		- Ghi chú: ${dataJson?.note || "-"} <br/>
+		- Ghi chú nội bộ: ${dataJson?.note || "-"} <br/>
+		- Ghi chú của khách: ${dataJson?.customer_note || "-"} <br/>
 		<br/>
 		<span style="color:red">Sản phẩm: </span><br/> 
 		${dataJson?.items
@@ -1886,10 +1888,25 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
     // valueResult = replaceLast(valueResult, convertStringDistrict(district));
     // phân cách bằng dấu cách, valueResult thêm dấu cách để chính xác
     convertStringDistrict(district).split(" ").forEach((single) => {
-      valueResult = valueResult+" ";
-      valueResult = valueResult.replace(single.trim() + " ", "");
+      // nếu có dấu cách thì bỏ qua
+      if(!single.trim()) {
+        return
+      }
+      console.log('single', single)
+      // valueResult =" "+ valueResult+" ";
+      // console.log('single', single)
+      // valueResult = valueResult.replace(" " +single.trim() + " ", "");
+      let splitArr = valueResult.split(" ");
+      let duplicateIndex = splitArr.findIndex(aa => single.trim() === (aa.trim()));
+      console.log('duplicateIndex', duplicateIndex)
+      if(duplicateIndex > - 1) {
+        splitArr.splice(duplicateIndex, 1)
+        console.log('valueResult', valueResult)
+        valueResult = splitArr.join(" ");
+      }
     });
   })
+  // tìm array có index lớn nhất
   console.log('valueResult', valueResult)
   const findWard = newWards.filter((ward: any) => {
     const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ").filter(single => single);
