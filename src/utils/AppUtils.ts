@@ -1886,10 +1886,25 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
     // valueResult = replaceLast(valueResult, convertStringDistrict(district));
     // phân cách bằng dấu cách, valueResult thêm dấu cách để chính xác
     convertStringDistrict(district).split(" ").forEach((single) => {
-      valueResult = valueResult+" ";
-      valueResult = valueResult.replace(single.trim() + " ", "");
+      // nếu có dấu cách thì bỏ qua
+      if(!single.trim()) {
+        return
+      }
+      console.log('single', single)
+      // valueResult =" "+ valueResult+" ";
+      // console.log('single', single)
+      // valueResult = valueResult.replace(" " +single.trim() + " ", "");
+      let splitArr = valueResult.split(" ");
+      let duplicateIndex = splitArr.findIndex(aa => single.trim() === (aa.trim()));
+      console.log('duplicateIndex', duplicateIndex)
+      if(duplicateIndex > - 1) {
+        splitArr.splice(duplicateIndex, 1)
+        console.log('valueResult', valueResult)
+        valueResult = splitArr.join(" ");
+      }
     });
   })
+  // tìm array có index lớn nhất
   console.log('valueResult', valueResult)
   const findWard = newWards.filter((ward: any) => {
     const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ").filter(single => single);
