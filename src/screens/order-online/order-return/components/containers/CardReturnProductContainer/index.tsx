@@ -8,7 +8,7 @@ import { OrderReturnCalculateRefundRequestModel } from "model/request/order.requ
 import {
   OrderLineItemResponse,
   OrderResponse,
-  ReturnProductModel,
+  ReturnProductModel
 } from "model/response/order/order.response";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -19,7 +19,7 @@ import {
   getLineItemDiscountRate,
   getLineItemDiscountValue,
   getProductDiscountPerOrder,
-  getProductDiscountPerProduct,
+  getProductDiscountPerProduct
 } from "utils/AppUtils";
 import { fullTextSearch } from "utils/StringUtils";
 // import { fullTextSearch } from "utils/StringUtils";
@@ -27,7 +27,6 @@ import CardReturnProducts from "../../CardReturnProducts";
 
 type PropTypes = {
   autoCompleteRef: React.RefObject<RefSelectProps>;
-  isDetailPage?: boolean;
   discountRate?: number;
   orderId: number | undefined;
   searchVariantInputValue:string;
@@ -42,7 +41,6 @@ type PropTypes = {
 function CardReturnProductContainer(props: PropTypes) {
   const {
     handleCanReturn,
-    isDetailPage,
     orderId,
     setIsVisibleModalWarningPointRefund,
     autoCompleteRef,searchVariantInputValue,
@@ -73,7 +71,6 @@ function CardReturnProductContainer(props: PropTypes) {
   const setMoneyRefund = createOrderReturnContext?.return.setMoneyRefund;
   const OrderDetail = createOrderReturnContext?.orderDetail;
   // const listOrderProducts = OrderDetail?.items;
-  const isStepExchange = createOrderReturnContext?.isStepExchange;
   const isExchange = createOrderReturnContext?.isExchange;
 
   const onSelectSearchedVariant = (value: string) => {
@@ -347,14 +344,6 @@ function CardReturnProductContainer(props: PropTypes) {
     [OrderDetail]
   );
 
-  const isShowProductSearch = () => {
-    let result = true;
-    if (isDetailPage || isStepExchange) {
-      result = false;
-    }
-    return result;
-  };
-
   // const totalPriceReturnToCustomer = useMemo(() => {
   //   let result = listReturnProducts
   //     ? Math.round(getTotalPrice(listReturnProducts))
@@ -480,7 +469,6 @@ function CardReturnProductContainer(props: PropTypes) {
       convertResultSearchVariant={convertResultSearchVariant}
       handleChangeReturnAll={handleChangeReturnAll}
       isExchange={isExchange}
-      isStepExchange={isStepExchange}
       isCheckReturnAll={isCheckReturnAll}
       listReturnProducts={listReturnProducts}
       onChangeProductQuantity={onChangeProductQuantity}
@@ -489,7 +477,7 @@ function CardReturnProductContainer(props: PropTypes) {
       pointUsing={pointRefund}
       searchVariantInputValue={searchVariantInputValue}
       totalAmountReturnProducts={totalAmountReturnProducts}
-      isShowProductSearch={isShowProductSearch()}
+      isShowProductSearch={true}
       setListReturnProducts={setListReturnProducts}
       listStores={listStores}
       autoCompleteRef={autoCompleteRef}

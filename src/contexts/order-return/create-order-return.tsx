@@ -25,7 +25,6 @@ type CreateOrderReturnContextType = {
 		listExchangeProducts: OrderLineItemRequest[];
   };
   isExchange: boolean;
-  isStepExchange: boolean;
   listStoreReturn:StoreResponse[];
 };
 // tạo context
