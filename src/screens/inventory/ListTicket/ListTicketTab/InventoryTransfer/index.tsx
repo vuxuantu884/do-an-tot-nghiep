@@ -591,13 +591,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       [TransferExportField.to_store_name]: item.to_store_name,
       [TransferExportField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===item.status)?.name,
       [TransferExportField.total_variant]: item.total_variant,
-      [TransferExportField.total_quantity]: item.total_quantity,
+      [TransferExportField.total_quantity]: item.total_quantity === 0 ? null : item.total_quantity,
       [TransferExportField.total_amount]: item.total_amount,
-      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYYY),
-      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYYY),
-      [TransferExportField.note]: item.note,
       [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
       [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
+      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+      [TransferExportField.note]: item.note,
     };
   }
 
@@ -608,16 +610,23 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
       arr.push({
         [TransferExportLineItemField.code]: transfer.code,
-        [TransferExportLineItemField.store]: `${transfer.from_store_name} tới ${transfer.to_store_name}`,
-        [TransferExportLineItemField.barcode]: item.barcode,
+        [TransferExportLineItemField.from_store]: `${transfer.from_store_name}`,
+        [TransferExportLineItemField.to_store]: `${transfer.to_store_name}`,
+        [TransferExportLineItemField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===transfer.status)?.name,
         [TransferExportLineItemField.sku]: item.sku,
         [TransferExportLineItemField.variant_name]: item.variant_name,
+        [TransferExportLineItemField.barcode]: item.barcode,
         [TransferExportLineItemField.price]: item.price,
         [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
         [TransferExportLineItemField.total_amount]: (item.transfer_quantity ?? 0) * (item.price ?? 0),
-        [TransferExportLineItemField.real_quantity]: item.real_quantity,
+        [TransferExportLineItemField.real_quantity]: item.real_quantity === 0 ? null :item.real_quantity,
         [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
         [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
+        [TransferExportField.transfer_date]: ConvertUtcToLocalDate(transfer.transfer_date,DATE_FORMAT.DDMMYYY),
+        [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+        [TransferExportField.receive_date]: ConvertUtcToLocalDate(transfer.receive_date,DATE_FORMAT.DDMMYYY),
+        [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+        [TransferExportField.note]: transfer.note,
       });
     }
     return arr;
