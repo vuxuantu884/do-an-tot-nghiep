@@ -1396,7 +1396,7 @@ const DetailTicket: FC = () => {
                             acceptPermissions={[InventoryTransferPermission.balance]}
                           >
                             <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
-                              Cân bằng nhanh
+                              Nhận lại tồn chênh lệch
                             </Button>
                           </AuthWrapper>
                         )}
