@@ -49,6 +49,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 import BaseTagStatus from "component/base/BaseTagStatus";
+import { cloneDeep } from "lodash";
 
 const ProcumentConfirmModal = lazy(() => import("screens/purchase-order/modal/procument-confirm.modal"))
 const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
@@ -163,7 +164,37 @@ const TabList: React.FC = () => {
       return <Compoment />;
   },[selected,actions, onMenuClick ])
 
-  const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = useMemo(()=> {
+  // const getTotalProcurementItemsQuantity = (item: PurchaseProcument): number => {
+  //   let totalConfirmQuantity = 0;
+  //     item.procurement_items.forEach((item: PurchaseProcumentLineItem) => {
+  //       totalConfirmQuantity += item.quantity;
+  //     });
+  //     return totalConfirmQuantity;
+  // }
+
+  const getTotalProcurementQuantity = useCallback((callback: (procurement:PurchaseProcument) => number): string => {
+    let total:number[] = [];
+    const procurementsClone = cloneDeep(data.items)
+    const procurementsData = procurementsClone.filter((item: PurchaseProcument) =>
+      item.status === ProcurementStatus.not_received || item.status === ProcurementStatus.received)
+
+    procurementsData.forEach((element: PurchaseProcument) => {
+      total.push(callback(element))
+    });
+    const result: number = total.reduce((pre, cur) => pre + cur, 0);
+
+    return formatCurrency(result, ".")
+  }, [data.items])
+
+  const getTotalProcurementItemsRealQuantity = (item: PurchaseProcument): number => {
+    let totalRealQuantity = 0;
+    item.procurement_items.forEach((item: PurchaseProcumentLineItem) => {
+      totalRealQuantity += item.real_quantity;
+    });
+    return totalRealQuantity;
+  }
+
+  const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = useMemo(() => {
     return [
       {
         title: ActionComponent,
@@ -227,7 +258,8 @@ const TabList: React.FC = () => {
               {value?.supplier}
             </Link>
           )
-        }      },
+        }
+      },
       {
         title: "Merchandiser",
         dataIndex: "purchase_order",
@@ -295,26 +327,26 @@ const TabList: React.FC = () => {
         render: (value, record, index) =>
           value || record?.status === "cancelled" ? "Đã hủy" : "",
       },
+      // {
+      //   title: <div>SL được duyệt (<span style={{color: "#2A2A86"}}>{getTotalProcurementQuantity(getTotalProcurementItemsQuantity)}</span>)</div>,
+      //   align: "center",
+      //   dataIndex: "procurement_items",
+      //   visible: true,
+      //   render: (value, record: PurchaseProcument, index) => {
+      //     if (
+      //       record.status === ProcurementStatus.not_received ||
+      //       record.status === ProcurementStatus.received
+      //     ) {
+      //       let totalConfirmQuantity = 0;
+      //       value.forEach((item: PurchaseProcumentLineItem) => {
+      //         totalConfirmQuantity += item.quantity;
+      //       });
+      //       return formatCurrency(totalConfirmQuantity, ".");
+      //     }
+      //   },
+      // },
       {
-        title: "SL được duyệt",
-        align: "center",
-        dataIndex: "procurement_items",
-        visible: true,
-        render: (value, record: PurchaseProcument, index) => {
-          if (
-            record.status === ProcurementStatus.not_received ||
-            record.status === ProcurementStatus.received
-          ) {
-            let totalConfirmQuantity = 0;
-            value.forEach((item: PurchaseProcumentLineItem) => {
-              totalConfirmQuantity += item.quantity;
-            });
-            return totalConfirmQuantity;
-          }
-        },
-      },
-      {
-        title: "SL thực nhận",
+        title: <div>SL thực nhận (<span style={{color: "#2A2A86"}}>{getTotalProcurementQuantity(getTotalProcurementItemsRealQuantity)}</span>)</div>,
         align: "center",
         dataIndex: "procurement_items",
         visible: true,
@@ -367,7 +399,7 @@ const TabList: React.FC = () => {
       //   render: (value, record, index) => value,
       // },
     ]
-  },[ActionComponent]);
+  },[ActionComponent, getTotalProcurementQuantity]);
 
   const [columns, setColumns] = useState<
     Array<ICustomTableColumType<PurchaseProcument>>
@@ -648,11 +680,11 @@ const TabList: React.FC = () => {
   const titleMultiConfirm = useMemo(()=>{
     return <>
       Xác nhận nhập kho {listProcurement?.map((e, i)=>{
-         return  <>
-            <Link target="_blank" to={`${UrlConfig.PURCHASE_ORDERS}/${e.purchase_order.id}`}>
-              {e.code}
-            </Link>{i === (listProcurement.length  - 1) ? "": ", "}
-         </>
+          return <>
+          <Link target="_blank" to={`${UrlConfig.PURCHASE_ORDERS}/${e.purchase_order.id}`}>
+            {e.code}
+          </Link>{i === (listProcurement.length - 1) ? "": ", "}
+        </>
       })}
     </>
   },[listProcurement]);
