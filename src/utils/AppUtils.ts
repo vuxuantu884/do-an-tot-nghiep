@@ -1846,13 +1846,14 @@ export const replaceLast = (text: string, textShort: string) => {
 };
 
 export const convertStringDistrictWithoutLine = (text: string) => {
-  return text.toLowerCase().replace("tỉnh", "").replace("đường", "").replace("xã", "").replace("quận", "").replaceAll(".", "").replaceAll("-", " ").replaceAll(",", " ").normalize("NFD")
+  return text.toLowerCase().replace("tỉnh", "").replaceAll("đường", "").replaceAll("thị xã", "").replaceAll("xã", "").replaceAll("phường", "").replace("quận", "").replaceAll(".", "").replaceAll("-", " ").replaceAll(",", " ").normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
   .replace("huyen", "")
   .replace("thanh pho", "")
   .replace("thi tran", "")
+  .replace("thi xa", "")
   .replace("tp", "")
   .replace("p.", "")
   .replace("hcm", "ho chi minh")
@@ -1883,13 +1884,15 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
     console.log('valueResult', valueResult)
     // valueResult = valueResult.replace(district.trim(), "");
     // valueResult = replaceLast(valueResult, convertStringDistrict(district));
-    convertStringDistrict(district).split(" ").forEach(single => {
-      valueResult = valueResult.replace(single, "");
+    // phân cách bằng dấu cách, valueResult thêm dấu cách để chính xác
+    convertStringDistrict(district).split(" ").forEach((single) => {
+      valueResult = valueResult+" ";
+      valueResult = valueResult.replace(single.trim() + " ", "");
     });
   })
   console.log('valueResult', valueResult)
   const findWard = newWards.filter((ward: any) => {
-    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ");
+    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ").filter(single => single);
     console.log('valueResultArr', valueResultArr)
     const wardNameArr:any[] = convertStringDistrict(ward.name).split(" ").filter(x => x);
     console.log('wardNameArr', wardNameArr)
@@ -1912,6 +1915,7 @@ export const handleFindArea = (value: string, newAreas: any) => {
       console.log('districtString', districtString);
       return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
     });
+    console.log('findArea1111', findArea)
     let result = findArea.reverse()[0];
     
     return result
