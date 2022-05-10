@@ -1888,7 +1888,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [listItemCanBeReturn, listReturnProducts],
+    [listItemCanBeReturn, listReturnProducts, productReturnAutoCompleteRef],
   );
 
   useEffect(() => {
