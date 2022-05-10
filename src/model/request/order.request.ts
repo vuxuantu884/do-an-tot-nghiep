@@ -1,7 +1,7 @@
 import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
-  action: string | null;
+  action?: string | null;
   store_id: number | null;
   company_id: number | null;
   price_type: string | null;

@@ -460,7 +460,7 @@ ShippingServiceConfigDetailResponseModel[]
 
   const handleRecalculateOriginDiscount = (itemsResult: any) => {
     return OrderDetail?.discounts?.map(singleDiscount => {
-      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult)
+      let value = Math.ceil((singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult))
       return {
         ...singleDiscount,
         value: value,
@@ -589,9 +589,9 @@ ShippingServiceConfigDetailResponseModel[]
         order_returns: [],
         automatic_discount: form.getFieldValue("automatic_discount"),
         discounts: discounts,
-        total: Math.ceil(totalAmountReturnProducts),
+        total: Math.floor(totalAmountReturnProducts),
         total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
-        total_line_amount_after_line_discount: Math.ceil(getTotalAmountAfterDiscount(itemsResult)),
+        total_line_amount_after_line_discount: Math.floor(getTotalAmountAfterDiscount(itemsResult)),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
@@ -739,38 +739,11 @@ ShippingServiceConfigDetailResponseModel[]
           let itemsResult = items.filter((single) => {
             return single.quantity > 0;
           });
-          let payments: OrderPaymentRequest[] | null = [];
-          if (
-            totalAmountCustomerNeedToPay < 0 &&
-            returnMoneyType === RETURN_MONEY_TYPE.return_now
-          ) {
-            let formValue = form.getFieldsValue();
-            const formReturnMoney = formValue.returnMoneyField[0];
-            let returnMoneyMethod = listPaymentMethods.find((single) => {
-              return single.code === formReturnMoney.returnMoneyMethod;
-            });
-            if (returnMoneyMethod) {
-              payments = [
-                {
-                  payment_method_id: returnMoneyMethod.id,
-                  payment_method: returnMoneyMethod.name,
-                  amount: -Math.abs(totalAmountCustomerNeedToPay),
-                  reference: "",
-                  source: "",
-                  paid_amount: -Math.abs(totalAmountCustomerNeedToPay),
-                  return_amount: 0.0,
-                  status: "paid",
-                  customer_id: customer?.id || null,
-                  type: "",
-                  note: formReturnMoney.returnMoneyNote || "",
-                  code: "",
-                },
-              ];
-            }
-          }
+          let discounts = handleRecalculateOriginDiscount(itemsResult);
+          
           const origin_order_id = OrderDetail.id;
           let orderDetailResult: ReturnRequest = {
-            ...OrderDetail,
+            ...cloneDeep(OrderDetail),
             source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
             store_id: storeReturn ? storeReturn.id : null,
             store: storeReturn ? storeReturn.name : "",
@@ -786,7 +759,7 @@ ShippingServiceConfigDetailResponseModel[]
             requirements: null,
             items: itemsResult,
             fulfillments: [],
-            payments: payments,
+            payments: [],
             reason_id: orderReturnReasonResponse?.id || 0,
             reason_name: orderReturnReasonResponse?.sub_reasons.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
             reason: form.getFieldValue("reason"),
@@ -795,9 +768,9 @@ ShippingServiceConfigDetailResponseModel[]
             discounts: handleRecalculateOriginDiscount(itemsResult),
             account_code: recentAccountCode.accountCode,
             assignee_code: OrderDetail.assignee_code || null,
-            total: Math.ceil(totalAmountReturnProducts),
-            total_discount: Math.ceil(discountValue),
-            total_line_amount_after_line_discount: Math.ceil(totalAmountReturnProducts - discountValue),
+            total: Math.floor(totalAmountReturnProducts),
+            total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
+            total_line_amount_after_line_discount: Math.floor(getTotalAmountAfterDiscount(itemsResult)),
             // clear giá trị
             reference_code: "",
             customer_note: "",
@@ -810,11 +783,49 @@ ShippingServiceConfigDetailResponseModel[]
             // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
           };
           let values: OrderRequest = form.getFieldsValue();
-          const order_return = onFinish(values);
-          if(!order_return) {
+          const order_return = cloneDeep(orderDetailResult);
+          order_return.fulfillments = [];
+          order_return.items = listReturnProducts;
+          order_return.total = Math.ceil(totalAmountReturnProducts);
+          let payments: OrderPaymentRequest[] | null = [];
+          if (
+            totalAmountCustomerNeedToPay < 0 &&
+            returnMoneyType === RETURN_MONEY_TYPE.return_now
+          ) {
+            let formValue = form.getFieldsValue();
+            const formReturnMoney = formValue.returnMoneyField[0];
+            let returnMoneyMethod = listPaymentMethods.find((single) => {
+              return single.code === formReturnMoney.returnMoneyMethod;
+            });
+            if (returnMoneyMethod) {
+              payments = [
+                {
+                  payment_method_id: returnMoneyMethod.id,
+                  payment_method: returnMoneyMethod.name,
+                  amount: Math.abs(totalAmountCustomerNeedToPay),
+                  reference: "",
+                  source: "",
+                  paid_amount: Math.abs(totalAmountCustomerNeedToPay),
+                  return_amount: 0.0,
+                  status: "paid",
+                  customer_id: customer?.id || null,
+                  type: "",
+                  note: formReturnMoney.returnMoneyNote || "",
+                  code: "",
+                },
+              ];
+            }
+          }
+          order_return.payments = payments;
+          let abc = onFinish(values);
+          const bb = cloneDeep(OrderDetail);
+          let order_exchange:any = {
+            ...bb,
+            ...abc
+          };
+          if(!order_exchange) {
             return;
           }
-          const order_exchange = cloneDeep(orderDetailResult);
           order_exchange.channel_id = getChannelIdExchange(OrderDetail);
           order_exchange.company_id = DEFAULT_COMPANY.company_id;
           order_exchange.account_code = form.getFieldValue("account_code");
@@ -823,6 +834,9 @@ ShippingServiceConfigDetailResponseModel[]
           order_exchange.marketer_code = form.getFieldValue("marketer_code");
           order_exchange.reference_code = form.getFieldValue("reference_code");
           order_exchange.url = form.getFieldValue("url");
+          order_exchange.fulfillments = createFulFillmentRequest(values);
+          order_exchange.items = listExchangeProducts;
+          order_exchange.payments = []
           const valuesExchange = {
             origin_order_id,
             order_return,
@@ -915,7 +929,7 @@ ShippingServiceConfigDetailResponseModel[]
       values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
     }
     values.tags = tags;
-    // values.items = listExchangeProducts;
+    values.items = listExchangeProducts;
     values.discounts = lstDiscount;
     let _shippingAddressRequest:any={
 			...shippingAddress,
@@ -924,6 +938,7 @@ ShippingServiceConfigDetailResponseModel[]
 		values.shipping_address = _shippingAddressRequest;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
+    values.total_discount = discountValue;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
     values.currency = OrderDetail ? OrderDetail.currency : null;
