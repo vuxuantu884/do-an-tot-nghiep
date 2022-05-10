@@ -219,8 +219,10 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 Object.keys(metadata.properties).forEach(property => {
                     const keyIdx = Object.keys(metadata.properties[property]).findIndex(propertyKey => propertyKey === field);
                     if (keyIdx !== -1 && Object.keys(metadata.properties[property])[keyIdx + 1]) {
+                        const currentRow = Object.keys(metadata.properties[property])[keyIdx];
                         const nextRow = Object.keys(metadata.properties[property])[keyIdx + 1];
-                        setRowsInQuery((prev: string[]) => nextRow ? [...prev, nextRow] : [...prev]);
+                        setRowsInQuery((prev: string[]) => nextRow ? [...prev.filter(item => item !== currentRow && item !== nextRow), nextRow] : [...prev.filter(item => item !== currentRow)]);
+                        fieldsValue.properties[property] = fieldsValue.properties[property].filter((item: string) => item !== currentRow && item !== nextRow);
                         form.setFieldsValue({ properties: { ...fieldsValue.properties, [property]: nextRow ? [...fieldsValue.properties[property], nextRow] : fieldsValue.properties[property] } });
                     }
                 })
@@ -339,9 +341,9 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 Object.keys(metadata.properties).forEach(property => {
                     const keyIdx = Object.keys(metadata.properties[property]).findIndex(propertyKey => propertyKey === fieldFilter);
                     if (keyIdx !== -1) {
-                        const nextRow = Object.keys(metadata.properties[property])[keyIdx + 1];
-                        setRowsInQuery((prev: string[]) => [...prev.filter(item => item !== nextRow)]);
-                        form.setFieldsValue({ properties: { ...fieldsValue.properties, [property]: fieldsValue.properties[property].filter((item: string) => item !== nextRow) } });
+                        const currentRow = Object.keys(metadata.properties[property])[keyIdx];
+                        setRowsInQuery((prev: string[]) => [...prev, currentRow]);
+                        form.setFieldsValue({ properties: { ...fieldsValue.properties, [property]: [...fieldsValue.properties[property], currentRow] } });
                     }
                 })
             }
