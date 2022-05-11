@@ -1278,6 +1278,7 @@ const ProductDetailScreen: React.FC = () => {
                                                 {required: true},
                                               ]}
                                               label="Mã sản phẩm"
+                                              normalize={(value: string) => (value || "").toUpperCase()}
                                             >
                                               <Input
                                                 onChange={onChange}

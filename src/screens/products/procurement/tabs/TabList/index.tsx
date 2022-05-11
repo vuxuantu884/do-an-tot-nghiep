@@ -748,14 +748,39 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     return items;
   }, [dispatch, paramsrUrl, data, totalItems])
 
-  const convertItemExport = (item: PurchaseProcument) => {
+  // const convertItemExport = (item: PurchaseProcument) => {
 
-    return {
-      [ProcurementExportLineItemField.code]: item.code,
-      [ProcurementExportLineItemField.purchase_order_code]: item.purchase_order.code,
-      [ProcurementExportLineItemField.purchase_order_reference]: item.purchase_order.reference,
-      [ProcurementExportLineItemField.status]: ProcurementStatusName[item.status],
-    };
+  //   return {
+  //     [ProcurementExportLineItemField.code]: item.code,
+  //     [ProcurementExportLineItemField.purchase_order_code]: item.purchase_order.code,
+  //     [ProcurementExportLineItemField.purchase_order_reference]: item.purchase_order.reference,
+  //     [ProcurementExportLineItemField.status]: ProcurementStatusName[item.status],
+  //   };
+  // }
+
+  const convertTransferDetailExport = (procurement: PurchaseProcument, arrItem: Array<PurchaseProcumentLineItem>) => {
+    let arr = [];
+    for (let i = 0; i < arrItem.length; i++) {
+      const item = arrItem[i];
+
+      arr.push({
+        [ProcurementExportLineItemField.code]: procurement.code,
+        [ProcurementExportLineItemField.purchase_order_code]: procurement.purchase_order.code,
+        [ProcurementExportLineItemField.purchase_order_reference]: procurement.purchase_order.reference,
+        [ProcurementExportLineItemField.status]: ProcurementStatusName[procurement.status],
+        [ProcurementExportLineItemField.supplier]: procurement.purchase_order.supplier,
+        [ProcurementExportLineItemField.store]: procurement.store,
+        [ProcurementExportLineItemField.product_code]: item.sku.substring(0, 7),
+        [ProcurementExportLineItemField.sku]: item.sku,
+        [ProcurementExportLineItemField.variant]: item.variant,
+        [ProcurementExportLineItemField.barcode]: item.barcode,
+        [ProcurementExportLineItemField.real_quantity]: item.real_quantity,
+        [ProcurementExportLineItemField.created_date]: ConvertUtcToLocalDate(procurement.created_date, DATE_FORMAT.DDMMYYY),
+        [ProcurementExportLineItemField.created_name]: `${procurement.created_by} - ${procurement.created_name}`,
+
+      });
+    }
+    return arr;
   }
 
   const actionExport = {
@@ -764,7 +789,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         setVExportDetailProcurement(false);
         return
       }
-      let dataExport: any = [];
+      // let dataExport: any = [];
 
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
@@ -773,14 +798,20 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       }
 
       const workbook = XLSX.utils.book_new();
-
+      let item: any = [];
       for (let i = 0; i < res.length; i++) {
-        const e = res[i];
-        const item = convertItemExport(e);
-        dataExport.push(item);
+        if (!res[i] || res[i].procurement_items?.length === 0) continue;
+
+        if (workbook.Sheets[`${res[i].code}`]) {
+          continue;
+        }
+        item = item.concat(convertTransferDetailExport(res[i], res[i].procurement_items));
+        // const e = res[i];
+        // const item = convertItemExport(e);
+        // dataExport.push(item);
       }
 
-      let worksheet = XLSX.utils.json_to_sheet(dataExport);
+      let worksheet = XLSX.utils.json_to_sheet(item);
       XLSX.utils.book_append_sheet(workbook, worksheet, "data");
 
       const today = moment(new Date(), 'YYYY/MM/DD');
