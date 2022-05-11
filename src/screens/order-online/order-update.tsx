@@ -717,9 +717,7 @@ export default function Order(props: PropTypes) {
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
-		values.shipping_address = shippingAddress 
-		// && levelOrder <= 3 
-		?
+		values.shipping_address = shippingAddress && levelOrder <= 3 ?
 			{ ...shippingAddress, second_phone: shippingAddressesSecondPhone }
 			: (OrderDetail.shipping_address ? { ...OrderDetail.shipping_address, second_phone: shippingAddressesSecondPhone } : null);
 		values.billing_address = billingAddress;
