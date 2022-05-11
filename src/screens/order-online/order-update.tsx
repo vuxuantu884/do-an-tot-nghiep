@@ -134,6 +134,8 @@ export default function Order(props: PropTypes) {
 		(state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
 	)
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+	console.log('customer', customer)
+	
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
 	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -315,6 +317,7 @@ export default function Order(props: PropTypes) {
 		}
 	}, [OrderDetail]);
 	let levelOrder = setLevelOrder();
+	console.log('levelOrder', levelOrder)
 
 	let initialForm: OrderRequest = useMemo(() => {
 		return {
@@ -714,7 +717,9 @@ export default function Order(props: PropTypes) {
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
-		values.shipping_address = shippingAddress && levelOrder < 3 ?
+		values.shipping_address = shippingAddress 
+		// && levelOrder <= 3 
+		?
 			{ ...shippingAddress, second_phone: shippingAddressesSecondPhone }
 			: (OrderDetail.shipping_address ? { ...OrderDetail.shipping_address, second_phone: shippingAddressesSecondPhone } : null);
 		values.billing_address = billingAddress;
