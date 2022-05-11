@@ -855,6 +855,7 @@ const ProductCreateScreen: React.FC = () => {
                       }}
                       name="code"
                       label="Mã sản phẩm"
+                      normalize={(value: string) => (value || "").toUpperCase()}
                     >
                       <Input
                         maxLength={7}
