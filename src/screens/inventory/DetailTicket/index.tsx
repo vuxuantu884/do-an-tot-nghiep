@@ -236,7 +236,7 @@ const DetailTicket: FC = () => {
       icon: <CloseCircleOutlined />,
       color: "#E24343",
       disabled: !((data?.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-        && data?.shipment === null) || !allowCancel
+        && data?.shipment === null) || !allowCancel || !isHavePermissionQuickBalance
     },
     {
       id: 2,
