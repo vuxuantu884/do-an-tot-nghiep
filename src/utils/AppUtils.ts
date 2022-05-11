@@ -1956,3 +1956,7 @@ export const formatCurrencyInputValue = (a: string) => {
 export const checkIfOrderCanBeReturned = (orderDetail: OrderResponse) => {
   return orderDetail.status === OrderStatus.FINISHED || orderDetail.status === OrderStatus.COMPLETED;
 };
+
+export const removeMultiWhitespaceAndTrimText = (value: string) => {
+  return value.trim().replace(/\s\s+/g, ' ');
+}

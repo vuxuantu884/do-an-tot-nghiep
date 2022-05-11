@@ -13,6 +13,7 @@ import {
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
   isFetchApiSuccessful,
+	removeMultiWhitespaceAndTrimText,
 } from "utils/AppUtils";
 import CustomSelect from "../select.custom";
 
@@ -41,7 +42,7 @@ function AccountCustomSearchSelect(props: PropType) {
   const onSearch = useCallback(
     (value: string) => {
       const getAccounts = (value: string) => {
-        value = value.trim();
+        value = removeMultiWhitespaceAndTrimText(value);
         if (value.trim() !== "" && value.length >= 3) {
           setIsLoading(true);
           searchAccountPublicApi({
