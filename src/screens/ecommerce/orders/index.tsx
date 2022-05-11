@@ -109,7 +109,6 @@ import {ORDER_EXPORT_TYPE, ORDER_SUB_STATUS} from "utils/Order.constants";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import {RootReducerType} from "model/reducers/RootReducerType";
-import _ from "lodash";
 import {getOrderReasonService} from "service/order/return.service";
 
 const BATCHING_SHIPPING_TYPE = {
@@ -474,25 +473,11 @@ const EcommerceOrders: React.FC = () => {
     }));
   }, [dispatch, params, setSearchResult]);
 
-  const onSuccessEditNote = useCallback(
-    (newNote, noteType, orderID) => {
-      let itemResult =  _.cloneDeep(data.items);
-      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
-      if (indexOrder > -1) {
-        if (noteType === "note") {
-          itemResult[indexOrder].note = newNote;
-        } else if (noteType === "customer_note") {
-          itemResult[indexOrder].customer_note = newNote;
-        }
-      }
-      
-      setData({
-        metadata: data.metadata,
-        items: itemResult,
-      })
-    },
-    [data.items, data.metadata]
-  );
+  const reloadPage = useCallback(() => {
+    if (allowOrdersView) {
+      getEcommerceOrderList();
+    }
+  }, [allowOrdersView, getEcommerceOrderList]);
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
@@ -504,10 +489,10 @@ const EcommerceOrders: React.FC = () => {
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID))
+        updateOrderPartial(params, orderID, () => reloadPage())
       );
     },
-    [dispatch, onSuccessEditNote]
+    [dispatch, reloadPage]
   );
 
   // handle change single order status
@@ -1713,12 +1698,6 @@ const EcommerceOrders: React.FC = () => {
         setIsDownloading(true);
       }
 
-    }
-  };
-
-  const reloadPage = () => {
-    if (allowOrdersView) {
-      getEcommerceOrderList();
     }
   };
   // end
