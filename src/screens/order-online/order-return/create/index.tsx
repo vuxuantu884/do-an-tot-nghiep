@@ -646,8 +646,8 @@ ShippingServiceConfigDetailResponseModel[]
       return;
     }
     if (!checkIfHasReturnProduct) {
-      showError("Vui lòng chọn ít nhất 1 sản phẩm!");
-      const element: any = document.getElementById("search_product");
+      showError("Vui lòng chọn ít nhất 1 sản phẩm trả!");
+      const element: any = document.getElementById("search_product_return");
       scrollAndFocusToDomElement(element);
       return;
     }
