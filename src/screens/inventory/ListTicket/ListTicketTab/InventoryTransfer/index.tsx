@@ -133,6 +133,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const [dataUploadError, setDataUploadError] = useState<string[]>([]);
 
   const [printContent, setPrintContent] = useState<string>("");
+  const [total, setTotal] = useState<number>(0);
+  const [totalProduct, setTotalProduct] = useState<number>(0);
   const pageBreak = "<div class='pageBreak'></div>";
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
@@ -282,7 +284,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       width: 100,
     },
     {
-      title: "SP",
+      title: () => {
+        return (
+          <>
+            <div>SP</div>
+            <div>({formatCurrency(totalProduct)})</div>
+          </>
+        );
+      },
       dataIndex: "total_variant",
       visible: true,
       align: "right",
@@ -292,7 +301,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       width: 60,
     },
     {
-      title: "SL",
+      title: () => {
+        return (
+          <>
+            <div>SL</div>
+            <div>({formatCurrency(total)})</div>
+          </>
+        );
+      },
       dataIndex: "total_quantity",
       visible: true,
       align: "right",
@@ -448,6 +464,63 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     (result: PageResponse<Array<InventoryTransferDetailItem>> | false) => {
       setTableLoading(false);
       if (!!result) {
+        if (result.items.length > 0) {
+          let total = 0
+          let totalProduct = 0;
+
+          result.items.forEach((item: any) => {
+            total = total + item.total_quantity;
+            totalProduct = totalProduct + item.total_variant;
+          });
+
+          const newColumns = [...columns];
+
+          for (let i = 0; i < newColumns.length; i++) {
+            if (newColumns[i].dataIndex === 'total_quantity') {
+              newColumns[i] = {
+                // eslint-disable-next-line no-loop-func
+                title: () => {
+                  return (
+                    <>
+                      <div>SL</div>
+                      <div>({formatCurrency(total)})</div>
+                    </>
+                  );
+                },
+                dataIndex: "total_quantity",
+                visible: true,
+                align: "right",
+                render: (value: number) => {
+                  return formatCurrency(value,".");
+                },
+                width: 60,
+              };
+            }
+            if (newColumns[i].dataIndex === 'total_variant') {
+              newColumns[i] = {
+                // eslint-disable-next-line no-loop-func
+                title: () => {
+                  return (
+                    <>
+                      <div>SP</div>
+                      <div>({formatCurrency(totalProduct)})</div>
+                    </>
+                  );
+                },
+                dataIndex: "total_variant",
+                visible: true,
+                align: "right",
+                render: (value: number) => {
+                  return formatCurrency(value,".");
+                },
+                width: 60,
+              };
+            }
+          }
+
+          setColumn(newColumns);
+        }
+
         setData(result);
         if (firstLoad) {
           setTotalItems(result.metadata.total);
@@ -641,7 +714,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       case TYPE_EXPORT.all:
         const roundAll = Math.round(data.metadata.total / limit);
         times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
-        console.log('times',times);
 
         for (let index = 1; index <= times; index++) {
           const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
@@ -701,7 +773,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           item=item.concat(convertTransferDetailExport(res[i],res[i].line_items));
         }
         const ws = XLSX.utils.json_to_sheet(item);
-         
+
         XLSX.utils.book_append_sheet(workbook, ws, 'data');
       }else{
         for (let i = 0; i < res.length; i++) {
