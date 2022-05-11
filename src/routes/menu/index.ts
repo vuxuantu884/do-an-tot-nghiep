@@ -74,7 +74,7 @@ const menu: Array<RouteMenu> = [
     subMenu: bill,
   },
   {
-    path: UrlConfig.ORDER,
+    path: UrlConfig.OFFLINE_ORDERS,
     exact: true,
     title: "Bán lẻ offline",
     icon: 'icon-offline-order',
