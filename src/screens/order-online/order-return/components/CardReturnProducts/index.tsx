@@ -1,35 +1,32 @@
 import { SearchOutlined } from "@ant-design/icons";
 import {
-	AutoComplete,
-	Button,
-	Card,
-	Checkbox,
-	Col,
-	Input,
-	Popover,
-	Row,
-	Table,
-	Tooltip,
-  Select
+  AutoComplete,
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Input,
+  Popover,
+  Row, Select, Table,
+  Tooltip
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
+import iconDelete from "assets/icon/deleteIcon.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
 import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
+import { StoreResponse } from "model/core/store.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
 import React, { useContext, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
-import iconDelete from "assets/icon/deleteIcon.svg";
 import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
-import CustomSelect from "component/custom/select.custom";
-import { StoreResponse } from "model/core/store.model";
-import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 
 type PropTypes = {
   isDetailPage?: boolean;
@@ -307,22 +304,23 @@ function CardReturnProducts(props: PropTypes) {
     setStoreReturnModalVisible(false);
   }
 
-  const storeIdLogin = useGetStoreIdFromLocalStorage()
+  // const storeIdLogin = useGetStoreIdFromLocalStorage()
 
   const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = listStores;
+    // đã set rồi
 		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu đã có ở local storage thì ưu tiên lấy, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
-		if (newData && newData[0]?.id) {
-			if (!storeReturn) {
-				if(storeIdLogin) {
-          const newStoreIndex = listStores.findIndex((p)=>p.id===storeIdLogin);
-          if(newStoreIndex!==-1 && setStoreReturn)
-					  setStoreReturn(listStores[newStoreIndex]);
-				}
-			}
-		}
+		// if (newData && newData[0]?.id) {
+		// 	if (!storeReturn) {
+		// 		if(storeIdLogin) {
+    //       const newStoreIndex = listStores.findIndex((p)=>p.id===storeIdLogin);
+    //       if(newStoreIndex!==-1 && setStoreReturn)
+		// 			  setStoreReturn(listStores[newStoreIndex]);
+		// 		}
+		// 	}
+		// }
 		return newData;
-	}, [listStores, setStoreReturn, storeIdLogin, storeReturn]);
+	}, [listStores]);
 
   const onChangeStoreReturn=(value?:number)=>{
     if(!value) {

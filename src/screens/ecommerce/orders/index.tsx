@@ -110,6 +110,7 @@ import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import _ from "lodash";
+import {getOrderReasonService} from "service/order/return.service";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -280,12 +281,26 @@ const EcommerceOrders: React.FC = () => {
 
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
+  const [reasonId, setReasonId] = useState<number | undefined>(undefined);
+  const [subReasonRequireWarehouseChange] = useState<number | undefined>(61);   //sub_reason_id = 61 (diff_depot: Lệch kho)
+
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setDeliveryServices(response)
       })
     );
+  }, [dispatch]);
+
+  useEffect(() => {
+    const code = [ORDER_SUB_STATUS.change_depot];
+    getOrderReasonService(code).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        setReasonId(response.data[0].id);
+      } else {
+        handleFetchApiError(response, "Danh sách lý do đổi kho hàng", dispatch);
+      }
+    });
   }, [dispatch]);
 
   const onExport = useCallback(
@@ -802,10 +817,10 @@ const EcommerceOrders: React.FC = () => {
                           showError("Bạn không thể đổi sang trạng thái khác!")
                           return;
                         }
-                        if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
-                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
-                          return;
-                        }
+                        // if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                        //   showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
+                        //   return;
+                        // }
                         // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
                         // if (!isChange) {
                         //   return;
@@ -1544,11 +1559,13 @@ const EcommerceOrders: React.FC = () => {
     // Không validate nữa
     let isCanChange = true;
     let textResult = "";
+    const reason_id = toStatus === ORDER_SUB_STATUS.require_warehouse_change ? reasonId : undefined;
+    const sub_reason_id = toStatus === ORDER_SUB_STATUS.require_warehouse_change ? subReasonRequireWarehouseChange : undefined;
 
     if(isCanChange) {
       // setIsLoadingSetSubStatus(true);
       isLoadingSetSubStatus = true;
-      let response:any = await changeStatus(currentOrder.id, toStatus);
+      let response:any = await changeStatus(currentOrder.id, toStatus, reason_id, sub_reason_id);
       if(isFetchApiSuccessful(response)) {
         isCanChange = true;
         textResult = "Chuyển trạng thái thành công";
@@ -1964,6 +1981,9 @@ const EcommerceOrders: React.FC = () => {
               <SubStatusChange
                 orderId={selectedOrder?.id}
                 toSubStatus={toSubStatusCode}
+                isEcommerceOrder={true}
+                reasonId={reasonId}
+                subReasonRequireWarehouseChange={subReasonRequireWarehouseChange}
                 setToSubStatusCode={setToSubStatusCode}
                 changeSubStatusCallback={changeSubStatusCallback}
               />
@@ -2126,6 +2146,7 @@ const EcommerceOrders: React.FC = () => {
         )}
 
         <ChangeOrderStatusModal
+          isEcommerceOrder={true}
           visible={isShowChangeOrderStatusModal}
           onCancelChangeStatusModal={() => {
             setIsShowChangeOrderStatusModal(false)
