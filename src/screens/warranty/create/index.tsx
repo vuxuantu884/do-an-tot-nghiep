@@ -95,7 +95,6 @@ function CreateWarranty(props: Props) {
   const [customerID, setCustomerID] = useState<number | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
   const [visibleHistory, setVisibleHistory] = useState(false);
-  const [isDisableSelectPurchaseDate, setIsDisableSelectPurchaseDate] = useState(false);
 
   const stores = useFetchStores();
 
@@ -535,7 +534,7 @@ function CreateWarranty(props: Props) {
               defaultValue={moment(record.finalized_on)}
               onChange={(value) => onChangeItem(moment(value).format(), "finalized_on", record.index)}
               disabledDate={disabledDatePurchaseDate}
-              disabled={isDisableSelectPurchaseDate}
+              disabled={record.finished_on}
             />
           )
         },
@@ -616,7 +615,7 @@ function CreateWarranty(props: Props) {
         width: 80,
       },
     ],
-    [deleteItemsWarranty, isDisableSelectPurchaseDate, onChangeItem, reasons]
+    [deleteItemsWarranty, onChangeItem, reasons]
   );
 
   const handleCreateCallback = (data: any) => {
@@ -720,9 +719,6 @@ function CreateWarranty(props: Props) {
               }
             });
             setWarrantyItems(newWarrantyItems);
-            if(data.finalized_on) {
-              setIsDisableSelectPurchaseDate(true)
-            }
           }
         }));
       }
