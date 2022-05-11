@@ -133,8 +133,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const [dataUploadError, setDataUploadError] = useState<string[]>([]);
 
   const [printContent, setPrintContent] = useState<string>("");
-  const [total, setTotal] = useState<number>(0);
-  const [totalProduct, setTotalProduct] = useState<number>(0);
   const pageBreak = "<div class='pageBreak'></div>";
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
@@ -288,7 +286,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         return (
           <>
             <div>SP</div>
-            <div>({formatCurrency(totalProduct)})</div>
+            <div>({formatCurrency(0)})</div>
           </>
         );
       },
@@ -305,7 +303,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         return (
           <>
             <div>SL</div>
-            <div>({formatCurrency(total)})</div>
+            <div>({formatCurrency(0)})</div>
           </>
         );
       },
@@ -528,7 +526,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         firstLoad = false;
       }
     },
-    []
+    [columns]
   );
 
   const getAccounts = async (codes: string) => {
