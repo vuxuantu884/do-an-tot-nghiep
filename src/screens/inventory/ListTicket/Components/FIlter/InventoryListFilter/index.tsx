@@ -193,8 +193,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
     formSearchRef?.current?.setFieldsValue({
       condition: "",
-      from_store_id: '',
-      to_store_id: '',
+      from_store_id: [],
+      to_store_id: [],
     })
 
     setVisible(false);
@@ -628,6 +628,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   setActiveButton={setDateClick}
                   formRef={formRef}
                 />
+              </Col>
+            </Row>
+            <Row gutter={12} className="margin-top-20">
+              <Col span={12}>
+                <Item name="note" label="Ghi chú">
+                  <Input className="w-100" />
+                </Item>
               </Col>
             </Row>
           </BaseFilterWrapper>
