@@ -58,7 +58,7 @@ function CardReturnProductContainer(props: PropTypes) {
 
 
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
-  const [pointRefund, setPointRefund] = useState(0);
+  
 
   const listReturnProducts = createOrderReturnContext?.return.listReturnProducts;
   const listItemCanBeReturn = createOrderReturnContext?.return.listItemCanBeReturn;
@@ -67,8 +67,8 @@ function CardReturnProductContainer(props: PropTypes) {
   const setTotalAmountReturnProducts =
     createOrderReturnContext?.return.setTotalAmountReturnProducts;
   const totalAmountReturnProducts = createOrderReturnContext?.return.totalAmountReturnProducts;
-  const moneyRefund = createOrderReturnContext?.return.moneyRefund;
-  const setMoneyRefund = createOrderReturnContext?.return.setMoneyRefund;
+  const refund = createOrderReturnContext?.return.refund;
+  const setRefund = createOrderReturnContext?.return.setRefund;
   const OrderDetail = createOrderReturnContext?.orderDetail;
   // const listOrderProducts = OrderDetail?.items;
   const isExchange = createOrderReturnContext?.isExchange;
@@ -415,24 +415,30 @@ function CardReturnProductContainer(props: PropTypes) {
                   // setIsAlreadyShowWarningPoint(true)
                 }
               }
-              setPointRefund(response.point_refund);
-              if (setMoneyRefund) {
-                setMoneyRefund(response.money_refund);
+              if (setRefund) {
+                setRefund({
+                  ...refund,
+                  pointRefund: response.point_refund,
+                  moneyRefund: response.money_refund,
+                });
               }
             })
           );
           
         }, 500);
       } else {
-        setPointRefund(0);
-        if (setMoneyRefund) {
-          setMoneyRefund(0);
+        if (setRefund) {
+          setRefund({
+            ...refund,
+            pointRefund: 0,
+            moneyRefund: 0,
+          });
         }
       }
     }
   // bỏ isAlreadyShowWarningPoint
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setIsVisibleModalWarningPointRefund, setMoneyRefund]);
+  }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setIsVisibleModalWarningPointRefund, setRefund]);
 
   useEffect(() => {
     if (!listReturnProducts) {
@@ -447,8 +453,8 @@ function CardReturnProductContainer(props: PropTypes) {
         result = getTotalPrice(listReturnProducts);
       }
     } else {
-      if (moneyRefund) {
-        result = moneyRefund;
+      if (refund?.moneyRefund) {
+        result = refund?.moneyRefund;
       }
     }
 
@@ -459,7 +465,7 @@ function CardReturnProductContainer(props: PropTypes) {
     OrderDetail?.payments,
     getTotalPrice,
     listReturnProducts,
-    moneyRefund,
+    refund?.moneyRefund,
     setTotalAmountReturnProducts,
   ]);
 
@@ -474,7 +480,7 @@ function CardReturnProductContainer(props: PropTypes) {
       onChangeProductQuantity={onChangeProductQuantity}
       onChangeProductSearchValue={onChangeProductSearchValue}
       onSelectSearchedVariant={onSelectSearchedVariant}
-      pointUsing={pointRefund}
+      pointUsing={refund?.pointRefund}
       searchVariantInputValue={searchVariantInputValue}
       totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={true}

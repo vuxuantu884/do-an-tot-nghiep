@@ -232,7 +232,7 @@ function CardReturnProducts(props: PropTypes) {
       render: (value: number, record: ReturnProductModel, index: number) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
         const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
-        const pricePerOrder = record.price - discountPerProduct - discountPerOrder;
+        const pricePerOrder = Math.ceil(record.price - discountPerProduct - discountPerOrder);
         return (
           <Popover
             content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}

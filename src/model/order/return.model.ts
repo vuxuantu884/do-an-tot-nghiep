@@ -68,3 +68,8 @@ export interface ReturnCalculateRefundModel {
   money_refund: number; 
   point_refund: number; 
 }
+
+export interface RefundModel {
+  moneyRefund: number; 
+  pointRefund: number; 
+}

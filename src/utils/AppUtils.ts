@@ -1159,7 +1159,7 @@ export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
 	product.discount_items.forEach((single) => {
 		discountPerProduct += single.value;
 	});
-	return discountPerProduct;
+	return Math.ceil(discountPerProduct);
 };
 
 export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: ReturnProductModel) => {
@@ -1172,7 +1172,7 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	});
 	product.discount_value = getLineItemDiscountValue(product)
 	discountPerOrder =
-		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
+		Math.ceil(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
 	return discountPerOrder;
 }
 

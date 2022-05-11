@@ -45,6 +45,7 @@ import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
+import { RefundModel } from "model/order/return.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -96,6 +97,7 @@ import {
   getAmountPayment,
   getAmountPaymentRequest,
   getListItemsCanReturn,
+  getTotalAmount,
   getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleDelayActionWhenInsertTextInSearchInput,
@@ -255,7 +257,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
     RETURN_MONEY_TYPE.return_now,
   );
 
-  const [moneyRefund, setMoneyRefund] = useState(0);
+  const [refund, setRefund] = useState<RefundModel>({
+    moneyRefund: 0,
+    pointRefund: 0,
+  })
 
   // const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
   //   chonCuaHangTruocMoiChonSanPham: false,
@@ -624,16 +629,74 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return  items.filter((single) => {
       return single.quantity > 0;
     });
-  }, [listReturnProducts])
+  }, [listReturnProducts]);
+
+  console.log('refund', refund)
+
+  const getPaymentOfReturn = useMemo(() => {
+    let result: OrderPaymentRequest[] = [];
+    if(refund.moneyRefund > 0) {
+      const moneyPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
+      if(moneyPayment) {
+        result.push({
+          payment_method_id: moneyPayment.id,
+          payment_method: moneyPayment.name,
+          amount: Math.ceil(refund.moneyRefund),
+          reference: "",
+          source: "",
+          paid_amount: Math.ceil(refund.moneyRefund),
+          return_amount: 0,
+          status: "paid",
+          customer_id: customer?.id || null,
+          type: "",
+          note: "Tiền đơn trả",
+          code: "",
+        })
+      }
+    }
+    if(refund.pointRefund > 0) {
+      const pointPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.POINT);
+      const pointPaymentFromOrderDetail = OrderDetail?.payments?.filter(single => single.payment_method_code === PaymentMethodCode.POINT);
+      let pointRateFromOrderDetail = 0;
+      let totalAmountPoint = 0;
+      let totalPoint = 0;
+      let amountPointReturn =0;
+      if(pointPaymentFromOrderDetail) {
+        pointPaymentFromOrderDetail.forEach(single => {
+          totalAmountPoint = totalAmountPoint + single.paid_amount;
+          totalPoint = totalPoint + (single?.point || 0);
+        })
+      }
+      if(totalPoint > 0) {
+        pointRateFromOrderDetail = totalAmountPoint / totalPoint;
+      }
+      if(pointPayment) {
+        amountPointReturn = refund.pointRefund * pointRateFromOrderDetail;
+        result.push({
+          payment_method_id: pointPayment.id,
+          payment_method: pointPayment.name,
+          amount: Math.ceil(amountPointReturn),
+          reference: "",
+          source: "",
+          paid_amount: Math.ceil(amountPointReturn),
+          point: refund.moneyRefund,
+          return_amount: 0,
+          status: "paid",
+          customer_id: customer?.id || null,
+          type: "",
+          note: "Điểm đơn trả",
+          code: "",
+        })
+      }
+    }
+    return result;
+  }, [customer?.id, listPaymentMethods, refund.moneyRefund])
 
   const handleSubmitFormReturn = useCallback(() => {
     let formValue = form.getFieldsValue();
-
     if (OrderDetail && listReturnProducts) {
-      
+
       let payments: OrderPaymentRequest[] | null = [];
-      // tính toán lại discount
-      let discounts = handleRecalculateOriginDiscount(returnItems);
       if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
         const formReturnMoney = formValue.returnMoneyField[0];
         let returnMoneyMethod = listPaymentMethods.find((single) => {
@@ -644,10 +707,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
-              amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
+              amount: Math.abs(totalAmountCustomerNeedToPay),
               reference: "",
               source: "",
-              paid_amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
+              paid_amount: Math.abs(totalAmountCustomerNeedToPay),
               return_amount: 0.0,
               status: "paid",
               customer_id: customer?.id || null,
@@ -658,6 +721,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
           ];
         }
       }
+
+      console.log('payments111', payments)
+      // tính toán lại discount
+      let discounts = handleRecalculateOriginDiscount(returnItems);
+      
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
@@ -739,29 +807,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         ),
       );
     }
-  }, [
-    OrderDetail,
-    customer?.id,
-    dispatch,
-    form,
-    getChannelIdReturn,
-    handlePrintOrderReturnOrExchange,
-    handleRecalculateOriginDiscount,
-    history,
-    isReceivedReturnProducts,
-    listPaymentMethods,
-    listReturnProducts,
-    orderReturnReasonResponse?.id,
-    orderReturnReasonResponse?.sub_reasons,
-    orderReturnType,
-    printType.return,
-    recentAccountCode.accountCode,
-    returnMoneyType,
-    storeReturn,
-    totalAmountCustomerNeedToPay,
-    totalAmountReturnProducts,
-    returnItems
-  ]);
+  }, [OrderDetail, customer?.id, dispatch, form, getChannelIdReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, history, isReceivedReturnProducts, listPaymentMethods, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, returnItems, returnMoneyType, storeReturn, totalAmountCustomerNeedToPay, totalAmountReturnProducts]);
 
   const checkIfHasReturnProduct = listReturnProducts.some((single) => {
     return single.quantity > 0;
@@ -915,7 +961,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         discounts: handleRecalculateOriginDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail.assignee_code || null,
-        total: Math.floor(totalAmountReturnProducts),
+        total: Math.floor(getTotalAmount(itemsResult)),
         total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.floor(
           getTotalAmountAfterDiscount(itemsResult),
@@ -934,39 +980,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
       const order_return = cloneDeep(orderDetailResult);
       order_return.fulfillments = [];
-      order_return.items = returnItems;
-      order_return.total = Math.ceil(totalAmountReturnProducts);
-      order_return.total_discount = discountValue;
-      let payments: OrderPaymentRequest[] | null = [];
-      if (
-        totalAmountCustomerNeedToPay < 0 &&
-        returnMoneyType === RETURN_MONEY_TYPE.return_now
-      ) {
-        let formValue = form.getFieldsValue();
-        const formReturnMoney = formValue.returnMoneyField[0];
-        let returnMoneyMethod = listPaymentMethods.find((single) => {
-          return single.code === formReturnMoney.returnMoneyMethod;
-        });
-        if (returnMoneyMethod) {
-          payments = [
-            {
-              payment_method_id: returnMoneyMethod.id,
-              payment_method: returnMoneyMethod.name,
-              amount: Math.abs(totalAmountCustomerNeedToPay),
-              reference: "",
-              source: "",
-              paid_amount: Math.abs(totalAmountCustomerNeedToPay),
-              return_amount: 0.0,
-              status: "paid",
-              customer_id: customer?.id || null,
-              type: "",
-              note: formReturnMoney.returnMoneyNote || "",
-              code: "",
-            },
-          ];
-        }
-      }
-      order_return.payments = payments;
+      order_return.items = itemsResult;
+      order_return.payments = getPaymentOfReturn;
 
       let values: OrderRequest = form.getFieldsValue();
       let order_exchange = onFinish(values);
@@ -989,7 +1004,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       order_exchange.fulfillments = createFulFillmentRequest(values);
       order_exchange.items = listExchangeProducts;
       order_exchange.items = listExchangeProducts.concat(itemGifts);
-      order_exchange.payments = [];
+      order_exchange.payments = payments;
       const valuesExchange = {
         origin_order_id,
         order_return,
@@ -1366,12 +1381,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
       );
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      if (totalAmountCustomerNeedToPay > 0) {
-        values.payments = payments.filter((payment) => payment.amount > 0);
-      } else {
-        values.payments = [];
-      }
-      console.log("totalAmountExchangeFinal", totalAmountExchangeFinal);
       values.total = Math.ceil(totalAmountOrder);
       if (
         values?.fulfillments &&
@@ -1398,6 +1407,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       values.customer_id = customer?.id;
       values.total_line_amount_after_line_discount =
         total_line_amount_after_line_discount;
+      values.total_discount = discountValue;
       values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
       values.currency = OrderDetail ? OrderDetail.currency : null;
       values.account_code = OrderDetail ? OrderDetail.account_code : null;
@@ -1421,26 +1431,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       return values;
     },
 
-    [
-      OrderDetail,
-      billingAddress,
-      createDiscountRequest,
-      createFulFillmentRequest,
-      customer?.id,
-      form,
-      getOrderSource,
-      listExchangeProducts,
-      orderReturnType,
-      payments,
-      shippingAddress,
-      shippingAddressesSecondPhone,
-      tags,
-      totalAmountCustomerNeedToPay,
-      totalAmountExchangeFinal,
-      totalAmountOrder,
-      totalAmountReturnProducts,
-      itemGifts,
-    ],
+    [OrderDetail, billingAddress, createDiscountRequest, createFulFillmentRequest, customer?.id, discountValue, form, getOrderSource, itemGifts, listExchangeProducts, orderReturnType, payments, shippingAddress, shippingAddressesSecondPhone, tags, totalAmountOrder, totalAmountReturnProducts],
   );
 
   const handleCancel = () => {
@@ -1490,8 +1481,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       listReturnProducts,
       setListReturnProducts,
       setTotalAmountReturnProducts,
-      moneyRefund,
-      setMoneyRefund,
+      refund,
+      setRefund,
       totalAmountReturnProducts,
       totalAmountExchange,
       totalAmountCustomerNeedToPay,
