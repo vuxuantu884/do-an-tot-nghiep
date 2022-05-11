@@ -809,17 +809,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }
 
   useEffect(() => {
-    console.log('start')
     setTableLoading(true);
     if (activeTab === '') return;
 
     let status: string[] = [];
     switch (activeTab) {
-      case InventoryTransferTabUrl.LIST_CONFIRMED:
-        status = ['confirmed'];
-        break;
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING:
         status = ['transferring'];
         break;
       default: break;
@@ -829,30 +824,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       ...params,
       status: params.status.length > 0 ? params.status : status,
     };
-    if (accountStores?.length === 0) {
-      dispatch(getListInventoryTransferAction(newParams, setSearchResult));
-      return;
-    }
-
-    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
-
-    switch (activeTab) {
-      // case InventoryTransferTabUrl.LIST:
-      case InventoryTransferTabUrl.LIST_CONFIRMED:
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-        newParams = {
-          ...newParams,
-          from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected || null
-        };
-        break;
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
-        newParams = {
-          ...newParams,
-          to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected || null
-        };
-        break;
-      default: break;
-    }
 
     let queryParam = generateQuery(newParams);
     history.push(`${history.location.pathname}?${queryParam}`);
