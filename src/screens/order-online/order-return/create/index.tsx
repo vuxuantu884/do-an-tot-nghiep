@@ -45,7 +45,7 @@ import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
-import { thirdPLModel } from "model/order/shipment.model";
+import { ThirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -174,6 +174,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     (state: RootReducerType) => state.userReducer,
   );
 
+  // nếu thay đổi rồi thì ko fill tiền nữa
   const isPaymentAlreadyChanged = useSelector(
     (state: RootReducerType) =>
       state.orderReducer.orderPayment.isAlreadyChanged,
@@ -227,7 +228,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [isAlreadyShowWarningPoint, setIsAlreadyShowWarningPoint] =
     useState(false);
 
-  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+  const [thirdPL, setThirdPL] = useState<ThirdPLModel>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
     insurance_fee: null,
@@ -430,12 +431,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = totalAmountOrder - totalAmountReturnProducts;
+    let result = Math.ceil(totalAmountOrder - totalAmountReturnProducts);
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
 
   let totalAmountOrderAfterPayments = useMemo(() => {
-    let result = totalAmountCustomerNeedToPay - totalAmountPayment;
+    let result = Math.ceil(totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
@@ -695,8 +696,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
         assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
         reference_code: "",
-        customer_note: "",
-        note: "",
+        customer_note: form.getFieldValue("customer_note"),
+        note: form.getFieldValue("note"),
         url: "",
         tags: null,
         type: orderReturnType,
@@ -766,35 +767,38 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return single.quantity > 0;
   });
 
-  const onReturn = () => {
-    if (!storeReturn) {
-      showError("Vui lòng chọn cửa hàng để trả!");
-      const element: any = document.getElementById("selectStoreReturn");
-      scrollAndFocusToDomElement(element);
-      return;
-    }
-    if (!checkIfHasReturnProduct) {
-      showError("Vui lòng chọn ít nhất 1 sản phẩm!");
-      const element: any = document.getElementById("search_product");
-      scrollAndFocusToDomElement(element);
-      return;
-    }
-    form
-      .validateFields()
-      .then(() => {
-        if (isReceivedReturnProducts) {
-          handleSubmitFormReturn();
-        } else {
-          setIsVisibleModalWarning(true);
-        }
-      })
-      .catch((error) => {
-        const element: any = document.getElementById(
-          error.errorFields[0].name.join(""),
-        );
+  const onReturn = useCallback(
+    () => {
+      if (!storeReturn) {
+        showError("Vui lòng chọn cửa hàng để trả!");
+        const element: any = document.getElementById("selectStoreReturn");
         scrollAndFocusToDomElement(element);
-      });
-  };
+        return;
+      }
+      if (!checkIfHasReturnProduct) {
+        showError("Vui lòng chọn ít nhất 1 sản phẩm!");
+        const element: any = document.getElementById("search_product");
+        scrollAndFocusToDomElement(element);
+        return;
+      }
+      form
+        .validateFields()
+        .then(() => {
+          if (isReceivedReturnProducts) {
+            handleSubmitFormReturn();
+          } else {
+            setIsVisibleModalWarning(true);
+          }
+        })
+        .catch((error) => {
+          const element: any = document.getElementById(
+            error.errorFields[0].name.join(""),
+          );
+          scrollAndFocusToDomElement(element);
+        });
+    },
+    [checkIfHasReturnProduct, form, handleSubmitFormReturn, isReceivedReturnProducts, storeReturn],
+  )
 
   const handleCreateOrderExchangeByValue = (
     valuesExchange: ExchangeRequest,
@@ -825,6 +829,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return false;
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSubmitFormReturnAndExchange = () => {
     let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
       return single.quantity > 0;
@@ -922,7 +927,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         url: "",
         tags: null,
         type: orderReturnType,
-        channel_id: getChannelIdExchange(OrderDetail),
+        channel_id: getChannelIdReturn(OrderDetail),
 
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
       };
@@ -1029,8 +1034,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
   };
 
-  const onReturnAndExchange = async () => {
-    form
+  const onReturnAndExchange = useCallback(
+    () => {
+      form
       .validateFields()
       .then(() => {
         if (isReceivedReturnProducts) {
@@ -1048,7 +1054,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
           scrollAndFocusToDomElement(element);
         }
       });
-  };
+    },
+    [form, handleSubmitFormReturnAndExchange, isReceivedReturnProducts],
+  )
 
   const getOrderSource = useCallback(
     (form: FormInstance<any>) => {
@@ -1409,8 +1417,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
       values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
       values.url = OrderDetail ? OrderDetail.url : null;
       values.reference_code = OrderDetail ? OrderDetail.reference_code : null;
-      values.note = OrderDetail ? OrderDetail.note : null;
-      values.customer_note = OrderDetail ? OrderDetail.customer_note : null;
 
       return values;
     },
@@ -1682,14 +1688,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   form={form}
                 />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
-                {isExchange ? (
-                  <Card title="THÔNG TIN BỔ SUNG CẬP NHẬT">
-                    <CreateOrderSidebarOrderExtraInformation
-                      onChangeTag={onChangeTag}
-                      tags={tags}
-                    />
-                  </Card>
-                ) : null}
+                <Card title="THÔNG TIN BỔ SUNG CẬP NHẬT">
+                  <CreateOrderSidebarOrderExtraInformation
+                    onChangeTag={onChangeTag}
+                    tags={tags}
+                    isExchange = {isExchange}
+                  />
+                </Card>
               </Col>
             </Row>
           </Form>
@@ -1864,20 +1869,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
             }
           }
         }
-        // else if(event.key!=="Enter"){
-        //   const searchProductReturnElement:any= document.getElementById("search_product_return");
-        //   const txtSearchProductReturn=searchProductReturnElement?.value;
-        //   if (txtSearchProductReturn && txtSearchProductReturn.length>=3) {
-        //     let result = listItemCanBeReturn.filter((single) => {
-        //       return (
-        //         fullTextSearch(searchVariantInputValue, single.variant) ||
-        //         fullTextSearch(searchVariantInputValue, single.sku)
-        //       );
-        //     });
-
-        //     setListOrderProductsResult(result);
-        //   }
-        // }
       };
 
       if (event.target instanceof HTMLInputElement) {
