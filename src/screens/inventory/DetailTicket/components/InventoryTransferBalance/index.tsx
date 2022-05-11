@@ -155,7 +155,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
               }
             }}
           >
-            Cân bằng nhanh
+            Nhận lại tồn chênh lệch
           </Button>,
         ]}
       >

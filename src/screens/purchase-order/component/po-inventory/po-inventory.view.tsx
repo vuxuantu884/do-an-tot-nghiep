@@ -1,8 +1,10 @@
-import { Form, FormInstance, Row, Space } from "antd";
+import { Col, Form, FormInstance, Row, Space } from "antd";
 import classNames from "classnames";
+import CustomDatePicker from "component/custom/date-picker.custom"
 import { POField } from "model/purchase-order/po-field";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
-import React, { lazy, useCallback } from "react";
+import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
+import moment from "moment";
+import React, { lazy, useCallback, useEffect, useState } from "react";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import POProgressView from "../po-progress-view";
 
@@ -21,6 +23,7 @@ type POInventoryViewProps = {
   activeTab: number;
   selectTabChange: (id: number) => void;
   form: FormInstance;
+  isEditDetail?: boolean;
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
@@ -35,8 +38,12 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
     tabs,
     activeTab,
     selectTabChange,
-    form
+    form,
+    isEditDetail,
   } = props;
+  const [procumentView, setProcumentView] = useState<
+    Array<PurchaseProcurementViewDraft>
+  >([]);
   const getComponent = useCallback(
     (id: number) => {
       switch (id) {
@@ -64,6 +71,14 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
     }
   }
 
+  useEffect(() => {
+    let procurements: Array<PurchaseProcurementViewDraft> = form.getFieldValue(
+      POField.procurements
+    ) || [];
+    setProcumentView([...procurements]);
+
+  }, [form]);
+
   return (
     <React.Fragment>
       <Form.Item
@@ -87,35 +102,52 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           );
         }}
       </Form.Item>
-      <Row>
+      <Row align="middle">
         <div
           className="po-inven-view"
           style={{ borderBottom: "1px solid #2A2A86" }}
         >
-          <Space size={15}>
-            {tabs.map((item) => (
-              <div
-                className={classNames(
-                  "po-inven-view-tab",
-                  activeTab === item.id && "active"
-                )}
-                key={item.id}
-              >
+          <Col span={16}>
+            <Space size={15}>
+              {tabs.map((item) => (
                 <div
-                  onClick={() => {
-                    selectTabChange(item.id);
-                  }}
-                  className="tab"
+                  className={classNames(
+                    "po-inven-view-tab",
+                    activeTab === item.id && "active"
+                  )}
+                  key={item.id}
                 >
-                  <img src={item.icon} className="tab-icon" alt="icon"></img>
-                  <span>{item.name}</span>
+                  <div
+                    onClick={() => {
+                      selectTabChange(item.id);
+                    }}
+                    className="tab"
+                  >
+                    <img src={item.icon} className="tab-icon" alt="icon"></img>
+                    <span>{item.name}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </Space>
-          <div style={{marginLeft: "auto"}}>
-            <p>Ngày nhận dự kiến: <b>{getExpectReceiptDate()}</b></p>
-          </div>
+              ))}
+            </Space>
+          </Col>
+          <Col style={{ marginLeft: "auto" }} span={5}>
+            <div >
+              {isEditDetail ? (
+                <>
+                  <Form.Item
+                    name={[POField.procurements, 0, POField.expect_receipt_date]}
+                  >
+                    <CustomDatePicker
+                      value={procumentView.length > 0 && procumentView[0] ? procumentView[0].expect_receipt_date : undefined}
+                      disableDate={(date) => date <= moment().startOf("days")}
+                      format={DATE_FORMAT.DDMMYYY}
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </>) :
+                (<p style={{margin: 0}}>Ngày nhận dự kiến: <b>{getExpectReceiptDate()}</b></p>)}
+            </div>
+          </Col>
         </div>
       </Row>
       {tabs.map((item) => (

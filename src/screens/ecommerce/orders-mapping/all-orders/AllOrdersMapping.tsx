@@ -280,8 +280,8 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
 
   const onPageChange = useCallback(
     (page, limit) => {
-      let newPrams = { ...params, page, limit };
-      let queryParam = generateQuery(newPrams);
+      const newParams = { ...params, page, limit };
+      const queryParam = generateQuery(newParams);
 			history.push(`${location.pathname}?${queryParam}`);
     },
     [history, location.pathname, params]
@@ -289,14 +289,16 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
 
   const onFilter = useCallback(
     (values) => {
-      const newPrams = { ...params, ...values, page: 1 };
-      let currentParam = generateQuery(params);
-      let queryParam = generateQuery(newPrams);
+      let newParams = { ...params, ...values };
+      const queryParam = generateQuery(newParams);
+      const currentParam = generateQuery(params);
 
       if (currentParam === queryParam) {
-        getOrderMappingList(newPrams);
+        getOrderMappingList(newParams);
       } else {
-				history.push(`${location.pathname}?${queryParam}`);
+        newParams.page = 1;
+        const newQueryParam = generateQuery(newParams);
+        history.push(`${location.pathname}?${newQueryParam}`);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -304,7 +306,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   );
 
   const onClearFilter = useCallback(() => {
-    setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);

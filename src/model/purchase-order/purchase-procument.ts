@@ -88,6 +88,10 @@ const POProcumentField = {
   activated_by: "activated_by",
   stock_in_date: "stock_in_date",
   stock_in_by: "stock_in_by",
+  supplier_id: "supplier_id",
+  supplier: "supplier",
+  supplier_phone: "supplier_phone",
+  po_code: "po_code",
 };
 
 const POProcumentLineItemField = {
@@ -131,6 +135,17 @@ export interface ImportProcument {
 export interface ProcurementConfirm {
   procurement_items: Array<PurchaseProcumentLineItem>;
   refer_ids: Array<number>
+}
+
+export interface ProcurementManual {
+  reference: string;
+  store_id: number;
+  store: string;
+  expect_receipt_date?: string;
+  note?: string;
+  status: string;
+  is_cancelled: boolean;
+  procurement_items: Array<PurchaseProcumentLineItem>;
 }
 
 export { POProcumentField, POProcumentLineItemField };

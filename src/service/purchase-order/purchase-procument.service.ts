@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { ImportProcument, ProcurementConfirm, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { ImportProcument, ProcurementConfirm, ProcurementManual, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { generateQuery } from "utils/AppUtils";
 
 export const createPurchaseProcumentService = (
@@ -119,6 +119,16 @@ export const updatePurchaseProcumentNoteService = (
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}/update-note`,
+    data
+  );
+};
+
+export const createPurchaseProcumentManualService = (
+  poId: number,
+  data: ProcurementManual
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.post(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/create-manual`,
     data
   );
 };
