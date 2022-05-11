@@ -110,7 +110,7 @@ export interface ShipmentSearchQuery {
   reason_ids: [];
 }
 
-export interface ThirdPLModel {
+export interface thirdPLModel {
   delivery_service_provider_code: string | null;
   delivery_service_provider_id: number | null;
   insurance_fee: number | null;

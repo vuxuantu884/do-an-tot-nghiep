@@ -45,7 +45,7 @@ import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
-import { ThirdPLModel } from "model/order/shipment.model";
+import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -228,7 +228,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [isAlreadyShowWarningPoint, setIsAlreadyShowWarningPoint] =
     useState(false);
 
-  const [thirdPL, setThirdPL] = useState<ThirdPLModel>({
+  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
     insurance_fee: null,
@@ -1693,6 +1693,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     onChangeTag={onChangeTag}
                     tags={tags}
                     isExchange = {isExchange}
+                    isReturn
                   />
                 </Card>
               </Col>
