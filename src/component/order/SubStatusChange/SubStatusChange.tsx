@@ -8,13 +8,16 @@ import { StyledComponent } from "./SubStatusChange.styles";
 type PropTypes = {
   orderId?: number;
   toSubStatus?: string;
+  isEcommerceOrder?: boolean;
+  reasonId?: number;
+  subReasonRequireWarehouseChange?: number;
   changeSubStatusCallback: (value: string) => void;
   setToSubStatusCode: (value: string | undefined) => void;
 };
 
 let isConfirmedChangeSubStatus = false;
 function SubStatusChange(props: PropTypes): JSX.Element {
-  const { orderId, toSubStatus, changeSubStatusCallback, setToSubStatusCode } = props;
+  const { orderId, toSubStatus, changeSubStatusCallback, setToSubStatusCode, isEcommerceOrder, reasonId, subReasonRequireWarehouseChange } = props;
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [subText, setSubText] = useState("");
 
@@ -66,7 +69,9 @@ function SubStatusChange(props: PropTypes): JSX.Element {
             () => {
               resetValues();
               setToSubStatusCode(undefined);
-            }
+            },
+            (isEcommerceOrder && toSubStatus === ORDER_SUB_STATUS.require_warehouse_change) ? reasonId : undefined,
+            (isEcommerceOrder && toSubStatus === ORDER_SUB_STATUS.require_warehouse_change) ? subReasonRequireWarehouseChange : undefined,
           )
         );
       }
@@ -79,6 +84,9 @@ function SubStatusChange(props: PropTypes): JSX.Element {
     resetValues,
     setToSubStatusCode,
     toSubStatus,
+    isEcommerceOrder,
+    reasonId,
+    subReasonRequireWarehouseChange,
   ]);
 
   useEffect(() => {

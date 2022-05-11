@@ -7,6 +7,7 @@ import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { StyledComponent } from "./change-order-status.moda.styles";
 
 type PropTypes = {
+  isEcommerceOrder?: boolean;
   visible: boolean;
   onCancelChangeStatusModal: () => void;
   handleConfirmOk: (status: string | undefined) => void;
@@ -16,6 +17,7 @@ type PropTypes = {
 
 function ChangeOrderStatusModal(props: PropTypes) {
   const {
+    isEcommerceOrder,
     visible,
     onCancelChangeStatusModal,
     listOrderProcessingStatus,
@@ -48,7 +50,7 @@ function ChangeOrderStatusModal(props: PropTypes) {
               },
               {
                 validator: async (_, value) => {
-                  if (value === ORDER_SUB_STATUS.require_warehouse_change) {
+                  if (value === ORDER_SUB_STATUS.require_warehouse_change && !isEcommerceOrder) {
                     return Promise.reject(
                       new Error(
                         "Trạng thái đổi kho hàng cần vào chi tiết đơn để thực hiện!",
