@@ -808,6 +808,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }
 
   useEffect(() => {
+    console.log('start')
     setTableLoading(true);
     if (activeTab === '') return;
 
@@ -857,7 +858,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
     dispatch(getListInventoryTransferAction(newParams, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, setSearchResult, activeTab, params, accountStores]);
+  }, [dispatch, activeTab, params, accountStores]);
 
   return (
     <InventoryTransferTabWrapper>
