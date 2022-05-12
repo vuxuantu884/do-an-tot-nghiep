@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Button, Col, Form, Row } from "antd";
@@ -20,6 +20,10 @@ const CreateSupplierScreen: React.FC = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const history = useHistory();
+  
+  useEffect(() => {
+    form.resetFields()
+  },[form])
 
   const [allowCreateSup] = useAuthorization({
     acceptPermissions: [SuppliersPermissions.CREATE],

@@ -113,6 +113,22 @@ const SupplierBasicInfo = ({
     });
   };
 
+  const onChangeInput = (value: string, name: string): string => {
+    const fields = form.getFieldsValue()
+    const { contacts } = fields
+    if (name === FormFields.name) {
+      contacts[0][FormFields.name] = value
+      // Object.assign(contacts[0], { [FormFields.name]: value })
+    } else if (name === FormFields.phone) {
+      // Object.assign(contacts[0], { [FormFields.phone]: value })
+      contacts[0][FormFields.phone] = value
+    }
+    form.setFieldsValue({
+      contacts
+    })
+    return value
+  }
+
   const renderSelectOptions = ({ placeholder, ...rest }: Partial<IFormControl>) => {
     return (
       <BaseSelect
@@ -160,7 +176,7 @@ const SupplierBasicInfo = ({
             }
             return rule;
           })}>
-          <Input {...{ placeholder, disabled }} />
+          <Input {...{ placeholder, disabled }} onChange={(e) => onChangeInput(e.target.value, name)} />
         </Item>
       ),
       [ComponentType.Select]: (

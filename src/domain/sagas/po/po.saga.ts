@@ -52,8 +52,8 @@ function* poCreateSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        createCallback(null);
         response.errors.forEach((e) => showError(e));
+        createCallback(null);
         break;
     }
   } catch (error) {
