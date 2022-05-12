@@ -54,8 +54,8 @@ import {PrinterInventoryTransferResponseModel} from "model/response/printer.resp
 import {actionFetchPrintFormByInventoryTransferIds} from "domain/actions/printer/printer.action";
 import {InventoryTransferPermission} from "config/permissions/inventory-transfer.permission";
 import useAuthorization from "hook/useAuthorization";
-import { callApiNative } from "../../../../../utils/ApiUtils";
-import { searchAccountPublicApi } from "../../../../../service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import TransferExport from "../../Components/TransferExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import {
@@ -85,8 +85,8 @@ const initQuery: InventoryTransferSearchQuery = {
   page: 1,
   limit: 30,
   condition: null,
-  from_store_id: null,
-  to_store_id: null,
+  from_store_id: [],
+  to_store_id: [],
   status: [],
   from_total_variant: null,
   to_total_variant: null,
@@ -94,6 +94,7 @@ const initQuery: InventoryTransferSearchQuery = {
   to_total_quantity: null,
   from_total_amount: null,
   to_total_amount: null,
+  note: null,
   created_by: [],
   from_created_date: null,
   to_created_date: null,
@@ -285,24 +286,38 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       width: 100,
     },
     {
-      title: "SP",
+      title: () => {
+        return (
+          <>
+            <div>SP</div>
+            <div>({formatCurrency(0)})</div>
+          </>
+        );
+      },
       dataIndex: "total_variant",
       visible: true,
       align: "right",
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 60,
+      width: 100,
     },
     {
-      title: "SL",
+      title: () => {
+        return (
+          <>
+            <div>SL</div>
+            <div>({formatCurrency(0)})</div>
+          </>
+        );
+      },
       dataIndex: "total_quantity",
       visible: true,
       align: "right",
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 60,
+      width: 100,
     },
     {
       title: "Thành tiền",
@@ -451,6 +466,63 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     (result: PageResponse<Array<InventoryTransferDetailItem>> | false) => {
       setTableLoading(false);
       if (!!result) {
+        if (result.items.length > 0) {
+          let total = 0
+          let totalProduct = 0;
+
+          result.items.forEach((item: any) => {
+            total = total + item.total_quantity;
+            totalProduct = totalProduct + item.total_variant;
+          });
+
+          const newColumns = [...columns];
+
+          for (let i = 0; i < newColumns.length; i++) {
+            if (newColumns[i].dataIndex === 'total_quantity') {
+              newColumns[i] = {
+                // eslint-disable-next-line no-loop-func
+                title: () => {
+                  return (
+                    <>
+                      <div>SL</div>
+                      <div>({formatCurrency(total)})</div>
+                    </>
+                  );
+                },
+                dataIndex: "total_quantity",
+                visible: true,
+                align: "right",
+                render: (value: number) => {
+                  return formatCurrency(value,".");
+                },
+                width: 60,
+              };
+            }
+            if (newColumns[i].dataIndex === 'total_variant') {
+              newColumns[i] = {
+                // eslint-disable-next-line no-loop-func
+                title: () => {
+                  return (
+                    <>
+                      <div>SP</div>
+                      <div>({formatCurrency(totalProduct)})</div>
+                    </>
+                  );
+                },
+                dataIndex: "total_variant",
+                visible: true,
+                align: "right",
+                render: (value: number) => {
+                  return formatCurrency(value,".");
+                },
+                width: 60,
+              };
+            }
+          }
+
+          setColumn(newColumns);
+        }
+
         setData(result);
         if (firstLoad) {
           setTotalItems(result.metadata.total);
@@ -458,7 +530,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         firstLoad = false;
       }
     },
-    []
+    [columns]
   );
 
   const getAccounts = async (codes: string) => {
@@ -721,7 +793,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           item=item.concat(convertTransferDetailExport(res[i],res[i].line_items));
         }
         const ws = XLSX.utils.json_to_sheet(item);
-         
+
         XLSX.utils.book_append_sheet(workbook, ws, 'data');
       }else{
         for (let i = 0; i < res.length; i++) {
@@ -759,11 +831,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
     let status: string[] = [];
     switch (activeTab) {
-      case InventoryTransferTabUrl.LIST_CONFIRMED:
-        status = ['confirmed'];
-        break;
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING:
         status = ['transferring'];
         break;
       default: break;
@@ -773,37 +841,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       ...params,
       status: params.status.length > 0 ? params.status : status,
     };
-    if (accountStores?.length === 0) {
-      dispatch(getListInventoryTransferAction(newParams, setSearchResult));
-      return;
-    }
-
-    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
-
-    switch (activeTab) {
-      // case InventoryTransferTabUrl.LIST:
-      case InventoryTransferTabUrl.LIST_CONFIRMED:
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-        newParams = {
-          ...newParams,
-          from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected || null
-        };
-        break;
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
-        newParams = {
-          ...newParams,
-          to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected || null
-        };
-        break;
-      default: break;
-    }
 
     let queryParam = generateQuery(newParams);
     history.push(`${history.location.pathname}?${queryParam}`);
 
     dispatch(getListInventoryTransferAction(newParams, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, setSearchResult, activeTab, params, accountStores]);
+  }, [dispatch, activeTab, params, accountStores]);
 
   return (
     <InventoryTransferTabWrapper>

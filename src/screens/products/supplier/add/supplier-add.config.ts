@@ -211,6 +211,12 @@ export const FormConfigs: FormFieldType = {
           type: "input",
           componentType: ComponentType.Input,
           maxLength: 225,
+          rules: [
+            {
+              required: true,
+              message: "Vui lòng nhập tên người liên hệ",
+            },
+          ],
         },
       ],
       [
@@ -221,7 +227,7 @@ export const FormConfigs: FormFieldType = {
           type: "input",
           componentType: ComponentType.Input,
           maxLength: 225,
-          rules: [{required: true}]
+          // rules: [{required: true}]
         },
       ],
       [
@@ -232,6 +238,9 @@ export const FormConfigs: FormFieldType = {
           type: "input",
           componentType: ComponentType.Input,
           maxLength: 225,
+          rules: [
+            { required: true, message: "Vui lòng nhập số điện thoại" },
+          ],
         },
       ],
       [

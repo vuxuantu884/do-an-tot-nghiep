@@ -133,9 +133,9 @@ const POCreateScreen: React.FC = () => {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
       }else {
-        // setLoadingSaveButton(false);
-        // setLoadingDraftButton(false);
-        throw new Error("Lỗi khi lưu dữ liệu");
+        setLoadingSaveButton(false);
+        setLoadingDraftButton(false);
+        // throw new Error("Lỗi khi lưu dữ liệu");
       }
     },
     [history]

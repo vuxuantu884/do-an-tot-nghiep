@@ -17,7 +17,6 @@ import {
 	Tooltip
 } from "antd";
 import {RefSelectProps} from "antd/lib/select";
-import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
@@ -739,8 +738,8 @@ function OrderCreateProduct(props: PropType) {
 
 	const AmountColumn = {
 		title: () => (
-			<div className="text-center unbold">
-				<div style={{ textAlign: "center"}}>SL</div>
+			<div className="text-center">
+				<div style={{ textAlign: "center" }}>SL</div>
 			</div>
 		),
 		// className: "yody-pos-quantity text-center",
@@ -786,8 +785,8 @@ function OrderCreateProduct(props: PropType) {
 	const PriceColumn = {
 		title: () => (
 			<div>
-				<span className="unbold" style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-				<span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+				<span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
+				<span style={{ color: "#808080", marginLeft: "5px", fontWeight: 400 }}>₫</span>
 			</div>
 		),
 		width: "75px",
@@ -836,7 +835,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const DiscountColumn = {
 		title: () => (
-			<div className="text-center unbold">
+			<div className="text-center">
 				<div>Chiết khấu</div>
 			</div>
 		),
@@ -2348,23 +2347,9 @@ function OrderCreateProduct(props: PropType) {
           bordered
           locale={{
             emptyText: (
-              <div className="sale_order_empty_product">
-                <img src={emptyProduct} alt="empty product"/>
-                <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-                <Button
-                  type="text"
-                  className="font-weight-500"
-                  style={{
-                    background: "rgba(42,42,134,0.05)",
-                  }}
-                  onClick={() => {
-                    autoCompleteRef.current?.focus();
-                  }}
-                  disabled={levelOrder > 3}
-                >
-                  Thêm sản phẩm ngay (F3)
-                </Button>
-              </div>
+              <div className="sale_order_empty_product" style={{ padding: 5 }}>
+								{"Đơn hàng của bạn chưa có sản phẩm nào!"}
+							</div>
             ),
           }}
 					rowKey={(record, index) => record.id + (index || 0)}

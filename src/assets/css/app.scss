@@ -587,3 +587,8 @@ label {
     display: flex;
     align-items: center;
 }
+
+.ant-select-item:hover {
+    transition: 0.3s;
+    background: #cccccc;
+}

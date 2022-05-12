@@ -185,7 +185,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                   fontWeight: 700,
                 }}
               >
-                {formatCurrency(getTotalQuantity())}
+                {getTotalQuantity()}
               </div>
 
               <div
@@ -196,7 +196,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                   fontWeight: 700,
                 }}
               >
-                {formatCurrency(getTotalReceivedQuantity())}
+                {getTotalReceivedQuantity()}
               </div>
 
               <div
@@ -208,7 +208,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                   fontWeight: 700,
                 }}
               >
-                {formatCurrency(getTotalRealQuantity())}
+                {getTotalRealQuantity()}
               </div>
             </div>
           ) : (

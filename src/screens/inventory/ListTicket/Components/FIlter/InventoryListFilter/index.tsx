@@ -29,9 +29,9 @@ import { FormatTextMonney } from "utils/FormatMonney";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
-import { InventoryTransferTabUrl } from "../../../../../../config/url.config";
-import { useQuery } from "../../../../../../utils/useQuery";
+import { formatDateFilter, formatDateTimeFilter } from "utils/DateUtils";
+import { InventoryTransferTabUrl } from "config/url.config";
+import { useQuery } from "utils/useQuery";
 
 type OrderFilterProps = {
   accountStores?: Array<AccountStoreResponse>,
@@ -64,7 +64,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     stores,
     accounts,
     activeTab,
-    accountStores,
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -73,11 +72,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   const query: any = useQuery();
   if (!query?.status) {
     switch (activeTab) {
-      case InventoryTransferTabUrl.LIST_CONFIRMED:
-        status = ['confirmed'];
-        break;
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING:
         status = ['transferring'];
         break;
       default: break;
@@ -102,30 +97,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   useEffect(() => {
     if (activeTab === '') return;
 
-    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
-
-    if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED) {
-      formSearchRef.current?.setFieldsValue({
-        ...params,
-        to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected?.toString(),
-        from_store_id: params.from_store_id ? params.from_store_id : []
-      });
-    } else if (activeTab === InventoryTransferTabUrl.LIST) {
-      formSearchRef.current?.setFieldsValue({
-        ...params,
-        from_store_id: params.from_store_id ? params.from_store_id : [],
-        to_store_id: params.to_store_id ? params.to_store_id : []
-      });
-      return;
-    } else {
-      formSearchRef.current?.setFieldsValue({
-        ...params,
-        from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected?.toString(),
-        to_store_id: params.to_store_id ? params.to_store_id : []
-      });
-    }
+    formSearchRef.current?.setFieldsValue({
+      ...params,
+      from_store_id: params.from_store_id ? params.from_store_id : [],
+      to_store_id: params.to_store_id ? params.to_store_id : []
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, accountStores])
+  }, [activeTab])
 
   useEffect(() => {
     formAdv.setFieldsValue(filterFromParams);
@@ -167,22 +145,22 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       ...values,
       condition: values.condition ? values.condition.trim() : null,
       from_created_date: formAdv.getFieldValue('from_created_date')
-        ? getStartOfDayCommon(formAdv.getFieldValue('from_created_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_created_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       to_created_date: formAdv.getFieldValue('to_created_date')
-        ? getEndOfDayCommon(formAdv.getFieldValue('to_created_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_created_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       from_transfer_date: formAdv.getFieldValue('from_transfer_date')
-        ? getStartOfDayCommon(formAdv.getFieldValue('from_transfer_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_transfer_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       to_transfer_date: formAdv.getFieldValue('to_transfer_date')
-        ? getEndOfDayCommon(formAdv.getFieldValue('to_transfer_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_transfer_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       from_receive_date: formAdv.getFieldValue('from_receive_date')
-        ? getStartOfDayCommon(formAdv.getFieldValue('from_receive_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_receive_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       to_receive_date: formAdv.getFieldValue('to_receive_date')
-        ? getEndOfDayCommon(formAdv.getFieldValue('to_receive_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_receive_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
     }
     onFilter && onFilter(valuesForm);
@@ -193,8 +171,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
     formSearchRef?.current?.setFieldsValue({
       condition: "",
-      from_store_id: '',
-      to_store_id: '',
+      from_store_id: [],
+      to_store_id: [],
     })
 
     setVisible(false);
@@ -219,6 +197,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       switch(tag.key) {
         case 'status':
           onFilter && onFilter({...params, status: []});
+          break;
+        case 'note':
+          onFilter && onFilter({...params, note: null});
           break;
         case 'total_variant':
           onFilter && onFilter({...params, from_total_variant: null, to_total_variant: null});
@@ -309,6 +290,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         value: textTotalAmount
       })
     }
+    if (initialValues.note && initialValues.note !== '') {
+      list.push({
+        key: 'note',
+        name: 'Ghi chú',
+        value: initialValues.note
+      });
+    }
     if (initialValues.created_by.length && initialValues.created_by[0]) {
       let textAccount = ""
       if (initialValues.created_by.length > 1) {
@@ -332,7 +320,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
-      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.to_created_date ? moment(initialValues.to_created_date).format('DD-MM-YYYY') : '??')
+      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_created_date ? moment(initialValues.to_created_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'created_date',
         name: 'Ngày tạo',
@@ -340,7 +328,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_transfer_date || initialValues.to_transfer_date) {
-      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY') : '??')
+      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY HH:mm'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'transfer_date',
         name: 'Ngày chuyển',
@@ -348,7 +336,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_receive_date || initialValues.to_receive_date) {
-      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY') : '??')
+      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'receive_date',
         name: 'Ngày nhận',
@@ -386,25 +374,16 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 return false;
               }}
             >
-              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED || activeTab === InventoryTransferTabUrl.LIST ? Array.isArray(stores) &&
-                  stores.length > 0 &&
-                  stores.map((item, index) => (
-                  <Option
-                    key={"from_store_id" + index}
-                    value={item.id.toString()}
-                  >
-                    {item.name}
-                  </Option>
-                )) : Array.isArray(accountStores) &&
-                accountStores.length > 0 &&
-                  accountStores.map((item, index) => (
-                    <Option
-                      key={"from_store_id" + index}
-                      value={item && item.store_id ? item.store_id.toString() : ''}
-                    >
-                      {item.store}
-                    </Option>
-                  ))}
+              {Array.isArray(stores) &&
+              stores.length > 0 &&
+              stores.map((item, index) => (
+                <Option
+                  key={"from_store_id" + index}
+                  value={item.id.toString()}
+                >
+                  {item.name}
+                </Option>
+              ))}
             </Select>
           </Item>
           <Item
@@ -429,25 +408,16 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 return false;
               }}
             >
-              {activeTab !== InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED ? Array.isArray(stores) &&
-                stores.length > 0 &&
-                stores.map((item, index) => (
-                  <Option
-                    key={"to_store_id" + index}
-                    value={item.id.toString()}
-                  >
-                    {item.name}
-                  </Option>
-                )) : Array.isArray(accountStores) &&
-                accountStores.length > 0 &&
-                accountStores.map((item, index) => (
-                  <Option
-                    key={"to_store_id" + index}
-                    value={item && item.store_id ? item.store_id.toString() : ''}
-                  >
-                    {item.store}
-                  </Option>
-                ))}
+              {Array.isArray(stores) &&
+              stores.length > 0 &&
+              stores.map((item, index) => (
+                <Option
+                  key={"to_store_id" + index}
+                  value={item.id.toString()}
+                >
+                  {item.name}
+                </Option>
+              ))}
             </Select>
           </Item >
           <Item name="condition" className="input-search">
@@ -605,6 +575,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   activeButton={dateClick}
                   setActiveButton={setDateClick}
                   formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime={{ format: 'HH:mm' }}
                 />
               </Col>
             </Row>
@@ -617,6 +589,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   activeButton={dateClick}
                   setActiveButton={setDateClick}
                   formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime={{ format: 'HH:mm' }}
                 />
               </Col>
               <Col span={12}>
@@ -627,7 +601,16 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   activeButton={dateClick}
                   setActiveButton={setDateClick}
                   formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime={{ format: 'HH:mm' }}
                 />
+              </Col>
+            </Row>
+            <Row gutter={12} className="margin-top-20">
+              <Col span={12}>
+                <Item name="note" label="Ghi chú">
+                  <Input className="w-100" />
+                </Item>
               </Col>
             </Row>
           </BaseFilterWrapper>
