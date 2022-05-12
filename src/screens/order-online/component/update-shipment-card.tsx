@@ -135,7 +135,9 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	const [ecommerceShipment, setEcommerceShipment] = useState<any>();
 
   useEffect(() => {
-		const fulfillment = props.OrderDetailAllFullfilment?.fulfillments ? props.OrderDetailAllFullfilment.fulfillments[0] : null;
+		// set ecommerce shipment
+		const fulfillmentsHasShipment = props.OrderDetailAllFullfilment?.fulfillments?.filter((item: any) => !!item.shipment);
+		const fulfillment = (fulfillmentsHasShipment && fulfillmentsHasShipment.length > 0) ? fulfillmentsHasShipment[0] : null;
 
     if (isEcommerceOrder && fulfillment && fulfillment.shipment) {
       const shipment = fulfillment.shipment;
