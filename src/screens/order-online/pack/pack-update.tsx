@@ -54,21 +54,14 @@ const PackUpdate: React.FC = () => {
     GoodsReceiptsInfoOrderModel[]
   >([]);
   // const [orderList, setOrderList] = useState<OrderResponse[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedRowCode, setSelectedRowCode] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const actions: Array<MenuAction> = [
-    // {
-    //   id: 1,
-    //   name: "Xóa",
-    //   icon: <DeleteOutlined />,
-    //   color: selectedRowKeys.length === 0 ? "rgba(0,0,0,.25)" : "#E24343",
-    //   //disabled: selectedRowKeys.length === 0
-    //   disabled:false
-    // },
-     {
-      id: 2,
-      name: "Xóa đơn hàng, Liên hệ chiến lê",
+    {
+      id: 1,
+      name: "Xóa",
       icon: <DeleteOutlined />,
       color: selectedRowKeys.length === 0 ? "rgba(0,0,0,.25)" : "#E24343",
       //disabled: selectedRowKeys.length === 0
@@ -207,58 +200,61 @@ const PackUpdate: React.FC = () => {
     (index: number) => {
       switch (index) {
         case 1: //xóa
-          if (selectedRowCode.length === 0) {
-            showWarning("Vui lòng chọn đơn hàng cần xóa");
-            break;
-          }
-          let success = true;
-          let _newItem: string[] = [];
+          showWarning("Đang bảo trì");
+          // if (selectedRowCode.length === 0) {
+          //   showWarning("Vui lòng chọn đơn hàng cần xóa");
+          //   break;
+          // }
+          // let success = true;
+          // let _newItem: string[] = [];
 
-          //loại bỏ các item đươc chọn để xóa
-          let orderRemaining = packDetail?.orders?.filter((p) => !p.fulfillments?.some(p1 => selectedRowCode.some(p2 => p2 === p1.code)));
+          // //loại bỏ các item đươc chọn để xóa
+          // let orderRemaining = packDetail?.orders?.filter((p) => !p.fulfillments?.some(p1 => selectedRowCode.some(p2 => p2 === p1.code)));
 
-          //check và cập nhật ffm vào biên bản
-          orderRemaining?.forEach((itemOrder, index) => {
-            if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
-              let indexFFM = itemOrder.fulfillments.length - 1;
-              let FFMCode: string | null = itemOrder.fulfillments[indexFFM].code;
-              if (packDetail?.receipt_type_id === 1 && itemOrder.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
-                FFMCode && _newItem.push(FFMCode);
-              }
-              else if (packDetail?.receipt_type_id === 2
-                && itemOrder.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
-                && itemOrder.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED) {
-                FFMCode && _newItem.push(FFMCode);
-              } else {
-                FFMCode && showError(`Không thể cập nhật biên bản bàn giao, ${itemOrder?.code} không hợp lệ`);
-                success = false;
-              }
-              // let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
-              // let itemFFM = itemOrder.fulfillments[indexFFM];
-              // itemFFM?.code && _newItem.push(itemFFM?.code);
-            }
-          })
+          // //check và cập nhật ffm vào biên bản
+          // orderRemaining?.forEach((itemOrder, index) => {
+          //   if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
+          //     let indexFFM = itemOrder.fulfillments.length - 1;
+          //     let FFMCode: string | null = itemOrder.fulfillments[indexFFM].code;
+          //     FFMCode && _newItem.push(FFMCode);
+          //     // if (packDetail?.receipt_type_id === 1 && itemOrder.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
+          //     //   FFMCode && _newItem.push(FFMCode);
+          //     // }
+          //     // else if (packDetail?.receipt_type_id === 2
+          //     //   && itemOrder.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
+          //     //   && itemOrder.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED) {
+          //     //   FFMCode && _newItem.push(FFMCode);
+          //     // } else {
+          //     //   FFMCode && showError(`Không thể cập nhật biên bản bàn giao, ${itemOrder?.code} không hợp lệ`);
+          //     //   success = false;
+          //     // }
+          //     // let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
+          //     // let itemFFM = itemOrder.fulfillments[indexFFM];
+          //     // itemFFM?.code && _newItem.push(itemFFM?.code);
+          //   }
+          // })
 
-          let param: any = {
-            ...packDetail,
-            codes: _newItem,
-          };
+          // let param: any = {
+          //   ...packDetail,
+          //   codes: _newItem,
+          // };
 
-          if (success) {
-            dispatch(
-              updateGoodsReceipts(PackId, param, (data: GoodsReceiptsResponse) => {
-                if (data) {
-                  showSuccess("Cập nhập biên bản thành công");
-                  setPackDetail(data);
-                }
-              })
-            );
-            setSelectedRowKeys([]);
-          }
+          // console.log(param);
+          // if (success) {
+          //   dispatch(
+          //     updateGoodsReceipts(PackId, param, (data: GoodsReceiptsResponse) => {
+          //       if (data) {
+          //         showSuccess("Cập nhập biên bản thành công");
+          //         setPackDetail(data);
+          //       }
+          //     })
+          //   );
+          //   setSelectedRowKeys([]);
+          // }
           break;
       }
     },
-    [selectedRowCode, packDetail, dispatch, PackId]
+    []
   );
 
   const insert = (arr: any, index: number, newItem: any) => [
@@ -289,14 +285,15 @@ const PackUpdate: React.FC = () => {
       }
       let codes: string[] = []
 
-      if (packDetail.orders) {
+      if(packDetail.orders && packDetail.orders.length>0)
+      {
         packDetail?.orders?.forEach((item) => {
           if (item.fulfillments && item.fulfillments.length > 0) {
             let indexFFM = item.fulfillments.length - 1;
-
+  
             let FFMCode: string | null = item.fulfillments[indexFFM].code;
             // FFMCode && codes.push(FFMCode);
-
+  
             if (packDetail.receipt_type_id === 1 && item.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
               FFMCode && codes.push(FFMCode);
             }
@@ -311,8 +308,8 @@ const PackUpdate: React.FC = () => {
           }
         });
       }
-
-      console.log("success",success)
+      
+      console.log("success", success)
       if (!success) {
         return;
       } else if (codes.indexOf(order_id) === -1) {

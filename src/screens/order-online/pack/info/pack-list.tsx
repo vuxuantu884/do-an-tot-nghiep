@@ -108,7 +108,7 @@ function PackList() {
       visible: true,
       align: "center",
       render: (value, row, index) => {
-        return <div>{row.shipment.delivery_service_provider_name ? row.shipment.delivery_service_provider_name : "Tự giao hàng"}</div>;
+        return <div>{row.shipment?.delivery_service_provider_name ? row.shipment.delivery_service_provider_name : "Tự giao hàng"}</div>;
       },
     },
     {
