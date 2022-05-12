@@ -102,7 +102,11 @@ let TAB_STATUS = [
     labelColor: "#fbaf15",
     countParam: {
       return_status: WarrantyReturnStatusModel.UNRETURNED,
-      status: [WarrantyItemStatus.FIXING,WarrantyItemStatus.FIXED,WarrantyItemStatus.NOT_FIXED],
+      status: [
+        WarrantyItemStatus.FIXING,
+        WarrantyItemStatus.FIXED,
+        WarrantyItemStatus.NOT_FIXED,
+      ],
     },
     count: 0,
   },
@@ -240,7 +244,13 @@ function WarrantyHistoryList(props: PropTypes) {
   });
   dataWarranties = warranties;
 
-  const warrantyCount = useGetWarrantyCount(countParams);
+  let warrantyCount = useGetWarrantyCount(countParams);
+
+  const [warrantyCountState, setWarrantyCountState] = useState<number[]>([]);
+
+  useEffect(() => {
+    setWarrantyCountState(warrantyCount);
+  }, [warrantyCount]);
 
   const ACTION_ID = {
     delete: 1,
@@ -360,7 +370,7 @@ function WarrantyHistoryList(props: PropTypes) {
     );
   };
 
-  const checkStatusAfterChange = (status: string, returnStatus: string) => {
+  const checkTabAfterChange = (status: string, returnStatus: string) => {
     let result = "";
     if (returnStatus === WarrantyReturnStatusModel.UNRETURNED) {
       switch (status) {
@@ -375,6 +385,28 @@ function WarrantyHistoryList(props: PropTypes) {
       result = TAB_STATUS_KEY.finished;
     }
     return result;
+  };
+
+  const handleIfChangeTab = (tabValueAfterChange: string) => {
+    // xóa trong list
+    let dataResult = [...data].filter(
+      (single) => single.id !== rowSelected.current?.record.id,
+    );
+    setData(dataResult);
+    changeMetaDataAfterDelete(metadata, setMetaDataShow, 1);
+    // thay đổi số
+    let indexFrom = TAB_STATUS.findIndex((single) => single.key === query.tab);
+    let indexTo = TAB_STATUS.findIndex(
+      (single) => single.key === tabValueAfterChange,
+    );
+    let newWarrantyCount = [...warrantyCountState];
+    if (indexFrom > -1) {
+      newWarrantyCount[indexFrom] = warrantyCountState[indexFrom] - 1;
+    }
+    if (indexTo > -1) {
+      newWarrantyCount[indexTo] = warrantyCountState[indexTo] + 1;
+    }
+    setWarrantyCountState(newWarrantyCount);
   };
 
   const handleOkStatusModal = (values: any) => {
@@ -406,23 +438,29 @@ function WarrantyHistoryList(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Cập nhật trạng thái thành công!");
-          const status = checkStatusAfterChange(
+          const tabValueAfterChange = checkTabAfterChange(
             values.status,
             values.return_status,
           );
-          let newPrams = {
-            tab: status,
-          };
-          let queryParam = generateQuery(newPrams);
-          history.push(`${location.pathname}?${queryParam}`);
+
+          // let newPrams = {
+          //   tab: status,
+          // };
+          // let queryParam = generateQuery(newPrams);
+          // history.push(`${location.pathname}?${queryParam}`);
           const index = data.findIndex(
             (single) => single.id === rowSelected.current?.record.id,
           );
           if (index > -1) {
-            let dataResult = [...data];
-            dataResult[index].status = values.status;
-            dataResult[index].return_status = values.return_status;
-            setData(dataResult);
+            console.log("rowSelected.current", rowSelected.current);
+            if (query.tab !== tabValueAfterChange) {
+              handleIfChangeTab(tabValueAfterChange);
+            } else {
+              let dataResult = [...data];
+              dataResult[index].status = values.status;
+              dataResult[index].return_status = values.return_status;
+              setData(dataResult);
+            }
           }
           console.log("response", response);
         } else {
@@ -485,8 +523,6 @@ function WarrantyHistoryList(props: PropTypes) {
               }) || [];
             setData(dataResult);
           }
-
-          changeToTabFinalizedIfCurrentIsNew();
           console.log("response", response);
         } else {
           handleFetchApiError(response, "Cập nhật lý do", dispatch);
@@ -495,16 +531,6 @@ function WarrantyHistoryList(props: PropTypes) {
       .finally(() => {
         dispatch(hideLoading());
       });
-  };
-  const changeToTabFinalizedIfCurrentIsNew = () => {
-    if (query.tab === TAB_STATUS_KEY.new) {
-      let newPrams = {
-        ...query,
-        tab: TAB_STATUS_KEY.finalized,
-      };
-      let queryParam = generateQuery(newPrams);
-      history.push(`${location.pathname}?${queryParam}`);
-    }
   };
 
   const handleOkAppointmentDateModal = (values: any) => {
@@ -571,7 +597,6 @@ function WarrantyHistoryList(props: PropTypes) {
             dataResult[index].warranty_center_id = values.warranty_center_id;
             setData(dataResult);
           }
-          changeToTabFinalizedIfCurrentIsNew();
           console.log("response", response);
         } else {
           handleFetchApiError(response, "Chuyển trung tâm bảo hành", dispatch);
@@ -1151,7 +1176,7 @@ function WarrantyHistoryList(props: PropTypes) {
                         className="number"
                         style={{ background: labelColor }}
                       >
-                        {warrantyCount[index] || 0}
+                        {warrantyCountState[index] || 0}
                       </span>
                     </React.Fragment>
                   }
