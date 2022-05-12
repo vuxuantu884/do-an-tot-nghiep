@@ -4,10 +4,11 @@ metadata:
   name: $SERVICE_NAME
 spec:
   progressDeadlineSeconds: 600
+  minReadySeconds: 5
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
+      maxSurge: 200%
       maxUnavailable: 0
   selector:
     matchLabels:
