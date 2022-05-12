@@ -51,9 +51,9 @@ function CreateAnalytics() {
         let name = "";
         switch (mode) {
             case SUBMIT_MODE.EXPORT_EXCEL:
-                exportReportToExcel(dispatch, rQuery, reportInfo?.name)
+                setIsLoadingExport(true);
+                await exportReportToExcel(dispatch, rQuery, reportInfo?.name)
                 setIsLoadingExport(false);
-
                 break;
             case SUBMIT_MODE.SAVE_QUERY:
                 name = formEditInfo.getFieldValue("name");
