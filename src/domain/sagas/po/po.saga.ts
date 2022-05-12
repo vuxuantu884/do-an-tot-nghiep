@@ -195,11 +195,11 @@ function* poSearchSaga(action: YodyAction) {
   }
 }
 function* poDeleteSaga(action: YodyAction) {
-  const { id, deleteCallback } = action.payload;
+  const { ids, deleteCallback } = action.payload;
   try {
     let response: BaseResponse<any | null> = yield call(
       deletePurchaseOrder,
-      id
+      ids
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

@@ -582,15 +582,16 @@ const PurchaseOrderListScreen: React.FC = () => {
 
   const onDelete = useCallback(() => {
     if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần tử cần xóa");
+      showWarning("Vui lòng chọn đơn đặt hàng cần xóa");
       return;
     }
-
-    if (selected.length === 1) {
-      let id = selected[0].id;
-      dispatch(PODeleteAction(id, deleteCallback));
-      return;
-    }
+    const ids = selected.map(((item: PurchaseOrder) => item.id)).join(',')
+    dispatch(PODeleteAction(ids, deleteCallback));
+    // if (selected.length === 1) {
+    //   let id = selected[0].id;
+    //   // dispatch(PODeleteAction(id, deleteCallback));
+    //   return;
+    // }
   }, [deleteCallback, dispatch, selected]);
 
   const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<PurchaseOrder>>) => {
