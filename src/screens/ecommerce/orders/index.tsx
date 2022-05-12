@@ -281,7 +281,7 @@ const EcommerceOrders: React.FC = () => {
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
   const [reasonId, setReasonId] = useState<number | undefined>(undefined);
-  const [subReasonRequireWarehouseChange] = useState<number | undefined>(61);   //sub_reason_id = 61 (diff_depot: Lệch kho)
+  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     dispatch(
@@ -295,7 +295,11 @@ const EcommerceOrders: React.FC = () => {
     const code = [ORDER_SUB_STATUS.change_depot];
     getOrderReasonService(code).then((response) => {
       if (isFetchApiSuccessful(response)) {
-        setReasonId(response.data[0].id);
+        if (response && response.data && response.data[0]) {
+          const diffDepotSubReason = response.data[0].sub_reasons?.find((item: any) => item.code === "diff_depot");
+          setSubReasonRequireWarehouseChange(diffDepotSubReason?.id);
+          setReasonId(response.data[0].id);
+        }
       } else {
         handleFetchApiError(response, "Danh sách lý do đổi kho hàng", dispatch);
       }
@@ -460,8 +464,7 @@ const EcommerceOrders: React.FC = () => {
     setConfirmPreparationShopeeProduct(false)
   }
 
-  const getEcommerceOrderList = useCallback(() => {
-    const requestParams = { ...params };
+  const getEcommerceOrderList = useCallback((requestParams) => {
     if (!requestParams.channel_codes?.length) {
       requestParams.channel_codes = ALL_CHANNEL;
     }
@@ -471,13 +474,13 @@ const EcommerceOrders: React.FC = () => {
       setTableLoading(false);
       setSearchResult(result);
     }));
-  }, [dispatch, params, setSearchResult]);
+  }, [dispatch, setSearchResult]);
 
   const reloadPage = useCallback(() => {
-    if (allowOrdersView) {
-      getEcommerceOrderList();
-    }
-  }, [allowOrdersView, getEcommerceOrderList]);
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  }, []);
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
@@ -1713,7 +1716,7 @@ const EcommerceOrders: React.FC = () => {
 
   useEffect(() => {
     if (allowOrdersView) {
-      getEcommerceOrderList();
+      getEcommerceOrderList(params);
     }
   }, [allowOrdersView, getEcommerceOrderList, params]);
 
