@@ -417,7 +417,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
     }
 
     return {
-      color: variant.color.trim(),
+      color: variant.color,
       clothCode: variant.sku.split("-")[1],
       lineItemPrice: price,// giá nhập, không có thì mặc định là 0
     };
@@ -428,7 +428,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
    * danh sách tất cả size của sản phẩm, nếu sản phẩm nào không có size thì dùng tên của variant đó làm size
    */
   const baseSize = uniqBy(tempVariant, "size").map((item: VariantResponse) => {
-    return item.size.trim();
+    return item.size;
   });
 
   /**
