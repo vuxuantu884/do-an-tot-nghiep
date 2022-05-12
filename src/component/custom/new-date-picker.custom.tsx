@@ -12,7 +12,7 @@ type CustomDatePickerProps = {
   className?: string;
   disableDate?: (date: Moment) => boolean;
   format?: string;
-  showTime?: boolean;
+  showTime?: object;
   showToday?: boolean;
   defaultValue?: Moment | undefined;
   renderExtraFooter?: () => JSX.Element
