@@ -408,7 +408,7 @@ export default function Order(props: PropTypes) {
 			discount_amount: null,
 			total_line_amount_after_line_discount: null,
 			shipment: shipmentRequest,
-			items: items.map((item) => {
+			items: [...items,...itemGifts].map((item) => {
 				let index = sortedFulfillments[0]?.items.findIndex(single => single?.order_line_item_id === item.id);
 				if (index > -1) {
 					return {
