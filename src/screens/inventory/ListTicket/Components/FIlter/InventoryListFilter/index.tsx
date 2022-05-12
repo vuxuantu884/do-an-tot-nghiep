@@ -29,7 +29,7 @@ import { FormatTextMonney } from "utils/FormatMonney";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import { formatDateFilter, formatDateTimeFilter } from "utils/DateUtils";
 import { InventoryTransferTabUrl } from "config/url.config";
 import { useQuery } from "utils/useQuery";
 
@@ -145,22 +145,22 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       ...values,
       condition: values.condition ? values.condition.trim() : null,
       from_created_date: formAdv.getFieldValue('from_created_date')
-        ? getStartOfDayCommon(formAdv.getFieldValue('from_created_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_created_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       to_created_date: formAdv.getFieldValue('to_created_date')
-        ? getEndOfDayCommon(formAdv.getFieldValue('to_created_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_created_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       from_transfer_date: formAdv.getFieldValue('from_transfer_date')
-        ? getStartOfDayCommon(formAdv.getFieldValue('from_transfer_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_transfer_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       to_transfer_date: formAdv.getFieldValue('to_transfer_date')
-        ? getEndOfDayCommon(formAdv.getFieldValue('to_transfer_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_transfer_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       from_receive_date: formAdv.getFieldValue('from_receive_date')
-        ? getStartOfDayCommon(formAdv.getFieldValue('from_receive_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_receive_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
       to_receive_date: formAdv.getFieldValue('to_receive_date')
-        ? getEndOfDayCommon(formAdv.getFieldValue('to_receive_date'))?.format()
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_receive_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
     }
     onFilter && onFilter(valuesForm);
@@ -320,7 +320,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
-      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.to_created_date ? moment(initialValues.to_created_date).format('DD-MM-YYYY') : '??')
+      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_created_date ? moment(initialValues.to_created_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'created_date',
         name: 'Ngày tạo',
@@ -328,7 +328,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_transfer_date || initialValues.to_transfer_date) {
-      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY') : '??')
+      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY HH:mm'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'transfer_date',
         name: 'Ngày chuyển',
@@ -336,7 +336,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_receive_date || initialValues.to_receive_date) {
-      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY') : '??')
+      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'receive_date',
         name: 'Ngày nhận',
@@ -575,6 +575,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   activeButton={dateClick}
                   setActiveButton={setDateClick}
                   formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime={{ format: 'HH:mm' }}
                 />
               </Col>
             </Row>
@@ -587,6 +589,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   activeButton={dateClick}
                   setActiveButton={setDateClick}
                   formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime={{ format: 'HH:mm' }}
                 />
               </Col>
               <Col span={12}>
@@ -597,6 +601,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   activeButton={dateClick}
                   setActiveButton={setDateClick}
                   formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime={{ format: 'HH:mm' }}
                 />
               </Col>
             </Row>

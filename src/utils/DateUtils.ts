@@ -127,6 +127,11 @@ export const formatDateFilter = (date: Date | string | number | Moment | undefin
   return moment(date).utc(false)
 }
 
+export const formatDateTimeFilter = (date: Date | string | number | Moment | undefined, format: string = '') => {
+  if(!date) return
+  return format !== '' ? moment(date, format).utc(true) : moment(date).utc(true)
+}
+
 export const formatDateCommon = (date: Date, format?: string) => {
   if(!date) return
   return moment(date).format(format)

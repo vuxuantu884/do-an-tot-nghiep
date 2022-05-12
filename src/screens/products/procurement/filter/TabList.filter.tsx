@@ -312,7 +312,6 @@ function TabListFilter(props: ProcurementFilterProps) {
               let component: any = null;
               switch (field) {
                 case ProcurementFilterAdvanceEnum.active:
-                case ProcurementFilterAdvanceEnum.stock_in:
                 case ProcurementFilterAdvanceEnum.expect_receipt:
                   component = <CustomFilterDatePicker
                     fieldNameFrom={`${field}_from`}
@@ -320,6 +319,17 @@ function TabListFilter(props: ProcurementFilterProps) {
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
+                  />;
+                  break;
+                case ProcurementFilterAdvanceEnum.stock_in:
+                  component = <CustomFilterDatePicker
+                    fieldNameFrom={`${field}_from`}
+                    fieldNameTo={`${field}_to`}
+                    activeButton={dateClick}
+                    setActiveButton={setDateClick}
+                    formRef={formRef}
+                    format="DD/MM/YYYY HH:mm"
+                    showTime={{ format: 'HH:mm' }}
                   />;
                   break;
                 case ProcurementFilterAdvanceEnum.stores:

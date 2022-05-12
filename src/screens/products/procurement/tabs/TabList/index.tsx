@@ -34,6 +34,7 @@ import {
   ConvertDateToUtc,
   ConvertUtcToLocalDate,
   DATE_FORMAT,
+  formatDateTimeFilter,
   getEndOfDayCommon,
   getStartOfDayCommon,
 } from "utils/DateUtils";
@@ -664,8 +665,8 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       ...paramsrUrl,
       expect_receipt_from: paramsrUrl.expect_receipt_from && getStartOfDayCommon(paramsrUrl.expect_receipt_from)?.format(),
       expect_receipt_to: paramsrUrl.expect_receipt_to && getEndOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
-      stock_in_from: paramsrUrl.stock_in_from && getStartOfDayCommon(paramsrUrl.stock_in_from)?.format(),
-      stock_in_to: paramsrUrl.stock_in_to && getEndOfDayCommon(paramsrUrl.stock_in_to)?.format(),
+      stock_in_from: paramsrUrl.stock_in_from && formatDateTimeFilter(paramsrUrl.stock_in_from, 'DD/MM/YYYY HH:mm')?.format(),
+      stock_in_to: paramsrUrl.stock_in_to && formatDateTimeFilter(paramsrUrl.stock_in_to, 'DD/MM/YYYY HH:mm')?.format(),
       active_from: paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
       active_to: paramsrUrl.active_to && getEndOfDayCommon(paramsrUrl.active_to)?.format(),
     }
