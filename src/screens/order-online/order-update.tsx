@@ -955,8 +955,9 @@ export default function Order(props: PropTypes) {
 		const isEcommerce = ECOMMERCE_CHANNEL.includes(orderChannel);
 		setIsEcommerceOrder(isEcommerce);
 
-		// latest fulfillment
-		const fulfillment = orderData?.fulfillments ? orderData.fulfillments[0] : null;
+		// set ecommerce shipment
+		const fulfillmentsHasShipment = orderData?.fulfillments?.filter((item: any) => !!item.shipment);
+		const fulfillment = fulfillmentsHasShipment ? fulfillmentsHasShipment[0] : null;
 
 		if (isEcommerce && fulfillment && fulfillment.shipment) {
 			const shipment = fulfillment.shipment;
