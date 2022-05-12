@@ -66,6 +66,7 @@ import * as XLSX from 'xlsx';
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
+import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 const { TextArea } = Input;
 const { Text } = Typography;
 
@@ -132,6 +133,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const printElementRef = useRef(null);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [dataUploadError, setDataUploadError] = useState<string[]>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(0);
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -709,9 +712,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     let items: Array<InventoryTransferDetailItem> = [];
     const limit = 50;
     let times = 0;
+    
+    setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
     switch (type) {
       case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,limit: params.limit ?? 50});
+        res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,limit: params.limit ?? 50});
         if (res) {
           items= items.concat(res.items);
         }
@@ -724,10 +729,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
 
         for (let index = 1; index <= times; index++) {
-          const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
+          setExportProgress(percent);
         }
 
         break;
@@ -740,30 +747,35 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
         for (let index = 1; index <= times; index++) {
 
-          const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
+          setExportProgress(percent);
         }
         break;
       default:
         break;
     }
+    setExportProgress(100);
     return items;
   },[dispatch,selectedRowData,params,data,totalItems])
 
   const actionExport = {
     Ok: async (typeExport: string) => {
+      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
         showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
         setVExportTransfer(false);
         setVExportDetailTransfer(false);
         return;
       }
-
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
         showWarning("Không có phiếu chuyển nào đủ điều kiện");
         return;
       }
@@ -793,7 +805,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         let worksheet = XLSX.utils.json_to_sheet(dataExport);
         XLSX.utils.book_append_sheet(workbook, worksheet, "data");
       }
-
+      
+      setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
       const today = moment(new Date(), 'YYYY/MM/DD');
       const month = today.format('M');
       const day   = today.format('D');
@@ -801,10 +814,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       XLSX.writeFile(workbook, `${vExportDetailTransfer ? 'transfer_detail':'transfer'}_${day}_${month}_${year}.xlsx`);
       setVExportTransfer(false);
       setVExportDetailTransfer(false);
+      setExportProgress(0);
+      setStatusExport(0);
     },
     Cancel: () => {
       setVExportTransfer(false);
       setVExportDetailTransfer(false);
+      setExportProgress(0);
+      setStatusExport(0);
     },
   }
 
@@ -972,6 +989,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportTransfer || vExportDetailTransfer}
+        exportProgress={exportProgress}
+        statusExport={statusExport}
       />
 
       {isStatusModalVisible && (

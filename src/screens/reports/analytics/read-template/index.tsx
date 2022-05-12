@@ -71,7 +71,8 @@ function UpdateAnalytics() {
     const handleQueryAfterSubmitForm = useCallback(async (rQuery: string, params: AnalyticQuery) => {
         switch (mode) {
             case SUBMIT_MODE.EXPORT_EXCEL:
-                exportReportToExcel(dispatch, rQuery, `${CURRENT_REPORT_TEMPLATE.type} ${CURRENT_REPORT_TEMPLATE.name}`)
+                setIsLoadingExport(true);
+                await exportReportToExcel(dispatch, rQuery, `${CURRENT_REPORT_TEMPLATE.type} ${CURRENT_REPORT_TEMPLATE.name}`)
                 setIsLoadingExport(false);
                 setMode(SUBMIT_MODE.GET_DATA);
                 break;

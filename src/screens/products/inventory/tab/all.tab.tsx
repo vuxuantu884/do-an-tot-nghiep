@@ -810,7 +810,7 @@ const AllTab: React.FC<any> = (props) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           if (response.data.total || response.data.total !== 0) {
-            const percent = Number.parseFloat((response.data.num_of_record/response.data.total).toFixed(2))*100;
+            const percent = Math.round(Number.parseFloat((response.data.num_of_record/response.data.total).toFixed(2))*100);
             setExportProgress(percent);
           }
           if (response.data && response.data.status === "FINISH") {

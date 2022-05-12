@@ -556,7 +556,7 @@ const TabProduct: React.FC<any> = (props) => {
             items= items.concat(res.items);
           }
           
-          const percent = Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100;
+          const percent = Math.round(Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100);
           setExportProgress(percent);
         }
         break;
@@ -575,7 +575,7 @@ const TabProduct: React.FC<any> = (props) => {
             items= items.concat(res.items);
           }
 
-          const percent = Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100;
+          const percent = Math.round(Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100);
           setExportProgress(percent);
         }
         break;
