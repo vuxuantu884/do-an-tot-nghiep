@@ -100,7 +100,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             let values: string | Array<string> = "";
             if (operator === "IN") {
                 //conver ["a", "b"] to ["a", ",", "b"]
-                values = value.join(",").split(",").map((item: string) => `'${item}'`).join(",");
+                values = value.map(item => encodeURIComponent(item)).join(",").split(",").map((item: string) => decodeURIComponent(`'${item}'`)).join(",");
             } else {
                 values = value
             }
@@ -343,7 +343,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                     if (keyIdx !== -1) {
                         const currentRow = Object.keys(metadata.properties[property])[keyIdx];
                         setRowsInQuery((prev: string[]) => [...prev, currentRow]);
-                        form.setFieldsValue({ properties: { ...fieldsValue.properties, [property]: [...fieldsValue.properties[property], currentRow] } });
+                        form.setFieldsValue({ properties: { ...fieldsValue.properties, [property]: [...(fieldsValue.properties[property] || []), currentRow] } });
                     }
                 })
             }
