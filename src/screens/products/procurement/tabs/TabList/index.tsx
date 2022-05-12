@@ -185,9 +185,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
 
   const getTotalProcurementQuantity = useCallback((callback: (procurement:PurchaseProcument) => number): string => {
     let total:number[] = [];
-    const procurementsClone = cloneDeep(data.items)
-    const procurementsData = procurementsClone.filter((item: PurchaseProcument) =>
-      item.status === ProcurementStatus.not_received || item.status === ProcurementStatus.received)
+    const procurementsData = cloneDeep(data.items)
+    // const procurementsData = procurementsClone.filter((item: PurchaseProcument) =>
+    //   item.status === ProcurementStatus.not_received || item.status === ProcurementStatus.received)
 
     procurementsData.forEach((element: PurchaseProcument) => {
       total.push(callback(element))
