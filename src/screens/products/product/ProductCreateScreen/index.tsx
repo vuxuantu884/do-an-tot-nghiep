@@ -901,11 +901,6 @@ const ProductCreateScreen: React.FC = () => {
                           message: "Vui lòng nhập tên sản phẩm",
                         },
                         {
-                          pattern: RegUtil.STRINGUTF8,
-                          message:
-                            "Tên sản phẩm không báo gồm kí tự đặc biệt",
-                        },
-                        {
                           max: 255,
                           message:
                             "Tên sản phẩm không vượt quá 255 ký tự",

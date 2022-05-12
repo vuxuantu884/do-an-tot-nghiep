@@ -71,7 +71,6 @@ import {
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import { handleChangeMaterial } from "utils/ProductUtils";
-import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { careInformation } from "../component/CareInformation/care-value";
 import CareModal from "../component/CareInformation/CareModal";
@@ -931,10 +930,6 @@ const ProductDetailScreen: React.FC = () => {
                               {
                                 required: true,
                                 message: "Vui lòng nhập tên sản phẩm",
-                              },
-                              {
-                                pattern: RegUtil.STRINGUTF8,
-                                message: "Tên sản phẩm không báo gồm kí tự đặc biệt",
                               },
                               {
                                 max: 255,
