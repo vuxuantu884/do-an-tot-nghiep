@@ -116,8 +116,7 @@ const InventoryListScreen: React.FC = () => {
           },
         ]}
         extra={
-          (activeTab === InventoryTransferTabUrl.LIST_CONFIRMED || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER
-          || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED
+          (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING
             || activeTab === InventoryTransferTabUrl.LIST) && (
             <Row>
               <Space>
@@ -180,40 +179,8 @@ const InventoryListScreen: React.FC = () => {
                 />
               )}
             </TabPane>
-            <TabPane tab="Chờ chuyển" key={InventoryTransferTabUrl.LIST_CONFIRMED}>
-              {activeTab === InventoryTransferTabUrl.LIST_CONFIRMED && (
-                <InventoryTransferTab
-                  activeTab={activeTab}
-                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
-                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
-                  stores={stores}
-                  accounts={accounts}
-                  accountStores={accountStores}
-                  setAccounts={(value) => setAccounts([
-                    ...value,
-                    ...accounts
-                  ])}
-                />
-              )}
-            </TabPane>
-            <TabPane tab="Đang chuyển đi" key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>
-              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && (
-                <InventoryTransferTab
-                  activeTab={activeTab}
-                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
-                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
-                  stores={stores}
-                  accounts={accounts}
-                  accountStores={accountStores}
-                  setAccounts={(value) => setAccounts([
-                    ...value,
-                    ...accounts
-                  ])}
-                />
-              )}
-            </TabPane>
-            <TabPane tab="Đang chuyển đến" key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED}>
-              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED && (
+            <TabPane tab="Đang chuyển" key={InventoryTransferTabUrl.LIST_TRANSFERRING}>
+              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING && (
                 <InventoryTransferTab
                   activeTab={activeTab}
                   vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
