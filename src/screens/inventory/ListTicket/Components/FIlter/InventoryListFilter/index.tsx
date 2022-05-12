@@ -30,8 +30,8 @@ import AccountSearchPaging from "component/custom/select-search/account-select-p
 import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
-import { InventoryTransferTabUrl } from "../../../../../../config/url.config";
-import { useQuery } from "../../../../../../utils/useQuery";
+import { InventoryTransferTabUrl } from "config/url.config";
+import { useQuery } from "utils/useQuery";
 
 type OrderFilterProps = {
   accountStores?: Array<AccountStoreResponse>,
@@ -198,6 +198,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         case 'status':
           onFilter && onFilter({...params, status: []});
           break;
+        case 'note':
+          onFilter && onFilter({...params, note: null});
+          break;
         case 'total_variant':
           onFilter && onFilter({...params, from_total_variant: null, to_total_variant: null});
           break;
@@ -286,6 +289,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         name: 'Thành tiền',
         value: textTotalAmount
       })
+    }
+    if (initialValues.note && initialValues.note !== '') {
+      list.push({
+        key: 'note',
+        name: 'Ghi chú',
+        value: initialValues.note
+      });
     }
     if (initialValues.created_by.length && initialValues.created_by[0]) {
       let textAccount = ""

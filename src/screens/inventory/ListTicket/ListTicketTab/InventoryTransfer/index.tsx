@@ -54,8 +54,8 @@ import {PrinterInventoryTransferResponseModel} from "model/response/printer.resp
 import {actionFetchPrintFormByInventoryTransferIds} from "domain/actions/printer/printer.action";
 import {InventoryTransferPermission} from "config/permissions/inventory-transfer.permission";
 import useAuthorization from "hook/useAuthorization";
-import { callApiNative } from "../../../../../utils/ApiUtils";
-import { searchAccountPublicApi } from "../../../../../service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import TransferExport from "../../Components/TransferExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import {
@@ -297,7 +297,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 60,
+      width: 100,
     },
     {
       title: () => {
@@ -314,7 +314,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 60,
+      width: 100,
     },
     {
       title: "Thành tiền",
