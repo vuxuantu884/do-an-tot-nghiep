@@ -298,7 +298,16 @@ const PODetailScreen: React.FC = () => {
 
   const handleClonePo = useCallback(() => {
     let params = formMain.getFieldsValue(true);
-    params.procurements=null;
+    const procurements = params.procurements;
+    procurements?.forEach((pro: any) => {
+      pro.code = null;
+      pro.id = null;
+      pro.procurement_items.forEach((item: any) => {
+        item.id = null;
+        item.code = null;
+      }
+      )
+    });
     params = {
       ...params,
       id: null,
@@ -563,7 +572,7 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
-  
+
   useEffect(() => {
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(onStoreResult));
@@ -588,7 +597,7 @@ const PODetailScreen: React.FC = () => {
     }
   }, [dispatch, poData?.id, poData]);
 
-  
+
   /**
    * Load data cho lineItem dạng bảng grid
    */
