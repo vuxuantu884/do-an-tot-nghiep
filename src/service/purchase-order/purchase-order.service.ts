@@ -48,9 +48,9 @@ export const updatePurchaseOrderFinancialStatus = (
 };
 
 export const deletePurchaseOrder = (
-  id: number
+  ids: string
 ): Promise<BaseResponse<string>> => {
-  return BaseAxios.delete(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`);
+  return BaseAxios.delete(`${ApiConfig.PURCHASE_ORDER}/purchase-orders?ids=${ids}`);
 };
 
 export const returnPurchaseOrder = (
