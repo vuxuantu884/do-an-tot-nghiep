@@ -690,7 +690,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
     }
     return result;
-  }, [customer?.id, listPaymentMethods, refund.moneyRefund])
+  }, [OrderDetail?.payments, customer?.id, listPaymentMethods, refund.moneyRefund, refund.pointRefund])
 
   const handleSubmitFormReturn = useCallback(() => {
     let formValue = form.getFieldsValue();
@@ -2021,7 +2021,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     let cash = listPaymentMethods.find(
       (single) => single.code === PaymentMethodCode.CASH,
     );
-    if (cash && !isPaymentAlreadyChanged) {
+    if (cash && !isPaymentAlreadyChanged && isExchange && totalAmountCustomerNeedToPay > 0) {
       setPayments([
         {
           amount: Math.ceil(totalAmountCustomerNeedToPay),
@@ -2040,12 +2040,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         },
       ]);
     }
-  }, [
-    customer?.id,
-    isPaymentAlreadyChanged,
-    listPaymentMethods,
-    totalAmountCustomerNeedToPay,
-  ]);
+  }, [customer?.id, isExchange, isPaymentAlreadyChanged, listPaymentMethods, totalAmountCustomerNeedToPay]);
 
   console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
