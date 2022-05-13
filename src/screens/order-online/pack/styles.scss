@@ -151,6 +151,14 @@
     display: flex;
     justify-content: center;
   }
+  .btn-do-fast{
+    height: 25px;
+    width: 25px;
+    padding-top: 7px;
+    margin: auto;
+    background-color: rgb(250, 93, 4);
+    border-color: rgb(250, 93, 4);
+  }
 }
 
 .ant-table-wrapper ::-webkit-scrollbar {

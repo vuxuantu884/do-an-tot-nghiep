@@ -32,10 +32,15 @@ import { RegUtil } from "utils/RegUtils";
 import { FulFillmentStatus } from "utils/Constants";
 import { FulfillmentsOrderPackQuery } from "model/order/order.model";
 import { fullTextSearch } from "utils/StringUtils";
+import { VariantResponse } from "model/product/product.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { ArrowRightOutlined } from "@ant-design/icons";
 
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
   color: string;
+  reference_barcodes?: string | null;
 }
 
 var barcode = "";
@@ -50,6 +55,7 @@ const PackInfo: React.FC = () => {
   //useState
 
   const [packFulFillmentResponse, setPackFulFillmentResponse] = useState<PackFulFillmentResponse>();
+  const [variantResponse, setVariantResponse] = useState<VariantResponse[]>();
   // const [packFulFillmentResponse, setPackFulFillmentResponse] = useState<Array<any>>([]);
   const [itemProductList, setItemProductList] = useState<OrderLineItemResponseExt[]>([]);
 
@@ -102,6 +108,27 @@ const PackInfo: React.FC = () => {
 
   //function
 
+  // const handleDispatchProductSearch = useCallback((query: any) => {
+  //   return new Promise((resolve: (value: PageResponse<VariantResponse>) => void, reject) => {
+  //     console.log(2222222)
+  //     dispatch(searchVariantsRequestAction(query, (response: any) => {
+  //       console.log(33333)
+  //       resolve(response)
+  //     }))
+  //   });
+  // },[dispatch]);
+
+  const handleProducrSearch = useCallback((data: PackFulFillmentResponse) => {
+    let barcodes = data.items.map(p => p.variant_barcode);
+    let initQueryVariant: any = {
+      barcode: barcodes
+    }
+
+    dispatch(searchVariantsRequestAction(initQueryVariant, (response: false | PageResponse<VariantResponse>) => {
+      response && setVariantResponse(response.items)
+    }))
+  }, [dispatch])
+
   const event = useCallback(
     (event: KeyboardEvent) => {
       if (
@@ -130,7 +157,6 @@ const PackInfo: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [formRef, packFulFillmentResponse, ProductRequestElement]
   );
-
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
@@ -171,6 +197,8 @@ const PackInfo: React.FC = () => {
                 showError("Đơn hàng không thuộc cửa hàng được phân bổ");
               OrderRequestElement?.blur();
 
+
+              handleProducrSearch(fMSuccess[0])
             } else {
               setDisableStoreId(false);
               setDisableDeliveryProviderId(false)
@@ -183,7 +211,7 @@ const PackInfo: React.FC = () => {
         OrderRequestElement?.select();
       }
     },
-    [formRef, dispatch, OrderRequestElement, listStoresDataCanAccess, setPackModel, packModel]
+    [formRef, dispatch, OrderRequestElement, listStoresDataCanAccess, handleProducrSearch, setPackModel, packModel]
   );
 
   const onPressEnterProduct = useCallback(
@@ -225,7 +253,7 @@ const PackInfo: React.FC = () => {
   const ProductPack = useCallback((product_request: string, quality_request: number) => {
     let indexPack = itemProductList.findIndex(
       (p) =>
-        p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
+        p.sku === product_request.trim() || p.variant_barcode === product_request.trim() || p.reference_barcodes === product_request.trim()
     );
 
     if (indexPack !== -1) {
@@ -244,14 +272,14 @@ const PackInfo: React.FC = () => {
           formRef.current?.setFieldsValue({ product_request: "" });
       }
 
-      formRef.current?.setFieldsValue({ quality_request: "",inputProduct:""  });
+      formRef.current?.setFieldsValue({ quality_request: "", inputProduct: "" });
     } else {
       showError("Sản phẩm này không có trong đơn hàng");
     }
   }, [formRef, itemProductList])
 
   const FinishPack = useCallback(() => {
-
+    console.log("1")
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
     if (value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())) {
@@ -291,26 +319,46 @@ const PackInfo: React.FC = () => {
     });
   }, [formRef, packModel]);
 
+  // useEffect(() => {
+  //   if (packFulFillmentResponse) {
+  //     // console.log("packFulFillmentResponse", packFulFillmentResponse);
+  //     let item: OrderLineItemResponseExt[] = [];
+  //     packFulFillmentResponse.items.forEach(function (i: OrderLineItemResponse) {
+
+  //       let indexDuplicate = item.findIndex(p => p.variant_id === i.variant_id);
+  //       if (indexDuplicate !== -1) {
+  //         let quantity = item[indexDuplicate].quantity + i.quantity;
+
+  //         //item.push({ ...i, quantity: quantity || 0, pick: 0, color: "#E24343" });
+  //         item[indexDuplicate].quantity = quantity;
+  //         // console.log("indexDuplicate", item[indexDuplicate]);
+  //       }
+  //       else
+  //         item.push({ ...i, pick: 0, color: "#E24343" });
+  //     });
+  //     setItemProductList(item);
+  //   }
+  // }, [packFulFillmentResponse]);
+
   useEffect(() => {
     if (packFulFillmentResponse) {
       // console.log("packFulFillmentResponse", packFulFillmentResponse);
       let item: OrderLineItemResponseExt[] = [];
       packFulFillmentResponse.items.forEach(function (i: OrderLineItemResponse) {
-
+        let reference_barcodes = variantResponse?.find(p => p.barcode === i.variant_barcode)?.reference_barcodes;
         let indexDuplicate = item.findIndex(p => p.variant_id === i.variant_id);
         if (indexDuplicate !== -1) {
           let quantity = item[indexDuplicate].quantity + i.quantity;
 
-          //item.push({ ...i, quantity: quantity || 0, pick: 0, color: "#E24343" });
           item[indexDuplicate].quantity = quantity;
-          // console.log("indexDuplicate", item[indexDuplicate]);
+          item[indexDuplicate].reference_barcodes = reference_barcodes;
         }
         else
-          item.push({ ...i, pick: 0, color: "#E24343" });
+          item.push({ ...i, pick: 0, color: "#E24343", reference_barcodes: reference_barcodes });
       });
       setItemProductList(item);
     }
-  }, [packFulFillmentResponse]);
+  }, [packFulFillmentResponse, variantResponse]);
 
   useEffect(() => {
     if (
@@ -385,10 +433,11 @@ const PackInfo: React.FC = () => {
     title: () => (
       <div className="text-center">
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
+
       </div>
     ),
     width: "25%",
-    className: "yody-pos-name",
+    className: "yody-pos-product",
     render: (l: any, item: any, index: number) => {
       return (
         <div
@@ -399,7 +448,7 @@ const PackInfo: React.FC = () => {
             flexDirection: "column",
           }}
         >
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center" style={{ display: "flex", justifyContent: "space-around" }}>
             <div style={{ width: "calc(100% - 32px)", float: "left" }}>
               <div className="yody-pos-sku">
                 <Link
@@ -415,7 +464,17 @@ const PackInfo: React.FC = () => {
                 </Tooltip>
               </div>
             </div>
+            <Button
+              type="primary"
+              icon={<ArrowRightOutlined />}
+              className="btn-do-fast"
+              onClick={()=>{
+                if(item.quantity>item.pick)
+                  ProductPack(item.sku, item.quantity)
+              }}
+              ></Button>
           </div>
+          {/*  */}
         </div>
       );
     },
