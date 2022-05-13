@@ -70,7 +70,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
       title: "Sản phẩm",
       width: "200px",
       className: "ant-col-info",
-      align: "center",
+      // align: "center",
       dataIndex: "variant",
       render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
