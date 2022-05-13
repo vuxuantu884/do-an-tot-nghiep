@@ -610,7 +610,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     color: ${primaryColor};
   }
   .orderTotal {
-    color: ${successColor};
+    // color: ${successColor};
     font-weight: bold;
   }
 `;

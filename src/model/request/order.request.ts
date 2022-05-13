@@ -47,6 +47,7 @@ export interface OrderRequest {
   sub_status_code?: string; 
 	automatic_discount?: boolean;
   export_bill?: boolean;
+  ecommerce_shop_id?: number | null;
 }
 
 export interface ReturnRequest extends OrderRequest {
