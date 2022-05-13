@@ -10,13 +10,14 @@ type EditNoteProps = {
 	color?: string;
 	isDisable?: boolean;
 	isGroupButton?: boolean;
+	isHaveEditPermission?: boolean;
 	defaultNote?:ReactNode;
 	onOk: (newNote: string) => void;
 };
 const EditNote: React.FC<EditNoteProps> = (
 	props: EditNoteProps
 ) => {
-	const { note, title,defaultNote, onOk, isDisable = false, isGroupButton = false } = props;
+	const { note, title,defaultNote, onOk, isDisable = false, isGroupButton = false, isHaveEditPermission = true } = props;
 	const [visible, setVisible] = useState(false);
 	const [newNote, setNewNote] = useState(note);
 	const handleVisibleChange = (visible: boolean) => {
@@ -59,9 +60,11 @@ const EditNote: React.FC<EditNoteProps> = (
 				onVisibleChange={handleVisibleChange}
 
 			>
-				{!isGroupButton ? (
-					<EditOutlined style={{ marginRight: 5, color: props.color }} title="Sửa ghi chú" />
-				) : (
+				{!isGroupButton && isHaveEditPermission && (
+					<EditOutlined style={{ marginRight: 5, color: props.color, cursor: "pointer" }} title="Sửa ghi chú" />
+				)}
+
+				{isGroupButton && (
 					<Button className="custom-group-btn">
 						<>
 							<EditOutlined style={{ marginRight: 5, color: props.color }} title="Sửa ghi chú" />
