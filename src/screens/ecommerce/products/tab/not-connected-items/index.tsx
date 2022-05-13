@@ -74,7 +74,7 @@ import ConcatenateByExcel from "./ConcatenateByExcel";
 import { EcommerceProductTabUrl } from "config/url.config";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
-import {debounce} from "lodash";
+import _, {debounce} from "lodash";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -101,6 +101,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
+    not: false,
+  });
+
+  const [allowProductsDelete] = useAuthorization({
+    acceptPermissions: productsDeletePermission,
     not: false,
   });
 
@@ -510,7 +515,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             dropdownRender={(menu) => <div>{menu}</div>}
           >
             <Input
-              style={{ width: 230 }}
               placeholder="SKU, tên sản phẩm Yody"
               prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
             />
@@ -597,7 +601,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIdsItemSelected([item.id]);
   };
 
-  const [columns,] = useState<any>([
+  const [columns, setColumns] = useState<any>([
     {
       title: "Ảnh",
       align: "center",
@@ -663,11 +667,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         );
       },
     },
-
-    ConnectedItemActionColumn(
-      handleDeleteItem,
-    ),
   ]);
+
+  useEffect(() => {
+    if (allowProductsDelete) {
+      let newColumns = _.cloneDeep(columns);
+      newColumns.push(
+        ConnectedItemActionColumn(handleDeleteItem)
+      )
+      setColumns(newColumns);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowProductsDelete]);
 
   let initialValues = useMemo(() => {
     return {
@@ -1100,11 +1111,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     }
   };
   // end handle exit process modal
-
-  const [allowProductsDelete] = useAuthorization({
-    acceptPermissions: productsDeletePermission,
-    not: false,
-  });
 
   const isDisableAction = () => {
     return !selectedRow || selectedRow.length === 0;
