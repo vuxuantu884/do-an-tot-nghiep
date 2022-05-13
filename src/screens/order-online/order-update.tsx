@@ -78,7 +78,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
@@ -183,9 +183,15 @@ export default function Order(props: PropTypes) {
 
 	const [isVisibleCustomer, setVisibleCustomer] = useState(true);
 	const [modalAction, setModalAction] = useState<modalActionType>("edit");
-
+	const isFirstLoad = useRef(true);
 	const handleCustomer = (_objCustomer: CustomerResponse | null) => {
 		setCustomer(_objCustomer);
+		if (_objCustomer) {
+			const shippingAddressItem = _objCustomer.shipping_addresses.find(
+				(p: any) => p.default === true
+			);
+			shippingAddressItem && setShippingAddress(shippingAddressItem);
+		}
 	};
 
 	const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
@@ -1154,30 +1160,34 @@ export default function Order(props: PropTypes) {
 			const shippingAddressItem = customer.shipping_addresses.find(
 				(p: any) => p.default === true
 			);
-			if (OrderDetail?.shipping_address && OrderDetail?.shipping_address.city_id
-				&& OrderDetail?.shipping_address.district_id && OrderDetail?.shipping_address.ward_id
-				&& OrderDetail?.shipping_address.full_address && shippingAddressItem) {
-					// nếu order có địa chỉ giao hàng đúng thì gán vào form hiển thị thành địa chỉ khách hàng
-					setShippingAddress({
-						...shippingAddressItem,
-						...OrderDetail?.shipping_address
-					})
-					// nếu những địa chỉ khách hàng đã có không có địa chỉ của đơn hàng
-					const shippingAddressCustomerSameShippingAddressOrder = customer.shipping_addresses.find(
-						(p: any) => p.name === OrderDetail?.shipping_address?.name &&
-						p.phone === OrderDetail?.shipping_address?.phone &&
-						p.country_id === OrderDetail?.shipping_address?.country_id &&
-						p.city_id === OrderDetail?.shipping_address?.city_id &&
-						p.district_id === OrderDetail?.shipping_address?.district_id &&
-						p.ward_id === OrderDetail?.shipping_address?.ward_id &&
-						p.full_address === OrderDetail?.shipping_address?.full_address
-					);
-					if (!shippingAddressCustomerSameShippingAddressOrder) {
-						setCustomerChange(true);
-						showWarning("Địa chỉ giao hàng của khách hàng khác với địa chỉ giao hàng của đơn hàng!!!")
-					}
-			} else {
-				if (shippingAddressItem) setShippingAddress(shippingAddressItem)
+			if (isFirstLoad.current) {
+				if (OrderDetail?.shipping_address && OrderDetail?.shipping_address.city_id
+					&& OrderDetail?.shipping_address.district_id && OrderDetail?.shipping_address.ward_id
+					&& OrderDetail?.shipping_address.full_address && shippingAddressItem) {
+						// nếu order có địa chỉ giao hàng đúng thì gán vào form hiển thị thành địa chỉ khách hàng
+						setShippingAddress({
+							...shippingAddressItem,
+							...OrderDetail?.shipping_address,
+							id: shippingAddressItem.id
+						})
+						// nếu những địa chỉ khách hàng đã có không có địa chỉ của đơn hàng
+						const shippingAddressCustomerSameShippingAddressOrder = customer.shipping_addresses.find(
+							(p: any) => p.name === OrderDetail?.shipping_address?.name &&
+							p.phone === OrderDetail?.shipping_address?.phone &&
+							// p.country_id === OrderDetail?.shipping_address?.country_id &&
+							p.city_id === OrderDetail?.shipping_address?.city_id &&
+							p.district_id === OrderDetail?.shipping_address?.district_id &&
+							p.ward_id === OrderDetail?.shipping_address?.ward_id &&
+							p.full_address === OrderDetail?.shipping_address?.full_address
+						);
+						if (!shippingAddressCustomerSameShippingAddressOrder) {
+							setCustomerChange(true);
+							showWarning("Địa chỉ giao hàng của khách hàng khác với địa chỉ giao hàng của đơn hàng!!!")
+						}
+				} else {
+					if (shippingAddressItem) setShippingAddress(shippingAddressItem)
+				}
+				isFirstLoad.current = false;
 			}
 			
 		} else {
