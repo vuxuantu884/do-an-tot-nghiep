@@ -63,7 +63,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  OrderLineItemResponse,
+  OrderDiscountResponse, OrderLineItemResponse,
   OrderReasonModel,
   OrderResponse,
   ReturnProductModel,
@@ -96,9 +96,7 @@ import {
   checkIfOrderCanBeReturned,
   getAmountPayment,
   getAmountPaymentRequest,
-  getListItemsCanReturn,
-  getTotalAmount,
-  getTotalAmountAfterDiscount,
+  getListItemsCanReturn, getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
@@ -633,7 +631,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   console.log('refund', refund)
 
-  const getPaymentOfReturn = useMemo(() => {
+  const getPaymentOfReturn = useCallback((itemsResult: OrderLineItemResponse[], discounts: OrderDiscountResponse[] | null) => {
     let result: OrderPaymentRequest[] = [];
     if(refund.moneyRefund > 0) {
       const moneyPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
@@ -641,10 +639,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
         result.push({
           payment_method_id: moneyPayment.id,
           payment_method: moneyPayment.name,
-          amount: Math.ceil(refund.moneyRefund),
+          amount: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
           reference: "",
           source: "",
-          paid_amount: Math.ceil(refund.moneyRefund),
+          paid_amount: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
           return_amount: 0,
           status: "paid",
           customer_id: customer?.id || null,
@@ -654,43 +652,43 @@ const ScreenReturnCreate = (props: PropTypes) => {
         })
       }
     }
-    if(refund.pointRefund > 0) {
-      const pointPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.POINT);
-      const pointPaymentFromOrderDetail = OrderDetail?.payments?.filter(single => single.payment_method_code === PaymentMethodCode.POINT);
-      let pointRateFromOrderDetail = 0;
-      let totalAmountPoint = 0;
-      let totalPoint = 0;
-      let amountPointReturn =0;
-      if(pointPaymentFromOrderDetail) {
-        pointPaymentFromOrderDetail.forEach(single => {
-          totalAmountPoint = totalAmountPoint + single.paid_amount;
-          totalPoint = totalPoint + (single?.point || 0);
-        })
-      }
-      if(totalPoint > 0) {
-        pointRateFromOrderDetail = totalAmountPoint / totalPoint;
-      }
-      if(pointPayment) {
-        amountPointReturn = refund.pointRefund * pointRateFromOrderDetail;
-        result.push({
-          payment_method_id: pointPayment.id,
-          payment_method: pointPayment.name,
-          amount: Math.ceil(amountPointReturn),
-          reference: "",
-          source: "",
-          paid_amount: Math.ceil(amountPointReturn),
-          point: refund.moneyRefund,
-          return_amount: 0,
-          status: "paid",
-          customer_id: customer?.id || null,
-          type: "",
-          note: "Điểm đơn trả",
-          code: "",
-        })
-      }
-    }
+    // if(refund.pointRefund > 0) {
+    //   const pointPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.POINT);
+    //   const pointPaymentFromOrderDetail = OrderDetail?.payments?.filter(single => single.payment_method_code === PaymentMethodCode.POINT);
+    //   let pointRateFromOrderDetail = 0;
+    //   let totalAmountPoint = 0;
+    //   let totalPoint = 0;
+    //   let amountPointReturn =0;
+    //   if(pointPaymentFromOrderDetail) {
+    //     pointPaymentFromOrderDetail.forEach(single => {
+    //       totalAmountPoint = totalAmountPoint + single.paid_amount;
+    //       totalPoint = totalPoint + (single?.point || 0);
+    //     })
+    //   }
+    //   if(totalPoint > 0) {
+    //     pointRateFromOrderDetail = totalAmountPoint / totalPoint;
+    //   }
+    //   if(pointPayment) {
+    //     amountPointReturn = refund.pointRefund * pointRateFromOrderDetail;
+    //     result.push({
+    //       payment_method_id: pointPayment.id,
+    //       payment_method: pointPayment.name,
+    //       amount: Math.ceil(amountPointReturn),
+    //       reference: "",
+    //       source: "",
+    //       paid_amount: Math.ceil(amountPointReturn),
+    //       point: refund.moneyRefund,
+    //       return_amount: 0,
+    //       status: "paid",
+    //       customer_id: customer?.id || null,
+    //       type: "",
+    //       note: "Điểm đơn trả",
+    //       code: "",
+    //     })
+    //   }
+    // }
     return result;
-  }, [OrderDetail?.payments, customer?.id, listPaymentMethods, refund.moneyRefund, refund.pointRefund])
+  }, [customer?.id, listPaymentMethods, refund.moneyRefund])
 
   const handleSubmitFormReturn = useCallback(() => {
     let formValue = form.getFieldsValue();
@@ -755,7 +753,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_returns: [],
         automatic_discount: form.getFieldValue("automatic_discount"),
         discounts: discounts,
-        total: Math.ceil(totalAmountReturnProducts),
+        total: Math.ceil(getTotalAmountAfterDiscount(returnItems) - getTotalOrderDiscount(discounts)),
         total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.ceil(
           getTotalAmountAfterDiscount(returnItems),
@@ -807,7 +805,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         ),
       );
     }
-  }, [OrderDetail, customer?.id, dispatch, form, getChannelIdReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, history, isReceivedReturnProducts, listPaymentMethods, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, returnItems, returnMoneyType, storeReturn, totalAmountCustomerNeedToPay, totalAmountReturnProducts]);
+  }, [OrderDetail, customer?.id, dispatch, form, getChannelIdReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, history, isReceivedReturnProducts, listPaymentMethods, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, returnItems, returnMoneyType, storeReturn, totalAmountCustomerNeedToPay]);
 
   const checkIfHasReturnProduct = listReturnProducts.some((single) => {
     return single.quantity > 0;
@@ -961,7 +959,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         discounts: handleRecalculateOriginDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail.assignee_code || null,
-        total: Math.floor(getTotalAmount(itemsResult)),
+        total: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
         total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.floor(
           getTotalAmountAfterDiscount(itemsResult),
@@ -981,7 +979,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       const order_return = cloneDeep(orderDetailResult);
       order_return.fulfillments = [];
       order_return.items = itemsResult;
-      order_return.payments = getPaymentOfReturn;
+      order_return.payments = getPaymentOfReturn(itemsResult, discounts);
 
       let values: OrderRequest = form.getFieldsValue();
       let order_exchange = onFinish(values);
@@ -1002,9 +1000,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       order_exchange.reference_code = form.getFieldValue("reference_code");
       order_exchange.url = form.getFieldValue("url");
       order_exchange.fulfillments = createFulFillmentRequest(values);
-      order_exchange.items = listExchangeProducts;
       order_exchange.items = listExchangeProducts.concat(itemGifts);
-      order_exchange.payments = payments;
+      order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments : [];
       const valuesExchange = {
         origin_order_id,
         order_return,

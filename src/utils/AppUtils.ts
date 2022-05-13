@@ -35,6 +35,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   FulFillmentResponse,
+  OrderDiscountResponse,
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
@@ -1176,7 +1177,7 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	return discountPerOrder;
 }
 
-export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
+export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {
   if(!discounts) {
     return 0;
   }
