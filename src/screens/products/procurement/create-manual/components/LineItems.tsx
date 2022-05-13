@@ -132,7 +132,9 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
           isFloat={false}
           maxLength={7}
           onChange={(quantity: number | null) => {
-            if (quantity === null) return
+            if (quantity === null) {
+              quantity = 0
+            }
             if (quantity > 1000000) {
               quantity = 1000000
             }
