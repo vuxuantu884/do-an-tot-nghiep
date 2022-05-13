@@ -743,7 +743,7 @@ export default function Order(props: PropTypes) {
 			element?.focus();
 		} else {
 			if (customerChange) {
-				showWarning("Bạn chưa lưu thông tin địa chỉ giao hàng");
+				showWarning("Chưa lưu thông tin địa chỉ giao hàng");
 			}
 			if (items.length === 0) {
 				showError("Vui lòng chọn ít nhất 1 sản phẩm");
@@ -1182,7 +1182,7 @@ export default function Order(props: PropTypes) {
 						);
 						if (!shippingAddressCustomerSameShippingAddressOrder) {
 							setCustomerChange(true);
-							showWarning("Địa chỉ giao hàng của khách hàng khác với địa chỉ giao hàng của đơn hàng!!!")
+							showWarning("Địa chỉ giao hàng của đơn hàng và khách hàng chưa đồng bộ!!!")
 						}
 				} else {
 					if (shippingAddressItem) setShippingAddress(shippingAddressItem)
