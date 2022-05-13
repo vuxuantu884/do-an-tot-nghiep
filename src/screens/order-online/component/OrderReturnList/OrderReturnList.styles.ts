@@ -1,6 +1,6 @@
 
 import styled from "styled-components";
-import { borderColor } from "utils/global-styles/variables";
+import { borderColor, primaryColor } from "utils/global-styles/variables";
 let nameQuantityWidth = 200;
 export const StyledComponent = styled.div`
   .order-options {
@@ -182,5 +182,27 @@ export const StyledComponent = styled.div`
         -webkit-box-orient: vertical;
       }
     }
+    .customer {
+      .ant-btn {
+        line-height: 15px;
+        height: 15px;
+        width: auto;
+      }
+    }
+  }
+  .orderId {
+    .noWrap {
+      white-space: nowrap;
+    }
+    .single {
+      margin-top: 2px;
+    }
+  }
+  .textSmall {
+    font-size: 0.86em;
+    line-height: 1.25;
+  }
+  .mainColor {
+    color: ${primaryColor};
   }
 `;
