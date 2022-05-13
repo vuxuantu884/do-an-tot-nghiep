@@ -1,4 +1,4 @@
-import { EditOutlined, FilePdfOutlined, PrinterFilled } from "@ant-design/icons";
+import { EditOutlined, FilePdfOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -17,7 +17,7 @@ import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditi
 import {
   POCancelAction,
   PoCreateAction,
-  PoDetailAction, POGetPrintContentAction, POGetPurchaseOrderActionLogs, PoUpdateAction
+  PoDetailAction, POGetPurchaseOrderActionLogs, PoUpdateAction
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
@@ -43,6 +43,7 @@ import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { productDetailApi } from "service/product/product.service";
+import { getPrintContent } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
@@ -70,6 +71,17 @@ const ActionMenu = {
   CLONE: 3,
 }
 
+const ActionMenuPrint = {
+  FGG: 1, //mẫu in fgg
+  NORMAL: 2, //mẫu in thông thường
+}
+
+const PrintTypePo = {
+  PURCHASE_ORDER: "purchase_order",
+  PURCHASE_ORDER_MA_7: "purchase_order_ma_7",
+  PURCHASE_ORDER_FGG: "purchase_order_fgg",
+  PURCHASE_ORDER_MA_7_FGG: "purchase_order_ma_7_fgg",
+}
 type PurchaseOrderParam = {
   id: string;
 };
@@ -137,36 +149,38 @@ const PODetailScreen: React.FC = () => {
 
   const {setPoLineItemGridChema,setPoLineItemGridValue, setTaxRate, isGridMode, setIsGridMode, poLineItemGridValue, poLineItemGridChema, taxRate }= useContext(PurchaseOrderCreateContext);
 
-  const onDetail = useCallback(
-    (result: PurchaseOrder | null) => {
-      setLoading(false);
-      if (!result) {
-        setError(true);
-      } else {        
-        setPurchaseItem(result);
-        formMain.setFieldsValue(result);
-        setStatus(result.status);
-      }
-    },
-    [formMain]
-  );
-
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
 
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
       if (!printContent || printContent.length === 0) return;
       setPrintContent(printContent[0].html_content);
     },
-    [setPrintContent]
+    []
+  );
+
+  const onDetail = useCallback(
+    (result: PurchaseOrder | null) => {
+      setLoading(false);
+      if (!result) {
+        setError(true);
+      } else {      
+        setPurchaseItem(result);
+        formMain.setFieldsValue(result);
+        setStatus(result.status);        
+      }
+    },
+    [formMain]
   );
 
   const loadDetail = useCallback(
     (id: number, isLoading, isSuggestDetail: boolean) => {
       setSuggest(isSuggestDetail);
       dispatch(PoDetailAction(id, onDetail));
-      dispatch(POGetPrintContentAction(id, printContentCallback));
     },
-    [dispatch, onDetail, printContentCallback]
+    [dispatch, onDetail]
   );
 
   const onConfirmButton = useCallback(() => {
@@ -348,6 +362,37 @@ const PODetailScreen: React.FC = () => {
     [setConfirmDelete, handleClonePo]
   );
 
+  const actionPrint = useCallback(async (poId: number,printType: string) =>{
+    const res = await callApiNative({isShowLoading: true},dispatch,getPrintContent,poId,printType);
+    if (res && res.data && res.data.message) {
+      showError(res.data.message);
+    }else{
+      printContentCallback(res);
+      handlePrint && handlePrint();
+    }
+  },[dispatch, handlePrint, printContentCallback]);
+
+  const onMenuPrint = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ActionMenuPrint.NORMAL:
+          if (isGridMode) {
+            actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7);
+            break;
+          }
+          actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER);
+          break;
+        case ActionMenuPrint.FGG:
+          if (isGridMode) {
+            actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7_FGG);
+            break;
+          }
+          actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7);
+          break;
+      }
+    },
+    [isGridMode, actionPrint, idNumber]
+  );
 
   const redirectToReturn = useCallback(() => {
     if(poData?.status === POStatus.FINALIZED){
@@ -390,7 +435,20 @@ const PODetailScreen: React.FC = () => {
         name: "Hủy",
       });
     return menuActions;
-  }, [poData, canCancelPO]);
+  }, [poData, canCancelPO]);  
+  
+  const menuPrint: Array<MenuAction> = useMemo(() => {
+    return [
+      {
+        id: ActionMenuPrint.FGG,
+        name: "In đơn đặt hàng FGG",
+      },
+      {
+        id: ActionMenuPrint.NORMAL,
+        name: "In đơn đặt hàng NCC",
+      }
+    ];
+  }, []);
 
 
   const renderModalDelete = useCallback(() => {
@@ -533,14 +591,15 @@ const PODetailScreen: React.FC = () => {
               getPopupContainer={(trigger: any) => trigger.parentNode}
             />
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
-                <Button
-                    type="primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePrint && handlePrint();
-                    }}
-                    icon={<PrinterFilled />}
-                >In</Button>
+                <ActionButton
+                  menu={menuPrint}
+                  onMenuClick={onMenuPrint}
+                  type="primary"
+                  placement={'topCenter'}
+                  buttonStyle={{ borderRadius: 2 }}
+                  buttonText="In phiếu"
+                  getPopupContainer={(trigger: any) => trigger.parentNode}
+                />
             </AuthWrapper>
             <div style={{ display: "none" }}>
                 <div className="printContent" ref={printElementRef}>
@@ -567,14 +626,7 @@ const PODetailScreen: React.FC = () => {
     status,
   ]);
 
-
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
-
-
   useEffect(() => {
-    dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(onStoreResult));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));

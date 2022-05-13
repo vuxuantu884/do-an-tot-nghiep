@@ -10,6 +10,7 @@ type ActionProps = Pick<DropDownProps, 'placement' | 'getPopupContainer'> & {
   disabled?: boolean;
   type?: ButtonType;
   buttonStyle?: CSSProperties | undefined;
+  buttonText?: string
 };
 
 export interface MenuAction {
@@ -46,7 +47,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
       trigger={["click"]}
     >
       <Button type={props.type ? props.type : "link"} className="action-button" style={props.buttonStyle}>
-        <div style={{ marginRight: 10 }}>Thao tác </div>
+        <div style={{ marginRight: 10 }}>{props.buttonText ?? "Thao tác"}</div>
         <DownOutlined />
       </Button>
     </Dropdown>

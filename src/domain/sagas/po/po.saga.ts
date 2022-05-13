@@ -248,9 +248,9 @@ function* poReturnSaga(action: YodyAction) {
 }
 
 function* poPrintSaga(action: YodyAction) {
-  const { id, updatePrintCallback } = action.payload;
+  const { id,printType, updatePrintCallback } = action.payload;
   try {
-    let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id);
+    let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id,printType);
     updatePrintCallback(response);
   } catch (error) {
     console.log("error ", error);

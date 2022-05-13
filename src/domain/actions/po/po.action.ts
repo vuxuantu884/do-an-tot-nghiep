@@ -40,10 +40,12 @@ export const POGetPurchaseOrderActionLogs = (
 
 export const POGetPrintContentAction = (
   id: number,
+  printType: string,
   updatePrintCallback: (result: Array<PurchaseOrderPrint>) => void
 ) => {
   return BaseAction(POType.GET_PRINT_CONTENT, {
     id,
+    printType,
     updatePrintCallback,
   });
 };
