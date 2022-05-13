@@ -23,7 +23,7 @@ import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
@@ -298,7 +298,8 @@ const PODetailScreen: React.FC = () => {
 
   const handleClonePo = useCallback(() => {
     let params = formMain.getFieldsValue(true);
-    const procurements = params.procurements;
+    const paramsData = cloneDeep(params)
+    const procurements = [params.procurements[0]];
     procurements?.forEach((pro: any) => {
       pro.code = null;
       pro.id = null;
@@ -308,8 +309,9 @@ const PODetailScreen: React.FC = () => {
       }
       )
     });
-    params = {
-      ...params,
+    const paramsSubmit = {
+      ...paramsData,
+      procurements,
       id: null,
       code: null,
       status: POStatus.DRAFT,
@@ -322,15 +324,15 @@ const PODetailScreen: React.FC = () => {
       payment_refunds: null,
     }
     dispatch(showLoading())
-    dispatch(PoCreateAction(params, (result) => {
+    dispatch(PoCreateAction(paramsSubmit, (result) => {
       if (result) {
         showSuccess("Sao chép đơn đặt hàng thành công");
         dispatch(hideLoading())
         window.open(`${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${result.id}`, "_blank");
-        loadDetail(result.id, true, false);
+        // loadDetail(result.id, true, false);
       }
     }));
-  }, [dispatch, loadDetail, formMain]);
+  }, [dispatch, formMain]);
 
   const onMenuClick = useCallback(
     (index: number) => {
