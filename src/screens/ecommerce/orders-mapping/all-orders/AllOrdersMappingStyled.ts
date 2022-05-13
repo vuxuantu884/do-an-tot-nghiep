@@ -1,8 +1,80 @@
 import styled from "styled-components";
+import { primaryColor, successColor } from "utils/global-styles/variables";
 
 
 export const AllOrdersMappingStyled = styled.div`
-  
+	.core-sub-status {
+    color: #fff;
+    border-radius: 100px;
+    padding: 5px 15px;
+    margin: 0 auto;
+	}
+  .coordinator_confirmed {
+    background: #52D276 !important;
+  }
+  .awaiting_coordinator_confirmation {
+    background: #FCAF17;
+  }
+  .awaiting_saler_confirmation {
+    background: #106227 !important;
+  }
+  .first_call_attempt {
+    background: #106227 !important;
+  }
+  .second_call_attempt {
+    background: #00897B !important;
+  }
+  .third_call_attempt {
+    background: #E8770A !important;
+  }
+  .merchandise_packed {
+    background: #E8770A !important;
+  }
+  .shipping {
+    background: #00897B !important;
+  }
+  .awaiting_shipper {
+    background: #106227 !important;
+  }
+  .merchandise_picking {
+    background: #C98D17 !important;
+  }
+  .returned {
+    background: #52D276 !important;
+  }
+  .fourHour_delivery {
+    background: ${primaryColor} !important;
+  }
+  .shipped {
+    background: ${successColor} !important;
+  }
+  .order_return {
+    background: #FCAF17 !important;
+  }
+  .coordinator_confirming {
+    background: #E8770A  !important;
+  }
+  .returning {
+    background: #E8770A  !important;
+  }
+  .awaiting_coordinator_confirmation {
+    background: #FCAF17 !important;
+  }
+  .require_warehouse_change {
+    background: #8D6E63 !important;
+  }
+  .cancelled {
+    background: #E24343 !important;
+  }
+  .delivery_service_cancelled {
+    background: #E24343 !important;
+  }
+  .out_of_stock {
+    background: #E24343 !important;
+  }
+  .system_cancelled {
+    background: #E24343 !important;
+  }
 `;
 
 export const AllOrdersMappingFilterStyled = styled.div`
@@ -35,11 +107,11 @@ export const AllOrdersMappingFilterStyled = styled.div`
       border-radius: 5px;
       display: flex;
       align-items: center;
-      color: $primary-color;
+      color: ${primaryColor};
       &:hover {
-        color: $primary-color;
-        border: 1px solid $primary-color;
-        color: $primary-color;
+        color: ${primaryColor};
+        border: 1px solid ${primaryColor};
+        color: ${primaryColor};
       }
     }
   }
