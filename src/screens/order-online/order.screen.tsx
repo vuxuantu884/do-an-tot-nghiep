@@ -86,7 +86,7 @@ import {
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
@@ -111,6 +111,7 @@ export default function Order() {
 	const [isSaveDraft, setIsSaveDraft] = useState(false);
 	const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+	const [customerChange, setCustomerChange] = useState(false);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
 	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -564,6 +565,9 @@ export default function Order() {
 			const element: any = document.getElementById("search_customer");
 			element?.focus();
 		} else {
+			if (customerChange) {
+				showWarning("Bạn chưa lưu thông tin địa chỉ giao hàng");
+			}
 			if (items.length === 0) {
 				showError("Vui lòng chọn ít nhất 1 sản phẩm");
 				const element: any = document.getElementById("search_product");
@@ -1295,6 +1299,8 @@ export default function Order() {
 											initialForm={initialForm}
 											updateOrder
 											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+											customerChange={customerChange}
+                    	setCustomerChange={setCustomerChange}
 										/>
 										<OrderCreateProduct
 											orderAmount={orderAmount}
