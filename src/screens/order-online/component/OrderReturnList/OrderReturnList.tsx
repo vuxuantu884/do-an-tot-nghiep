@@ -191,39 +191,14 @@ function OrderReturnList(props: PropTypes) {
     },
     {
       title: "Mã đơn hàng",
-      className: "orderId custom-shadow-td",
       render: (record: ReturnModel) => (
-        <div>
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ORDER}/${record.code_order}`}
-            >
-              {record.code_order}
-            </Link>
-          </div>
-          <div>
-            {record.created_date
-              ? moment(record.created_date).format(DATE_FORMAT.fullDate)
-              : ""}
-          </div>
-        </div>
+        <Link target="_blank" to={`${UrlConfig.ORDER}/${record.order_id}`}>
+          {record.code_order}
+        </Link>
       ),
       visible: true,
-      fixed: "left",
-      width: 140,
+      width: 120,
     },
-    
-    // {
-    //   title: "Mã đơn hàng",
-    //   render: (record: ReturnModel) => (
-    //     <Link target="_blank" to={`${UrlConfig.ORDER}/${record.order_id}`}>
-    //       {record.code_order}
-    //     </Link>
-    //   ),
-    //   visible: true,
-    //   width: 120,
-    // },
     {
       title: "Khách hàng",
       render: (record: ReturnModel) => (
@@ -305,9 +280,6 @@ function OrderReturnList(props: PropTypes) {
               } trigger="click">
                 <Button type="link" style={{ width: "25px", padding: "0px", paddingTop:2}} icon={<DownOutlined style={{fontSize:"12px"}}/>}></Button>
               </Popover>
-              {/* <Button  type="link" onClick={()=>{
-                  onFilterPhoneCustomer(record.customer_phone_number)
-                }}>{record.customer_phone_number}</Button> */}
             </div>
           )}
           <div className="name" style={{ color: "#2A2A86" }}>
@@ -315,9 +287,8 @@ function OrderReturnList(props: PropTypes) {
               target="_blank"
               to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
               className="primary">
-              {record.customer}
+              {record.customer_name}
             </Link>{" "}
-
           </div>
           {/* <div className="textSmall">{renderShippingAddress(record)}</div> */}
         </div>

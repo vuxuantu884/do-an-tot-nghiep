@@ -1656,7 +1656,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     }, []);
   };
 
-  console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
+  // console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
 
   const listCheckedShippingFeeConfigFlatten = flattenArray(
     listCheckedShippingFeeConfig
