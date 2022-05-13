@@ -78,7 +78,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
@@ -106,7 +106,7 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { yellowColor } from "utils/global-styles/variables";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
@@ -134,7 +134,7 @@ export default function Order(props: PropTypes) {
 		(state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
 	)
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
-	console.log('customer', customer)
+	const [customerChange, setCustomerChange] = useState(false);
 	
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
@@ -183,9 +183,15 @@ export default function Order(props: PropTypes) {
 
 	const [isVisibleCustomer, setVisibleCustomer] = useState(true);
 	const [modalAction, setModalAction] = useState<modalActionType>("edit");
-
+	const isFirstLoad = useRef(true);
 	const handleCustomer = (_objCustomer: CustomerResponse | null) => {
 		setCustomer(_objCustomer);
+		if (_objCustomer) {
+			const shippingAddressItem = _objCustomer.shipping_addresses.find(
+				(p: any) => p.default === true
+			);
+			shippingAddressItem && setShippingAddress(shippingAddressItem);
+		}
 	};
 
 	const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
@@ -736,6 +742,9 @@ export default function Order(props: PropTypes) {
 			const element: any = document.getElementById("search_customer");
 			element?.focus();
 		} else {
+			if (customerChange) {
+				showWarning("Chưa lưu thông tin địa chỉ giao hàng");
+			}
 			if (items.length === 0) {
 				showError("Vui lòng chọn ít nhất 1 sản phẩm");
 				const element: any = document.getElementById("search_product");
@@ -1148,16 +1157,45 @@ export default function Order(props: PropTypes) {
 				setLoyaltyPoint(data);
 				setCountFinishingUpdateCustomer(prev => prev + 1);
 			}));
-			let shippingAddressItem = customer.shipping_addresses.find(
+			const shippingAddressItem = customer.shipping_addresses.find(
 				(p: any) => p.default === true
 			);
-			if (shippingAddressItem) setShippingAddress(shippingAddressItem)
+			if (isFirstLoad.current) {
+				if (OrderDetail?.shipping_address && OrderDetail?.shipping_address.city_id
+					&& OrderDetail?.shipping_address.district_id && OrderDetail?.shipping_address.ward_id
+					&& OrderDetail?.shipping_address.full_address && shippingAddressItem) {
+						// nếu order có địa chỉ giao hàng đúng thì gán vào form hiển thị thành địa chỉ khách hàng
+						setShippingAddress({
+							...shippingAddressItem,
+							...OrderDetail?.shipping_address,
+							id: shippingAddressItem.id
+						})
+						// nếu những địa chỉ khách hàng đã có không có địa chỉ của đơn hàng
+						const shippingAddressCustomerSameShippingAddressOrder = customer.shipping_addresses.find(
+							(p: any) => p.name === OrderDetail?.shipping_address?.name &&
+							p.phone === OrderDetail?.shipping_address?.phone &&
+							// p.country_id === OrderDetail?.shipping_address?.country_id &&
+							p.city_id === OrderDetail?.shipping_address?.city_id &&
+							p.district_id === OrderDetail?.shipping_address?.district_id &&
+							p.ward_id === OrderDetail?.shipping_address?.ward_id &&
+							p.full_address === OrderDetail?.shipping_address?.full_address
+						);
+						if (!shippingAddressCustomerSameShippingAddressOrder) {
+							setCustomerChange(true);
+							showWarning("Địa chỉ giao hàng của đơn hàng và khách hàng chưa đồng bộ!!!")
+						}
+				} else {
+					if (shippingAddressItem) setShippingAddress(shippingAddressItem)
+				}
+				isFirstLoad.current = false;
+			}
+			
 		} else {
 			setLoyaltyPoint(null);
 			setCountFinishingUpdateCustomer(prev => prev + 1);
 			setShippingAddress(null);
 		}
-	}, [dispatch, customer]);
+	}, [dispatch, customer, OrderDetail?.shipping_address]);
 
 	const checkPointFocus = useCallback(
 		(value: any) => {
@@ -1396,32 +1434,10 @@ export default function Order(props: PropTypes) {
 										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
 										form={form}
 										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+										customerChange={customerChange}
+                    setCustomerChange={setCustomerChange}
 									/>
-									{/* <CardProduct
-                    orderId={id}
-                    changeInfo={onChangeInfoProduct}
-                    selectStore={onStoreSelect}
-                    storeId={storeId}
-                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-                    setItemGift={setItemGifts}
-                    formRef={formRef}
-                    items={items}
-                    handleCardItems={handleCardItems}
-                    isCloneOrder={true}
-                    discountRate={discountRate}
-                    setDiscountRate={setDiscountRate}
-                    discountValue={discountValue}
-                    setDiscountValue={setDiscountValue}
-                    inventoryResponse={inventoryResponse}
-                    setInventoryResponse={setInventoryResponse}
-                    setStoreForm={setStoreForm}
-                    levelOrder={levelOrder}
-                    updateOrder={true}
-                    isSplitOrder={checkIfOrderCanBeSplit}
-                    orderDetail={OrderDetail}
-                    fetchData={fetchData}
-                    orderConfig={orderConfig}
-                  /> */}
+								
 									<OrderCreateProduct
 										orderAmount={orderAmount}
 										totalAmountOrder={totalAmountOrder}

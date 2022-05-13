@@ -83,6 +83,8 @@ type CustomerCardProps = {
   isAutoDefaultOrderSource?: boolean;
   form: FormInstance<any>;
   setShippingFeeInformedToCustomer?:(value:number | null)=>void;
+  customerChange: boolean;
+  setCustomerChange: (value: boolean) => void;
 };
 
 //Add query for search Customer
@@ -125,6 +127,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     isAutoDefaultOrderSource = true,
     setShippingFeeInformedToCustomer,
     form,
+    customerChange,
+    setCustomerChange
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -409,7 +413,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 OkConfirmCustomerEdit();
                 handleCustomer(data);
                 dispatch(changeOrderCustomerAction(data));
-                // handleCalculateShippingFeeApplyOrderSetting(data?.city_id, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
               }
             }
           )
@@ -588,6 +591,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       OkConfirmCustomerEdit();
       handleCustomer(customers);
       dispatch(changeOrderCustomerAction(customers));
+      setCustomerChange(false)
     }
   };
 
@@ -829,6 +833,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 ShippingAddressChange={props.ShippingAddressChange}
                 keySearchCustomer={keySearchCustomer}
                 CustomerDeleteInfo={CustomerDeleteInfo}
+                customerChange={customerChange}
+                setCustomerChange={setCustomerChange}
               />
             )}
 
@@ -849,28 +855,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                 setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                 form={form}
+                customerChange={customerChange}
+                setCustomerChange={setCustomerChange}
               />
             )}
-
-            {/* <EditCustomerModal
-                    areas={areas}
-                    wards={wards}
-                    groups={groups}
-                    formItem={customer}
-                    modalAction={modalAction}
-                    isVisibleCollapseCustomer={isVisibleCollapseCustomer}
-                    districtId={districtId}
-                    handleChangeArea={handleChangeArea}
-                    handleChangeCustomer={handleChangeCustomer}
-                    onCancel={CustomerDeleteInfo}
-                    ShowAddressModalAdd={ShowAddressModalAdd}
-                    ShowAddressModalEdit={ShowAddressModalEdit}
-                    showAddressModalDelete={showAddressModalDelete}
-                    setSingleShippingAddress={setSingleShippingAddress}
-                    setVisibleCollapseCustomer={setVisibleCollapseCustomer}
-                    setVisibleBtnUpdate={setVisibleBtnUpdate}
-                    ShippingAddressChange={props.ShippingAddressChange}
-                  /> */}
           </div>
         </div>
       )}
