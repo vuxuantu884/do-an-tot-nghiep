@@ -710,8 +710,11 @@ export default function Order(props: PropTypes) {
 				(promotion?.value || 0);
 		}
 
-		if (isEcommerceOrder && ecommerceShipment && values?.fulfillments && values.fulfillments.length > 0) {
-			values.fulfillments[0].shipment = ecommerceShipment;
+		if (isEcommerceOrder) {
+			values.ecommerce_shop_id = OrderDetail.ecommerce_shop_id;			//thêm ecommerce_shop_id khi cập nhật đơn hàng sàn
+			if (ecommerceShipment && values?.fulfillments && values.fulfillments.length > 0) {
+				values.fulfillments[0].shipment = ecommerceShipment;
+			}
 		}
 
 		values.tags = tags;

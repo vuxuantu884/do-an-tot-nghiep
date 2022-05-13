@@ -1106,8 +1106,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     not: false,
   });
 
-  const isShowAction = allowProductsDelete;
-
   const isDisableAction = () => {
     return !selectedRow || selectedRow.length === 0;
   };
@@ -1173,21 +1171,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         <StyledProductFilter>
           <div className="filter not-connected-items-filter">
             <Form form={formAdvance} onFinish={onFinish} initialValues={initialFormValues}>
-
-              {isShowAction &&
-                <div className="action-dropdown">
-                  <Dropdown
-                    overlay={actionList}
-                    trigger={["click"]}
-                    disabled={isLoading}
-                  >
-                    <Button className="action-button">
-                      <div style={{ marginRight: 10 }}>Thao tác</div>
-                      <DownOutlined />
-                    </Button>
-                  </Dropdown>
-                </div>
-              }
+              <div className="action-dropdown">
+                <Dropdown
+                  overlay={actionList}
+                  trigger={["click"]}
+                  disabled={isLoading}
+                >
+                  <Button className="action-button">
+                    <div style={{ marginRight: 10 }}>Thao tác</div>
+                    <DownOutlined />
+                  </Button>
+                </Dropdown>
+              </div>
 
               <Form.Item
                 name="ecommerce_id"
