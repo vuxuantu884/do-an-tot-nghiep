@@ -1461,8 +1461,8 @@ function OrderCreateProduct(props: PropTypes) {
 							removeAutomaticDiscountItem(single)
 							return single
 						})
-						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
-						calculateChangeMoney(items, promotionResult)
+						handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
+						calculateChangeMoney(items)
 						if (isShouldUpdatePrivateNote) {
 							form.setFieldsValue({
 								note: ``
