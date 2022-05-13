@@ -3,8 +3,11 @@ import { OrderLineItemResponse } from "model/response/order/order.response";
 export interface ReturnModel {
   assignee: string;
   assignee_code: string;
+  account: string;
+  account_code: string;
   code_order: string;
   code_order_return: string;
+  customer:string;
   created_by: string;
   created_date: string;
   created_name: string;
