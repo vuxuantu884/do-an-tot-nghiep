@@ -365,6 +365,18 @@
     {
       "name": "Hóa đơn bảo hành",
       "value": "warranty"
+    },
+    {
+      "name": "Đơn mua hàng 1 mã 7",
+      "value": "purchase_order_ma_7"
+    },
+    {
+      "name": "Đơn mua hàng FGG",
+      "value": "purchase_order_fgg"
+    },
+    {
+      "name": "Đơn mua hàng 1 mã 7 FGG",
+      "value": "purchase_order_ma_7_fgg"
     }
   ],
   "moq_unit": [
