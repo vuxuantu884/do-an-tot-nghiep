@@ -639,6 +639,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         result.push({
           payment_method_id: moneyPayment.id,
           payment_method: moneyPayment.name,
+          payment_method_code: PaymentMethodCode.CASH,
           amount: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
           reference: "",
           source: "",
@@ -705,6 +706,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
+              payment_method_code: PaymentMethodCode.CASH,
               amount: Math.abs(totalAmountCustomerNeedToPay),
               reference: "",
               source: "",
