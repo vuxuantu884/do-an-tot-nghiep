@@ -84,6 +84,7 @@ const ACTIONS_INDEX = {
 const initQuery: InventoryTransferSearchQuery = {
   page: 1,
   limit: 30,
+  simple: true,
   condition: null,
   from_store_id: [],
   to_store_id: [],
@@ -856,13 +857,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
         newParams = {
           ...newParams,
-          from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected || null
+          from_store_id: params.from_store_id ? (Array.isArray(params.from_store_id) && params.from_store_id.length) > 0 ? params.from_store_id : accountStoreSelected : accountStoreSelected || null
         };
         break;
       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
         newParams = {
           ...newParams,
-          to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected || null
+          to_store_id: params.to_store_id ? (Array.isArray(params.to_store_id) && params.to_store_id.length) > 0 ? params.to_store_id : accountStoreSelected : accountStoreSelected || null
         };
         break;
       default: break;

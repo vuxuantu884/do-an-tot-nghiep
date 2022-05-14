@@ -6,6 +6,7 @@ export interface InventoryTransferSearchQuery {
   condition: string | null,
   from_store_id: any,
   to_store_id: any,
+  simple: boolean,
   status: string[],
   from_total_variant: number | null,
   to_total_variant: number | null,

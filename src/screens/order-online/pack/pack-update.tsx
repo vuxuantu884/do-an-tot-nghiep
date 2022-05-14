@@ -29,7 +29,7 @@ import "./styles.scss";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { FulFillmentStatus } from "utils/Constants";
 // import { FulFillmentStatus } from "utils/Constants";
@@ -289,21 +289,23 @@ const PackUpdate: React.FC = () => {
       {
         packDetail?.orders?.forEach((item) => {
           if (item.fulfillments && item.fulfillments.length > 0) {
-            let indexFFM = item.fulfillments.length - 1;
-  
-            let FFMCode: string | null = item.fulfillments[indexFFM].code;
-            // FFMCode && codes.push(FFMCode);
-  
-            if (packDetail.receipt_type_id === 1 && item.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
-              FFMCode && codes.push(FFMCode);
+
+            if (packDetail.receipt_type_id === 1) {
+              let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+              if (fulfillments.length > 0) {
+                let indexFFM = fulfillments.length - 1;
+                let FFMCode: string | null = item.fulfillments[indexFFM].code;
+                FFMCode && codes.push(FFMCode);
+              }
             }
-            else if (packDetail.receipt_type_id === 2
-              && item.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
-              && item.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED) {
-              FFMCode && codes.push(FFMCode);
-            } else {
-              FFMCode && showError(`Không thể cập nhật biên bản bàn giao, ${item?.code} không hợp lệ`);
-              success = false;
+            else if (packDetail.receipt_type_id === 2) {
+                let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED)
+                if(fulfillments.length>0)
+                {
+                  let indexFFM = fulfillments.length - 1;
+                  let FFMCode: string | null = item.fulfillments[indexFFM].code;
+                  FFMCode && codes.push(FFMCode);
+                }
             }
           }
         });
