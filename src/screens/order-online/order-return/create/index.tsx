@@ -633,7 +633,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const getPaymentOfReturn = useCallback((itemsResult: OrderLineItemResponse[], discounts: OrderDiscountResponse[] | null) => {
     let result: OrderPaymentRequest[] = [];
-    if(refund.moneyRefund > 0) {
+    if(totalAmountCustomerNeedToPay < 0) {
       const moneyPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
       if(moneyPayment) {
         result.push({
@@ -688,7 +688,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     //   }
     // }
     return result;
-  }, [customer?.id, listPaymentMethods, refund.moneyRefund])
+  }, [customer?.id, listPaymentMethods, totalAmountCustomerNeedToPay])
 
   const handleSubmitFormReturn = useCallback(() => {
     let formValue = form.getFieldsValue();
