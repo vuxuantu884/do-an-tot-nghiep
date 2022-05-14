@@ -285,7 +285,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
               dataToSelect={marketingAccountData}
               setDataToSelect={setMarketingAccountData}
               initDataToSelect={initMarketingAccountData}
-              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange && false)}
             />
           </Form.Item>
         ) : null}
@@ -300,7 +300,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
               dataToSelect={coordinatorAccountData}
               setDataToSelect={setCoordinatorAccountData}
               initDataToSelect={initCoordinatorAccountData}
-              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange && false)}
             />
           </Form.Item>
         ) : (
