@@ -178,40 +178,41 @@ const AddReportHandOver: React.FC = () => {
       return;
     }
 
-    const handleGoodsReceipts =  (receiptsItem: GoodsReceiptsResponse) => {
+    const handleGoodsReceipts = (receiptsItem: GoodsReceiptsResponse) => {
 
       let codes: any[] = [];
       let success = true;
 
-      const saveFFMOrderNew= ()=>{
+      const saveFFMOrderNew = () => {
         let queryCode = selectOrderPackSuccess ? selectOrderPackSuccess.map((p) => p.order_code) : [];
         let queryParam: any = { code: queryCode }
-        getListOrderApi(queryParam).then(response=>{
+        getListOrderApi(queryParam).then(response => {
           if (isFetchApiSuccessful(response)) {
-            console.log("isFetchApiSuccessful 1",response)
-            let orderData= response.data.items;
-            if(orderData && orderData.length>0)
-            {
-              orderData.forEach((order)=>{
+            console.log("isFetchApiSuccessful 1", response)
+            let orderData = response.data.items;
+            if (orderData && orderData.length > 0) {
+              orderData.forEach((order) => {
                 if (order.fulfillments && order.fulfillments.length > 0) {
-                  let indexFFM = order.fulfillments.length - 1;
-    
-                  let FFMCode: string | null = order.fulfillments[indexFFM].code;
-    
-                  if (receiptsItem.receipt_type_id === 1 && order.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
-                    FFMCode && codes.push(FFMCode);
+                  if (receiptsItem.receipt_type_id === 1) {
+                    let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+                    if (fulfillments.length > 0) {
+                      let indexFFM = fulfillments.length - 1;
+                      let FFMCode: string | null = order.fulfillments[indexFFM].code;
+                      FFMCode && codes.push(FFMCode);
+                    }
                   }
-                  else if (receiptsItem.receipt_type_id === 2
-                    && order.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
-                    && order.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED) {
-                    FFMCode && codes.push(FFMCode);
-                  } else {
-                    FFMCode && showError(`Đơn hàng ${order?.code} thuộc biên bản, Đang ở trạng thái không hợp lệ`);
-                    success = false;
+                  else if (receiptsItem.receipt_type_id === 2) {
+                      let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED)
+                      if(fulfillments.length>0)
+                      {
+                        let indexFFM = fulfillments.length - 1;
+                        let FFMCode: string | null = order.fulfillments[indexFFM].code;
+                        FFMCode && codes.push(FFMCode);
+                      }
                   }
                 }
               })
-              
+
             }
           }
           else handleFetchApiError(response, "Danh sách fulfillment", dispatch)
@@ -219,27 +220,31 @@ const AddReportHandOver: React.FC = () => {
           if (receiptsItem && receiptsItem.orders && receiptsItem.orders?.length > 0) {
             receiptsItem?.orders?.forEach((order) => {
               if (order.fulfillments && order.fulfillments.length > 0) {
-                let indexFFM = order.fulfillments.length - 1;
-  
-                let FFMCode: string | null = order.fulfillments[indexFFM].code;
-  
-                if (receiptsItem.receipt_type_id === 1 && order.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
-                  FFMCode && codes.push(FFMCode);
+                if (receiptsItem.receipt_type_id === 1) {
+                  let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+                  if (fulfillments.length > 0) {
+                    let indexFFM = fulfillments.length - 1;
+                    let FFMCode: string | null = order.fulfillments[indexFFM].code;
+                    FFMCode && codes.push(FFMCode);
+                  }
                 }
-                else if (receiptsItem.receipt_type_id === 2
-                  && order.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
-                  && order.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED) {
-                  FFMCode && codes.push(FFMCode);
+                else if (receiptsItem.receipt_type_id === 2) {
+                  let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED)
+                  if (fulfillments.length > 0) {
+                    let indexFFM = fulfillments.length - 1;
+                    let FFMCode: string | null = order.fulfillments[indexFFM].code;
+                    FFMCode && codes.push(FFMCode);
+                  }
                 } else {
-                  FFMCode && showError(`Không thể thêm đơn hàng vào biên bản, ${order?.code} không hợp lệ`);
+                  showError(`Không thể thêm đơn hàng vào biên bản, ${order?.code} không hợp lệ`);
                   success = false;
                 }
               }
             });
-            
+
           }
-          console.log("isFetchApiSuccessful 2",codes)
-        }).then(()=>{
+          console.log("isFetchApiSuccessful 2", codes)
+        }).then(() => {
           if (!success) {
             return;
           } else {
@@ -247,7 +252,7 @@ const AddReportHandOver: React.FC = () => {
               ...receiptsItem,
               codes: codes,
             };
-    
+
             dispatch(
               updateGoodsReceipts(
                 receiptsItem.id,
@@ -257,13 +262,13 @@ const AddReportHandOver: React.FC = () => {
                     setGoodsReceipts(value);
                     console.log("GoodsReceiptsResponse", value)
                     //removePackInfo();
-    
+
                     let packData: PackModel = {
                       ...new PackModelDefaltValue(),
                       ...packModel,
                       order: [...notSelectOrderPackSuccess]
                     }
-    
+
                     setPackModel(packData);
                     setPackInfo(packData);
                     setIsFulFillmentPack([]);
@@ -303,8 +308,8 @@ const AddReportHandOver: React.FC = () => {
 
     dispatch(
       getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
-        let receiptsSucess= data.items.filter((p)=>!p.orders?.some((p1)=>p1.fulfillment_status!== FulFillmentStatus.PACKED && p1.fulfillment_status!==FulFillmentStatus.CANCELLED))
-        console.log("receiptsSucess",receiptsSucess)
+        let receiptsSucess = data.items.filter((p) => !p.orders?.some((p1) => p1.fulfillment_status !== FulFillmentStatus.PACKED && p1.fulfillment_status !== FulFillmentStatus.CANCELLED))
+        console.log("receiptsSucess", receiptsSucess)
         setListGoodsReceipts(data.items);
       })
     );
