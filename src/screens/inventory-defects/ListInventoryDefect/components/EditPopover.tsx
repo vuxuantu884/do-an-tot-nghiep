@@ -9,15 +9,16 @@ type EditPopoverProps = {
 	title?: string;
 	color?: string;
 	isDisable?: boolean;
+	isHaveEditPermission?: boolean;
   onOk: (newContent: string) => void;
 	label?: string;
 };
 const EditPopover: React.FC<EditPopoverProps> = (
   props: EditPopoverProps
 ) => {
-  const { content, title, onOk, isDisable=false, label } = props;
+  const { content, title, onOk, isDisable=false, label, isHaveEditPermission = true } = props;
   const [visible, setVisible] = useState(false);
-  const [newContent, setNewContent] = useState(content); 
+  const [newContent, setNewContent] = useState(content);
   const handleVisibleChange = (visible: boolean) => {
     setVisible(visible)
   };
@@ -52,9 +53,11 @@ const EditPopover: React.FC<EditPopoverProps> = (
 				trigger="click"
 				visible={visible}
 				onVisibleChange={handleVisibleChange}
-				
+
 			>
-				<EditOutlined style={{ marginRight: 5, color: props.color}} title={title ?? "Sửa ghi chú"}/>
+				{isHaveEditPermission && (
+					<EditOutlined style={{ marginRight: 5, color: props.color}} title={title ?? "Sửa ghi chú"}/>
+				)}
 			</Popover>
 			<span>
 				{label && (

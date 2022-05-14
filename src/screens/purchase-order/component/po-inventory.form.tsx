@@ -263,9 +263,9 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               dotClassName += " success";
             }
             if (receive_status === ProcumentStatus.FINISHED) {
-              statusName = "Đã nhận hàng";
-              className += " po-tag-success";
-              dotClassName += " success";
+              statusName = "Kết thúc nhập kho";
+              className += " po-tag-danger";
+              dotClassName += " danger";
             }
             if (status === ProcumentStatus.DRAFT) {
               return <Space>

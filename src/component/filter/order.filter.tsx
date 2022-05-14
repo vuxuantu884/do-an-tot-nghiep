@@ -333,6 +333,16 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           onFilter &&
             onFilter({ ...params, expected_receive_on_min: null, expected_receive_on_max: null });
           break;
+        case "returning":
+          setExpectedClick("");
+          onFilter &&
+            onFilter({ ...params, returning_date_min: null, returning_date_max: null });
+          break;
+        case "returned":
+          setExpectedClick("");
+          onFilter &&
+            onFilter({ ...params, returned_date_min: null, returned_date_max: null });
+          break;
         case "exported":
           setExportedClick("");
           onFilter &&
@@ -371,9 +381,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         case "payment_method":
           onFilter && onFilter({ ...params, payment_method_ids: [] });
           break;
-        case "expected_receive_predefined":
-          onFilter && onFilter({ ...params, expected_receive_predefined: "" });
-          break;
+        // case "expected_receive_predefined":
+        //   onFilter && onFilter({ ...params, expected_receive_predefined: "" });
+        //   break;
         case "delivery_types":
           onFilter && onFilter({ ...params, delivery_types: [] });
           break;
@@ -536,6 +546,10 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           "cancelled_on_max",
           "expected_receive_on_min",
           "expected_receive_on_max",
+          "returning_date_min",
+          "returning_date_max",
+          "returned_date_min",
+          "returned_date_max",
           "exported_on_min",
           "exported_on_max",
         ])
@@ -783,6 +797,30 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       list.push({
         key: "expected",
         name: "Ngày dự kiến nhận hàng",
+        value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
+      });
+    }
+
+    if (initialValues.returning_date_min || initialValues.returning_date_max) {
+      let textExpectReceiveDate =
+        (initialValues.returning_date_min ? initialValues.returning_date_min : "??") +
+        " ~ " +
+        (initialValues.returning_date_max ? initialValues.returning_date_max : "??");
+      list.push({
+        key: "returning",
+        name: "Ngày trả hàng",
+        value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
+      });
+    }
+
+    if (initialValues.returned_date_min || initialValues.returned_date_max) {
+      let textExpectReceiveDate =
+        (initialValues.returned_date_min ? initialValues.returned_date_min : "??") +
+        " ~ " +
+        (initialValues.returned_date_max ? initialValues.returned_date_max : "??");
+      list.push({
+        key: "returned",
+        name: "Ngày nhận trả hàng",
         value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
       });
     }
@@ -1113,7 +1151,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1701,6 +1739,33 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   <CustomFilterDatePicker
                     fieldNameFrom="expected_receive_on_min"
                     fieldNameTo="expected_receive_on_max"
+                    activeButton={expectedClick}
+                    setActiveButton={setExpectedClick}
+                    format={dateFormat}
+                    formRef={formRef}
+                  />
+                </Col>
+
+                <Col span={8} xxl={8}>
+                  <div className="ant-form-item-label">
+                    <label>Ngày trả hàng</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="returning_date_min"
+                    fieldNameTo="returning_date_max"
+                    activeButton={expectedClick}
+                    setActiveButton={setExpectedClick}
+                    format={dateFormat}
+                    formRef={formRef}
+                  />
+                </Col>
+                <Col span={8} xxl={8}>
+                  <div className="ant-form-item-label">
+                    <label>Ngày nhận trả hàng</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="returned_date_min"
+                    fieldNameTo="returned_date_max"
                     activeButton={expectedClick}
                     setActiveButton={setExpectedClick}
                     format={dateFormat}

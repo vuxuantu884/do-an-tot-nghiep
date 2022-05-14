@@ -301,7 +301,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 100,
+      width: "150px",
     },
     {
       title: () => {
@@ -318,7 +318,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 100,
+      width: "150px",
     },
     {
       title: "Thành tiền",
@@ -379,7 +379,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dataIndex: "attached_files",
       visible: true,
       align: "center",
-      width: "250px",
+      width: "220px",
       render: (item: any) => {
         return (
           <span>
@@ -496,7 +496,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                 render: (value: number) => {
                   return formatCurrency(value,".");
                 },
-                width: 60,
+                width: 120,
               };
             }
             if (newColumns[i].dataIndex === 'total_variant') {
@@ -516,7 +516,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                 render: (value: number) => {
                   return formatCurrency(value,".");
                 },
-                width: 60,
+                width: 120,
               };
             }
           }
@@ -902,7 +902,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       <CustomTable
         isRowSelection
         isLoading={tableLoading}
-        scroll={{x: 800}}
+        scroll={{x: 1000}}
         sticky={{offsetScroll: 5, offsetHeader: 55}}
         pagination={{
           pageSize: data.metadata.limit,

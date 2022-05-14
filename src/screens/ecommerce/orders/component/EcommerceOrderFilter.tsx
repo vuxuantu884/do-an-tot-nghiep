@@ -42,6 +42,7 @@ import CustomSelectTags from "component/custom/custom-select-tag";
 import moment from "moment";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import {searchAccountApi} from "service/accounts/account.service";
+import {convertItemToArray} from "utils/AppUtils";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -210,11 +211,15 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");  // todo thai need check and update
   }, [listSource]);
-  
+
   const initialValues = useMemo(() => {
+    let channelCodes = convertItemToArray(params.channel_codes);
+    if (channelCodes.length !== 1) {
+      channelCodes = [];
+    }
     return {
       ...params,
-      channel_codes: Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes],
+      channel_codes: channelCodes,
       ecommerce_shop_ids: Array.isArray(params.ecommerce_shop_ids) ? params.ecommerce_shop_ids : [params.ecommerce_shop_ids],
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
@@ -417,7 +422,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   // handle tag filter
   let filters = useMemo(() => {
     let list = [];
-    if (initialValues?.channel_codes?.length) {
+    if (initialValues?.channel_codes?.length === 1) {
       let ecommerceFilterText = "";
       initialValues.channel_codes.forEach((ecommerceCode: any) => {
         const ecommerceSelected = ECOMMERCE_LIST?.find(ecommerce => ecommerce.key?.toString() === ecommerceCode?.toString());
@@ -911,8 +916,13 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       ? params.ecommerce_shop_ids
       : [params.ecommerce_shop_ids];
 
+    let channelCodes = convertItemToArray(params.channel_codes);
+    if (channelCodes.length !== 1) {
+      channelCodes = [];
+    }
+
     form.setFieldsValue({
-      channel_codes: params.channel_codes,
+      channel_codes: channelCodes,
       ecommerce_shop_ids: checkEcommerceShop.map(item => +item),
       search_term: params.search_term,
       reference_code: params.reference_code,
@@ -957,9 +967,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       tagsFilter.length > 0 && tagsFilter.map(item => tagsArr.push(item))
       setTags(tagsArr);
     }
-    
-    if (params.channel_codes !== undefined) {
-      getEcommerceShopList(getEcommerceIdByChannelCode(params.channel_codes as any))
+
+    if (channelCodes.length === 1) {
+      getEcommerceShopList(getEcommerceIdByChannelCode(channelCodes[0]));
+    } else {
+      setIsEcommerceSelected(false);
     }
 
     const checkChannelCode = params.channel_codes as any

@@ -136,3 +136,18 @@ export const productImportFile = (file: any) => {
 export const getFileProductByCode = (code: string) => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/barcode/job/${code}`)
 }
+
+export const producImagetUploadApi = (
+  files: Array<File>,
+  folder: string,
+  productId: number|undefined
+): Promise<BaseResponse<Array<ProductUploadModel>>> => {
+  let body = new FormData();
+  body.append("folder", folder);
+  files.forEach((item) => {
+    body.append("file_upload", item);
+  });
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/products/upload-images/${productId}`, body, {
+    headers: { "content-type": "multipart/form-data" },
+  });
+};
