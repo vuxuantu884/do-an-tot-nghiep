@@ -712,7 +712,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     let items: Array<InventoryTransferDetailItem> = [];
     const limit = 50;
     let times = 0;
-    
+
     setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
     switch (type) {
       case TYPE_EXPORT.page:
@@ -805,7 +805,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         let worksheet = XLSX.utils.json_to_sheet(dataExport);
         XLSX.utils.book_append_sheet(workbook, worksheet, "data");
       }
-      
+
       setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
       const today = moment(new Date(), 'YYYY/MM/DD');
       const month = today.format('M');
@@ -831,7 +831,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
     let status: string[] = [];
     switch (activeTab) {
-      case InventoryTransferTabUrl.LIST_TRANSFERRING:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        status = ['transferring', 'confirmed'];
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
         status = ['transferring'];
         break;
       default: break;
@@ -841,6 +844,29 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       ...params,
       status: params.status.length > 0 ? params.status : status,
     };
+    if (accountStores?.length === 0) {
+      dispatch(getListInventoryTransferAction(newParams, setSearchResult));
+      return;
+    }
+
+    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
+
+    switch (activeTab) {
+      // case InventoryTransferTabUrl.LIST:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        newParams = {
+          ...newParams,
+          from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected || null
+        };
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
+        newParams = {
+          ...newParams,
+          to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected || null
+        };
+        break;
+      default: break;
+    }
 
     let queryParam = generateQuery(newParams);
     history.push(`${history.location.pathname}?${queryParam}`);

@@ -64,6 +64,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     stores,
     accounts,
     activeTab,
+    accountStores,
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -72,7 +73,10 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   const query: any = useQuery();
   if (!query?.status) {
     switch (activeTab) {
-      case InventoryTransferTabUrl.LIST_TRANSFERRING:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        status = ['transferring', 'confirmed'];
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
         status = ['transferring'];
         break;
       default: break;
@@ -97,13 +101,38 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   useEffect(() => {
     if (activeTab === '') return;
 
-    formSearchRef.current?.setFieldsValue({
-      ...params,
-      from_store_id: params.from_store_id ? params.from_store_id : [],
-      to_store_id: params.to_store_id ? params.to_store_id : []
-    });
+    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
+
+    console.log(accountStoreSelected)
+
+    if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        to_store_id: params.to_store_id && (Array.isArray(params.to_store_id) && params.to_store_id.length > 0) ? params.to_store_id : accountStoreSelected?.toString(),
+        from_store_id: params.from_store_id && (Array.isArray(params.from_store_id) && params.from_store_id.length > 0) ? params.from_store_id : []
+      });
+    } else if (activeTab === InventoryTransferTabUrl.LIST) {
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        from_store_id: params.from_store_id ? params.from_store_id : [],
+        to_store_id: params.to_store_id ? params.to_store_id : []
+      });
+      return;
+    } else {
+      console.log(params)
+      console.log({
+        ...params,
+        from_store_id: params.from_store_id && (Array.isArray(params.from_store_id) && params.from_store_id.length > 0) ? params.from_store_id : accountStoreSelected?.toString(),
+        to_store_id: params.to_store_id && (Array.isArray(params.to_store_id) && params.to_store_id.length > 0) ? params.to_store_id : []
+      })
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        from_store_id: params.from_store_id && (Array.isArray(params.from_store_id) && params.from_store_id.length > 0) ? params.from_store_id : accountStoreSelected?.toString(),
+        to_store_id: params.to_store_id && (Array.isArray(params.to_store_id) && params.to_store_id.length > 0) ? params.to_store_id : []
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab])
+  }, [activeTab, accountStores])
 
   useEffect(() => {
     formAdv.setFieldsValue(filterFromParams);
@@ -374,16 +403,25 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 return false;
               }}
             >
-              {Array.isArray(stores) &&
-              stores.length > 0 &&
-              stores.map((item, index) => (
-                <Option
-                  key={"from_store_id" + index}
-                  value={item.id.toString()}
-                >
-                  {item.name}
-                </Option>
-              ))}
+              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE || activeTab === InventoryTransferTabUrl.LIST ? Array.isArray(stores) &&
+                  stores.length > 0 &&
+                  stores.map((item, index) => (
+                  <Option
+                    key={"from_store_id" + index}
+                    value={item.id.toString()}
+                  >
+                    {item.name}
+                  </Option>
+                )) : Array.isArray(accountStores) &&
+                accountStores.length > 0 &&
+                  accountStores.map((item, index) => (
+                    <Option
+                      key={"from_store_id" + index}
+                      value={item && item.store_id ? item.store_id.toString() : ''}
+                    >
+                      {item.store}
+                    </Option>
+                  ))}
             </Select>
           </Item>
           <Item
@@ -408,16 +446,25 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 return false;
               }}
             >
-              {Array.isArray(stores) &&
-              stores.length > 0 &&
-              stores.map((item, index) => (
-                <Option
-                  key={"to_store_id" + index}
-                  value={item.id.toString()}
-                >
-                  {item.name}
-                </Option>
-              ))}
+              {activeTab !== InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE ? Array.isArray(stores) &&
+                stores.length > 0 &&
+                stores.map((item, index) => (
+                  <Option
+                    key={"to_store_id" + index}
+                    value={item.id.toString()}
+                  >
+                    {item.name}
+                  </Option>
+                )) : Array.isArray(accountStores) &&
+                accountStores.length > 0 &&
+                accountStores.map((item, index) => (
+                  <Option
+                    key={"to_store_id" + index}
+                    value={item && item.store_id ? item.store_id.toString() : ''}
+                  >
+                    {item.store}
+                  </Option>
+                ))}
             </Select>
           </Item >
           <Item name="condition" className="input-search">
