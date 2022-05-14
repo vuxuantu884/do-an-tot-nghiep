@@ -309,7 +309,7 @@ const DetailInvetoryAdjustment: FC = () => {
       weight_unit,
       real_on_hand: 0,
       on_hand_adj: 0 - (value.on_hand ?? 0),
-      price: variantPrice ? variantPrice : value.price,
+      price: variantPrice !== null ? variantPrice : value.price,
       on_hand: value.on_hand ?? 0
     }
   }
