@@ -251,8 +251,12 @@ const PurchaseOrderListScreen: React.FC = () => {
               icon = statusFinalized
               break;
             case POStatus.STORED:
-              type = TagStatusType.primary;
-              icon = statusStored
+              if(record.receive_status === ProcumentStatus.FINISHED) {
+                type = TagStatusType.success;
+              } else {
+                type = TagStatusType.primary;
+                icon = statusStored
+              }
               break;
             case POStatus.CANCELLED:
               type = TagStatusType.danger;
@@ -272,7 +276,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               break;
           }
 
-          return <TagStatus icon={icon} type={type}>{ArrPoStatus.find(e=>e.key === value)?.value}</TagStatus>;
+          return <TagStatus icon={icon} type={type}>{record.receive_status === ProcumentStatus.FINISHED ? 'Kết thúc nhập kho' : ArrPoStatus.find(e=>e.key === value)?.value}</TagStatus>;
         },
         visible: true,
       },
