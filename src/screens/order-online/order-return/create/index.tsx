@@ -598,10 +598,12 @@ ShippingServiceConfigDetailResponseModel[]
         assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
         reference_code: "",
-        customer_note: "",
-        note: "",
+        // customer_note: "",
+        // note: "",
+        customer_note: form.getFieldValue("customer_note"),
+        note: form.getFieldValue("note"),
         url: "",
-        tags: null,
+        tags: tags,
         type: orderReturnType,
         channel_id: getChannelIdReturn(OrderDetail),
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
@@ -860,6 +862,7 @@ ShippingServiceConfigDetailResponseModel[]
           values.marketer_code = form.getFieldValue("marketer_code");
           values.reference_code = form.getFieldValue("reference_code");
           values.url = form.getFieldValue("url");
+          values.tags = tags;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
               valuesResult.order_return_id = orderReturnId;
@@ -1468,12 +1471,14 @@ ShippingServiceConfigDetailResponseModel[]
                 <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn isExchange = {isExchange} />
                 <OrderReturnReason orderReturnReasonResponse={orderReturnReasonResponse} form={form} />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
-                {isExchange ? (
-                  <Card title="THÔNG TIN BỔ SUNG CẬP NHẬT">
-                    <CreateOrderSidebarOrderExtraInformation onChangeTag={onChangeTag} tags={tags} />
-                  </Card>
-                  ) : null
-                }
+                <Card title="THÔNG TIN BỔ SUNG CẬP NHẬT">
+                  <CreateOrderSidebarOrderExtraInformation
+                    onChangeTag={onChangeTag}
+                    tags={tags}
+                    isExchange = {isExchange}
+                    isReturn
+                  />
+                </Card>
               </Col>
             </Row>
           </Form>
