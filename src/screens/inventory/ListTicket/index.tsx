@@ -116,7 +116,7 @@ const InventoryListScreen: React.FC = () => {
           },
         ]}
         extra={
-          (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING
+          (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE
             || activeTab === InventoryTransferTabUrl.LIST) && (
             <Row>
               <Space>
@@ -179,8 +179,24 @@ const InventoryListScreen: React.FC = () => {
                 />
               )}
             </TabPane>
-            <TabPane tab="Đang chuyển" key={InventoryTransferTabUrl.LIST_TRANSFERRING}>
-              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING && (
+            <TabPane tab="Chuyển đi" key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>
+              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && (
+                <InventoryTransferTab
+                  activeTab={activeTab}
+                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  stores={stores}
+                  accounts={accounts}
+                  accountStores={accountStores}
+                  setAccounts={(value) => setAccounts([
+                    ...value,
+                    ...accounts
+                  ])}
+                />
+              )}
+            </TabPane>
+            <TabPane tab="Chuyển đến" key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>
+              {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE && (
                 <InventoryTransferTab
                   activeTab={activeTab}
                   vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}

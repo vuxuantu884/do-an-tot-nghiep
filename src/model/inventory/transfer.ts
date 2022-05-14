@@ -4,8 +4,8 @@ export interface InventoryTransferSearchQuery {
   page: number;
   limit: number;
   condition: string | null,
-  from_store_id: [] | number | null,
-  to_store_id: [] | number | null,
+  from_store_id: any,
+  to_store_id: any,
   status: string[],
   from_total_variant: number | null,
   to_total_variant: number | null,

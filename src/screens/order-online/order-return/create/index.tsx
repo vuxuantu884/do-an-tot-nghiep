@@ -113,7 +113,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
     (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
   )
   const [form] = Form.useForm();
-  const productReturnAutoCompleteRef=createRef<RefSelectProps>();
+  const [customerChange, setCustomerChange] = useState(false);
+
+  const productReturnAutoCompleteRef = createRef<RefSelectProps>();
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isError, setError] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
@@ -1352,7 +1354,9 @@ ShippingServiceConfigDetailResponseModel[]
                     initialForm={initialForm}
                     updateOrder
                     initDefaultOrderSourceId={OrderDetail?.source_id}
-                    isAutoDefaultOrderSource= {false}
+                    isAutoDefaultOrderSource={false}
+                    customerChange={customerChange}
+                    setCustomerChange={setCustomerChange}
                   />
                 )}
 

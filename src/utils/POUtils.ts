@@ -336,7 +336,7 @@ const POUtils = {
     data: Array<PurchaseOrderLineItem>
   ) => {
     let newProcuments: Array<PurchaseProcument> = [];
-    procuments.forEach((item) => {
+    procuments?.forEach((item) => {
       let newProcumentLineItem = [...item.procurement_items];
       item.procurement_items.forEach((procumentItem, indexItem) => {
         let index = data.findIndex(

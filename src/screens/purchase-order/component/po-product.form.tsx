@@ -48,7 +48,7 @@ type POProductProps = {
 var position = 0;
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
-  const { formMain, isEdit, isCodeSeven } = props;
+  const { formMain, isEdit } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
@@ -559,7 +559,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     <CustomAutoComplete
                       loading={loadingSearch}
                       id="#product_search"
-                      disabled={!isCodeSeven}
+                      // disabled={!isCodeSeven}
                       dropdownClassName="product"
                       placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
                       onSearch={onSearch}

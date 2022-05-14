@@ -10,7 +10,7 @@ type InventoryModalProps = {
   isModalVisible: boolean;
   setInventoryModalVisible: (item: boolean) => void;
   storeId: number | null;
-  setStoreId: (item: number) => void;
+  onChangeStore: (item: number) => void;
   columnsItem?: Array<OrderLineItemRequest>;
   inventoryArray: Array<InventoryResponse> | null;
   storeArrayResponse: Array<StoreResponse> | null;
@@ -38,7 +38,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     inventoryArray,
     storeArrayResponse,
     storeId,
-    setStoreId,
+    onChangeStore,
     setInventoryModalVisible,
     handleCancel,
   } = props;
@@ -71,9 +71,9 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
   }, [storeArrayResponse])
 
   const handleOk = useCallback(() => {
-    if (selectedStoreId) setStoreId(selectedStoreId);
+    if (selectedStoreId) onChangeStore(selectedStoreId);
     setInventoryModalVisible(false);
-  }, [selectedStoreId, setInventoryModalVisible, setStoreId]);
+  }, [selectedStoreId, setInventoryModalVisible, onChangeStore]);
 
   const data = useMemo(() => {
     let stores: Array<InventoryStore> = [];
