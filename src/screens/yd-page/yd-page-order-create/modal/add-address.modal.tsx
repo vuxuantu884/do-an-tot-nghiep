@@ -379,6 +379,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
                 onClear={handleClearArea}
                 allowClear
                 optionFilterProp="children"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
               >
                 {areaList.map((area: any) => (
                   <Select.Option key={area.id} value={area.id}>
@@ -415,6 +416,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
                 allowClear
                 optionFilterProp="children"
                 placeholder="Chọn phường/xã"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
                 // onChange={handleChangeWard}
               >
                 {wards.map((ward: any) => (
