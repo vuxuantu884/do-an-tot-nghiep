@@ -39,8 +39,7 @@ import {
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
-  OrderResponse,
-  ReturnProductModel
+  OrderResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -1155,7 +1154,7 @@ export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.Mut
 	}, delayTime);
 };
 
-export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+export const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {
 	let discountPerProduct = 0;
 	product.discount_items.forEach((single) => {
 		discountPerProduct += single.value;
@@ -1163,7 +1162,7 @@ export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
 	return Math.ceil(discountPerProduct);
 };
 
-export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: ReturnProductModel) => {
+export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
 	let discountPerOrder = 0;
 	let totalDiscountRatePerOrder = 0;
 	OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
@@ -1175,6 +1174,15 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	discountPerOrder =
 		Math.ceil(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
 	return discountPerOrder;
+}
+
+/**
+* tính toán tiền trả lại khách khi đổi trả
+*/
+export const getReturnPricePerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
+  const discountPerProduct = getProductDiscountPerProduct(product);
+  const discountPerOrder = getProductDiscountPerOrder(OrderDetail, product);
+	return Math.ceil(product.price - discountPerProduct - discountPerOrder);
 }
 
 export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {

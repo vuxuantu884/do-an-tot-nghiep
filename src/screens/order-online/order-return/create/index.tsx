@@ -96,7 +96,7 @@ import {
   checkIfOrderCanBeReturned,
   getAmountPayment,
   getAmountPaymentRequest,
-  getListItemsCanReturn, getTotalAmountAfterDiscount,
+  getListItemsCanReturn, getReturnPricePerOrder, getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
@@ -633,17 +633,40 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const getPaymentOfReturn = useCallback((itemsResult: OrderLineItemResponse[], discounts: OrderDiscountResponse[] | null) => {
     let result: OrderPaymentRequest[] = [];
+    const moneyPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
     if(totalAmountCustomerNeedToPay < 0) {
-      const moneyPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
+      const amount = Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts));
       if(moneyPayment) {
         result.push({
           payment_method_id: moneyPayment.id,
           payment_method: moneyPayment.name,
           payment_method_code: PaymentMethodCode.CASH,
-          amount: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
+          amount: amount,
           reference: "",
           source: "",
-          paid_amount: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
+          paid_amount: amount,
+          return_amount: 0,
+          status: "paid",
+          customer_id: customer?.id || null,
+          type: "",
+          note: "Tiền đơn trả",
+          code: "",
+        })
+      }
+    } else {
+      let amount = 0;
+      returnItems.forEach((item) => {
+        amount = amount + getReturnPricePerOrder(OrderDetail, item);
+      })
+      if(moneyPayment) {
+        result.push({
+          payment_method_id: moneyPayment.id,
+          payment_method: moneyPayment.name,
+          payment_method_code: PaymentMethodCode.CASH,
+          amount: amount,
+          reference: "",
+          source: "",
+          paid_amount: amount,
           return_amount: 0,
           status: "paid",
           customer_id: customer?.id || null,
@@ -689,7 +712,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     //   }
     // }
     return result;
-  }, [customer?.id, listPaymentMethods, totalAmountCustomerNeedToPay])
+  }, [OrderDetail, customer?.id, listPaymentMethods, returnItems, totalAmountCustomerNeedToPay])
 
   const handleSubmitFormReturn = useCallback(() => {
     let formValue = form.getFieldsValue();

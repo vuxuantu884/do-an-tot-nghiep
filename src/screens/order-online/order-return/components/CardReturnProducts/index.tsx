@@ -25,7 +25,7 @@ import React, { useContext, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
 import iconDelete from "assets/icon/deleteIcon.svg";
-import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
+import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getReturnPricePerOrder, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 import CustomSelect from "component/custom/select.custom";
 import { StoreResponse } from "model/core/store.model";
@@ -232,7 +232,7 @@ function CardReturnProducts(props: PropTypes) {
       render: (value: number, record: ReturnProductModel, index: number) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
         const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
-        const pricePerOrder = Math.ceil(record.price - discountPerProduct - discountPerOrder);
+        const pricePerOrder = getReturnPricePerOrder(OrderDetail, record);
         return (
           <Popover
             content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
