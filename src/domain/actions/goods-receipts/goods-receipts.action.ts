@@ -44,3 +44,10 @@ export const getOrderGoodsReceipts=( setData:(data:OrderResponse[])=>void)=>{
 export const getPrintGoodsReceipts=(ids:number[],type:string, setData:(data:any)=>void)=>{
     return BaseAction(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS,{ids,type,setData});
 }
+
+/**
+ * xóa nhiều đơn hàng trong biên bản bàn giao
+ */
+export const deleteOrdergoodsReceips=(order_ids:number[],goods_receipt_ids:number, onSuccess:(data?:boolean)=>void)=>{
+    return BaseAction(GoodsReceiptsType.DELETE_ORDER_GOODS_RECEIPTS,{order_ids,goods_receipt_ids,onSuccess})
+}
