@@ -717,7 +717,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
     switch (type) {
       case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,limit: params.limit ?? 50});
+        res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params, simple: false,limit: params.limit ?? 50});
         if (res) {
           items= items.concat(res.items);
         }
@@ -730,7 +730,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
 
         for (let index = 1; index <= times; index++) {
-          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,simple: false,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
@@ -748,7 +748,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
         for (let index = 1; index <= times; index++) {
 
-          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,simple: false,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
