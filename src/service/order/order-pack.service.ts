@@ -110,3 +110,12 @@ export const getPrintGoodsReceiptsService = (
     `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/print_forms?ids=${ids}&type=${type}`
   );
 };
+
+
+/**
+ * xóa nhiều đơn hàng trong biên bản bàn giao
+ */
+ export const deleteOrdergoodsReceipService=(order_ids:number[],goods_receipt_ids:number ):Promise<GoodsReceiptsResponse>=>{
+  const link=`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts_orders?order_ids=${order_ids}&goods_receipt_ids=${goods_receipt_ids}`;
+  return BaseAxios.delete(link);
+}
