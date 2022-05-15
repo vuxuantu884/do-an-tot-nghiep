@@ -77,7 +77,6 @@
   
     const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest, isBarcode?: boolean) => {
       if (param) {
-        console.log("ok")
         dispatch(
           getOrderConcernGoodsReceipts(
             param,
@@ -86,7 +85,7 @@
               let orderList = [...orderListResponse]
               if (data.length > 0) {
                 // data.forEach(function (item, index) {dataAdd.push(item);});
-                dataAdd = data.map(p => p);
+                dataAdd = data.map(p => p); 
   
                 if (dataAdd.length === 0) {
                   showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
@@ -101,8 +100,7 @@
                       showError("Đơn hàng đã tồn tại không thể thêm vào biên bản bàn giao");
                     }
                   });
-
-                  param.order_codes&&setCodes([...codes, param.order_codes]);
+                  setCodes([...codes, ...newCodes]);
                   setOrderListResponse([...orderList]);
                 }
   
@@ -291,9 +289,6 @@
       },
       [getValueReceipts, codes, dispatch, history]
     );
-  
-    console.log(isLoading)
-  
     const onOkPress = useCallback(() => {
       goodsReceiptsForm.submit();
     }, [goodsReceiptsForm]);
@@ -501,6 +496,7 @@
             <AddOrderInReport
               orderListResponse={orderListResponse}
               codes={codes}
+              setCodes={setCodes}
               setOrderListResponse={setOrderListResponse}
               menu={actions}
               onMenuClick={onMenuClick}
