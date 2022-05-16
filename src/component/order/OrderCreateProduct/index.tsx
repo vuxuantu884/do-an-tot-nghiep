@@ -478,7 +478,7 @@ function OrderCreateProduct(props: PropTypes) {
 					i.discount_items.forEach((a) => {
 						discountValue = discountValue + a.value;
 					});
-					i.discount_value = totalDiscount;
+					i.discount_value = discountValue;
 
 					let discountRate = 0;
 					i.discount_items.forEach((a) => {
@@ -528,6 +528,8 @@ function OrderCreateProduct(props: PropTypes) {
 			setItems(_items);
 		}
 	};
+
+	console.log('items', items)
 
 	const handleDelayCalculateWhenChangeOrderInput = (
 		inputRef: React.MutableRefObject<any>,

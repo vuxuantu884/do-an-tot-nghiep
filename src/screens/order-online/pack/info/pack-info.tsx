@@ -253,7 +253,7 @@ const PackInfo: React.FC = () => {
   const ProductPack = useCallback((product_request: string, quality_request: number) => {
     let indexPack = itemProductList.findIndex(
       (p) =>
-        p.sku === product_request.trim() || p.variant_barcode === product_request.trim() || p.reference_barcodes === product_request.trim()
+        p.sku === product_request.trim() || p.variant_barcode === product_request.trim() || fullTextSearch(product_request.trim(),p.reference_barcodes||"")
     );
 
     if (indexPack !== -1) {

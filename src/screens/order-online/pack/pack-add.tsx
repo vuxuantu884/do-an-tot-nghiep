@@ -15,9 +15,7 @@
   import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
   import { useDispatch, useSelector } from "react-redux";
   import { useHistory } from "react-router-dom";
-  import { getListOrderApi } from "service/order/order.service";
   import { haveAccess } from "utils/AppUtils";
-  import { FulFillmentStatus } from "utils/Constants";
   import { showError, showSuccess, showWarning } from "utils/ToastUtils";
   import AddOrderBottombar from "./add/add-order-bottombar";
   import AddOrderInReport from "./add/add-order-in-report";
@@ -79,7 +77,6 @@
   
     const handleAddOrder = useCallback((param: GoodsReceiptsAddOrderRequest, isBarcode?: boolean) => {
       if (param) {
-        console.log("ok")
         dispatch(
           getOrderConcernGoodsReceipts(
             param,
@@ -88,7 +85,7 @@
               let orderList = [...orderListResponse]
               if (data.length > 0) {
                 // data.forEach(function (item, index) {dataAdd.push(item);});
-                dataAdd = data.map(p => p);
+                dataAdd = data.map(p => p); 
   
                 if (dataAdd.length === 0) {
                   showError("Đơn hàng không hợp lệ không thể thêm vào biên bản bàn giao");
@@ -235,42 +232,48 @@
   
     const handSubmit = useCallback(
       (value: any) => {
-        let codesFFM:string[]=[];
+        //let codesFFM:string[]=[];
         setIsLoading(true);
-        let queryCode = orderListResponse && orderListResponse.length > 0 ? orderListResponse.map((p) => p.code) : [];
-        let queryParam: any = { code: queryCode }
-        getListOrderApi(queryParam).then((response) => {
-          console.log(response)
-          let orderData = response.data.items;
-          if (orderData && orderData.length > 0) {
+        // let queryCode = orderListResponse && orderListResponse.length > 0 ? orderListResponse.map((p) => p.code) : [];
+        // let queryParam: any = { code: queryCode }
+        // getListOrderApi(queryParam).then((response) => {
+        //   console.log(response)
+        //   console.log(value)
+        //   let orderData = response.data.items;
+        //   if (orderData && orderData.length > 0) {
   
-            orderData?.forEach((item) => {
-              if (item.fulfillments && item.fulfillments.length > 0) {
+        //     orderData?.forEach((item) => {
+        //       if (item.fulfillments && item.fulfillments.length > 0) {
   
-                if (value.receipt_type_id === 1) {
-                  let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
-                  if (fulfillments.length > 0) {
-                    let indexFFM = fulfillments.length - 1;
-                    let FFMCode: string | null = item.fulfillments[indexFFM].code;
-                    FFMCode && codesFFM.push(FFMCode);
-                  }
-                }
-                else if (value.receipt_type_id === 2) {
-                  let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED)
-                  if (fulfillments.length > 0) {
-                    let indexFFM = fulfillments.length - 1;
-                    let FFMCode: string | null = item.fulfillments[indexFFM].code;
-                    FFMCode && codesFFM.push(FFMCode);
-                  }
-                }
-              }
-            });
-          }
-        }).then(() => {
-          const valueReceipts = getValueReceipts(value);
+        //         if (value.receipt_type_id === 1) {
+        //           let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+        //           if (fulfillments.length > 0) {
+        //             let indexFFM = fulfillments.length - 1;
+        //             console.log(indexFFM)
+        //             let FFMCode: string | null = item.fulfillments[indexFFM].code;
+        //             FFMCode && codesFFM.push(FFMCode);
+        //           }
+        //         }
+        //         else if (value.receipt_type_id === 2) {
+        //           let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED)
+        //           if (fulfillments.length > 0) {
+        //             let indexFFM = fulfillments.length - 1;
+        //             let FFMCode: string | null = item.fulfillments[indexFFM].code;
+        //             FFMCode && codesFFM.push(FFMCode);
+        //           }
+        //         }
+        //       }
+        //     });
+        //   }
+        // }).then(() => {
+          
+  
+        // })
+
+        const valueReceipts = getValueReceipts(value);
           let param: any = {
             ...valueReceipts,
-            codes: codesFFM
+            codes: [...codes]
           };
   
           dispatch(
@@ -283,14 +286,9 @@
               setIsLoading(false)
             })
           );
-  
-        })
       },
-      [orderListResponse, dispatch, getValueReceipts, history]
+      [getValueReceipts, codes, dispatch, history]
     );
-  
-    console.log(isLoading)
-  
     const onOkPress = useCallback(() => {
       goodsReceiptsForm.submit();
     }, [goodsReceiptsForm]);
@@ -498,6 +496,7 @@
             <AddOrderInReport
               orderListResponse={orderListResponse}
               codes={codes}
+              setCodes={setCodes}
               setOrderListResponse={setOrderListResponse}
               menu={actions}
               onMenuClick={onMenuClick}

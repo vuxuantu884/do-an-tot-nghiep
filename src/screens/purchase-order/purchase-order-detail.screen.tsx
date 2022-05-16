@@ -146,6 +146,7 @@ const PODetailScreen: React.FC = () => {
   const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
+  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
 
   const {setPoLineItemGridChema,setPoLineItemGridValue, setTaxRate, isGridMode, setIsGridMode, poLineItemGridValue, poLineItemGridChema, taxRate }= useContext(PurchaseOrderCreateContext);
 
@@ -415,8 +416,65 @@ const PODetailScreen: React.FC = () => {
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
 
 
-  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
 
+  const handleExport = useCallback(() => {
+    dispatch(showLoading())
+    // khởi tạo, đơn vị px, khổ a4
+    const pdf = new jsPDF("portrait", "px", "a4");
+    const pageMargin = 10;
+    // chiều rộng form trong canvas
+    const canvasFormWidth = 800;
+    // lấy chiều rộng và dài của khổ a4
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // khởi tạo canvas
+    const temp = document.createElement("div");
+    const tempChild = document.createElement("div");
+    temp.appendChild(tempChild);
+    // tempChild.style.fontFamily = 'Roboto';
+    temp.style.width = `${canvasFormWidth}px`;
+    temp.style.padding = `${pageMargin}px`;
+    temp.style.position = "absolute";
+    temp.style.zIndex = "-2";
+    temp.style.top = "0px";
+    temp.style.margin = 'auto';
+    tempChild.style.width = `100%`;
+    tempChild.style.height = `100%`;
+    temp.style.display = 'block';
+    temp.id = "temp";
+    tempChild.innerHTML = printContent;
+    let value = document.body.appendChild(temp);
+    if (value === null) return;
+
+
+    const imgWidth = pageWidth;
+    const rate = 1.8 // mò ra
+    const imgHeight  = (value.offsetHeight)* (value.offsetWidth/canvasFormWidth) / rate;
+
+    var heightLeft = imgHeight;
+    var position = 0;
+    const getCanvas = (canvas: HTMLCanvasElement, pdf: jsPDF) => {
+      pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft = heightLeft - pageHeight;
+      // tách trang
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+    };
+
+    html2canvas(value, {
+      scale: 5, // fix nhòe
+    }).then((canvas) => {
+      getCanvas(canvas, pdf);
+      temp.remove();
+      pdf.save(`Đơn hàng ${idNumber}.pdf`);
+      dispatch(hideLoading())
+    });
+  },[dispatch, idNumber, printContent]);
 
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [
@@ -507,8 +565,8 @@ const PODetailScreen: React.FC = () => {
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
 
 
-  const renderButton = useMemo(() => {
-    const checkRender = () => {
+  const RightAction = useCallback(() => {
+    const ActionByStatus = () => {
       switch (status) {
         case POStatus.DRAFT:
           return (
@@ -614,19 +672,10 @@ const PODetailScreen: React.FC = () => {
             </div>
           </Space>
         </div>
-        {checkRender()}
+        <ActionByStatus/>
       </>
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    printContent,
-    formMain,
-    isEditDetail,
-    loadingConfirmButton,
-    loadingSaveDraftButton,
-    onConfirmButton,
-    status,
-  ]);
+    ) 
+  }, [    status,formMain, isEditDetail, loadingSaveDraftButton, loadingConfirmButton, onConfirmButton,  onMenuClick,handleExport, onMenuPrint, printElementRef, printContent, menu, menuPrint]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(onStoreResult));
@@ -693,64 +742,6 @@ const PODetailScreen: React.FC = () => {
     fetchProductLineItem();
   }, [poData, dispatch, setPoLineItemGridValue, setPoLineItemGridChema, setTaxRate, setIsGridMode]);
 
-  const handleExport = () => {
-    dispatch(showLoading())
-    // khởi tạo, đơn vị px, khổ a4
-    const pdf = new jsPDF("portrait", "px", "a4");
-    const pageMargin = 10;
-    // chiều rộng form trong canvas
-    const canvasFormWidth = 800;
-    // lấy chiều rộng và dài của khổ a4
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // khởi tạo canvas
-    const temp = document.createElement("div");
-    const tempChild = document.createElement("div");
-    temp.appendChild(tempChild);
-    // tempChild.style.fontFamily = 'Roboto';
-    temp.style.width = `${canvasFormWidth}px`;
-    temp.style.padding = `${pageMargin}px`;
-    temp.style.position = "absolute";
-    temp.style.zIndex = "-2";
-    temp.style.top = "0px";
-    temp.style.margin = 'auto';
-    tempChild.style.width = `100%`;
-    tempChild.style.height = `100%`;
-    temp.style.display = 'block';
-    temp.id = "temp";
-    tempChild.innerHTML = printContent;
-    let value = document.body.appendChild(temp);
-    if (value === null) return;
-
-
-    const imgWidth = pageWidth;
-    const rate = 1.8 // mò ra
-    const imgHeight  = (value.offsetHeight)* (value.offsetWidth/canvasFormWidth) / rate;
-
-    var heightLeft = imgHeight;
-    var position = 0;
-    const getCanvas = (canvas: HTMLCanvasElement, pdf: jsPDF) => {
-      pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft = heightLeft - pageHeight;
-      // tách trang
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-    };
-
-    html2canvas(value, {
-      scale: 5, // fix nhòe
-    }).then((canvas) => {
-      getCanvas(canvas, pdf);
-      temp.remove();
-      pdf.save(`Đơn hàng ${idNumber}.pdf`);
-      dispatch(hideLoading())
-    });
-  };
 
   const showPOReturnList = () => {
     if (
@@ -903,7 +894,7 @@ const PODetailScreen: React.FC = () => {
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
           height={55}
-          rightComponent={renderButton}
+          rightComponent={<RightAction/>}
         />
       </Form>
       {renderModalDelete()}

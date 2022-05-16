@@ -22,13 +22,14 @@ type AddOrderInReportProps = {
   formSearchOrderRef: any;
   goodsReceiptForm: any;
   codes: Array<String>
+  setCodes: (codes: Array<String>) => void;
 };
 const { Item } = Form;
 
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, codes, goodsReceiptForm } = props;
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, codes, goodsReceiptForm, setCodes } = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
@@ -58,24 +59,23 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             break;
           }
           let orderListResponseCopy = [...orderListResponse];
-          console.log("orderListResponseCopy1", orderListResponseCopy)
           isOrderPack.forEach((value) => {
-            console.log(value);
             let indexOrder = orderListResponseCopy.findIndex((p) => p.code === value);
             if (indexOrder !== -1) {
+              let indexOrder2 = codes.findIndex((p) => orderListResponseCopy[indexOrder].fulfillments.findIndex((f2) => f2.code === p) !== -1);
               orderListResponseCopy.splice(indexOrder, 1);
-              codes.splice(indexOrder, 1);
+              codes.splice(indexOrder2, 1);
             }
           })
-          console.log("orderListResponseCopy2", orderListResponseCopy)
           setOrderListResponse([...orderListResponseCopy]);
+          setCodes(codes);
           setIsOrderPack([]);
           break;
         default:
           break;
       }
     },
-    [isOrderPack, orderListResponse, setOrderListResponse, codes]
+    [isOrderPack, orderListResponse, setOrderListResponse, setCodes, codes]
   );
 
   //console.log("isOrderPack", formSearchOrderRef)
