@@ -74,6 +74,13 @@ export interface PurchaseProcumentLineItem {
   note: string;
 }
 
+export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {
+  fake_real_quantity: number;
+  receipt_quantity: number;
+  product_id?: number;
+  variant_id?: number;
+}
+
 const POProcumentField = {
   id: "id",
   code: "code",
