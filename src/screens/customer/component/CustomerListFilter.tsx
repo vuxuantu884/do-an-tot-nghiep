@@ -11,7 +11,7 @@ import settingGearIcon from "assets/icon/setting-gear-icon.svg";
 import CustomNumberInput from "component/custom/customNumberInput";
 import BaseFilter from "component/filter/base.filter";
 import FilterDateCustomerCustom from "component/filter/FilterDateCustomerCustom";
-import TreeStore from "component/tree-node/tree-store";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchAccountPublicAction} from "domain/actions/account/account.action";
 import { departmentDetailAction } from "domain/actions/account/department.action";
@@ -220,13 +220,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       customer_group_ids: Array.isArray(params.customer_group_ids) ? params.customer_group_ids : [params.customer_group_ids],
       customer_level_ids: Array.isArray(params.customer_level_ids) ? params.customer_level_ids : [params.customer_level_ids],
       customer_type_ids: Array.isArray(params.customer_type_ids) ? params.customer_type_ids : [params.customer_type_ids],
-      assign_store_ids: Array.isArray(params.assign_store_ids) ? params.assign_store_ids : [params.assign_store_ids],
+      assign_store_ids: Array.isArray(params.assign_store_ids) ? params.assign_store_ids.map((item: any) => Number(item)) : [Number(params.assign_store_ids)],
       channel_ids: Array.isArray(params.channel_ids) ? params.channel_ids : [params.channel_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
-      store_of_first_order_ids: Array.isArray(params.store_of_first_order_ids) ? params.store_of_first_order_ids : [params.store_of_first_order_ids],
-      store_of_last_order_ids: Array.isArray(params.store_of_last_order_ids) ? params.store_of_last_order_ids : [params.store_of_last_order_ids],
-
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map((item: any) => Number(item)) : [Number(params.store_ids)],
+      store_of_first_order_ids: Array.isArray(params.store_of_first_order_ids) ? params.store_of_first_order_ids.map((item: any) => Number(item)) : [Number(params.store_of_first_order_ids)],
+      store_of_last_order_ids: Array.isArray(params.store_of_last_order_ids) ? params.store_of_last_order_ids.map((item: any) => Number(item)) : [Number(params.store_of_last_order_ids)],
     };
   }, [formCustomerFilter, params]);
 
@@ -803,9 +802,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         const store = listStore?.find(
           (item) => item.id?.toString() === store_id?.toString()
         );
-        storesFiltered = store
-          ? storesFiltered + store.name + "; "
-          : storesFiltered;
+        storesFiltered = store ? storesFiltered + store.name + "; " : storesFiltered;
       });
       list.push({
         key: "store_ids",
@@ -1251,11 +1248,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "assign_store_ids":
           onFilter && onFilter({ ...params, assign_store_ids: [] });
-          formCustomerFilter?.setFieldsValue({ assign_store_ids: [] });
           break;
         case "store_ids":
           onFilter && onFilter({ ...params, store_ids: [] });
-          formCustomerFilter?.setFieldsValue({ store_ids: [] });
           break;
         case "day_of_birth":
           onFilter &&
@@ -1391,11 +1386,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "store_of_first_order_ids":
           onFilter && onFilter({ ...params, store_of_first_order_ids: [] });
-          formCustomerFilter?.setFieldsValue({ store_of_first_order_ids: [] });
           break;
         case "store_of_last_order_ids":
           onFilter && onFilter({ ...params, store_of_last_order_ids: [] });
-          formCustomerFilter?.setFieldsValue({ store_of_last_order_ids: [] });
           break;
         case "days_without_purchase":
           onFilter &&
@@ -1870,22 +1863,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   name="assign_store_ids"
                   label={<b>Cửa hàng cấp thẻ</b>}
                   className="right-filter">
-                  <Select
-                    mode="multiple"
-                    maxTagCount="responsive"
-                    showSearch
-                    showArrow
-                    allowClear
+                  <TreeStore
+                    name="assign_store_ids"
                     placeholder="Chọn cửa hàng"
-                    optionFilterProp="children"
+                    listStore={listStore}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
-                    defaultValue={undefined}>
-                    {listStore?.map((item) => (
-                      <Option key={item.id} value={item.id?.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
+                  />
                 </Form.Item>
               </div>
 
@@ -1978,9 +1961,14 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               <div className="base-filter-row">
                 <Form.Item
                   name="store_ids"
-                  label={<b>Cửa hàng</b>}
+                  label={<b>Kho cửa hàng</b>}
                   className="left-filter">
-                  <TreeStore listStore={listStore}  placeholder="Chọn cửa hàng"/>
+                  <TreeStore
+                    name="store_ids"
+                    placeholder="Chọn cửa hàng"
+                    listStore={listStore}
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
+                  />
                 </Form.Item>
 
                 <div className="center-filter">
@@ -2403,42 +2391,24 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   name="store_of_first_order_ids"
                   label={<b>Cửa hàng mua đầu</b>}
                   className="left-filter">
-                  <Select
-                    mode="multiple"
-                    maxTagCount="responsive"
-                    showSearch
-                    showArrow
-                    allowClear
+                  <TreeStore
+                    name="store_of_first_order_ids"
                     placeholder="Chọn cửa hàng"
+                    listStore={listStore}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
-                    optionFilterProp="children">
-                    {listStore?.map((item) => (
-                      <Option key={item.id} value={item.id?.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
+                  />
                 </Form.Item>
 
                 <Form.Item
                   name="store_of_last_order_ids"
                   label={<b>Cửa hàng mua cuối</b>}
                   className="center-filter">
-                  <Select
-                    mode="multiple"
-                    maxTagCount="responsive"
-                    showSearch
-                    showArrow
-                    allowClear
+                  <TreeStore
+                    name="store_of_last_order_ids"
                     placeholder="Chọn cửa hàng"
+                    listStore={listStore}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
-                    optionFilterProp="children">
-                    {listStore?.map((item) => (
-                      <Option key={item.id} value={item.id?.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
+                  />
                 </Form.Item>
 
                 <div className="right-filter">
