@@ -158,6 +158,21 @@ const PackInfo: React.FC = () => {
     [formRef, packFulFillmentResponse, ProductRequestElement]
   );
 
+  const eventKeyboardFunction=useCallback((event:KeyboardEvent)=>{
+    console.log(event.key);
+    if(['F3'].indexOf(event.key)!==-1)
+    {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    switch(event.key){
+      case "F3": 
+        OrderRequestElement?.focus();
+        break;
+      default: break;
+    }
+  },[OrderRequestElement])
+
   const onPressEnterOrder = useCallback(
     (value: string) => {
       formRef.current?.validateFields(["store_request", "delivery_service_provider_id", "order_request"]);
@@ -415,6 +430,13 @@ const PackInfo: React.FC = () => {
       window.removeEventListener("keypress", event);
     };
   }, [event]);
+
+  useEffect(()=>{
+    window.addEventListener("keydown",eventKeyboardFunction);
+    return ()=>{
+      window.removeEventListener("keydown",eventKeyboardFunction);
+    }
+  },[eventKeyboardFunction])
   ///useEffect
 
   //columns
@@ -600,7 +622,7 @@ const PackInfo: React.FC = () => {
               >
                 <Input
                   ref={idDonHangRef}
-                  placeholder="ID đơn hàng/Mã vận đơn"
+                  placeholder="ID đơn hàng/Mã vận đơn (F3)"
                   addonAfter={<img src={barcodeIcon} alt="" />}
                   onPressEnter={(e: any) => {
                     onPressEnterOrder(e.target.value?.toUpperCase());

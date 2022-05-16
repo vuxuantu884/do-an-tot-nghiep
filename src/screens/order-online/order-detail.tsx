@@ -773,6 +773,29 @@ const OrderDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
+  const eventKeyboardFunction=useCallback((event:KeyboardEvent)=>{
+    console.log(event.key);
+    if(event.key==="F9")
+    {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    switch(event.key){
+      case "F9":
+        const btnOrderUpdateElement:any= document.getElementById("btn-order-edit");
+        btnOrderUpdateElement?.click();
+        break;
+      default: break;
+    }
+  },[])
+
+  useEffect(()=>{
+    window.addEventListener("keydown",eventKeyboardFunction)
+    return ()=>{
+      window.removeEventListener("keydown",eventKeyboardFunction)
+    }
+  },[eventKeyboardFunction])
+
   return (
     <ContentContainer
       isLoading={loadingData}

@@ -173,8 +173,9 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     className="ant-btn-outline fixed-button cancle-button"
                     onClick={() => updateCancelClick && updateCancelClick()}
                     disabled={updating}
+                    id="btn-order-cancel"
                   >
-                    Huỷ
+                    Huỷ (F4)
                   </Button>
                   {stepsStatusValue === OrderStatus.DRAFT && <Button
                     style={{ padding: "0 25px", fontWeight: 400 }}
@@ -197,14 +198,14 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         style={{ padding: "0 25px", fontWeight: 400 }}
                         type="primary"
                         className="create-button-custom"
-                        id="save-and-confirm"
+                        id="btn-save-order-update"
                         onClick={() => {
                           formRef.current?.submit();
                         }}
                         loading={updating}
                         disabled={!isPassed || isLoadingDiscount}
                       >
-                        Cập nhật đơn hàng
+                        Cập nhật đơn hàng (F9)
                     </Button>}
                   </AuthWrapper>
 
@@ -328,8 +329,9 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     !isPassed
                     || isLoadingDiscount
                   }
+                  id="btn-order-edit"
                 >
-                  Sửa đơn hàng
+                  Sửa đơn hàng (F9)
                 </Button>}
               </AuthWrapper>
               {isShowConfirmOrderButton && (
