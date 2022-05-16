@@ -24,7 +24,7 @@ type PropTypes = {
 	className?: string;
 	disableDate?: (date: Moment) => boolean;
 	format?: string;
-	showTime?: object;
+	showTime?: boolean;
 	defaultValue?: Moment | undefined;
 	activeButton: string;
 	setActiveButton: (value: string) => void;
@@ -41,7 +41,7 @@ function CustomFilterDatePicker(props: PropTypes) {
 		fieldNameFrom,
 		fieldNameTo,
 		formRef,
-		showTime
+		showTime = false
 	} = props;
 
 	const TIME_RANGE = [
@@ -120,7 +120,7 @@ function CustomFilterDatePicker(props: PropTypes) {
 	);
 
 	const renderDatePickerFooter = () => {
-		let html = null;
+		let html: JSX.Element[];
 		html = TIME_RANGE.map((range) => {
 			return (
 				<Col span={8}
@@ -149,7 +149,7 @@ function CustomFilterDatePicker(props: PropTypes) {
 
 	const onChangeDate = useCallback(
 		() => {
-			let value: any = {};
+			let value: any;
 			setActiveButton('')
 			value = formRef?.current?.getFieldsValue([fieldNameFrom, fieldNameTo])
 			if (value[fieldNameFrom] && value[fieldNameTo] && (+moment(value[fieldNameFrom], format) > + moment(value[fieldNameTo], format))) {
@@ -189,7 +189,7 @@ function CustomFilterDatePicker(props: PropTypes) {
 					style={{ width: "100%" }}
 					onChange={() => onChangeDate()}
 					showToday={false}
-					showTime={showTime}
+					showTime={showTime ? { format: 'HH:mm', defaultValue: moment('00:00', 'HH:mm') } : {}}
 					renderExtraFooter={renderExtraFooter}
 				/>
 			</Form.Item>
@@ -201,7 +201,7 @@ function CustomFilterDatePicker(props: PropTypes) {
 					style={{ width: "100%" }}
 					onChange={() => onChangeDate()}
 					showToday={false}
-					showTime={showTime}
+					showTime={showTime ? { format: 'HH:mm', defaultValue: moment('23:59', 'HH:mm') } : {}}
 					renderExtraFooter={renderExtraFooter}
 				/>
 			</Form.Item>

@@ -497,7 +497,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         onCancel={onCancelFilter}
         visible={visible}
         className="order-filter-drawer"
-        width={700}
+        width={800}
       >
         {visible && <Form
           ref={formRef}
@@ -623,7 +623,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   setActiveButton={setDateClick}
                   formRef={formRef}
                   format="DD/MM/YYYY HH:mm"
-                  showTime={{ format: 'HH:mm' }}
+                  showTime
                 />
               </Col>
             </Row>
@@ -637,7 +637,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   setActiveButton={setDateClick}
                   formRef={formRef}
                   format="DD/MM/YYYY HH:mm"
-                  showTime={{ format: 'HH:mm' }}
+                  showTime
                 />
               </Col>
               <Col span={12}>
@@ -649,7 +649,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   setActiveButton={setDateClick}
                   formRef={formRef}
                   format="DD/MM/YYYY HH:mm"
-                  showTime={{ format: 'HH:mm' }}
+                  showTime
                 />
               </Col>
             </Row>

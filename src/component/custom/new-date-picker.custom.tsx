@@ -24,6 +24,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = (
   const { value, onChange, format, placeholder, style, renderExtraFooter, showToday = true } = props;
   return (
     <DatePicker
+      onSelect={(v) => onChange && onChange(v?.format(format))}
       defaultValue={props.defaultValue}
       style={style}
       value={!isUndefinedOrNull(value) ? moment(value, format) : undefined}

@@ -329,7 +329,7 @@ function TabListFilter(props: ProcurementFilterProps) {
                     setActiveButton={setDateClick}
                     formRef={formRef}
                     format="DD/MM/YYYY HH:mm"
-                    showTime={{ format: 'HH:mm' }}
+                    showTime
                   />;
                   break;
                 case ProcurementFilterAdvanceEnum.stores:
