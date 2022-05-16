@@ -850,7 +850,7 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
-                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
+                ((OrderDetail?.payments) ||
                   (OrderDetail.fulfillments &&
                     OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined)) && (
                   <Card
@@ -1134,7 +1134,7 @@ const OrderDetail = (props: PropType) => {
 
               {/* Chưa thanh toán đơn nháp*/}
               {OrderDetail &&
-                OrderDetail.payments?.length === 0 &&
+                OrderDetail.payments?.length === 0 && OrderDetail.total > 0 &&
                 (OrderDetail.fulfillments?.length === 0 ||
                   (OrderDetail?.fulfillments &&
                     OrderDetail.fulfillments[0].shipment === null)) && (
