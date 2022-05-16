@@ -16,6 +16,7 @@ import React, {
   createRef,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -32,6 +33,10 @@ import { Link } from "react-router-dom";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import NumberInput from "component/custom/number-input.custom";
+import { StoreResponse } from "model/core/store.model";
+import { haveAccess } from "utils/AppUtils";
+import { useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -58,6 +63,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     deliveryServices,
   } = props;
 
+  const userReducer = useSelector((state:RootReducerType)=>state.userReducer);
   const orderPackContextData = useContext(OrderPackContext);
   const listStores = orderPackContextData.listStores;
   const listChannels = orderPackContextData.listChannels;
@@ -66,6 +72,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
+  const [listStoresDataCanAccess, setListStoresDataCanAccess] = useState<Array<StoreResponse>>([]);
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -286,6 +293,25 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     window.addEventListener("resize", () => setVisible(false));
   }, []);
 
+  useEffect(() => {
+    let newData: Array<StoreResponse> = [];
+    if (listStores && listStores.length > 0) {
+      if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
+        newData = listStores.filter((store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+        );
+        setListStoresDataCanAccess(newData);
+      }
+      else {
+        // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+        setListStoresDataCanAccess(listStores);
+      }
+    }
+  }, [listStores, userReducer.account]);
+
   return (
     <div>
       <div className="order-filter">
@@ -405,7 +431,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       maxTagCount="responsive"
                       // value={[226,227]}
                     >
-                      {listStores?.map((item) => (
+                      {listStoresDataCanAccess?.map((item) => (
                         <CustomSelect.Option key={item.id} value={item.id.toString()}>
                           {item.name}
                         </CustomSelect.Option>

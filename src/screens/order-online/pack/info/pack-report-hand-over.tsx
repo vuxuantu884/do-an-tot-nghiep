@@ -2,14 +2,14 @@ import { Button, Dropdown, Menu } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { PageResponse } from "model/base/base-metadata.response";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
 // import IconPack from "assets/icon/Pack.svg";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
@@ -19,7 +19,7 @@ import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
 import { COLUMN_CONFIG_TYPE, FulFillmentStatus } from "utils/Constants";
 import { getQueryParams } from "utils/useQuery";
 import { useHistory } from "react-router";
-import { convertFromStringToDate, generateQuery } from "utils/AppUtils";
+import { convertFromStringToDate, generateQuery, haveAccess } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import PackFilter from "component/filter/pack.filter";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
@@ -37,6 +37,9 @@ import EditNote from "screens/order-online/component/edit-note";
 import { GoodsReceiptsRequest } from "model/request/pack.request";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -68,6 +71,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   const { query } = props;
   const history = useHistory();
   const dispatch = useDispatch();
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
+  const orderPackContextData = useContext(OrderPackContext);
+  const listStores = orderPackContextData?.listStores;
 
   let dataQuery: GoodsReceiptsSearchQuery = {
     ...initQueryGoodsReceipts,
@@ -83,6 +90,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [goodsReceipt, setGoodsReceipt] = useState<GoodsReceiptsResponse[]>([]);
+  const [listStoresDataCanAccess, setListStoresDataCanAccess] = useState<Array<StoreResponse>>([]);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -142,7 +150,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           if (!selectedRowKeys || selectedRowKeys.length === 0) break;
           let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) => selectedRowKeys.some((single: number) => single.toString() === p.id.toString()));
           console.log('selectedOrder', selectedOrder);
-          
+
           let canDelete = true;
           let idError = "";
           selectedOrder.forEach(item => {
@@ -218,7 +226,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
     let dataResult: Array<GoodsReceiptsSearhModel> = [];
-    
+
     data.items.forEach((item: GoodsReceiptsResponse, index: number) => {
       //let product_quantity = 0;
       let order_quantity = item.orders?.length ? item.orders?.length : 0;
@@ -271,7 +279,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           order_complete = order_complete + 1;
       });
 
-      let _result:GoodsReceiptsSearhModel = {
+      let _result: GoodsReceiptsSearhModel = {
         ...item,
         key: index,
         id_handover_record: item.id,
@@ -288,11 +296,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         order_complete: order_complete, //đơn hoàn
         account_create: item.updated_by ? item.updated_by : "", //người tạo
         ecommerce_id: item.ecommerce_id,
-        description:item.description,
-        note:item.note,
-        goods_receipts:item
+        description: item.description,
+        note: item.note,
+        goods_receipts: item
       };
-      console.log("dataResult",_result)
+      console.log("dataResult", _result)
       dataResult.push(_result);
 
     });
@@ -320,14 +328,14 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       ids: id ? [id] : selectedRowKeys
     }
     console.log('id', [id], selectedRowKeys);
-    
+
     dispatch(
       deleteAllGoodsReceipts(request, (data: GoodsReceiptsResponse) => {
         if (data) {
           setTableLoading(true);
           dispatch(
-            getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
-              if(data){
+            getGoodsReceiptsSerch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
+              if (data) {
                 let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
                 /////
                 setData({
@@ -338,7 +346,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                   },
                   items: dataResult,
                 });
-              }else{
+              } else {
                 setData({
                   metadata: {
                     limit: 30,
@@ -438,10 +446,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     );
   };
 
-  const editNote= useCallback((id:number, data:GoodsReceiptsResponse, newNote:string)=>{
-    let goodsReceiptsCopy:any={...data}
+  const editNote = useCallback((id: number, data: GoodsReceiptsResponse, newNote: string) => {
+    let goodsReceiptsCopy: any = { ...data }
     let codes = data.orders?.map((p) => p.fullfilement_code);
-    let param : GoodsReceiptsRequest={
+    let param: GoodsReceiptsRequest = {
       ...goodsReceiptsCopy,
       codes: codes,
       note: newNote
@@ -452,10 +460,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         if (data) {
           setTableLoading(true);
           dispatch(
-            getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
-              if(data){
+            getGoodsReceiptsSerch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
+              if (data) {
                 let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-              /////
+                /////
                 setData({
                   metadata: {
                     limit: data.metadata.limit,
@@ -464,7 +472,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                   },
                   items: dataResult,
                 });
-              }else{
+              } else {
                 setData({
                   metadata: {
                     limit: 30,
@@ -481,7 +489,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         }
       })
     );
-  },[dispatch, params])
+  }, [dispatch, params])
 
   const [columns, setColumns] = useState<
     Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
@@ -502,7 +510,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
-              <div style={{fontSize:"0.86em", lineHeight:"1.25"}}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
+              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
               <div className="shipment-details">
                 Tự vận chuyển
               </div>
@@ -515,7 +523,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
-              <div style={{fontSize:"0.86em", lineHeight:"1.25"}}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
+              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
               <div className="shipment-details">
                 {service &&
                   <img
@@ -642,7 +650,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                 //title="Khách hàng: "
                 color={"#2a2a86"}
                 onOk={(newNote) => {
-                   editNote(record.id_handover_record, record.goods_receipts, newNote);
+                  editNote(record.id_handover_record, record.goods_receipts, newNote);
                 }}
               // isDisable={record.status === OrderStatus.FINISHED}
               />
@@ -695,50 +703,73 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     [columns]
   );
 
-   // cột column
-   const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.orderDeliveryRecord)
+  // cột column
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(COLUMN_CONFIG_TYPE.orderDeliveryRecord)
 
-   //cột của bảng
+  //cột của bảng
   useSetTableColumns(COLUMN_CONFIG_TYPE.orderDeliveryRecord, tableColumnConfigs, columns, setColumns)
+  useEffect(() => {
+    let newData: Array<StoreResponse> = [];
+    if (listStores && listStores.length > 0) {
+      if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
+        newData = listStores.filter((store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+        );
+        setListStoresDataCanAccess(newData);
+      }
+      else {
+        // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+        setListStoresDataCanAccess(listStores);
+      }
+    }
+  }, [listStores, userReducer.account]);
 
   useEffect(() => {
-    
-    setTableLoading(true);
-    let from_date: Moment|undefined = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
-    let to_date: Moment|undefined =convertFromStringToDate(params.to_date,"yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
+    if (listStoresDataCanAccess && listStoresDataCanAccess.length > 0) {
+      setTableLoading(true);
+      let from_date: Moment | undefined = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
+      let to_date: Moment | undefined = convertFromStringToDate(params.to_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
 
-    let query = {
-      ...params,
-      from_date: from_date,
-      to_date: to_date
-    }
-    dispatch(
-      getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
-        if(data){
-          let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-        /////
-          setData({
+      let query = {
+        ...params,
+        from_date: from_date,
+        to_date: to_date,
+        store_ids: params.store_ids && params.store_ids.length > 0 ? params.store_ids : listStoresDataCanAccess.map(p => p.id),
+      }
+
+      console.log("query", query)
+      dispatch(
+        getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
+          if (data) {
+            let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+            /////
+            setData({
+              metadata: {
+                limit: data.metadata.limit,
+                page: data.metadata.page,
+                total: data.metadata.total,
+              },
+              items: dataResult,
+            });
+
+            setGoodsReceipt(data.items);
+          } else setData({
             metadata: {
-              limit: data.metadata.limit,
-              page: data.metadata.page,
-              total: data.metadata.total,
+              limit: 30,
+              page: 1,
+              total: 0,
             },
-            items: dataResult,
-          });
-
-          setGoodsReceipt(data.items);
-        }else setData({
-          metadata: {
-            limit: 30,
-            page: 1,
-            total: 0,
-          },
-          items: [],
+            items: [],
+          })
+          setTableLoading(false);
         })
-        setTableLoading(false);
-      })
-    );
-  }, [dispatch, params]);
+      );
+    }
+
+  }, [dispatch, listStoresDataCanAccess, params]);
 
   return (
     <>
