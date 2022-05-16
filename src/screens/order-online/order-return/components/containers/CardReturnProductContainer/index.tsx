@@ -38,6 +38,8 @@ type PropTypes = {
   isAlreadyShowWarningPoint: boolean;
 };
 
+let barcode = "";
+
 function CardReturnProductContainer(props: PropTypes) {
   const {
     handleCanReturn,
@@ -248,7 +250,8 @@ function CardReturnProductContainer(props: PropTypes) {
     let result = listItemCanBeReturn?.filter((single) => {
       return (
         fullTextSearch(searchVariantInputValue, single.variant) ||
-        fullTextSearch(searchVariantInputValue, single.sku)
+        fullTextSearch(searchVariantInputValue, single.sku) ||
+        fullTextSearch(searchVariantInputValue, single.variant_barcode)
       );
     })||[];
 
@@ -367,6 +370,21 @@ function CardReturnProductContainer(props: PropTypes) {
   //   }
   //   return result;
   // }, [OrderDetail, dispatch, getTotalPrice, listReturnProducts, orderId]);
+
+  // const eventKeyPress = useCallback(
+	// 	(event: KeyboardEvent) => {
+			
+	// 	},
+
+	// 	[onChangeProductSearchValue]
+	// );
+
+  // useEffect(() => {
+	// 	window.addEventListener("keypress", eventKeyPress);
+	// 	return () => {
+	// 		window.removeEventListener("keypress", eventKeyPress);
+	// 	};
+	// }, [eventKeyPress]);
 
   /**
    * tính toán refund khi tiêu điểm

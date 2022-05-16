@@ -1026,7 +1026,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       order_exchange.url = form.getFieldValue("url");
       order_exchange.fulfillments = createFulFillmentRequest(values);
       order_exchange.items = listExchangeProducts.concat(itemGifts);
-      order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments : [];
+      order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments.filter(payment => payment.paid_amount > 0) : [];
       const valuesExchange = {
         origin_order_id,
         order_return,
@@ -1429,7 +1429,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       values.customer_id = customer?.id;
       values.total_line_amount_after_line_discount =
         total_line_amount_after_line_discount;
-      values.total_discount = discountValue;
+      values.total_discount = promotion?.amount || 0;
       values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
       values.currency = OrderDetail ? OrderDetail.currency : null;
       values.account_code = OrderDetail ? OrderDetail.account_code : null;
@@ -1453,7 +1453,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       return values;
     },
 
-    [OrderDetail, billingAddress, createDiscountRequest, createFulFillmentRequest, customer?.id, discountValue, form, getOrderSource, itemGifts, listExchangeProducts, orderReturnType, payments, shippingAddress, shippingAddressesSecondPhone, tags, totalAmountOrder, totalAmountReturnProducts],
+    [OrderDetail, billingAddress, createDiscountRequest, createFulFillmentRequest, customer?.id, form, getOrderSource, itemGifts, listExchangeProducts, orderReturnType, payments, promotion?.amount, shippingAddress, shippingAddressesSecondPhone, tags, totalAmountOrder, totalAmountReturnProducts],
   );
 
   const handleCancel = () => {
@@ -1832,7 +1832,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
       const handleProductReturn = (keyCode: string, Code: string) => {
-        barcode = "";
         console.log("keyCode", keyCode);
         if (keyCode === "Enter") {
           console.log("Code", Code);
@@ -1882,6 +1881,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
               setListReturnProducts(result);
             }
           }
+          barcode=""
+        } else {
+          barcode = barcode + event.key;
         }
       };
 
