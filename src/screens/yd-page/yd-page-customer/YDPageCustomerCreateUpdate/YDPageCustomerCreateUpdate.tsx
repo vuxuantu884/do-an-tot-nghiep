@@ -383,6 +383,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 										showSearch
 										allowClear
 										optionFilterProp="children"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
 										onChange={onSelectCustomer}
 										placeholder={
 											<React.Fragment>
@@ -410,6 +411,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 									<Select
 										onChange={onSelectGender}
 										placeholder="Giới tính"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
 										allowClear
 									>
 										{GENDER_OPTIONS.map((gender: any) => (
@@ -429,6 +431,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 										style={{ width: "100%" }}
 										placeholder="Ngày sinh"
 										format={"DD/MM/YYYY"}
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
 										onChange={onChangeBirthDay}
 									/>
 								</Form.Item>

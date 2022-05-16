@@ -205,6 +205,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
             onClear={handleClearArea}
             allowClear
             optionFilterProp="children"
+            getPopupContainer={(trigger: any) => trigger.parentElement}
           >
             {areaList.map((area: any) => (
               <Option key={area.id} value={area.id}>
@@ -224,6 +225,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
             loading={loadingWardList}
             optionFilterProp="children"
             placeholder="Phường/xã"
+            getPopupContainer={(trigger: any) => trigger.parentElement}
             onClear={handleClearWard}
             onChange={onSelectWard}
           >

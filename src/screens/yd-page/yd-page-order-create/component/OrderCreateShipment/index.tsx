@@ -330,6 +330,7 @@ function OrderCreateShipment(props: PropType) {
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
                 placeholder="Ngày hẹn giao"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
                 disabledDate={(current: any) => moment().add(-1, "days") >= current}
               />
             </Form.Item>
@@ -345,6 +346,7 @@ function OrderCreateShipment(props: PropType) {
                 style={{ width: "100%" }}
                 placeholder="Yêu cầu xem hàng"
                 disabled={orderConfig?.for_all_order}
+                getPopupContainer={(trigger: any) => trigger.parentElement}
                 filterOption={(input, option) => {
                   if (option) {
                     return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;

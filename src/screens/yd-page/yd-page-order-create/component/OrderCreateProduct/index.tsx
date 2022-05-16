@@ -259,6 +259,8 @@ function OrderCreateProduct(props: PropType) {
 	const [changeMoney, setChangeMoney] = useState<number>(0);
 	const [isShowProductSearch, setIsShowProductSearch] = useState(true);
 	const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
+	const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
 	const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
 	const [isLoadingDiscount, setIsLoadingDiscount] = useState(false);
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -368,10 +370,7 @@ function OrderCreateProduct(props: PropType) {
 	);
 
 	const isShouldUpdatePrivateNote = useMemo(() => {
-		if(props.updateOrder && form.getFieldValue("note")) {
-			return false;
-		}
-		return true
+		return !(props.updateOrder && form.getFieldValue("note"));
 	}, [form, props.updateOrder])
 
 	useEffect(() => {
@@ -1031,10 +1030,7 @@ function OrderCreateProduct(props: PropType) {
 		if(item.discount_items[0] && !item.discount_items[0].promotion_id) {
 			return false;
 		}
-		if(newDiscountValue >= 0) {
-			return true;
-		}
-		return false;
+		return newDiscountValue >= 0;
 	};
 
 	const calculateDiscount = (
@@ -1575,7 +1571,7 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const onSearchVariantSelect = useCallback(
-		async (v, o) => {
+		(v) => {
 			if (!items) {
 				return;
 			}
@@ -1587,7 +1583,7 @@ function OrderCreateProduct(props: PropType) {
 			let r: VariantResponse = resultSearchVariant.items[indexSearch];
 			const item: OrderLineItemRequest = createItem(r);
 			item.position = items.length + 1;
-			if (r.id === newV && checkInventory(item) === true) {
+			if (r.id === newV && checkInventory(item)) {
 				if (splitLine || index === -1) {
 					_items.unshift(item);
 					calculateChangeMoney(_items);
@@ -1998,10 +1994,12 @@ function OrderCreateProduct(props: PropType) {
 	const onInputSearchProductFocus = () => {
 		setIsInputSearchProductFocus(true);
 		autoCompleteRef.current?.focus();
+		setIsDropdownVisible(true);
 	};
 
 	const onInputSearchProductBlur = () => {
 		setIsInputSearchProductFocus(false);
+		setIsDropdownVisible(false);
 	};
 
 	const handleSplitOrder = () => {
@@ -2121,6 +2119,44 @@ function OrderCreateProduct(props: PropType) {
 	}
 	// end handle order YDpage
 
+	// handle scroll page
+	const setPageScroll = (overflowType: string) => {
+		let rootSelector: any = document.getElementById("root");
+		if (rootSelector) {
+			rootSelector.style.overflow = overflowType;
+		}
+	};
+
+	// if the popup dropdown is scrolling then page scroll is hidden
+	const handleOnSelectPopupScroll = () => {
+		if (isDropdownVisible) {
+			setPageScroll("hidden");
+		}
+	};
+
+	const handleOnMouseLeaveSelect = () => {
+		setPageScroll("scroll");
+	};
+
+	const handleOnDropdownVisibleChange = (open: boolean) => {
+		setIsDropdownVisible(open);
+	};
+
+	const onInputSelectFocus = () => {
+		setIsDropdownVisible(true);
+	};
+
+	const onInputSelectBlur = () => {
+		setIsDropdownVisible(false);
+	};
+	
+	useEffect(() => {
+		if (!isDropdownVisible) {
+			setPageScroll("scroll");
+		}
+	}, [isDropdownVisible]);
+	// end handle scroll page
+
 	return (
 		<StyledComponent>
 			<Card
@@ -2158,6 +2194,12 @@ function OrderCreateProduct(props: PropType) {
                 style={{ width: "100%" }}
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
+								getPopupContainer={(trigger: any) => trigger.parentElement}
+								onFocus={onInputSelectFocus}
+								onBlur={onInputSelectBlur}
+								onDropdownVisibleChange={handleOnDropdownVisibleChange}
+								onPopupScroll={handleOnSelectPopupScroll}
+								onMouseLeave={handleOnMouseLeaveSelect}
 								onChange={(value?: number) => {
 									if (value) {
 										setStoreId(value);
@@ -2315,6 +2357,10 @@ function OrderCreateProduct(props: PropType) {
 										{menu}
 									</div>
 								)}
+								getPopupContainer={(trigger: any) => trigger.parentElement}
+								onPopupScroll={handleOnSelectPopupScroll}
+								onMouseLeave={handleOnMouseLeaveSelect}
+								onDropdownVisibleChange={handleOnDropdownVisibleChange}
 							>
 								<Input
 									size="middle"
