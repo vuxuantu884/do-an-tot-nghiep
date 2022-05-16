@@ -16,7 +16,7 @@ import { showSuccess } from "utils/ToastUtils";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StyledComponent } from "./update-payment-card.styles";
 
-type PropType = {
+type PropTypes = {
   listPaymentMethods: PaymentMethodResponse[];
   orderDetail: OrderResponse;
   paymentMethod: number;
@@ -37,7 +37,7 @@ type PropType = {
   disabledActions?: (type: string) => void;
 };
 
-function UpdatePaymentCard(props: PropType) {
+function UpdatePaymentCard(props: PropTypes) {
   const {
     disabledActions,
     listPaymentMethods,

@@ -850,9 +850,9 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
-                ((OrderDetail?.payments) ||
+                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
                   (OrderDetail.fulfillments &&
-                    OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined)) && (
+                    OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined) || (OrderDetail.payments?.length  === 0 && OrderDetail.total === 0)) && (
                   <Card
                     title={
                       <Space>
@@ -1134,10 +1134,10 @@ const OrderDetail = (props: PropType) => {
 
               {/* Chưa thanh toán đơn nháp*/}
               {OrderDetail &&
-                OrderDetail.payments?.length === 0 && OrderDetail.total > 0 &&
+                OrderDetail.payments?.length === 0 &&
                 (OrderDetail.fulfillments?.length === 0 ||
                   (OrderDetail?.fulfillments &&
-                    OrderDetail.fulfillments[0].shipment === null)) && (
+                    OrderDetail.fulfillments[0].shipment === null)) && OrderDetail.total > 0 && (
                   <UpdatePaymentCard
                     setPaymentMethod={onPaymentSelect}
                     setPayments={onPayments}
