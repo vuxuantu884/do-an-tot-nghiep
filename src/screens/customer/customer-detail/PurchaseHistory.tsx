@@ -697,14 +697,17 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         render: (data: any) => (
           <>
             {data.code_order_return ?
-              <div className="order-point-screen">
-                <span style={{ color: "#27AE60" }}>{`Trừ Tích: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</span>
-                <span style={{ color: "#E24343" }}>{`Hoàn Tiêu: ${data.change_point?.add ? data.change_point?.add : 0}`}</span>
+              <div>
+                <div style={{ color: "#27AE60" }}>{`Trừ Tích: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
+                <div style={{ color: "#E24343" }}>{`Hoàn Tiêu: ${data.change_point?.add ? data.change_point?.add : 0}`}</div>
               </div>
               :
-              <div className="order-point-column order-point-screen">
-                <span style={{ color: "#27AE60" }}>{`Tích: ${data.change_point?.add ? data.change_point?.add : 0}`}</span>
-                <span style={{ color: "#E24343" }}>{`Tiêu: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</span>
+              <div>
+                <div style={{ color: "#27AE60" }}>{`Tích: ${data.change_point?.add ? data.change_point?.add : 0}`}</div>
+                <div style={{ color: "#E24343" }}>{`Tiêu: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
+                {data.status === OrderStatus.CANCELLED &&
+                  <div style={{ color: "#E24343" }}>{`Hoàn tiêu: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
+                }
               </div>
             }
           </>
@@ -1282,7 +1285,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         bordered
         isLoading={tableLoading}
         showColumnSetting={true}
-        scroll={{ x: 2800 }}
+        scroll={{ x: 2900 }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
           pageSize: purchaseHistoryData.metadata?.limit,
