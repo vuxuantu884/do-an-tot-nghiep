@@ -773,6 +773,29 @@ const OrderDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
+  const eventKeyboardFunction=useCallback((event:KeyboardEvent)=>{
+    console.log(event.key);
+    if(event.key==="F9")
+    {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    switch(event.key){
+      case "F9":
+        const btnOrderUpdateElement:any= document.getElementById("btn-order-edit");
+        btnOrderUpdateElement?.click();
+        break;
+      default: break;
+    }
+  },[])
+
+  useEffect(()=>{
+    window.addEventListener("keydown",eventKeyboardFunction)
+    return ()=>{
+      window.removeEventListener("keydown",eventKeyboardFunction)
+    }
+  },[eventKeyboardFunction])
+
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -852,7 +875,7 @@ const OrderDetail = (props: PropType) => {
               {OrderDetail !== null &&
                 ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
                   (OrderDetail.fulfillments &&
-                    OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined)) && (
+                    OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined) || (OrderDetail.payments?.length  === 0 && OrderDetail.total === 0)) && (
                   <Card
                     title={
                       <Space>
@@ -1137,7 +1160,7 @@ const OrderDetail = (props: PropType) => {
                 OrderDetail.payments?.length === 0 &&
                 (OrderDetail.fulfillments?.length === 0 ||
                   (OrderDetail?.fulfillments &&
-                    OrderDetail.fulfillments[0].shipment === null)) && (
+                    OrderDetail.fulfillments[0].shipment === null)) && OrderDetail.total > 0 && (
                   <UpdatePaymentCard
                     setPaymentMethod={onPaymentSelect}
                     setPayments={onPayments}

@@ -282,7 +282,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
                   pointUsing={OrderDetail?.point_refund}
-                  totalAmountReturnToCustomer={OrderDetail?.total}
+                  totalAmountReturnToCustomer={OrderDetail?.money_refund}
                   isDetailPage
 									OrderDetail={OrderDetail}
                 />

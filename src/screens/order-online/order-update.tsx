@@ -135,7 +135,7 @@ export default function Order(props: PropTypes) {
 	)
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 	const [customerChange, setCustomerChange] = useState(false);
-	
+
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
 	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -414,7 +414,7 @@ export default function Order(props: PropTypes) {
 			discount_amount: null,
 			total_line_amount_after_line_discount: null,
 			shipment: shipmentRequest,
-			items: [...items,...itemGifts].map((item) => {
+			items: [...items, ...itemGifts].map((item) => {
 				let index = sortedFulfillments[0]?.items.findIndex(single => single?.order_line_item_id === item.id);
 				if (index > -1) {
 					return {
@@ -689,7 +689,7 @@ export default function Order(props: PropTypes) {
 		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
 		values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
 		values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
-		const element2: any = document.getElementById("save-and-confirm");
+		const element2: any = document.getElementById("btn-save-order-update");
 		element2.disable = true;
 		let lstFulFillment = createFulFillmentRequest(values);
 		let lstDiscount = createDiscountRequest();
@@ -1164,32 +1164,32 @@ export default function Order(props: PropTypes) {
 				if (OrderDetail?.shipping_address && OrderDetail?.shipping_address.city_id
 					&& OrderDetail?.shipping_address.district_id && OrderDetail?.shipping_address.ward_id
 					&& OrderDetail?.shipping_address.full_address && shippingAddressItem) {
-						// nếu order có địa chỉ giao hàng đúng thì gán vào form hiển thị thành địa chỉ khách hàng
-						setShippingAddress({
-							...shippingAddressItem,
-							...OrderDetail?.shipping_address,
-							id: shippingAddressItem.id
-						})
-						// nếu những địa chỉ khách hàng đã có không có địa chỉ của đơn hàng
-						const shippingAddressCustomerSameShippingAddressOrder = customer.shipping_addresses.find(
-							(p: any) => p.name === OrderDetail?.shipping_address?.name &&
+					// nếu order có địa chỉ giao hàng đúng thì gán vào form hiển thị thành địa chỉ khách hàng
+					setShippingAddress({
+						...shippingAddressItem,
+						...OrderDetail?.shipping_address,
+						id: shippingAddressItem.id
+					})
+					// nếu những địa chỉ khách hàng đã có không có địa chỉ của đơn hàng
+					const shippingAddressCustomerSameShippingAddressOrder = customer.shipping_addresses.find(
+						(p: any) => p.name === OrderDetail?.shipping_address?.name &&
 							p.phone === OrderDetail?.shipping_address?.phone &&
 							// p.country_id === OrderDetail?.shipping_address?.country_id &&
 							p.city_id === OrderDetail?.shipping_address?.city_id &&
 							p.district_id === OrderDetail?.shipping_address?.district_id &&
 							p.ward_id === OrderDetail?.shipping_address?.ward_id &&
 							p.full_address === OrderDetail?.shipping_address?.full_address
-						);
-						if (!shippingAddressCustomerSameShippingAddressOrder) {
-							setCustomerChange(true);
-							showWarning("Địa chỉ giao hàng của đơn hàng và khách hàng chưa đồng bộ!!!")
-						}
+					);
+					if (!shippingAddressCustomerSameShippingAddressOrder) {
+						setCustomerChange(true);
+						showWarning("Địa chỉ giao hàng của đơn hàng và khách hàng chưa đồng bộ!!!")
+					}
 				} else {
 					if (shippingAddressItem) setShippingAddress(shippingAddressItem)
 				}
 				isFirstLoad.current = false;
 			}
-			
+
 		} else {
 			setLoyaltyPoint(null);
 			setCountFinishingUpdateCustomer(prev => prev + 1);
@@ -1358,6 +1358,33 @@ export default function Order(props: PropTypes) {
 		setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone || '');
 	}, [OrderDetail?.shipping_address]);
 
+	const eventKeyBoardFunction = useCallback((event: KeyboardEvent) => {
+		console.log(event.key);
+		if (event.key === "F9" || event.key === "F4") {
+			event.preventDefault();
+			event.stopPropagation();
+		}
+
+		switch (event.key) {
+			case "F9":
+				const btnSaveOrderUpdateElement = document.getElementById("btn-save-order-update");
+				btnSaveOrderUpdateElement?.click();
+				break;
+				case "F4":
+					const btnSaveOrderCancelElement = document.getElementById("btn-order-cancel");
+					btnSaveOrderCancelElement?.click();
+					break;
+			default: break;
+		}
+	}, [])
+
+	useEffect(() => {
+		window.addEventListener("keydown", eventKeyBoardFunction);
+		return () => {
+			window.removeEventListener("keydown", eventKeyBoardFunction);
+		}
+	}, [eventKeyBoardFunction])
+
 	return (
 		<React.Fragment>
 			<ContentContainer
@@ -1435,9 +1462,9 @@ export default function Order(props: PropTypes) {
 										form={form}
 										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										customerChange={customerChange}
-                    setCustomerChange={setCustomerChange}
+										setCustomerChange={setCustomerChange}
 									/>
-								
+
 									<OrderCreateProduct
 										orderAmount={orderAmount}
 										totalAmountOrder={totalAmountOrder}
@@ -2258,7 +2285,7 @@ export default function Order(props: PropTypes) {
 																								{fulfillment?.reason_name}
 																								{fulfillment?.sub_reason_name && (
 																									<span>
-																									{" "}- {fulfillment?.sub_reason_name}
+																										{" "}- {fulfillment?.sub_reason_name}
 																									</span>
 																								)}
 																							</b>
@@ -2274,9 +2301,9 @@ export default function Order(props: PropTypes) {
 																							<p className="text-field">Yêu cầu:</p>
 																						</Col>
 																						<Col span={14}>
-																						<b className="text-field">
-																							{requirementNameView}
-																						</b>
+																							<b className="text-field">
+																								{requirementNameView}
+																							</b>
 																						</Col>
 																					</Row>
 																				</Col>
@@ -2549,34 +2576,34 @@ export default function Order(props: PropTypes) {
 														</div>
 													)
 											)}
-											{OrderDetail?.fulfillments && (OrderDetail?.fulfillments?.length === 0
-												|| !OrderDetail?.fulfillments[0].shipment
-												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNED
-												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.CANCELLED
-												|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNING) && (
-													<OrderCreateShipment
-														shipmentMethod={shipmentMethod}
-														orderPrice={orderAmount}
-														storeDetail={storeDetail}
-														customer={customer}
-														items={items}
-														isCancelValidateDelivery={false}
-														totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-														setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
-														onSelectShipment={onSelectShipment}
-														thirdPL={thirdPL}
-														setThirdPL={setThirdPL}
-														form={form}
-														shippingServiceConfig={shippingServiceConfig}
-														orderConfig={orderConfig}
-														OrderDetail={OrderDetail}
-														isOrderUpdate={true}
-														isEcommerceOrder={isEcommerceOrder}
-														ecommerceShipment={ecommerceShipment}
-													/>
+										{OrderDetail?.fulfillments && (OrderDetail?.fulfillments?.length === 0
+											|| !OrderDetail?.fulfillments[0].shipment
+											|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNED
+											|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.CANCELLED
+											|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNING) && (
+												<OrderCreateShipment
+													shipmentMethod={shipmentMethod}
+													orderPrice={orderAmount}
+													storeDetail={storeDetail}
+													customer={customer}
+													items={items}
+													isCancelValidateDelivery={false}
+													totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+													setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+													onSelectShipment={onSelectShipment}
+													thirdPL={thirdPL}
+													setThirdPL={setThirdPL}
+													form={form}
+													shippingServiceConfig={shippingServiceConfig}
+													orderConfig={orderConfig}
+													OrderDetail={OrderDetail}
+													isOrderUpdate={true}
+													isEcommerceOrder={isEcommerceOrder}
+													ecommerceShipment={ecommerceShipment}
+												/>
 											)}
 									</Card>
-									
+
 								</Col>
 								<Col md={6}>
 									<CreateOrderSidebar
@@ -2592,7 +2619,7 @@ export default function Order(props: PropTypes) {
 									/>
 								</Col>
 							</Row>
-							{isShowBillStep && (
+							{/* {isShowBillStep && (
 								<OrderDetailBottomBar
 									isVisibleUpdateButtons={true}
 									stepsStatusValue={stepsStatusValue}
@@ -2605,7 +2632,20 @@ export default function Order(props: PropTypes) {
 									updating={updating}
 									updatingConfirm={updatingConfirm}
 								/>
-							)}
+							)} */}
+							<OrderDetailBottomBar
+								isVisibleUpdateButtons={true}
+								stepsStatusValue={stepsStatusValue}
+								formRef={formRef}
+								handleTypeButton={handleTypeButton}
+								orderDetail={OrderDetail}
+								isVisibleGroupButtons={false}
+								updateCancelClick={updateCancelClick}
+								showSaveAndConfirmModal={() => { }}
+								updating={updating}
+								updatingConfirm={updatingConfirm}
+								isShow={!isShowBillStep}
+							/>
 						</Form>
 					)}
 				</div>

@@ -492,11 +492,14 @@ export default function Order() {
 		return !shippingAddress?.phone || !shippingAddress?.district_id || !shippingAddress?.ward_id || !shippingAddress?.full_address
 	};
 
+	if(!isUserCanCreateOrder.current) {
+		setTimeout(() => {
+			isUserCanCreateOrder.current = true
+		}, 3000);
+	}
+
 	const onFinish = (values: OrderRequest) => {
 		if(!isUserCanCreateOrder.current) {
-			setTimeout(() => {
-				isUserCanCreateOrder.current = true
-			}, 5000);
 			return
 		}
 		isUserCanCreateOrder.current = false;
@@ -854,7 +857,7 @@ export default function Order() {
 								source_id: response.source_id,
 								assignee_code: response?.assignee_code || null,
 								marketer_code: response?.marketer_code || undefined,
-								coordinator_code: response?.coordinator_code || undefined,
+								coordinator_code: undefined, // sao chép ko sao chép nhân viên điều phối
 								store_id: response.store_id,
 								items: responseItems,
 								dating_ship: newDatingShip,

@@ -3,7 +3,7 @@ import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { grayF5Color } from "utils/global-styles/variables";
+import { dangerColor, grayF5Color, successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./inventory.modal.styles";
 
 type InventoryModalProps = {
@@ -94,33 +94,48 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     stores.sort((a, b) => {
       let item1 = 0;
       let item2 = 0;
-      let totalAvaiable1 = 0;
-      let totalAvaiable2 = 0;
+      // let totalAvaiable1 = 0;
+      // let totalAvaiable2 = 0;
       columnsItem?.forEach((value) => {
-        if (a.data[value.variant_id.toString()] > value.quantity) {
+        // if (a.data[value.variant_id.toString()] >= value.quantity) {
+        //   item1++;
+        // }
+        // if (b.data[value.variant_id.toString()] >= value.quantity) {
+        //   item2++;
+        // }
+
+        if (a.data[value.variant_id.toString()] > 0 ) {
           item1++;
         }
-        if (b.data[value.variant_id.toString()] > value.quantity) {
+        if(b.data[value.variant_id.toString()]>0)
+        {
+          item2++;
+        }
+
+        if (a.data[value.variant_id.toString()] >= b.data[value.variant_id.toString()] ) {
+          item1++;
+        }
+        else{
           item2++;
         }
       });
 
-      Object.keys(a.data).forEach((key) => {
-        totalAvaiable1 = totalAvaiable1 + a.data[key];
-      })
-      Object.keys(b.data).forEach((key) => {
-        totalAvaiable2 = totalAvaiable2 + b.data[key];
-      })
-      if (item1 === columnsItem?.length && item2 === columnsItem?.length) {
-        if (a.pitority >= b.pitority) {
-          return totalAvaiable2 - totalAvaiable1;
-        } else {
-          return b.pitority - a.pitority;
-        }
-      }
-      if (totalAvaiable1 !== totalAvaiable2) {
-        return totalAvaiable2 - totalAvaiable1;
-      }
+      // Object.keys(a.data).forEach((key) => {
+      //   totalAvaiable1 = totalAvaiable1 + a.data[key];
+      // })
+      // Object.keys(b.data).forEach((key) => {
+      //   totalAvaiable2 = totalAvaiable2 + b.data[key];
+      // })
+      // if (item1 === columnsItem?.length && item2 === columnsItem?.length) {
+      //   if (a.pitority >= b.pitority) {
+      //     return totalAvaiable2 - totalAvaiable1;
+      //   } else {
+      //     return b.pitority - a.pitority;
+      //   }
+      // }
+      // if (totalAvaiable1 !== totalAvaiable2) {
+      //   return totalAvaiable2 - totalAvaiable1;
+      // }
       return item2 - item1;
     })
     return stores;
@@ -208,7 +223,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                         </th>
 
                         {columnsItem?.map((_itemi, index) => (
-                          <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 ? {color: "red"} : undefined}>
+                          <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 ? {color: dangerColor} : {color:successColor}}>
                             {item.data[_itemi.variant_id]}
                           </td>
                         ))}
