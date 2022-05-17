@@ -1701,6 +1701,47 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 		}
 	}, [initListSource]);
 
+  // handle scroll customer filter page
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const setPageScroll = (overflowType: string) => {
+    let filterContainerSelector: any = document.querySelector(".body-container");
+    if (filterContainerSelector && filterContainerSelector.children?.length > 0) {
+      filterContainerSelector.children[0].style.overflow = overflowType;
+    }
+  };
+
+  // if the popup dropdown is scrolling then page scroll is hidden
+  const handleOnSelectPopupScroll = () => {
+    if (isDropdownVisible) {
+      setPageScroll("hidden");
+    }
+  };
+
+  const handleOnMouseLeaveSelect = () => {
+    setPageScroll("scroll");
+  };
+
+  const handleOnDropdownVisibleChange = (open: boolean) => {
+    setIsDropdownVisible(open);
+  };
+
+  const onInputSelectFocus = () => {
+    setIsDropdownVisible(true);
+  };
+
+  const onInputSelectBlur = () => {
+    setIsDropdownVisible(false);
+  };
+
+  useEffect(() => {
+    if (!isDropdownVisible) {
+      setPageScroll("scroll");
+    }
+  }, [isDropdownVisible]);
+  // end handle scroll customer filter page
+
+
   return (
     <StyledCustomerFilter>
       <Form
@@ -1795,6 +1836,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     placeholder="Chọn nhóm khách hàng"
                     getPopupContainer={(trigger: any) => trigger.parentElement}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
                     optionFilterProp="children">
                     {groups.map((group: any) => (
                       <Option key={group.id} value={group.id?.toString()}>
@@ -1815,6 +1861,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     showArrow
                     allowClear
                     getPopupContainer={(trigger: any) => trigger.parentElement}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
                     placeholder="Chọn hạng thẻ">
                     {loyaltyUsageRules?.map((loyalty: any) => (
                       <Option key={loyalty.id} value={loyalty.rank_id?.toString()}>
@@ -1836,6 +1887,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     setDataToSelect={setAccountData}
                     initDataToSelect={initPublicAccounts}
                     getPopupContainer={(trigger: any) => trigger.parentNode}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
                   />
                 </Form.Item>
 
@@ -1885,6 +1941,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     placeholder="Chọn kênh"
                     getPopupContainer={(trigger: any) => trigger.parentElement}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
                     optionFilterProp="children">
                     {listChannel?.map((item) => (
                       <Option key={item.id} value={item.id?.toString()}>
@@ -1907,6 +1968,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     allowClear
                     placeholder="Chọn nguồn"
                     getPopupContainer={(trigger: any) => trigger.parentElement}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
                     optionFilterProp="children">
                     {listSource?.map((item) => (
                       <Option key={item.id} value={item.id?.toString()}>
@@ -1979,6 +2045,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
                         placeholder="Từ ngày">
                         {INIT_FROM_DATE_LIST.map((item: any) => (
                           <Option
@@ -1998,6 +2069,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
                         placeholder="Đến ngày">
                         {INIT_TO_DATE_LIST.map((item: any) => (
                           <Option
@@ -2024,6 +2100,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         allowClear
                         placeholder="Từ năm"
                         getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
                         onSelect={onSelectFromYear}
                         onClear={onClearFromYear}>
                         {fromYearList.map((item: any) => (
@@ -2045,6 +2126,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         allowClear
                         placeholder="Đến năm"
                         getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
                         onSelect={onSelectToYear}
                         onClear={onClearToYear}>
                         {toYearList.map((item: any) => (
@@ -2075,6 +2161,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       notFoundContent="Không tìm thấy Tỉnh/Thành phố"
                       optionFilterProp="children"
                       getPopupContainer={(trigger: any) => trigger.parentElement}
+                      onFocus={onInputSelectFocus}
+                      onBlur={onInputSelectBlur}
+                      onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                      onPopupScroll={handleOnSelectPopupScroll}
+                      onMouseLeave={handleOnMouseLeaveSelect}
                       onSelect={handleSelectProvince}
                       onDeselect={handleDeselectProvince}
                       onClear={handleClearProvince}>
@@ -2098,6 +2189,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         allowClear
                         placeholder="Từ tháng"
                         getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
                       >
                         {INIT_FROM_MONTH_LIST.map((item: any) => (
                           <Option
@@ -2117,6 +2213,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
                         placeholder="Đến tháng">
                         {INIT_TO_MONTH_LIST.map((item: any) => (
                           <Option
@@ -2177,6 +2278,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       notFoundContent="Không tìm thấy Quận/Huyện"
                       optionFilterProp="children"
                       getPopupContainer={(trigger: any) => trigger.parentElement}
+                      onFocus={onInputSelectFocus}
+                      onBlur={onInputSelectBlur}
+                      onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                      onPopupScroll={handleOnSelectPopupScroll}
+                      onMouseLeave={handleOnMouseLeaveSelect}
                       maxTagCount="responsive"
                       onSelect={handleSelectDistrict}
                       onDeselect={handleDeselectDistrict}
@@ -2290,6 +2396,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       notFoundContent="Không tìm thấy Phường/Xã"
                       optionFilterProp="children"
                       getPopupContainer={(trigger: any) => trigger.parentElement}
+                      onFocus={onInputSelectFocus}
+                      onBlur={onInputSelectBlur}
+                      onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                      onPopupScroll={handleOnSelectPopupScroll}
+                      onMouseLeave={handleOnMouseLeaveSelect}
                       maxTagCount="responsive"
                       onSelect={handleSelectWard}
                       onDeselect={handleDeselectWard}
