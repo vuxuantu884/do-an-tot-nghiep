@@ -196,6 +196,7 @@ function OrderReturnList(props: PropTypes) {
           {record.code_order}
         </Link>
       ),
+      key: "order_code",
       visible: true,
       width: 120,
     },
@@ -313,7 +314,7 @@ function OrderReturnList(props: PropTypes) {
           {/* <div className="p-b-3">{record.customer_email}</div> */}
         </div>
       ),
-      key: "customer",
+      key: "receive_person",
       visible: true,
       width: 160,
     },
@@ -459,7 +460,7 @@ function OrderReturnList(props: PropTypes) {
           </div>
         );
       },
-      key: "total_amount",
+      key: "refund_amount",
       visible: true,
       align: "center",
       width: 140,
@@ -470,9 +471,9 @@ function OrderReturnList(props: PropTypes) {
       width: 140,
       render: (record: any) => (
         <>
-          <Tooltip title="Tổng thanh toán">
+          <Tooltip title="Hoàn tiền">
             <NumberFormat
-              value={record.total}
+              value={record.money_refund}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}
@@ -480,7 +481,7 @@ function OrderReturnList(props: PropTypes) {
             />
           </Tooltip>
 
-          {record.point_refund  && record.total ? (
+          {record.point_refund  && record.money_refund ? (
             <>
               <br />
               <Tooltip title="Hoàn điểm">
@@ -495,7 +496,7 @@ function OrderReturnList(props: PropTypes) {
                   />
                 </span>
               </Tooltip>
-              <br />
+              {/* <br />
               <Tooltip title="Thu người nhận">
                 <span style={{ fontWeight: 500 }}>
                   <NumberFormat
@@ -505,7 +506,7 @@ function OrderReturnList(props: PropTypes) {
                     thousandSeparator={true}
                   />
                 </span>
-              </Tooltip>
+              </Tooltip> */}
             </>
           ) : null}
         </>
@@ -519,7 +520,7 @@ function OrderReturnList(props: PropTypes) {
       title: "Ngày nhận hàng",
       dataIndex: "receive_date",
       render: (value: string) => <div>{moment(value).format(DATE_FORMAT.fullDate)}</div>,
-      key: "total_amount",
+      key: "receive_date",
       visible: true,
       align: "center",
       width: 130,
