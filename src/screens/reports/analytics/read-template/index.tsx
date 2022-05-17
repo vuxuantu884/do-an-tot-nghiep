@@ -69,16 +69,16 @@ function UpdateAnalytics() {
     }
 
     const handleQueryAfterSubmitForm = useCallback(async (rQuery: string, params: AnalyticQuery) => {
+        const timeOptionAt = form.getFieldValue(ReportifyFormFields.timeAtOption);
         switch (mode) {
             case SUBMIT_MODE.EXPORT_EXCEL:
                 setIsLoadingExport(true);
-                await exportReportToExcel(dispatch, rQuery, `${CURRENT_REPORT_TEMPLATE.type} ${CURRENT_REPORT_TEMPLATE.name}`)
+                await exportReportToExcel(dispatch, timeOptionAt ? { q: rQuery, options: timeOptionAt } : { q: rQuery }, `${CURRENT_REPORT_TEMPLATE.type} ${CURRENT_REPORT_TEMPLATE.name}`)
                 setIsLoadingExport(false);
                 setMode(SUBMIT_MODE.GET_DATA);
                 break;
             case SUBMIT_MODE.SAVE_QUERY:
                 const chartQuery = getChartQuery(params, chartColumnSelected || []);
-                const timeOptionAt = form.getFieldValue(ReportifyFormFields.timeAtOption)
                 const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, saveAnalyticsCustomService, {
                     query: rQuery,
                     group: cubeRef.current,

@@ -29,7 +29,22 @@ function AnnotationTableModal({
                 </a>
             </Button>
         ]} width={800}>
-            <Table columns={AnnotationColumns} dataSource={annotationData} pagination={false} scroll={{ y: 500 }} key="annotation"/>
+            <Table dataSource={annotationData} pagination={false} scroll={{ y: 500 }} key="annotation">
+                {AnnotationColumns.map((item: any, index: number) => {
+                    const { title, key, dataIndex } = item;
+                    return (
+                        <Table.Column<any>
+                            title={title}
+                            key={key}
+                            render={(value, record) => {
+                                return (
+                                    <div dangerouslySetInnerHTML={{ __html: record[dataIndex] }} />
+                                )
+                            }}
+                        />
+                    );
+                })}
+            </Table>
         </Modal>
     )
 }
