@@ -30,6 +30,7 @@ import { StoreResponse } from "model/core/store.model";
 import { ImportResponse } from "model/other/files/export-model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
+import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
   POLineItemGridValue,
   PurchaseOrder,
@@ -314,6 +315,9 @@ const PODetailScreen: React.FC = () => {
   const handleClonePo = useCallback(() => {
     let params = formMain.getFieldsValue(true);
     const paramsData = cloneDeep(params)
+    const line_items = paramsData.line_items.map((item: PurchaseOrderLineItem) => {
+      return {...item, receipt_quantity: 0, planned_quantity: 0}
+    })
     const procurements = [params.procurements[0]];
     procurements?.forEach((pro: any) => {
       pro.code = null;
@@ -326,6 +330,7 @@ const PODetailScreen: React.FC = () => {
     });
     const paramsSubmit = {
       ...paramsData,
+      line_items,
       procurements,
       id: null,
       code: null,
