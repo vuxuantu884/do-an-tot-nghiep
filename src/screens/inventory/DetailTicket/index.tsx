@@ -94,6 +94,7 @@ const DetailTicket: FC = () => {
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoadingBtn, setLoadingBtn] = useState<boolean>(false);
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
@@ -422,6 +423,7 @@ const DetailTicket: FC = () => {
 
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
+      setLoadingBtn(false);
       if (result) {
         showSuccess("Nhập hàng thành công");
         setDataTable(result.line_items);
@@ -486,6 +488,7 @@ const DetailTicket: FC = () => {
 
   const onReceive = useCallback(() => {
     if (data && dataTable) {
+      setLoadingBtn(true);
       data.line_items = dataTable;
       let dataUpdate: any = {};
 
@@ -864,6 +867,7 @@ const DetailTicket: FC = () => {
   }
 
   const onReload = useCallback(()=>{
+    setLoadingBtn(false);
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   },[dispatch,idNumber,onResult])
 
@@ -1198,6 +1202,7 @@ const DetailTicket: FC = () => {
                                 type="primary"
                                 className="ant-btn-primary"
                                 size="large"
+                                disabled={isLoadingBtn}
                                 onClick={() => setIsVisibleModalReceiveWarning(true)}
                               >
                                 Nhận hàng
@@ -1437,12 +1442,14 @@ const DetailTicket: FC = () => {
         {
           isVisibleModalWarning &&
           <ModalConfirm
+            loading={isLoadingBtn}
             onCancel={() => {
               setIsVisibleModalWarning(false);
             }}
             onOk={() => {
               if (data) {
                 setIsVisibleModalWarning(false);
+                setLoadingBtn(true);
                 dispatch(cancelShipmentInventoryTransferAction(data?.id, onReload));
               }
             }}
@@ -1456,6 +1463,7 @@ const DetailTicket: FC = () => {
         {
           isVisibleModalReceiveWarning &&
           <ModalConfirm
+            loading={isLoadingBtn}
             onCancel={() => {
               setIsVisibleModalReceiveWarning(false);
             }}
