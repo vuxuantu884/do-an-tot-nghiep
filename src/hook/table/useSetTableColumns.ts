@@ -28,13 +28,13 @@ function useSetTableColumns(
       console.log('config', config)
       const columnResult = initColumns.map((single, index) => {
         const selected = config.find(column => column.key === single.key) || {}
+        console.log('selected', selected)
         return {
           ...single,
-          visible: selected?.visible || single.visible,
-          title: selected?.title || single?.title,
-          render: selected?.render || single?.render,
+          visible: selected ? (selected?.visible) : single.visible,
         };
       })
+      console.log('columnResult', columnResult)
       // console.log('columnResult', columnResult)
       // const filterColumns = initColumns.filter(single => {
       //   return [...columnResult].map(init => init.key).includes(single.key)
