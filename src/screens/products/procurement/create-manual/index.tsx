@@ -17,16 +17,17 @@ import { getStoreApi } from "service/inventory/transfer/index.service";
 import { AccountStoreResponse } from "model/account/account.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getAccountDetail } from "service/accounts/account.service";
-import { POProcumentField, ProcurementManual } from "model/purchase-order/purchase-procument";
+import { POProcumentField, ProcurementManual, PurchaseProcumentLineItemManual } from "model/purchase-order/purchase-procument";
 import ManualForm from "./components/ManualForm";
 import LineItems from "./components/LineItems";
+import ImportProcurementExcel from "./components/ImportProcurementExcel"
 import { listPurchaseOrderBySupplier } from "service/purchase-order/purchase-order.service";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { POField } from "model/purchase-order/po-field";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
-import { PurchaseProcumentLineItem } from "model/purchase-order/purchase-procument";
 import { createPurchaseProcumentManualService } from "service/purchase-order/purchase-procument.service";
+import { ImportOutlined } from "@ant-design/icons";
 
 
 const ProcurementCreateManualScreen: React.FC = () => {
@@ -40,6 +41,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
   const [poData, setPOData] = useState<PurchaseOrder>()
   const [poLoading, setPOLoading] = useState<boolean>(false)
   const [poDisable, setPODisable] = useState<boolean>(true)
+  const [isImport, setIsImport] = useState<boolean>(false);
   const history = useHistory()
   const dispatch = useDispatch()
   const [formMain] = Form.useForm()
@@ -160,19 +162,23 @@ const ProcurementCreateManualScreen: React.FC = () => {
     let poData = listPO[index];
     setPOData(poData)
     let newLineItem: Array<PurchaseOrderLineItem> = poData.line_items ?? [];
-    let result: Array<PurchaseProcumentLineItem> = []
+    let result: Array<PurchaseProcumentLineItemManual> = []
     newLineItem.forEach((item) => {
       result.push({
         barcode: item.barcode,
         line_item_id: item.position,
+        product_id: item.product_id,
+        variant_id: item.variant_id,
         sku: item.sku,
         variant: item.variant,
         variant_image: item.variant_image,
         ordered_quantity: item.quantity,
         planned_quantity: item.planned_quantity,
         accepted_quantity: item.receipt_quantity,
+        receipt_quantity: item.receipt_quantity,
         quantity: item.quantity,
         real_quantity: 0,
+        fake_real_quantity: 0,
         note: "",
       });
     });
@@ -186,10 +192,11 @@ const ProcurementCreateManualScreen: React.FC = () => {
 
   const onQuantityChange = useCallback(
     (quantity, index: any) => {
-      let procurement_items: Array<PurchaseProcumentLineItem> =
+      let procurement_items: Array<PurchaseProcumentLineItemManual> =
         formMain.getFieldValue(POProcumentField.procurement_items);
       if (quantity !== undefined && index !== undefined) {
         procurement_items[index].real_quantity = quantity * 1;
+        procurement_items[index].fake_real_quantity = quantity * 1;
         procurement_items[index].accepted_quantity = quantity * 1
         procurement_items[index].line_item_id = index
         delete procurement_items[index].code
@@ -204,16 +211,21 @@ const ProcurementCreateManualScreen: React.FC = () => {
     formMain.setFieldsValue({ [POProcumentField.store_id]: value, [POProcumentField.store]: store?.store })
   }, [accountStores, formMain])
 
-  const onFinish = async(data: any) => {
-    if(data.procurement_items.every((item: PurchaseProcumentLineItem) => item.real_quantity === 0)) {
+  const importRealQuantity = (data: Array<PurchaseProcumentLineItemManual>) => {
+    formMain.setFieldsValue({ [POProcumentField.procurement_items]: [...data] });
+    setIsImport(false);
+  }
+
+  const onFinish = async (data: any) => {
+    if (data.procurement_items.every((item: PurchaseProcumentLineItemManual) => item.real_quantity === 0)) {
       showError('Vui lòng nhập số lượng sản phẩm')
       return
     }
-    const procurementItemClone: Array<PurchaseProcumentLineItem> = cloneDeep(data.procurement_items)
-    const procurementItemData: Array<PurchaseProcumentLineItem> = procurementItemClone.filter((item: PurchaseProcumentLineItem) => {
+    const procurementItemClone: Array<PurchaseProcumentLineItemManual> = cloneDeep(data.procurement_items)
+    const procurementItemData: Array<PurchaseProcumentLineItemManual> = procurementItemClone.filter((item: PurchaseProcumentLineItemManual) => {
       return (item.accepted_quantity && item.real_quantity)
     })
-    if(!poData) return
+    if (!poData) return
     const dataSubmit: ProcurementManual = {
       reference: "manual",
       is_cancelled: false,
@@ -224,8 +236,8 @@ const ProcurementCreateManualScreen: React.FC = () => {
       expect_receipt_date: poData.procurements[0].expect_receipt_date,
       procurement_items: procurementItemData,
     }
-    const response = await callApiNative({isShowError: true, isShowLoading: true}, dispatch, createPurchaseProcumentManualService, data.id, dataSubmit)
-    if(response) {
+    const response = await callApiNative({ isShowError: true, isShowLoading: true }, dispatch, createPurchaseProcumentManualService, data.id, dataSubmit)
+    if (response) {
       showSuccess('Tạo phiếu nhập kho thành công')
       history.push(`${UrlConfig.PROCUREMENT}`)
     }
@@ -277,9 +289,34 @@ const ProcurementCreateManualScreen: React.FC = () => {
             let procurement_items = getFieldValue(POProcumentField.procurement_items)
               ? getFieldValue(POProcumentField.procurement_items)
               : [];
-            if (poData && !isEmpty(procurement_items) && !isEmpty(poData.line_items)) {
-              const { line_items } = poData
-              return <LineItems line_items={line_items} formMain={formMain} procurement_items={procurement_items} onQuantityChange={onQuantityChange} />
+            if (poData && !isEmpty(procurement_items)) {
+              return <LineItems formMain={formMain} procurement_items={procurement_items} onQuantityChange={onQuantityChange} />
+            }
+          }}
+        </Form.Item>
+        <Form.Item
+          shouldUpdate={(prev, current) => {
+            return (
+              prev[POProcumentField.procurement_items] !==
+              current[POProcumentField.procurement_items]
+            );
+          }}
+          noStyle
+        >
+          {({ getFieldValue }) => {
+            let procurement_items = getFieldValue(POProcumentField.procurement_items)
+              ? getFieldValue(POProcumentField.procurement_items)
+              : [];
+            if (poData && !isEmpty(procurement_items)) {
+              return (
+                <ImportProcurementExcel
+                  onCancel={() => { setIsImport(false) }}
+                  onOk={(data: Array<PurchaseProcumentLineItemManual>) => { importRealQuantity(data) }}
+                  title="Import số lượng thực nhận"
+                  visible={isImport}
+                  dataTable={procurement_items}
+                />
+              )
             }
           }}
         </Form.Item>
@@ -322,6 +359,11 @@ const ProcurementCreateManualScreen: React.FC = () => {
             >
               Huỷ
             </Button>
+            {
+              poData && <Button icon={<ImportOutlined />} onClick={() => {
+                setIsImport(true);
+              }}>Import Excel</Button>
+            }
             <Button
               type="primary"
               onClick={() => formMain.submit()}
