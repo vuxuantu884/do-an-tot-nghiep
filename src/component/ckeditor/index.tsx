@@ -70,6 +70,9 @@ function Editor(props: any) {
     <StyledComponent>
       {/* use key to change value */}
       <CKEditor
+        // editorUrl={"https://cdn.yody.io/ckeditor.js"}
+        // editorUrl={`${process.env.PUBLIC_URL}/ckeditor/ckeditor.js`}
+        editorUrl={`${process.env.PUBLIC_URL}/ckeditor/ckeditor_4.17.2_standard/ckeditor/ckeditor.js`}
         key={selectedPrintSize}
         name="editorName"
         // initData={initialHtmlContent}
