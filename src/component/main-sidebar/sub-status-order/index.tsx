@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel } from "utils/AppUtils";
-import { ORDER_SUB_STATUS, SUB_STATUS_CANCEL_CODE } from "utils/Order.constants";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { showError, showWarning } from "utils/ToastUtils";
 
 type PropTypes = {
@@ -95,16 +95,9 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     }
   };
 
-  const RELOAD_STATUSES = [
-    ...SUB_STATUS_CANCEL_CODE,
-    ORDER_SUB_STATUS.out_of_stock,
-  ]
-
   const changeSubStatusCallback = (value: string) => {
     setValueSubStatusCode(value);
-    if(RELOAD_STATUSES.includes(value)) {
-      setReload(true)
-    }
+    setReload(true)
   };
 
   useEffect(() => {
