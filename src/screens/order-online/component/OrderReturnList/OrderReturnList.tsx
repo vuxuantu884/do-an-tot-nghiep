@@ -314,7 +314,7 @@ function OrderReturnList(props: PropTypes) {
           {/* <div className="p-b-3">{record.customer_email}</div> */}
         </div>
       ),
-      key: "customer",
+      key: "receive_person",
       visible: true,
       width: 160,
     },
@@ -460,7 +460,7 @@ function OrderReturnList(props: PropTypes) {
           </div>
         );
       },
-      key: "total_amount",
+      key: "refund_amount",
       visible: true,
       align: "center",
       width: 140,
@@ -520,7 +520,7 @@ function OrderReturnList(props: PropTypes) {
       title: "Ngày nhận hàng",
       dataIndex: "receive_date",
       render: (value: string) => <div>{moment(value).format(DATE_FORMAT.fullDate)}</div>,
-      key: "total_amount",
+      key: "receive_date",
       visible: true,
       align: "center",
       width: 130,

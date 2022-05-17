@@ -23,20 +23,23 @@ function useSetTableColumns(
     const userConfigTableColumn = tableColumnConfigs.find((e) => e.type === columnType);
     if (userConfigTableColumn) {
       const config = JSON.parse(userConfigTableColumn?.json_content) as Array<
-        ICustomTableColumType<any>
+      ICustomTableColumType<any>
       >;
-      const columnResult = config.map((single, index) => {
-        const selected = initColumns.find(column => column.key === single.key) || {}
+      console.log('config', config)
+      const columnResult = initColumns.map((single, index) => {
+        const selected = config.find(column => column.key === single.key) || {}
         return {
           ...single,
-          title: selected?.title || undefined,
-          render: selected?.render || undefined,
+          visible: selected?.visible || single.visible,
+          title: selected?.title || single?.title,
+          render: selected?.render || single?.render,
         };
       })
-      const filterColumns = columnResult.filter(single => {
-        return [...initColumns].map(init => init.key).includes(single.key)
-      })
-      setColumns(filterColumns);
+      // console.log('columnResult', columnResult)
+      // const filterColumns = initColumns.filter(single => {
+      //   return [...columnResult].map(init => init.key).includes(single.key)
+      // })
+      setColumns(columnResult);
     }
   // bỏ initColumns, thêm orderVariable
   // eslint-disable-next-line react-hooks/exhaustive-deps
