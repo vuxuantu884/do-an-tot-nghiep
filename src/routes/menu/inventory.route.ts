@@ -13,7 +13,6 @@ const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CopyTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
-const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
 
 //PO
@@ -31,6 +30,7 @@ const PurchaseOrderReturnScreen = React.lazy(
 );
 
 //PR
+const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
 const ProcurementDetailScreen = React.lazy(() => import("screens/products/procurement/detail/ProcurementDetailScreen"));
 const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
 const ProcurementCreateManualScreen = React.lazy(() => import("screens/products/procurement/create-manual"));

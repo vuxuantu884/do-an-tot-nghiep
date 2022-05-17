@@ -8,21 +8,20 @@ import { Link } from 'react-router-dom';
 import UrlConfig from 'config/url.config';
 import ImageProduct from 'screens/products/product/component/image-product.component';
 import NumberInput from 'component/custom/number-input.custom';
-import { PurchaseProcumentLineItem } from 'model/purchase-order/purchase-procument';
+import { PurchaseProcumentLineItemManual } from 'model/purchase-order/purchase-procument';
 
 interface LineItemsProps {
   formMain: FormInstance;
-  line_items: Array<PurchaseOrderLineItem>;
   onQuantityChange: (quantity: any, index: any) => void;
-  procurement_items: Array<PurchaseProcumentLineItem>;
+  procurement_items: Array<PurchaseProcumentLineItemManual>;
 }
 
 const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
-  const { line_items, onQuantityChange, procurement_items } = props
+  const { onQuantityChange, procurement_items } = props
 
   const getTotalQuantity = (): string => {
     let total = 0;
-    line_items.forEach((element: PurchaseOrderLineItem) => {
+    procurement_items.forEach((element: PurchaseProcumentLineItemManual) => {
       total += element.quantity;
     });
 
@@ -31,7 +30,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
 
   const getTotalReceivedQuantity = (): string => {
     let total = 0;
-    line_items.forEach((element: PurchaseOrderLineItem) => {
+    procurement_items.forEach((element: PurchaseProcumentLineItemManual) => {
       total += element.receipt_quantity;
     });
 
@@ -40,7 +39,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
 
   const getTotalRealQuantity = (): string => {
     let total = 0;
-    procurement_items.forEach((element: PurchaseProcumentLineItem) => {
+    procurement_items.forEach((element: PurchaseProcumentLineItemManual) => {
       total += element.real_quantity;
     });
 
@@ -78,7 +77,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
+                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
               >
                 {record.sku}
               </Link>
@@ -126,11 +125,13 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
       </div>,
       width: 100,
       align: "center",
-      render: (_, item, index) => (
+      dataIndex: "fake_real_quantity",
+      render: (value, item, index) => (
         <NumberInput
           placeholder="0"
           isFloat={false}
           maxLength={7}
+          value={value}
           onChange={(quantity: number | null) => {
             if (quantity === null) {
               quantity = 0
@@ -162,11 +163,11 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
         tableLayout="fixed"
         pagination={false}
         columns={columns}
-        dataSource={line_items}
+        dataSource={procurement_items}
         bordered={true}
         sticky
         footer={() =>
-          line_items.length > 0 ? (
+          procurement_items.length > 0 ? (
             <div style={{ background: '#f5f5f5' }} className="row-footer-custom">
               <div
                 className="yody-foot-total-text"
