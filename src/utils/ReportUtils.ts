@@ -218,15 +218,16 @@ export const getPropertiesValue = (childrenKey: string[], metadata: AnalyticMeta
 
 export const exportReportToExcel = async (
   dispatch: Dispatch<YodyAction>,
-  q: string,
+  params: { q: string, options?: string },
   name: string = "Báo cáo",
   format: "xls" = "xls"
 ) => {
+  const { q, options } = params;
   const response = await callApiNative(
     { isShowError: true },
     dispatch,
     executeAnalyticsQueryService,
-    { q, format },
+    options ? { q, options, format } : { q, format },
     {
       headers: {
         "Content-Type": "application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet",
