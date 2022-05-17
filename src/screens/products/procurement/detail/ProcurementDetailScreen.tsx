@@ -198,7 +198,7 @@ const ProcurementDetailScreen: React.FC = () => {
                 </Col>
                 <Col span={8}>
                   Ngày nhận hàng: {" "}
-                  <Text strong>{ConvertUtcToLocalDate(procurementData?.expect_receipt_date)}</Text>
+                  <Text strong>{ConvertUtcToLocalDate(procurementData?.stock_in_date)}</Text>
                 </Col>
                 <Col span={8}>
                   {procurementData &&

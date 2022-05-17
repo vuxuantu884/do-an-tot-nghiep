@@ -49,7 +49,9 @@ const ProcurementExportLineItemField = {
     [ProcurementLineItemField.barcode]: 'Mã vạch',
     [ProcurementLineItemField.real_quantity]: 'Số lượng nhập',
     [ProcurementLineItemField.created_date]: 'Ngày tạo',
-    [ProcurementLineItemField.created_name]: 'Người tạo'
+    [ProcurementLineItemField.created_name]: 'Người tạo',
+    [ProcurementLineItemField.stock_in_date]: 'Ngày nhận',
+    [ProcurementLineItemField.stock_in_by]: 'Người nhận'
 }
 
 export { ProcurementField, ProcurementExportLineItemField }
