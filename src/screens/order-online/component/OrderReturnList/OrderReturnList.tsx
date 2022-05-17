@@ -196,6 +196,7 @@ function OrderReturnList(props: PropTypes) {
           {record.code_order}
         </Link>
       ),
+      key: "order_code",
       visible: true,
       width: 120,
     },
