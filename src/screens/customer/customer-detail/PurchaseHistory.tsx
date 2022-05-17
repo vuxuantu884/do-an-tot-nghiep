@@ -470,6 +470,20 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   const columnsPurchaseHistory: Array<ICustomTableColumType<any>> = useMemo(() =>
     [
       {
+        title: "Khách hàng",
+        visible: true,
+        fixed: "left",
+        width: 110,
+        render: (item: any) => {
+          return (
+            <div>
+              <div><b>{item.code_order_return ? item.customer_name : item.customer}</b></div>
+              <div>{item.customer_phone_number}</div>
+            </div>
+          );
+        },
+      },
+      {
         title: "ID đơn hàng",
         visible: true,
         fixed: "left",
@@ -567,6 +581,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                         </div>
                       </div>
                     </div>
+
                     <div className="quantity quantityWidth">
                       <NumberFormat
                         value={item.quantity}
@@ -574,6 +589,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                         thousandSeparator={true}
                       />
                     </div>
+
                     <div className="price priceWidth">
                       <div>
                         <Tooltip title="Giá sản phẩm">
@@ -581,12 +597,19 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                         </Tooltip>
 
                         {(item?.discount_items && item.discount_items[0]?.value) ?
-                          <Tooltip title="Khuyến mại sản phẩm">
-                            <div style={{ color: dangerColor, textAlign: "right" }}>
-                              <div>{"- "}{formatCurrency(item.discount_items[0]?.value)}</div>
-                              <div>({Math.round(item.discount_items[0]?.rate * 100) / 100}%)</div>
-                            </div>
-                          </Tooltip>
+                          <div>
+                            <Tooltip title={"Chiết khấu sản phẩm: " + Math.round(item.discount_items[0]?.rate * 100)/100 + "%"}>
+                              <div style={{ color: dangerColor, textAlign: "right" }}>
+                                {"-" + formatCurrency(item.discount_items[0]?.value)}
+                              </div>
+                            </Tooltip>
+
+                            <Tooltip title="Giá sau chiết khấu">
+                              <div style={{ fontWeight: "bold", textAlign: "right" }}>
+                                {formatCurrency(item.price - item.discount_items[0].value)}
+                              </div>
+                            </Tooltip>
+                          </div>
                           : <></>
                         }
                       </div>
@@ -624,10 +647,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                     />
                   </Tooltip>
 
-                  <Tooltip title="Chiết khấu đơn hàng">
+                  <Tooltip
+                    title={"Chiết khấu đơn hàng: "
+                      + (discountAmount ? Math.round((record.discounts[0]?.rate ? record.discounts[0]?.rate : 0) * 100)/100 : 0) + "%"}>
                     <div style={{color: "#EF5B5B"}}>
                       <div>
-                        <span>- </span>
+                        <span>-</span>
                         <NumberFormat
                           value={discountAmount || 0}
                           className="foo"
@@ -635,10 +660,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                           thousandSeparator={true}
                         />
                       </div>
-                      {(record.discounts && record.discounts[0]?.rate) ?
-                        <div>({Math.round(record.discounts[0]?.rate * 100) / 100}%)</div>
-                        : <></>
-                      }
                     </div>
                   </Tooltip>
 
@@ -709,52 +730,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             }
           </>
         ),
-      },
-      {
-        title: "Ghi chú",
-        className: "notes",
-        key: "note",
-        visible: true,
-        align: "left",
-        width: 160,
-        render: (data: any) => {
-          const orderReturnReason = data.return_reason?.name || data.reason || "";    // cập nhật lại khi BE thay đổi theo SO
-          return (
-            <div className="orderNotes">
-              {data.code_order_return ?
-                <div className="order-reason">
-                  <span className="order-reason-heading">{"Lý do trả: "}</span>
-                  <span className="order-reason-content">{orderReturnReason}</span>
-                </div>
-                :
-                <>
-                  <div className="single order-note">
-                    <EditNote
-                      note={data.customer_note}
-                      title="Khách hàng: "
-                      color={primaryColor}
-                      onOk={(newNote) => {
-                        editNote(newNote, "customer_note", data.id);
-                      }}
-                      isDisable={data.status === OrderStatus.FINISHED}
-                    />
-                  </div>
-                  <div className="single order-note">
-                    <EditNote
-                      note={data.note}
-                      title="Nội bộ: "
-                      color={primaryColor}
-                      onOk={(newNote) => {
-                        editNote(newNote, "note", data.id);
-                      }}
-                      isDisable={data.status === OrderStatus.FINISHED}
-                    />
-                  </div>
-                </>
-              }
-            </div>
-          );
-        },
       },
       {
         title: "Trạng thái",
@@ -856,6 +831,52 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                 </div>
               }
             </>
+          );
+        },
+      },
+      {
+        title: "Ghi chú",
+        className: "notes",
+        key: "note",
+        visible: true,
+        align: "left",
+        width: 160,
+        render: (data: any) => {
+          const orderReturnReason = data.return_reason?.name || data.reason || "";    // cập nhật lại khi BE thay đổi theo SO
+          return (
+            <div className="orderNotes">
+              {data.code_order_return ?
+                <div className="order-reason">
+                  <span className="order-reason-heading">{"Lý do trả: "}</span>
+                  <span className="order-reason-content">{orderReturnReason}</span>
+                </div>
+                :
+                <>
+                  <div className="single order-note">
+                    <EditNote
+                      note={data.customer_note}
+                      title="Khách hàng: "
+                      color={primaryColor}
+                      onOk={(newNote) => {
+                        editNote(newNote, "customer_note", data.id);
+                      }}
+                      isDisable={data.status === OrderStatus.FINISHED}
+                    />
+                  </div>
+                  <div className="single order-note">
+                    <EditNote
+                      note={data.note}
+                      title="Nội bộ: "
+                      color={primaryColor}
+                      onOk={(newNote) => {
+                        editNote(newNote, "note", data.id);
+                      }}
+                      isDisable={data.status === OrderStatus.FINISHED}
+                    />
+                  </div>
+                </>
+              }
+            </div>
           );
         },
       },
