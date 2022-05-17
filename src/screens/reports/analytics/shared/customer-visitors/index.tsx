@@ -164,6 +164,7 @@ function CustomerVisitors() {
                 showError("Cập nhật lượng khách vào cửa hàng không thành công");
             }
         }
+        setIsFilter(true);
     }
     const currentDay = document.querySelector('.current-day');
     useLayoutEffect(() => {   
@@ -270,7 +271,7 @@ function CustomerVisitors() {
                                                     return (
                                                         index > 0 ? (index === columns.length - 1 ? <Button type="primary" className="px-1" size="small" onClick={() => handleUpdateCustomerVisitors(record.store_id)}>Cập nhật</Button> : 
                                                         <div className={item.isToday ? 'current-day' : ''}>
-                                                                <Input style={{ width: "100%" }} defaultValue={record[item.key]} onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()} onChange={(e) => handleChangeVisitors(record, item.key, e)} />
+                                                                <Input type="text" key={record['storeName'] + item.key} style={{ width: "100%" }} defaultValue={record[item.key]} onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()} onChange={(e) => handleChangeVisitors(record, item.key, e)} />
                                                             </div>) : record[item.key]
                                                     )
                                                 }}
