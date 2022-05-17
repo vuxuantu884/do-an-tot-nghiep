@@ -377,6 +377,10 @@
     {
       "name": "Đơn mua hàng 1 mã 7 FGG",
       "value": "purchase_order_ma_7_fgg"
+    },
+    {
+      "name": "Đơn nhập kho",
+      "value": "purchase_order_procurement"
     }
   ],
   "moq_unit": [

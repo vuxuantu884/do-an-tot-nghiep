@@ -1,5 +1,5 @@
 import { ProcumentLogQuery, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
-import BaseAxios from "base/base.axios";
+import BaseAxios, { getAxiosBase } from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import {
@@ -161,3 +161,12 @@ export const listPurchaseOrderBySupplier = (id: number): Promise<BaseResponse<Ar
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/list-by-supplier/${id}`
   );
 }
+
+export const printProcurementApi = (
+  id: number,
+  poId: number,
+): Promise<Array<PurchaseOrderPrint>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-procurement?id=${id}&poId=${poId}`
+  );
+};
