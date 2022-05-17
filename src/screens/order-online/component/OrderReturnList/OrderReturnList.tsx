@@ -470,9 +470,9 @@ function OrderReturnList(props: PropTypes) {
       width: 140,
       render: (record: any) => (
         <>
-          <Tooltip title="Tổng thanh toán">
+          <Tooltip title="Hoàn tiền">
             <NumberFormat
-              value={record.total}
+              value={record.money_refund}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}
@@ -480,7 +480,7 @@ function OrderReturnList(props: PropTypes) {
             />
           </Tooltip>
 
-          {record.point_refund  && record.total ? (
+          {record.point_refund  && record.money_refund ? (
             <>
               <br />
               <Tooltip title="Hoàn điểm">
@@ -495,7 +495,7 @@ function OrderReturnList(props: PropTypes) {
                   />
                 </span>
               </Tooltip>
-              <br />
+              {/* <br />
               <Tooltip title="Thu người nhận">
                 <span style={{ fontWeight: 500 }}>
                   <NumberFormat
@@ -505,7 +505,7 @@ function OrderReturnList(props: PropTypes) {
                     thousandSeparator={true}
                   />
                 </span>
-              </Tooltip>
+              </Tooltip> */}
             </>
           ) : null}
         </>
