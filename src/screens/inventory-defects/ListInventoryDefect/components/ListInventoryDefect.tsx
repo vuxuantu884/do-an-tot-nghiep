@@ -16,7 +16,7 @@ import { createInventoryDefect, deleteInventoryDefect, getListInventoryDefect } 
 import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import UrlConfig from "config/url.config";
-import { generateQuery, formatFieldTag, transformParamsToObject, splitEllipsis } from "utils/AppUtils";
+import { generateQuery, formatFieldTag, transformParamsToObject, splitEllipsis, formatCurrency } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { cloneDeep, debounce, isArray, isEmpty } from "lodash";
@@ -151,6 +151,14 @@ const ListInventoryDefect: React.FC = () => {
     }
   }, [dispatch, getInventoryDefects]);
 
+  const getTotalDefects: string = useMemo(() => {
+    let total = 0
+    data.items.forEach(item => {
+      total += item.defect
+    })
+    return formatCurrency(total, '.')
+  },[data])
+
   const initColumns: Array<ICustomTableColumType<InventoryDefectResponse>> = useMemo(() => {
     return [
       {
@@ -208,7 +216,7 @@ const ListInventoryDefect: React.FC = () => {
         },
       },
       {
-        title: "Số lỗi ",
+        title: <div>Số lỗi <span style={{color: "#2A2A86"}}>({getTotalDefects})</span></div>,
         dataIndex: "defect",
         width: 100,
         align: "center",
@@ -223,7 +231,7 @@ const ListInventoryDefect: React.FC = () => {
                 isHaveEditPermission={hasPermission}
                 content={item.defect}
                 title="Sửa số lỗi: "
-                label="Số lỗi: "
+                // label="Số lỗi: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editItemDefect(newNote, InventoryDefectFields.defect, item.id);
@@ -257,7 +265,7 @@ const ListInventoryDefect: React.FC = () => {
               <EditNote
                 isHaveEditPermission={hasPermission}
                 note={item.note}
-                title="Ghi chú: "
+                // title="Ghi chú: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editItemDefect(newNote, InventoryDefectFields.note, item.id);
@@ -268,7 +276,7 @@ const ListInventoryDefect: React.FC = () => {
         },
       },
       {
-        title: "Thời gian",
+        title: "Thời gian tạo",
         width: 120,
         dataIndex: "created_date",
         visible: true,
@@ -306,7 +314,7 @@ const ListInventoryDefect: React.FC = () => {
         align: "center",
       },
     ];
-  }, [currentPermissions, editItemDefect])
+  }, [currentPermissions, editItemDefect, getTotalDefects])
 
   const [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryDefectResponse>>>(initColumns);
 
