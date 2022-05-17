@@ -377,19 +377,41 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         visible: true,
         render: (value) => ConvertUtcToLocalDate(value),
       },
+      // {
+      //   title: "Ngày duyệt",
+      //   dataIndex: "activated_date",
+      //   render: (value, record, index) => ConvertUtcToLocalDate(value),
+      // },
+      // {
+      //   title: "Người duyệt",
+      //   dataIndex: "activated_by",
+      //   visible: true,
+      //   render: (value, row) => {
+      //     return (
+      //       <Link
+      //         to={`${UrlConfig.ACCOUNTS}/${row.activated_by}`}
+      //         className="primary"
+      //         target="_blank"
+      //       >
+      //         {value}
+      //       </Link>
+      //     )
+      //   }
+      // },
       {
-        title: "Ngày duyệt",
-        dataIndex: "activated_date",
+        title: "Ngày nhập kho",
+        dataIndex: "stock_in_date",
+        visible: true,
         render: (value, record, index) => ConvertUtcToLocalDate(value),
       },
       {
-        title: "Người duyệt",
-        dataIndex: "activated_by",
+        title: "Người nhận",
+        dataIndex: "stock_in_by",
         visible: true,
         render: (value, row) => {
           return (
             <Link
-              to={`${UrlConfig.ACCOUNTS}/${row.activated_by}`}
+              to={`${UrlConfig.ACCOUNTS}/${row.stock_in_by}`}
               className="primary"
               target="_blank"
             >
@@ -398,18 +420,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           )
         }
       },
-      // {
-      //   title: "Ngày nhập kho",
-      //   dataIndex: "stock_in_date",
-      //   visible: true,
-      //   render: (value, record, index) => ConvertUtcToLocalDate(value),
-      // },
-      // {
-      //   title: "Người nhập",
-      //   dataIndex: "stock_in_by",
-      //   visible: true,
-      //   render: (value, record, index) => value,
-      // },
     ]
   },[ActionComponent, getTotalProcurementQuantity]);
 
@@ -776,6 +786,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         [ProcurementExportLineItemField.variant]: item.variant,
         [ProcurementExportLineItemField.barcode]: item.barcode,
         [ProcurementExportLineItemField.real_quantity]: item.real_quantity,
+        [ProcurementExportLineItemField.created_date]: ConvertUtcToLocalDate(procurement.created_date, DATE_FORMAT.DDMMYYY),
         [ProcurementExportLineItemField.stock_in_date]: ConvertUtcToLocalDate(procurement.stock_in_date, DATE_FORMAT.DDMMYYY),
         [ProcurementExportLineItemField.stock_in_by]: `${procurement.stock_in_by}`,
 
