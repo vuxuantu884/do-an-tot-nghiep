@@ -16,12 +16,13 @@ type CustomDatePickerProps = {
   showToday?: boolean;
   defaultValue?: Moment | undefined;
   renderExtraFooter?: () => JSX.Element
+  getPopupContainer?: (node: HTMLElement) => HTMLElement;
 };
 
 const CustomDatePicker: React.FC<CustomDatePickerProps> = (
   props: CustomDatePickerProps
 ) => {
-  const { value, onChange, format, placeholder, style, renderExtraFooter, showToday = true } = props;
+  const { value, onChange, format, placeholder, style, renderExtraFooter, showToday = true, getPopupContainer } = props;
   return (
     <DatePicker
       onSelect={(v) => onChange && onChange(v?.format(format))}
@@ -38,6 +39,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = (
       showTime={props.showTime}
       showToday={showToday}
       renderExtraFooter={renderExtraFooter}
+      getPopupContainer={getPopupContainer}
     />
   );
 };

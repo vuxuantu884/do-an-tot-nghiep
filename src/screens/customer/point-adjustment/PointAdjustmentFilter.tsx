@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import {
   Button,
   Form,
@@ -7,7 +7,6 @@ import {
   Tag,
 } from "antd";
 
-import CustomSelect from "component/custom/select.custom";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.request";
 
@@ -19,8 +18,11 @@ import {
 import { useDispatch } from "react-redux";
 import rightArrow from "assets/icon/right-arrow.svg";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
-import DebounceSelect from "component/filter/component/debounce-select";
 import moment from "moment";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {searchAccountPublicAction} from "domain/actions/account/account.action";
 
 type PointAdjustmentFilterProps = {
   params: PointAdjustmentListRequest;
@@ -54,7 +56,10 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
 
   const [formFilter] = Form.useForm();
 
-  const [listAccount, setListAccount] = useState<any[]>([]);
+  const [initAccount, setInitAccount] = useState<Array<AccountResponse>>([]);
+  const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
+  const [accountDataFiltered, setAccountDataFiltered] = useState<Array<AccountResponse>>([]);
+
   const [isDisableFilterAdjustment, setDisableFilterAdjustment] = useState(false);
   const dispatch = useDispatch();
 
@@ -96,9 +101,13 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
 
     if (initialValues.emps?.length) {
       let empsList = "";
-      initialValues.emps.forEach((emp) => {
-        empsList = empsList + emp + ";";
-      })
+      initialValues.emps.forEach((emp: any) => {
+        const account = accountDataFiltered?.find((item: any) => item.code?.toString() === emp?.toString());
+        empsList = account
+          ? empsList + account.code + " - " + account.full_name + "; "
+          : empsList;
+      });
+      
       list.push({
         key: "emps",
         name: "Người điều chỉnh",
@@ -129,7 +138,8 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
     initialValues.reasons,
     initialValues.emps,
     initialValues.from,
-    initialValues.to
+    initialValues.to,
+    accountDataFiltered,
   ]);
 
   const onCloseTag = useCallback(
@@ -161,25 +171,29 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   );
   // end handle tag filter
 
-
-  async function searchRegulator(value: any) {
-    try {
-      const response = await searchAccountApi({ info: value });
-      setListAccount(response.data.items)
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
+  // get init account
   useEffect(() => {
-    let query = {
-      info: '',
-    }
-    searchAccountApi(query).then((response) => {
-      setListAccount(response.data.items)
-    }).catch((error) => {
-    })
+    dispatch(searchAccountPublicAction({ limit: 30 }, (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setInitAccount(data.items);
+      setAccountData(data.items);
+    }));
   }, [dispatch]);
+
+  // handle account by filter param
+  const getAccountDataFiltered = useCallback((accountParam: any) => {
+    if (accountParam && accountParam.length > 0) {
+      searchAccountApi({
+        codes: accountParam,
+      }).then((response) => {
+        setAccountDataFiltered(response.data.items);
+      });
+    }
+  }, [])
+  // end handle account by filter param
+
 
   useEffect(() => {
     formFilter.setFieldsValue({
@@ -189,12 +203,14 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       to: params.to,
       emps: params.emps,
     })
+
+    getAccountDataFiltered(params?.emps);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]);
+  }, [getAccountDataFiltered, params]);
 
   const onChangeDate = useCallback(
     () => {
-      let value: any = {};
+      let value: any;
       value = formFilter?.getFieldsValue(["from", "to"])
       if (value["from"] && value["to"] && (+moment(value["to"], 'DD-MM-YYYY') < + moment(value["from"], 'DD-MM-YYYY'))) {
         formFilter?.setFields([
@@ -223,6 +239,46 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
         setDisableFilterAdjustment(false)
       }
     }, [formFilter]);
+
+  // handle scroll page
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const setPageScroll = (overflowType: string) => {
+    let rootSelector: any = document.getElementById("root");
+    if (rootSelector) {
+      rootSelector.style.overflow = overflowType;
+    }
+  };
+
+  // if the popup dropdown is scrolling then page scroll is hidden
+  const handleOnSelectPopupScroll = () => {
+    if (isDropdownVisible) {
+      setPageScroll("hidden");
+    }
+  };
+
+  const handleOnMouseLeaveSelect = () => {
+    setPageScroll("scroll");
+  };
+
+  const handleOnDropdownVisibleChange = (open: boolean) => {
+    setIsDropdownVisible(open);
+  };
+
+  const onInputSelectFocus = () => {
+    setIsDropdownVisible(true);
+  };
+
+  const onInputSelectBlur = () => {
+    setIsDropdownVisible(false);
+  };
+
+  useEffect(() => {
+    if (!isDropdownVisible) {
+      setPageScroll("scroll");
+    }
+  }, [isDropdownVisible]);
+  // end handle scroll page
 
 
   return (
@@ -255,7 +311,14 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
               disabled={isLoading}
               placeholder="Chọn lý do điều chỉnh"
               allowClear
+              showArrow
               notFoundContent="Không tìm thấy kết quả"
+              getPopupContainer={(trigger: any) => trigger.parentElement}
+              onFocus={onInputSelectFocus}
+              onBlur={onInputSelectBlur}
+              onDropdownVisibleChange={handleOnDropdownVisibleChange}
+              onPopupScroll={handleOnSelectPopupScroll}
+              onMouseLeave={handleOnMouseLeaveSelect}
             >
               {POINT_ADJUSTMENT_REASON.map((item: any) => (
                 <Option key={item} value={item}>
@@ -270,24 +333,20 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
             name="emps"
             // style={{ margin: "10px 0px" }}
           >
-            <DebounceSelect
-              mode="multiple"
-              showArrow
-              maxTagCount="responsive"
+            <AccountCustomSearchSelect
               placeholder="Người điều chỉnh"
-              allowClear
-              fetchOptions={searchRegulator}
-            >
-              {listAccount.map((item, index) => (
-                <CustomSelect.Option
-                  style={{ width: "100%" }}
-                  key={index.toString()}
-                  value={item.code}
-                >
-                  {item.code + " - " + item.full_name}
-                </CustomSelect.Option>
-              ))}
-            </DebounceSelect>
+              dataToSelect={accountData}
+              setDataToSelect={setAccountData}
+              initDataToSelect={initAccount}
+              mode="multiple"
+              maxTagCount="responsive"
+              getPopupContainer={(trigger: any) => trigger.parentNode}
+              onFocus={onInputSelectFocus}
+              onBlur={onInputSelectBlur}
+              onDropdownVisibleChange={handleOnDropdownVisibleChange}
+              onPopupScroll={handleOnSelectPopupScroll}
+              onMouseLeave={handleOnMouseLeaveSelect}
+            />
           </Item>
 
           <Item name="from" className="check-validate-adjustment">
@@ -296,6 +355,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
                 placeholder="Từ ngày"
                 style={{ width: "100%", borderRadius: 0 }}
                 onChange={() => onChangeDate()}
+                getPopupContainer={(trigger: any) => trigger.parentElement}
               />
           </Item>
 
@@ -307,6 +367,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
                 placeholder="Đến ngày"
                 style={{ width: "100%", borderRadius: 0 }}
                 onChange={() => onChangeDate()}
+                getPopupContainer={(trigger: any) => trigger.parentElement}
               />
           </Item>
 
@@ -323,7 +384,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       </div>
 
       <div className="filter-tags">
-        {filters?.map((filter: any, index) => {
+        {filters?.map((filter: any) => {
           return (
             <Tag
               key={filter.key}
