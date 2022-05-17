@@ -776,8 +776,8 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         [ProcurementExportLineItemField.variant]: item.variant,
         [ProcurementExportLineItemField.barcode]: item.barcode,
         [ProcurementExportLineItemField.real_quantity]: item.real_quantity,
-        [ProcurementExportLineItemField.created_date]: ConvertUtcToLocalDate(procurement.created_date, DATE_FORMAT.DDMMYYY),
-        [ProcurementExportLineItemField.created_name]: `${procurement.created_by} - ${procurement.created_name}`,
+        [ProcurementExportLineItemField.stock_in_date]: ConvertUtcToLocalDate(procurement.stock_in_date, DATE_FORMAT.DDMMYYY),
+        [ProcurementExportLineItemField.stock_in_by]: `${procurement.stock_in_by}`,
 
       });
     }
