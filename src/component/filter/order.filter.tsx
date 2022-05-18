@@ -1,11 +1,14 @@
 import {
   ArrowLeftOutlined,
   FilterOutlined,
+  LoadingOutlined,
+  SearchOutlined,
   SettingOutlined,
   SwapRightOutlined
 } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
+import { AutoComplete, Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { RefSelectProps } from "antd/lib/select";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
@@ -15,16 +18,20 @@ import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import SearchedVariant from "component/order/SearchedVariant";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
 import { isEqual } from "lodash";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -43,8 +50,10 @@ import { Link } from "react-router-dom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountApi } from "service/accounts/account.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
+import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { ORDER_TYPES } from "utils/Order.constants";
+import { showError } from "utils/ToastUtils";
 import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
@@ -86,6 +95,12 @@ const { Item } = Form;
 
 const isShortenFilterTag = true;
 const numberTagShorten = 2;
+
+const initQueryVariant: VariantSearchQuery = {
+	limit: 10,
+	page: 1,
+	saleable: true,
+};
 
 async function searchVariants(input: any) {
   try {
@@ -133,6 +148,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const dateFormat = "DD-MM-YYYY";
 
+  const dispatch = useDispatch();
+
   const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
   // const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
 
@@ -149,8 +166,63 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   }, [initSubStatus])
 
   // useEffect(() => {
-  //   setShowStatusCodes(status?.map(single => single.value) || []);
-  // }, [status])
+    //   setShowStatusCodes(status?.map(single => single.value) || []);
+    // }, [status])
+
+    const [keySearchVariant, setKeySearchVariant] = useState("");
+  console.log('keySearchVariant', keySearchVariant)
+    const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
+		metadata: {
+			limit: 0,
+			page: 1,
+			total: 0,
+		},
+		items: [],
+	});
+  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+
+  const autoCompleteRef = createRef<RefSelectProps>();
+
+  const handleSearchProduct = useCallback((value: string) => {
+    if (value.trim()) {
+      (async () => {
+        try {
+          await dispatch(
+            searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+              setResultSearchVariant(data);
+              setIsSearchingProducts(false);
+              if (data.items.length === 0) {
+                showError("Không tìm thấy sản phẩm!")
+              }
+            }, () => {
+              setIsSearchingProducts(false);
+            })
+          );
+        } catch {
+          setIsSearchingProducts(false);
+        }
+      })();
+    } else {
+      setIsSearchingProducts(false);
+    }
+  }, [dispatch]);
+
+  const onChangeProductSearch = useCallback(
+		async (value: string) => {
+			setKeySearchVariant(value);
+
+			initQueryVariant.info = value;
+			if (value.length >= 3) {
+				setIsSearchingProducts(true);
+			} else {
+				setIsSearchingProducts(false);
+			}
+			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+				handleSearchProduct(value)
+			);
+		},
+		[autoCompleteRef, handleSearchProduct]
+	);
 
   const fulfillmentStatus = useMemo(
     () => [
@@ -211,7 +283,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     },
   ];
 
-  const dispatch = useDispatch();
+ 
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
   const formRef = createRef<FormInstance>();
@@ -378,6 +450,12 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         case "variant_ids":
           onFilter && onFilter({ ...params, variant_ids: [] });
           break;
+        case "searched_product":
+          onFilter && onFilter({ ...params, searched_product: null });
+          break;
+        case "tracking_codes":
+          onFilter && onFilter({ ...params, tracking_codes: null });
+          break;
         case "payment_method":
           onFilter && onFilter({ ...params, payment_method_ids: [] });
           break;
@@ -467,6 +545,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       marketing_campaign: Array.isArray(params.marketing_campaign) ? params.marketing_campaign : [params.marketing_campaign],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
+      // searched_product: Array.isArray(params.searched_product) ? params.searched_product : [params.searched_product],
+      // tracking_codes: params?.tracking_codes ? params?.tracking_codes : "",
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
@@ -936,6 +1016,15 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
 
+    if (initialValues.searched_product) {
+      let textVariant = initialValues.searched_product;
+      list.push({
+        key: "searched_product",
+        name: "Sản phẩm",
+        value: <React.Fragment>{textVariant}</React.Fragment>,
+      });
+    }
+
     if (initialValues.assignee_codes.length) {
       let text = getFilterString(
         assigneeFound,
@@ -1151,7 +1240,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1278,14 +1367,23 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     params.coordinator_codes,
   ]);
 
+  console.log('params', params)
+
   useEffect(() => {
     formSearchRef.current?.setFieldsValue({
       search_term: params.search_term,
       variant_ids: params.variant_ids,
       tracking_codes: params.tracking_codes,
-      sub_status_code: params.sub_status_code
+      sub_status_code: params.sub_status_code,
+      // searched_product: params.searched_product,
     });
   }, [formSearchRef, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids]);
+
+  // useEffect(() => {
+  //   if(params?.searched_product) {
+  //     setKeySearchVariant(params?.searched_product)
+  //   }
+  // }, [params.searched_product])
 
   useEffect(() => {
     if (params.variant_ids && params.variant_ids.length) {
@@ -1347,6 +1445,32 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     handleDeleteFilter(configId)
     setIsShowConfirmDelete(false)
   };
+
+  const convertResultSearchVariant = useMemo(() => {
+		let options: any[] = [];
+		resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+			options.push({
+				// label: renderSearchVariant(item),
+				label: <SearchedVariant item={item} />,
+				value: item.name ? item.name.toString() : "",
+			});
+		});
+		return options;
+	}, [resultSearchVariant]);
+
+  const onSearchVariantSelect = useCallback(
+    (v, variant) => {
+      console.log('v', v)
+      console.log('variant', variant)
+      setKeySearchVariant(variant.value)
+      autoCompleteRef.current?.blur();
+      setResultSearchVariant({
+        ...resultSearchVariant,
+        items: []
+      })
+   },
+   [autoCompleteRef, resultSearchVariant]
+ );
 
   return (
     <StyledComponent>
@@ -1428,13 +1552,13 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Col>
                 )}
                 <Col span={orderType === ORDER_TYPES.offline ? 12 : 6}>
-                  {rerenderSearchVariant && (
+                  {/* {rerenderSearchVariant && (
                     <Item name="variant_ids" style={{marginRight: 0}}>
                       <DebounceSelect
                         mode="multiple"
                         showArrow
                         maxTagCount="responsive"
-                        placeholder="Sản phẩm"
+                        placeholder="Chọn sản phẩm hoặc nhập sku"
                         allowClear
                         fetchOptions={searchVariants}
                         optionsVariant={optionsVariant}
@@ -1443,7 +1567,40 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                         }}
                       />
                     </Item>
-                  )}
+                  )} */}
+                  
+                  <Item name="searched_product" style={{marginRight: 0}}>
+                    <AutoComplete
+                      notFoundContent={
+                        keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                      }
+                      id="search_product"
+                      value={keySearchVariant}
+                      ref={autoCompleteRef}
+                      // onSelect={() =>{}}
+                      onSelect={onSearchVariantSelect}
+                      dropdownClassName="search-layout dropdown-search-header"
+                      dropdownMatchSelectWidth={500}
+                      className="w-100"
+                      onSearch={onChangeProductSearch}
+                      options={convertResultSearchVariant}
+                      maxLength={255}
+                      defaultActiveFirstOption
+                    >
+                      <Input
+                        size="middle"
+                        className="yody-search"
+                        placeholder="Tìm sản phẩm"
+                        prefix={
+                          isSearchingProducts ? (
+                            <LoadingOutlined style={{ color: "#2a2a86" }} />
+                          ) : (
+                            <img alt="" src={search} />
+                          )
+                        }
+                      />
+                    </AutoComplete>
+                  </Item>
                 </Col>
               </Row>
             </div>
