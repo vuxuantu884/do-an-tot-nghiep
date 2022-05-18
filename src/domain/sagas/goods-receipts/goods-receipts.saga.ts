@@ -28,7 +28,6 @@ import {unauthorizedAction} from "./../../actions/auth/auth.action";
 import {showError} from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { Payload } from "recharts/types/component/DefaultLegendContent";
 
 /**
  * lấy danh sách loại biên bản
