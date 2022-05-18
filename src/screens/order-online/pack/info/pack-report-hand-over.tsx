@@ -13,7 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
-  updateGoodsReceipts,
   updateNoteGoodreceipt,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
@@ -35,7 +34,6 @@ import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import moment, { Moment } from "moment";
 import EditNote from "screens/order-online/component/edit-note";
-import { GoodsReceiptsRequest } from "model/request/pack.request";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { StoreResponse } from "model/core/store.model";
