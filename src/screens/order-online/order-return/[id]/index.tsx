@@ -27,7 +27,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getOrderTotalPaymentAmount, isOrderFromPOS } from "utils/AppUtils";
+import { getOrderTotalPaymentAmountReturn, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
@@ -123,6 +123,7 @@ const ScreenReturnDetail = (props: PropType) => {
               return_amount:
                 Math.ceil(totalAmountReturnToCustomer || 0),
               customer_id: OrderDetail?.customer_id,
+              payment_method_code: returnMoneyMethod.code,
             },
           ];
           dispatch(
@@ -153,7 +154,7 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   const totalAmountReturnToCustomer = useMemo(() => {
-    return (OrderDetail?.total || 0) - getOrderTotalPaymentAmount(OrderDetail?.payments || [] )
+    return (OrderDetail?.total || 0) - getOrderTotalPaymentAmountReturn(OrderDetail?.payments || [] )
   }, [OrderDetail?.payments, OrderDetail?.total])
  
   /**
@@ -165,7 +166,8 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   const checkIfHasReturnMoneyAll = (OrderDetail?: OrderResponse ) => {
-    const total = getOrderTotalPaymentAmount(OrderDetail?.payments || []);
+    // const total = getOrderTotalPaymentAmount(OrderDetail?.payments || []);
+    const total = getOrderTotalPaymentAmountReturn(OrderDetail?.payments || []);
     return total >= Math.floor(OrderDetail?.money_refund || 0)
   };
 

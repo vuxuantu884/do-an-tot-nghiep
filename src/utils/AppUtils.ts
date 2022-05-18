@@ -728,6 +728,14 @@ export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>
   return total;
 };
 
+export const getOrderTotalPaymentAmountReturn = (payments: Array<OrderPaymentResponse>) => {
+  let total = 0;
+  payments.forEach((a) => {
+    total = total + a.return_amount;
+  });
+  return total;
+};
+
 export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) => {
 	return lineItem.amount - lineItem.discount_amount;
 };
