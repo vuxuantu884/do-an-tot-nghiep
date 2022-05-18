@@ -99,7 +99,7 @@
       margin-left: 200px;
     }
     &.collapsed {
-        margin-left: 55px;
+        margin-left: 52px;
     }
 }
 
@@ -550,6 +550,7 @@ label {
 }
 
 .ant-layout {
+    overflow: hidden;
 	&.showHeader {
 		.ant-layout-sider {
 			transition: 0.3s;
