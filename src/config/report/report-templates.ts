@@ -366,6 +366,10 @@ export const DETAIL_LINKS = [
     field: "order_code",
     link: "/orders",
   },
+  {
+    field: "order_return_code",
+    link: "/order-returns",
+  },
 ];
 
 export const TIME_GROUP_BY = [

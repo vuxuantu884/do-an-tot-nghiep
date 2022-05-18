@@ -14,7 +14,7 @@ import { callApiNative } from 'utils/ApiUtils';
 import { formatCurrency } from 'utils/AppUtils';
 import { OFFSET_HEADER_UNDER_NAVBAR } from 'utils/Constants';
 import { DATE_FORMAT } from 'utils/DateUtils';
-import { formatReportTime, generateRQuery, getTranslatePropertyKey, transformDateRangeToString } from 'utils/ReportUtils';
+import { formatDataToSetUrl, formatReportTime, generateRQuery, getTranslatePropertyKey, transformDateRangeToString } from 'utils/ReportUtils';
 import { strForSearch } from 'utils/StringUtils';
 import { ActiveFiltersStyle, AnalyticsStyle } from '../index.style';
 import ActiveFilters from './active-filters';
@@ -732,7 +732,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                to={`${detailLink.link}/${encodeURIComponent(data)}`}>
+                                                                to={`${detailLink.link}/${formatDataToSetUrl(data, detailLink.field)}`}>
                                                                 <div className='external-link'>
                                                                     <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>
@@ -749,7 +749,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                             <Link
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                to={`${detailLink.link}/${encodeURIComponent(data)}`}>
+                                                                to={`${detailLink.link}/${formatDataToSetUrl(data, detailLink.field)}`}>
                                                                 <div className='external-link'>
                                                                     <img src={require(`assets/icon/feather-arrow-down-right.svg`).default} alt={'Xem chi tiết'} /></div>
                                                             </Link>

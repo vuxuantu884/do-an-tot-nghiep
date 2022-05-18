@@ -151,7 +151,7 @@ function UpdateAnalytics() {
       */
     useEffect(() => {
         const fetchTemplateQuery = async () => {
-            const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube) ? { q: CURRENT_REPORT_TEMPLATE.query, options: CURRENT_REPORT_TEMPLATE.timeAtOption } : { q: CURRENT_REPORT_TEMPLATE.query };
+            const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube) ? { q: CURRENT_REPORT_TEMPLATE.query, options: CURRENT_REPORT_TEMPLATE.timeAtOption } : { q: CURRENT_REPORT_TEMPLATE.query };
             const response: AnalyticDataQuery = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullParams);
             if (response) {
                 const { columns, rows, cube, conditions, from, to, order_by: orderBy } = response.query;
@@ -232,7 +232,7 @@ function UpdateAnalytics() {
             })
             if (dataQuery && chartColumnSelected?.length) {
                 const query = getChartQuery(dataQuery.query, chartColumnSelected);
-                const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
+                const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, fullParams);
                 if (response) {
                     const { columns, data } = response.result;
