@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { updateOrderPartial } from "domain/actions/order/order.action";
 import { formatCurrency } from "utils/AppUtils";
 import { fullTextSearch } from "utils/StringUtils";
+import { showError } from "utils/ToastUtils";
 const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
@@ -78,6 +79,10 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
+      if(newNote && newNote.length>255){
+        showError("độ dài kí tự phải từ 0 đến 255");
+        return;
+      }
       let params: any = {};
       if (noteType === "note") {
         params.note = newNote;

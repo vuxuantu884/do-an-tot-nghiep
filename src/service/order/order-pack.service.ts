@@ -119,3 +119,11 @@ export const getPrintGoodsReceiptsService = (
   const link=`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts-orders?order_ids=${order_ids}&goods_receipt_ids=${goods_receipt_ids}`;
   return BaseAxios.delete(link);
 }
+
+/**
+ * Cập nhật ghi chú biên bản bàn giao
+ */
+export const updateNoteGoodreceiptService=(id:number, note:string):Promise<GoodsReceiptsResponse>=>{
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts-note/${id}`;
+  return BaseAxios.put(link, {note:note})
+}

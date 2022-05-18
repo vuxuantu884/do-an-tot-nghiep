@@ -22,11 +22,13 @@ import {
   getPrintGoodsReceiptsService,
   deleteAllGoodsReceipService,
   deleteOrdergoodsReceipService,
+  updateNoteGoodreceiptService,
 } from "service/order/order-pack.service";
 import {unauthorizedAction} from "./../../actions/auth/auth.action";
 import {showError} from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { Payload } from "recharts/types/component/DefaultLegendContent";
 
 /**
  * lấy danh sách loại biên bản
@@ -338,6 +340,36 @@ function* deleteOrdergoodsReceipSaga(action: YodyAction)
   }
 }
 
+/**
+ * Cập nhật ghi chú biên bản bàn giao
+ */
+function* updateNoteGoodreceiptSaga(action:YodyAction)
+{
+  const {id,note, onSuccess}=action.payload;
+  
+  try{
+    console.log(id,note, onSuccess);
+    let response:BaseResponse<GoodsReceiptsResponse>= yield call(updateNoteGoodreceiptService,id, note);
+    
+    switch(response.code)
+    {
+      case HttpStatus.SUCCESS:
+        onSuccess(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any)=>showError(e));
+        break;
+    }
+  }
+  catch(e){
+    console.log(e);
+    showError("xảy ra lỗi cập nhật ghi chú biên bản bàn giao, vui long thử lại sau")
+  }
+}
+
 export function* GoodsReceiptsSaga() {
   yield takeLatest(GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE, getGoodsReceiptsTypeSaga);
   yield takeLatest(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, createGoodsReceiptsSaga);
@@ -353,4 +385,5 @@ export function* GoodsReceiptsSaga() {
   yield takeLatest(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS, getPrintGoodsReceiptsSaga)
   yield takeLatest(GoodsReceiptsType.DELETE_ALL_GOODS_RECEIPTS,deleteAllGoodsReceipSaga)
   yield takeLatest(GoodsReceiptsType.DELETE_ORDER_GOODS_RECEIPTS, deleteOrdergoodsReceipSaga)
+  yield takeLatest(GoodsReceiptsType.UPDATE_NOTE_GOODS_RECEIPT, updateNoteGoodreceiptSaga)
 }
