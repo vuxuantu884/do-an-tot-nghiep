@@ -61,6 +61,7 @@ export interface ReturnRequest extends OrderRequest {
   store_phone_number:string;
   store_full_address:string;
   type: string;
+  money_refund: number;
 }
 
 export interface ExchangeRequest {

@@ -936,6 +936,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         tags: null,
         type: orderReturnType,
         channel_id: getChannelIdReturn(OrderDetail),
+        money_refund: refund.moneyRefund,
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log("orderDetailResult", orderDetailResult);
@@ -973,7 +974,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         ),
       );
     }
-  }, [OrderDetail, dispatch, form, getChannelIdReturn, getPaymentOfReturnInReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, history, isReceivedReturnProducts, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, returnItems, storeReturn]);
+  }, [OrderDetail, dispatch, form, getChannelIdReturn, getPaymentOfReturnInReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, history, isReceivedReturnProducts, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, refund.moneyRefund, returnItems, storeReturn]);
 
   const checkIfHasReturnProduct = listReturnProducts.some((single) => {
     return single.quantity > 0;
@@ -1545,6 +1546,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           tags: null,
           type: orderReturnType,
           channel_id: getChannelIdReturn(OrderDetail),
+          money_refund: refund.moneyRefund,
   
           // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
         };
@@ -1618,7 +1620,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         }
       }
      },
-     [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, payments, recentAccountCode.accountCode, shipmentMethod, shippingAddress, storeReturn, thirdPL.service, totalAmountCustomerNeedToPay],
+     [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, payments, recentAccountCode.accountCode, refund.moneyRefund, shipmentMethod, shippingAddress, storeReturn, thirdPL.service, totalAmountCustomerNeedToPay],
    )
  
 
