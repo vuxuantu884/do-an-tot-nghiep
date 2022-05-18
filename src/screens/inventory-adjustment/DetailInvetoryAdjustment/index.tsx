@@ -130,6 +130,7 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoadingBtn, setIsLoadingBtn] = useState<boolean>(false);
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const {id} = useParams<InventoryParams>();
@@ -1088,6 +1089,7 @@ const onChangeNote = useCallback(
   }, [listJobImportFile, statusImport, checkImportFile]);
 
   useEffect(() => {
+    setIsLoadingBtn(true);
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
     try {
       const interval = setInterval(async () => {
@@ -1097,6 +1099,7 @@ const onChangeNote = useCallback(
           } else {
             getTotalOnHandFunc();
             clearInterval(interval);
+            setIsLoadingBtn(false);
           }
 
           return data;
@@ -1493,16 +1496,18 @@ const onChangeNote = useCallback(
                     </AuthWrapper>
                   )}
                   <Button
-                          type="default"
-                          className="light"
-                          size="large"
-                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                          onClick={() => {
-                            setShowExportModal(true);
-                            onExport();
-                          }}
-                        >
-                          Xuất excel
+                    loading={isLoadingBtn}
+                    disabled={isLoadingBtn}
+                    type="default"
+                    className="light"
+                    size="large"
+                    icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                    onClick={() => {
+                      setShowExportModal(true);
+                      onExport();
+                    }}
+                  >
+                    Xuất excel
                    </Button>
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
                     data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
