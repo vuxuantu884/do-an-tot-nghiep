@@ -52,7 +52,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
       return (
         <Timeline>
           {payments.map((single, index) => {
-            if(single.return_amount === 0) {
+            if(single.paid_amount === 0) {
               return null
             }
             return (

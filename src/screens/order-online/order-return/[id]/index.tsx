@@ -117,11 +117,10 @@ const ScreenReturnDetail = (props: PropType) => {
               payment_method: returnMoneyMethod.name,
               name: returnMoneyMethod.name,
               note: formValuePayment.returnMoneyNote || "",
-              amount: 0,
+              amount: Math.ceil(totalAmountReturnToCustomer || 0),
               paid_amount:
                 Math.ceil(totalAmountReturnToCustomer || 0) ,
-              return_amount:
-                Math.ceil(totalAmountReturnToCustomer || 0),
+              return_amount: 0,
               customer_id: OrderDetail?.customer_id,
               payment_method_code: returnMoneyMethod.code,
             },

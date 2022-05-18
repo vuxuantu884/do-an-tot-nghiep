@@ -731,7 +731,7 @@ export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>
 export const getOrderTotalPaymentAmountReturn = (payments: Array<OrderPaymentResponse>) => {
   let total = 0;
   payments.forEach((a) => {
-    total = total + a.return_amount;
+    total = total + a.paid_amount;
   });
   return total;
 };
