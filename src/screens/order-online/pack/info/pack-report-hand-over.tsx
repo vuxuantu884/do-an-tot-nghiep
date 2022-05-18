@@ -14,6 +14,7 @@ import {
   deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
   updateGoodsReceipts,
+  updateNoteGoodreceipt,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
 import { COLUMN_CONFIG_TYPE, FulFillmentStatus } from "utils/Constants";
@@ -25,7 +26,7 @@ import PackFilter from "component/filter/pack.filter";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { MenuAction } from "component/table/ActionButton";
 import { Link } from "react-router-dom";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -446,50 +447,46 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     );
   };
 
-  const editNote = useCallback((id: number, data: GoodsReceiptsResponse, newNote: string) => {
-    let goodsReceiptsCopy: any = { ...data }
-    let codes = data.orders?.map((p) => p.fullfilement_code);
-    let param: GoodsReceiptsRequest = {
-      ...goodsReceiptsCopy,
-      codes: codes,
-      note: newNote
+  const editNote= useCallback((id:number, newNote:string)=>{
+    if(!id) return;
+    if(newNote && newNote.length>255){
+      showError("độ dài kí tự phải từ 0 đến 255");
+      return;
     }
-
-    dispatch(
-      updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
-        if (data) {
-          setTableLoading(true);
-          dispatch(
-            getGoodsReceiptsSerch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
-              if (data) {
-                let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-                /////
-                setData({
-                  metadata: {
-                    limit: data.metadata.limit,
-                    page: data.metadata.page,
-                    total: data.metadata.total,
-                  },
-                  items: dataResult,
-                });
-              } else {
-                setData({
-                  metadata: {
-                    limit: 30,
-                    page: 1,
-                    total: 0,
-                  },
-                  items: [],
-                })
-              }
-              setTableLoading(false);
-            })
-          );
-          showSuccess("Cập nhập ghi chú biên bản thành công");
-        }
-      })
-    );
-  }, [dispatch, params])
+    dispatch(updateNoteGoodreceipt(id, newNote, (success?:boolean)=>{
+      if(success)
+      {
+        setTableLoading(true);
+        dispatch(
+          getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
+            if(data){
+              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+            /////
+              setData({
+                metadata: {
+                  limit: data.metadata.limit,
+                  page: data.metadata.page,
+                  total: data.metadata.total,
+                },
+                items: dataResult,
+              });
+            }else{
+              setData({
+                metadata: {
+                  limit: 30,
+                  page: 1,
+                  total: 0,
+                },
+                items: [],
+              })
+            }
+            setTableLoading(false);
+          })
+        );
+        showSuccess("Cập nhập ghi chú biên bản thành công");
+      }
+    }))
+  },[dispatch, params])
 
   const [columns, setColumns] = useState<
     Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
@@ -650,7 +647,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                 //title="Khách hàng: "
                 color={"#2a2a86"}
                 onOk={(newNote) => {
-                  editNote(record.id_handover_record, record.goods_receipts, newNote);
+                   editNote(record.id_handover_record, newNote);
                 }}
               // isDisable={record.status === OrderStatus.FINISHED}
               />
