@@ -38,8 +38,6 @@ type PropTypes = {
   isAlreadyShowWarningPoint: boolean;
 };
 
-let barcode = "";
-
 function CardReturnProductContainer(props: PropTypes) {
   const {
     handleCanReturn,
