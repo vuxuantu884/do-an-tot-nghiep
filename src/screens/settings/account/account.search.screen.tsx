@@ -241,11 +241,17 @@ const ListAccountScreen: React.FC = () => {
           className="ant-switch-success"
           defaultChecked={value === "active"}
           onChange={(checked) => {
+            const storeIds: number[] = row.account_stores.reduce((acc: Array<number>, item: AccountStoreResponse) => {
+              if(item.store_id ) {
+                acc.push(item.store_id);
+              }
+              return acc;
+            }, []);
             dispatch(
               AccountUpdateAction(
                 row.id,
-                { ...row, status: checked ? "active" : "inactive" },
-                () => { }
+                { ...row, store_ids: storeIds, status: checked ? "active" : "inactive" },
+                () => { } 
               )
             );
           }}
