@@ -1,9 +1,7 @@
 import {
   ArrowLeftOutlined,
   FilterOutlined,
-  LoadingOutlined,
-  SearchOutlined,
-  SettingOutlined,
+  LoadingOutlined, SettingOutlined,
   SwapRightOutlined
 } from "@ant-design/icons";
 import { AutoComplete, Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
@@ -49,14 +47,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountApi } from "service/accounts/account.service";
-import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
 import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
-import DebounceSelect from "./component/debounce-select";
 import UserCustomFilterTag from "./UserCustomFilterTag";
 
 type PropTypes = {
@@ -102,19 +98,19 @@ const initQueryVariant: VariantSearchQuery = {
 	saleable: true,
 };
 
-async function searchVariants(input: any) {
-  try {
-    const result = await searchVariantsApi({ info: input });
-    return result.data.items.map((item) => {
-      return {
-        label: item.name,
-        value: item.id.toString(),
-      };
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
+// async function searchVariants(input: any) {
+//   try {
+//     const result = await searchVariantsApi({ info: input });
+//     return result.data.items.map((item) => {
+//       return {
+//         label: item.name,
+//         value: item.id.toString(),
+//       };
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
 
 function OrdersFilter(props: PropTypes): JSX.Element {
   const {
@@ -141,7 +137,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
-  const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
+  // const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
   const loadingFilter = useMemo(() => {
     return !!isLoading;
   }, [isLoading]);
@@ -288,7 +284,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
-  const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
+  // const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
   const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>([]);
@@ -1000,21 +996,21 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         value: text,
       });
     }
-    if (initialValues.variant_ids.length) {
-      let textVariant = "";
-      for (let i = 0; i < optionsVariant.length; i++) {
-        if (i < optionsVariant.length - 1) {
-          textVariant = textVariant + optionsVariant[i].label + splitCharacter;
-        } else {
-          textVariant = textVariant + optionsVariant[i].label;
-        }
-      }
-      list.push({
-        key: "variant_ids",
-        name: "Sản phẩm",
-        value: <React.Fragment>{textVariant}</React.Fragment>,
-      });
-    }
+    // if (initialValues.variant_ids.length) {
+    //   let textVariant = "";
+    //   for (let i = 0; i < optionsVariant.length; i++) {
+    //     if (i < optionsVariant.length - 1) {
+    //       textVariant = textVariant + optionsVariant[i].label + splitCharacter;
+    //     } else {
+    //       textVariant = textVariant + optionsVariant[i].label;
+    //     }
+    //   }
+    //   list.push({
+    //     key: "variant_ids",
+    //     name: "Sản phẩm",
+    //     value: <React.Fragment>{textVariant}</React.Fragment>,
+    //   });
+    // }
 
     if (initialValues.searched_product) {
       let textVariant = initialValues.searched_product;
@@ -1240,7 +1236,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1385,35 +1381,35 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   //   }
   // }, [params.searched_product])
 
-  useEffect(() => {
-    if (params.variant_ids && params.variant_ids.length) {
-      setRerenderSearchVariant(false);
-      let variant_ids = Array.isArray(params.variant_ids)
-        ? params.variant_ids
-        : [params.variant_ids];
-      (async () => {
-        let variants: any = [];
-        await Promise.all(
-          variant_ids.map(async (variant_id) => {
-            try {
-              const result = await getVariantApi(variant_id);
+  // useEffect(() => {
+  //   if (params.variant_ids && params.variant_ids.length) {
+  //     setRerenderSearchVariant(false);
+  //     let variant_ids = Array.isArray(params.variant_ids)
+  //       ? params.variant_ids
+  //       : [params.variant_ids];
+  //     (async () => {
+  //       let variants: any = [];
+  //       await Promise.all(
+  //         variant_ids.map(async (variant_id) => {
+  //           try {
+  //             const result = await getVariantApi(variant_id);
 
-              variants.push({
-                label: result.data.name,
-                value: result.data.id.toString(),
-              });
-            } catch {}
-          })
-        );
-        setOptionsVariant(variants);
-        if (variants?.length > 0) {
-          setRerenderSearchVariant(true);
-        }
-      })();
-    } else {
-      setRerenderSearchVariant(true);
-    }
-  }, [params.variant_ids]);
+  //             variants.push({
+  //               label: result.data.name,
+  //               value: result.data.id.toString(),
+  //             });
+  //           } catch {}
+  //         })
+  //       );
+  //       setOptionsVariant(variants);
+  //       if (variants?.length > 0) {
+  //         setRerenderSearchVariant(true);
+  //       }
+  //     })();
+  //   } else {
+  //     setRerenderSearchVariant(true);
+  //   }
+  // }, [params.variant_ids]);
 
   useEffect(() => {
     if (accounts) {
