@@ -714,6 +714,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
             type: "",
             note: "Hoàn điểm",
             code: pointEnum.code,
+            payment_method_code: pointEnum.code,
           })
         }
       }
