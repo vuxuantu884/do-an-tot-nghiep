@@ -837,7 +837,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
             source: "",
             paid_amount: Math.ceil(amountPointReturn),
             payment_method_code: pointEnum.code,
-            point: refund.moneyRefund,
+            point: refund.pointRefund,
             return_amount: 0,
             status: paidStatus,
             customer_id: customer?.id || null,
