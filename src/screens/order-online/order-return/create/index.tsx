@@ -1324,6 +1324,23 @@ ShippingServiceConfigDetailResponseModel[]
     })
   }, [form, initialFormValueWithReturn, totalAmountCustomerNeedToPay])
 
+  useEffect(() => {
+    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
+      return single.code === PaymentMethodCode.CASH;
+    });
+    if(paymentMethodReturnToCustomer) {
+      form.setFieldsValue({
+        ...initialFormValueWithReturn,
+        returnMoneyField: [
+          {
+            ...initialFormValueWithReturn.returnMoneyField,
+            returnMoneyMethod: paymentMethodReturnToCustomer.code,
+          },
+        ],
+      })
+    }
+  }, [form, initialFormValueWithReturn, listPaymentMethods])
+
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
   };

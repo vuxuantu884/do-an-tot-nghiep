@@ -169,6 +169,23 @@ const ScreenReturnDetail = (props: PropType) => {
       ],
     })
   }, [form, initialFormValue, totalAmountReturnToCustomer])
+
+  useEffect(() => {
+    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
+      return single.code === PaymentMethodCode.CASH;
+    });
+    if(paymentMethodReturnToCustomer) {
+      form.setFieldsValue({
+        ...initialFormValue,
+        returnMoneyField: [
+          {
+            ...initialFormValue.returnMoneyField,
+            returnMoneyMethod: paymentMethodReturnToCustomer.code,
+          },
+        ],
+      })
+    }
+  }, [form, initialFormValue, listPaymentMethods])
  
   /**
    * theme context data
