@@ -1015,232 +1015,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
     [checkIfHasReturnProduct, form, handleSubmitFormReturn, isReceivedReturnProducts, storeReturn],
   )
 
-  const handleCreateOrderExchangeByValue = (
-    valuesExchange: ExchangeRequest,
-  ) => {
-    dispatch(showLoading());
-    dispatch(
-      actionCreateOrderExchange(
-        valuesExchange,
-        (data) => {
-          createOrderExchangeCallback(data);
-        },
-        () => {
-          dispatch(hideLoading());
-        },
-      ),
-    );
-  };
-
-  const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
-    const methods = [ShipmentMethodOption.PICK_AT_STORE];
-    if (
-      totalAmountOrderAfterPayments > 0 &&
-      methods.includes(shipmentMethod) &&
-      isOrderFromPOS(OrderDetail)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleSubmitFormReturnAndExchange = () => {
-    let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
-      return single.quantity > 0;
-    });
-    if (!checkIfHasReturnProduct) {
-      showError("Vui lòng chọn ít nhất 1 sản phẩm để trả!");
-      const element: any = document.getElementById("search_product_return");
-      scrollAndFocusToDomElement(element);
-      return;
-    }
-    if (!storeReturn) {
-      showError("Vui lòng chọn cửa hàng để trả!");
-      const element: any = document.getElementById("selectStoreReturn");
-      scrollAndFocusToDomElement(element);
-      return;
-    }
-    if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
-      showError("Vui lòng chọn ít nhất 1 sản phẩm mua!");
-      const element: any = document.getElementById("search_product");
-      const offsetY =
-        element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-      window.scrollTo({ top: offsetY, behavior: "smooth" });
-      element?.focus();
-      return;
-    }
-    if (
-      shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
-      !shippingAddress
-    ) {
-      showError("Vui lòng cập nhật địa chỉ giao hàng!");
-      const element: any = document.getElementById(
-        "customer_update_shipping_addresses_full_address",
-      );
-      scrollAndFocusToDomElement(element);
-      return;
-    }
-    if (checkIfNotHavePaymentsWhenReceiveAtStorePOS()) {
-      const element: any = document.getElementsByClassName(
-        "create-order-payment",
-      )[0] as HTMLElement;
-      scrollAndFocusToDomElement(element);
-      showError("Vui lòng thanh toán đủ số tiền!");
-      return;
-    }
-
-    if (OrderDetail && listReturnProducts) {
-      let items = listReturnProducts.map((single) => {
-        const { maxQuantityCanBeReturned, ...rest } = single;
-        return rest;
-      });
-      let itemsResult = items.filter((single) => {
-        return single.quantity > 0;
-      });
-      let discounts = handleRecalculateOriginDiscount(itemsResult);
-
-      const origin_order_id = OrderDetail.id;
-      let orderDetailResult: ReturnRequest = {
-        ...cloneDeep(OrderDetail),
-        source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
-        store_id: storeReturn ? storeReturn.id : null,
-        store: storeReturn ? storeReturn.name : "",
-        store_code: storeReturn ? storeReturn.code : "",
-        store_full_address: storeReturn ? storeReturn.address : "",
-        store_phone_number: storeReturn ? storeReturn.hotline : "",
-        action: "",
-        delivery_service_provider_id: null,
-        delivery_fee: null,
-        shipper_code: "",
-        shipper_name: "",
-        shipping_fee_paid_to_three_pls: null,
-        requirements: null,
-        items: itemsResult,
-        fulfillments: [],
-        payments: [],
-        reason_id: orderReturnReasonResponse?.id || 0,
-        reason_name:
-          orderReturnReasonResponse?.sub_reasons.find(
-            (single) => single.id === form.getFieldValue("reason_id"),
-          )?.name || "",
-        reason: form.getFieldValue("reason"),
-        sub_reason_id: form.getFieldValue("sub_reason_id") || null,
-        received: isReceivedReturnProducts,
-        discounts: handleRecalculateOriginDiscount(itemsResult),
-        account_code: recentAccountCode.accountCode,
-        assignee_code: OrderDetail.assignee_code || null,
-        total: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
-        total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
-        total_line_amount_after_line_discount: Math.floor(
-          getTotalAmountAfterDiscount(itemsResult),
-        ),
-        // clear giá trị
-        reference_code: "",
-        customer_note: "",
-        note: "",
-        url: "",
-        tags: null,
-        type: orderReturnType,
-        channel_id: getChannelIdReturn(OrderDetail),
-
-        // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
-      };
-
-      const order_return = cloneDeep(orderDetailResult);
-      order_return.fulfillments = [];
-      order_return.items = itemsResult;
-      order_return.payments = getPaymentOfReturnInExchange(itemsResult, discounts);
-
-      let values: OrderRequest = form.getFieldsValue();
-      let order_exchange = onFinish(values);
-      // const bb = cloneDeep(OrderDetail);
-      // let order_exchange:any = {
-      //   ...bb,
-      //   ...abc
-      // };
-      if (!order_exchange) {
-        return;
-      }
-      order_exchange.channel_id = getChannelIdExchange(OrderDetail);
-      order_exchange.company_id = DEFAULT_COMPANY.company_id;
-      order_exchange.account_code = form.getFieldValue("account_code");
-      order_exchange.assignee_code = form.getFieldValue("assignee_code");
-      order_exchange.coordinator_code = form.getFieldValue("coordinator_code");
-      order_exchange.marketer_code = form.getFieldValue("marketer_code");
-      order_exchange.reference_code = form.getFieldValue("reference_code");
-      order_exchange.url = form.getFieldValue("url");
-      order_exchange.fulfillments = createFulFillmentRequest(values);
-      order_exchange.items = listExchangeProducts.concat(itemGifts);
-      order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments.filter(payment => payment.paid_amount > 0) : [];
-      const valuesExchange = {
-        origin_order_id,
-        order_return,
-        order_exchange,
-      };
-      console.log("valuesExchange", valuesExchange);
-      // return;
-      if (checkPointFocus(order_exchange)) {
-        if (!order_exchange?.customer_id) {
-          showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
-          const element: any = document.getElementById("search_customer");
-          element?.focus();
-        } else {
-          if (listExchangeProducts.length === 0) {
-            showError("Vui lòng chọn ít nhất 1 sản phẩm");
-            const element: any = document.getElementById("search_product");
-            element?.focus();
-          } else {
-            if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-              if (order_exchange?.delivery_service_provider_id === null) {
-                showError("Vui lòng chọn đối tác giao hàng!");
-              } else {
-                handleCreateOrderExchangeByValue(valuesExchange);
-              }
-            } else {
-              if (
-                shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-                !thirdPL.service
-              ) {
-                showError("Vui lòng chọn đơn vị vận chuyển!");
-                const element = document.getElementsByClassName(
-                  "orders-shipment",
-                )[0] as HTMLElement;
-                scrollAndFocusToDomElement(element);
-              } else {
-                handleCreateOrderExchangeByValue(valuesExchange);
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-
-  const onReturnAndExchange = useCallback(
-    () => {
-      form
-      .validateFields()
-      .then(() => {
-        if (isReceivedReturnProducts) {
-          handleSubmitFormReturnAndExchange();
-        } else {
-          setIsVisibleModalWarning(true);
-        }
-      })
-      .catch((error) => {
-        console.log("error", error);
-        const element: any =
-          document.getElementById(error.errorFields[0].name.join("")) ||
-          document.getElementById(error.errorFields[0].name.join("_"));
-        if (element) {
-          scrollAndFocusToDomElement(element);
-        }
-      });
-    },
-    [form, handleSubmitFormReturnAndExchange, isReceivedReturnProducts],
-  )
-
   const getOrderSource = useCallback(
     (form: FormInstance<any>) => {
       let result = null;
@@ -1254,6 +1028,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     [OrderDetail],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkPointFocus = (value: any) => {
     let pointFocus = payments.find((p) => p.code === "point");
 
@@ -1432,6 +1207,19 @@ const ScreenReturnCreate = (props: PropTypes) => {
     ],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
+    const methods = [ShipmentMethodOption.PICK_AT_STORE];
+    if (
+      totalAmountOrderAfterPayments > 0 &&
+      methods.includes(shipmentMethod) &&
+      isOrderFromPOS(OrderDetail)
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   const createFulFillmentRequest = useCallback(
     (value: OrderRequest) => {
       let shipmentRequest = createShipmentRequest(value);
@@ -1532,14 +1320,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return listDiscountRequest;
   }, [coupon, promotion]);
 
-  if (!isUserCanCreateOrder.current) {
-    setTimeout(() => {
-      isUserCanCreateOrder.current = true;
-    }, 3000);
-  }
-
   const onFinish = useCallback(
     (values: OrderRequest) => {
+      setTimeout(() => {
+        isUserCanCreateOrder.current = true;
+      }, 3000);
+
       if (!isUserCanCreateOrder.current) {
         showError("Không được thao tác liên tiếp! Vui lòng đợi 5 giây!");
         return;
@@ -1640,6 +1426,225 @@ const ScreenReturnCreate = (props: PropTypes) => {
     },
     [setTags],
   );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleCreateOrderExchangeByValue = (
+    valuesExchange: ExchangeRequest,
+  ) => {
+    dispatch(showLoading());
+    dispatch(
+      actionCreateOrderExchange(
+        valuesExchange,
+        (data) => {
+          createOrderExchangeCallback(data);
+        },
+        () => {
+          dispatch(hideLoading());
+        },
+      ),
+    );
+  };
+  
+
+   const handleSubmitFormReturnAndExchange = useCallback(
+     () => {
+      let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
+        return single.quantity > 0;
+      });
+      if (!checkIfHasReturnProduct) {
+        showError("Vui lòng chọn ít nhất 1 sản phẩm để trả!");
+        const element: any = document.getElementById("search_product_return");
+        scrollAndFocusToDomElement(element);
+        return;
+      }
+      if (!storeReturn) {
+        showError("Vui lòng chọn cửa hàng để trả!");
+        const element: any = document.getElementById("selectStoreReturn");
+        scrollAndFocusToDomElement(element);
+        return;
+      }
+      if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
+        showError("Vui lòng chọn ít nhất 1 sản phẩm mua!");
+        const element: any = document.getElementById("search_product");
+        const offsetY =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        window.scrollTo({ top: offsetY, behavior: "smooth" });
+        element?.focus();
+        return;
+      }
+      if (
+        shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
+        !shippingAddress
+      ) {
+        showError("Vui lòng cập nhật địa chỉ giao hàng!");
+        const element: any = document.getElementById(
+          "customer_update_shipping_addresses_full_address",
+        );
+        scrollAndFocusToDomElement(element);
+        return;
+      }
+      if (checkIfNotHavePaymentsWhenReceiveAtStorePOS()) {
+        const element: any = document.getElementsByClassName(
+          "create-order-payment",
+        )[0] as HTMLElement;
+        scrollAndFocusToDomElement(element);
+        showError("Vui lòng thanh toán đủ số tiền!");
+        return;
+      }
+  
+      if (OrderDetail && listReturnProducts) {
+        let items = listReturnProducts.map((single) => {
+          const { maxQuantityCanBeReturned, ...rest } = single;
+          return rest;
+        });
+        let itemsResult = items.filter((single) => {
+          return single.quantity > 0;
+        });
+        let discounts = handleRecalculateOriginDiscount(itemsResult);
+  
+        const origin_order_id = OrderDetail.id;
+        let orderDetailResult: ReturnRequest = {
+          ...cloneDeep(OrderDetail),
+          source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
+          store_id: storeReturn ? storeReturn.id : null,
+          store: storeReturn ? storeReturn.name : "",
+          store_code: storeReturn ? storeReturn.code : "",
+          store_full_address: storeReturn ? storeReturn.address : "",
+          store_phone_number: storeReturn ? storeReturn.hotline : "",
+          action: "",
+          delivery_service_provider_id: null,
+          delivery_fee: null,
+          shipper_code: "",
+          shipper_name: "",
+          shipping_fee_paid_to_three_pls: null,
+          requirements: null,
+          items: itemsResult,
+          fulfillments: [],
+          payments: [],
+          reason_id: orderReturnReasonResponse?.id || 0,
+          reason_name:
+            orderReturnReasonResponse?.sub_reasons.find(
+              (single) => single.id === form.getFieldValue("reason_id"),
+            )?.name || "",
+          reason: form.getFieldValue("reason"),
+          sub_reason_id: form.getFieldValue("sub_reason_id") || null,
+          received: isReceivedReturnProducts,
+          discounts: handleRecalculateOriginDiscount(itemsResult),
+          account_code: recentAccountCode.accountCode,
+          assignee_code: OrderDetail.assignee_code || null,
+          total: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
+          total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
+          total_line_amount_after_line_discount: Math.floor(
+            getTotalAmountAfterDiscount(itemsResult),
+          ),
+          // clear giá trị
+          reference_code: "",
+          customer_note: "",
+          note: "",
+          url: "",
+          tags: null,
+          type: orderReturnType,
+          channel_id: getChannelIdReturn(OrderDetail),
+  
+          // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
+        };
+  
+        const order_return = cloneDeep(orderDetailResult);
+        order_return.fulfillments = [];
+        order_return.items = itemsResult;
+        order_return.payments = getPaymentOfReturnInExchange(itemsResult, discounts);
+  
+        let values: OrderRequest = form.getFieldsValue();
+        let order_exchange = onFinish(values);
+        // const bb = cloneDeep(OrderDetail);
+        // let order_exchange:any = {
+        //   ...bb,
+        //   ...abc
+        // };
+        if (!order_exchange) {
+          return;
+        }
+        order_exchange.channel_id = getChannelIdExchange(OrderDetail);
+        order_exchange.company_id = DEFAULT_COMPANY.company_id;
+        order_exchange.account_code = form.getFieldValue("account_code");
+        order_exchange.assignee_code = form.getFieldValue("assignee_code");
+        order_exchange.coordinator_code = form.getFieldValue("coordinator_code");
+        order_exchange.marketer_code = form.getFieldValue("marketer_code");
+        order_exchange.reference_code = form.getFieldValue("reference_code");
+        order_exchange.url = form.getFieldValue("url");
+        order_exchange.fulfillments = createFulFillmentRequest(values);
+        order_exchange.items = listExchangeProducts.concat(itemGifts);
+        order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments.filter(payment => payment.paid_amount > 0) : [];
+        const valuesExchange = {
+          origin_order_id,
+          order_return,
+          order_exchange,
+        };
+        console.log("valuesExchange", valuesExchange);
+        // return;
+        if (checkPointFocus(order_exchange)) {
+          if (!order_exchange?.customer_id) {
+            showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
+            const element: any = document.getElementById("search_customer");
+            element?.focus();
+          } else {
+            if (listExchangeProducts.length === 0) {
+              showError("Vui lòng chọn ít nhất 1 sản phẩm");
+              const element: any = document.getElementById("search_product");
+              element?.focus();
+            } else {
+              if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+                if (order_exchange?.delivery_service_provider_id === null) {
+                  showError("Vui lòng chọn đối tác giao hàng!");
+                } else {
+                  handleCreateOrderExchangeByValue(valuesExchange);
+                }
+              } else {
+                if (
+                  shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+                  !thirdPL.service
+                ) {
+                  showError("Vui lòng chọn đơn vị vận chuyển!");
+                  const element = document.getElementsByClassName(
+                    "orders-shipment",
+                  )[0] as HTMLElement;
+                  scrollAndFocusToDomElement(element);
+                } else {
+                  handleCreateOrderExchangeByValue(valuesExchange);
+                }
+              }
+            }
+          }
+        }
+      }
+     },
+     [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, payments, recentAccountCode.accountCode, shipmentMethod, shippingAddress, storeReturn, thirdPL.service, totalAmountCustomerNeedToPay],
+   )
+ 
+
+  const onReturnAndExchange = useCallback(
+    () => {
+      form
+      .validateFields()
+      .then(() => {
+        if (isReceivedReturnProducts) {
+          handleSubmitFormReturnAndExchange();
+        } else {
+          setIsVisibleModalWarning(true);
+        }
+      })
+      .catch((error) => {
+        console.log("error", error);
+        const element: any =
+          document.getElementById(error.errorFields[0].name.join("")) ||
+          document.getElementById(error.errorFields[0].name.join("_"));
+        if (element) {
+          scrollAndFocusToDomElement(element);
+        }
+      });
+    },
+    [form, handleSubmitFormReturnAndExchange, isReceivedReturnProducts],
+  )
 
   /**
    * theme context data
