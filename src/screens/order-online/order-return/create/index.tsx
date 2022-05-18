@@ -855,7 +855,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     
     
     return result;
-  }, [OrderDetail?.payments, customer?.id, form, listPaymentMethods, refund.moneyRefund, refund.pointRefund, returnMoneyType, totalAmountCustomerNeedToPay]);
+  }, [OrderDetail?.payments, customer?.id, form, listPaymentMethods, refund.pointRefund, returnMoneyType, totalAmountCustomerNeedToPay]);
 
   const handleSubmitFormReturn = useCallback(() => {
     
