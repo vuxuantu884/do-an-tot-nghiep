@@ -14,7 +14,7 @@ import BottomBarContainer from "component/container/bottom-bar.container"
 import ModalConfirm from "component/modal/ModalConfirm"
 import { callApiNative } from "utils/ApiUtils"
 import { ConvertFullAddress } from "utils/ConvertAddress";
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux";
 import { getStoreApi } from "service/inventory/transfer/index.service"
 import { searchVariantsApi } from "service/product/product.service"
 import { VariantResponse } from "model/product/product.model"
@@ -25,6 +25,7 @@ import { InventoryDefectFields, LineItemDefect } from "model/inventory-defects"
 import { cloneDeep, debounce } from "lodash"
 import { createInventoryDefect } from "service/inventory/defect/index.service"
 import ImageProduct from "screens/products/product/component/image-product.component"
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
 
 export interface SummaryDefect {
   total_defect: number;
@@ -179,7 +180,14 @@ const InventoryDefectCreate: React.FC = () => {
         setStores(response)
       }
     }
-    getStores()
+    getStores();
+
+    if (myStores.length === 1) {
+      form.setFieldsValue({
+        store_id: String(myStores[0].store_id)
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch])
 
   useEffect(() => {
@@ -354,6 +362,8 @@ const InventoryDefectCreate: React.FC = () => {
 
   }, [form])
 
+  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
+
   return (
     <ContentContainer
       title="Hàng lỗi"
@@ -414,9 +424,16 @@ const InventoryDefectCreate: React.FC = () => {
                       : setFormStoreData(null);
                   }}
                 >
-                  {Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
+                  {Array.isArray(myStores) &&
+                  myStores.length > 0 ?
+                  myStores.map((item, index) => (
+                      <Option
+                        key={"store_id" + index}
+                        value={item.store_id.toString()}
+                      >
+                        {item.store}
+                      </Option>
+                    )) : stores.map((item, index) => (
                       <Option
                         key={"store_id" + index}
                         value={item.id.toString()}
