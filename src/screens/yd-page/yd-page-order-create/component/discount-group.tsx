@@ -107,6 +107,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 					value={selected}
 					suffixIcon={null}
 					className="discount-group-select"
+					getPopupContainer={(trigger: any) => trigger.parentElement}
 				>
 					<Select.Option value={MoneyType.PERCENT} style={{ padding: "5px", textAlign: "center" }}>%</Select.Option>
 					<Select.Option value={MoneyType.MONEY} style={{ padding: "5px", textAlign: "center" }}>₫</Select.Option>

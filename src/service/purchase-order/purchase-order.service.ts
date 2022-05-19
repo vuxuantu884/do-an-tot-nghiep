@@ -48,9 +48,9 @@ export const updatePurchaseOrderFinancialStatus = (
 };
 
 export const deletePurchaseOrder = (
-  id: number
+  ids: string
 ): Promise<BaseResponse<string>> => {
-  return BaseAxios.delete(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`);
+  return BaseAxios.delete(`${ApiConfig.PURCHASE_ORDER}/purchase-orders?ids=${ids}`);
 };
 
 export const returnPurchaseOrder = (
@@ -65,10 +65,11 @@ export const returnPurchaseOrder = (
 
 
 export const getPrintContent = (
-  id: number
+  id: number,
+  printType: string
 ): Promise<Array<PurchaseOrderPrint>> => {
   return BaseAxios.get(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-forms?ids=${id}`
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-forms?ids=${id}&print_type=${printType}`
   );
 };
 
@@ -154,3 +155,9 @@ export const listPurchaseOrderApi = (
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/list?ids=${query.ids}`
   );
 };
+
+export const listPurchaseOrderBySupplier = (id: number): Promise<BaseResponse<Array<PurchaseOrder>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/list-by-supplier/${id}`
+  );
+}

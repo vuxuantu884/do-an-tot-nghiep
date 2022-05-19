@@ -235,7 +235,8 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                       >
                   <Button
                     onClick={() => setVisibleWarning(true)}
-                    className="create-button-custom ant-btn-outline fixed-button"
+                    className={ (receive_status === ProcumentStatus.RECEIVED || receive_status === ProcumentStatus.PARTIAL_RECEIVED) ? "po-form text-danger" : ""}
+                    // className="create-button-custom ant-btn-outline fixed-button"
                   >
                     Kết thúc nhập kho
                   </Button>

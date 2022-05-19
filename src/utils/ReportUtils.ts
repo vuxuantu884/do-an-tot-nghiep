@@ -7,7 +7,7 @@ import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
 import { callApiNative } from "./ApiUtils";
 import { DATE_FORMAT } from "./DateUtils";
-import { showError } from "./ToastUtils";
+import { showError, showSuccess } from "./ToastUtils";
 
 const getCondistions = (conditions: AnalyticConditions) => {
   let whereValue = "";
@@ -218,15 +218,16 @@ export const getPropertiesValue = (childrenKey: string[], metadata: AnalyticMeta
 
 export const exportReportToExcel = async (
   dispatch: Dispatch<YodyAction>,
-  q: string,
+  params: { q: string, options?: string },
   name: string = "Báo cáo",
   format: "xls" = "xls"
 ) => {
+  const { q, options } = params;
   const response = await callApiNative(
     { isShowError: true },
     dispatch,
     executeAnalyticsQueryService,
-    { q, format },
+    options ? { q, options, format } : { q, format },
     {
       headers: {
         "Content-Type": "application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet",
@@ -243,6 +244,9 @@ export const exportReportToExcel = async (
     a.download = name + ".xls";
     a.click();
     window.URL.revokeObjectURL(url);
+    showSuccess('Xuất báo cáo thành công');
+  } else {
+    showError('Xuất báo cáo thất bại. Vui lòng thử lại sau!');
   }
 };
 
@@ -275,7 +279,7 @@ export const getChartQuery = (queryObject: AnalyticQuery, chartColumnSelected: s
   if (conditions?.length) {
     mapperConditions = conditions.map(condition => {
       if (condition.findIndex(item => item === 'IN') !== -1) {
-        condition = [...condition.slice(0, 2), ...condition.slice(2).join("").split(",").map((item: string) => `'${item}'`).join(",")].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
+        condition = [...condition.slice(0, 2), ...(condition.slice(2).map(item => item !== ',' ? encodeURIComponent(item) : item).join("").split(",").map((item: string) => decodeURIComponent(`'${item}'`)).join(","))].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
       }
       return condition;
     })
@@ -300,4 +304,16 @@ export const showErrorReport = (errorMsg: React.ReactNode) => {
   if (AppConfig.ENV !== "UAT") {
     showError(errorMsg);
   }
+}
+
+export const formatDataToSetUrl = (data: string, field: string) => {
+  let formattedData = data;
+  if (field === "order_return_code") {
+    if (data.includes('!')) {
+      formattedData = data.replace('!', '%21');
+    } else {
+      formattedData = (+data.toString().replace(/\D/g, '')).toString();
+    }
+  }
+  return encodeURIComponent(formattedData);
 }

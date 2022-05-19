@@ -1,4 +1,4 @@
-import { Card, Row, Space, Tabs } from "antd";
+import { Button, Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { ProcurementTabUrl } from "config/url.config";
@@ -10,15 +10,17 @@ import { useHistory } from "react-router-dom";
 import TabList from "./tabs/TabList/index";
 import TabLogs from "./tabs/TabLogs";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import ButtonCreate from "component/header/ButtonCreate";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import { GoPlus } from "react-icons/go";
+import exportIcon from "assets/icon/export.svg";
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
   const history = useHistory();
   const path = history.location.pathname;
 
   const [activeTab, setActiveTab] = useState<string>(ProcurementTabUrl.ALL);
+  const [vExportDetailProcurement, setVExportDetailProcurement] = useState(false);
 
   useEffect(() => {
     if (Object.values(ProcurementTabUrl).includes(path)) {
@@ -28,6 +30,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
       setActiveTab(ProcurementTabUrl.TODAY);
     }
   }, [history, path]);
+
 
   return (
     <ContentContainer
@@ -44,8 +47,35 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
       extra={
         <Row>
           <Space>
+            {activeTab === ProcurementTabUrl.ALL && (<Button
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => { setVExportDetailProcurement(true) }}
+            >
+              Xuất file chi tiết
+            </Button>)}
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
-              <ButtonCreate child="Tạo phiếu nhập kho" path={`${UrlConfig.PROCUREMENT}/create`} />
+              <Button
+                type="primary"
+                className="ant-btn-primary"
+                size={"large"}
+                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                onClick={() => history.push(`${UrlConfig.PROCUREMENT}/create`)}
+              >
+                Nhập kho bằng tải file
+              </Button>
+            </AuthWrapper>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
+              <Button
+                type="primary"
+                className="ant-btn-primary"
+                size={"large"}
+                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                onClick={() => history.push(`${UrlConfig.PROCUREMENT}/create-manual`)}
+              >
+                Nhập kho thủ công
+              </Button>
             </AuthWrapper>
           </Space>
         </Row>
@@ -53,7 +83,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
     >
       <Card className="card-tab">
         <Tabs
-          style={{overflow: "initial"}}
+          style={{ overflow: "initial" }}
           activeKey={activeTab}
           onChange={(active) => {
             setActiveTab(active);
@@ -69,7 +99,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
             <TabSevenDays />
           </TabPane> */}
           <TabPane tab="Danh sách phiếu nhập kho" key={ProcurementTabUrl.ALL}>
-            <TabList />
+            <TabList vExportDetailProcurement={vExportDetailProcurement} setVExportDetailProcurement={setVExportDetailProcurement}/>
           </TabPane>
           <TabPane tab="Lịch sử phiếu nhập kho" key={ProcurementTabUrl.LOGS}>
             <TabLogs />

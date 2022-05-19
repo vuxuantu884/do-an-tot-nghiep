@@ -9,14 +9,14 @@ import ImageProduct from "screens/products/product/component/image-product.compo
 import search from "assets/img/search.svg";
 import { primaryColor } from "utils/global-styles/variables";
 import { callApiNative } from "utils/ApiUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import EditNote from "screens/order-online/component/edit-note";
 import { createInventoryDefect, deleteInventoryDefect, getListInventoryDefect } from "service/inventory/defect/index.service";
 import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import UrlConfig from "config/url.config";
-import { generateQuery, formatFieldTag, transformParamsToObject, splitEllipsis } from "utils/AppUtils";
+import { generateQuery, formatFieldTag, transformParamsToObject, splitEllipsis, formatCurrency } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { cloneDeep, debounce, isArray, isEmpty } from "lodash";
@@ -31,6 +31,9 @@ import BaseFilterResult from "component/base/BaseFilterResult";
 import { DeleteOutlined } from "@ant-design/icons";
 import EditPopover from "./EditPopover";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { InventoryDefectsPermission } from "config/permissions/inventory-defects.permission";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch()
@@ -39,6 +42,10 @@ const ListInventoryDefect: React.FC = () => {
   const [stores, setStores] = useState<Array<StoreResponse>>([])
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false)
   const query = useQuery();
+
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions
+  );
 
   let dataQuery: any = useMemo(() => {
     return { ...getQueryParams(query) }
@@ -144,6 +151,14 @@ const ListInventoryDefect: React.FC = () => {
     }
   }, [dispatch, getInventoryDefects]);
 
+  const getTotalDefects: string = useMemo(() => {
+    let total = 0
+    data.items.forEach(item => {
+      total += item.defect
+    })
+    return formatCurrency(total, '.')
+  },[data])
+
   const initColumns: Array<ICustomTableColumType<InventoryDefectResponse>> = useMemo(() => {
     return [
       {
@@ -201,18 +216,22 @@ const ListInventoryDefect: React.FC = () => {
         },
       },
       {
-        title: "Số lỗi ",
+        title: <div>Số lỗi <span style={{color: "#2A2A86"}}>({getTotalDefects})</span></div>,
         dataIndex: "defect",
         width: 100,
         align: "center",
         visible: true,
         render: (value, item: InventoryDefectResponse) => {
+          const hasPermission = [InventoryDefectsPermission.update].some((element) => {
+            return currentPermissions.includes(element);
+          });
           return (
             <div className="single">
               <EditPopover
+                isHaveEditPermission={hasPermission}
                 content={item.defect}
                 title="Sửa số lỗi: "
-                label="Số lỗi: "
+                // label="Số lỗi: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editItemDefect(newNote, InventoryDefectFields.defect, item.id);
@@ -238,11 +257,15 @@ const ListInventoryDefect: React.FC = () => {
         width: 200,
         visible: true,
         render: (value: string, item: InventoryDefectResponse) => {
+          const hasPermission = [InventoryDefectsPermission.update].some((element) => {
+            return currentPermissions.includes(element);
+          });
           return (
             <div className="single">
               <EditNote
+                isHaveEditPermission={hasPermission}
                 note={item.note}
-                title="Ghi chú: "
+                // title="Ghi chú: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editItemDefect(newNote, InventoryDefectFields.note, item.id);
@@ -253,7 +276,7 @@ const ListInventoryDefect: React.FC = () => {
         },
       },
       {
-        title: "Thời gian",
+        title: "Thời gian tạo",
         width: 120,
         dataIndex: "created_date",
         visible: true,
@@ -264,22 +287,26 @@ const ListInventoryDefect: React.FC = () => {
         key: "action",
         render: (value: any, item: InventoryDefectResponse, index: number) => {
           return (
-            <Button
-              type="text"
-              className=""
-              style={{
-                background: "transparent",
-                border: "solid 1px red",
-                padding: 0,
-                width: '40px'
-              }}
-              onClick={() => {
-                setItemDelete(item)
-                setConfirmDelete(true)
-              }}
+            <AuthWrapper
+              acceptPermissions={[InventoryDefectsPermission.delete]}
             >
-              <DeleteOutlined style={{fontSize: 18, color: 'red'}}/>
-            </Button>
+              <Button
+                type="text"
+                className=""
+                style={{
+                  background: "transparent",
+                  border: "solid 1px red",
+                  padding: 0,
+                  width: '40px'
+                }}
+                onClick={() => {
+                  setItemDelete(item)
+                  setConfirmDelete(true)
+                }}
+              >
+                <DeleteOutlined style={{fontSize: 18, color: 'red'}}/>
+              </Button>
+            </AuthWrapper>
           )
         },
         visible: true,
@@ -287,7 +314,7 @@ const ListInventoryDefect: React.FC = () => {
         align: "center",
       },
     ];
-  }, [editItemDefect, setItemDelete])
+  }, [currentPermissions, editItemDefect, getTotalDefects])
 
   const [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryDefectResponse>>>(initColumns);
 

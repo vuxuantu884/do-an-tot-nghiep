@@ -176,7 +176,48 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
     }
   };
 
-  return (
+	// handle scroll page
+	const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+	const setPageScroll = (overflowType: string) => {
+		let rootSelector: any = document.getElementById("root");
+		if (rootSelector) {
+			rootSelector.style.overflow = overflowType;
+		}
+	};
+
+	// if the popup dropdown is scrolling then page scroll is hidden
+	const handleOnSelectPopupScroll = () => {
+		if (isDropdownVisible) {
+			setPageScroll("hidden");
+		}
+	};
+
+	const handleOnMouseLeaveSelect = () => {
+		setPageScroll("scroll");
+	};
+
+	const handleOnDropdownVisibleChange = (open: boolean) => {
+		setIsDropdownVisible(open);
+	};
+
+	const onInputSelectFocus = () => {
+		setIsDropdownVisible(true);
+	};
+
+	const onInputSelectBlur = () => {
+		setIsDropdownVisible(false);
+	};
+
+	useEffect(() => {
+		if (!isDropdownVisible) {
+			setPageScroll("scroll");
+		}
+	}, [isDropdownVisible]);
+	// end handle scroll page
+
+
+	return (
     <StyledComponent>
       <Card className="padding-12 order-create-shipment" title="THÔNG TIN ĐƠN HÀNG">
         <Row gutter={20}>
@@ -199,6 +240,12 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
                   dataToSelect={assigneeAccountData}
                   setDataToSelect={setAssigneeAccountData}
                   initDataToSelect={initAssigneeAccountData}
+									getPopupContainer={(trigger: any) => trigger.parentElement}
+									onFocus={onInputSelectFocus}
+									onBlur={onInputSelectBlur}
+									onDropdownVisibleChange={handleOnDropdownVisibleChange}
+									onPopupScroll={handleOnSelectPopupScroll}
+									onMouseLeave={handleOnMouseLeaveSelect}
                 />
             </Form.Item>
           </Col>
@@ -216,6 +263,12 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             dataToSelect={marketingAccountData}
             setDataToSelect={setMarketingAccountData}
             initDataToSelect={initMarketingAccountData}
+						getPopupContainer={(trigger: any) => trigger.parentElement}
+						onFocus={onInputSelectFocus}
+						onBlur={onInputSelectBlur}
+						onDropdownVisibleChange={handleOnDropdownVisibleChange}
+						onPopupScroll={handleOnSelectPopupScroll}
+						onMouseLeave={handleOnMouseLeaveSelect}
           />
             </Form.Item>
           </Col>

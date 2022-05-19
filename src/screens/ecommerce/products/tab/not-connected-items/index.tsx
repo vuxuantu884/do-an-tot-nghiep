@@ -74,7 +74,7 @@ import ConcatenateByExcel from "./ConcatenateByExcel";
 import { EcommerceProductTabUrl } from "config/url.config";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
-import {debounce} from "lodash";
+import _, {debounce} from "lodash";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -101,6 +101,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
+    not: false,
+  });
+
+  const [allowProductsDelete] = useAuthorization({
+    acceptPermissions: productsDeletePermission,
     not: false,
   });
 
@@ -180,9 +185,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     }
   }, []);
 
-  const getProductUpdated = useCallback((queryRequest: any) => {
-    setIsLoading(true);
-    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+  const getEcommerceProduct = useCallback((queryRequest: any) => {
+    if (queryRequest) {
+      window.scrollTo(0, 0);
+      setIsLoading(true);
+      dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+    }
   }, [dispatch, updateVariantData]);
 
   const handleSuggestItem = () => {
@@ -196,20 +204,20 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       ...getQueryParamsFromQueryString(queryParamsParsed),
       suggest: window.localStorage.getItem("suggest")
     };
-    getProductUpdated(dataQuery);
+    getEcommerceProduct(dataQuery);
     window.location.reload();
   }
 
   useEffect(() => {
     if (isReloadPage) {
       window.scrollTo(0, 0);
-      getProductUpdated(query);
+      getEcommerceProduct(query);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProductUpdated, isReloadPage]);
+  }, [getEcommerceProduct, isReloadPage]);
 
   const reloadPage = () => {
-    getProductUpdated(query);
+    getEcommerceProduct(query);
   };
 
   const cancelDeleteItemModal = () => {
@@ -507,7 +515,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             dropdownRender={(menu) => <div>{menu}</div>}
           >
             <Input
-              style={{ width: 230 }}
               placeholder="SKU, tên sản phẩm Yody"
               prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
             />
@@ -594,7 +601,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIdsItemSelected([item.id]);
   };
 
-  const [columns,] = useState<any>([
+  const [columns, setColumns] = useState<any>([
     {
       title: "Ảnh",
       align: "center",
@@ -660,11 +667,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         );
       },
     },
-
-    ConnectedItemActionColumn(
-      handleDeleteItem,
-    ),
   ]);
+
+  useEffect(() => {
+    if (allowProductsDelete) {
+      let newColumns = _.cloneDeep(columns);
+      newColumns.push(
+        ConnectedItemActionColumn(handleDeleteItem)
+      )
+      setColumns(newColumns);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowProductsDelete]);
 
   let initialValues = useMemo(() => {
     return {
@@ -756,14 +770,21 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   );
 
 
-  const onSearch = (value: ProductEcommerceQuery) => {
-    const dataQuery: ProductEcommerceQuery = {
+  const onFinish = (value: ProductEcommerceQuery) => {
+    let newParams: ProductEcommerceQuery = {
       ...initialFormValues,
       ...getQueryParamsFromQueryString(queryParamsParsed),
       ...value
     }
-    let queryParam = generateQuery(dataQuery);
-    history.push(`${location.pathname}?${queryParam}`);
+    const queryParam = generateQuery(newParams);
+    const currentParam = generateQuery(query);
+    if (currentParam === queryParam) {
+      getEcommerceProduct(newParams);
+    } else {
+      newParams.page = 1;
+      const newQueryParam = generateQuery(newParams);
+      history.push(`${location.pathname}?${newQueryParam}`);
+    }
   };
 
   useEffect(() => {
@@ -774,7 +795,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     };
     setFilterValueByQueryParam(dataQuery)
     setQuery(dataQuery);
-    getProductUpdated(dataQuery);
+    getEcommerceProduct(dataQuery);
     window.scrollTo(0, 0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
@@ -808,7 +829,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         page: page,
         limit: limit,
       }
-      let queryParam = generateQuery(dataQuery);
+      const queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1091,13 +1112,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   };
   // end handle exit process modal
 
-  const [allowProductsDelete] = useAuthorization({
-    acceptPermissions: productsDeletePermission,
-    not: false,
-  });
-
-  const isShowAction = allowProductsDelete;
-
   const isDisableAction = () => {
     return !selectedRow || selectedRow.length === 0;
   };
@@ -1162,22 +1176,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       <Card>
         <StyledProductFilter>
           <div className="filter not-connected-items-filter">
-            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
-
-              {isShowAction &&
-                <div className="action-dropdown">
-                  <Dropdown
-                    overlay={actionList}
-                    trigger={["click"]}
-                    disabled={isLoading}
-                  >
-                    <Button className="action-button">
-                      <div style={{ marginRight: 10 }}>Thao tác</div>
-                      <DownOutlined />
-                    </Button>
-                  </Dropdown>
-                </div>
-              }
+            <Form form={formAdvance} onFinish={onFinish} initialValues={initialFormValues}>
+              <div className="action-dropdown">
+                <Dropdown
+                  overlay={actionList}
+                  trigger={["click"]}
+                  disabled={isLoading}
+                >
+                  <Button className="action-button">
+                    <div style={{ marginRight: 10 }}>Thao tác</div>
+                    <DownOutlined />
+                  </Button>
+                </Dropdown>
+              </div>
 
               <Form.Item
                 name="ecommerce_id"

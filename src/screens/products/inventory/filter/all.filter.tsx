@@ -86,7 +86,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     listStore,
     onFilter,
     openColumn,
-    onChangeKeySearch
   } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
@@ -482,11 +481,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     onCloseFilterConfig();
   }, [formAdvanceFilter, onCloseFilterConfig]);
 
-  const onChangeInfo = useCallback((e:any)=>{
-    const filters = formBaseFilter.getFieldsValue(true);
-    onChangeKeySearch(e.target.value,filters)
-  },[formBaseFilter, onChangeKeySearch]);
-
   useEffect(() => {
     setAdvanceFilters({ ...params });
     dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -515,7 +509,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 prefix={<img src={search} alt="" />}
                 style={{width: "100%"}}
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
-                onChange={onChangeInfo}
                 allowClear
               />
             </Item>

@@ -1,6 +1,7 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Modal, Row, Progress, Button } from "antd";
+import { Modal, Row, Progress, Button, Alert } from "antd";
 import { useEffect, useState } from "react";
+import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 
 type ExportModalProps = {
   visible: boolean;
@@ -13,7 +14,7 @@ type ExportModalProps = {
 const InventoryExportModal: React.FC<ExportModalProps> = (
   props: ExportModalProps
 ) => {
-  const { visible,onOk, onCancel, exportProgress, statusExport = 0 } = props;
+  const { visible, onOk, onCancel, exportProgress, statusExport = 0 } = props;
   const [editFields, setEditFields] = useState(false);
 
   useEffect(()=>{
@@ -21,9 +22,6 @@ const InventoryExportModal: React.FC<ExportModalProps> = (
       onOk();
     }
   },[onOk, statusExport, visible]);
-
-  console.log('exportProgress',exportProgress);
-  
   
   return (
     <Modal
@@ -50,17 +48,17 @@ const InventoryExportModal: React.FC<ExportModalProps> = (
       width={600}
     >
       {
-        statusExport === 1 && (
+        statusExport === STATUS_IMPORT_EXPORT.DEFAULT && (
           <Row style={{ justifyContent: 'center'}}>
             <p>Đang gửi yêu cầu, vui lòng đợi trong giây lát ...</p>
           </Row>
         )
       }
-      {statusExport !== 1 && (
+      {(statusExport !== 0 && statusExport !== STATUS_IMPORT_EXPORT.DEFAULT) && (
       <Row style={{ justifyContent: 'center'}}>
-        {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
-        {statusExport === 3 && <p>Đã tạo file thành công</p>}
-        {statusExport === 4 && <p>Đã có lỗi xảy ra!!!</p>}
+        {statusExport === STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
+        {statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH && <p>Đã tạo file thành công</p>}
+        {statusExport === STATUS_IMPORT_EXPORT.ERROR && <p>Đã có lỗi xảy ra!!!</p>}
         <Row style={{ justifyContent: 'center', width: '100%'}}><Progress
           type="circle"
           strokeColor={{
@@ -70,6 +68,13 @@ const InventoryExportModal: React.FC<ExportModalProps> = (
           percent={exportProgress}
         /></Row>
       </Row>)}
+      {
+        statusExport === 0 && (
+        <Row style={{ justifyContent: 'center'}}>
+         <Alert message="Bạn cần chọn ít nhất một cửa hàng" type="warning" />
+        </Row>
+        )
+      }
     </Modal>
   );
 };

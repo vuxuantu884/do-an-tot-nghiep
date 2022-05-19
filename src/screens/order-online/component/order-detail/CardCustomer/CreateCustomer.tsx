@@ -35,7 +35,7 @@ import {
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { createRef, useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
@@ -49,6 +49,8 @@ type CreateCustomerProps = {
   keySearchCustomer: string;
   ShippingAddressChange: (items: any) => void;
   CustomerDeleteInfo: () => void;
+  customerChange: boolean;
+  setCustomerChange: (value: boolean) => void;
 };
 
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
@@ -57,7 +59,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     groups,
     handleChangeCustomer,
     keySearchCustomer,
-    CustomerDeleteInfo
+    CustomerDeleteInfo,
+    customerChange,
+    setCustomerChange,
   } = props;
 
   const fullAddressRef = useRef()
@@ -69,7 +73,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
   const [isVisibleShipping, setVisibleShipping] = useState(true);
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
   const newAreas = useMemo(() => {
@@ -102,50 +105,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       //birthday:moment("01/01/1991", "DD/MM/YYYY")
     }
 
-  useLayoutEffect(() => {
-    const txtCustomerFullName: any = document.getElementById("customer_add_full_name");
-    const txtCustomerPhone = document.getElementById("customer_add_phone");
-    const txtCustomerNumber = document.getElementById("customer_add_card_number");
-    const txtCustomerFullAddress = document.getElementById("customer_add_full_address");
-    //
-    const txtShippingAddName = document.getElementById("customer_add_shipping_addresses_name");
-    const txtShippingAddPhone = document.getElementById("customer_add_shipping_addresses_phone");
-    const txtShippingFullAddress = document.getElementById("customer_add_shipping_addresses_full_address");
-
-    //event
-    txtCustomerFullName?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-    txtCustomerPhone?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-    txtCustomerNumber?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-    txtCustomerFullAddress?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-    txtShippingAddName?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-    txtShippingAddPhone?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-    txtShippingFullAddress?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-  });
-
   const getWards = useCallback(
     (value: number) => {
       if (value) {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRef.current?.getFieldValue("full_address");
           if (value) {
-            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
+            const newValue = value.toLowerCase();
 
             const newWards = data.map((ward: any) => {
               return {
@@ -181,11 +147,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRef.current?.getFieldValue("shipping_addresses_full_address");
           if (value) {
-            const newValue = value.normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
-              .toLowerCase();
+            const newValue = value.toLowerCase();
             const newWards = data.map((ward: any) => {
               return {
                 ...ward,
@@ -216,10 +178,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         showSuccess("Thêm mới khách hàng thành công");
 
         handleChangeCustomer({ ...result, version: 1 });
-        setVisibleBtnUpdate(false);
+        setCustomerChange(false);
       }
     },
-    [handleChangeCustomer]
+    [handleChangeCustomer, setCustomerChange]
   );
 
   const handleSubmit = useCallback(
@@ -331,6 +293,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         onFinish={handleSubmit}
         layout="vertical"
         initialValues={initialFormValueCustomer}
+        onValuesChange={() => setCustomerChange(true)}
       >
         <Row style={{ margin: "-17px 0px 10px 0px" }}>
           <div className="page-filter-left">THÔNG TIN KHÁCH HÀNG</div>
@@ -388,7 +351,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   let values = formRef.current?.getFieldsValue();
                   values.ward_id = null;
                   formRef.current?.setFieldsValue(values);
-                  setVisibleBtnUpdate(true);
                 }}
                 optionFilterProp="children"
               >
@@ -452,9 +414,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     <span> Chọn phường/xã</span>
                   </React.Fragment>
                 }
-                onChange={() => {
-                  setVisibleBtnUpdate(true);
-                }}
               >
                 {wards.map((ward: any) => (
                   <Select.Option key={ward.id} value={ward.id}>
@@ -522,9 +481,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       </React.Fragment>
                     }
                     className="select-with-search"
-                    onChange={() => {
-                      setVisibleBtnUpdate(true);
-                    }}
                   >
                     <Select.Option key={1} value={"male"}>
                       Nam
@@ -563,9 +519,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     suffixIcon={
                       <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                     }
-                    onChange={() => {
-                      setVisibleBtnUpdate(true);
-                    }}
                     onMouseLeave={() => {
                       const elm = document.getElementById("customer_add_birthday");
                       const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
@@ -599,9 +552,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       </React.Fragment>
                     }
                     className="select-with-search"
-                    onChange={() => {
-                      setVisibleBtnUpdate(true);
-                    }}
                   >
                     {groups &&
                       groups.map((group: any) => (
@@ -651,7 +601,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             </Col>
             {isVisibleShipping === true && (
               <Col md={12} style={{ float: "right", marginTop: "-10px" }}>
-                {isVisibleBtnUpdate === true && (
+                {customerChange === true && (
                   <Button
                     type="primary"
                     style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
@@ -755,7 +705,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                         values.shipping_addresses_ward_id = null;
                         customerForm.setFieldsValue(values);
                         getShippingWards(value);
-                        setVisibleBtnUpdate(true);
                       }}
                       optionFilterProp="children"
                     >
@@ -824,7 +773,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       {isVisibleShipping === false && (
         <Row style={{ marginTop: 15 }}>
           <Col md={24} style={{ float: "right", marginTop: "-10px" }}>
-            {isVisibleBtnUpdate === true && (
+            {customerChange === true && (
               <Button
                 type="primary"
                 style={{ padding: "0 25px", fontWeight: 400, float: "right" }}

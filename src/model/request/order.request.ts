@@ -1,7 +1,7 @@
 import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
-  action?: string | null;
+  action: string | null;
   store_id: number | null;
   company_id: number | null;
   price_type: string | null;
@@ -47,6 +47,7 @@ export interface OrderRequest {
   sub_status_code?: string; 
 	automatic_discount?: boolean;
   export_bill?: boolean;
+  ecommerce_shop_id?: number | null;
 }
 
 export interface ReturnRequest extends OrderRequest {
@@ -64,10 +65,8 @@ export interface ReturnRequest extends OrderRequest {
   money_refund: number;
 }
 
-export interface ExchangeRequest {
-  origin_order_id: number;
-  order_return: OrderRequest;
-  order_exchange: OrderRequest;
+export interface ExchangeRequest extends OrderRequest {
+  order_return_id: number;
 }
 
 export interface FulFillmentRequest {

@@ -54,8 +54,8 @@ import {PrinterInventoryTransferResponseModel} from "model/response/printer.resp
 import {actionFetchPrintFormByInventoryTransferIds} from "domain/actions/printer/printer.action";
 import {InventoryTransferPermission} from "config/permissions/inventory-transfer.permission";
 import useAuthorization from "hook/useAuthorization";
-import { callApiNative } from "../../../../../utils/ApiUtils";
-import { searchAccountPublicApi } from "../../../../../service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import TransferExport from "../../Components/TransferExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import {
@@ -66,6 +66,7 @@ import * as XLSX from 'xlsx';
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
+import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 const { TextArea } = Input;
 const { Text } = Typography;
 
@@ -83,9 +84,10 @@ const ACTIONS_INDEX = {
 const initQuery: InventoryTransferSearchQuery = {
   page: 1,
   limit: 30,
+  simple: true,
   condition: null,
-  from_store_id: null,
-  to_store_id: null,
+  from_store_id: [],
+  to_store_id: [],
   status: [],
   from_total_variant: null,
   to_total_variant: null,
@@ -93,6 +95,7 @@ const initQuery: InventoryTransferSearchQuery = {
   to_total_quantity: null,
   from_total_amount: null,
   to_total_amount: null,
+  note: null,
   created_by: [],
   from_created_date: null,
   to_created_date: null,
@@ -131,6 +134,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const printElementRef = useRef(null);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [dataUploadError, setDataUploadError] = useState<string[]>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(0);
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -282,24 +287,38 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       width: 100,
     },
     {
-      title: "SP",
+      title: () => {
+        return (
+          <>
+            <div>SP</div>
+            <div>({formatCurrency(0)})</div>
+          </>
+        );
+      },
       dataIndex: "total_variant",
       visible: true,
       align: "right",
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 60,
+      width: "150px",
     },
     {
-      title: "SL",
+      title: () => {
+        return (
+          <>
+            <div>SL</div>
+            <div>({formatCurrency(0)})</div>
+          </>
+        );
+      },
       dataIndex: "total_quantity",
       visible: true,
       align: "right",
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: 60,
+      width: "150px",
     },
     {
       title: "Thành tiền",
@@ -360,7 +379,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dataIndex: "attached_files",
       visible: true,
       align: "center",
-      width: "250px",
+      width: "220px",
       render: (item: any) => {
         return (
           <span>
@@ -448,6 +467,63 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     (result: PageResponse<Array<InventoryTransferDetailItem>> | false) => {
       setTableLoading(false);
       if (!!result) {
+        if (result.items.length > 0) {
+          let total = 0
+          let totalProduct = 0;
+
+          result.items.forEach((item: any) => {
+            total = total + item.total_quantity;
+            totalProduct = totalProduct + item.total_variant;
+          });
+
+          const newColumns = [...columns];
+
+          for (let i = 0; i < newColumns.length; i++) {
+            if (newColumns[i].dataIndex === 'total_quantity') {
+              newColumns[i] = {
+                // eslint-disable-next-line no-loop-func
+                title: () => {
+                  return (
+                    <>
+                      <div>SL</div>
+                      <div>({formatCurrency(total)})</div>
+                    </>
+                  );
+                },
+                dataIndex: "total_quantity",
+                visible: true,
+                align: "right",
+                render: (value: number) => {
+                  return formatCurrency(value,".");
+                },
+                width: 120,
+              };
+            }
+            if (newColumns[i].dataIndex === 'total_variant') {
+              newColumns[i] = {
+                // eslint-disable-next-line no-loop-func
+                title: () => {
+                  return (
+                    <>
+                      <div>SP</div>
+                      <div>({formatCurrency(totalProduct)})</div>
+                    </>
+                  );
+                },
+                dataIndex: "total_variant",
+                visible: true,
+                align: "right",
+                render: (value: number) => {
+                  return formatCurrency(value,".");
+                },
+                width: 120,
+              };
+            }
+          }
+
+          setColumn(newColumns);
+        }
+
         setData(result);
         if (firstLoad) {
           setTotalItems(result.metadata.total);
@@ -455,7 +531,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         firstLoad = false;
       }
     },
-    []
+    [columns]
   );
 
   const getAccounts = async (codes: string) => {
@@ -591,13 +667,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       [TransferExportField.to_store_name]: item.to_store_name,
       [TransferExportField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===item.status)?.name,
       [TransferExportField.total_variant]: item.total_variant,
-      [TransferExportField.total_quantity]: item.total_quantity,
+      [TransferExportField.total_quantity]: item.total_quantity === 0 ? null : item.total_quantity,
       [TransferExportField.total_amount]: item.total_amount,
-      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYYY),
-      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYYY),
-      [TransferExportField.note]: item.note,
       [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
       [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
+      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+      [TransferExportField.note]: item.note,
     };
   }
 
@@ -608,16 +686,23 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
       arr.push({
         [TransferExportLineItemField.code]: transfer.code,
-        [TransferExportLineItemField.store]: `${transfer.from_store_name} tới ${transfer.to_store_name}`,
-        [TransferExportLineItemField.barcode]: item.barcode,
+        [TransferExportLineItemField.from_store]: `${transfer.from_store_name}`,
+        [TransferExportLineItemField.to_store]: `${transfer.to_store_name}`,
+        [TransferExportLineItemField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===transfer.status)?.name,
         [TransferExportLineItemField.sku]: item.sku,
         [TransferExportLineItemField.variant_name]: item.variant_name,
+        [TransferExportLineItemField.barcode]: item.barcode,
         [TransferExportLineItemField.price]: item.price,
         [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
         [TransferExportLineItemField.total_amount]: (item.transfer_quantity ?? 0) * (item.price ?? 0),
-        [TransferExportLineItemField.real_quantity]: item.real_quantity,
+        [TransferExportLineItemField.real_quantity]: item.real_quantity === 0 ? null :item.real_quantity,
         [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
         [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
+        [TransferExportField.transfer_date]: ConvertUtcToLocalDate(transfer.transfer_date,DATE_FORMAT.DDMMYYY),
+        [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+        [TransferExportField.receive_date]: ConvertUtcToLocalDate(transfer.receive_date,DATE_FORMAT.DDMMYYY),
+        [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+        [TransferExportField.note]: transfer.note,
       });
     }
     return arr;
@@ -628,9 +713,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     let items: Array<InventoryTransferDetailItem> = [];
     const limit = 50;
     let times = 0;
+
+    setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
     switch (type) {
       case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,limit: params.limit ?? 50});
+        res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params, simple: false,limit: params.limit ?? 50});
         if (res) {
           items= items.concat(res.items);
         }
@@ -641,13 +728,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       case TYPE_EXPORT.all:
         const roundAll = Math.round(data.metadata.total / limit);
         times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
-        console.log('times',times);
 
         for (let index = 1; index <= times; index++) {
-          const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,simple: false,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
+          setExportProgress(percent);
         }
 
         break;
@@ -660,30 +748,35 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
         for (let index = 1; index <= times; index++) {
 
-          const res = await callApiNative({ isShowLoading: true }, dispatch, getListInventoryTransferApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,simple: false,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
+          setExportProgress(percent);
         }
         break;
       default:
         break;
     }
+    setExportProgress(100);
     return items;
   },[dispatch,selectedRowData,params,data,totalItems])
 
   const actionExport = {
     Ok: async (typeExport: string) => {
+      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
         showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
         setVExportTransfer(false);
         setVExportDetailTransfer(false);
         return;
       }
-
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
         showWarning("Không có phiếu chuyển nào đủ điều kiện");
         return;
       }
@@ -701,7 +794,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           item=item.concat(convertTransferDetailExport(res[i],res[i].line_items));
         }
         const ws = XLSX.utils.json_to_sheet(item);
-         
+
         XLSX.utils.book_append_sheet(workbook, ws, 'data');
       }else{
         for (let i = 0; i < res.length; i++) {
@@ -714,6 +807,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         XLSX.utils.book_append_sheet(workbook, worksheet, "data");
       }
 
+      setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
       const today = moment(new Date(), 'YYYY/MM/DD');
       const month = today.format('M');
       const day   = today.format('D');
@@ -721,10 +815,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       XLSX.writeFile(workbook, `${vExportDetailTransfer ? 'transfer_detail':'transfer'}_${day}_${month}_${year}.xlsx`);
       setVExportTransfer(false);
       setVExportDetailTransfer(false);
+      setExportProgress(0);
+      setStatusExport(0);
     },
     Cancel: () => {
       setVExportTransfer(false);
       setVExportDetailTransfer(false);
+      setExportProgress(0);
+      setStatusExport(0);
     },
   }
 
@@ -734,11 +832,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
     let status: string[] = [];
     switch (activeTab) {
-      case InventoryTransferTabUrl.LIST_CONFIRMED:
-        status = ['confirmed'];
-        break;
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        status = ['transferring', 'confirmed'];
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
         status = ['transferring'];
         break;
       default: break;
@@ -757,17 +854,16 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
     switch (activeTab) {
       // case InventoryTransferTabUrl.LIST:
-      case InventoryTransferTabUrl.LIST_CONFIRMED:
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
         newParams = {
           ...newParams,
-          from_store_id: params.from_store_id ? params.from_store_id : accountStoreSelected || null
+          from_store_id: params.from_store_id ? (Array.isArray(params.from_store_id) && params.from_store_id.length) > 0 ? params.from_store_id : accountStoreSelected : accountStoreSelected || null
         };
         break;
-      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVED:
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
         newParams = {
           ...newParams,
-          to_store_id: params.to_store_id ? params.to_store_id : accountStoreSelected || null
+          to_store_id: params.to_store_id ? (Array.isArray(params.to_store_id) && params.to_store_id.length) > 0 ? params.to_store_id : accountStoreSelected : accountStoreSelected || null
         };
         break;
       default: break;
@@ -778,7 +874,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
     dispatch(getListInventoryTransferAction(newParams, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, setSearchResult, activeTab, params, accountStores]);
+  }, [dispatch, activeTab, params, accountStores]);
 
   return (
     <InventoryTransferTabWrapper>
@@ -806,7 +902,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       <CustomTable
         isRowSelection
         isLoading={tableLoading}
-        scroll={{x: 800}}
+        scroll={{x: 1000}}
         sticky={{offsetScroll: 5, offsetHeader: 55}}
         pagination={{
           pageSize: data.metadata.limit,
@@ -920,6 +1016,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportTransfer || vExportDetailTransfer}
+        exportProgress={exportProgress}
+        statusExport={statusExport}
       />
 
       {isStatusModalVisible && (

@@ -1,13 +1,8 @@
-import {
-  FileExcelOutlined,
-  PrinterOutlined,
-  ReconciliationOutlined,
-} from "@ant-design/icons";
+
 import ContentContainer from "component/container/content.container";
-import { MenuAction } from "component/table/ActionButton";
-import { HttpStatus } from "config/http-status.config";
+
 import UrlConfig from "config/url.config";
-import { getByIdGoodsReceipts, getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
+import { getByIdGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
 import {
   FulfillmentsItemModel,
   GoodsReceiptsFileModel,
@@ -16,13 +11,9 @@ import {
 } from "model/pack/pack.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router";
-import { useReactToPrint } from "react-to-print";
-import { exportFile, getFile } from "service/other/export.service";
-import { generateQuery } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { useParams } from "react-router";
 import PackDetailInfo from "./detail/pack-detail-info";
 import PackListOrder from "./detail/pack-list-order";
 import PackQuantityProduct from "./detail/pack-quantity-product";
@@ -32,49 +23,8 @@ type PackParam = {
   id: string;
 };
 
-const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "In biên bản đầy đủ",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 2,
-    name: "In biên bản rút gọn",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 3,
-    name: "Xuất excel đơn hàng trong biên bản",
-    icon: <FileExcelOutlined />,
-  },
-  {
-    id: 4,
-    name: "Thêm/xoá đơn hàng vào biên bản",
-    icon: <ReconciliationOutlined />,
-  }
-];
-
-const typePrint = {
-  simple: "simple",
-  detail: "detail"
-}
-
-interface GoodReceiptPrint {
-  good_receipt_id: number;
-  html_content: string;
-  size: string;
-}
-
 const PackDetail: React.FC = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
-
-  //useRef
-  const printElementRef = React.useRef(null);
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
 
   let { id } = useParams<PackParam>();
   let PackId = parseInt(id);
@@ -98,7 +48,7 @@ const PackDetail: React.FC = () => {
 
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
-  const [htmlContent, setHtmlContent] = useState("");
+
   useEffect(() => {
     if (PackId) {
       dispatch(
@@ -149,12 +99,7 @@ const PackDetail: React.FC = () => {
             let trackingCode = null;
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-            // const ffms = itemOrder.fulfillments?.filter(ffm => {
-            //   if(data.receipt_type_id === 1) {
-            //     return  ffm.status === 'packed'
-            //   }
-            //   return  ffm.status === 'cancelled'
-            // });
+            
             if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
               let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
               let itemFFM = itemOrder.fulfillments[indexFFM];
@@ -207,119 +152,12 @@ const PackDetail: React.FC = () => {
     }
   }, [dispatch, PackId]);
 
-
   const handleDownLoad = () => { };
   const handleDeleteFile = () => { };
 
-  const handlePrintPack = useCallback((type: string) => {
-    dispatch(getPrintGoodsReceipts([PackId], type, (data: GoodReceiptPrint[]) => {
-      if (data && data.length > 0) {
-        setHtmlContent(data[0].html_content);
-        setTimeout(() => {
-          if (handlePrint) {
-            handlePrint();
-          }
-        }, 500);
-      }
-    }))
-  }, [dispatch, PackId, handlePrint]);
-
-  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
-  const [statusExport, setStatusExport] = useState<number>(1);
-  // const [exportError, setExportError] = useState<string>("");
-  // const [exportProgress, setExportProgress] = useState<number>(0);
-  
-  const handleExportExcelOrderPack = useCallback(() => {
-    let codes: any[] = [];
-    packDetail && packDetail.orders && packDetail.orders.forEach((p) => codes.push(p.code));
-    let queryParams = generateQuery({ code: codes });
-    console.log("queryParams", queryParams)
-    exportFile({
-      conditions: queryParams,
-      type: "EXPORT_ORDER"
-      //hidden_fields: hiddenFieldsExport,
-    })
-      .then((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          setStatusExport(2);
-          showSuccess("Đã gửi yêu cầu xuất file");
-          setListExportFile([...listExportFile, response.data.code]);
-          if (response.data && response.data.status === "FINISH") {
-            window.open(response.data.url);
-            setStatusExport(3);
-          }
-        }
-      })
-      .catch((error) => {
-        console.log("orders export file error", error);
-        showError("Có lỗi xảy ra, vui lòng thử lại sau");
-      });
-  }, [listExportFile, packDetail]);
-
-  const checkExportFile = useCallback(() => {
-
-    let getFilePromises = listExportFile.map((code) => {
-      return getFile(code);
-    });
-    Promise.all(getFilePromises).then((responses) => {
-      responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          if (response.data && response.data.status === "FINISH") {
-            const fileCode = response.data.code;
-            const newListExportFile = listExportFile.filter((item) => {
-              return item !== fileCode;
-            });
-            window.open(response.data.url);
-            setListExportFile(newListExportFile);
-            setStatusExport(3);
-          }
-          if (response.data && response.data.status === "ERROR") {
-            setStatusExport(4);
-            showError("Có lỗi xảy ra, vui lòng thử lại sau");
-            // setExportError(response.data.message);
-          }
-        } else {
-          setStatusExport(4);
-          showError("Có lỗi xảy ra, vui lòng thử lại sau");
-        }
-      });
-    });
-  }, [listExportFile]);
-
   const handleAddOrderInPack = () => { };
 
-
   const handleSearchOrder = (value: any) => { };
-
-  const onMenuListOrderClick = useCallback(
-    (index: number) => {
-      switch (index) {
-        case 1:
-          handlePrintPack(typePrint.detail);
-          break;
-        case 2:
-          handlePrintPack(typePrint.simple);
-          break;
-        case 3:
-          handleExportExcelOrderPack();
-          break;
-        case 4:
-          history.push(`${UrlConfig.DELIVERY_RECORDS}/${PackId}/update`);
-          break;
-        default:
-          break;
-      }
-    },
-    [handlePrintPack, handleExportExcelOrderPack, history, PackId]
-  );
-
-  useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
-    checkExportFile();
-
-    const getFileInterval = setInterval(checkExportFile, 3000);
-    return () => clearInterval(getFileInterval);
-  }, [listExportFile, checkExportFile, statusExport]);
 
   return (
     <ContentContainer
@@ -352,24 +190,10 @@ const PackDetail: React.FC = () => {
       />
 
       <PackListOrder
+       packDetail={packDetail}
         packOrderList={packOrderList}
-        actions={actions}
         handleSearchOrder={handleSearchOrder}
-        onMenuClick={onMenuListOrderClick}
       />
-
-      <React.Fragment>
-        <div style={{ display: "none" }}>
-          <div className="printContent" ref={printElementRef}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: htmlContent,
-              }}
-            >
-            </div>
-          </div>
-        </div>
-      </React.Fragment>
     </ContentContainer>
   );
 };

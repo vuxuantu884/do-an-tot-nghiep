@@ -1,7 +1,7 @@
 import { ExclamationCircleOutlined, PrinterOutlined } from "@ant-design/icons";
 import { Button, Card, Modal, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
-import importIcon from "assets/icon/import.svg";
+// import importIcon from "assets/icon/import.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import OrdersFilter from "component/filter/order.filter";
@@ -428,7 +428,8 @@ function OrderList(props: PropTypes) {
           break;
         case EXPORT_IDs.selectedOrders:
           newParams = {
-            code: selectedRowCodes
+            code: selectedRowCodes,
+            is_online: orderType === ORDER_TYPES.online
           };
           break;
         case EXPORT_IDs.ordersFound:
@@ -459,7 +460,7 @@ function OrderList(props: PropTypes) {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, isLoopInfoIfOrderHasMoreThanTwoProducts, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, listExportFile]
+    [params, isLoopInfoIfOrderHasMoreThanTwoProducts, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, orderType, listExportFile]
   );
   const checkExportFile = useCallback(() => {
 
@@ -764,7 +765,7 @@ function OrderList(props: PropTypes) {
         extra={
           <Row>
             <Space>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
+              {/* <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
                     type="default"
@@ -777,7 +778,7 @@ function OrderList(props: PropTypes) {
                     Nhập file
                   </Button>
                 )}
-              </AuthWrapper>
+              </AuthWrapper> */}
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button

@@ -2,24 +2,29 @@ import {
   ArrowLeftOutlined,
   FilterOutlined,
   SettingOutlined,
-  SwapRightOutlined,
+  SwapRightOutlined
 } from "@ant-design/icons";
 import { Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import search from "assets/img/search.svg";
+import BaseResponse from "base/base.response";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import CustomSelectWithButtonCheckAll from "component/custom/select-with-button-check-all.custom";
 import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
+import FilterConfigModal from "component/modal/FilterConfigModal";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
+import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
+import { isEqual } from "lodash";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
+import { FilterConfig } from "model/other";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -31,25 +36,19 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useState,
+  useState
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountApi } from "service/accounts/account.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
+import { ORDER_TYPES } from "utils/Order.constants";
+import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import DebounceSelect from "./component/debounce-select";
-import { fullTextSearch } from "utils/StringUtils";
-import TreeSource from "../treeSource";
-import FilterConfigModal from "component/modal/FilterConfigModal";
-import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
 import UserCustomFilterTag from "./UserCustomFilterTag";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import BaseResponse from "base/base.response";
-import { FilterConfig } from "model/other";
-import { ORDER_TYPES } from "utils/Order.constants";
-import { isEqual } from "lodash";
 
 type PropTypes = {
   params: OrderSearchQuery;
@@ -135,7 +134,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   const dateFormat = "DD-MM-YYYY";
 
   const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
-  const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
+  // const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
 
   const [services, setServices] = useState<any[]>([]);
 
@@ -334,6 +333,16 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           onFilter &&
             onFilter({ ...params, expected_receive_on_min: null, expected_receive_on_max: null });
           break;
+        case "returning":
+          setExpectedClick("");
+          onFilter &&
+            onFilter({ ...params, returning_date_min: null, returning_date_max: null });
+          break;
+        case "returned":
+          setExpectedClick("");
+          onFilter &&
+            onFilter({ ...params, returned_date_min: null, returned_date_max: null });
+          break;
         case "exported":
           setExportedClick("");
           onFilter &&
@@ -372,9 +381,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         case "payment_method":
           onFilter && onFilter({ ...params, payment_method_ids: [] });
           break;
-        case "expected_receive_predefined":
-          onFilter && onFilter({ ...params, expected_receive_predefined: "" });
-          break;
+        // case "expected_receive_predefined":
+        //   onFilter && onFilter({ ...params, expected_receive_predefined: "" });
+        //   break;
         case "delivery_types":
           onFilter && onFilter({ ...params, delivery_types: [] });
           break;
@@ -537,6 +546,10 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           "cancelled_on_max",
           "expected_receive_on_min",
           "expected_receive_on_max",
+          "returning_date_min",
+          "returning_date_max",
+          "returned_date_min",
+          "returned_date_max",
           "exported_on_min",
           "exported_on_max",
         ])
@@ -784,6 +797,30 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       list.push({
         key: "expected",
         name: "Ngày dự kiến nhận hàng",
+        value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
+      });
+    }
+
+    if (initialValues.returning_date_min || initialValues.returning_date_max) {
+      let textExpectReceiveDate =
+        (initialValues.returning_date_min ? initialValues.returning_date_min : "??") +
+        " ~ " +
+        (initialValues.returning_date_max ? initialValues.returning_date_max : "??");
+      list.push({
+        key: "returning",
+        name: "Ngày trả hàng",
+        value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
+      });
+    }
+
+    if (initialValues.returned_date_min || initialValues.returned_date_max) {
+      let textExpectReceiveDate =
+        (initialValues.returned_date_min ? initialValues.returned_date_min : "??") +
+        " ~ " +
+        (initialValues.returned_date_max ? initialValues.returned_date_max : "??");
+      list.push({
+        key: "returned",
+        name: "Ngày nhận trả hàng",
         value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
       });
     }
@@ -1114,7 +1151,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1485,46 +1522,27 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   />
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="order_status" label="Trạng thái tiến trình đơn hàng">
-                  <CustomSelectWithButtonCheckAll
+                  <Item name="payment_status" label="Thanh toán">
+                    <CustomSelect
                       mode="multiple"
+                      showArrow
                       allowClear
                       showSearch
-                      placeholder="Chọn trạng thái tiến trình đơn hàng"
+                      placeholder="Chọn trạng thái thanh toán"
                       notFoundContent="Không tìm thấy kết quả"
                       style={{ width: "100%" }}
                       optionFilterProp="children"
-                      showArrow
                       getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive"
-                      onChangeAllSelect={(e: CheckboxChangeEvent)=>{
-                        if(e.target.checked && status) {
-                          formRef.current?.setFieldsValue({
-                            order_status: showedStatusCodes.length > 0 ? showedStatusCodes : status.map(single => single.value)
-                          })
-                        } else {
-                          formRef.current?.setFieldsValue({
-                            order_status: undefined
-                          })
-                        }
-                      }}
-                      getCurrentValue={() => {
-                        return formRef.current?.getFieldValue("order_status")
-                      }}
-                      allValues={status}
-                      onSearch = {(value) => {
-                        if(status) {
-                          const showed = (status|| []).filter(single => fullTextSearch(value, single.name)).map(gg => gg.value)
-                          setShowStatusCodes(showed)
-                        }
-                      }}
-                    >
-                      {status?.map((item) => (
-                        <CustomSelect.Option key={item.value} value={item.value.toString()}>
+                      maxTagCount="responsive">
+                      {paymentStatus.map((item, index) => (
+                        <CustomSelect.Option
+                          style={{ width: "100%" }}
+                          key={index.toString()}
+                          value={item.value.toString()}>
                           {item.name}
                         </CustomSelect.Option>
                       ))}
-                    </CustomSelectWithButtonCheckAll>
+                    </CustomSelect>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1562,23 +1580,23 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   />
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="payment_status" label="Thanh toán">
+                  <Item name="payment_method_ids" label="Phương thức thanh toán">
                     <CustomSelect
                       mode="multiple"
+                      optionFilterProp="children"
+                      showSearch
                       showArrow
                       allowClear
-                      showSearch
-                      placeholder="Chọn trạng thái thanh toán"
                       notFoundContent="Không tìm thấy kết quả"
+                      placeholder="Chọn phương thức thanh toán"
                       style={{ width: "100%" }}
-                      optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive">
-                      {paymentStatus.map((item, index) => (
+                      {listPaymentMethod.map((item, index) => (
                         <CustomSelect.Option
                           style={{ width: "100%" }}
                           key={index.toString()}
-                          value={item.value.toString()}>
+                          value={item.id.toString()}>
                           {item.name}
                         </CustomSelect.Option>
                       ))}
@@ -1612,27 +1630,16 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   />
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="payment_method_ids" label="Phương thức thanh toán">
-                    <CustomSelect
+                  <Item name="marketer_codes" label="Nhân viên marketing">
+                    <AccountCustomSearchSelect
+                      placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                      dataToSelect={accountData}
+                      setDataToSelect={setAccountData}
+                      initDataToSelect={accounts}
                       mode="multiple"
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      allowClear
-                      notFoundContent="Không tìm thấy kết quả"
-                      placeholder="Chọn phương thức thanh toán"
-                      style={{ width: "100%" }}
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {listPaymentMethod.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.id.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                      getPopupContainer={(trigger: any) => trigger.parentNode}
+                      maxTagCount="responsive"
+                    />
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1662,16 +1669,25 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   />
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="marketer_codes" label="Nhân viên marketing">
-                    <AccountCustomSearchSelect
-                      placeholder="Tìm theo họ tên hoặc mã nhân viên"
-                      dataToSelect={accountData}
-                      setDataToSelect={setAccountData}
-                      initDataToSelect={accounts}
+                  <Item name="delivery_types" label="Hình thức vận chuyển">
+                    <CustomSelect
                       mode="multiple"
-                      getPopupContainer={(trigger: any) => trigger.parentNode}
-                      maxTagCount="responsive"
-                    />
+                      allowClear
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      notFoundContent="Không tìm thấy kết quả"
+                      placeholder="Chọn hình thức vận chuyển"
+                      style={{ width: "100%" }}
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      maxTagCount="responsive">
+                      {/* <Option value="">Hình thức vận chuyển</Option> */}
+                      {serviceType?.map((item) => (
+                        <CustomSelect.Option key={item.value} value={item.value}>
+                          {item.name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1701,21 +1717,80 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   />
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="delivery_types" label="Hình thức vận chuyển">
+                  <Item name="note" label="Ghi chú nội bộ">
+                    <Input.TextArea
+                      style={{ width: "100%" }}
+                      placeholder="Tìm kiếm theo nội dung ghi chú nội bộ"
+                    />
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8}>
+                  <Item name="customer_note" label="Ghi chú của khách">
+                    <Input.TextArea
+                      style={{ width: "100%" }}
+                      placeholder="Tìm kiếm theo nội dung ghi chú của khách"
+                    />
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8}>
+                  <div className="ant-form-item-label">
+                    <label>Ngày dự kiến nhận hàng</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="expected_receive_on_min"
+                    fieldNameTo="expected_receive_on_max"
+                    activeButton={expectedClick}
+                    setActiveButton={setExpectedClick}
+                    format={dateFormat}
+                    formRef={formRef}
+                  />
+                </Col>
+
+                <Col span={8} xxl={8}>
+                  <div className="ant-form-item-label">
+                    <label>Ngày trả hàng</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="returning_date_min"
+                    fieldNameTo="returning_date_max"
+                    activeButton={expectedClick}
+                    setActiveButton={setExpectedClick}
+                    format={dateFormat}
+                    formRef={formRef}
+                  />
+                </Col>
+                <Col span={8} xxl={8}>
+                  <div className="ant-form-item-label">
+                    <label>Ngày nhận trả hàng</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="returned_date_min"
+                    fieldNameTo="returned_date_max"
+                    activeButton={expectedClick}
+                    setActiveButton={setExpectedClick}
+                    format={dateFormat}
+                    formRef={formRef}
+                  />
+                </Col>
+                
+                <Col span={8} xxl={8}>
+                  <Item name="fulfillment_status" label="Trạng thái giao hàng">
                     <CustomSelect
                       mode="multiple"
-                      allowClear
-                      optionFilterProp="children"
                       showSearch
+                      allowClear
                       showArrow
+                      placeholder="Chọn trạng thái giao hàng"
                       notFoundContent="Không tìm thấy kết quả"
-                      placeholder="Chọn hình thức vận chuyển"
                       style={{ width: "100%" }}
+                      optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive">
-                      {/* <Option value="">Hình thức vận chuyển</Option> */}
-                      {serviceType?.map((item) => (
-                        <CustomSelect.Option key={item.value} value={item.value}>
+                      {fulfillmentStatus.map((item, index) => (
+                        <CustomSelect.Option
+                          style={{ width: "100%" }}
+                          key={index.toString()}
+                          value={item.value.toString()}>
                           {item.name}
                         </CustomSelect.Option>
                       ))}
@@ -1744,36 +1819,6 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày dự kiến nhận hàng</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="expected_receive_on_min"
-                    fieldNameTo="expected_receive_on_max"
-                    activeButton={expectedClick}
-                    setActiveButton={setExpectedClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                  />
-                </Col>
-                
-                <Col span={8} xxl={8}>
-                  <Item name="note" label="Ghi chú nội bộ">
-                    <Input.TextArea
-                      style={{ width: "100%" }}
-                      placeholder="Tìm kiếm theo nội dung ghi chú nội bộ"
-                    />
-                  </Item>
-                </Col>
-                <Col span={8} xxl={8}>
-                  <Item name="customer_note" label="Ghi chú của khách">
-                    <Input.TextArea
-                      style={{ width: "100%" }}
-                      placeholder="Tìm kiếm theo nội dung ghi chú của khách"
-                    />
-                  </Item>
-                </Col>
-                <Col span={8} xxl={8}>
                   <Item name="tags" label="Tags">
                     <CustomSelect
                       mode="tags"
@@ -1788,26 +1833,24 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                 </Col>
                 
                 <Col span={8} xxl={8}>
-                  <Item name="fulfillment_status" label="Trạng thái giao hàng">
+                  <Item name="shipper_codes" label="Đối tác giao hàng">
                     <CustomSelect
                       mode="multiple"
                       showSearch
                       allowClear
                       showArrow
-                      placeholder="Chọn trạng thái giao hàng"
+                      placeholder="Chọn đối tác giao hàng"
                       notFoundContent="Không tìm thấy kết quả"
                       style={{ width: "100%" }}
                       optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive">
-                      {fulfillmentStatus.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
+                      {shippers &&
+                        shippers.map((shipper) => (
+                          <CustomSelect.Option key={shipper.code} value={shipper.code}>
+                            {shipper.code} - {shipper.name}
+                          </CustomSelect.Option>
+                        ))}
                     </CustomSelect>
                   </Item>
                 </Col>
@@ -1848,28 +1891,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     </Item>
                   </div>
                 </Col>
-                <Col span={8} xxl={8}>
-                  <Item name="shipper_codes" label="Đối tác giao hàng">
-                    <CustomSelect
-                      mode="multiple"
-                      showSearch
-                      allowClear
-                      showArrow
-                      placeholder="Chọn đối tác giao hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {shippers &&
-                        shippers.map((shipper) => (
-                          <CustomSelect.Option key={shipper.code} value={shipper.code}>
-                            {shipper.code} - {shipper.name}
-                          </CustomSelect.Option>
-                        ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>
+                
                 <Col span={8} xxl={8}>
                   <Item label="Đơn tự giao hàng">
                     <div className="button-option-1">

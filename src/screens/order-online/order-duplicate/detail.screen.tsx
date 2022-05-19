@@ -812,7 +812,8 @@ const OrderDuplicate: React.FC = () => {
           break;
         case 3:
           newParams = {
-            code: selectedRowCodes
+            code: selectedRowCodes,
+            is_online: true
           };
           break;
         case 4:

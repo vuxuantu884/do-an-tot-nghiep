@@ -495,6 +495,47 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     debounceSearchOrderSources(value);
   }
 
+  // handle scroll page
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const setPageScroll = (overflowType: string) => {
+    let rootSelector: any = document.getElementById("root");
+    if (rootSelector) {
+      rootSelector.style.overflow = overflowType;
+    }
+  };
+
+  // if the popup dropdown is scrolling then page scroll is hidden
+  const handleOnSelectPopupScroll = () => {
+    if (isDropdownVisible) {
+      setPageScroll("hidden");
+    }
+  };
+
+  const handleOnMouseLeaveSelect = () => {
+    setPageScroll("scroll");
+  };
+
+  const handleOnDropdownVisibleChange = (open: boolean) => {
+    setIsDropdownVisible(open);
+  };
+
+  const onInputSelectFocus = () => {
+    setIsDropdownVisible(true);
+  };
+
+  const onInputSelectBlur = () => {
+    setIsDropdownVisible(false);
+  };
+
+  useEffect(() => {
+    if (!isDropdownVisible) {
+      setPageScroll("scroll");
+    }
+  }, [isDropdownVisible]);
+  // end handle scroll page
+
+
   return (
     <Card
       className="padding-12"
@@ -518,6 +559,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               showSearch
               placeholder="Nguồn đơn hàng"
               notFoundContent="Không tìm thấy kết quả"
+              getPopupContainer={(trigger: any) => trigger.parentElement}
+              onFocus={onInputSelectFocus}
+              onBlur={onInputSelectBlur}
+              onDropdownVisibleChange={handleOnDropdownVisibleChange}
+              onPopupScroll={handleOnSelectPopupScroll}
+              onMouseLeave={handleOnMouseLeaveSelect}
               onSearch={handleSearchOrderSources}
               filterOption={(input, option) => {
                 if (option) {
@@ -561,8 +608,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             ref={autoCompleteRef}
             onSelect={SearchCustomerSelect}
             dropdownClassName="search-layout-customer dropdown-search-header"
-            dropdownMatchSelectWidth={456}
-            style={{ width: "100%" }}
+            getPopupContainer={(trigger: any) => trigger.parentElement}
+            onFocus={onInputSelectFocus}
+            onBlur={onInputSelectBlur}
+            onPopupScroll={handleOnSelectPopupScroll}
+            onMouseLeave={handleOnMouseLeaveSelect}
+            onDropdownVisibleChange={handleOnDropdownVisibleChange}
             onSearch={CustomerChangeSearch}
             options={CustomerConvertResultSearch}
             dropdownRender={(menu) => (

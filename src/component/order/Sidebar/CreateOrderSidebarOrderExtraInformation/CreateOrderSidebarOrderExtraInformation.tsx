@@ -17,21 +17,22 @@ function CreateOrderSidebarOrderExtraInformation(
   const { onChangeTag, tags, isExchange, isReturn } = props;
 
   const moreTextIfIsReturn = useMemo(() => {
-    if(isReturn) {
-      if(isExchange) {
-        return "đơn đổi"
+    if (isReturn) {
+      if (isExchange) {
+        return "đơn đổi";
       } else {
-        return "đơn trả"
+        return "đơn trả";
       }
     } else {
-      return null
+      return null;
     }
-  }, [isExchange, isReturn])
+  }, [isExchange, isReturn]);
+
   return (
     <StyledComponent>
       <Form.Item
         name="customer_note"
-        label={`Ghi chú của khách ${moreTextIfIsReturn}`}
+        label={`Ghi chú của khách ${moreTextIfIsReturn || ""}`}
       >
         <Input.TextArea
           placeholder="Điền ghi chú"
@@ -41,7 +42,7 @@ function CreateOrderSidebarOrderExtraInformation(
       </Form.Item>
       <Form.Item
         name="note"
-        label={`Ghi chú nội bộ ${moreTextIfIsReturn}`}
+        label={`Ghi chú nội bộ ${moreTextIfIsReturn || ""}`}
         tooltip={{
           title: "Thêm thông tin ghi chú chăm sóc khách hàng",
           icon: <InfoCircleOutlined />,
@@ -54,7 +55,7 @@ function CreateOrderSidebarOrderExtraInformation(
         />
       </Form.Item>
       <Form.Item
-        label={`Nhãn ${moreTextIfIsReturn}`}
+        label={`Nhãn ${moreTextIfIsReturn || ""}`}
         tooltip={{
           title: "Thêm từ khóa để tiện lọc đơn hàng",
           icon: <InfoCircleOutlined />,

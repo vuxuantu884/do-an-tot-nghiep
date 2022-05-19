@@ -1,7 +1,5 @@
 import { Card, Tooltip } from "antd";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, {} from "component/table/CustomTable";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
 import {
@@ -12,10 +10,9 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import { getIconByEcommerceId, LAZADA_ORDER_STATUS_LIST, SHOPEE_ORDER_STATUS_LIST } from "screens/ecommerce/common/commonAction";
@@ -28,6 +25,7 @@ import "./AllOrdersMapping.scss"
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 
 
 const initQuery: GetOrdersMappingQuery = {
@@ -42,13 +40,6 @@ const initQuery: GetOrdersMappingQuery = {
   ecommerce_order_statuses: [],
   shop_ids: [],
 };
-
-const CORE_ORDER_STATUS = [
-  { name: "Nháp", value: "draft", className: "gray-status" },
-  { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
-  { name: "Kết thúc", value: "finished", className: "green-status" },
-  { name: "Hủy đơn", value: "cancelled", className: "red-status" },
-];
 
 type AllOrdersMappingProps = {
   isReloadPage: boolean;
@@ -71,6 +62,8 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   const productsUpdateStockPermission = [
     EcommerceProductPermission.products_update_stock,
   ];
+
+  const subStatuses = useGetOrderSubStatuses();
 
   const queryParamsParsed: any = queryString.parse(
     location.search
@@ -105,12 +98,14 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     )
   };
 
-  const tableRowActionList = [
-    {
-      onClick: handleSingleDownloadOrder,
-      actionName: "Đồng bộ đơn hàng",
-    },
-  ];
+  const tableRowActionList = useMemo(() => {
+    return [
+      {
+        onClick: handleSingleDownloadOrder,
+        actionName: "Đồng bộ đơn hàng",
+      },
+    ];
+  }, [handleSingleDownloadOrder]);
 
   const showEcommerceOrderStatus:any = (status_value: string, item: any) =>{
     let ecommerceStatus: string;
@@ -134,140 +129,137 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     return <div>{ecommerceStatus}</div>
   }
 
-  const [columns] = useState<Array<ICustomTableColumType<OrderModel>>>([
-    {
-      title: "ID đơn (Sàn)",
-      dataIndex: "ecommerce_order_code",
-      key: "order_id",
-      width: "16%",
-      render: (item) => (
-        <div>
-          <span style={{ textAlign: "center"}}>{item}</span>
-        </div>
-      ),
-    },
-    {
-      title: "Trạng thái (Sàn)",
-      dataIndex: "ecommerce_order_status",
-      key: "ecommerce_order_status",
-      width: "12%",
-      render: (status_value: string, item: any) => (
-        showEcommerceOrderStatus(status_value, item)
-      ),
-    },
-    {
-      title: "ID đơn (Yody)",
-      key: "core_order_code",
-      width: "12%",
-      render: (item: any) => (
-        <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
-          <b>{item.core_order_code}</b>
-        </Link>
-      ),
-    },
-    {
-      title: "Trạng thái (Yody)",
-      dataIndex: "core_order_status",
-      key: "core_order_status",
-      align: "center",
-      width: "15%",
-      render: (status_value: string) => {
-        const status = CORE_ORDER_STATUS.find(
-          (status) => status.value === status_value
-        );
-        return (
-          <StyledStatus>
-            <div className={status?.className}>{status?.name}</div>
-          </StyledStatus>
-        );
-      },
-    },
-    {
-      title: "Liên kết",
-      dataIndex: "connected_status",
-      key: "connected_status",
-      align: "center",
-      width: "8%",
-      render: (value: any, item: any) => {
-        return (
+  const columns: any = useMemo(() => {
+    return [
+      {
+        title: "ID đơn (Sàn)",
+        dataIndex: "ecommerce_order_code",
+        key: "order_id",
+        width: "16%",
+        render: (item: any) => (
           <div>
-            {value === "connected" && (
-              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
-            )}
-
-            {
-              value !== "connected" && (
-                <Tooltip title={item.error_description}>
-                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-                </Tooltip>
-                
-              )
-            }
+            <span style={{ textAlign: "center"}}>{item}</span>
           </div>
-        );
+        ),
       },
-    },
-    {
-      title: "Đồng bộ",
-      dataIndex: "updated_status",
-      key: "updated_status",
-      align: "center",
-      width: "9%",
-      render: (value: any, item: any) => {
-        return (
-          <div>
-            {value === "connected" && (
-              <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
+      {
+        title: "Trạng thái (Sàn)",
+        dataIndex: "ecommerce_order_status",
+        key: "ecommerce_order_status",
+        width: "12%",
+        render: (status_value: string, item: any) => (
+          showEcommerceOrderStatus(status_value, item)
+        ),
+      },
+      {
+        title: "ID đơn (Yody)",
+        key: "core_order_code",
+        width: "12%",
+        render: (item: any) => (
+          <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
+            <b>{item.core_order_code}</b>
+          </Link>
+        ),
+      },
+      {
+        title: "Trạng thái (Yody)",
+        dataIndex: "core_sub_status_code",
+        key: "core_sub_status_code",
+        align: "center",
+        width: "15%",
+        render: (status_value: string) => {
+          const status = subStatuses.find((status) => status.code === status_value);
+          return (
+            <div className={`core-sub-status ${status?.code}`}>{status?.sub_status}</div>
+          );
+        },
+      },
+      {
+        title: "Liên kết",
+        dataIndex: "connected_status",
+        key: "connected_status",
+        align: "center",
+        width: "8%",
+        render: (value: any, item: any) => {
+          return (
+            <div>
+              {value === "connected" && (
+                <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
+              )}
+  
+              {
+                value !== "connected" && (
+                  <Tooltip title={item.error_description}>
+                    <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
+                  </Tooltip>
+                  
+                )
+              }
+            </div>
+          );
+        },
+      },
+      {
+        title: "Đồng bộ",
+        dataIndex: "updated_status",
+        key: "updated_status",
+        align: "center",
+        width: "9%",
+        render: (value: any, item: any) => {
+          return (
+            <div>
+              {value === "connected" && (
+                <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
+              )}
+  
+              {
+                value !== "connected" && (
+                  <Tooltip title={item.error_description}>
+                    <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
+                  </Tooltip>
+                )
+              }
+            </div>
+          );
+        },
+      },
+      {
+        title: "Gian hàng",
+        key: "shop",
+        align: "center",
+        width: "17%",
+        render: (value: any, item: any) => (
+          <div className="shop-show-style" style={{ textAlign: "left", minWidth:"150px"}}>
+            {getIconByEcommerceId(item.ecommerce_id) && (
+              <img
+                src={getIconByEcommerceId(item.ecommerce_id)}
+                alt={item.id}
+                style={{ marginRight: "5px", height: "16px" }}
+              />
             )}
-
-            {
-              value !== "connected" && (
-                <Tooltip title={item.error_description}>
-                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-                </Tooltip>
-              )
-            }
+            <Tooltip title={item.shop}>
+              <span className="name">{item.shop}</span>
+            </Tooltip>
           </div>
-        );
+          
+        ),
       },
-    },
-    {
-      title: "Gian hàng",
-      key: "shop",
-      align: "center",
-      width: "17%",
-      render: (value: any, item: any) => (
-        <div className="shop-show-style" style={{ textAlign: "left", minWidth:"150px"}}>
-          {getIconByEcommerceId(item.ecommerce_id) && (
-            <img
-              src={getIconByEcommerceId(item.ecommerce_id)}
-              alt={item.id}
-              style={{ marginRight: "5px", height: "16px" }}
-            />
-          )}
-          <Tooltip title={item.shop}>
-            <span className="name">{item.shop}</span>
-          </Tooltip>
-        </div>
-        
-      ),
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "ecommerce_created_date",
-      key: "received_status",
-      align: "center",
-      width: "11%",
-      render: (value: any, item: any) => (
-        <div style={{ textAlign: "left" }}>
-          <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
-        </div>
-        
-      ),
-    },
-
-    TableRowAction(tableRowActionList),
-  ]);
+      {
+        title: "Ngày tạo",
+        dataIndex: "ecommerce_created_date",
+        key: "received_status",
+        align: "center",
+        width: "11%",
+        render: (value: any, item: any) => (
+          <div style={{ textAlign: "left" }}>
+            <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
+          </div>
+          
+        ),
+      },
+      TableRowAction(tableRowActionList),
+    ];
+  }, [subStatuses, tableRowActionList]);
 
   const onSelectTableRow = useCallback((selectedRow) => {
     const newSelectedRow = selectedRow.filter((row: any) => {
@@ -280,8 +272,8 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
 
   const onPageChange = useCallback(
     (page, limit) => {
-      let newPrams = { ...params, page, limit };
-      let queryParam = generateQuery(newPrams);
+      const newParams = { ...params, page, limit };
+      const queryParam = generateQuery(newParams);
 			history.push(`${location.pathname}?${queryParam}`);
     },
     [history, location.pathname, params]
@@ -289,14 +281,16 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
 
   const onFilter = useCallback(
     (values) => {
-      const newPrams = { ...params, ...values, page: 1 };
-      let currentParam = generateQuery(params);
-      let queryParam = generateQuery(newPrams);
+      let newParams = { ...params, ...values };
+      const queryParam = generateQuery(newParams);
+      const currentParam = generateQuery(params);
 
       if (currentParam === queryParam) {
-        getOrderMappingList(newPrams);
+        getOrderMappingList(newParams);
       } else {
-				history.push(`${location.pathname}?${queryParam}`);
+        newParams.page = 1;
+        const newQueryParam = generateQuery(newParams);
+        history.push(`${location.pathname}?${newQueryParam}`);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -304,7 +298,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   );
 
   const onClearFilter = useCallback(() => {
-    setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);

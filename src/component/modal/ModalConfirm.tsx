@@ -11,7 +11,7 @@ export interface ModalConfirmProps {
   cancelText?: string;
   bgIcon?: string;
   loading?: boolean,
-};
+}
 
 const ModalConfirm: React.FC<ModalConfirmProps> = (
   props: ModalConfirmProps

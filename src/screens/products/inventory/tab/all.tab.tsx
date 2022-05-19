@@ -682,11 +682,11 @@ const AllTab: React.FC<any> = (props) => {
   const getItemsByCondition = useCallback(async (type: string) => {
     let res: any; 
     let items: Array<InventoryResponse> = [];
-    const limit = 50;
+    const limit = 200;
     let times = 0;
     switch (type) {
       case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,limit: params.limit ?? 50});
+        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,limit: params.limit ?? 200});
         if (res) {
           items= items.concat(res.items);
         }
@@ -810,7 +810,7 @@ const AllTab: React.FC<any> = (props) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           if (response.data.total || response.data.total !== 0) {
-            const percent = Number.parseFloat((response.data.num_of_record/response.data.total).toFixed(2))*100;
+            const percent = Math.round(Number.parseFloat((response.data.num_of_record/response.data.total).toFixed(2))*100);
             setExportProgress(percent);
           }
           if (response.data && response.data.status === "FINISH") {

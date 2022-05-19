@@ -306,7 +306,6 @@ function OrderCreateProduct(props: PropTypes) {
 				break;
 			case "F12":
 				if(levelOrder <= 3){
-					console.log("111111111111")
 					form.setFieldsValue({
 						automatic_discount: !isAutomaticDiscount
 					})
@@ -479,7 +478,7 @@ function OrderCreateProduct(props: PropTypes) {
 					i.discount_items.forEach((a) => {
 						discountValue = discountValue + a.value;
 					});
-					i.discount_value = totalDiscount;
+					i.discount_value = discountValue;
 
 					let discountRate = 0;
 					i.discount_items.forEach((a) => {
@@ -529,6 +528,8 @@ function OrderCreateProduct(props: PropTypes) {
 			setItems(_items);
 		}
 	};
+
+	console.log('items', items)
 
 	const handleDelayCalculateWhenChangeOrderInput = (
 		inputRef: React.MutableRefObject<any>,
@@ -1465,8 +1466,8 @@ function OrderCreateProduct(props: PropTypes) {
 							removeAutomaticDiscountItem(single)
 							return single
 						})
-						let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
-						calculateChangeMoney(items, promotionResult)
+						handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
+						calculateChangeMoney(items)
 						if (isShouldUpdatePrivateNote) {
 							form.setFieldsValue({
 								note: ``
@@ -2194,6 +2195,34 @@ function OrderCreateProduct(props: PropTypes) {
 		});
 	}
 
+	const onChangeStore=useCallback((value:number)=>{
+		setStoreId(value);
+		setIsShowProductSearch(true);
+		onClearVariant();
+		if(items && inventoryResponse)
+		{
+			let inventoryInStore = inventoryResponse?.filter(p=>p.store_id===value);
+			let itemCopy=[...items];
+			console.log("item",items)
+			console.log("inventoryInStore",inventoryInStore)
+			if(inventoryInStore && inventoryInStore.length>0)
+			{
+				inventoryInStore?.forEach((data)=>{
+					let index=itemCopy.findIndex((p)=>p.variant_id===data.variant_id);
+					if(index!==-1) itemCopy[index].available=data?.available;
+				})
+			}
+			else{
+				items.forEach(p=>{
+					let index=itemCopy.findIndex((p1)=>p1.variant_id===p.variant_id);
+					itemCopy[index].available=0;
+				})
+			}
+			
+			setItems(itemCopy)
+		}
+	},[inventoryResponse, items, setItems, setStoreId])
+
 	useEffect(() => {
 		if (items && items.length > 0) {
 			setIsShowProductSearch(true);
@@ -2329,9 +2358,10 @@ function OrderCreateProduct(props: PropTypes) {
 								notFoundContent="Không tìm thấy kết quả"
 								onChange={(value?: number) => {
 									if (value) {
-										setStoreId(value);
-										setIsShowProductSearch(true);
-										onClearVariant();
+										// setStoreId(value);
+										// setIsShowProductSearch(true);
+										// onClearVariant();
+										onChangeStore(value)
 									} else {
 										setIsShowProductSearch(false);
 									}
@@ -2542,7 +2572,7 @@ function OrderCreateProduct(props: PropTypes) {
 						isModalVisible={isInventoryModalVisible}
 						setInventoryModalVisible={setInventoryModalVisible}
 						storeId={storeId}
-						setStoreId={setStoreId}
+						onChangeStore={onChangeStore}
 						columnsItem={items}
 						inventoryArray={inventoryResponse}
 						storeArrayResponse={storeArrayResponse}

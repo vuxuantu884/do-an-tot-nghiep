@@ -40,10 +40,12 @@ export const POGetPurchaseOrderActionLogs = (
 
 export const POGetPrintContentAction = (
   id: number,
+  printType: string,
   updatePrintCallback: (result: Array<PurchaseOrderPrint>) => void
 ) => {
   return BaseAction(POType.GET_PRINT_CONTENT, {
     id,
+    printType,
     updatePrintCallback,
   });
 };
@@ -106,11 +108,11 @@ export const PoSearchAction = (
 };
 
 export const PODeleteAction = (
-  id: number,
+  ids: string,
   deleteCallback: (result: any | null) => void
 ) => {
   return BaseAction(POType.DELETE_PO_REQUEST, {
-    id,
+    ids,
     deleteCallback,
   });
 };

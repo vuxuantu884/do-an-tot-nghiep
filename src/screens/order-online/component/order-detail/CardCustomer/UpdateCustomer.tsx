@@ -59,6 +59,8 @@ type UpdateCustomerProps = {
   ShowAddressModalAdd: () => void;
   setShippingFeeInformedToCustomer: ((value: number | null) => void) | undefined;
   form: FormInstance<any>;
+  customerChange: boolean;
+  setCustomerChange: (value: boolean) => void;
 };
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
@@ -78,6 +80,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     setShippingAddressesSecondPhone,
     setShippingFeeInformedToCustomer,
     form,
+    customerChange,
+    setCustomerChange
   } = props;
 
   const fullAddressRef = useRef()
@@ -94,9 +98,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
-  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
+  // const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+  const [wards, setWards] = useState<Array<WardResponse>>([]);
+  const [shippingWards, setShippingWards] = useState<Array<WardResponse>>([]);
 
   const newAreas = useMemo(() => {
     return areas.map((area: any) => {
@@ -128,11 +132,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRefCustomer.current?.getFieldValue("full_address");
           if (value) {
-            const newValue = value.normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
-              .toLowerCase();
+            const newValue = value.toLowerCase();
 
             const newWards = data.map((ward: any) => {
               return {
@@ -165,11 +165,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
           if (value) {
-            const newValue = value.normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
-              .toLowerCase();
+            const newValue = value.toLowerCase();
             const newWards = data.map((ward: any) => {
               return {
                 ...ward,
@@ -200,54 +196,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   //properties
   const disableInput = levelOrder >= 4 ? true : false;
-
-  useEffect(() => {
-    //element
-    const txtShippingAddressName = document.getElementById("customer_update_shipping_addresses_name");
-    const txtShippingAddressPhone = document.getElementById("customer_update_shipping_addresses_phone");
-    const txtShippingAddressCardNumber = document.getElementById("customer_update_shipping_addresses_card_number");
-    const txtShippingAddressFullAddress = document.getElementById("customer_update_shipping_addresses_full_address");
-
-    //event
-    txtShippingAddressName?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-
-    txtShippingAddressPhone?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-
-    txtShippingAddressCardNumber?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-
-    txtShippingAddressFullAddress?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-  })
-
-  useEffect(() => {
-    const txtCustomerFullName = document.getElementById("customer_update_full_name");
-    const txtCustomerPhone = document.getElementById("customer_update_phone");
-    const txtCustomerCarNumber = document.getElementById("customer_update_card_number");
-    const txtCustomerFullAddress = document.getElementById("customer_update_full_address");
-
-    txtCustomerFullName?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-
-    txtCustomerPhone?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-
-    txtCustomerCarNumber?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-
-    txtCustomerFullAddress?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-  }, [isVisibleCollapseCustomer])
 
   const initialFormValueshippingAddress =
     customerItem
@@ -391,7 +339,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
         if (datas) {
           showSuccess("Cập nhật thông tin khách thành công!");
-          setVisibleBtnUpdate(false);
+          setCustomerChange(false);
           handleChangeCustomer(datas);
           const shippingAddress = getCustomerShippingAddress(datas);
           const orderAmount = totalAmount(orderLineItems);
@@ -412,7 +360,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
       }));
     },
-    [customerItem, shippingAddress, areas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
+    [customerItem, shippingAddress, areas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, setCustomerChange, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
   );
 
   const onOkPress = useCallback(() => {
@@ -465,6 +413,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         onFinish={handleSubmit}
         initialValues={initialFormValueshippingAddress}
         name="customer_update"
+        onValuesChange={() => setCustomerChange(true)}
       >
         <Spin tip="Vui lòng chờ..." spinning={false} delay={100}>
           <Row gutter={24}>
@@ -520,7 +469,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     values.shipping_addresses_ward_id = null;
                     formRefCustomer.current?.setFieldsValue(values);
                     getShippingWards(value);
-                    setVisibleBtnUpdate(true);
                   }}
                   optionFilterProp="children"
                   disabled={disableInput}
@@ -587,9 +535,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       <span> Chọn phường/xã</span>
                     </React.Fragment>
                   }
-                  onChange={() => {
-                    setVisibleBtnUpdate(true);
-                  }}
                   disabled={disableInput}
                 >
                   {shippingWards.map((ward: any) => (
@@ -603,7 +548,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
             <Col xs={24} lg={12}>
               <Form.Item
-                name="shipping_addresses_second_phone"
                 style={customerItem !== null ? { marginBottom: "0px" } : {}}
               >
                 <Input
@@ -635,7 +579,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   placeholder="Địa chỉ"
                   prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                   disabled={disableInput}
-                  onChange={(e) => checkAddress("shipping_addresses_full_address", e.target.value)}
+                  onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
+                    checkAddress("shipping_addresses_full_address", e.target.value)
+                  },500)}
                 />
               </Form.Item>
             </Col>
@@ -826,7 +772,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                             values.ward_id = null;
                             formRefCustomer.current?.setFieldsValue(values);
                             getWards(Number(value));
-                            setVisibleBtnUpdate(true);
                           }}
                           optionFilterProp="children"
                         >
@@ -888,9 +833,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                               <span> Chọn phường/xã</span>
                             </React.Fragment>
                           }
-                          onChange={() => {
-                            setVisibleBtnUpdate(true);
-                          }}
                         >
                           {wards.map((ward: any) => (
                             <Select.Option key={ward.id} value={ward.id}>
@@ -943,9 +885,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                             </React.Fragment>
                           }
                           className="select-with-search"
-                          onChange={() => {
-                            setVisibleBtnUpdate(true);
-                          }}
                         >
                           <Select.Option key={1} value={"male"}>
                             Nam
@@ -984,9 +923,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           suffixIcon={
                             <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                           }
-                          onChange={() => {
-                            setVisibleBtnUpdate(true);
-                          }}
                           onMouseLeave={() => {
                             const elm = document.getElementById("customer_update_birthday");
                             const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
@@ -1016,9 +952,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                             </React.Fragment>
                           }
                           className="select-with-search"
-                          onChange={() => {
-                            setVisibleBtnUpdate(true);
-                          }}
                         >
                           {groups &&
                             groups.map((group: any) => (
@@ -1053,7 +986,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
               <Row style={{ marginTop: 15 }}>
                 <Col md={24} style={{ float: "right", marginTop: "-10px" }}>
-                  {isVisibleBtnUpdate === true && (
+                  {customerChange && (
                     <Button
                       type="primary"
                       style={{ padding: "0 25px", fontWeight: 400, float: "right" }}

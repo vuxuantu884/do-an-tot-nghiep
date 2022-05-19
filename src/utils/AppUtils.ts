@@ -35,7 +35,6 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   FulFillmentResponse,
-  OrderDiscountResponse,
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
@@ -1167,7 +1166,7 @@ export const getProductDiscountPerProduct = (product: OrderLineItemResponse) => 
 	product.discount_items.forEach((single) => {
 		discountPerProduct += single.value;
 	});
-	return Math.ceil(discountPerProduct);
+	return discountPerProduct;
 };
 
 export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
@@ -1180,10 +1179,11 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	});
 	product.discount_value = getLineItemDiscountValue(product)
 	discountPerOrder =
-		Math.ceil(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
+		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
 	return discountPerOrder;
 }
 
+<<<<<<< HEAD
 /**
 * tính toán tiền trả lại khách khi đổi trả
 */
@@ -1194,6 +1194,9 @@ export const getReturnPricePerOrder =  (OrderDetail: OrderResponse | null | unde
 }
 
 export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {
+=======
+export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
+>>>>>>> origin/master
   if(!discounts) {
     return 0;
   }
@@ -1307,6 +1310,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
+    console.log('dataJson', dataJson)
 		result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
@@ -1315,7 +1319,8 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		- Cửa hàng : ${dataJson?.store || "-"}<br/>
 		- Địa chỉ cửa hàng : ${dataJson?.store_full_address}<br/>
 		- Thời gian: ${dataJson?.updated_date ? moment(dataJson?.updated_date).format(dateFormat) : "-"}<br/>
-		- Ghi chú: ${dataJson?.note || "-"} <br/>
+		- Ghi chú nội bộ: ${dataJson?.note || "-"} <br/>
+		- Ghi chú của khách: ${dataJson?.customer_note || "-"} <br/>
 		<br/>
 		<span style="color:red">Sản phẩm: </span><br/> 
 		${dataJson?.items
@@ -1671,7 +1676,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     }, []);
   };
 
-  console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
+  // console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
 
   const listCheckedShippingFeeConfigFlatten = flattenArray(
     listCheckedShippingFeeConfig
@@ -1863,13 +1868,14 @@ export const replaceLast = (text: string, textShort: string) => {
 };
 
 export const convertStringDistrictWithoutLine = (text: string) => {
-  return text.toLowerCase().replace("tỉnh", "").replace("đường", "").replace("xã", "").replace("quận", "").replaceAll(".", "").replaceAll("-", " ").replaceAll(",", " ").normalize("NFD")
+  return text.toLowerCase().replace("tỉnh", "").replaceAll("đường", "").replaceAll("thị xã", "").replaceAll("xã", "").replaceAll("phường", "").replace("quận", "").replaceAll(".", "").replaceAll("-", " ").replaceAll(",", " ").normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/đ/g, "d")
   .replace(/Đ/g, "D")
   .replace("huyen", "")
   .replace("thanh pho", "")
   .replace("thi tran", "")
+  .replace("thi xa", "")
   .replace("tp", "")
   .replace("p.", "")
   .replace("hcm", "ho chi minh")
@@ -1900,13 +1906,30 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
     console.log('valueResult', valueResult)
     // valueResult = valueResult.replace(district.trim(), "");
     // valueResult = replaceLast(valueResult, convertStringDistrict(district));
-    convertStringDistrict(district).split(" ").forEach(single => {
-      valueResult = valueResult.replace(single, "");
+    // phân cách bằng dấu cách, valueResult thêm dấu cách để chính xác
+    convertStringDistrict(district).split(" ").forEach((single) => {
+      // nếu có dấu cách thì bỏ qua
+      if(!single.trim()) {
+        return
+      }
+      console.log('single', single)
+      // valueResult =" "+ valueResult+" ";
+      // console.log('single', single)
+      // valueResult = valueResult.replace(" " +single.trim() + " ", "");
+      let splitArr = valueResult.split(" ");
+      let duplicateIndex = splitArr.findIndex(aa => single.trim() === (aa.trim()));
+      console.log('duplicateIndex', duplicateIndex)
+      if(duplicateIndex > - 1) {
+        splitArr.splice(duplicateIndex, 1)
+        console.log('valueResult', valueResult)
+        valueResult = splitArr.join(" ");
+      }
     });
   })
+  // tìm array có index lớn nhất
   console.log('valueResult', valueResult)
   const findWard = newWards.filter((ward: any) => {
-    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ");
+    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ").filter(single => single);
     console.log('valueResultArr', valueResultArr)
     const wardNameArr:any[] = convertStringDistrict(ward.name).split(" ").filter(x => x);
     console.log('wardNameArr', wardNameArr)
@@ -1929,6 +1952,7 @@ export const handleFindArea = (value: string, newAreas: any) => {
       console.log('districtString', districtString);
       return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
     });
+    console.log('findArea1111', findArea)
     let result = findArea.reverse()[0];
     
     return result
@@ -1952,3 +1976,7 @@ export const formatCurrencyInputValue = (a: string) => {
 export const checkIfOrderCanBeReturned = (orderDetail: OrderResponse) => {
   return orderDetail.status === OrderStatus.FINISHED || orderDetail.status === OrderStatus.COMPLETED;
 };
+
+export const removeMultiWhitespaceAndTrimText = (value: string) => {
+  return value.trim().replace(/\s\s+/g, ' ');
+}

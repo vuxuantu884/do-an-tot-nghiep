@@ -855,6 +855,7 @@ const ProductCreateScreen: React.FC = () => {
                       }}
                       name="code"
                       label="Mã sản phẩm"
+                      normalize={(value: string) => (value || "").toUpperCase()}
                     >
                       <Input
                         maxLength={7}
@@ -898,11 +899,6 @@ const ProductCreateScreen: React.FC = () => {
                         {
                           required: true,
                           message: "Vui lòng nhập tên sản phẩm",
-                        },
-                        {
-                          pattern: RegUtil.STRINGUTF8,
-                          message:
-                            "Tên sản phẩm không báo gồm kí tự đặc biệt",
                         },
                         {
                           max: 255,

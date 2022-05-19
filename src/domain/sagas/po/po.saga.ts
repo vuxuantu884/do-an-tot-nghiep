@@ -52,8 +52,8 @@ function* poCreateSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        createCallback(null);
         response.errors.forEach((e) => showError(e));
+        createCallback(null);
         break;
     }
   } catch (error) {
@@ -195,11 +195,11 @@ function* poSearchSaga(action: YodyAction) {
   }
 }
 function* poDeleteSaga(action: YodyAction) {
-  const { id, deleteCallback } = action.payload;
+  const { ids, deleteCallback } = action.payload;
   try {
     let response: BaseResponse<any | null> = yield call(
       deletePurchaseOrder,
-      id
+      ids
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -248,9 +248,9 @@ function* poReturnSaga(action: YodyAction) {
 }
 
 function* poPrintSaga(action: YodyAction) {
-  const { id, updatePrintCallback } = action.payload;
+  const { id,printType, updatePrintCallback } = action.payload;
   try {
-    let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id);
+    let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id,printType);
     updatePrintCallback(response);
   } catch (error) {
     console.log("error ", error);

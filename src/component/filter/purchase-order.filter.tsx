@@ -152,7 +152,6 @@ const convertStoreLabel = (store: string, allStore: StoreResponse[]) => {
 
 const FilterList = ({ filters, resetField, allStores }: any) => {
   const newFilters = {...filters};
-
   let filtersKeys = Object.keys(newFilters);
   const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
@@ -170,6 +169,7 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
           case filterFields.cancelled_date:
           case filterFields.completed_date:
           case filterFields.expect_import_date:
+            if (!filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return '';
             renderTxt = `${filterFieldsMapping[filterKey]} 
             : ${filters[`from_${filterKey}`] ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'} 
             ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
@@ -177,7 +177,7 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
           case filterFields.status:
           case filterFields.receive_status:
           case filterFields.financial_status:
-            if (!value) return null;
+            if (!value || (isArray(value) && value.length === 0)) return null;
             let listStatus = allStatus[filterKey];
             if (!(value instanceof Array)) value = [value];
             let listStatusValue = value?.map((key: string) => {
@@ -466,6 +466,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
         fields[key] = null;
       }
     }
+    console.log(fields)
     formAdvanceFilter.setFieldsValue(fields);
     formAdvanceFilter.resetFields(['merchandiser', 'qc']);
     formAdvanceFilter.submit();
@@ -608,8 +609,10 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
   useEffect(() => {
+    console.log(params)
     setAdvanceFilters({
       ...params,
+      status: params.status ? params.status : [],
       [rangeFilter.from_order_date]: formatDateFilter(params.from_order_date),
       [rangeFilter.to_order_date]: formatDateFilter(params.to_order_date),
       [rangeFilter.from_activated_date]: formatDateFilter(params.from_activated_date),

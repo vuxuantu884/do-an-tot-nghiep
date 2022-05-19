@@ -10,6 +10,7 @@ type PropType = {
   onReturnAndExchange: () => void;
   onReturnAndExchangeAndPrint: () => void;
   onCancel: () => void;
+  isCanExchange: boolean;
   isExchange: boolean;
 };
 

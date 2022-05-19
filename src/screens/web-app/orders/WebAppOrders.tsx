@@ -253,6 +253,7 @@ const WebAppOrders: React.FC = () => {
           break;
         case EXPORT_IDs.selectedOrders:
           newParams.code = selectedRowCodes;
+          newParams.is_online = true;
           break;
         case EXPORT_IDs.ordersFound:
           delete newParams.page;

@@ -1,6 +1,8 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
+import NumberInput from "component/custom/number-input.custom";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { formatCurrency } from "utils/AppUtils";
+import { useEffect, useMemo, useState } from "react";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
@@ -36,6 +38,18 @@ function ReturnMoneySelect(props: PropTypes) {
   let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
     return !exceptMethods.includes(single.code);
   });
+
+  const [initialReturnAmount, setInitialReturnAmount] = useState(0)
+
+  console.log('initialReturnAmount', initialReturnAmount)
+
+  useEffect(() => {
+    let result = totalAmountCustomerNeedToPay < 0
+    ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
+    : 0
+    setInitialReturnAmount(result)
+  }, [totalAmountCustomerNeedToPay])
+  
 
   return (
     <StyledComponent>
@@ -75,18 +89,33 @@ function ReturnMoneySelect(props: PropTypes) {
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <div className="ant-row ant-form-item">
-                          <div className="ant-col ant-form-item-label">Số tiền</div>
-                          <Input
-                            value={
-                              totalAmountCustomerNeedToPay < 0
-                                ? formatCurrency(Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
-                                : 0
-                            }
-                            disabled
-                            style={{ color: "inherit", background: "#fff" }}
+                        <Form.Item
+                          label="Số tiền"
+                          name={[index, "returnMoneyAmount"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập số tiền!",
+                            },
+                          ]}
+                        >
+                          <NumberInput
+                            format={(a: string) => formatCurrency(a)}
+                            replace={(a: string) => replaceFormatString(a)}
+                            style={{
+                              textAlign: "right",
+                              width: "100%",
+                              fontWeight: 500,
+                              color: "#222222",
+                            }}
+                            maxLength={14}
+                            minLength={0}
+                            value={initialReturnAmount}
+                            onChange={(value) => {
+                              setInitialReturnAmount(value || 0);
+                            }}
                           />
-                        </div>
+                        </Form.Item>
                       </Col>
                       <Col span={12}>
                         <Form.Item

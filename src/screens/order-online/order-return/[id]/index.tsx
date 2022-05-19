@@ -106,11 +106,13 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const [isShowPaymentMethod, setIsShowPaymentMethod] = useState(false);
 
-  const initialFormValue = {
-    returnMoneyField: [
-      { returnMoneyMethod: PaymentMethodCode.CASH, returnMoneyNote: undefined },
-    ],
-  };
+  const initialFormValue = useMemo(() => {
+    return {
+      returnMoneyField: [
+        { returnMoneyMethod: PaymentMethodCode.CASH, returnMoneyNote: undefined, returnMoneyAmount: 0 },
+      ],
+    }
+  }, [])
 
   const handleReturnMoney = () => {
     form.validateFields().then(() => {
@@ -129,8 +131,9 @@ const ScreenReturnDetail = (props: PropType) => {
               note: formValuePayment.returnMoneyNote || "",
               amount: Math.ceil(totalAmountReturnToCustomer || 0),
               paid_amount:
-                Math.ceil(totalAmountReturnToCustomer || 0) ,
-              return_amount: 0,
+                Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
+              return_amount:
+                Math.ceil(formValuePayment?.returnMoneyAmount || 0),
               customer_id: OrderDetail?.customer_id,
               payment_method_code: returnMoneyMethod.code,
             },
@@ -182,6 +185,35 @@ const ScreenReturnDetail = (props: PropType) => {
   const totalAmountReturnToCustomer = useMemo(() => {
     return (OrderDetail?.total || 0) - refund.money;
   }, [OrderDetail?.total, refund.money])
+  
+  useEffect(() => {
+    form.setFieldsValue({
+      ...initialFormValue,
+      returnMoneyField: [
+        {
+          ...initialFormValue.returnMoneyField,
+          returnMoneyAmount: totalAmountReturnToCustomer,
+        },
+      ],
+    })
+  }, [form, initialFormValue, totalAmountReturnToCustomer])
+
+  useEffect(() => {
+    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
+      return single.code === PaymentMethodCode.CASH;
+    });
+    if(paymentMethodReturnToCustomer) {
+      form.setFieldsValue({
+        ...initialFormValue,
+        returnMoneyField: [
+          {
+            ...initialFormValue.returnMoneyField,
+            returnMoneyMethod: paymentMethodReturnToCustomer.code,
+          },
+        ],
+      })
+    }
+  }, [form, initialFormValue, listPaymentMethods])
  
   /**
    * theme context data

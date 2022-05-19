@@ -109,7 +109,7 @@ import {ORDER_EXPORT_TYPE, ORDER_SUB_STATUS} from "utils/Order.constants";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import {RootReducerType} from "model/reducers/RootReducerType";
-import _ from "lodash";
+import {getOrderReasonService} from "service/order/return.service";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -264,8 +264,6 @@ const EcommerceOrders: React.FC = () => {
     OrderProcessingStatusModel[]
   >([]);
 
-  const [pageQuery, setPageQuery] = useState(1);
-
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -282,12 +280,30 @@ const EcommerceOrders: React.FC = () => {
 
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
+  const [reasonId, setReasonId] = useState<number | undefined>(undefined);
+  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<number | undefined>(undefined);
+
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setDeliveryServices(response)
       })
     );
+  }, [dispatch]);
+
+  useEffect(() => {
+    const code = [ORDER_SUB_STATUS.change_depot];
+    getOrderReasonService(code).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        if (response && response.data && response.data[0]) {
+          const diffDepotSubReason = response.data[0].sub_reasons?.find((item: any) => item.code === "diff_depot");
+          setSubReasonRequireWarehouseChange(diffDepotSubReason?.id);
+          setReasonId(response.data[0].id);
+        }
+      } else {
+        handleFetchApiError(response, "Danh sách lý do đổi kho hàng", dispatch);
+      }
+    });
   }, [dispatch]);
 
   const onExport = useCallback(
@@ -306,7 +322,8 @@ const EcommerceOrders: React.FC = () => {
           break;
         case EXPORT_IDs.selectedOrders:
           newParams = {
-            code: selectedRowCodes
+            code: selectedRowCodes,
+            is_online: true,
           };
           break;
         case EXPORT_IDs.ordersFound:
@@ -447,8 +464,7 @@ const EcommerceOrders: React.FC = () => {
     setConfirmPreparationShopeeProduct(false)
   }
 
-  const getEcommerceOrderList = useCallback(() => {
-    const requestParams = { ...params };
+  const getEcommerceOrderList = useCallback((requestParams) => {
     if (!requestParams.channel_codes?.length) {
       requestParams.channel_codes = ALL_CHANNEL;
     }
@@ -458,27 +474,13 @@ const EcommerceOrders: React.FC = () => {
       setTableLoading(false);
       setSearchResult(result);
     }));
-  }, [dispatch, params, setSearchResult]);
+  }, [dispatch, setSearchResult]);
 
-  const onSuccessEditNote = useCallback(
-    (newNote, noteType, orderID) => {
-      let itemResult =  _.cloneDeep(data.items);
-      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
-      if (indexOrder > -1) {
-        if (noteType === "note") {
-          itemResult[indexOrder].note = newNote;
-        } else if (noteType === "customer_note") {
-          itemResult[indexOrder].customer_note = newNote;
-        }
-      }
-      
-      setData({
-        metadata: data.metadata,
-        items: itemResult,
-      })
-    },
-    [data.items, data.metadata]
-  );
+  const reloadPage = useCallback(() => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  }, []);
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
@@ -490,10 +492,10 @@ const EcommerceOrders: React.FC = () => {
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID))
+        updateOrderPartial(params, orderID, () => reloadPage())
       );
     },
-    [dispatch, onSuccessEditNote]
+    [dispatch, reloadPage]
   );
 
   // handle change single order status
@@ -803,10 +805,10 @@ const EcommerceOrders: React.FC = () => {
                           showError("Bạn không thể đổi sang trạng thái khác!")
                           return;
                         }
-                        if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
-                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
-                          return;
-                        }
+                        // if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
+                        //   showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
+                        //   return;
+                        // }
                         // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
                         // if (!isChange) {
                         //   return;
@@ -1072,30 +1074,28 @@ const EcommerceOrders: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      setPageQuery(page)
       let newPrams = { ...params, page, limit: size };
       let queryParam = generateQuery(newPrams);
 			history.push(`${location.pathname}?${queryParam}`);
-      setPrams(newPrams)
     },
     [history, location.pathname, params]
   );
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: pageQuery };
-      let currentParam = generateQuery(params);
-      let queryParam = generateQuery(newPrams);
+      let newParams = { ...params, ...values };
+      const queryParam = generateQuery(newParams);
+      const currentParam = generateQuery(params);
       if (currentParam !== queryParam) {
-				history.push(`${location.pathname}?${queryParam}`);
-
+        newParams.page = 1;
+        const newQueryParam = generateQuery(newParams);
+        history.push(`${location.pathname}?${newQueryParam}`);
       }
     },
-    [history, location.pathname, pageQuery, params]
+    [history, location.pathname, params]
   );
 
   const onClearFilter = useCallback(() => {
-    setPrams(initQuery)
     let queryParam = generateQuery(initQuery);
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);
@@ -1547,11 +1547,13 @@ const EcommerceOrders: React.FC = () => {
     // Không validate nữa
     let isCanChange = true;
     let textResult = "";
+    const reason_id = toStatus === ORDER_SUB_STATUS.require_warehouse_change ? reasonId : undefined;
+    const sub_reason_id = toStatus === ORDER_SUB_STATUS.require_warehouse_change ? subReasonRequireWarehouseChange : undefined;
 
     if(isCanChange) {
       // setIsLoadingSetSubStatus(true);
       isLoadingSetSubStatus = true;
-      let response:any = await changeStatus(currentOrder.id, toStatus);
+      let response:any = await changeStatus(currentOrder.id, toStatus, reason_id, sub_reason_id);
       if(isFetchApiSuccessful(response)) {
         isCanChange = true;
         textResult = "Chuyển trạng thái thành công";
@@ -1701,12 +1703,6 @@ const EcommerceOrders: React.FC = () => {
 
     }
   };
-
-  const reloadPage = () => {
-    if (allowOrdersView) {
-      getEcommerceOrderList();
-    }
-  };
   // end
 
   useEffect(() => {
@@ -1720,7 +1716,7 @@ const EcommerceOrders: React.FC = () => {
 
   useEffect(() => {
     if (allowOrdersView) {
-      getEcommerceOrderList();
+      getEcommerceOrderList(params);
     }
   }, [allowOrdersView, getEcommerceOrderList, params]);
 
@@ -1879,10 +1875,10 @@ const EcommerceOrders: React.FC = () => {
     let dataQuery: EcommerceOrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
-    };    
+    };
     setPrams(dataQuery);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch,setSearchResult, location.search]);
+  }, [dispatch, location.search]);
 
 
   return (
@@ -1967,6 +1963,9 @@ const EcommerceOrders: React.FC = () => {
               <SubStatusChange
                 orderId={selectedOrder?.id}
                 toSubStatus={toSubStatusCode}
+                isEcommerceOrder={true}
+                reasonId={reasonId}
+                subReasonRequireWarehouseChange={subReasonRequireWarehouseChange}
                 setToSubStatusCode={setToSubStatusCode}
                 changeSubStatusCallback={changeSubStatusCallback}
               />
@@ -2129,6 +2128,7 @@ const EcommerceOrders: React.FC = () => {
         )}
 
         <ChangeOrderStatusModal
+          isEcommerceOrder={true}
           visible={isShowChangeOrderStatusModal}
           onCancelChangeStatusModal={() => {
             setIsShowChangeOrderStatusModal(false)

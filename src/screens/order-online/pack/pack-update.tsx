@@ -15,6 +15,7 @@ import ContentContainer from "component/container/content.container";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
 import {
+  deleteOrdergoodsReceips,
   getByIdGoodsReceipts,
   // getOrderGoodsReceipts,
   updateGoodsReceipts,
@@ -29,9 +30,10 @@ import "./styles.scss";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { FulFillmentStatus } from "utils/Constants";
+// import { FulFillmentStatus } from "utils/Constants";
 
 const { Item } = Form;
 type PackParam = {
@@ -53,8 +55,10 @@ const PackUpdate: React.FC = () => {
     GoodsReceiptsInfoOrderModel[]
   >([]);
   // const [orderList, setOrderList] = useState<OrderResponse[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedRowCode, setSelectedRowCode] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowOrderId, setSelectedRowOrderId] = useState([]);
 
   const actions: Array<MenuAction> = [
     {
@@ -62,7 +66,8 @@ const PackUpdate: React.FC = () => {
       name: "Xóa",
       icon: <DeleteOutlined />,
       color: selectedRowKeys.length === 0 ? "rgba(0,0,0,.25)" : "#E24343",
-      disabled: selectedRowKeys.length === 0
+      //disabled: selectedRowKeys.length === 0
+      disabled: false
     },
   ];
 
@@ -83,55 +88,6 @@ const PackUpdate: React.FC = () => {
         let ship_price = 0;
         let total_price = 0;
         let ffrmCode = null;
-
-        // itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-        //   if (packDetail.receipt_type_id === 1) {
-        //     if (itemFulfillment.status === 'packed') {
-        //       ship_price =
-        //         ship_price +
-        //         (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
-        //           ? itemFulfillment.shipment.shipping_fee_informed_to_customer
-        //           : 0);
-        //       total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
-
-        //       itemFulfillment.items.forEach(function (itemProduct) {
-        //         product.push({
-        //           sku: itemProduct.sku,
-        //           product_id: itemProduct.product_id,
-        //           product: itemProduct.product,
-        //           variant_id: itemProduct.variant_id,
-        //           variant: itemProduct.variant,
-        //           variant_barcode: itemProduct.variant_barcode,
-        //           quantity: itemProduct.quantity,
-        //           price: itemProduct.price
-        //         });
-        //       });
-        //     }
-        //   } else {
-        //     if (itemFulfillment.status === 'cancelled') {
-        //       ship_price =
-        //         ship_price +
-        //         (itemFulfillment?.shipment?.shipping_fee_informed_to_customer
-        //           ? itemFulfillment.shipment.shipping_fee_informed_to_customer
-        //           : 0);
-        //       total_price = total_price + (itemFulfillment.total ? itemFulfillment.total : 0);
-
-        //       itemFulfillment.items.forEach(function (itemProduct) {
-        //         product.push({
-        //           sku: itemProduct.sku,
-        //           product_id: itemProduct.product_id,
-        //           product: itemProduct.product,
-        //           variant_id: itemProduct.variant_id,
-        //           variant: itemProduct.variant,
-        //           variant_barcode: itemProduct.variant_barcode,
-        //           quantity: itemProduct.quantity,
-        //           price: itemProduct.price
-        //         });
-        //       });
-        //     }
-        //   }
-
-        // });
 
         if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
           let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
@@ -187,9 +143,11 @@ const PackUpdate: React.FC = () => {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
       const keys = selectedRows.map((row: any) => row.key);
       const codes = selectedRows.map((row: any) => row.fulfillment_code);
-      console.log(codes);
+      const orderIds = selectedRows.map((row: any) => row.order_id);
+      console.log(selectedRows);
       setSelectedRowKeys(keys);
       setSelectedRowCode(codes);
+      setSelectedRowOrderId(orderIds);
     }
   };
 
@@ -197,40 +155,31 @@ const PackUpdate: React.FC = () => {
     (index: number) => {
       switch (index) {
         case 1: //xóa
-          if (selectedRowCode.length === 0) {
+          //showWarning("Đang bảo trì");
+          if (!packDetail) return;
+          if (selectedRowOrderId.length === 0) {
             showWarning("Vui lòng chọn đơn hàng cần xóa");
             break;
           }
-          let _newItem: string[] = [];
 
-          let orderRemaining= packDetail?.orders?.filter((p)=>!p.fulfillments?.some(p1=>selectedRowCode.some(p2=>p2===p1.code)));
-          orderRemaining?.forEach((itemOrder, index)=>{
-            if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0){
-              let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
-              let itemFFM = itemOrder.fulfillments[indexFFM];
-              itemFFM?.code&& _newItem.push(itemFFM?.code);
-            }
-          })
+          let receitpsId = packDetail?.id;
+          let orderIds = [...selectedRowOrderId];
 
-          let param: any = {
-            ...packDetail,
-            codes: _newItem,
-          };
-
+          console.log(selectedRowOrderId);
           dispatch(
-            updateGoodsReceipts(PackId, param, (data: GoodsReceiptsResponse) => {
-              if (data) {
-                showSuccess("Cập nhập biên bản thành công");
-                setPackDetail(data);
-              }
+            deleteOrdergoodsReceips(orderIds, receitpsId, (success?: boolean) => {
+              success && dispatch(getByIdGoodsReceipts(PackId, setPackDetail));
             })
           );
           setSelectedRowKeys([]);
+          setSelectedRowCode([]);
+          setSelectedRowOrderId([])
           break;
       }
     },
-    [selectedRowCode, packDetail, dispatch, PackId]
+    [PackId, dispatch, packDetail, selectedRowOrderId]
   );
+
 
   const insert = (arr: any, index: number, newItem: any) => [
     ...arr.slice(0, index),
@@ -242,9 +191,11 @@ const PackUpdate: React.FC = () => {
     (value: any) => {
 
       if (!packDetail) return;
+
       const orderIdElement: any = document.getElementById("order_id");
       orderIdElement?.select();
       let order_id = value.order_id?.trim().toUpperCase();
+      let success = true;
 
       if (!order_id) {
         showWarning("Vui lòng chọn đơn hàng cần thêm");
@@ -252,80 +203,87 @@ const PackUpdate: React.FC = () => {
       }
 
       let indexOrder = packDetail.orders?.findIndex((p) => p.code === order_id);
+      console.log("0", packDetail?.orders)
       if (indexOrder !== -1) {
         showWarning("Đơn hàng đã tồn tại trong biên bản");
         return;
       }
       let codes: string[] = []
 
-      // if (packDetail.orders)
-      //   codes = packDetail.orders?.map((p) => {
-      //     if (packDetail.receipt_type_id === 1) {
-      //       let fulfillments = p.fulfillments
-      //         ?.filter(f => f.status === "packed");
-      //       if (fulfillments && fulfillments.length > 0) {
-      //         return fulfillments[0].code ? fulfillments[0].code : ""
-      //       }
-      //       return "";
-      //     } else if (packDetail.receipt_type_id === 2) {
-      //       let fulfillments = p.fulfillments
-      //         ?.filter(f => f.status === "cancelled" && f.return_status === "returning");
-      //       if (fulfillments && fulfillments.length > 0) {
-      //         return fulfillments[0].code ? fulfillments[0].code : ""
-      //       }
-      //       return "";
-      //     } else {
-      //       return "";
-      //     }
-      //   });
+      if (packDetail && packDetail.orders && packDetail.orders.length > 0) {
+        console.log("orders", packDetail.orders)
+        console.log("1", packDetail?.orders)
+        console.log("1", packDetail.receipt_type_id)
+        let indexShipping = packDetail.orders?.findIndex(p => p.fulfillments?.some(p => p.status === FulFillmentStatus.SHIPPING || p.status === FulFillmentStatus.SHIPPED));
 
-      if (packDetail.orders) {
-        packDetail?.orders?.forEach((item) => {
-          if (item.fulfillments && item.fulfillments.length > 0) {
-            let indexFFM = item.fulfillments.length - 1;
+        console.log("indexShipping", indexShipping)
+        if (indexShipping !== -1) {
+          success = false;
+          console.log("indexShipping 1", indexShipping)
+          showError(`Không thể cập nhật biên bản, Đơn hàng ${packDetail.orders[indexShipping].code} đã xuất kho`);
+        }
 
-            if (packDetail.receipt_type_id === 1 && item.fulfillments[indexFFM].status === FulFillmentStatus.PACKED) {
-              let FFMCode: string | null = item.fulfillments[indexFFM].code;
-              FFMCode && codes.push(FFMCode);
+        if (success === true)
+          packDetail?.orders?.forEach((item) => {
+            if (item.fulfillments && item.fulfillments.length > 0) {
+              if (packDetail.receipt_type_id === 1) {
+                let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+                console.log("2.1", fulfillments)
+                if (fulfillments.length > 0) {
+                  let indexFFM = fulfillments.length - 1;
+                  let FFMCode: string | null = fulfillments[indexFFM].code;
+                  if (FFMCode && order_id !== FFMCode)
+                    codes.push(FFMCode);
+                  else {
+                    success = false;
+                    showError(`Đơn hàng ${item.code} đã có trong biên bản`);
+                  }
+                  console.log("2.1", codes)
+                }
+              }
+              else if (packDetail.receipt_type_id === 2) {
+                let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED)
+                console.log("2.2", fulfillments)
+                if (fulfillments.length > 0) {
+                  let indexFFM = fulfillments.length - 1;
+                  let FFMCode: string | null = fulfillments[indexFFM].code;
+                  if (FFMCode && order_id !== FFMCode)
+                    codes.push(FFMCode);
+                  else
+                    success = false;
+                  showError(`Đơn hàng ${item.code} đã có trong biên bản`);
+                }
+              }
             }
-            else if (packDetail.receipt_type_id === 2
-              && item.fulfillments[indexFFM].return_status === FulFillmentStatus.RETURNING
-              && item.fulfillments[indexFFM].status === FulFillmentStatus.CANCELLED) {
-              let FFMCode: string | null = item.fulfillments[indexFFM].code;
-              FFMCode && codes.push(FFMCode);
-            }
-          }
-        });
+          });
       }
-      if (codes.indexOf(order_id) === -1) {
 
-        codes = insert([...codes], 0, order_id);
+      codes = insert([...codes], 0, order_id);
 
-        console.log("codes", codes)
+      console.log("codes", codes, order_id)
 
-        let id = packDetail?.id ? packDetail?.id : 0;
-        let param: any = {
-          ...packDetail,
-          codes: codes,
-        };
+      let id = packDetail?.id ? packDetail?.id : 0;
+      let param: any = {
+        ...packDetail,
+        codes: codes,
+      };
 
+      console.log("ok", param)
+      if (success) {
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
             if (data) {
               setPackDetail(data);
               showSuccess("Thêm đơn hàng vào biên bản thành công");
+              searchOrderForm?.resetFields();
             }
 
             orderIdElement?.select();
           })
         );
       }
-      else {
-        showWarning(`${order_id} đã có trong biên bản!`);
-        orderIdElement?.select();
-      }
     },
-    [dispatch, packDetail]
+    [dispatch, packDetail, searchOrderForm]
   );
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [

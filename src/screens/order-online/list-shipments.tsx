@@ -634,18 +634,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			default: break
 		}
 
-		// switch (optionExport) {
-		//   case 1:
-		//     hiddenFields
-		//     break
-		//   case 2:
-		//     delete newParams.page
-		//     delete newParams.limit
-		//     break
-		//   default: break  
-		// }
-		// }
-
 		let queryParams = generateQuery(newParams);
 		exportFile({
 			conditions: queryParams,

@@ -13,9 +13,7 @@ const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CopyTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
-const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
-const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
 
 //PO
 const PurchaseOrderListScreen = React.lazy(
@@ -32,7 +30,10 @@ const PurchaseOrderReturnScreen = React.lazy(
 );
 
 //PR
+const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
 const ProcurementDetailScreen = React.lazy(() => import("screens/products/procurement/detail/ProcurementDetailScreen"));
+const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
+const ProcurementCreateManualScreen = React.lazy(() => import("screens/products/procurement/create-manual"));
 
 //Kiểm kê, DUOCNC 20211021
 
@@ -154,6 +155,18 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
+        path: `${UrlConfig.PROCUREMENT}/create-manual`,
+        exact: true,
+        title: "Tạo phiếu nhập kho",
+        icon: "icon-dot",
+        component: ProcurementCreateManualScreen,
+        key: "submenu252",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.procurements_create],
+        subMenu: [],
+      },
+      {
         path: `${UrlConfig.PURCHASE_ORDERS}/:id/procurements/:prID`,
         exact: true,
         title: "Nhập kho",
@@ -242,7 +255,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/transferring-sender`,
         exact: true,
-        title: "Đang chuyển đi",
+        title: "Chuyển đi",
         icon: "icon-dot",
         component: ListTicket,
         key: "submenu31",
@@ -252,9 +265,9 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFERS}/transferring-received`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/transferring-receive`,
         exact: true,
-        title: "Đang chuyển đến",
+        title: "Chuyển đến",
         icon: "icon-dot",
         component: ListTicket,
         key: "submenu31",

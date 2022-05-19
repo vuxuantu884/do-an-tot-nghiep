@@ -636,18 +636,6 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 			default: break
 		}
 
-		// switch (optionExport) {
-		//   case 1:
-		//     hiddenFields
-		//     break
-		//   case 2:
-		//     delete newParams.page
-		//     delete newParams.limit
-		//     break
-		//   default: break  
-		// }
-		// }
-
 		let queryParams = generateQuery(newParams);
 		exportFile({
 			conditions: queryParams,
@@ -662,7 +650,7 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 			})
 			.catch((error) => {
 				setStatusExport(4)
-				// console.log("orders export file error", error);
+				console.log("orders export file error", error);
 				showError("Có lỗi xảy ra, vui lòng thử lại sau");
 			});
 	}, [params, selectedRowCodes, listExportFile]);
@@ -675,9 +663,7 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 
 			responses.forEach((response) => {
 				if (response.code === HttpStatus.SUCCESS) {
-					if (exportProgress < 95) {
-						setExportProgress(exportProgress + 3)
-					}
+					setExportProgress(Math.round(response.data.num_of_record/response.data.total * 10000) / 100);
 					if (response.data && response.data.status === "FINISH") {
 						setStatusExport(3)
 						setExportProgress(100)
@@ -688,10 +674,15 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 						window.open(response.data.url);
 						setListExportFile(newListExportFile);
 					}
+					if (response.data && response.data.status === "ERROR") {
+						setStatusExport(4)
+					}
+				} else {
+					setStatusExport(4)
 				}
 			});
 		});
-	}, [exportProgress, listExportFile]);
+	}, [listExportFile]);
 
 	useEffect(() => {
 		if (listExportFile.length === 0 || statusExport === 3) return;

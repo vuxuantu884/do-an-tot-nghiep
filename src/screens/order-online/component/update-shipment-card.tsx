@@ -135,7 +135,9 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	const [ecommerceShipment, setEcommerceShipment] = useState<any>();
 
   useEffect(() => {
-		const fulfillment = props.OrderDetailAllFullfilment?.fulfillments ? props.OrderDetailAllFullfilment.fulfillments[0] : null;
+		// set ecommerce shipment
+		const fulfillmentsHasShipment = props.OrderDetailAllFullfilment?.fulfillments?.filter((item: any) => !!item.shipment);
+		const fulfillment = (fulfillmentsHasShipment && fulfillmentsHasShipment.length > 0) ? fulfillmentsHasShipment[0] : null;
 
     if (isEcommerceOrder && fulfillment && fulfillment.shipment) {
       const shipment = fulfillment.shipment;
@@ -1415,7 +1417,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 													}}
 												>
 													<Col span={24}>
-														<Collapse ghost>
+														<Collapse ghost defaultActiveKey={1}>
 															<Panel
 																header={
 																	<Row>
@@ -1547,16 +1549,16 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																	: "saleorder-steps-two saleorder-steps dot-active"
 															}
 														>
-															<span>Ngày hủy</span>
+															<span>Ngày nhận hàng </span>
 															<span>
-																{ConvertUtcToLocalDate(fulfillment?.cancel_date, DATE_FORMAT.fullDate)}
+																{ConvertUtcToLocalDate(fulfillment?.receive_cancellation_on, DATE_FORMAT.fullDate)}
 															</span>
 														</div>
 													)}
 												{fulfillment.status_before_cancellation !==
 													FulFillmentStatus.SHIPPING && (
 														<div className="saleorder-steps-three saleorder-steps dot-active">
-															<span>Ngày nhận lại</span>
+															<span>Ngày hủy giao</span>
 															<span>
 																{ConvertUtcToLocalDate(fulfillment?.cancel_date, DATE_FORMAT.fullDate)}
 															</span>

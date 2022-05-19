@@ -3,20 +3,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   Button,
-  Form,
-  Select,
-  Input,
-  Modal,
-  Tooltip,
-  DatePicker,
   Card,
+  DatePicker,
   Dropdown,
+  Form,
+  Input,
   Menu,
-  Radio,
-  Space,
+  Modal,
   Progress,
-  TreeSelect,
+  Radio,
+  Select,
+  Space,
   Tag,
+  Tooltip,
+  TreeSelect,
 } from "antd";
 import { DownOutlined, SearchOutlined, SettingOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -34,12 +34,12 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery, RequestExportExcelQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
-  getShopEcommerceList,
   deleteEcommerceItem,
   disconnectEcommerceItem,
-  postSyncStockEcommerceProduct,
-  getProductEcommerceList,
   exitEcommerceJobsAction,
+  getProductEcommerceList,
+  getShopEcommerceList,
+  postSyncStockEcommerceProduct,
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -47,27 +47,18 @@ import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 
-import { StyledBaseFilter, StyledComponent } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
-import {
-  StyledProductFilter,
-  StyledProductLink,
-} from "screens/ecommerce/products/styles";
-import {
-  ECOMMERCE_LIST,
-  getEcommerceIcon,
-} from "screens/ecommerce/common/commonAction";
-import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import {StyledBaseFilter, StyledComponent} from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
+import {StyledProductFilter, StyledProductLink,} from "screens/ecommerce/products/styles";
+import {ECOMMERCE_LIST, getEcommerceIcon,} from "screens/ecommerce/common/commonAction";
+import {StyledStatus} from "screens/ecommerce/common/commonStyle";
 import useAuthorization from "hook/useAuthorization";
-import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
-import {
-  exportFileProduct,
-  getFileProduct
-} from "service/other/export.service";
-import { HttpStatus } from "config/http-status.config";
+import {EcommerceProductPermission} from "config/permissions/ecommerce.permission";
+import {exportFileProduct, getFileProduct} from "service/other/export.service";
+import {HttpStatus} from "config/http-status.config";
 import BaseResponse from "base/base.response";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import { useHistory, useLocation } from "react-router";
-import { getQueryParamsFromQueryString } from "utils/useQuery";
+import {useHistory, useLocation} from "react-router";
+import {getQueryParamsFromQueryString} from "utils/useQuery";
 import queryString from "query-string";
 
 
@@ -83,6 +74,7 @@ const EXPORT_PRODUCT_OPTION = {
 
 type TotalItemsEcommercePropsType = {
   isReloadPage: boolean;
+  setIsReloadPage: (value: boolean) => void;
 };
 
 const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
@@ -92,7 +84,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const { isReloadPage } = props;
+  const { isReloadPage, setIsReloadPage } = props;
 
   const productsDownloadPermission = [
     EcommerceProductPermission.products_download
@@ -168,25 +160,27 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     }
   }, []);
 
-  const getProductUpdated = useCallback(
+  const getEcommerceProduct = useCallback(
     (queryRequest: ProductEcommerceQuery) => {
-      setIsLoading(true);
-      dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+      if (queryRequest) {
+        window.scrollTo(0, 0);
+        setIsLoading(true);
+        dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+      }
     },
     [dispatch, updateVariantData]
   );
 
   useEffect(() => {
     if (isReloadPage) {
-      window.scrollTo(0, 0);
-      getProductUpdated(query);
+      getEcommerceProduct(query);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProductUpdated, isReloadPage]);
+  }, [getEcommerceProduct, isReloadPage]);
 
-  const reloadPage = () => {
-    getProductUpdated(query);
-  };
+  const reloadPage = useCallback(() => {
+    setIsReloadPage(true);
+  }, [setIsReloadPage]);
 
   //handle sync stock
   const handleSyncStock = (item: any) => {
@@ -200,7 +194,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
           showSuccess("Đồng bộ tồn kho sản phẩm thành công");
-          reloadPage();
+          window.location.reload();
         }
       })
     );
@@ -221,6 +215,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     setIsShowDeleteItemModal(false);
 
     if (idDeleteItem) {
+      setIsReloadPage(false);
       dispatch(
         deleteEcommerceItem([idDeleteItem], (result) => {
           if (result) {
@@ -246,6 +241,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
 
+    setIsReloadPage(false);
     dispatch(
       disconnectEcommerceItem({ ids: [idDisconnectItem] }, (result) => {
         if (result) {
@@ -551,7 +547,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      let dataQuery: any = {}
+      let dataQuery: any;
       switch (tag.key) {
         case "shop_ids":
           dataQuery = {
@@ -587,13 +583,21 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     [query, formAdvance]
   );
 
-  const onSearch = (value: ProductEcommerceQuery) => {
+  const onFinish = (value: ProductEcommerceQuery) => {
     if (value) {
       value.connected_date_from = connectionStartDate;
       value.connected_date_to = connectionEndDate;
 
-      let queryParam = generateQuery(value);
-      history.push(`${location.pathname}?${queryParam}`);
+      let newParams = { ...query, ...value };
+      const queryParam = generateQuery(newParams);
+      const currentParam = generateQuery(query);
+      if (currentParam === queryParam) {
+        getEcommerceProduct(newParams);
+      } else {
+        newParams.page = 1;
+        const newQueryParam = generateQuery(newParams);
+        history.push(`${location.pathname}?${newQueryParam}`);
+      }
     }
   };
 
@@ -604,7 +608,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     };
     setFilterValueByQueryParam(dataQuery)
     setQuery(dataQuery);
-    getProductUpdated(dataQuery);
+    getEcommerceProduct(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
 
@@ -694,13 +698,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
 
   const onPageChange = React.useCallback(
     (page, limit) => {
-      query.page = page;
-      query.limit = limit;
-      setQuery({ ...query, page, limit });
-      getProductUpdated({ ...query });
-      window.scrollTo(0, 0);
+      const newParams = { ...query, page, limit };
+      const queryParam = generateQuery(newParams);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [query, getProductUpdated]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [query]
   );
 
   // get ecommerce shop list
@@ -1024,7 +1027,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
             <div className="filter">
               <Form
                 form={formAdvance}
-                onFinish={onSearch}
+                onFinish={onFinish}
                 initialValues={initialFormValues}>
                 <div className="action-dropdown">
                   <Dropdown
@@ -1183,7 +1186,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           <StyledBaseFilter>
             <Form
               form={formAdvance}
-              onFinish={onSearch}
+              onFinish={onFinish}
               initialValues={initialFormValues}
               layout="vertical">
               <Form.Item name="connect_status" label={<b>TRẠNG THÁI GHÉP NỐI</b>}>

@@ -136,7 +136,7 @@ const TransferColumnField = {
 }
 
 const TransferExportField = {
-  [TransferColumnField.code]: 'Phiếu chuyển',
+  [TransferColumnField.code]: 'Mã phiếu chuyển',
   [TransferColumnField.from_store_name]: 'Kho gửi',
   [TransferColumnField.to_store_name]: 'Kho nhận',
   [TransferColumnField.status]: 'Trạng thái',
@@ -152,30 +152,44 @@ const TransferExportField = {
 
 const TransferLineItemField = {
   code: 'code',
-  barcode: 'barcode',
+  from_store: 'from_store',
+  to_store: 'to_store',
+  status: 'status',
   sku: 'sku',
   variant_name: 'variant_name',
+  barcode: 'barcode',
   transfer_quantity: 'transfer_quantity',
   real_quantity: 'real_quantity',
   total_amount: 'total_amount',
   price: 'price',
   created_date: 'created_date',
   created_name: 'created_name',
-  store: 'store'
+  transfer_date: 'updated_date',
+  receive_date: 'receive_date',
+  updated_name: 'updated_name',
+  store: 'store',
+  note: 'note',
 }
 
 const TransferExportLineItemField = {
   [TransferLineItemField.code]: 'Mã phiếu chuyển',
-  [TransferLineItemField.store]: 'Kho hàng',
-  [TransferLineItemField.barcode]: 'Barcode',
+  [TransferLineItemField.from_store]: 'Kho gửi',
+  [TransferLineItemField.to_store]: 'Kho nhận',
+  [TransferLineItemField.status]: 'Trạng thái',
   [TransferLineItemField.sku]: 'Mã sản phẩm',
   [TransferLineItemField.variant_name]: 'Tên sản phẩm',
+  [TransferLineItemField.barcode]: 'Mã vạch',
   [TransferLineItemField.price]: 'Giá bán',
   [TransferLineItemField.transfer_quantity]: 'Số lượng chuyển',
   [TransferLineItemField.total_amount]: 'Thành tiền',
   [TransferLineItemField.real_quantity]: 'SL thực nhận',
-  [TransferLineItemField.created_name]: 'Người tạo',
   [TransferLineItemField.created_date]: 'Ngày tạo',
+  [TransferLineItemField.created_name]: 'Người tạo',
+  [TransferLineItemField.transfer_date]: 'Ngày xuất kho',
+  [TransferLineItemField.updated_name]: 'Người xuất kho',
+  [TransferLineItemField.receive_date]: 'Ngày nhận',
+  [TransferLineItemField.updated_name]: 'Người nhận',
+  [TransferLineItemField.note]: 'Ghi chú',
 }
 
 export {InventoryQueryField,

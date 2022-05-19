@@ -116,10 +116,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRef.current?.getFieldValue("full_address");
           if (value) {
-            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
+            const newValue = value.toLowerCase();
 
             const newWards = data.map((ward: any) => {
               return {
@@ -338,7 +335,47 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       setShippingAddress(null);
     }
   }, [dispatch, customer, setShippingAddress]);
-  
+
+  // handle scroll page
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const setPageScroll = (overflowType: string) => {
+    let rootSelector: any = document.getElementById("root");
+    if (rootSelector) {
+      rootSelector.style.overflow = overflowType;
+    }
+  };
+
+  // if the popup dropdown is scrolling then page scroll is hidden
+  const handleOnSelectPopupScroll = () => {
+    if (isDropdownVisible) {
+      setPageScroll("hidden");
+    }
+  };
+
+  const handleOnMouseLeaveSelect = () => {
+    setPageScroll("scroll");
+  };
+
+  const handleOnDropdownVisibleChange = (open: boolean) => {
+    setIsDropdownVisible(open);
+  };
+
+  const onInputSelectFocus = () => {
+    setIsDropdownVisible(true);
+  };
+
+  const onInputSelectBlur = () => {
+    setIsDropdownVisible(false);
+  };
+
+  useEffect(() => {
+    if (!isDropdownVisible) {
+      setPageScroll("scroll");
+    }
+  }, [isDropdownVisible]);
+  // end handle scroll page
+
 
   return (
     <StyledComponent>
@@ -472,6 +509,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 onChange={handleSelectArea}
                 onClear={handleClearArea}
                 optionFilterProp="children"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
+                onFocus={onInputSelectFocus}
+                onBlur={onInputSelectBlur}
+                onPopupScroll={handleOnSelectPopupScroll}
+                onMouseLeave={handleOnMouseLeaveSelect}
+                onDropdownVisibleChange={handleOnDropdownVisibleChange}
                 disabled={disableInput}
               >
                 {areaList.map((area: any) => (
@@ -500,6 +543,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 allowClear
                 loading={loadingWardList}
                 optionFilterProp="children"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
+                onFocus={onInputSelectFocus}
+                onBlur={onInputSelectBlur}
+                onPopupScroll={handleOnSelectPopupScroll}
+                onMouseLeave={handleOnMouseLeaveSelect}
+                onDropdownVisibleChange={handleOnDropdownVisibleChange}
                 style={{ width: "100%" }}
                 placeholder={
                   <React.Fragment>

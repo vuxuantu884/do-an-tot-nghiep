@@ -33,6 +33,10 @@ export const StyledComponent = styled.div`
 `;
 
 export const StyledYodyProductColumn = styled.div`
+  width: 100%;
+  .ant-select {
+    width: 100%;
+  }
   .yody-product-button {
     display: flex;
     justify-content: flex-start;

@@ -86,7 +86,7 @@ function FilterResults({ properties, form }: Props) {
     if (Object.keys(fieldWhereValue).length) {
       Object.keys(fieldWhereValue).forEach((key: string) => {
         const value = fieldWhereValue[key];
-        if (value && Array.isArray(value)) {
+        if (value && Array.isArray(value) && value.length) {
           if (value.length === 1 && value[0] === '') {
             setActiveFilters(activeFilters.set(key, {value: ['Tất cả'], title: metadata ? getTranslatePropertyKey(metadata, key) : key}));
           } else {

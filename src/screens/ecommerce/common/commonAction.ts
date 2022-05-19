@@ -167,6 +167,6 @@ export const getEcommerceIdByChannelId = (channel_id: number) => {
 };
 
 export const getEcommerceIdByChannelCode = (channel_code: string) => {
-  const ecommerce = ECOMMERCE_LIST.find(item => item.key === channel_code);
+  const ecommerce = ECOMMERCE_LIST.find(item => item.key === channel_code?.toLowerCase());
   return ecommerce?.ecommerce_id;
 }

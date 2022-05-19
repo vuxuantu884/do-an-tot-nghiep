@@ -17,7 +17,6 @@ import {
 	Tooltip
 } from "antd";
 import {RefSelectProps} from "antd/lib/select";
-import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
@@ -260,6 +259,8 @@ function OrderCreateProduct(props: PropType) {
 	const [changeMoney, setChangeMoney] = useState<number>(0);
 	const [isShowProductSearch, setIsShowProductSearch] = useState(true);
 	const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
+	const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
 	const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
 	const [isLoadingDiscount, setIsLoadingDiscount] = useState(false);
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -369,10 +370,7 @@ function OrderCreateProduct(props: PropType) {
 	);
 
 	const isShouldUpdatePrivateNote = useMemo(() => {
-		if(props.updateOrder && form.getFieldValue("note")) {
-			return false;
-		}
-		return true
+		return !(props.updateOrder && form.getFieldValue("note"));
 	}, [form, props.updateOrder])
 
 	useEffect(() => {
@@ -739,8 +737,8 @@ function OrderCreateProduct(props: PropType) {
 
 	const AmountColumn = {
 		title: () => (
-			<div className="text-center unbold">
-				<div style={{ textAlign: "center"}}>SL</div>
+			<div className="text-center">
+				<div style={{ textAlign: "center" }}>SL</div>
 			</div>
 		),
 		// className: "yody-pos-quantity text-center",
@@ -786,8 +784,8 @@ function OrderCreateProduct(props: PropType) {
 	const PriceColumn = {
 		title: () => (
 			<div>
-				<span className="unbold" style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-				<span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+				<span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
+				<span style={{ color: "#808080", marginLeft: "5px", fontWeight: 400 }}>₫</span>
 			</div>
 		),
 		width: "75px",
@@ -836,7 +834,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const DiscountColumn = {
 		title: () => (
-			<div className="text-center unbold">
+			<div className="text-center">
 				<div>Chiết khấu</div>
 			</div>
 		),
@@ -1032,10 +1030,7 @@ function OrderCreateProduct(props: PropType) {
 		if(item.discount_items[0] && !item.discount_items[0].promotion_id) {
 			return false;
 		}
-		if(newDiscountValue >= 0) {
-			return true;
-		}
-		return false;
+		return newDiscountValue >= 0;
 	};
 
 	const calculateDiscount = (
@@ -1576,7 +1571,7 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const onSearchVariantSelect = useCallback(
-		async (v, o) => {
+		(v) => {
 			if (!items) {
 				return;
 			}
@@ -1588,7 +1583,7 @@ function OrderCreateProduct(props: PropType) {
 			let r: VariantResponse = resultSearchVariant.items[indexSearch];
 			const item: OrderLineItemRequest = createItem(r);
 			item.position = items.length + 1;
-			if (r.id === newV && checkInventory(item) === true) {
+			if (r.id === newV && checkInventory(item)) {
 				if (splitLine || index === -1) {
 					_items.unshift(item);
 					calculateChangeMoney(_items);
@@ -1999,10 +1994,12 @@ function OrderCreateProduct(props: PropType) {
 	const onInputSearchProductFocus = () => {
 		setIsInputSearchProductFocus(true);
 		autoCompleteRef.current?.focus();
+		setIsDropdownVisible(true);
 	};
 
 	const onInputSearchProductBlur = () => {
 		setIsInputSearchProductFocus(false);
+		setIsDropdownVisible(false);
 	};
 
 	const handleSplitOrder = () => {
@@ -2122,6 +2119,44 @@ function OrderCreateProduct(props: PropType) {
 	}
 	// end handle order YDpage
 
+	// handle scroll page
+	const setPageScroll = (overflowType: string) => {
+		let rootSelector: any = document.getElementById("root");
+		if (rootSelector) {
+			rootSelector.style.overflow = overflowType;
+		}
+	};
+
+	// if the popup dropdown is scrolling then page scroll is hidden
+	const handleOnSelectPopupScroll = () => {
+		if (isDropdownVisible) {
+			setPageScroll("hidden");
+		}
+	};
+
+	const handleOnMouseLeaveSelect = () => {
+		setPageScroll("scroll");
+	};
+
+	const handleOnDropdownVisibleChange = (open: boolean) => {
+		setIsDropdownVisible(open);
+	};
+
+	const onInputSelectFocus = () => {
+		setIsDropdownVisible(true);
+	};
+
+	const onInputSelectBlur = () => {
+		setIsDropdownVisible(false);
+	};
+	
+	useEffect(() => {
+		if (!isDropdownVisible) {
+			setPageScroll("scroll");
+		}
+	}, [isDropdownVisible]);
+	// end handle scroll page
+
 	return (
 		<StyledComponent>
 			<Card
@@ -2159,6 +2194,12 @@ function OrderCreateProduct(props: PropType) {
                 style={{ width: "100%" }}
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
+								getPopupContainer={(trigger: any) => trigger.parentElement}
+								onFocus={onInputSelectFocus}
+								onBlur={onInputSelectBlur}
+								onDropdownVisibleChange={handleOnDropdownVisibleChange}
+								onPopupScroll={handleOnSelectPopupScroll}
+								onMouseLeave={handleOnMouseLeaveSelect}
 								onChange={(value?: number) => {
 									if (value) {
 										setStoreId(value);
@@ -2316,6 +2357,10 @@ function OrderCreateProduct(props: PropType) {
 										{menu}
 									</div>
 								)}
+								getPopupContainer={(trigger: any) => trigger.parentElement}
+								onPopupScroll={handleOnSelectPopupScroll}
+								onMouseLeave={handleOnMouseLeaveSelect}
+								onDropdownVisibleChange={handleOnDropdownVisibleChange}
 							>
 								<Input
 									size="middle"
@@ -2348,23 +2393,9 @@ function OrderCreateProduct(props: PropType) {
           bordered
           locale={{
             emptyText: (
-              <div className="sale_order_empty_product">
-                <img src={emptyProduct} alt="empty product"/>
-                <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-                <Button
-                  type="text"
-                  className="font-weight-500"
-                  style={{
-                    background: "rgba(42,42,134,0.05)",
-                  }}
-                  onClick={() => {
-                    autoCompleteRef.current?.focus();
-                  }}
-                  disabled={levelOrder > 3}
-                >
-                  Thêm sản phẩm ngay (F3)
-                </Button>
-              </div>
+              <div className="sale_order_empty_product" style={{ padding: 5 }}>
+								{"Đơn hàng của bạn chưa có sản phẩm nào!"}
+							</div>
             ),
           }}
 					rowKey={(record, index) => record.id + (index || 0)}

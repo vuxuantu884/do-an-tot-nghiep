@@ -7,35 +7,34 @@ import {
   Col,
   Input,
   Popover,
-  Row,
-  Table,
-  Tooltip,
-  Select,
+
+  Row, Select, Table,
+  Tooltip
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
+import iconDelete from "assets/icon/deleteIcon.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
 import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
+import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
+import { StoreResponse } from "model/core/store.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
 import React, { useContext, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
-import iconDelete from "assets/icon/deleteIcon.svg";
 import {
   formatCurrency,
   getProductDiscountPerOrder,
   getProductDiscountPerProduct,
   getReturnPricePerOrder,
-  getTotalQuantity,
+  getTotalQuantity
 } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
-import CustomSelect from "component/custom/select.custom";
-import { StoreResponse } from "model/core/store.model";
-import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 
 type PropTypes = {
   isDetailPage?: boolean;

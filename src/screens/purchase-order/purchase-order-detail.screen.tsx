@@ -1,4 +1,4 @@
-import { EditOutlined, FilePdfOutlined, PrinterFilled } from "@ant-design/icons";
+import { EditOutlined, FilePdfOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -17,19 +17,20 @@ import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditi
 import {
   POCancelAction,
   PoCreateAction,
-  PoDetailAction, POGetPrintContentAction, POGetPurchaseOrderActionLogs, PoUpdateAction
+  PoDetailAction, POGetPurchaseOrderActionLogs, PoUpdateAction
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
 import { ImportResponse } from "model/other/files/export-model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
+import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
   POLineItemGridValue,
   PurchaseOrder,
@@ -43,6 +44,7 @@ import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { productDetailApi } from "service/product/product.service";
+import { getPrintContent } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
@@ -70,6 +72,17 @@ const ActionMenu = {
   CLONE: 3,
 }
 
+const ActionMenuPrint = {
+  FGG: 1, //mẫu in fgg
+  NORMAL: 2, //mẫu in thông thường
+}
+
+const PrintTypePo = {
+  PURCHASE_ORDER: "purchase_order",
+  PURCHASE_ORDER_MA_7: "purchase_order_ma_7",
+  PURCHASE_ORDER_FGG: "purchase_order_fgg",
+  PURCHASE_ORDER_MA_7_FGG: "purchase_order_ma_7_fgg",
+}
 type PurchaseOrderParam = {
   id: string;
 };
@@ -134,39 +147,42 @@ const PODetailScreen: React.FC = () => {
   const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
+  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
 
   const {setPoLineItemGridChema,setPoLineItemGridValue, setTaxRate, isGridMode, setIsGridMode, poLineItemGridValue, poLineItemGridChema, taxRate }= useContext(PurchaseOrderCreateContext);
 
-  const onDetail = useCallback(
-    (result: PurchaseOrder | null) => {
-      setLoading(false);
-      if (!result) {
-        setError(true);
-      } else {        
-        setPurchaseItem(result);
-        formMain.setFieldsValue(result);
-        setStatus(result.status);
-      }
-    },
-    [formMain]
-  );
-
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
 
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
       if (!printContent || printContent.length === 0) return;
       setPrintContent(printContent[0].html_content);
     },
-    [setPrintContent]
+    []
+  );
+
+  const onDetail = useCallback(
+    (result: PurchaseOrder | null) => {
+      setLoading(false);
+      if (!result) {
+        setError(true);
+      } else {      
+        setPurchaseItem(result);
+        formMain.setFieldsValue(result);
+        setStatus(result.status);        
+      }
+    },
+    [formMain]
   );
 
   const loadDetail = useCallback(
     (id: number, isLoading, isSuggestDetail: boolean) => {
       setSuggest(isSuggestDetail);
       dispatch(PoDetailAction(id, onDetail));
-      dispatch(POGetPrintContentAction(id, printContentCallback));
     },
-    [dispatch, onDetail, printContentCallback]
+    [dispatch, onDetail]
   );
 
   const onConfirmButton = useCallback(() => {
@@ -298,18 +314,24 @@ const PODetailScreen: React.FC = () => {
 
   const handleClonePo = useCallback(() => {
     let params = formMain.getFieldsValue(true);
-    const procurements = params.procurements;
-    procurements.forEach((pro:any) => {
+    const paramsData = cloneDeep(params)
+    const line_items = paramsData.line_items.map((item: PurchaseOrderLineItem) => {
+      return {...item, receipt_quantity: 0, planned_quantity: 0}
+    })
+    const procurements = [params.procurements[0]];
+    procurements?.forEach((pro: any) => {
       pro.code = null;
       pro.id = null;
-      pro.procurement_items.forEach((item:any) => {
+      pro.procurement_items.forEach((item: any) => {
         item.id = null;
         item.code = null;
       }
       )
     });
-    params = {
-      ...params,
+    const paramsSubmit = {
+      ...paramsData,
+      line_items,
+      procurements,
       id: null,
       code: null,
       status: POStatus.DRAFT,
@@ -322,15 +344,15 @@ const PODetailScreen: React.FC = () => {
       payment_refunds: null,
     }
     dispatch(showLoading())
-    dispatch(PoCreateAction(params, (result) => {
+    dispatch(PoCreateAction(paramsSubmit, (result) => {
       if (result) {
         showSuccess("Sao chép đơn đặt hàng thành công");
         dispatch(hideLoading())
         window.open(`${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${result.id}`, "_blank");
-        loadDetail(result.id, true, false);
+        // loadDetail(result.id, true, false);
       }
     }));
-  }, [dispatch, loadDetail, formMain]);
+  }, [dispatch, formMain]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -348,6 +370,37 @@ const PODetailScreen: React.FC = () => {
     [setConfirmDelete, handleClonePo]
   );
 
+  const actionPrint = useCallback(async (poId: number,printType: string) =>{
+    const res = await callApiNative({isShowLoading: true},dispatch,getPrintContent,poId,printType);
+    if (res && res.data && res.data.message) {
+      showError(res.data.message);
+    }else{
+      printContentCallback(res);
+      handlePrint && handlePrint();
+    }
+  },[dispatch, handlePrint, printContentCallback]);
+
+  const onMenuPrint = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ActionMenuPrint.NORMAL:
+          if (isGridMode) {
+            actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7);
+            break;
+          }
+          actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER);
+          break;
+        case ActionMenuPrint.FGG:
+          if (isGridMode) {
+            actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7_FGG);
+            break;
+          }
+          actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_FGG);
+          break;
+      }
+    },
+    [isGridMode, actionPrint, idNumber]
+  );
 
   const redirectToReturn = useCallback(() => {
     if(poData?.status === POStatus.FINALIZED){
@@ -368,8 +421,65 @@ const PODetailScreen: React.FC = () => {
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
 
 
-  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
 
+  const handleExport = useCallback(() => {
+    dispatch(showLoading())
+    // khởi tạo, đơn vị px, khổ a4
+    const pdf = new jsPDF("portrait", "px", "a4");
+    const pageMargin = 10;
+    // chiều rộng form trong canvas
+    const canvasFormWidth = 800;
+    // lấy chiều rộng và dài của khổ a4
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // khởi tạo canvas
+    const temp = document.createElement("div");
+    const tempChild = document.createElement("div");
+    temp.appendChild(tempChild);
+    // tempChild.style.fontFamily = 'Roboto';
+    temp.style.width = `${canvasFormWidth}px`;
+    temp.style.padding = `${pageMargin}px`;
+    temp.style.position = "absolute";
+    temp.style.zIndex = "-2";
+    temp.style.top = "0px";
+    temp.style.margin = 'auto';
+    tempChild.style.width = `100%`;
+    tempChild.style.height = `100%`;
+    temp.style.display = 'block';
+    temp.id = "temp";
+    tempChild.innerHTML = printContent;
+    let value = document.body.appendChild(temp);
+    if (value === null) return;
+
+
+    const imgWidth = pageWidth;
+    const rate = 1.8 // mò ra
+    const imgHeight  = (value.offsetHeight)* (value.offsetWidth/canvasFormWidth) / rate;
+
+    var heightLeft = imgHeight;
+    var position = 0;
+    const getCanvas = (canvas: HTMLCanvasElement, pdf: jsPDF) => {
+      pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft = heightLeft - pageHeight;
+      // tách trang
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+    };
+
+    html2canvas(value, {
+      scale: 5, // fix nhòe
+    }).then((canvas) => {
+      getCanvas(canvas, pdf);
+      temp.remove();
+      pdf.save(`Đơn hàng ${idNumber}.pdf`);
+      dispatch(hideLoading())
+    });
+  },[dispatch, idNumber, printContent]);
 
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [
@@ -390,7 +500,20 @@ const PODetailScreen: React.FC = () => {
         name: "Hủy",
       });
     return menuActions;
-  }, [poData, canCancelPO]);
+  }, [poData, canCancelPO]);  
+  
+  const menuPrint: Array<MenuAction> = useMemo(() => {
+    return [
+      {
+        id: ActionMenuPrint.FGG,
+        name: "In đơn đặt hàng FGG",
+      },
+      {
+        id: ActionMenuPrint.NORMAL,
+        name: "In đơn đặt hàng NCC",
+      }
+    ];
+  }, []);
 
 
   const renderModalDelete = useCallback(() => {
@@ -447,8 +570,8 @@ const PODetailScreen: React.FC = () => {
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
 
 
-  const renderButton = useMemo(() => {
-    const checkRender = () => {
+  const RightAction = useCallback(() => {
+    const ActionByStatus = () => {
       switch (status) {
         case POStatus.DRAFT:
           return (
@@ -533,14 +656,15 @@ const PODetailScreen: React.FC = () => {
               getPopupContainer={(trigger: any) => trigger.parentNode}
             />
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
-                <Button
-                    type="primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePrint && handlePrint();
-                    }}
-                    icon={<PrinterFilled />}
-                >In</Button>
+                <ActionButton
+                  menu={menuPrint}
+                  onMenuClick={onMenuPrint}
+                  type="primary"
+                  placement={'topCenter'}
+                  buttonStyle={{ borderRadius: 2 }}
+                  buttonText="In phiếu"
+                  getPopupContainer={(trigger: any) => trigger.parentNode}
+                />
             </AuthWrapper>
             <div style={{ display: "none" }}>
                 <div className="printContent" ref={printElementRef}>
@@ -553,28 +677,12 @@ const PODetailScreen: React.FC = () => {
             </div>
           </Space>
         </div>
-        {checkRender()}
+        <ActionByStatus/>
       </>
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    printContent,
-    formMain,
-    isEditDetail,
-    loadingConfirmButton,
-    loadingSaveDraftButton,
-    onConfirmButton,
-    status,
-  ]);
+    ) 
+  }, [    status,formMain, isEditDetail, loadingSaveDraftButton, loadingConfirmButton, onConfirmButton,  onMenuClick,handleExport, onMenuPrint, printElementRef, printContent, menu, menuPrint]);
 
-
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
-
-  
   useEffect(() => {
-    dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(onStoreResult));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
@@ -597,7 +705,7 @@ const PODetailScreen: React.FC = () => {
     }
   }, [dispatch, poData?.id, poData]);
 
-  
+
   /**
    * Load data cho lineItem dạng bảng grid
    */
@@ -639,64 +747,6 @@ const PODetailScreen: React.FC = () => {
     fetchProductLineItem();
   }, [poData, dispatch, setPoLineItemGridValue, setPoLineItemGridChema, setTaxRate, setIsGridMode]);
 
-  const handleExport = () => {
-    dispatch(showLoading())
-    // khởi tạo, đơn vị px, khổ a4
-    const pdf = new jsPDF("portrait", "px", "a4");
-    const pageMargin = 10;
-    // chiều rộng form trong canvas
-    const canvasFormWidth = 800;
-    // lấy chiều rộng và dài của khổ a4
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // khởi tạo canvas
-    const temp = document.createElement("div");
-    const tempChild = document.createElement("div");
-    temp.appendChild(tempChild);
-    // tempChild.style.fontFamily = 'Roboto';
-    temp.style.width = `${canvasFormWidth}px`;
-    temp.style.padding = `${pageMargin}px`;
-    temp.style.position = "absolute";
-    temp.style.zIndex = "-2";
-    temp.style.top = "0px";
-    temp.style.margin = 'auto';
-    tempChild.style.width = `100%`;
-    tempChild.style.height = `100%`;
-    temp.style.display = 'block';
-    temp.id = "temp";
-    tempChild.innerHTML = printContent;
-    let value = document.body.appendChild(temp);
-    if (value === null) return;
-
-
-    const imgWidth = pageWidth;
-    const rate = 1.8 // mò ra
-    const imgHeight  = (value.offsetHeight)* (value.offsetWidth/canvasFormWidth) / rate;
-
-    var heightLeft = imgHeight;
-    var position = 0;
-    const getCanvas = (canvas: HTMLCanvasElement, pdf: jsPDF) => {
-      pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft = heightLeft - pageHeight;
-      // tách trang
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-    };
-
-    html2canvas(value, {
-      scale: 5, // fix nhòe
-    }).then((canvas) => {
-      getCanvas(canvas, pdf);
-      temp.remove();
-      pdf.save(`Đơn hàng ${idNumber}.pdf`);
-      dispatch(hideLoading())
-    });
-  };
 
   const showPOReturnList = () => {
     if (
@@ -798,6 +848,7 @@ const PODetailScreen: React.FC = () => {
               idNumber={idNumber}
               poData={poData}
               isEdit={true}
+              isEditDetail={isEditDetail}
               now={now}
               loadDetail={loadDetail}
               formMain={formMain}
@@ -848,7 +899,7 @@ const PODetailScreen: React.FC = () => {
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
           height={55}
-          rightComponent={renderButton}
+          rightComponent={<RightAction/>}
         />
       </Form>
       {renderModalDelete()}

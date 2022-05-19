@@ -27,7 +27,7 @@ import {
   YDpageCustomerRequest
 } from "model/request/customer.request";
 import {BillingAddress, CustomerResponse} from "model/response/customer/customer.response";
-import React, {createRef, useCallback, useEffect, useMemo, useRef} from "react";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -148,10 +148,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         dispatch(WardGetByDistrictAction(value, (data) => {
           const value = formRef.current?.getFieldValue("full_address");
           if (value) {
-            const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
-              .replace(/Đ/g, "D")
+            const newValue = value.toLowerCase();
 
             const newWards = data.map((ward: any) => {
               return {
@@ -407,6 +404,47 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     customerForm.submit();
   }, [customerForm]);
 
+  // handle scroll page
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const setPageScroll = (overflowType: string) => {
+    let rootSelector: any = document.getElementById("root");
+    if (rootSelector) {
+      rootSelector.style.overflow = overflowType;
+    }
+  };
+
+  // if the popup dropdown is scrolling then page scroll is hidden
+  const handleOnSelectPopupScroll = () => {
+    if (isDropdownVisible) {
+      setPageScroll("hidden");
+    }
+  };
+
+  const handleOnMouseLeaveSelect = () => {
+    setPageScroll("scroll");
+  };
+
+  const handleOnDropdownVisibleChange = (open: boolean) => {
+    setIsDropdownVisible(open);
+  };
+
+  const onInputSelectFocus = () => {
+    setIsDropdownVisible(true);
+  };
+
+  const onInputSelectBlur = () => {
+    setIsDropdownVisible(false);
+  };
+
+  useEffect(() => {
+    if (!isDropdownVisible) {
+      setPageScroll("scroll");
+    }
+  }, [isDropdownVisible]);
+  // end handle scroll page
+
+
   return (
     <StyledComponent>
       <Form
@@ -488,6 +526,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     showSearch
                     allowClear
                     optionFilterProp="children"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
                     placeholder={
                       <React.Fragment>
                         <TeamOutlined style={{ color: "#71767B" }} />
@@ -537,6 +581,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 }}
                 onClear={handleClearArea}
                 optionFilterProp="children"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
+                onFocus={onInputSelectFocus}
+                onBlur={onInputSelectBlur}
+                onPopupScroll={handleOnSelectPopupScroll}
+                onMouseLeave={handleOnMouseLeaveSelect}
+                onDropdownVisibleChange={handleOnDropdownVisibleChange}
               >
                 {areaList.map((area: any) => (
                   <Select.Option key={area.id} value={area.id}>
@@ -564,6 +614,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 loading={loadingWardList}
                 disabled={loadingWardList}
                 optionFilterProp="children"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
+                onFocus={onInputSelectFocus}
+                onBlur={onInputSelectBlur}
+                onPopupScroll={handleOnSelectPopupScroll}
+                onMouseLeave={handleOnMouseLeaveSelect}
+                onDropdownVisibleChange={handleOnDropdownVisibleChange}
                 style={{ width: "100%" }}
                 placeholder={
                   <React.Fragment>
@@ -614,6 +670,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 								showSearch
 								allowClear
 								optionFilterProp="children"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
 								placeholder={
 									<React.Fragment>
 										<ManOutlined style={{ color: "#71767B" }} />
@@ -659,7 +716,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 								style={{ width: "100%" }}
 								placeholder="Chọn ngày sinh"
 								format={"DD/MM/YYYY"}
-								// defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
+                getPopupContainer={(trigger: any) => trigger.parentElement}
 								suffixIcon={
 									<CalendarOutlined
 										style={{ color: "#71767B", float: "left" }}

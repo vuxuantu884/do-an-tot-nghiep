@@ -1,6 +1,5 @@
 import { Col, Form, Input, Row } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { useEffect } from "react";
 import * as CONSTANTS from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import CustomInput from "screens/customer/common/customInput";
@@ -19,7 +18,7 @@ type FormValueType = {
 const FormCustomerContact: React.FC<CustomModalFormModel> = (
   props: CustomModalFormModel
 ) => {
-  const { modalAction, formItem, form, visible } = props;
+  const { modalAction, formItem, form } = props;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   // const DEFAULT_COMPANY = {
   //   company_id: 1,
@@ -47,10 +46,6 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
           tax_code: "",
           website: "",
         };
-
-  useEffect(() => {
-    form.resetFields();
-  }, [form, formItem, visible]);
 
   return (
     <Form

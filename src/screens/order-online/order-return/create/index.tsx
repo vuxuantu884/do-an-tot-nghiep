@@ -10,39 +10,22 @@ import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarO
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import {
-  getListStoresSimpleAction,
-  StoreDetailAction,
-  StoreDetailCustomAction
-} from "domain/actions/core/store.action";
+import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import {
-  getLoyaltyPoint,
-  getLoyaltyUsage
-} from "domain/actions/loyalty/loyalty.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionCreateOrderExchange,
   actionCreateOrderReturn,
   actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import {
-  changeOrderCustomerAction,
-  changeSelectedStoreBankAccountAction,
-  changeShippingServiceConfigAction,
-  changeStoreDetailAction,
-  getStoreBankAccountNumbersAction,
-  orderConfigSaga,
-  OrderDetailAction,
-  PaymentMethodGetList,
-  setIsShouldSetDefaultStoreBankAccountAction
-} from "domain/actions/order/order.action";
+import { changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction, PaymentMethodGetList, setIsShouldSetDefaultStoreBankAccountAction } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import purify from "dompurify";
 import useFetchStores from "hook/useFetchStores";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
-import { cloneDeep } from "lodash";
+import _, { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { RefundModel } from "model/order/return.model";
@@ -63,40 +46,27 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  OrderDiscountResponse, OrderLineItemResponse,
-  OrderReasonModel,
-  OrderResponse,
-  ReturnProductModel,
+  OrderDiscountResponse,
+  OrderLineItemResponse, OrderReasonModel, OrderResponse, ReturnProductModel,
   ShippingAddress,
   StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
-  OrderConfigResponseModel,
-  ShippingServiceConfigDetailResponseModel
-} from "model/response/settings/order-settings.response";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
+import { getPrintOrderReturnContentService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-  getPrintOrderReturnContentService,
-  getStoreBankAccountNumbersService
-} from "service/order/order.service";
-import {
+
   checkIfOrderCanBeReturned,
   getAmountPayment,
   getAmountPaymentRequest,
-  getListItemsCanReturn, getTotalAmountAfterDiscount,
+  getListItemsCanReturn,
+  getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
@@ -111,9 +81,7 @@ import {
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
-  PaymentMethodOption,
-  POS,
-  ShipmentMethod,
+  PaymentMethodOption, POS, ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
@@ -133,52 +101,48 @@ type PropTypes = {
 };
 
 let typeButton = "";
+let order_return_id: number = 0;
 let isPrint = false;
-var barcode = "";
+var barcode="";
 
 const ScreenReturnCreate = (props: PropTypes) => {
   const isUserCanCreateOrder = useRef(true);
-  const printType = {
+  const printType =  {
     return: "order_return",
     returnAndExchange: "order_exchange",
-  };
+  }
   const isShouldSetDefaultStoreBankAccount = useSelector(
-    (state: RootReducerType) =>
-      state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount,
-  );
+    (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
+  )
   const [form] = Form.useForm();
+  const [customerChange, setCustomerChange] = useState(false);
+
   const productReturnAutoCompleteRef = createRef<RefSelectProps>();
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isError, setError] = useState(false);
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
+  const [isErrorExchange, setIsErrorExchange] = useState(false);
+  const [orderReturnId, setOrderReturnId] = useState<number>(0);
+  const [isCanExchange, setIsCanExchange] = useState(false);
+  const [isStepExchange, setIsStepExchange] = useState(false); // đang bị thừa
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
-  const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
-    useState(true);
-  console.log("isReceivedReturnProducts", isReceivedReturnProducts);
+  const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(true);
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
   let queryOrderReturnType = query.get("type"); // trả hàng online hay offline
   const listStores = useFetchStores();
   const [inventoryResponse, setInventoryResponse] =
-    useState<Array<InventoryResponse> | null>(null);
+  useState<Array<InventoryResponse> | null>(null);
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
-  let orderReturnType = queryOrderReturnType
-    ? queryOrderReturnType.toUpperCase()
-    : "";
+  let orderReturnType = queryOrderReturnType ? queryOrderReturnType.toUpperCase() : "";
 
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer,
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
-  // nếu thay đổi rồi thì ko fill tiền nữa
-  const isPaymentAlreadyChanged = useSelector(
-    (state: RootReducerType) =>
-      state.orderReducer.orderPayment.isAlreadyChanged,
-  );
+  const isPaymentAlreadyChanged = useSelector((state: RootReducerType) => state.orderReducer.orderPayment.isAlreadyChanged);
 
   const [storeId, setStoreId] = useState<number | null>(null);
 
@@ -187,26 +151,22 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
-  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
+  console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [tags, setTags] = useState<string>("");
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
-    null,
-  );
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
   const dispatch = useDispatch();
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-  const [listReturnProducts, setListReturnProducts] = useState<
-    ReturnProductModel[]
-  >([]);
-  const [listItemCanBeReturn, setListItemCanBeReturn] = useState<
-    OrderLineItemResponse[]
-  >([]);
-  const [listOrderProductsResult, setListOrderProductsResult] = useState<
-    OrderLineItemResponse[]
-  >([]);
+  const [listReturnProducts, setListReturnProducts] = useState<ReturnProductModel[]>([]);
+  const [listItemCanBeReturn, setListItemCanBeReturn] = useState<OrderLineItemResponse[]>(
+    []
+  );
+  const [listOrderProductsResult, setListOrderProductsResult] = useState<OrderLineItemResponse[]>(
+    []
+  );
 
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
@@ -219,14 +179,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
   >([]);
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(
-    ShipmentMethodOption.DELIVER_LATER,
+    ShipmentMethodOption.DELIVER_LATER
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 
   const [isReturnAll, setIsReturnAll] = useState(true);
 
-  const [isAlreadyShowWarningPoint, setIsAlreadyShowWarningPoint] =
-    useState(false);
+  const [isAlreadyShowWarningPoint, setIsAlreadyShowWarningPoint] = useState(false)
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -237,23 +196,19 @@ const ScreenReturnCreate = (props: PropTypes) => {
     service: "",
     shipping_fee_paid_to_three_pls: null,
   });
-  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] =
-    useState<number | null>(0);
-  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
+    number | null
+  >(0);
+ const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number>(
-    PaymentMethodOption.PREPAYMENT,
+    PaymentMethodOption.PREPAYMENT
   );
-  const [orderReturnReasonResponse, setOrderReturnReasonResponse] =
-    useState<OrderReasonModel | null>(null);
-  const [isVisibleModalWarning, setIsVisibleModalWarning] =
-    useState<boolean>(false);
-  const [
-    isVisibleModalWarningPointRefund,
-    setIsVisibleModalWarningPointRefund,
-  ] = useState<boolean>(false);
-  const [returnMoneyType, setReturnMoneyType] = useState(
-    RETURN_MONEY_TYPE.return_now,
-  );
+  const [orderReturnReasonResponse, setOrderReturnReasonResponse] = useState<
+  OrderReasonModel|null
+  >(null);
+  const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
+  const [isVisibleModalWarningPointRefund, setIsVisibleModalWarningPointRefund] = useState<boolean>(false);
+  const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
   const [refund, setRefund] = useState<RefundModel>({
     moneyRefund: 0,
@@ -270,10 +225,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-  const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] =
-    useState(0);
-  const [orderConfig, setOrderConfig] =
-    useState<OrderConfigResponseModel | null>(null);
+  const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
+  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   //Store
   const [storeReturn, setStoreReturn] = useState<StoreResponse | null>(null);
@@ -282,17 +235,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
-  const [isShowSelectOrderSources, setIsShowSelectOrderSources] =
-    useState(false);
+  const [isShowSelectOrderSources, setIsShowSelectOrderSources] = useState(false)
 
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
-  const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] =
-    useState<string>();
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+  const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
   // const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<
-    ShippingServiceConfigDetailResponseModel[]
-  >([]);
+	const [shippingServiceConfig, setShippingServiceConfig] = useState<
+ShippingServiceConfigDetailResponseModel[]
+>([]);
 
   const printElementRef = useRef(null);
   const [printContent, setPrintContent] = useState("");
@@ -306,9 +256,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const recentAccountCode = useMemo(() => {
     return {
       accountCode: userReducer.account?.code,
-      accountFullName: userReducer.account?.full_name,
-    };
-  }, [userReducer.account?.code, userReducer.account?.full_name]);
+      accountFullName: userReducer.account?.full_name
+    }
+  }, [userReducer.account?.code, userReducer.account?.full_name])
 
   const initialForm: OrderRequest = useMemo(() => {
     return {
@@ -347,8 +297,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       payments: [],
       channel_id: null,
       automatic_discount: true,
-    };
-  }, [userReducer.account?.code]);
+    }
+  }, [userReducer.account?.code])
 
   let listPaymentMethodsReturnToCustomer = listPaymentMethods.find((single) => {
     return single.code === PaymentMethodCode.CASH;
@@ -361,28 +311,20 @@ const ScreenReturnCreate = (props: PropTypes) => {
         {
           returnMoneyMethod: listPaymentMethodsReturnToCustomer?.code,
           returnMoneyNote: undefined,
+          returnMoneyAmount: 0,
         },
       ],
       account_code: recentAccountCode.accountCode,
-      assignee_code: isExchange
-        ? recentAccountCode.accountCode
-        : OrderDetail?.assignee_code,
+      assignee_code: isExchange ? recentAccountCode.accountCode :  OrderDetail?.assignee_code,
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
-    };
-  }, [
-    OrderDetail?.assignee_code,
-    OrderDetail?.coordinator_code,
-    OrderDetail?.customer_note,
-    OrderDetail?.marketer_code,
-    OrderDetail?.note,
-    initialForm,
-    isExchange,
-    listPaymentMethodsReturnToCustomer?.code,
-    recentAccountCode.accountCode,
-  ]);
+    }
+  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.code, recentAccountCode.accountCode])
+
+  
+  
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -393,27 +335,21 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
 
   const totalAmountExchange = useMemo(() => {
-    return getTotalPrice(listExchangeProducts);
-  }, [listExchangeProducts]);
+    return getTotalPrice(listExchangeProducts)
+  }, [listExchangeProducts])
 
   const totalAmountExchangePlusShippingFee = useMemo(() => {
-    return (
-      totalAmountExchange +
-      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0)
-    );
-  }, [shippingFeeInformedToCustomer, totalAmountExchange]);
+    return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0)
+  }, [shippingFeeInformedToCustomer, totalAmountExchange])
 
   const totalAmountExchangeFinal = useMemo(() => {
-    return (
-      totalAmountExchange +
-      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0)
-    );
-  }, [shippingFeeInformedToCustomer, totalAmountExchange]);
+   return totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
+  }, [shippingFeeInformedToCustomer, totalAmountExchange])
 
-  console.log("totalAmountExchangeFinal", totalAmountExchangeFinal);
-  console.log("totalAmountExchange", totalAmountExchange);
-  console.log("shippingFeeInformedToCustomer", shippingFeeInformedToCustomer);
-
+  console.log('totalAmountExchangeFinal', totalAmountExchangeFinal)
+  console.log('totalAmountExchange', totalAmountExchange)
+  console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer)
+  
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
@@ -425,7 +361,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     );
   }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
-  console.log("totalAmountOrder", totalAmountOrder);
+  console.log('totalAmountOrder', totalAmountOrder)
 
   const totalAmountPayment = getAmountPayment(payments);
 
@@ -434,12 +370,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = Math.ceil(totalAmountOrder - totalAmountReturnProducts);
+    let result = (totalAmountOrder - totalAmountReturnProducts);
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
 
   let totalAmountOrderAfterPayments = useMemo(() => {
-    let result = Math.ceil(totalAmountCustomerNeedToPay - totalAmountPayment);
+    let result = (totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
@@ -453,7 +389,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         (f) =>
           f.status !== FulFillmentStatus.CANCELLED &&
           f.status !== FulFillmentStatus.RETURNED &&
-          f.status !== FulFillmentStatus.RETURNING,
+          f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
       if (checkIfOrderCanBeReturned(_data)) {
@@ -464,21 +400,19 @@ const ScreenReturnCreate = (props: PropTypes) => {
         setIsReturnAll(false);
       }
       setListItemCanBeReturn(listItemCanReturn);
-      let returnProduct: ReturnProductModel[] = listItemCanReturn.map(
-        (single) => {
-          return {
-            ...single,
-            maxQuantityCanBeReturned: single.quantity,
-            quantity: 0,
-            discount_items: single.discount_items.map((discount) => {
-              return {
-                ...discount,
-                amount: 0,
-              };
-            }),
-          };
-        },
-      );
+      let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
+        return {
+          ...single,
+          maxQuantityCanBeReturned: single.quantity,
+          quantity: 0,
+          discount_items: single.discount_items.map((discount) => {
+            return {
+              ...discount,
+              amount: 0,
+            }
+          })
+        };
+      });
       setListReturnProducts(returnProduct);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
@@ -535,86 +469,51 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
   };
 
-  const handleRecalculateOriginDiscount = useCallback(
-    (itemsResult: any) => {
-      return (
-        OrderDetail?.discounts?.map((singleDiscount) => {
-          let value = Math.ceil(
-            ((singleDiscount?.rate || 0) / 100) *
-              getTotalAmountAfterDiscount(itemsResult),
-          );
-          return {
-            ...singleDiscount,
-            value: value,
-            amount: value,
-          };
-        }) || null
-      );
-    },
-    [OrderDetail?.discounts],
-  );
-
-  const handlePrintOrderReturnOrExchange = useCallback(
-    (orderId: number, printType: string) => {
-      const orderIds = [orderId];
-      return new Promise((resolve, reject) => {
-        getPrintOrderReturnContentService(orderIds, printType)
-          .then((response) => {
-            if (isFetchApiSuccessful(response)) {
-              console.log("response", response);
-              setPrintContent(response.data[0].html_content);
-              if (handlePrint) {
-                handlePrint();
-              }
-            } else {
-              handleFetchApiError(
-                response,
-                "Lấy dữ liệu hóa đơn trả",
-                dispatch,
-              );
-            }
-          })
-          .finally(() => {
-            resolve("");
-          });
-      });
-    },
-    [dispatch, handlePrint],
-  );
-
-  /**
-   * Lấy channel ID đơn trả
-   * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
-   * Đơn gốc offline: POS
-   */
-  const getChannelIdReturn = useCallback(
-    (OrderDetail: OrderResponse) => {
-      if (isOrderFromPOS(OrderDetail)) {
-        return POS.channel_id;
-      } else {
-        if (orderReturnType === RETURN_TYPE_VALUES.offline) {
-          return POS.channel_id;
-        } else {
-          return OrderDetail.channel_id;
-        }
+  const handleRecalculateOriginDiscount = (itemsResult: any) => {
+    return OrderDetail?.discounts?.map(singleDiscount => {
+      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult)
+      return {
+        ...singleDiscount,
+        value: value,
+        amount: value,
       }
-    },
-    [orderReturnType],
-  );
+    }) || null
+  };
+  
+
+  const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
+    const orderIds = [orderId];
+    return new Promise((resolve, reject) => {
+      getPrintOrderReturnContentService(orderIds, printType).then(response => {
+        if (isFetchApiSuccessful(response)) {
+          console.log('response', response)
+          setPrintContent(response.data[0].html_content);
+          if(handlePrint) {
+            handlePrint();
+          }
+        } else {
+          handleFetchApiError(response, "Lấy dữ liệu hóa đơn trả", dispatch)
+        }
+      }).finally(() => {
+        resolve("")
+      })
+    })
+
+  }, [dispatch, handlePrint]);
 
   /**
-   * Lấy channel ID đơn đổi
-   * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
-   * Đơn gốc offline: POS
-   */
-  const getChannelIdExchange = (OrderDetail: OrderResponse) => {
-    if (isOrderFromPOS(OrderDetail)) {
-      return POS.channel_id;
+  * Lấy channel ID đơn trả
+  * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
+  * Đơn gốc offline: POS
+  */
+  const getChannelIdReturn = (OrderDetail: OrderResponse) => {
+    if(isOrderFromPOS(OrderDetail)) {
+      return POS.channel_id
     } else {
-      if (orderReturnType === RETURN_TYPE_VALUES.offline) {
-        return POS.channel_id;
+      if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+        return POS.channel_id
       } else {
-        return OrderDetail.channel_id;
+        return OrderDetail.channel_id
       }
     }
   };
@@ -1016,18 +915,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
     [checkIfHasReturnProduct, form, handleSubmitFormReturn, isReceivedReturnProducts, storeReturn],
   )
 
-  const getOrderSource = useCallback(
-    (form: FormInstance<any>) => {
-      let result = null;
-      result = form.getFieldValue("source_id")
-        ? form.getFieldValue("source_id")
-        : OrderDetail
-        ? OrderDetail.source_id
-        : null;
-      return result;
-    },
-    [OrderDetail],
-  );
+	const getOrderSource = (form:FormInstance<any>) => {
+		let result = null;
+		result = form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
+		return result;
+	};
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkPointFocus = (value: any) => {
@@ -1037,28 +929,21 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
     let discount = 0;
     value.items.forEach(
-      (p: any) => (discount = discount + p.discount_amount * p.quantity),
+      (p: any) => (discount = discount + p.discount_amount * p.quantity)
     );
 
     let rank = loyaltyUsageRules.find(
       (x) =>
         x.rank_id ===
-        (loyaltyPoint?.loyalty_level_id === null
-          ? 0
-          : loyaltyPoint?.loyalty_level_id),
+        (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
     );
 
     if (!loyaltyPoint) {
       showError("Khách hàng chưa tồn tại trên hệ thống Loyalty");
       return false;
     }
-    if (
-      rank?.block_order_have_discount === true &&
-      (discount > 0 || discountValue)
-    ) {
-      showError(
-        "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu",
-      );
+    if (rank?.block_order_have_discount === true && (discount > 0 || discountValue)) {
+      showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
       return false;
     }
     return true;
@@ -1090,123 +975,98 @@ const ScreenReturnCreate = (props: PropTypes) => {
     [handlePrintOrderReturnOrExchange, history, printType.returnAndExchange],
   );
 
-  const createShipmentRequest = useCallback(
-    (value: OrderRequest) => {
-      let objShipment: ShipmentRequest = {
-        delivery_service_provider_id: null, //id đối tác vận chuyển
-        delivery_service_provider_type: "", //shipper
-        delivery_transport_type: "",
-        shipper_code: "",
-        shipper_name: "",
-        handover_id: null,
-        service: null,
-        fee_type: "",
-        fee_base_on: "",
-        delivery_fee: null,
-        shipping_fee_paid_to_three_pls: null,
-        expected_received_date: value.dating_ship?.utc().format(),
-        reference_status: "",
-        shipping_fee_informed_to_customer: null,
-        reference_status_explanation: "",
-        cod: null,
-        cancel_reason: "",
-        tracking_code: "",
-        tracking_url: "",
-        received_date: "",
-        sender_address_id: null,
-        note_to_shipper: "",
-        requirements: value.requirements,
-        sender_address: null,
-        office_time: form.getFieldValue("office_time"),
-      };
+  const createShipmentRequest = (value: OrderRequest) => {
+    let objShipment: ShipmentRequest = {
+      delivery_service_provider_id: null, //id đối tác vận chuyển
+      delivery_service_provider_type: "", //shipper
+      delivery_transport_type: "",
+      shipper_code: "",
+      shipper_name: "",
+      handover_id: null,
+      service: null,
+      fee_type: "",
+      fee_base_on: "",
+      delivery_fee: null,
+      shipping_fee_paid_to_three_pls: null,
+      expected_received_date: value.dating_ship?.utc().format(),
+      reference_status: "",
+      shipping_fee_informed_to_customer: null,
+      reference_status_explanation: "",
+      cod: null,
+      cancel_reason: "",
+      tracking_code: "",
+      tracking_url: "",
+      received_date: "",
+      sender_address_id: null,
+      note_to_shipper: "",
+      requirements: value.requirements,
+      sender_address: null,
+      office_time: form.getFieldValue("office_time"),
+    };
 
-      switch (shipmentMethod) {
-        case ShipmentMethodOption.DELIVER_PARTNER:
-          return {
-            ...objShipment,
-            delivery_service_provider_id: thirdPL.delivery_service_provider_id,
-            delivery_service_provider_type: "external_service",
-            delivery_transport_type: thirdPL.delivery_transport_type,
-            delivery_service_provider_code:
-              thirdPL.delivery_service_provider_code,
-            delivery_service_provider_name:
-              thirdPL.delivery_service_provider_name,
-            sender_address_id: storeId,
-            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-            service: thirdPL.service,
-            shipping_fee_paid_to_three_pls:
-              thirdPL.shipping_fee_paid_to_three_pls,
-          };
+    switch (shipmentMethod) {
+      case ShipmentMethodOption.DELIVER_PARTNER:
+        return {
+          ...objShipment,
+          delivery_service_provider_id: thirdPL.delivery_service_provider_id,
+          delivery_service_provider_type: "external_service",
+          delivery_transport_type: thirdPL.delivery_transport_type,
+          delivery_service_provider_code: thirdPL.delivery_service_provider_code,
+          delivery_service_provider_name: thirdPL.delivery_service_provider_name,
+          sender_address_id: storeId,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+          service: thirdPL.service,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
+        };
 
-        case ShipmentMethodOption.SELF_DELIVER:
-          return {
-            ...objShipment,
-            delivery_service_provider_type:
-              thirdPL.delivery_service_provider_code,
-            service: thirdPL.service,
-            shipper_code: value.shipper_code,
-            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-            shipping_fee_paid_to_three_pls:
-              thirdPL.shipping_fee_paid_to_three_pls,
-            cod:
+      case ShipmentMethodOption.SELF_DELIVER:
+        return {
+          ...objShipment,
+          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
+          service: thirdPL.service,
+          shipper_code: value.shipper_code,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
+          cod:
+            totalAmountExchange +
+            (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+            getAmountPaymentRequest(payments) -
+            discountValue
+        };
+
+      case ShipmentMethodOption.PICK_AT_STORE:
+        objShipment.delivery_service_provider_type = ShipmentMethod.PICK_AT_STORE;
+        let newCod = totalAmountExchange;
+        if (shippingFeeInformedToCustomer !== null) {
+          if (
+            totalAmountExchange +
+            shippingFeeInformedToCustomer -
+            getAmountPaymentRequest(payments) >
+            0
+          ) {
+            newCod =
               totalAmountExchange +
-              (shippingFeeInformedToCustomer
-                ? shippingFeeInformedToCustomer
-                : 0) -
-              getAmountPaymentRequest(payments) -
-              discountValue,
-          };
-
-        case ShipmentMethodOption.PICK_AT_STORE:
-          objShipment.delivery_service_provider_type =
-            ShipmentMethod.PICK_AT_STORE;
-          let newCod = totalAmountExchange;
-          if (shippingFeeInformedToCustomer !== null) {
-            if (
-              totalAmountExchange +
-                shippingFeeInformedToCustomer -
-                getAmountPaymentRequest(payments) >
-              0
-            ) {
-              newCod =
-                totalAmountExchange +
-                shippingFeeInformedToCustomer -
-                getAmountPaymentRequest(payments);
-            }
-          } else {
-            if (totalAmountExchange - getAmountPaymentRequest(payments) > 0) {
-              newCod = totalAmountExchange - getAmountPaymentRequest(payments);
-            }
+              shippingFeeInformedToCustomer -
+              getAmountPaymentRequest(payments);
           }
-          return {
-            ...objShipment,
-            delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
-            cod: newCod,
-          };
+        } else {
+          if (totalAmountExchange - getAmountPaymentRequest(payments) > 0) {
+            newCod = totalAmountExchange - getAmountPaymentRequest(payments);
+          }
+        }
+        return {
+          ...objShipment,
+          delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
+          cod: newCod,
+        };
 
-        case ShipmentMethodOption.DELIVER_LATER:
-          return null;
+      case ShipmentMethodOption.DELIVER_LATER:
+        return null;
 
-        default:
-          break;
-      }
-    },
-    [
-      discountValue,
-      form,
-      payments,
-      shipmentMethod,
-      shippingFeeInformedToCustomer,
-      storeId,
-      thirdPL.delivery_service_provider_code,
-      thirdPL.delivery_service_provider_id,
-      thirdPL.delivery_service_provider_name,
-      thirdPL.delivery_transport_type,
-      thirdPL.service,
-      thirdPL.shipping_fee_paid_to_three_pls,
-      totalAmountExchange,
-    ],
-  );
+      default:
+        break;
+    }
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
@@ -1278,7 +1138,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     ],
   );
 
-  const createDiscountRequest = useCallback(() => {
+  const createDiscountRequest = () => {
     let objDiscount: OrderDiscountRequest = {
       rate: promotion?.rate,
       value: promotion?.value,
@@ -1400,15 +1260,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
     setCustomer(_objCustomer);
   };
 
-  const onChangeShippingAddress = (
-    _objShippingAddress: ShippingAddress | null,
-  ) => {
+  const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
     setShippingAddress(_objShippingAddress);
   };
 
-  const onChangeBillingAddress = (
-    _objBillingAddress: BillingAddress | null,
-  ) => {
+  const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
     setBillingAddress(_objBillingAddress);
   };
 
@@ -1421,12 +1277,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
 
   const onChangeTag = useCallback(
-    (value: []) => {
-      const strTag = value.join(",");
-      setTags(strTag);
-    },
-    [setTags],
-  );
+		(value: []) => {
+			const strTag = value.join(",");
+			setTags(strTag);
+		},
+		[setTags]
+	);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleCreateOrderExchangeByValue = (
@@ -1447,181 +1303,181 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
   
 
-   const handleSubmitFormReturnAndExchange = useCallback(
-     () => {
-      let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
-        return single.quantity > 0;
-      });
-      if (!checkIfHasReturnProduct) {
-        showError("Vui lòng chọn ít nhất 1 sản phẩm để trả!");
-        const element: any = document.getElementById("search_product_return");
-        scrollAndFocusToDomElement(element);
-        return;
-      }
-      if (!storeReturn) {
-        showError("Vui lòng chọn cửa hàng để trả!");
-        const element: any = document.getElementById("selectStoreReturn");
-        scrollAndFocusToDomElement(element);
-        return;
-      }
-      if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
-        showError("Vui lòng chọn ít nhất 1 sản phẩm mua!");
-        const element: any = document.getElementById("search_product");
-        const offsetY =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-        window.scrollTo({ top: offsetY, behavior: "smooth" });
-        element?.focus();
-        return;
-      }
-      if (
-        shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
-        !shippingAddress
-      ) {
-        showError("Vui lòng cập nhật địa chỉ giao hàng!");
-        const element: any = document.getElementById(
-          "customer_update_shipping_addresses_full_address",
-        );
-        scrollAndFocusToDomElement(element);
-        return;
-      }
-      if (checkIfNotHavePaymentsWhenReceiveAtStorePOS()) {
-        const element: any = document.getElementsByClassName(
-          "create-order-payment",
-        )[0] as HTMLElement;
-        scrollAndFocusToDomElement(element);
-        showError("Vui lòng thanh toán đủ số tiền!");
-        return;
-      }
-  
-      if (OrderDetail && listReturnProducts) {
-        let items = listReturnProducts.map((single) => {
-          const { maxQuantityCanBeReturned, ...rest } = single;
-          return rest;
-        });
-        let itemsResult = items.filter((single) => {
-          return single.quantity > 0;
-        });
-        let discounts = handleRecalculateOriginDiscount(itemsResult);
-  
-        const origin_order_id = OrderDetail.id;
-        let orderDetailResult: ReturnRequest = {
-          ...cloneDeep(OrderDetail),
-          source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
-          store_id: storeReturn ? storeReturn.id : null,
-          store: storeReturn ? storeReturn.name : "",
-          store_code: storeReturn ? storeReturn.code : "",
-          store_full_address: storeReturn ? storeReturn.address : "",
-          store_phone_number: storeReturn ? storeReturn.hotline : "",
-          action: "",
-          delivery_service_provider_id: null,
-          delivery_fee: null,
-          shipper_code: "",
-          shipper_name: "",
-          shipping_fee_paid_to_three_pls: null,
-          requirements: null,
-          items: itemsResult,
-          fulfillments: [],
-          payments: [],
-          reason_id: orderReturnReasonResponse?.id || 0,
-          reason_name:
-            orderReturnReasonResponse?.sub_reasons.find(
-              (single) => single.id === form.getFieldValue("reason_id"),
-            )?.name || "",
-          reason: form.getFieldValue("reason"),
-          sub_reason_id: form.getFieldValue("sub_reason_id") || null,
-          received: isReceivedReturnProducts,
-          discounts: handleRecalculateOriginDiscount(itemsResult),
-          account_code: recentAccountCode.accountCode,
-          assignee_code: OrderDetail.assignee_code || null,
-          total: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
-          total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
-          total_line_amount_after_line_discount: Math.floor(
-            getTotalAmountAfterDiscount(itemsResult),
-          ),
-          // clear giá trị
-          reference_code: "",
-          customer_note: "",
-          note: "",
-          url: "",
-          tags: null,
-          type: orderReturnType,
-          channel_id: getChannelIdReturn(OrderDetail),
-          money_refund: refund.moneyRefund,
-  
-          // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
-        };
-  
-        const order_return = cloneDeep(orderDetailResult);
-        order_return.fulfillments = [];
-        order_return.items = itemsResult;
-        order_return.payments = getPaymentOfReturnInExchange(itemsResult, discounts);
-  
-        let values: OrderRequest = form.getFieldsValue();
-        let order_exchange = onFinish(values);
-        // const bb = cloneDeep(OrderDetail);
-        // let order_exchange:any = {
-        //   ...bb,
-        //   ...abc
-        // };
-        if (!order_exchange) {
-          return;
-        }
-        order_exchange.channel_id = getChannelIdExchange(OrderDetail);
-        order_exchange.company_id = DEFAULT_COMPANY.company_id;
-        order_exchange.account_code = form.getFieldValue("account_code");
-        order_exchange.assignee_code = form.getFieldValue("assignee_code");
-        order_exchange.coordinator_code = form.getFieldValue("coordinator_code");
-        order_exchange.marketer_code = form.getFieldValue("marketer_code");
-        order_exchange.reference_code = form.getFieldValue("reference_code");
-        order_exchange.url = form.getFieldValue("url");
-        order_exchange.fulfillments = createFulFillmentRequest(values);
-        order_exchange.items = listExchangeProducts.concat(itemGifts);
-        order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments.filter(payment => payment.paid_amount > 0) : [];
-        const valuesExchange = {
-          origin_order_id,
-          order_return,
-          order_exchange,
-        };
-        console.log("valuesExchange", valuesExchange);
-        // return;
-        if (checkPointFocus(order_exchange)) {
-          if (!order_exchange?.customer_id) {
-            showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
-            const element: any = document.getElementById("search_customer");
-            element?.focus();
-          } else {
-            if (listExchangeProducts.length === 0) {
-              showError("Vui lòng chọn ít nhất 1 sản phẩm");
-              const element: any = document.getElementById("search_product");
-              element?.focus();
-            } else {
-              if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-                if (order_exchange?.delivery_service_provider_id === null) {
-                  showError("Vui lòng chọn đối tác giao hàng!");
-                } else {
-                  handleCreateOrderExchangeByValue(valuesExchange);
-                }
-              } else {
-                if (
-                  shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-                  !thirdPL.service
-                ) {
-                  showError("Vui lòng chọn đơn vị vận chuyển!");
-                  const element = document.getElementsByClassName(
-                    "orders-shipment",
-                  )[0] as HTMLElement;
-                  scrollAndFocusToDomElement(element);
-                } else {
-                  handleCreateOrderExchangeByValue(valuesExchange);
-                }
-              }
-            }
-          }
-        }
-      }
-     },
-     [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, payments, recentAccountCode.accountCode, refund.moneyRefund, shipmentMethod, shippingAddress, storeReturn, thirdPL.service, totalAmountCustomerNeedToPay],
-   )
+  const handleSubmitFormReturnAndExchange = useCallback(
+    () => {
+     let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
+       return single.quantity > 0;
+     });
+     if (!checkIfHasReturnProduct) {
+       showError("Vui lòng chọn ít nhất 1 sản phẩm để trả!");
+       const element: any = document.getElementById("search_product_return");
+       scrollAndFocusToDomElement(element);
+       return;
+     }
+     if (!storeReturn) {
+       showError("Vui lòng chọn cửa hàng để trả!");
+       const element: any = document.getElementById("selectStoreReturn");
+       scrollAndFocusToDomElement(element);
+       return;
+     }
+     if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
+       showError("Vui lòng chọn ít nhất 1 sản phẩm mua!");
+       const element: any = document.getElementById("search_product");
+       const offsetY =
+         element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+       window.scrollTo({ top: offsetY, behavior: "smooth" });
+       element?.focus();
+       return;
+     }
+     if (
+       shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
+       !shippingAddress
+     ) {
+       showError("Vui lòng cập nhật địa chỉ giao hàng!");
+       const element: any = document.getElementById(
+         "customer_update_shipping_addresses_full_address",
+       );
+       scrollAndFocusToDomElement(element);
+       return;
+     }
+     if (checkIfNotHavePaymentsWhenReceiveAtStorePOS()) {
+       const element: any = document.getElementsByClassName(
+         "create-order-payment",
+       )[0] as HTMLElement;
+       scrollAndFocusToDomElement(element);
+       showError("Vui lòng thanh toán đủ số tiền!");
+       return;
+     }
+ 
+     if (OrderDetail && listReturnProducts) {
+       let items = listReturnProducts.map((single) => {
+         const { maxQuantityCanBeReturned, ...rest } = single;
+         return rest;
+       });
+       let itemsResult = items.filter((single) => {
+         return single.quantity > 0;
+       });
+       let discounts = handleRecalculateOriginDiscount(itemsResult);
+ 
+       const origin_order_id = OrderDetail.id;
+       let orderDetailResult: ReturnRequest = {
+         ...cloneDeep(OrderDetail),
+         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
+         store_id: storeReturn ? storeReturn.id : null,
+         store: storeReturn ? storeReturn.name : "",
+         store_code: storeReturn ? storeReturn.code : "",
+         store_full_address: storeReturn ? storeReturn.address : "",
+         store_phone_number: storeReturn ? storeReturn.hotline : "",
+         action: "",
+         delivery_service_provider_id: null,
+         delivery_fee: null,
+         shipper_code: "",
+         shipper_name: "",
+         shipping_fee_paid_to_three_pls: null,
+         requirements: null,
+         items: itemsResult,
+         fulfillments: [],
+         payments: [],
+         reason_id: orderReturnReasonResponse?.id || 0,
+         reason_name:
+           orderReturnReasonResponse?.sub_reasons.find(
+             (single) => single.id === form.getFieldValue("reason_id"),
+           )?.name || "",
+         reason: form.getFieldValue("reason"),
+         sub_reason_id: form.getFieldValue("sub_reason_id") || null,
+         received: isReceivedReturnProducts,
+         discounts: handleRecalculateOriginDiscount(itemsResult),
+         account_code: recentAccountCode.accountCode,
+         assignee_code: OrderDetail.assignee_code || null,
+         total: Math.floor(getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)),
+         total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
+         total_line_amount_after_line_discount: Math.floor(
+           getTotalAmountAfterDiscount(itemsResult),
+         ),
+         // clear giá trị
+         reference_code: "",
+         customer_note: "",
+         note: "",
+         url: "",
+         tags: null,
+         type: orderReturnType,
+         channel_id: getChannelIdReturn(OrderDetail),
+         money_refund: refund.moneyRefund,
+ 
+         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
+       };
+ 
+       const order_return = cloneDeep(orderDetailResult);
+       order_return.fulfillments = [];
+       order_return.items = itemsResult;
+       order_return.payments = getPaymentOfReturnInExchange(itemsResult, discounts);
+ 
+       let values: OrderRequest = form.getFieldsValue();
+       let order_exchange = onFinish(values);
+       // const bb = cloneDeep(OrderDetail);
+       // let order_exchange:any = {
+       //   ...bb,
+       //   ...abc
+       // };
+       if (!order_exchange) {
+         return;
+       }
+       order_exchange.channel_id = getChannelIdExchange(OrderDetail);
+       order_exchange.company_id = DEFAULT_COMPANY.company_id;
+       order_exchange.account_code = form.getFieldValue("account_code");
+       order_exchange.assignee_code = form.getFieldValue("assignee_code");
+       order_exchange.coordinator_code = form.getFieldValue("coordinator_code");
+       order_exchange.marketer_code = form.getFieldValue("marketer_code");
+       order_exchange.reference_code = form.getFieldValue("reference_code");
+       order_exchange.url = form.getFieldValue("url");
+       order_exchange.fulfillments = createFulFillmentRequest(values);
+       order_exchange.items = listExchangeProducts.concat(itemGifts);
+       order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments.filter(payment => payment.paid_amount > 0) : [];
+       const valuesExchange = {
+         origin_order_id,
+         order_return,
+         order_exchange,
+       };
+       console.log("valuesExchange", valuesExchange);
+       // return;
+       if (checkPointFocus(order_exchange)) {
+         if (!order_exchange?.customer_id) {
+           showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
+           const element: any = document.getElementById("search_customer");
+           element?.focus();
+         } else {
+           if (listExchangeProducts.length === 0) {
+             showError("Vui lòng chọn ít nhất 1 sản phẩm");
+             const element: any = document.getElementById("search_product");
+             element?.focus();
+           } else {
+             if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+               if (order_exchange?.delivery_service_provider_id === null) {
+                 showError("Vui lòng chọn đối tác giao hàng!");
+               } else {
+                 handleCreateOrderExchangeByValue(valuesExchange);
+               }
+             } else {
+               if (
+                 shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+                 !thirdPL.service
+               ) {
+                 showError("Vui lòng chọn đơn vị vận chuyển!");
+                 const element = document.getElementsByClassName(
+                   "orders-shipment",
+                 )[0] as HTMLElement;
+                 scrollAndFocusToDomElement(element);
+               } else {
+                 handleCreateOrderExchangeByValue(valuesExchange);
+               }
+             }
+           }
+         }
+       }
+     }
+    },
+    [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, payments, recentAccountCode.accountCode, refund.moneyRefund, shipmentMethod, shippingAddress, storeReturn, thirdPL.service, totalAmountCustomerNeedToPay],
+  )
  
 
   const onReturnAndExchange = useCallback(
@@ -1651,7 +1507,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   /**
    * theme context data
    */
-  const createOrderReturnContextData = {
+   const createOrderReturnContextData = {
     orderDetail: OrderDetail,
     return: {
       listItemCanBeReturn,
@@ -1672,11 +1528,43 @@ const ScreenReturnCreate = (props: PropTypes) => {
     listStoreReturn,
   };
 
+  useEffect(() => {
+    let result = totalAmountCustomerNeedToPay < 0
+    ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
+    : 0;
+    form.setFieldsValue({
+      ...initialFormValueWithReturn,
+      returnMoneyField: [
+        {
+          ...initialFormValueWithReturn.returnMoneyField,
+          returnMoneyAmount: result,
+        },
+      ],
+    })
+  }, [form, initialFormValueWithReturn, totalAmountCustomerNeedToPay])
+
+  useEffect(() => {
+    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
+      return single.code === PaymentMethodCode.CASH;
+    });
+    if(paymentMethodReturnToCustomer) {
+      form.setFieldsValue({
+        ...initialFormValueWithReturn,
+        returnMoneyField: [
+          {
+            ...initialFormValueWithReturn.returnMoneyField,
+            returnMoneyMethod: paymentMethodReturnToCustomer.code,
+          },
+        ],
+      })
+    }
+  }, [form, initialFormValueWithReturn, listPaymentMethods])
+
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
   };
 
-  console.log("orderReturnType", orderReturnType);
+  console.log('orderReturnType', orderReturnType)
 
   const renderIfOrderFinished = () => {
     if (isReturnAll) {
@@ -1693,7 +1581,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           >
             <Row gutter={24} style={{ marginBottom: "70px" }}>
               <Col md={18}>
-                {!isShowSelectOrderSources && (
+                {!isShowSelectOrderSources  && (
                   <UpdateCustomerCard
                     OrderDetail={OrderDetail}
                     customerDetail={customer}
@@ -1717,9 +1605,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     levelOrder={3}
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
-                    setShippingAddressesSecondPhone={
-                      setShippingAddressesSecondPhone
-                    }
+										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                     form={form}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
@@ -1727,15 +1613,16 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     updateOrder
                     initDefaultOrderSourceId={OrderDetail?.source_id}
                     isAutoDefaultOrderSource={false}
+                    customerChange={customerChange}
+                    setCustomerChange={setCustomerChange}
                   />
                 )}
 
                 <CardReturnProductContainer
                   discountRate={discountRate}
+                  isDetailPage={false}
                   orderId={orderId}
-                  setIsVisibleModalWarningPointRefund={
-                    setIsVisibleModalWarningPointRefund
-                  }
+                  setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
                   listStores={listStores}
                   autoCompleteRef={productReturnAutoCompleteRef}
                   searchVariantInputValue={searchVariantInputValue}
@@ -1763,7 +1650,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                   returnOrderInformation={{
                     totalAmountReturn: totalAmountReturnProducts,
-                    totalAmountExchangePlusShippingFee,
+                    totalAmountExchangePlusShippingFee
                   }}
                   orderConfig={orderConfig}
                   coupon={coupon}
@@ -1772,9 +1659,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   setPromotion={setPromotion}
                   customer={customer}
                   loyaltyPoint={loyaltyPoint}
-                  countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+                  countFinishingUpdateCustomer = {countFinishingUpdateCustomer}
                   isCreateReturn
-                  isExchange={isExchange}
+                  isExchange = {isExchange}
                   shipmentMethod={shipmentMethod}
                   listStores={listStores}
                 />
@@ -1798,41 +1685,33 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
                     returnOrderInformation={{
-                      totalAmountReturn: totalAmountReturnProducts,
+                      totalAmountReturn: totalAmountReturnProducts
                     }}
                     shipmentMethod={shipmentMethod}
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                     isDisablePostPayment={isDisablePostPayment}
-                    isOrderReturnFromPOS={isOrderFromPOS(OrderDetail)}
+                    isOrderReturnFromPOS = {isOrderFromPOS(OrderDetail)}
                   />
                 )}
                 {isExchange && (
                   <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                     <OrderCreateShipment
-                      shipmentMethod={
-                        isOrderFromPOS(OrderDetail)
-                          ? ShipmentMethodOption.PICK_AT_STORE
-                          : shipmentMethod
-                      }
+                      shipmentMethod={isOrderFromPOS(OrderDetail) ? ShipmentMethodOption.PICK_AT_STORE : shipmentMethod}
                       orderPrice={orderAmount}
                       storeDetail={storeDetail}
                       customer={customer}
                       items={listExchangeProducts}
                       isCancelValidateDelivery={false}
-                      totalAmountCustomerNeedToPay={
-                        totalAmountOrderAfterPayments
-                      }
-                      setShippingFeeInformedToCustomer={
-                        ChangeShippingFeeInformedToCustomer
-                      }
+                      totalAmountCustomerNeedToPay={totalAmountOrderAfterPayments}
+                      setShippingFeeInformedToCustomer={ChangeShippingFeeInformedToCustomer}
                       onSelectShipment={onSelectShipment}
                       thirdPL={thirdPL}
                       setThirdPL={setThirdPL}
                       form={form}
-                      shippingServiceConfig={shippingServiceConfig}
-                      orderConfig={orderConfig}
-                      isOrderReturnFromPOS={isOrderFromPOS(OrderDetail)}
+											shippingServiceConfig={shippingServiceConfig}
+											orderConfig={orderConfig}
+                      isOrderReturnFromPOS = {isOrderFromPOS(OrderDetail)}
                     />
                   </Card>
                 )}
@@ -1845,18 +1724,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
               <Col md={6}>
                 <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
-                <CreateOrderSidebarOrderInformation
-                  form={form}
-                  orderDetail={OrderDetail}
-                  storeId={storeId}
-                  updateOrder
-                  isOrderReturn
-                  isExchange={isExchange}
-                />
-                <OrderReturnReason
-                  orderReturnReasonResponse={orderReturnReasonResponse}
-                  form={form}
-                />
+                <CreateOrderSidebarOrderInformation form={form} orderDetail={OrderDetail} storeId={storeId} updateOrder isOrderReturn isExchange = {isExchange} />
+                <OrderReturnReason orderReturnReasonResponse={orderReturnReasonResponse} form={form} />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
                 <Card title="THÔNG TIN BỔ SUNG CẬP NHẬT">
                   <CreateOrderSidebarOrderExtraInformation
@@ -1872,22 +1741,23 @@ const ScreenReturnCreate = (props: PropTypes) => {
         </div>
         <ReturnBottomBar
           onReturn={() => {
-            isPrint = false;
-            onReturn();
+            isPrint= false;
+            onReturn()
           }}
           onReturnAndPrint={() => {
-            isPrint = true;
-            onReturn();
+            isPrint= true;
+            onReturn()
           }}
           onReturnAndExchange={() => {
-            isPrint = false;
-            onReturnAndExchange();
+            isPrint= false;
+            onReturnAndExchange()
           }}
           onReturnAndExchangeAndPrint={() => {
-            isPrint = true;
-            onReturnAndExchange();
+            isPrint= true;
+            onReturnAndExchange()
           }}
           onCancel={() => handleCancel()}
+          isCanExchange={isCanExchange}
           isExchange={isExchange}
         />
         <ModalConfirm
@@ -1898,7 +1768,15 @@ const ScreenReturnCreate = (props: PropTypes) => {
             if (!isExchange) {
               handleSubmitFormReturn();
             } else {
-              handleSubmitFormReturnAndExchange();
+              if (isStepExchange) {
+                onReturnAndExchange();
+              } else {
+                setIsStepExchange(true);
+                setTimeout(() => {
+                  const element: any = document.getElementById("store_id");
+                  scrollAndFocusToDomElement(element);
+                }, 500);
+              }
             }
             setIsVisibleModalWarning(false);
           }}
@@ -1919,17 +1797,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
           onOk={() => {
             setIsVisibleModalWarningPointRefund(false);
           }}
-          footer={
-            <Button
-              type="primary"
-              onClick={() => {
-                setIsAlreadyShowWarningPoint(true);
-                setIsVisibleModalWarningPointRefund(false);
-              }}
-            >
+          footer={(
+            <Button type="primary" onClick={() =>{
+              setIsAlreadyShowWarningPoint(true)
+              setIsVisibleModalWarningPointRefund(false)}
+            } >
               Đồng ý
             </Button>
-          }
+          )}
         >
           <div className="modal-confirm-container">
             <div>
@@ -1946,14 +1821,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
             </div>
             <div className="modal-confirm-right margin-left-20">
               <div className="modal-confirm-title">{"Chú ý"}</div>
-              <div className="modal-confirm-sub-title">
-                Đơn gốc có thể đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị
-                lỗi điểm hoàn và tiền hoàn lại cho khách!
-              </div>
+                <div className="modal-confirm-sub-title">Đơn gốc có thể đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị lỗi điểm hoàn và tiền hoàn lại cho khách!</div>
             </div>
           </div>
         </Modal>
-        <div style={{ display: "none" }}>
+        <div style={{display: "none"}}>
           <div className="printContent333" ref={printElementRef}>
             <div
               dangerouslySetInnerHTML={{
@@ -1967,20 +1839,23 @@ const ScreenReturnCreate = (props: PropTypes) => {
     );
   };
 
-  const eventFunctional = useCallback((event: KeyboardEvent) => {
-    if (["F9", "F10"].indexOf(event.key) !== -1) {
+  const eventFunctional=useCallback((event:KeyboardEvent)=>{
+    if (
+      ["F9", "F10"].indexOf(
+        event.key
+      ) !== -1
+    ) {
       event.preventDefault();
       event.stopPropagation();
     }
 
     switch (event.key) {
       case "F9":
-        const btnFinishReturnElement = document.getElementById("btn-return");
+        const btnFinishReturnElement=document.getElementById("btn-return");
         btnFinishReturnElement?.click();
-        break;
+          break;
       case "F10":
-        const btnFinishReturnPrintElement =
-          document.getElementById("btn-return-print");
+        const btnFinishReturnPrintElement=document.getElementById("btn-return-print");
         btnFinishReturnPrintElement?.click();
         break;
     }
@@ -2000,124 +1875,113 @@ const ScreenReturnCreate = (props: PropTypes) => {
               return single.variant_barcode === Code;
             });
 
-            console.log("selectedVariant", selectedVariant);
+          console.log("selectedVariant", selectedVariant)
 
-            if (selectedVariant) {
-              let selectedVariantWithMaxQuantity: ReturnProductModel = {
-                ...selectedVariant,
-                maxQuantityCanBeReturned: selectedVariant.quantity,
-              };
+          if (selectedVariant) {
+            let selectedVariantWithMaxQuantity: ReturnProductModel = {
+              ...selectedVariant,
+              maxQuantityCanBeReturned: selectedVariant.quantity,
+            };
 
-              let indexSelectedVariant = listReturnProducts.findIndex(
-                (single) => {
-                  return (
-                    single.variant_id ===
-                    selectedVariantWithMaxQuantity.variant_id
-                  );
-                },
-              );
+            let indexSelectedVariant = listReturnProducts.findIndex((single) => {
+              return single.variant_id === selectedVariantWithMaxQuantity.variant_id;
+            });
 
-              let result = [...listReturnProducts];
+            let result = [...listReturnProducts];
 
-              if (indexSelectedVariant === -1) {
-                selectedVariantWithMaxQuantity.quantity = 1;
-                result = [
-                  selectedVariantWithMaxQuantity,
-                  ...listReturnProducts,
-                ];
-              } else {
-                let selectedVariant = result[indexSelectedVariant];
-                if (
-                  selectedVariant.maxQuantityCanBeReturned &&
-                  selectedVariant.quantity <
-                    selectedVariant.maxQuantityCanBeReturned
-                ) {
-                  selectedVariant.quantity += 1;
-                }
-              }
-              setListReturnProducts(result);
+            if (indexSelectedVariant === -1) {
+              selectedVariantWithMaxQuantity.quantity = 1;
+              result = [selectedVariantWithMaxQuantity, ...listReturnProducts];
             }
+            else {
+              let selectedVariant = result[indexSelectedVariant];
+              if (selectedVariant.maxQuantityCanBeReturned
+                && selectedVariant.quantity < selectedVariant.maxQuantityCanBeReturned) {
+                selectedVariant.quantity += 1;
+              }
+            }
+            setListReturnProducts(result);
           }
           barcode=""
         } else {
           barcode = barcode + event.key;
         }
-      };
-
-      if (event.target instanceof HTMLInputElement) {
-        if (event.target.id === "search_product_return") {
-          if (event.key !== "Enter") barcode = barcode + event.key;
-          console.log("barcode", barcode);
-          handleDelayActionWhenInsertTextInSearchInput(
-            productReturnAutoCompleteRef,
-            () => handleProductReturn(event.key, barcode),
-            200,
-          );
-          return;
-        }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    },
-    [listItemCanBeReturn, listReturnProducts, productReturnAutoCompleteRef],
-  );
+      // else if(event.key!=="Enter"){
+      //   const searchProductReturnElement:any= document.getElementById("search_product_return");
+      //   const txtSearchProductReturn=searchProductReturnElement?.value;
+      //   if (txtSearchProductReturn && txtSearchProductReturn.length>=3) {
+      //     let result = listItemCanBeReturn.filter((single) => {
+      //       return (
+      //         fullTextSearch(searchVariantInputValue, single.variant) ||
+      //         fullTextSearch(searchVariantInputValue, single.sku)
+      //       );
+      //     });
+
+      //     setListOrderProductsResult(result);
+      //   }
+      // }
+    }
+
+    if(event.target instanceof HTMLInputElement)
+    {
+      if(event.target.id==="search_product_return"){
+        if(event.key !== "Enter")
+          barcode=barcode+event.key;
+        console.log("barcode",barcode)
+        handleDelayActionWhenInsertTextInSearchInput(
+          productReturnAutoCompleteRef,
+          () => handleProductReturn(event.key, barcode),
+          200
+        );
+        return;
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[listItemCanBeReturn, listReturnProducts])
 
   useEffect(() => {
     if (storeId != null) {
-      dispatch(
-        StoreDetailCustomAction(storeId, (data: StoreCustomResponse) => {
-          setStoreDetail(data);
-          dispatch(changeStoreDetailAction(data));
-        }),
-      );
+      dispatch(StoreDetailCustomAction(storeId, (data: StoreCustomResponse) => {
+        setStoreDetail(data);
+        dispatch(changeStoreDetailAction(data))
+      }));
       getStoreBankAccountNumbersService({
-        store_ids: [storeId],
-      })
-        .then((response) => {
-          if (isFetchApiSuccessful(response)) {
-            dispatch(getStoreBankAccountNumbersAction(response.data.items));
-            const selected = response.data.items.find(
-              (single) => single.default && single.status,
-            );
-            if (isShouldSetDefaultStoreBankAccount) {
-              if (selected) {
-                dispatch(
-                  changeSelectedStoreBankAccountAction(selected.account_number),
-                );
-              } else {
-                let paymentsResult = [...payments];
-                let bankPaymentIndex = paymentsResult.findIndex(
-                  (payment) =>
-                    payment.payment_method_code ===
-                    PaymentMethodCode.BANK_TRANSFER,
-                );
-                if (bankPaymentIndex > -1) {
-                  paymentsResult[bankPaymentIndex].paid_amount = 0;
-                  paymentsResult[bankPaymentIndex].amount = 0;
-                  paymentsResult[bankPaymentIndex].return_amount = 0;
-                }
-                setPayments(paymentsResult);
-                dispatch(changeSelectedStoreBankAccountAction(undefined));
-              }
-            }
-          } else {
-            dispatch(getStoreBankAccountNumbersAction([]));
-            handleFetchApiError(
-              response,
-              "Danh sách số tài khoản ngân hàng của cửa hàng",
-              dispatch,
-            );
-          }
-        })
-        .catch((error) => {
-          console.log("error", error);
-        });
+				store_ids: [storeId]
+			}).then((response) => {
+				if (isFetchApiSuccessful(response)) {
+					dispatch(getStoreBankAccountNumbersAction(response.data.items))
+          const selected = response.data.items.find(single => single.default && single.status);
+					if(isShouldSetDefaultStoreBankAccount) {
+						if(selected) {
+							dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
+						} else {
+							let paymentsResult = [...payments]
+							let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
+							if(bankPaymentIndex > -1) {
+								paymentsResult[bankPaymentIndex].paid_amount = 0;
+								paymentsResult[bankPaymentIndex].amount = 0;
+								paymentsResult[bankPaymentIndex].return_amount = 0;
+							}
+							setPayments(paymentsResult);
+							dispatch(changeSelectedStoreBankAccountAction(undefined))
+						}
+
+					}
+				} else {
+					dispatch(getStoreBankAccountNumbersAction([]))
+					handleFetchApiError(response, "Danh sách số tài khoản ngân hàng của cửa hàng", dispatch)
+				}
+			}).catch((error) => {
+				console.log('error', error)
+			})
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, storeId, isShouldSetDefaultStoreBankAccount]);
 
   useEffect(() => {
-    dispatch(setIsShouldSetDefaultStoreBankAccountAction(true));
-  }, [dispatch]);
+    dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
+  }, [dispatch])
 
   useEffect(() => {
     setShippingFeeInformedToCustomer(0);
@@ -2130,62 +1994,56 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(
-        getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
-          setCustomer(data);
-          dispatch(changeOrderCustomerAction(data));
-        }),
-      );
-      setShippingAddressesSecondPhone(
-        OrderDetail?.shipping_address?.second_phone || "",
-      );
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
+        setCustomer(data);
+        dispatch(changeOrderCustomerAction(data));
+      }));
+      setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone||'');
     }
   }, [dispatch, OrderDetail]);
 
   useEffect(() => {
     if (customer) {
-      dispatch(
-        getLoyaltyPoint(customer.id, (data) => {
-          setLoyaltyPoint(data);
-          setCountFinishingUpdateCustomer((prev) => prev + 1);
-        }),
-      );
+      dispatch(getLoyaltyPoint(customer.id, (data) => {
+				setLoyaltyPoint(data);
+				setCountFinishingUpdateCustomer(prev => prev + 1);
+			}));
       if (customer.shipping_addresses) {
-        let shipping_addresses_index: number =
-          customer.shipping_addresses.findIndex((x) => x.default === true);
-        let shipping_addresses =
-          shipping_addresses_index !== -1
-            ? customer.shipping_addresses[shipping_addresses_index]
-            : null;
+        let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
+        let shipping_addresses=shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null
         onChangeShippingAddress(shipping_addresses);
-      } else onChangeShippingAddress(null);
+      }
+      else
+        onChangeShippingAddress(null)
       if (customer.billing_addresses) {
-        let billing_addresses_index = customer.billing_addresses.findIndex(
-          (x) => x.default === true,
-        );
-        onChangeBillingAddress(
-          billing_addresses_index !== -1
-            ? customer.billing_addresses[billing_addresses_index]
-            : null,
-        );
-      } else onChangeBillingAddress(null);
+        let billing_addresses_index = customer.billing_addresses.findIndex(x => x.default === true);
+        onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
+      }
+      else
+        onChangeBillingAddress(null)
     } else {
       setLoyaltyPoint(null);
-      setCountFinishingUpdateCustomer((prev) => prev + 1);
+      setCountFinishingUpdateCustomer(prev => prev + 1);
     }
   }, [dispatch, customer]);
+
+  useEffect(() => {
+    if (isStepExchange && listExchangeProducts.length > 0) {
+      setIsCanExchange(true);
+    }
+  }, [isStepExchange, listExchangeProducts.length]);
 
   useEffect(() => {
     dispatch(
       actionGetOrderReturnReasons((response) => {
         setOrderReturnReasonResponse(response);
-      }),
+      })
     );
-  }, [dispatch]);
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch]);
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(
@@ -2194,47 +2052,45 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // update: ko bỏ quẹt thẻ nữa
         let result = response.filter((single) => single.code);
         setListPaymentMethods(result);
-      }),
+      })
     );
+
   }, [customer?.id, dispatch]);
 
   useEffect(() => {
-    let cash = listPaymentMethods.find(
-      (single) => single.code === PaymentMethodCode.CASH,
-    );
-    if (cash && !isPaymentAlreadyChanged && isExchange && totalAmountCustomerNeedToPay > 0) {
-      setPayments([
-        {
-          amount: Math.ceil(totalAmountCustomerNeedToPay),
-          customer_id: customer?.id || null,
-          name: cash.name,
-          note: "",
-          paid_amount: Math.ceil(totalAmountCustomerNeedToPay),
-          payment_method: "Tiền mặt",
-          payment_method_code: PaymentMethodCode.CASH,
-          payment_method_id: cash.id,
-          reference: "",
-          return_amount: 0,
-          source: "",
-          status: "paid",
-          type: "",
-        },
-      ]);
+    let cash = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
+    if(cash && !isPaymentAlreadyChanged) {
+      setPayments([{
+        amount: Math.ceil(totalAmountCustomerNeedToPay),
+        customer_id: customer?.id || null,
+        name: cash.name,
+        note: "",
+        paid_amount: Math.ceil(totalAmountCustomerNeedToPay),
+        payment_method: "Tiền mặt",
+        payment_method_code: PaymentMethodCode.CASH,
+        payment_method_id: cash.id,
+        reference: "",
+        return_amount: 0,
+        source: "",
+        status: "paid",
+        type: "",
+      }])
     }
-  }, [customer?.id, isExchange, isPaymentAlreadyChanged, listPaymentMethods, totalAmountCustomerNeedToPay]);
+  }, [customer?.id, isPaymentAlreadyChanged, listPaymentMethods, totalAmountCustomerNeedToPay])
 
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
+  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
   useEffect(() => {
     /**
-     * lấy cấu hình bán tồn kho
-     */
-    dispatch(
+    * lấy cấu hình bán tồn kho
+    */
+     dispatch(
       orderConfigSaga((data: OrderConfigResponseModel) => {
         setOrderConfig(data);
-      }),
+      })
     );
-  }, [dispatch]);
+  }, [dispatch])
+
 
   /**
    * orderSettings
@@ -2245,116 +2101,103 @@ const ScreenReturnCreate = (props: PropTypes) => {
   //     cauHinhInNhieuLienHoaDon: 3,
   //   });
   // }, []);
-  useEffect(() => {
-    dispatch(
-      actionListConfigurationShippingServiceAndShippingFee((response) => {
-        setShippingServiceConfig(response);
-        dispatch(changeShippingServiceConfigAction(response));
-      }),
-    );
-  }, [dispatch]);
+	useEffect(() => {
+		dispatch(
+			actionListConfigurationShippingServiceAndShippingFee((response) => {
+				setShippingServiceConfig(response);
+        dispatch(changeShippingServiceConfigAction(response))
+			})
+		);
+	}, [dispatch]);
 
   useEffect(() => {
-    dispatch(
-      getListStoresSimpleAction((data: StoreResponse[]) => {
-        setListStoreReturn(data);
-      }),
-    );
-  }, [dispatch]);
+    dispatch(getListStoresSimpleAction((data: StoreResponse[]) => {
+      setListStoreReturn(data);
+    }))
+  }, [dispatch])
 
   useEffect(() => {
     const shipmentMethodsToSelectSource = [
       ShipmentMethodOption.DELIVER_PARTNER,
       ShipmentMethodOption.SELF_DELIVER,
       ShipmentMethodOption.DELIVER_LATER,
-    ];
+    ]
     //isOrderFromPOS(OrderDetail) &&
     if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
       setIsShowSelectOrderSources(true);
       form.setFieldsValue({
-        source_id: OrderDetail?.source_id,
-      });
+        source_id: OrderDetail?.source_id
+      })
     } else {
       setIsShowSelectOrderSources(false);
       form.setFieldsValue({
-        source_id: undefined,
-      });
+        source_id: undefined
+      })
     }
-  }, [OrderDetail, OrderDetail?.source_id, form, shipmentMethod]);
+  }, [OrderDetail, OrderDetail?.source_id, form, isStepExchange, shipmentMethod])
 
   useEffect(() => {
-    if (
-      listExchangeProducts &&
-      listExchangeProducts != null &&
-      listExchangeProducts?.length > 0
-    ) {
-      let variant_id: Array<number> = [];
-      listExchangeProducts.forEach((element) =>
-        variant_id.push(element.variant_id),
-      );
-      dispatch(
-        inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse),
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, listExchangeProducts?.length]);
+		if (listExchangeProducts && listExchangeProducts != null && listExchangeProducts?.length > 0) {
+			let variant_id: Array<number> = [];
+			listExchangeProducts.forEach((element) => variant_id.push(element.variant_id));
+			dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, listExchangeProducts?.length]);
 
   useEffect(() => {
-    setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE);
-  }, []);
+    setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE)
+  }, [])
 
   useEffect(() => {
-    if (listExchangeProducts.length > 0) {
-      setIsExchange(true);
+    if(listExchangeProducts.length > 0) {
+      setIsExchange(true)
     } else {
-      setIsExchange(false);
+      setIsExchange(false)
     }
-  }, [listExchangeProducts.length]);
+  }, [listExchangeProducts.length])
 
-  const storeIdLogin = useGetStoreIdFromLocalStorage();
+  const storeIdLogin = useGetStoreIdFromLocalStorage()
 
   useEffect(() => {
-    if (storeIdLogin) {
-      dispatch(StoreDetailAction(storeIdLogin, setStoreReturn));
+    if(storeIdLogin) {
+      dispatch(StoreDetailAction(storeIdLogin, setStoreReturn))
     }
-  }, [dispatch, storeIdLogin]);
+  }, [dispatch, storeIdLogin])
 
   useEffect(() => {
-    if (isExchange) {
-      form.setFieldsValue({
-        assignee_codes: initialFormValueWithReturn.assignee_code,
-      });
-    }
-  }, [form, initialFormValueWithReturn, isExchange]);
+   if(isExchange) {
+     form.setFieldsValue({
+      assignee_codes: initialFormValueWithReturn.assignee_code,
+     })
+   }
+  }, [form, initialFormValueWithReturn, isExchange])
 
-  useEffect(() => {
-    window.addEventListener("keydown", eventKeydown);
+  useEffect(()=>{
+    window.addEventListener("keydown",eventKeydown);
     window.addEventListener("keydown", eventFunctional);
-    return () => {
+    return ()=>{
       window.removeEventListener("keydown", eventFunctional);
       window.removeEventListener("keydown", eventKeydown);
-    };
-  }, [eventFunctional, eventKeydown]);
+    }
+  },[eventFunctional,eventKeydown])
 
   const checkIfWrongPath = () => {
     const checkIfOnline = () => {
-      return (
-        orderReturnType !== RETURN_TYPE_VALUES.online &&
-        orderReturnType !== RETURN_TYPE_VALUES.offline
-      );
+      return orderReturnType !== RETURN_TYPE_VALUES.online && orderReturnType!==RETURN_TYPE_VALUES.offline
     };
     const checkIfOffline = () => {
-      return orderReturnType !== RETURN_TYPE_VALUES.offline;
+      return orderReturnType!==RETURN_TYPE_VALUES.offline
     };
-    if (isOrderFromPOS(OrderDetail)) {
-      return checkIfOffline();
+    if(isOrderFromPOS(OrderDetail)) {
+      return checkIfOffline()
     } else {
-      return checkIfOnline();
+      return checkIfOnline()
     }
   };
-
-  if (checkIfWrongPath()) {
-    return <p style={{ marginTop: 20 }}>Vui lòng kiểm tra đường dẫn!</p>;
+  
+  if(checkIfWrongPath()) {
+    return <p style={{marginTop: 20}}>Vui lòng kiểm tra đường dẫn!</p>;
   }
 
   return (
@@ -2368,12 +2211,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
             path: `${UrlConfig.HOME}`,
           },
           {
-            name: isOrderFromPOS(OrderDetail)
-              ? `Danh sách đơn trả hàng offline`
-              : `Danh sách đơn trả hàng online`,
-            path: isOrderFromPOS(OrderDetail)
-              ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`
-              : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
+            name: isOrderFromPOS(OrderDetail) ? `Danh sách đơn trả hàng offline` : `Danh sách đơn trả hàng online`,
+            path: isOrderFromPOS(OrderDetail) ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}` : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
           },
           {
             name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
@@ -2383,8 +2222,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
         {!isFetchData
           ? "Loading ..."
           : isOrderFinished
-          ? renderIfOrderFinished()
-          : renderIfOrderNotFinished()}
+            ? renderIfOrderFinished()
+            : renderIfOrderNotFinished()}
       </ContentContainer>
     </CreateOrderReturnContext.Provider>
   );

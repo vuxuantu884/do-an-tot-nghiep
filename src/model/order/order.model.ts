@@ -148,6 +148,10 @@ export interface OrderSearchQuery {
   expected_receive_on_min: string | null;
   expected_receive_on_max: string | null;
   expected_receive_predefined: string | null;
+  returning_date_min?: string | null;
+  returning_date_max?: string | null;
+  returned_date_min?: string | null;
+  returned_date_max?: string | null;
   exported_on_min?: string | null;
   exported_on_max?: string | null;
   exported_on_predefined?: string | null;

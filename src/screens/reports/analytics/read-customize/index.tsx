@@ -49,16 +49,16 @@ function CreateAnalytics() {
     const handleRQuery = useCallback(async (rQuery: string, params: AnalyticQuery) => {
         console.log(rQuery)
         let name = "";
+        const timeOptionAt = form.getFieldValue(ReportifyFormFields.timeAtOption);
         switch (mode) {
             case SUBMIT_MODE.EXPORT_EXCEL:
-                exportReportToExcel(dispatch, rQuery, reportInfo?.name)
+                setIsLoadingExport(true);
+                await exportReportToExcel(dispatch, timeOptionAt ? { q: rQuery, options: timeOptionAt } : { q: rQuery }, reportInfo?.name)
                 setIsLoadingExport(false);
-
                 break;
             case SUBMIT_MODE.SAVE_QUERY:
                 name = formEditInfo.getFieldValue("name");
                 const chartQuery = getChartQuery(params, chartColumnSelected || []);
-                const timeOptionAt = form.getFieldValue(ReportifyFormFields.timeAtOption)
                 if (Number(id) && name) {
                     const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch,
                         updateAnalyticsCustomService, Number(id),
@@ -92,7 +92,6 @@ function CreateAnalytics() {
                 name = formCloneReport.getFieldValue("name")
                 if (name) {
                     const chartQuery = getChartQuery(params, chartColumnSelected || []);
-                    const timeOptionAt = form.getFieldValue(ReportifyFormFields.timeAtOption)
 
                     const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch,
                         saveAnalyticsCustomService, {

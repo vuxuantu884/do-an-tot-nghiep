@@ -71,7 +71,6 @@ import {
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import { handleChangeMaterial } from "utils/ProductUtils";
-import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { careInformation } from "../component/CareInformation/care-value";
 import CareModal from "../component/CareInformation/CareModal";
@@ -83,6 +82,7 @@ import { ProductParams } from "../ProductDetailScreen";
 import AddVariantsModal from "./add-variants-modal";
 import { StyledComponent } from "./styles";
 import { debounce } from "lodash";
+import ModalUploadImages from "../component/ModalUploadImages";
 
 const {Item} = Form;
 let tempActive: number = 0;
@@ -192,25 +192,6 @@ const ProductDetailScreen: React.FC = () => {
     setVisiblePickAvatar(true);
     setVariantImage(variantImages);
   }, [form]);
-
-  const onSaveImage = useCallback(
-    (imageId: number) => {
-      let variants: Array<VariantResponse> = form.getFieldValue("variants");
-      variants.forEach((item) => {
-        item.variant_images = item.variant_images === null ? [] : item.variant_images;
-        item.variant_images.forEach((item1) => {
-          if (item1.image_id === imageId) {
-            item1.product_avatar = true;
-          } else {
-            item1.product_avatar = false;
-          }
-        });
-      });
-      form.setFieldsValue({variants: [...variants]});
-      setVisiblePickAvatar(false);
-    },
-    [form]
-  );
 
   const getFirstAvatar = useCallback(() => {
     const variants: Array<VariantResponse> = form.getFieldValue("variants");
@@ -364,6 +345,7 @@ const ProductDetailScreen: React.FC = () => {
       if (product.collections) {
         product.collections = product.collections.map((e: CollectionCreateRequest)=>e.code);
       }
+      
       setLoadingVariant(true);
       dispatch(productUpdateAction(idNumber, product, onResultUpdate));
     },
@@ -483,6 +465,27 @@ const ProductDetailScreen: React.FC = () => {
         onResultFinish));
     },
     [careLabelsString, dispatch, idNumber, onResultFinish, form]
+  );
+
+  const onSaveImage = useCallback(
+    (imageId: number|undefined, isReload: boolean = false) => {
+      let variants: Array<VariantResponse> = form.getFieldValue("variants");
+      variants.forEach((item) => {
+        item.variant_images = item.variant_images === null ? [] : item.variant_images;
+        item.variant_images.forEach((item1) => {
+          if (item1.id === imageId) {
+            item1.product_avatar = true;
+          } else {
+            item1.product_avatar = false;
+          }
+        });
+      });
+      form.setFieldsValue({variants: [...variants]});
+      setVisiblePickAvatar(false);
+      debugger
+      if (isReload) history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
+    },
+    [form, history, idNumber]
   );
 
   const beforeUpload = useCallback((file: RcFile) => {
@@ -933,10 +936,6 @@ const ProductDetailScreen: React.FC = () => {
                                 message: "Vui lòng nhập tên sản phẩm",
                               },
                               {
-                                pattern: RegUtil.STRINGUTF8,
-                                message: "Tên sản phẩm không báo gồm kí tự đặc biệt",
-                              },
-                              {
                                 max: 255,
                                 message:
                                   "Tên sản phẩm không vượt quá 255 ký tự",
@@ -1170,7 +1169,7 @@ const ProductDetailScreen: React.FC = () => {
                             return (
                               <div onClick={onPickAvatar} className="bpa">
                                 <PlusOutlined />
-                                Chọn ảnh đại diện
+                                 Thêm ảnh sản phẩm
                               </div>
                             );
                           }}
@@ -1278,6 +1277,7 @@ const ProductDetailScreen: React.FC = () => {
                                                 {required: true},
                                               ]}
                                               label="Mã sản phẩm"
+                                              normalize={(value: string) => (value || "").toUpperCase()}
                                             >
                                               <Input
                                                 onChange={onChange}
@@ -1719,8 +1719,15 @@ const ProductDetailScreen: React.FC = () => {
           onOk={onSaveImage}
           onCancel={() => setVisiblePickAvatar(false)}
           variantImages={variantImages}
-          visible={visiblePickAvatar}
+          visible={false}
         />
+        <ModalUploadImages
+          onOk={onSaveImage}
+          onCancel={() => setVisiblePickAvatar(false)}
+          variantImages={variantImages}
+          visible={visiblePickAvatar}
+          productId={data?.id}
+      />
         <ModalConfirm {...modalConfirm} />
         <ModalUpdatePrice
           onCancel={() => setVisibleUpdatePrice(false)}

@@ -4,26 +4,38 @@ import React from "react";
 import { FulFillmentReturnStatus, FulFillmentStatus } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   fulfillment: FulFillmentResponse | null | undefined;
 };
 
-const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
+function FulfillmentStatusTag(props: PropTypes) {
   const { fulfillment } = props;
-  const listStatusTagWithReturning = [
-    {
-      statusBeforeCancellation: FulFillmentStatus.SHIPPING,
-      name: "Hủy đơn giao - Chưa nhận hàng",
-      color: "#E24343",
-      backgroundColor: "rgba(226, 67, 67, 0.1)",
-    },
-    {
-      statusBeforeCancellation: FulFillmentStatus.SHIPPED,
-      name: "Hủy đơn giao - Chưa nhận hàng",
-      color: "#E24343",
-      backgroundColor: "rgba(226, 67, 67, 0.1)",
-    },
-  ];
+  // const listStatusTagWithReturning = [
+  //   {
+  //     statusBeforeCancellation: FulFillmentStatus.SHIPPING,
+  //     name: "Hủy đơn giao - Chưa nhận hàng",
+  //     color: "#E24343",
+  //     backgroundColor: "rgba(226, 67, 67, 0.1)",
+  //   },
+  //   {
+  //     statusBeforeCancellation: FulFillmentStatus.SHIPPED,
+  //     name: "Hủy đơn giao - Chưa nhận hàng",
+  //     color: "#E24343",
+  //     backgroundColor: "rgba(226, 67, 67, 0.1)",
+  //   },
+  //   {
+  //     statusBeforeCancellation: FulFillmentStatus.SHIPPED,
+  //     name: "Hủy đơn giao - Chưa nhận hàng",
+  //     color: "#E24343",
+  //     backgroundColor: "rgba(226, 67, 67, 0.1)",
+  //   },
+  //   {
+  //     statusBeforeCancellation: FulFillmentStatus.SHIPPED,
+  //     name: "Hủy đơn giao - Chưa nhận hàng",
+  //     color: "#E24343",
+  //     backgroundColor: "rgba(226, 67, 67, 0.1)",
+  //   },
+  // ];
   const listStatusTagWithReturned = [
     {
       statusBeforeCancellation: FulFillmentStatus.UNSHIPPED,
@@ -48,6 +60,12 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       name: "Hủy đơn giao - Đã nhận hàng",
       color: "#E24343",
       backgroundColor: "rgba(226, 67, 67, 0.1)",
+    },
+    {
+      name: "Hủy đơn giao",
+      color: "#E24343",
+      backgroundColor: "rgba(226, 67, 67, 0.1)",
+      isDefault: true,
     },
   ];
   const listStatusTagWithoutReturn = [
@@ -84,27 +102,29 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
   ];
 
   const findStatusTagWithReturning = () => {
-    if (!fulfillment) {
-      return;
-    }
-    return listStatusTagWithReturning.find((singleStatusTag) => {
-      return (
-        singleStatusTag.statusBeforeCancellation ===
-        fulfillment.status_before_cancellation
-      );
-    });
+    return {
+      name: "Hủy đơn giao - Chưa nhận hàng",
+      color: "#E24343",
+      backgroundColor: "rgba(226, 67, 67, 0.1)",
+    };
   };
 
   const findStatusTagWithReturnedOrCancel = () => {
     if (!fulfillment) {
       return;
     }
-    return listStatusTagWithReturned.find((singleStatusTag) => {
+    let result = listStatusTagWithReturned.find((singleStatusTag) => {
       return (
         singleStatusTag.statusBeforeCancellation ===
         fulfillment.status_before_cancellation
       );
     });
+    if (!result) {
+      result = listStatusTagWithReturned.find((singleStatusTag) => {
+        return singleStatusTag.isDefault;
+      });
+    }
+    return result;
   };
   const findStatusTagWithoutReturnOrCancel = () => {
     if (!fulfillment) {
@@ -121,21 +141,23 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
     }
     let statusTag = null;
     switch (fulfillment?.status) {
-			case FulFillmentStatus.CANCELLED:
-				if(fulfillment?.return_status === FulFillmentReturnStatus.RETURNED ) {
-					statusTag = findStatusTagWithReturnedOrCancel();
-				} else if(fulfillment?.return_status === FulFillmentReturnStatus.RETURNING) {
-					statusTag = findStatusTagWithReturning();
-				}
-				break;
+      case FulFillmentStatus.CANCELLED:
+        if (fulfillment?.return_status === FulFillmentReturnStatus.RETURNED) {
+          statusTag = findStatusTagWithReturnedOrCancel();
+        } else if (
+          fulfillment?.return_status === FulFillmentReturnStatus.RETURNING
+        ) {
+          statusTag = findStatusTagWithReturning();
+        }
+        break;
       case FulFillmentStatus.RETURNED:
         statusTag = findStatusTagWithReturnedOrCancel();
         break;
-			case FulFillmentStatus.RETURNING:
-				statusTag = findStatusTagWithReturning();
-				break;
+      case FulFillmentStatus.RETURNING:
+        statusTag = findStatusTagWithReturning();
+        break;
       default:
-				statusTag = findStatusTagWithoutReturnOrCancel();
+        statusTag = findStatusTagWithoutReturnOrCancel();
         break;
     }
     if (statusTag) {

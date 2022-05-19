@@ -507,6 +507,9 @@
     &.success {
       color: $green;
     }
+    &.danger {
+      color: #E24343;
+    }
   }
   .po-tag {
     font-size: 12px;
@@ -526,6 +529,14 @@
   .po-tag-warning {
     background-color: #fff7e6;
     color: #fa8c16;
+  }
+  .po-tag-danger {
+    background-color: rgba(226, 67, 67, 0.1);
+    color: #E24343;
+  }
+  .text-danger {
+    border: 1px solid #E24343;
+    color: #E24343;
   }
 }
 

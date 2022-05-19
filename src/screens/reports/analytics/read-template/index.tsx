@@ -69,15 +69,16 @@ function UpdateAnalytics() {
     }
 
     const handleQueryAfterSubmitForm = useCallback(async (rQuery: string, params: AnalyticQuery) => {
+        const timeOptionAt = form.getFieldValue(ReportifyFormFields.timeAtOption);
         switch (mode) {
             case SUBMIT_MODE.EXPORT_EXCEL:
-                exportReportToExcel(dispatch, rQuery, `${CURRENT_REPORT_TEMPLATE.type} ${CURRENT_REPORT_TEMPLATE.name}`)
+                setIsLoadingExport(true);
+                await exportReportToExcel(dispatch, timeOptionAt ? { q: rQuery, options: timeOptionAt } : { q: rQuery }, `${CURRENT_REPORT_TEMPLATE.type} ${CURRENT_REPORT_TEMPLATE.name}`)
                 setIsLoadingExport(false);
                 setMode(SUBMIT_MODE.GET_DATA);
                 break;
             case SUBMIT_MODE.SAVE_QUERY:
                 const chartQuery = getChartQuery(params, chartColumnSelected || []);
-                const timeOptionAt = form.getFieldValue(ReportifyFormFields.timeAtOption)
                 const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, saveAnalyticsCustomService, {
                     query: rQuery,
                     group: cubeRef.current,
@@ -150,7 +151,7 @@ function UpdateAnalytics() {
       */
     useEffect(() => {
         const fetchTemplateQuery = async () => {
-            const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube) ? { q: CURRENT_REPORT_TEMPLATE.query, options: CURRENT_REPORT_TEMPLATE.timeAtOption } : { q: CURRENT_REPORT_TEMPLATE.query };
+            const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube) ? { q: CURRENT_REPORT_TEMPLATE.query, options: CURRENT_REPORT_TEMPLATE.timeAtOption } : { q: CURRENT_REPORT_TEMPLATE.query };
             const response: AnalyticDataQuery = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullParams);
             if (response) {
                 const { columns, rows, cube, conditions, from, to, order_by: orderBy } = response.query;
@@ -231,7 +232,7 @@ function UpdateAnalytics() {
             })
             if (dataQuery && chartColumnSelected?.length) {
                 const query = getChartQuery(dataQuery.query, chartColumnSelected);
-                const fullParams = [AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
+                const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, fullParams);
                 if (response) {
                     const { columns, data } = response.result;

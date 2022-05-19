@@ -88,17 +88,16 @@ function OrderNumberInputCustom(props: PropTypes) {
   );
   const onBlurEvent = useCallback(
     (e) => {
-      console.log('data', data)
       let temp = data?.toString();
       let valueTemp = temp;
       if (temp !== undefined && value !== undefined) {
         if (temp.charAt(temp.length - 1) === "." || temp === "-") {
           valueTemp = temp.slice(0, -1);
         }
-        console.log('props.min', props.min)
-        console.log('props.max', props.max)
-        console.log('value', value)
-        console.log('data', data)
+        // console.log('props.min', props.min)
+        // console.log('props.max', props.max)
+        // console.log('value', value)
+        // console.log('data', data)
         if (props.min !== undefined && Number(data) < props.min && data!== undefined) {
           console.log('min')
           onChange && onChange(props.min);
@@ -127,7 +126,7 @@ function OrderNumberInputCustom(props: PropTypes) {
     setData(value !== null && value !== undefined && value !== '' ? value.toString() : '3333');
   }, [value]);
 
-  console.log('data', data)
+  // console.log('data', data)
 
   return (
     <Input

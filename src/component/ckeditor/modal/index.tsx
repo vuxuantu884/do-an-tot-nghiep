@@ -6,9 +6,10 @@ import {
 } from "model/editor/editor.model";
 import React, { useEffect, useState } from "react";
 import { useRef } from "react";
+import { fullTextSearch } from "utils/StringUtils";
 import { StyledComponent } from "./styles";
 
-const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
+function EditorModal(props: EditorModalType) {
   const { isModalVisible, handleCancel, listKeywords, insertKeyword } = props;
   const [listKeywordShow, setListKeywordShow] = useState<listKeywordsModel[]>(
     []
@@ -47,8 +48,8 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
             if (single.list) {
               single.list.map((single1) => {
                 if (
-                  single1.name.toLowerCase().includes(value.toLowerCase()) ||
-                  single1.value.toLowerCase().includes(value.toLowerCase())
+                  fullTextSearch(value, single1.name) ||
+                  fullTextSearch(value, single1.value)
                 ) {
                   single1.isShow = true;
                 } else {
@@ -68,7 +69,7 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
         className="sectionSearch"
         onSearch={onSearch}
         style={{ width: "100%" }}
-        placeholder="Tìm kiếm từ khóa (gõ tiếng Việt có dấu)"
+        placeholder="Tìm kiếm từ khóa"
         onChange={(e) => onSearch(e.target.value)}
         ref={searchInputRef}
       />

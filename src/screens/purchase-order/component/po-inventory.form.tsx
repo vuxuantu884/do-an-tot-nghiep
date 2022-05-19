@@ -34,6 +34,7 @@ export type POInventoryFormProps = {
   poData?: PurchaseOrder;
   formMain?: any;
   isShowStatusTag?: boolean;
+  isEditDetail?: boolean;
 };
 
 const TAB = [
@@ -71,7 +72,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     poData,
     formMain,
     isShowStatusTag,
-    loadDetail
+    loadDetail,
+    isEditDetail
   } = props;
 
   const [activeTab, setActiveTab] = useState(TAB[0].id);
@@ -261,9 +263,9 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               dotClassName += " success";
             }
             if (receive_status === ProcumentStatus.FINISHED) {
-              statusName = "Đã nhận hàng";
-              className += " po-tag-success";
-              dotClassName += " success";
+              statusName = "Kết thúc nhập kho";
+              className += " po-tag-danger";
+              dotClassName += " danger";
             }
             if (status === ProcumentStatus.DRAFT) {
               return <Space>
@@ -413,6 +415,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               }
               procumentCodeRef.current = procumentCode||'';
             }}
+            isEditDetail={isEditDetail}
           />
         ) : (
           <POInventoryDraft

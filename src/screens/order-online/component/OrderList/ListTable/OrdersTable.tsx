@@ -771,23 +771,25 @@ function OrdersTable(props: PropTypes) {
         align: "left",
         width: nameQuantityWidth,
       },
-      // {
-      //   title: "Kho cửa hàng",
-      //   dataIndex: "store",
-      //   key: "store",
-      //   visible: true,
-      //   align: "center",
-      // },
       {
-        title: "Chiết khấu",
+        title: "Tổng tiền",
         // dataIndex: "",
         render: (record: any) => (
           <React.Fragment>
+            <Tooltip title="Tổng tiền">
+              <NumberFormat
+                value={record.total}
+                className="orderTotal"
+                displayType={"text"}
+                thousandSeparator={true}
+              />
+            </Tooltip>
+
             {record?.discounts && record.discounts[0] && record.discounts[0]?.amount ? (
-              <React.Fragment>
+              <Tooltip title="Chiết khấu">
                 <div>
                   <span style={{ color: "#EF5B5B" }}>
-                    <NumberFormat
+                    -<NumberFormat
                       value={record.discounts[0]?.amount}
                       className="foo"
                       displayType={"text"}
@@ -802,28 +804,8 @@ function OrdersTable(props: PropTypes) {
                   </span>
                 </div>
 
-              </React.Fragment>
+              </Tooltip>
             ) : null}
-          </React.Fragment>
-        ),
-        key: "customer.discount",
-        visible: true,
-        align: "right",
-        width: 70,
-      },
-      {
-        title: "Tổng tiền",
-        // dataIndex: "",
-        render: (record: any) => (
-          <React.Fragment>
-            <Tooltip title="Tổng tiền">
-              <NumberFormat
-                value={record.total}
-                className="orderTotal"
-                displayType={"text"}
-                thousandSeparator={true}
-              />
-            </Tooltip>
           </React.Fragment>
         ),
         key: "customer.amount_money",
