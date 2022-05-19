@@ -4,6 +4,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useEffect, useMemo, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
+import { showError } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -104,12 +105,6 @@ function ReturnMoneySelect(props: PropTypes) {
                           <Form.Item
                             label="Số tiền"
                             name={[index, "returnMoneyAmount"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vui lòng nhập số tiền!",
-                              },
-                            ]}
                           >
                             <NumberInput
                               format={(a: string) => formatCurrency(a)}
@@ -122,8 +117,12 @@ function ReturnMoneySelect(props: PropTypes) {
                               }}
                               maxLength={14}
                               minLength={0}
+                              max={Math.abs(totalAmountCustomerNeedToPay)}
                               // value={initialReturnAmount}
                               // onChange={(value) => {
+                              //   if(value &&value > Math.abs(totalAmountCustomerNeedToPay)) {
+                              //     showError("Không nhập quá số tiền trả khách")
+                              //   }
                               //   // setInitialReturnAmount(value || 0);
                               // }}
                             />

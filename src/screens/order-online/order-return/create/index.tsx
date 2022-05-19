@@ -555,15 +555,13 @@ ShippingServiceConfigDetailResponseModel[]
 
   console.log('refund', refund)
 
-  const formReturnMoneyValues = useMemo(() => {
+  const getFormReturnMoneyValues = useCallback(() => {
     let formValues = form.getFieldsValue();
     console.log('formValues', formValues);
 
     const formValuePayment = formValues?.returnMoneyField ? formValues?.returnMoneyField[0] : {};
     return formValuePayment;
   }, [form])
-
-  console.log('formReturnMoneyValues', formReturnMoneyValues)
 
   /**
   * tính tiền đơn trả của đơn đổi trả
@@ -693,14 +691,16 @@ ShippingServiceConfigDetailResponseModel[]
   }, [OrderDetail?.payments, customer?.id, listPaymentMethods, refund.pointRefund, returnMoneyType, totalAmountCustomerNeedToPay, totalAmountReturnProducts])
 
   /**
-  * lấy payment của đơn trả cho trường hợp chỉ trả ko đổi
-  */
+   * lấy payment của đơn trả cho trường hợp chỉ trả ko đổi
+   */
+ let formValues = form.getFieldsValue();
+ console.log('formValues', formValues)
   const getPaymentOfReturnInReturn = useCallback(() => {
     let result:OrderPaymentRequest[] = [];
     let paidStatus = ORDER_PAYMENT_STATUS.paid;
 
-    const formValuePayment = formReturnMoneyValues;
-    let paidMoneyAmount = formValuePayment?.returnMoneyAmount;
+    const formValuePayment = getFormReturnMoneyValues();
+    let paidMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
     // trả tiền 
     // mặc định là tiền mặt
     const cashPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
@@ -784,7 +784,7 @@ ShippingServiceConfigDetailResponseModel[]
     
     
     return result;
-  }, [OrderDetail?.payments, customer?.id, formReturnMoneyValues, listPaymentMethods, refund.pointRefund, returnMoneyType]);
+  }, [OrderDetail?.payments, customer?.id, getFormReturnMoneyValues, listPaymentMethods, refund.pointRefund, returnMoneyType]);
 
   const handleSubmitFormReturn = useCallback(() => {
     
@@ -869,7 +869,7 @@ ShippingServiceConfigDetailResponseModel[]
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log("orderDetailResult", orderDetailResult);
-      return;
+      // return;
       dispatch(showLoading());
       dispatch(
         actionCreateOrderReturn(
@@ -1600,13 +1600,13 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
     form.setFieldsValue({
       returnMoneyField: [
         {
-          ...initialFormValueWithReturn,
+          ...initialFormValueWithReturn.returnMoneyField[0],
           returnMoneyMethod: returnPaymentMethodCode,
           returnMoneyAmount: initMoneyAmount,
         },
       ],
     })
-  }, [form, formReturnMoneyValues, initialFormValueWithReturn, initialFormValueWithReturn.returnMoneyField, returnPaymentMethodCode, totalAmountCustomerNeedToPay])
+  }, [form, initialFormValueWithReturn.returnMoneyField, returnPaymentMethodCode, totalAmountCustomerNeedToPay])
 
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
