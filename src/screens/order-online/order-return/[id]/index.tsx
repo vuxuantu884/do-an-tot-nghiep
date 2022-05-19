@@ -76,6 +76,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
     money: 0,
   })
 
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
+
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -413,6 +415,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   isShowPaymentMethod={isShowPaymentMethod}
                   setIsShowPaymentMethod={setIsShowPaymentMethod}
                   handleReturnMoney={handleReturnMoney}
+                  returnPaymentMethodCode={returnPaymentMethodCode}
+                  setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                 />
                 <CardReturnReceiveProducts
                   isDetailPage

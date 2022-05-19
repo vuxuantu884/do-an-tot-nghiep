@@ -8,6 +8,8 @@ type PropTypes = {
   totalAmountCustomerNeedToPay?: number;
   returnMoneyType?: string;
   setReturnMoneyType?: (value: string) => void;
+  returnPaymentMethodCode: string;
+  setReturnPaymentMethodCode: (value: string) => void;
 };
 
 /**
@@ -20,6 +22,8 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
     totalAmountCustomerNeedToPay,
     returnMoneyType,
     setReturnMoneyType,
+    setReturnPaymentMethodCode,
+    returnPaymentMethodCode,
   } = props;
 
   console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
@@ -47,6 +51,8 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay || 0}
             handleReturnMoney={() => {}}
             isShowButtonReturnMoney={false}
+            setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+            returnPaymentMethodCode={returnPaymentMethodCode}
           />
         )}
       </div>

@@ -86,6 +86,7 @@ import {
   TaxTreatment
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS, PAYMENT_METHOD_ENUM, RETURN_MONEY_TYPE, RETURN_TYPE_VALUES } from "utils/Order.constants";
+import { findPaymentMethodByCode } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -298,16 +299,15 @@ ShippingServiceConfigDetailResponseModel[]
     }
   }, [userReducer.account?.code])
 
-  let listPaymentMethodsReturnToCustomer = listPaymentMethods.find((single) => {
-    return single.code === PaymentMethodCode.CASH;
-  });
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
 
+  
   const initialFormValueWithReturn = useMemo(() => {
     return {
       ...initialForm,
       returnMoneyField: [
         {
-          returnMoneyMethod: listPaymentMethodsReturnToCustomer?.code,
+          returnMoneyMethod: returnPaymentMethodCode,
           returnMoneyNote: undefined,
           returnMoneyAmount: 0,
         },
@@ -319,10 +319,9 @@ ShippingServiceConfigDetailResponseModel[]
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
     }
-  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.code, recentAccountCode.accountCode])
-
+  }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, recentAccountCode.accountCode, returnPaymentMethodCode])
   
-  
+  console.log('initialFormValueWithReturn', initialFormValueWithReturn)
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -367,13 +366,13 @@ ShippingServiceConfigDetailResponseModel[]
    * if return > exchange: positive
    * else negative
    */
-  let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = (totalAmountOrder - totalAmountReturnProducts);
+   let totalAmountCustomerNeedToPay = useMemo(() => {
+    let result = Math.ceil(totalAmountOrder - totalAmountReturnProducts);
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
 
   let totalAmountOrderAfterPayments = useMemo(() => {
-    let result = (totalAmountCustomerNeedToPay - totalAmountPayment);
+    let result = Math.ceil(totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
@@ -556,6 +555,16 @@ ShippingServiceConfigDetailResponseModel[]
 
   console.log('refund', refund)
 
+  const formReturnMoneyValues = useMemo(() => {
+    let formValues = form.getFieldsValue();
+    console.log('formValues', formValues);
+
+    const formValuePayment = formValues?.returnMoneyField ? formValues?.returnMoneyField[0] : {};
+    return formValuePayment;
+  }, [form])
+
+  console.log('formReturnMoneyValues', formReturnMoneyValues)
+
   /**
   * tính tiền đơn trả của đơn đổi trả
   */
@@ -690,11 +699,8 @@ ShippingServiceConfigDetailResponseModel[]
     let result:OrderPaymentRequest[] = [];
     let paidStatus = ORDER_PAYMENT_STATUS.paid;
 
-    let formValues = form.getFieldsValue();
-    console.log('formValues', formValues);
-
-    const amountPaidToCustomer = Math.abs(totalAmountCustomerNeedToPay);
-    let paidMoneyAmount = amountPaidToCustomer;
+    const formValuePayment = formReturnMoneyValues;
+    let paidMoneyAmount = formValuePayment?.returnMoneyAmount;
     // trả tiền 
     // mặc định là tiền mặt
     const cashPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
@@ -707,10 +713,8 @@ ShippingServiceConfigDetailResponseModel[]
 
     // trả tiền trước
     if(returnMoneyType === RETURN_MONEY_TYPE.return_now) {
-      const formReturnMoney = formValues?.returnMoneyField[0];
-      console.log('formReturnMoney', formReturnMoney)
       let returnMoneyMethod = listPaymentMethods.find((single) => {
-        return single.code === formReturnMoney?.returnMoneyMethod;
+        return single.code === formValuePayment?.returnMoneyMethod;
       });
   
       if (returnMoneyMethod) {
@@ -718,12 +722,12 @@ ShippingServiceConfigDetailResponseModel[]
           payment_method_id: returnMoneyMethod?.id,
           payment_method: returnMoneyMethod?.name,
           payment_method_code: returnMoneyMethod?.code,
-          note: formReturnMoney.returnMoneyNote || "",
+          note: formValuePayment.returnMoneyNote || "",
         }
       }
       result.push({
         payment_method_id: paidMoneyMethod.payment_method_id,
-        amount: amountPaidToCustomer,
+        amount: paidMoneyAmount,
         return_amount: 0,
         status: paidStatus,
         payment_method: paidMoneyMethod.payment_method,
@@ -780,7 +784,7 @@ ShippingServiceConfigDetailResponseModel[]
     
     
     return result;
-  }, [OrderDetail?.payments, customer?.id, form, listPaymentMethods, refund.pointRefund, returnMoneyType, totalAmountCustomerNeedToPay]);
+  }, [OrderDetail?.payments, customer?.id, formReturnMoneyValues, listPaymentMethods, refund.pointRefund, returnMoneyType]);
 
   const handleSubmitFormReturn = useCallback(() => {
     
@@ -865,7 +869,7 @@ ShippingServiceConfigDetailResponseModel[]
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log("orderDetailResult", orderDetailResult);
-      // return;
+      return;
       dispatch(showLoading());
       dispatch(
         actionCreateOrderReturn(
@@ -1585,36 +1589,24 @@ ShippingServiceConfigDetailResponseModel[]
     isExchange,
     listStoreReturn,
   };
+console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
   useEffect(() => {
-    let result = totalAmountCustomerNeedToPay < 0
+    let initMoneyAmount = totalAmountCustomerNeedToPay < 0
     ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
     : 0;
+    
+    console.log('initMoneyAmount111', initMoneyAmount)
     form.setFieldsValue({
       returnMoneyField: [
         {
-          ...initialFormValueWithReturn.returnMoneyField[0],
-          returnMoneyAmount: result,
+          ...initialFormValueWithReturn,
+          returnMoneyMethod: returnPaymentMethodCode,
+          returnMoneyAmount: initMoneyAmount,
         },
       ],
     })
-  }, [form, initialFormValueWithReturn, totalAmountCustomerNeedToPay])
-
-  useEffect(() => {
-    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
-      return single.code === PaymentMethodCode.CASH;
-    });
-    if(paymentMethodReturnToCustomer) {
-      form.setFieldsValue({
-        returnMoneyField: [
-          {
-            ...initialFormValueWithReturn.returnMoneyField[0],
-            returnMoneyMethod: paymentMethodReturnToCustomer.code,
-          },
-        ],
-      })
-    }
-  }, [form, initialFormValueWithReturn, listPaymentMethods])
+  }, [form, formReturnMoneyValues, initialFormValueWithReturn, initialFormValueWithReturn.returnMoneyField, returnPaymentMethodCode, totalAmountCustomerNeedToPay])
 
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
@@ -1729,6 +1721,8 @@ ShippingServiceConfigDetailResponseModel[]
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
+                    returnPaymentMethodCode={returnPaymentMethodCode}
+                    setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                   />
                 )}
 
@@ -1750,6 +1744,8 @@ ShippingServiceConfigDetailResponseModel[]
                     setPaymentMethod={setPaymentMethod}
                     isDisablePostPayment={isDisablePostPayment}
                     isOrderReturnFromPOS = {isOrderFromPOS(OrderDetail)}
+                    returnPaymentMethodCode={returnPaymentMethodCode}
+                    setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                   />
                 )}
                 {isExchange && (

@@ -182,6 +182,8 @@ const OrderDetail = (props: PropType) => {
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
 
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
+
   const updateShipmentCardRef = useRef<any>();
 
   const onPaymentSelect = (paymentMethod: number) => {
@@ -855,6 +857,8 @@ const OrderDetail = (props: PropType) => {
                     isShowPaymentMethod={true}
                     setIsShowPaymentMethod={() => { }}
                     handleReturnMoney={handleReturnMoney}
+                    returnPaymentMethodCode={returnPaymentMethodCode}
+                    setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                   />
                 )}
 

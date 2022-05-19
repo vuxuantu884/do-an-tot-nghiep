@@ -26,6 +26,8 @@ type PropType = {
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   setReturnMoneyType?: (value: string) => void;
   setPaymentMethod: (value: number) => void;
+  returnPaymentMethodCode: string;
+  setReturnPaymentMethodCode: (value: string) => void;
 };
 
 /**
@@ -47,6 +49,8 @@ function CardReturnMoneyPageCreate(props: PropType) {
     setReturnMoneyType,
     setPaymentMethod,
     isOrderReturnFromPOS,
+    returnPaymentMethodCode,
+    setReturnPaymentMethodCode,
   } = props;
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
@@ -81,6 +85,8 @@ console.log('listPaymentMethods', listPaymentMethods)
             }
             handleReturnMoney={() => {}}
             isShowButtonReturnMoney={false}
+            returnPaymentMethodCode={returnPaymentMethodCode}
+            setReturnPaymentMethodCode={setReturnPaymentMethodCode}
           />
         )}
       </div>
