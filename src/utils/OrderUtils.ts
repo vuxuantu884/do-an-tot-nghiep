@@ -14,3 +14,7 @@ export const isOrderDetailHasPointPayment = (OrderDetail: OrderResponse | null |
 		return single.payment_method_code === pointPaymentMethodId;
 	});
 };
+
+export const findPaymentMethodByCode = (paymentMethods: PaymentMethodResponse[], code: string) => {
+	return paymentMethods.find(single => single.code === code)
+};

@@ -29,9 +29,10 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { getRefundInformationService } from "service/order/order.service";
 import { getOrderTotalPaymentAmountReturn, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
-import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
+import { findPaymentMethodByCode, isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import { getTotalPriceOfAllLineItem } from "utils/POUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
@@ -69,6 +70,11 @@ const ScreenReturnDetail = (props: PropType) => {
   const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
+
+  const [refund, setRefund] = useState({
+    point: 0,
+    money: 0,
+  })
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -115,7 +121,7 @@ const ScreenReturnDetail = (props: PropType) => {
           return single.code === formValuePayment.returnMoneyMethod;
         });
         if (returnMoneyMethod) {
-          const payments = [
+          let payments = [
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
@@ -129,6 +135,23 @@ const ScreenReturnDetail = (props: PropType) => {
               payment_method_code: returnMoneyMethod.code,
             },
           ];
+          if(refund.money > 0 && refund.point > 0) {
+            const pointPaymentMethod = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.POINT);
+            if(pointPaymentMethod) {
+              payments.push({
+                payment_method_id: pointPaymentMethod.id,
+                payment_method: pointPaymentMethod.name,
+                name: pointPaymentMethod.name,
+                note: "",
+                amount: refund.money,
+                paid_amount: refund.money,
+                return_amount: 0,
+                customer_id: OrderDetail?.customer_id,
+                payment_method_code: pointPaymentMethod.code,
+            })
+          }}
+          console.log('payments', payments);
+          return;
           dispatch(
             actionOrderRefund(returnOrderId, { payments }, (response) => {
               dispatch(
@@ -157,8 +180,8 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   const totalAmountReturnToCustomer = useMemo(() => {
-    return (OrderDetail?.total || 0) - getOrderTotalPaymentAmountReturn(OrderDetail?.payments || [] )
-  }, [OrderDetail?.payments, OrderDetail?.total])
+    return (OrderDetail?.total || 0) - refund.money;
+  }, [OrderDetail?.total, refund.money])
  
   /**
    * theme context data
@@ -182,33 +205,43 @@ const ScreenReturnDetail = (props: PropType) => {
       if(isUsingPoint) {
         const orderReturns = response.order_returns;
         const currentOrderReturn = orderReturns?.find(single => single.id === OrderDetail?.id);
-        console.log('currentOrderReturn', currentOrderReturn)
+        console.log('currentOrderReturn', currentOrderReturn);
         if(currentOrderReturn && OrderDetail?.customer_id && currentOrderReturn.items) {
-          const refund_money = currentOrderReturn.total;
-          const otherOrderReturnArr = orderReturns?.filter(single => single.id !== OrderDetail?.id) || []
-          const currentOrderReturnArr:OrderResponse[] = [{
-            ...currentOrderReturn,
-            id: response.id,
-            money_refund: undefined,
-            point_refund :undefined,
-          }];
-          let return_items = [...otherOrderReturnArr, ...currentOrderReturnArr];
-          const params: OrderReturnCalculateRefundRequestModel = {
-            customerId: OrderDetail?.customer_id,
-            items: response.items,
-            orderId: currentOrderReturn.id,
-            refund_money,
-            return_items,
-          };
-          dispatch(
-            actionGetOrderReturnCalculateRefund(params, (response) => {
-              console.log('response', response)
-            })
-          );
+          getRefundInformationService(OrderDetail?.customer_id, response?.id).then(response => {
+            console.log('response', response);
+            const currentRefund = response.data.find(single => single.sub_order_id === OrderDetail.id);
+            if(currentRefund) {
+              setRefund({
+                money: currentRefund.money_point,
+                point: currentRefund.change_point,
+              })
+            }
+          })
+          // const refund_money = currentOrderReturn.total;
+          // const otherOrderReturnArr = orderReturns?.filter(single => single.id !== OrderDetail?.id) || []
+          // const currentOrderReturnArr:OrderResponse[] = [{
+          //   ...currentOrderReturn,
+          //   id: response.id,
+          //   money_refund: undefined,
+          //   point_refund :undefined,
+          // }];
+          // let return_items = [...otherOrderReturnArr, ...currentOrderReturnArr];
+          // const params: OrderReturnCalculateRefundRequestModel = {
+          //   customerId: OrderDetail?.customer_id,
+          //   items: response.items,
+          //   orderId: currentOrderReturn.id,
+          //   refund_money,
+          //   return_items,
+          // };
+          // dispatch(
+          //   actionGetOrderReturnCalculateRefund(params, (response) => {
+          //     console.log('response', response)
+          //   })
+          // );
         }
       }
     },
-    [ dispatch, listPaymentMethods],
+    [listPaymentMethods],
   )
 
   const handleOrderOriginId = useCallback(
@@ -336,8 +369,8 @@ const ScreenReturnDetail = (props: PropType) => {
                 />
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
-                  pointUsing={OrderDetail?.point_refund}
-                  totalAmountReturnToCustomer={OrderDetail?.money_refund}
+                  pointUsing={refund.point}
+                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isDetailPage
 									OrderDetail={OrderDetail}
                 />

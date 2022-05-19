@@ -333,6 +333,7 @@ const OrderDetail = (props: PropType) => {
       );
 
       setOrderDetail(_data);
+      setShippingFeeInformedCustomer(_data?.shipping_fee_informed_to_customer || 0);
       // setOrderDetail({
       //   ..._data,
       //   affiliate: '123',
@@ -682,23 +683,7 @@ const OrderDetail = (props: PropType) => {
 
   // khách cần trả
   const customerNeedToPay: any = () => {
-    if (
-      OrderDetail?.fulfillments &&
-      OrderDetail?.fulfillments.length > 0 &&
-      OrderDetail?.fulfillments[0].shipment &&
-      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-    ) {
-      return (
-        OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
-        OrderDetail?.total_line_amount_after_line_discount +
-        shippingFeeInformedCustomer -
-        (OrderDetail?.discounts &&
-          OrderDetail?.discounts.length > 0 &&
-          OrderDetail?.discounts[0]?.amount
-          ? OrderDetail?.discounts[0].amount
-          : 0)
-      );
-    } else if (OrderDetail?.total_line_amount_after_line_discount) {
+    if (OrderDetail?.total_line_amount_after_line_discount) {
       return (
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
@@ -711,6 +696,8 @@ const OrderDetail = (props: PropType) => {
     }
     return 0;
   };
+
+  console.log('shippingFeeInformedCustomer', shippingFeeInformedCustomer)
 
   const customerNeedToPayValue = customerNeedToPay();
   const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
