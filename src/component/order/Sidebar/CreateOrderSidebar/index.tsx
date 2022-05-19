@@ -67,7 +67,7 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
           orderId={orderDetail?.id}
           handleUpdateSubStatus={handleUpdateSubStatus}
           OrderDetailAllFulfillment={orderDetail}
-          setReload={setReload}
+          setReload={updateOrder ? () => {} : setReload} // update thì ko load lại
         />
       )}
       <Card title="THÔNG TIN BỔ SUNG">

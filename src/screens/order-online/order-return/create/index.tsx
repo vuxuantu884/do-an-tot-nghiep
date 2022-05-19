@@ -1314,15 +1314,30 @@ ShippingServiceConfigDetailResponseModel[]
     ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
     : 0;
     form.setFieldsValue({
-      ...initialFormValueWithReturn,
       returnMoneyField: [
         {
-          ...initialFormValueWithReturn.returnMoneyField,
+          ...initialFormValueWithReturn.returnMoneyField[0],
           returnMoneyAmount: result,
         },
       ],
     })
   }, [form, initialFormValueWithReturn, totalAmountCustomerNeedToPay])
+
+  useEffect(() => {
+    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
+      return single.code === PaymentMethodCode.CASH;
+    });
+    if(paymentMethodReturnToCustomer) {
+      form.setFieldsValue({
+        returnMoneyField: [
+          {
+            ...initialFormValueWithReturn.returnMoneyField[0],
+            returnMoneyMethod: paymentMethodReturnToCustomer.code,
+          },
+        ],
+      })
+    }
+  }, [form, initialFormValueWithReturn, listPaymentMethods])
 
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
