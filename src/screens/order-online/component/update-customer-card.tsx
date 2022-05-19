@@ -102,7 +102,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
             <span className="customer-detail-icon">
               <img src={callIcon} alt="" className="icon-customer-info" />
             </span>
-            <span className="customer-detail-text">{props.customerDetail?.phone}</span>
+            <Link to={`${UrlConfig.ORDER}?search_term=${props.customerDetail?.phone}`} className="customer-detail-text">{props.customerDetail?.phone}</Link>
           </Space>
 
           <Space className="customer-detail-point">
