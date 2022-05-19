@@ -637,18 +637,20 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       if (!error) {
         setVisible(false);
         values.services = services;
+        values.searched_product = keySearchVariant; // search sản phẩm, ko để trong form nên phải thêm trong values
         if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
           values = {
             ...values,
             price_min: values?.price_max,
             price_max: values?.price_min,
+            
           };
         }
         onFilter && onFilter(values);
         setRerender(false);
       }
     },
-    [formRef, onFilter, services]
+    [formRef, keySearchVariant, onFilter, services]
   );
 
   let filters = useMemo(() => {
@@ -1371,45 +1373,14 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       variant_ids: params.variant_ids,
       tracking_codes: params.tracking_codes,
       sub_status_code: params.sub_status_code,
-      // searched_product: params.searched_product,
     });
   }, [formSearchRef, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids]);
 
-  // useEffect(() => {
-  //   if(params?.searched_product) {
-  //     setKeySearchVariant(params?.searched_product)
-  //   }
-  // }, [params.searched_product])
-
-  // useEffect(() => {
-  //   if (params.variant_ids && params.variant_ids.length) {
-  //     setRerenderSearchVariant(false);
-  //     let variant_ids = Array.isArray(params.variant_ids)
-  //       ? params.variant_ids
-  //       : [params.variant_ids];
-  //     (async () => {
-  //       let variants: any = [];
-  //       await Promise.all(
-  //         variant_ids.map(async (variant_id) => {
-  //           try {
-  //             const result = await getVariantApi(variant_id);
-
-  //             variants.push({
-  //               label: result.data.name,
-  //               value: result.data.id.toString(),
-  //             });
-  //           } catch {}
-  //         })
-  //       );
-  //       setOptionsVariant(variants);
-  //       if (variants?.length > 0) {
-  //         setRerenderSearchVariant(true);
-  //       }
-  //     })();
-  //   } else {
-  //     setRerenderSearchVariant(true);
-  //   }
-  // }, [params.variant_ids]);
+  useEffect(() => {
+    if(params?.searched_product) {
+      setKeySearchVariant(params?.searched_product);
+    }
+  }, [params?.searched_product])
 
   useEffect(() => {
     if (accounts) {
@@ -1564,39 +1535,37 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                       />
                     </Item>
                   )} */}
-                  
-                  <Item name="searched_product" style={{marginRight: 0}}>
-                    <AutoComplete
-                      notFoundContent={
-                        keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                  {/* không để trong form item vì mỗi lần thay đổi sẽ render lại */}
+                  <AutoComplete
+                    notFoundContent={
+                      keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                    }
+                    id="search_product"
+                    value={keySearchVariant}
+                    ref={autoCompleteRef}
+                    // onSelect={() =>{}}
+                    onSelect={onSearchVariantSelect}
+                    dropdownClassName="search-layout dropdown-search-header"
+                    dropdownMatchSelectWidth={500}
+                    className="w-100"
+                    onSearch={onChangeProductSearch}
+                    options={convertResultSearchVariant}
+                    maxLength={255}
+                    defaultActiveFirstOption
+                  >
+                    <Input
+                      size="middle"
+                      className="yody-search"
+                      placeholder="Tìm sản phẩm"
+                      prefix={
+                        isSearchingProducts ? (
+                          <LoadingOutlined style={{ color: "#2a2a86" }} />
+                        ) : (
+                          <img alt="" src={search} />
+                        )
                       }
-                      id="search_product"
-                      value={keySearchVariant}
-                      ref={autoCompleteRef}
-                      // onSelect={() =>{}}
-                      onSelect={onSearchVariantSelect}
-                      dropdownClassName="search-layout dropdown-search-header"
-                      dropdownMatchSelectWidth={500}
-                      className="w-100"
-                      onSearch={onChangeProductSearch}
-                      options={convertResultSearchVariant}
-                      maxLength={255}
-                      defaultActiveFirstOption
-                    >
-                      <Input
-                        size="middle"
-                        className="yody-search"
-                        placeholder="Tìm sản phẩm"
-                        prefix={
-                          isSearchingProducts ? (
-                            <LoadingOutlined style={{ color: "#2a2a86" }} />
-                          ) : (
-                            <img alt="" src={search} />
-                          )
-                        }
-                      />
-                    </AutoComplete>
-                  </Item>
+                    />
+                  </AutoComplete>
                 </Col>
               </Row>
             </div>
