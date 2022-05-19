@@ -32,12 +32,12 @@ export interface InventoryResponse extends BaseObject {
 
 export interface InventoryQuery extends BaseQuery {
   condition?: string,
-  store_id?: number|Array<number>, 
+  store_id?: number|Array<number>,
   variant_id?: number,
   status?: string,
   store_adj?: number;
   remain?:string
-} 
+}
 export interface InventoryVariantListQuery extends InventoryQuery {
   variant_ids?: Array<number>;
   store_ids?: Array<number>;
@@ -87,6 +87,7 @@ export interface HistoryInventoryResponse extends BaseObject{
 
 export interface HistoryInventoryQuery extends BaseQuery {
   condition?: string,
+  document_type?: string | null,
   store_ids?: number|Array<number>|null,
   from_created_date?: string,
   to_created_date?: string,
@@ -101,7 +102,7 @@ export interface HistoryInventoryQuery extends BaseQuery {
 
 export interface AllInventoryQuery extends BaseQuery {
   info?: string,
-  store_ids?: number|Array<number>|null, 
+  store_ids?: number|Array<number>|null,
 }
 
 export interface AllInventoryProductInStore {

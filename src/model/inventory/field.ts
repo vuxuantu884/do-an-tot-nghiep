@@ -38,6 +38,7 @@ const InventoryMappingField = {
 
 const HistoryInventoryQueryField = {
   condition: 'condition',
+  document_type: 'document_type',
   store_ids: 'store_ids',
   from_created_date: 'from_created_date',
   to_created_date: 'to_created_date',
