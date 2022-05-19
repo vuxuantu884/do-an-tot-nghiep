@@ -358,7 +358,7 @@ const ListInventoryDefect: React.FC = () => {
   useEffect(() => {
     form.setFieldsValue({
       [DefectFilterBasicEnum.condition]: params.condition?.toString()?.split(','),
-      [DefectFilterBasicEnum.store_ids]: params.store_ids ? params.store_ids?.toString()?.split(',').map((x: string) => String(x)) : myStores.length > 1 || myStores.length === 0 ? [] : myStores[0].id.toString(),
+      [DefectFilterBasicEnum.store_ids]: params.store_ids ? params.store_ids?.toString()?.split(',').map((x: string) => String(x)) : myStores.length > 1 || myStores.length === 0 ? [] : myStores[0].store_id.toString(),
     });
   }, [form, myStores, params]);
 
@@ -439,7 +439,7 @@ const ListInventoryDefect: React.FC = () => {
             myStores.map((item, index) => (
               <Option
                 key={"from_store_id" + index}
-                value={item.id.toString()}
+                value={item.store_id.toString()}
               >
                 {item.store}
               </Option>
