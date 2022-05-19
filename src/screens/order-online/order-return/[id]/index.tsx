@@ -41,12 +41,12 @@ import CardShowReturnProducts from "../components/CardShowReturnProducts";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
 
-type PropType = {};
+type PropTypes = {};
 type OrderParam = {
   id: string;
 };
 
-const ScreenReturnDetail = (props: PropType) => {
+const ScreenReturnDetail = (props: PropTypes) => {
   let { id } = useParams<OrderParam>();
   let returnOrderId = parseInt(id);
   const dispatch = useDispatch();
@@ -247,6 +247,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 money: currentRefund.money_point,
                 point: currentRefund.change_point,
               })
+              setLoadingData(false)
             }
           })
           // const refund_money = currentOrderReturn.total;
@@ -282,7 +283,9 @@ const ScreenReturnDetail = (props: PropType) => {
         dispatch(OrderDetailAction(orderOriginId.toString(), (response) => {
           calculateRefund(response, OrderDetail);
         }));
-      } 
+      } else {
+        setLoadingData(false)
+      }
     },
     [calculateRefund, dispatch],
   )
@@ -291,7 +294,6 @@ const ScreenReturnDetail = (props: PropType) => {
     if (!Number.isNaN(returnOrderId)) {
       dispatch(
         actionGetOrderReturnDetails(returnOrderId, (data: OrderReturnModel) => {
-          setLoadingData(false);
           setIsReceivedReturnProducts(data.received);
           if (!data) {
             setError(true);
