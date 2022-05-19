@@ -15,12 +15,12 @@ export const documentTypes = [
     value: 'inventory_transfer',
   },
   {
-    name: 'Đơn bán lẻ',
-    value: 'pos',
+    name: 'Đơn bán hàng',
+    value: 'order',
   },
   {
-    name: 'Đơn online',
-    value: 'order',
+    name: 'Đơn trả hàng',
+    value: 'return_order',
   },
   {
     name: 'Kiểm kho',
