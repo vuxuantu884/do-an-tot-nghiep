@@ -1,9 +1,9 @@
-import { Button, Card, Form, Image, Input } from "antd";
+import { Button, Card, Form, Image, Input, Select } from "antd";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { DataRequestDefectItems, InventoryDefectFields, InventoryDefectResponse, LineItemDefect } from "model/inventory-defects";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
 import search from "assets/img/search.svg";
@@ -23,7 +23,6 @@ import { cloneDeep, debounce, isArray, isEmpty } from "lodash";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import TextEllipsis from "component/table/TextEllipsis";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { StoreResponse } from "model/core/store.model";
 import { DefectFilterBasicEnum, DefectFilterBasicName } from "model/inventory-defects/filter"
 import { useArray } from "hook/useArray";
@@ -34,6 +33,8 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { InventoryDefectsPermission } from "config/permissions/inventory-defects.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { strForSearch } from "../../../../utils/StringUtils";
+import { Option } from "antd/es/mentions";
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch()
@@ -46,6 +47,8 @@ const ListInventoryDefect: React.FC = () => {
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions
   );
+
+  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
 
   let dataQuery: any = useMemo(() => {
     return { ...getQueryParams(query) }
@@ -355,9 +358,9 @@ const ListInventoryDefect: React.FC = () => {
   useEffect(() => {
     form.setFieldsValue({
       [DefectFilterBasicEnum.condition]: params.condition?.toString()?.split(','),
-      [DefectFilterBasicEnum.store_ids]: params.store_ids?.toString()?.split(',').map((x: string) => parseInt(x)),
-    })
-  }, [form, params]);
+      [DefectFilterBasicEnum.store_ids]: params.store_ids ? params.store_ids?.toString()?.split(',').map((x: string) => String(x)) : myStores.length > 1 || myStores.length === 0 ? [] : myStores[0].id.toString(),
+    });
+  }, [form, myStores, params]);
 
   useEffect(() => {
     (async () => {
@@ -411,13 +414,44 @@ const ListInventoryDefect: React.FC = () => {
             }}
           />
         </Item>
-        <Item name={DefectFilterBasicEnum.store_ids} style={{ minWidth: 250 }}>
-          <TreeStore
-            form={form}
-            name={DefectFilterBasicEnum.store_ids}
+        <Item
+          name={DefectFilterBasicEnum.store_ids}
+          className="select-item"
+        >
+          <Select
+            style={{width: '200px'}}
             placeholder="Chọn cửa hàng"
-            listStore={stores}
-          />
+            maxTagCount={'responsive' as const}
+            mode="multiple"
+            showArrow
+            showSearch
+            allowClear
+            filterOption={(input: String, option: any) => {
+              if (option.props.value) {
+                return strForSearch(option.props.children).includes(strForSearch(input));
+              }
+
+              return false;
+            }}
+          >
+            {Array.isArray(myStores) &&
+            myStores.length > 0 ?
+            myStores.map((item, index) => (
+              <Option
+                key={"from_store_id" + index}
+                value={item.id.toString()}
+              >
+                {item.store}
+              </Option>
+            )) : stores.map((item, index) => (
+                <Option
+                  key={"from_store_id" + index}
+                  value={item.id.toString()}
+                >
+                  {item.name}
+                </Option>
+              ))}
+          </Select>
         </Item>
         <Item>
           <Button htmlType="submit" type="primary">
