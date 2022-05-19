@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { StyledComponent } from "./styles";

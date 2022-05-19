@@ -65,8 +65,10 @@ export interface ReturnRequest extends OrderRequest {
   money_refund: number;
 }
 
-export interface ExchangeRequest extends OrderRequest {
-  order_return_id: number;
+export interface ExchangeRequest {
+  origin_order_id: number;
+  order_return: OrderRequest;
+  order_exchange: OrderRequest;
 }
 
 export interface FulFillmentRequest {

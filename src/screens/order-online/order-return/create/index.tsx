@@ -25,7 +25,7 @@ import { actionListConfigurationShippingServiceAndShippingFee } from "domain/act
 import purify from "dompurify";
 import useFetchStores from "hook/useFetchStores";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
-import _, { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { RefundModel } from "model/order/return.model";
@@ -123,8 +123,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
-  const [isErrorExchange, setIsErrorExchange] = useState(false);
-  const [orderReturnId, setOrderReturnId] = useState<number>(0);
   const [isCanExchange, setIsCanExchange] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false); // đang bị thừa
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -469,16 +467,24 @@ ShippingServiceConfigDetailResponseModel[]
     }
   };
 
-  const handleRecalculateOriginDiscount = (itemsResult: any) => {
-    return OrderDetail?.discounts?.map(singleDiscount => {
-      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult)
-      return {
-        ...singleDiscount,
-        value: value,
-        amount: value,
-      }
-    }) || null
-  };
+  const handleRecalculateOriginDiscount = useCallback(
+    (itemsResult: any) => {
+      return (
+        OrderDetail?.discounts?.map((singleDiscount) => {
+          let value = Math.ceil(
+            ((singleDiscount?.rate || 0) / 100) *
+              getTotalAmountAfterDiscount(itemsResult),
+          );
+          return {
+            ...singleDiscount,
+            value: value,
+            amount: value,
+          };
+        }) || null
+      );
+    },
+    [OrderDetail?.discounts],
+  );
   
 
   const handlePrintOrderReturnOrExchange = useCallback((orderId: number, printType: string) => {
@@ -502,21 +508,41 @@ ShippingServiceConfigDetailResponseModel[]
   }, [dispatch, handlePrint]);
 
   /**
-  * Lấy channel ID đơn trả
-  * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
-  * Đơn gốc offline: POS
-  */
-  const getChannelIdReturn = (OrderDetail: OrderResponse) => {
-    if(isOrderFromPOS(OrderDetail)) {
-      return POS.channel_id
-    } else {
-      if(orderReturnType === RETURN_TYPE_VALUES.offline) {
-        return POS.channel_id
+   * Lấy channel ID đơn trả
+   * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
+   * Đơn gốc offline: POS
+   */
+   const getChannelIdReturn = useCallback(
+    (OrderDetail: OrderResponse) => {
+      if (isOrderFromPOS(OrderDetail)) {
+        return POS.channel_id;
       } else {
-        return OrderDetail.channel_id
+        if (orderReturnType === RETURN_TYPE_VALUES.offline) {
+          return POS.channel_id;
+        } else {
+          return OrderDetail.channel_id;
+        }
+      }
+    },
+    [orderReturnType],
+  );
+
+  /**
+   * Lấy channel ID đơn đổi
+   * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
+   * Đơn gốc offline: POS
+   */
+  const getChannelIdExchange = useCallback((OrderDetail: OrderResponse) => {
+    if (isOrderFromPOS(OrderDetail)) {
+      return POS.channel_id;
+    } else {
+      if (orderReturnType === RETURN_TYPE_VALUES.offline) {
+        return POS.channel_id;
+      } else {
+        return OrderDetail.channel_id;
       }
     }
-  };
+  }, [orderReturnType]);
 
   const returnItems = useMemo(() => {
     let items = listReturnProducts.map((single) => {
@@ -915,11 +941,18 @@ ShippingServiceConfigDetailResponseModel[]
     [checkIfHasReturnProduct, form, handleSubmitFormReturn, isReceivedReturnProducts, storeReturn],
   )
 
-	const getOrderSource = (form:FormInstance<any>) => {
-		let result = null;
-		result = form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
-		return result;
-	};
+	const getOrderSource = useCallback(
+    (form: FormInstance<any>) => {
+      let result = null;
+      result = form.getFieldValue("source_id")
+        ? form.getFieldValue("source_id")
+        : OrderDetail
+        ? OrderDetail.source_id
+        : null;
+      return result;
+    },
+    [OrderDetail],
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkPointFocus = (value: any) => {
@@ -975,98 +1008,123 @@ ShippingServiceConfigDetailResponseModel[]
     [handlePrintOrderReturnOrExchange, history, printType.returnAndExchange],
   );
 
-  const createShipmentRequest = (value: OrderRequest) => {
-    let objShipment: ShipmentRequest = {
-      delivery_service_provider_id: null, //id đối tác vận chuyển
-      delivery_service_provider_type: "", //shipper
-      delivery_transport_type: "",
-      shipper_code: "",
-      shipper_name: "",
-      handover_id: null,
-      service: null,
-      fee_type: "",
-      fee_base_on: "",
-      delivery_fee: null,
-      shipping_fee_paid_to_three_pls: null,
-      expected_received_date: value.dating_ship?.utc().format(),
-      reference_status: "",
-      shipping_fee_informed_to_customer: null,
-      reference_status_explanation: "",
-      cod: null,
-      cancel_reason: "",
-      tracking_code: "",
-      tracking_url: "",
-      received_date: "",
-      sender_address_id: null,
-      note_to_shipper: "",
-      requirements: value.requirements,
-      sender_address: null,
-      office_time: form.getFieldValue("office_time"),
-    };
+  const createShipmentRequest = useCallback(
+    (value: OrderRequest) => {
+      let objShipment: ShipmentRequest = {
+        delivery_service_provider_id: null, //id đối tác vận chuyển
+        delivery_service_provider_type: "", //shipper
+        delivery_transport_type: "",
+        shipper_code: "",
+        shipper_name: "",
+        handover_id: null,
+        service: null,
+        fee_type: "",
+        fee_base_on: "",
+        delivery_fee: null,
+        shipping_fee_paid_to_three_pls: null,
+        expected_received_date: value.dating_ship?.utc().format(),
+        reference_status: "",
+        shipping_fee_informed_to_customer: null,
+        reference_status_explanation: "",
+        cod: null,
+        cancel_reason: "",
+        tracking_code: "",
+        tracking_url: "",
+        received_date: "",
+        sender_address_id: null,
+        note_to_shipper: "",
+        requirements: value.requirements,
+        sender_address: null,
+        office_time: form.getFieldValue("office_time"),
+      };
 
-    switch (shipmentMethod) {
-      case ShipmentMethodOption.DELIVER_PARTNER:
-        return {
-          ...objShipment,
-          delivery_service_provider_id: thirdPL.delivery_service_provider_id,
-          delivery_service_provider_type: "external_service",
-          delivery_transport_type: thirdPL.delivery_transport_type,
-          delivery_service_provider_code: thirdPL.delivery_service_provider_code,
-          delivery_service_provider_name: thirdPL.delivery_service_provider_name,
-          sender_address_id: storeId,
-          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          service: thirdPL.service,
-          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
-        };
+      switch (shipmentMethod) {
+        case ShipmentMethodOption.DELIVER_PARTNER:
+          return {
+            ...objShipment,
+            delivery_service_provider_id: thirdPL.delivery_service_provider_id,
+            delivery_service_provider_type: "external_service",
+            delivery_transport_type: thirdPL.delivery_transport_type,
+            delivery_service_provider_code:
+              thirdPL.delivery_service_provider_code,
+            delivery_service_provider_name:
+              thirdPL.delivery_service_provider_name,
+            sender_address_id: storeId,
+            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+            service: thirdPL.service,
+            shipping_fee_paid_to_three_pls:
+              thirdPL.shipping_fee_paid_to_three_pls,
+          };
 
-      case ShipmentMethodOption.SELF_DELIVER:
-        return {
-          ...objShipment,
-          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
-          service: thirdPL.service,
-          shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
-          cod:
-            totalAmountExchange +
-            (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-            getAmountPaymentRequest(payments) -
-            discountValue
-        };
-
-      case ShipmentMethodOption.PICK_AT_STORE:
-        objShipment.delivery_service_provider_type = ShipmentMethod.PICK_AT_STORE;
-        let newCod = totalAmountExchange;
-        if (shippingFeeInformedToCustomer !== null) {
-          if (
-            totalAmountExchange +
-            shippingFeeInformedToCustomer -
-            getAmountPaymentRequest(payments) >
-            0
-          ) {
-            newCod =
+        case ShipmentMethodOption.SELF_DELIVER:
+          return {
+            ...objShipment,
+            delivery_service_provider_type:
+              thirdPL.delivery_service_provider_code,
+            service: thirdPL.service,
+            shipper_code: value.shipper_code,
+            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+            shipping_fee_paid_to_three_pls:
+              thirdPL.shipping_fee_paid_to_three_pls,
+            cod:
               totalAmountExchange +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments);
-          }
-        } else {
-          if (totalAmountExchange - getAmountPaymentRequest(payments) > 0) {
-            newCod = totalAmountExchange - getAmountPaymentRequest(payments);
-          }
-        }
-        return {
-          ...objShipment,
-          delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
-          cod: newCod,
-        };
+              (shippingFeeInformedToCustomer
+                ? shippingFeeInformedToCustomer
+                : 0) -
+              getAmountPaymentRequest(payments) -
+              discountValue,
+          };
 
-      case ShipmentMethodOption.DELIVER_LATER:
-        return null;
+        case ShipmentMethodOption.PICK_AT_STORE:
+          objShipment.delivery_service_provider_type =
+            ShipmentMethod.PICK_AT_STORE;
+          let newCod = totalAmountExchange;
+          if (shippingFeeInformedToCustomer !== null) {
+            if (
+              totalAmountExchange +
+                shippingFeeInformedToCustomer -
+                getAmountPaymentRequest(payments) >
+              0
+            ) {
+              newCod =
+                totalAmountExchange +
+                shippingFeeInformedToCustomer -
+                getAmountPaymentRequest(payments);
+            }
+          } else {
+            if (totalAmountExchange - getAmountPaymentRequest(payments) > 0) {
+              newCod = totalAmountExchange - getAmountPaymentRequest(payments);
+            }
+          }
+          return {
+            ...objShipment,
+            delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
+            cod: newCod,
+          };
 
-      default:
-        break;
-    }
-  };
+        case ShipmentMethodOption.DELIVER_LATER:
+          return null;
+
+        default:
+          break;
+      }
+    },
+    [
+      discountValue,
+      form,
+      payments,
+      shipmentMethod,
+      shippingFeeInformedToCustomer,
+      storeId,
+      thirdPL.delivery_service_provider_code,
+      thirdPL.delivery_service_provider_id,
+      thirdPL.delivery_service_provider_name,
+      thirdPL.delivery_transport_type,
+      thirdPL.service,
+      thirdPL.shipping_fee_paid_to_three_pls,
+      totalAmountExchange,
+    ],
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
@@ -1138,7 +1196,7 @@ ShippingServiceConfigDetailResponseModel[]
     ],
   );
 
-  const createDiscountRequest = () => {
+  const createDiscountRequest = useCallback(() => {
     let objDiscount: OrderDiscountRequest = {
       rate: promotion?.rate,
       value: promotion?.value,
@@ -1620,9 +1678,10 @@ ShippingServiceConfigDetailResponseModel[]
 
                 <CardReturnProductContainer
                   discountRate={discountRate}
-                  isDetailPage={false}
                   orderId={orderId}
-                  setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
+                  setIsVisibleModalWarningPointRefund={
+                    setIsVisibleModalWarningPointRefund
+                  }
                   listStores={listStores}
                   autoCompleteRef={productReturnAutoCompleteRef}
                   searchVariantInputValue={searchVariantInputValue}
@@ -1631,6 +1690,7 @@ ShippingServiceConfigDetailResponseModel[]
                   isAlreadyShowWarningPoint={isAlreadyShowWarningPoint}
                   listPaymentMethods={listPaymentMethods}
                 />
+                
                 <OrderCreateProduct
                   orderAmount={orderAmount}
                   totalAmountOrder={totalAmountOrder}

@@ -35,6 +35,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   FulFillmentResponse,
+  OrderDiscountResponse,
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
@@ -1183,7 +1184,6 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	return discountPerOrder;
 }
 
-<<<<<<< HEAD
 /**
 * tính toán tiền trả lại khách khi đổi trả
 */
@@ -1194,9 +1194,6 @@ export const getReturnPricePerOrder =  (OrderDetail: OrderResponse | null | unde
 }
 
 export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {
-=======
-export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
->>>>>>> origin/master
   if(!discounts) {
     return 0;
   }
