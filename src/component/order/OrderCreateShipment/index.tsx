@@ -281,7 +281,7 @@ function OrderCreateShipment(props: PropType) {
       (getShippingAddressDefault(customer)?.city_id ||
         getShippingAddressDefault(customer)?.district_id) &&
       getShippingAddressDefault(customer)?.ward_id &&
-      getShippingAddressDefault(customer)?.full_address
+      getShippingAddressDefault(customer)?.full_address && items && items?.length > 0
     ) {
       if (!((storeDetail.city_id || storeDetail.district_id) &&
           storeDetail.ward_id && storeDetail.address)) {
