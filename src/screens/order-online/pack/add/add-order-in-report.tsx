@@ -12,6 +12,7 @@ import { OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.resp
 import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-over-context";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { formatCurrency } from "utils/AppUtils";
+import { FulFillmentStatus } from "utils/Constants";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
@@ -83,43 +84,34 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   useEffect(() => {
     if (orderListResponse.length > 0) {
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
+      let receiptTypeId = goodsReceiptForm.getFieldValue('receipt_type_id');
       orderListResponse.forEach(function (order, index) {
-        let fulfillmentPacked = order.fulfillments?.filter(ffm => {
-        
-          let receiptTypeId = goodsReceiptForm.getFieldValue('receipt_type_id');
-          if(receiptTypeId === 1) {
-            return  ffm.status === 'packed'
+        let fulfillments = order.fulfillments?.filter(ffm => {
+          if (receiptTypeId === 1) {
+            return ffm.status === FulFillmentStatus.PACKED
           }
-          return  ffm.status === 'cancelled'
+          return ffm.status === FulFillmentStatus.CANCELLED && ffm.return_status === FulFillmentStatus.RETURNING
         });
-        if (fulfillmentPacked.length > 0) {
+
+        console.log("fulfillments",fulfillments)
+        if (fulfillments.length > 0) {
           let product: VariantModel[] = [];
-          let ship_price = 0;
-          let total_price = 0;
-          fulfillmentPacked.forEach(function (fulfillment) {
-            //if (fulfillment.status === 'packed') {
-              ship_price =
-                ship_price +
-                (fulfillment?.shipment?.shipping_fee_informed_to_customer
-                  ? fulfillment.shipment.shipping_fee_informed_to_customer
-                  : 0);
-              total_price = total_price + (fulfillment.total ? fulfillment.total : 0);
+          let indexFFM = fulfillments.length - 1;
+          let ship_price = fulfillments[indexFFM].shipment.shipping_fee_informed_to_customer || 0;
+          let total_price = fulfillments[indexFFM].total || 0;
 
-              fulfillment.items.forEach(function (itemProduct) {
-                product.push({
-                  sku: itemProduct.sku,
-                  product_id: itemProduct.product_id,
-                  product: itemProduct.product,
-                  variant_id: itemProduct.variant_id,
-                  variant: itemProduct.variant,
-                  variant_barcode: itemProduct.variant_barcode,
-                  quantity: itemProduct.quantity,
-                  price: itemProduct.price
-                });
-              });
-            //}
-
-          });
+          fulfillments[indexFFM].items.forEach(function (itemProduct) {
+            product.push({
+              sku: itemProduct.sku,
+              product_id: itemProduct.product_id,
+              product: itemProduct.product,
+              variant_id: itemProduct.variant_id,
+              variant: itemProduct.variant,
+              variant_barcode: itemProduct.variant_barcode,
+              quantity: itemProduct.quantity,
+              price: itemProduct.price
+            });
+          })
 
           let resultItem: GoodsReceiptsInfoOrderModel = {
             key: index,
@@ -136,7 +128,6 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
 
           result.push(resultItem);
         }
-
       });
       setPackOrderProductList(result);
       formSearchOrderRef.current?.resetFields();
@@ -149,7 +140,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       align: "center",
       render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
         return (
-          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`} style={{whiteSpace:"nowrap"}}>
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`} style={{ whiteSpace: "nowrap" }}>
             {l.order_code}
           </Link>
         );

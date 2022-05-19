@@ -33,7 +33,6 @@ import { StyledComponent } from "./styles";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { FulFillmentStatus } from "utils/Constants";
-// import { FulFillmentStatus } from "utils/Constants";
 
 const { Item } = Form;
 type PackParam = {
@@ -89,19 +88,21 @@ const PackUpdate: React.FC = () => {
         let total_price = 0;
         let ffrmCode = null;
 
-        if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
-          let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
-          let itemFFM = itemOrder.fulfillments[indexFFM];
-          ffrmCode = itemFFM.code;
+        let fulfillments = itemOrder.fulfillments?.filter(ffm => {
+          if (packDetail.receipt_type_id === 1) {
+            return ffm.status === FulFillmentStatus.PACKED
+          }
+          return ffm.status === FulFillmentStatus.CANCELLED && ffm.return_status === FulFillmentStatus.RETURNING
+        });
 
-          ship_price =
-            ship_price +
-            (itemFFM?.shipment?.shipping_fee_informed_to_customer
-              ? itemFFM.shipment.shipping_fee_informed_to_customer
-              : 0);
-          total_price = total_price + (itemFFM.total ? itemFFM.total : 0);
+        console.log("fulfillments",fulfillments)
 
-          itemFFM.items.forEach(function (itemProduct) {
+        if (fulfillments && fulfillments.length > 0) {
+          let indexFFM = fulfillments.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
+          ship_price = fulfillments[indexFFM]?.shipment?.shipping_fee_informed_to_customer || 0;
+          total_price = fulfillments[indexFFM].total || 0;
+
+          fulfillments[indexFFM].items.forEach(function (itemProduct) {
             product.push({
               sku: itemProduct.sku,
               product_id: itemProduct.product_id,
@@ -112,9 +113,9 @@ const PackUpdate: React.FC = () => {
               quantity: itemProduct.quantity,
               price: itemProduct.price
             });
-          });
+          })
         }
-
+      
         let resultItem: GoodsReceiptsInfoOrderModel = {
           key: index,
           order_id: itemOrder.id ? itemOrder.id : 0,
