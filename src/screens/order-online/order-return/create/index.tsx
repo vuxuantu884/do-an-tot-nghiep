@@ -1742,6 +1742,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   setSearchVariantInputValue={setSearchVariantInputValue}
                   setListOrderProductsResult={setListOrderProductsResult}
                   isAlreadyShowWarningPoint={isAlreadyShowWarningPoint}
+                  listPaymentMethods={listPaymentMethods}
                 />
                 <OrderCreateProduct
                   orderAmount={orderAmount}

@@ -10,6 +10,7 @@ import {
   OrderResponse,
   ReturnProductModel
 } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -21,6 +22,7 @@ import {
   getProductDiscountPerOrder,
   getProductDiscountPerProduct
 } from "utils/AppUtils";
+import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 // import { fullTextSearch } from "utils/StringUtils";
 import CardReturnProducts from "../../CardReturnProducts";
@@ -36,6 +38,7 @@ type PropTypes = {
   setSearchVariantInputValue: (value: string) => void;
   setListOrderProductsResult:(value:OrderLineItemResponse[])=>void;
   isAlreadyShowWarningPoint: boolean;
+  listPaymentMethods: PaymentMethodResponse[];
 };
 
 function CardReturnProductContainer(props: PropTypes) {
@@ -48,11 +51,10 @@ function CardReturnProductContainer(props: PropTypes) {
     setListOrderProductsResult,
     listStores,
     isAlreadyShowWarningPoint,
+    listPaymentMethods,
   } = props;
 
   const dispatch = useDispatch();
-
-  const pointPaymentMethodId = 1;
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
 
@@ -391,9 +393,7 @@ function CardReturnProductContainer(props: PropTypes) {
     if (!listReturnProducts) {
       return;
     }
-    let isUsingPoint = OrderDetail?.payments?.some((single) => {
-      return single.payment_method_id === pointPaymentMethodId;
-    });
+    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods)
     const refund_money = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
     if (isUsingPoint) {
       if (OrderDetail?.customer_id && orderId && refund_money > 0) {
@@ -405,15 +405,15 @@ function CardReturnProductContainer(props: PropTypes) {
           return rest;
         });
         console.log('returnItems', returnItems)
-        const returnItemsNow: OrderResponse[] = [
+        const returnOrderNow: OrderResponse[] = [
           {
             ...OrderDetail,
             items: returnItems,
           },
         ];
-        let return_items = [...returnItemsNow];
+        let return_items = [...returnOrderNow];
         if (OrderDetail.order_returns) {
-          return_items = [...OrderDetail.order_returns, ...returnItemsNow];
+          return_items = [...OrderDetail.order_returns, ...returnOrderNow];
         }
         let params: OrderReturnCalculateRefundRequestModel = {
           customerId: OrderDetail.customer_id,
@@ -461,9 +461,8 @@ function CardReturnProductContainer(props: PropTypes) {
       return;
     }
     let result = 0;
-    let isUsingPoint = OrderDetail?.payments?.some((single) => {
-      return single.payment_method_id === pointPaymentMethodId;
-    });
+    
+    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods)
     if (!isUsingPoint) {
       if (setTotalAmountReturnProducts) {
         result = getTotalPrice(listReturnProducts);
@@ -477,13 +476,7 @@ function CardReturnProductContainer(props: PropTypes) {
     if (setTotalAmountReturnProducts) {
       setTotalAmountReturnProducts(Math.ceil(result));
     }
-  }, [
-    OrderDetail?.payments,
-    getTotalPrice,
-    listReturnProducts,
-    refund?.moneyRefund,
-    setTotalAmountReturnProducts,
-  ]);
+  }, [OrderDetail, getTotalPrice, listPaymentMethods, listReturnProducts, refund?.moneyRefund, setTotalAmountReturnProducts]);
 
   return (
     <CardReturnProducts

@@ -9,11 +9,13 @@ import {
   getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
+  actionGetOrderReturnCalculateRefund,
   actionGetOrderReturnDetails,
   actionOrderRefund,
   actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
-import { PaymentMethodGetList } from "domain/actions/order/order.action";
+import { OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -24,11 +26,13 @@ import {
   ReturnProductModel
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getOrderTotalPaymentAmountReturn, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
+import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
+import { getTotalPriceOfAllLineItem } from "utils/POUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -170,6 +174,54 @@ const ScreenReturnDetail = (props: PropType) => {
     return total >= Math.floor(OrderDetail?.money_refund || 0)
   };
 
+  const calculateRefund= useCallback(
+    (response: OrderResponse, OrderDetail: OrderResponse | null) => {
+      console.log('response', response);
+      let isUsingPoint = isOrderDetailHasPointPayment(response, listPaymentMethods);
+      console.log('isUsingPoint', isUsingPoint);
+      if(isUsingPoint) {
+        const orderReturns = response.order_returns;
+        const currentOrderReturn = orderReturns?.find(single => single.id === OrderDetail?.id);
+        console.log('currentOrderReturn', currentOrderReturn)
+        if(currentOrderReturn && OrderDetail?.customer_id && currentOrderReturn.items) {
+          const refund_money = currentOrderReturn.total;
+          const otherOrderReturnArr = orderReturns?.filter(single => single.id !== OrderDetail?.id) || []
+          const currentOrderReturnArr:OrderResponse[] = [{
+            ...currentOrderReturn,
+            id: response.id,
+            money_refund: undefined,
+            point_refund :undefined,
+          }];
+          let return_items = [...otherOrderReturnArr, ...currentOrderReturnArr];
+          const params: OrderReturnCalculateRefundRequestModel = {
+            customerId: OrderDetail?.customer_id,
+            items: response.items,
+            orderId: currentOrderReturn.id,
+            refund_money,
+            return_items,
+          };
+          dispatch(
+            actionGetOrderReturnCalculateRefund(params, (response) => {
+              console.log('response', response)
+            })
+          );
+        }
+      }
+    },
+    [ dispatch, listPaymentMethods],
+  )
+
+  const handleOrderOriginId = useCallback(
+    (orderOriginId: number|undefined, OrderDetail: OrderResponse | null) => {
+      if (orderOriginId) {
+        dispatch(OrderDetailAction(orderOriginId.toString(), (response) => {
+          calculateRefund(response, OrderDetail);
+        }));
+      } 
+    },
+    [calculateRefund, dispatch],
+  )
+
   useEffect(() => {
     if (!Number.isNaN(returnOrderId)) {
       dispatch(
@@ -202,6 +254,8 @@ const ScreenReturnDetail = (props: PropType) => {
               setPayments(_data.payments);
             }
 
+            const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
+            handleOrderOriginId(orderOriginId, _data);
             if(!checkIfHasReturnMoneyAll(_data)) {
               setIsShowPaymentMethod(true)
             }
@@ -211,7 +265,7 @@ const ScreenReturnDetail = (props: PropType) => {
     } else {
       setError(true);
     }
-  }, [dispatch, returnOrderId]);
+  }, [dispatch, handleOrderOriginId, returnOrderId]);
 
   useEffect(() => {
     if (OrderDetail != null) {
