@@ -184,7 +184,7 @@ const InventoryDefectCreate: React.FC = () => {
 
     if (myStores.length === 1) {
       form.setFieldsValue({
-        store_id: String(myStores[0].id)
+        store_id: String(myStores[0].store_id)
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -429,7 +429,7 @@ const InventoryDefectCreate: React.FC = () => {
                   myStores.map((item, index) => (
                       <Option
                         key={"store_id" + index}
-                        value={item.id.toString()}
+                        value={item.store_id.toString()}
                       >
                         {item.store}
                       </Option>
