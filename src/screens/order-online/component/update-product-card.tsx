@@ -395,7 +395,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">
-                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả 1:"}
+                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
               </strong>
               <strong>{formatCurrency(customerNeedToPayValue)}</strong>
             </Row>
@@ -415,7 +415,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   <strong className="font-size-text" style={{ fontWeight: "bold" }}>
                     {customerNeedToPayValue - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
-                      : "Khách cần trả 2:"}
+                      : "Khách cần trả:"}
                   </strong>
                   <strong className="text-success font-size-price">
                     {formatCurrency(

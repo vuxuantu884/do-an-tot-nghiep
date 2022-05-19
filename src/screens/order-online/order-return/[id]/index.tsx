@@ -32,6 +32,7 @@ import { useParams } from "react-router-dom";
 import { getRefundInformationService } from "service/order/order.service";
 import { getOrderTotalPaymentAmountReturn, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
+import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import { findPaymentMethodByCode, isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import { getTotalPriceOfAllLineItem } from "utils/POUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -106,6 +107,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
     );
   };
 
+  const [returnPaymentStatus, setReturnPaymentStatus] = useState(ORDER_PAYMENT_STATUS.paid);
+
   const [isShowPaymentMethod, setIsShowPaymentMethod] = useState(false);
 
   const initialFormValue = useMemo(() => {
@@ -131,16 +134,15 @@ const ScreenReturnDetail = (props: PropTypes) => {
               payment_method: returnMoneyMethod.name,
               name: returnMoneyMethod.name,
               note: formValuePayment.returnMoneyNote || "",
-              amount: Math.ceil(totalAmountReturnToCustomer || 0),
+              amount: Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
               paid_amount:
                 Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
-              return_amount:
-                Math.ceil(formValuePayment?.returnMoneyAmount || 0),
+              return_amount:0,
               customer_id: OrderDetail?.customer_id,
               payment_method_code: returnMoneyMethod.code,
             },
           ];
-          if(refund.money > 0 && refund.point > 0) {
+          if(refund.money > 0 && refund.point > 0 && OrderDetail?.payment_status === ORDER_PAYMENT_STATUS.unpaid) {
             const pointPaymentMethod = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.POINT);
             if(pointPaymentMethod) {
               payments.push({
@@ -156,7 +158,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
             })
           }}
           console.log('payments', payments);
-          return;
+          // return;
           dispatch(
             actionOrderRefund(returnOrderId, { payments }, (response) => {
               dispatch(
@@ -176,7 +178,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   }
                 )
               );
-              setIsShowPaymentMethod(false);
+              setReturnPaymentStatus(ORDER_PAYMENT_STATUS.paid);
             })
           );
         }
@@ -186,34 +188,35 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   const totalAmountReturnToCustomer = useMemo(() => {
     return (OrderDetail?.total || 0) - refund.money;
-  }, [OrderDetail?.total, refund.money])
+  }, [OrderDetail?.total, refund.money]);
+
+  const totalAmountHasPaidToCustomer = useMemo(() => {
+    let result = 0;
+    OrderDetail?.payments?.forEach(single => {
+      if(single.status === ORDER_PAYMENT_STATUS.paid) {
+        result = result + single.paid_amount;
+      }
+    })
+    return result;
+  }, [OrderDetail?.payments])
+
+  const totalAmountReturnToCustomerLeft = useMemo(() => {
+    return totalAmountReturnToCustomer - totalAmountHasPaidToCustomer;
+  }, [totalAmountHasPaidToCustomer, totalAmountReturnToCustomer]);
   
+  console.log('totalAmountReturnToCustomerLeft', totalAmountReturnToCustomerLeft)
+
   useEffect(() => {
     form.setFieldsValue({
       returnMoneyField: [
         {
-          ...initialFormValue.returnMoneyField,
-          returnMoneyAmount: totalAmountReturnToCustomer,
+          ...initialFormValue.returnMoneyField[0],
+          returnMoneyMethod: returnPaymentMethodCode,
+          returnMoneyAmount: totalAmountReturnToCustomerLeft,
         },
       ],
     })
-  }, [form, initialFormValue, totalAmountReturnToCustomer])
-
-  useEffect(() => {
-    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
-      return single.code === PaymentMethodCode.CASH;
-    });
-    if(paymentMethodReturnToCustomer) {
-      form.setFieldsValue({
-        returnMoneyField: [
-          {
-            ...initialFormValue.returnMoneyField,
-            returnMoneyMethod: paymentMethodReturnToCustomer.code,
-          },
-        ],
-      })
-    }
-  }, [form, initialFormValue, listPaymentMethods])
+  }, [form, initialFormValue.returnMoneyField, returnPaymentMethodCode, totalAmountReturnToCustomerLeft])
  
   /**
    * theme context data
@@ -223,11 +226,11 @@ const ScreenReturnDetail = (props: PropTypes) => {
     listReturnProducts,
   };
 
-  const checkIfHasReturnMoneyAll = (OrderDetail?: OrderResponse ) => {
-    // const total = getOrderTotalPaymentAmount(OrderDetail?.payments || []);
-    const total = getOrderTotalPaymentAmountReturn(OrderDetail?.payments || []);
-    return total >= Math.floor(OrderDetail?.money_refund || 0)
-  };
+  // const checkIfHasReturnMoneyAll = (OrderDetail?: OrderResponse ) => {
+  //   // const total = getOrderTotalPaymentAmount(OrderDetail?.payments || []);
+  //   const total = getOrderTotalPaymentAmountReturn(OrderDetail?.payments || []);
+  //   return total >= Math.floor(OrderDetail?.money_refund || 0)
+  // };
 
   const calculateRefund= useCallback(
     (response: OrderResponse, OrderDetail: OrderResponse | null) => {
@@ -247,8 +250,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 money: currentRefund.money_point,
                 point: currentRefund.change_point,
               })
-              setLoadingData(false)
             }
+          }).catch((error) => {
+            setError(true);
+          }).finally(() => {
+            setLoadingData(false)
+
           })
           // const refund_money = currentOrderReturn.total;
           // const otherOrderReturnArr = orderReturns?.filter(single => single.id !== OrderDetail?.id) || []
@@ -323,8 +330,11 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
             const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
             handleOrderOriginId(orderOriginId, _data);
-            if(!checkIfHasReturnMoneyAll(_data)) {
-              setIsShowPaymentMethod(true)
+            if(_data?.payment_status) {
+              setReturnPaymentStatus(_data.payment_status);
+              if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                setIsShowPaymentMethod(true)
+              }
             }
           }
         })
@@ -401,6 +411,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   loyaltyPoint={loyaltyPoint}
                   loyaltyUsageRules={loyaltyUsageRules}
                 />
+                {/* chi tiết đơn trả có điểm thì cần call api tính điểm hoàn, chi tiết đơn đổi thì ko cần */}
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
                   pointUsing={refund.point}
@@ -411,12 +422,13 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}
                   payments={payments}
-                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
-                  isShowPaymentMethod={isShowPaymentMethod}
-                  setIsShowPaymentMethod={setIsShowPaymentMethod}
+                  totalAmountReturnToCustomerLeft={totalAmountReturnToCustomerLeft}
+                  returnPaymentStatus={returnPaymentStatus}
                   handleReturnMoney={handleReturnMoney}
                   returnPaymentMethodCode={returnPaymentMethodCode}
                   setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+                  setIsShowPaymentMethod={setIsShowPaymentMethod}
+                  isShowPaymentMethod={isShowPaymentMethod}
                 />
                 <CardReturnReceiveProducts
                   isDetailPage

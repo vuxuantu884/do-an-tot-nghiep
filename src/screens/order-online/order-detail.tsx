@@ -822,6 +822,7 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end customer ---*/}
 
+              {/* chi tiết đơn trả có điểm thì cần call api tính điểm hoàn, chi tiết đơn đổi thì ko cần */}
               {OrderDetail?.order_return_origin?.items && (
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}

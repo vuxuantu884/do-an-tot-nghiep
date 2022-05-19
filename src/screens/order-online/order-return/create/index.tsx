@@ -693,8 +693,6 @@ ShippingServiceConfigDetailResponseModel[]
   /**
    * lấy payment của đơn trả cho trường hợp chỉ trả ko đổi
    */
- let formValues = form.getFieldsValue();
- console.log('formValues', formValues)
   const getPaymentOfReturnInReturn = useCallback(() => {
     let result:OrderPaymentRequest[] = [];
     let paidStatus = ORDER_PAYMENT_STATUS.paid;
@@ -713,6 +711,7 @@ ShippingServiceConfigDetailResponseModel[]
 
     // trả tiền trước
     if(returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+      
       let returnMoneyMethod = listPaymentMethods.find((single) => {
         return single.code === formValuePayment?.returnMoneyMethod;
       });
@@ -777,7 +776,6 @@ ShippingServiceConfigDetailResponseModel[]
           })
         }
       }
-
     } else { // trả tiền sau
       
     }
@@ -864,8 +862,10 @@ ShippingServiceConfigDetailResponseModel[]
         url: "",
         tags: null,
         type: orderReturnType,
+        //channel
         channel_id: getChannelIdReturn(OrderDetail),
-        money_refund: refund.moneyRefund,
+        // thêm money refund
+        money_refund: Math.round(refund.moneyRefund),
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
       console.log("orderDetailResult", orderDetailResult);
@@ -1463,8 +1463,10 @@ ShippingServiceConfigDetailResponseModel[]
          url: "",
          tags: null,
          type: orderReturnType,
+         // channel
          channel_id: getChannelIdReturn(OrderDetail),
-         money_refund: refund.moneyRefund,
+         // thêm money refund
+         money_refund: Math.round(refund.moneyRefund),
  
          // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
        };

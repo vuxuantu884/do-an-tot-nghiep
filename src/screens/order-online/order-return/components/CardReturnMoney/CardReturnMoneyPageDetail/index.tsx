@@ -4,30 +4,33 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
-  totalAmountReturnToCustomer: number | undefined;
-  isShowPaymentMethod: boolean;
+  totalAmountReturnToCustomerLeft: number | undefined;
   handleReturnMoney: () => void;
   setIsShowPaymentMethod: (value: boolean) => void;
+  isShowPaymentMethod: boolean;
   returnPaymentMethodCode: string;
   setReturnPaymentMethodCode: (value: string) => void;
+  returnPaymentStatus: string;
 };
 
 function CardReturnMoneyPageDetail(props: PropTypes) {
   const {
     payments,
-    totalAmountReturnToCustomer = 0,
+    totalAmountReturnToCustomerLeft = 0,
     listPaymentMethods,
-    isShowPaymentMethod,
     handleReturnMoney,
     setIsShowPaymentMethod,
     returnPaymentMethodCode,
     setReturnPaymentMethodCode,
+    returnPaymentStatus,
+    isShowPaymentMethod,
   } = props;
 
   const renderCardTitle = () => {
@@ -35,7 +38,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
       <React.Fragment>
         <span className="title-card">
           Hoàn tiền
-          {payments && payments.length > 0 && (
+          {returnPaymentStatus === ORDER_PAYMENT_STATUS.paid && (
             <Tag
 							color="success"
               className="orders-tag orders-tag-success"
@@ -52,7 +55,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
   };
 
   const renderPayments = () => {
-    if (payments && payments.length) {
+    if (returnPaymentStatus === ORDER_PAYMENT_STATUS.paid || returnPaymentStatus === ORDER_PAYMENT_STATUS.partial_paid) {
       return (
         <Timeline>
           {payments.map((single, index) => {
@@ -82,7 +85,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
         </Timeline>
       );
     } else {
-      if (!isShowPaymentMethod) {
+      if(!isShowPaymentMethod) {
         return (
           <React.Fragment>
             <div
@@ -92,7 +95,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
                 fontWeight: "bold",
               }}
             >
-              Cần hoàn trả khách: {formatCurrency(totalAmountReturnToCustomer)} đ
+              Cần hoàn trả khách: {formatCurrency(totalAmountReturnToCustomerLeft)} đ
               <Button
                 onClick={() => {
                   setIsShowPaymentMethod(true);
@@ -103,6 +106,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
             </div>
           </React.Fragment>
         );
+
       }
     }
   };
@@ -111,10 +115,10 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
     <StyledComponent>
       <Card title={renderCardTitle()}>
         {renderPayments()}
-        {isShowPaymentMethod && (
+        {returnPaymentStatus !== ORDER_PAYMENT_STATUS.paid && (
           <ReturnMoneySelect
             listPaymentMethods={listPaymentMethods}
-            totalAmountCustomerNeedToPay={-totalAmountReturnToCustomer}
+            totalAmountCustomerNeedToPay={-totalAmountReturnToCustomerLeft}
             handleReturnMoney={() => {
               handleReturnMoney();
             }}
