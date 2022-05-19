@@ -1591,10 +1591,9 @@ ShippingServiceConfigDetailResponseModel[]
     ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
     : 0;
     form.setFieldsValue({
-      ...initialFormValueWithReturn,
       returnMoneyField: [
         {
-          ...initialFormValueWithReturn.returnMoneyField,
+          ...initialFormValueWithReturn.returnMoneyField[0],
           returnMoneyAmount: result,
         },
       ],
@@ -1607,10 +1606,9 @@ ShippingServiceConfigDetailResponseModel[]
     });
     if(paymentMethodReturnToCustomer) {
       form.setFieldsValue({
-        ...initialFormValueWithReturn,
         returnMoneyField: [
           {
-            ...initialFormValueWithReturn.returnMoneyField,
+            ...initialFormValueWithReturn.returnMoneyField[0],
             returnMoneyMethod: paymentMethodReturnToCustomer.code,
           },
         ],

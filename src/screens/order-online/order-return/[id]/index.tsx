@@ -188,7 +188,6 @@ const ScreenReturnDetail = (props: PropTypes) => {
   
   useEffect(() => {
     form.setFieldsValue({
-      ...initialFormValue,
       returnMoneyField: [
         {
           ...initialFormValue.returnMoneyField,
@@ -204,7 +203,6 @@ const ScreenReturnDetail = (props: PropTypes) => {
     });
     if(paymentMethodReturnToCustomer) {
       form.setFieldsValue({
-        ...initialFormValue,
         returnMoneyField: [
           {
             ...initialFormValue.returnMoneyField,

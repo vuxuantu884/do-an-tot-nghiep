@@ -39,16 +39,17 @@ function ReturnMoneySelect(props: PropTypes) {
     return !exceptMethods.includes(single.code);
   });
 
-  const [initialReturnAmount, setInitialReturnAmount] = useState(0)
+  // const [initialReturnAmount, setInitialReturnAmount] = useState(0)
 
-  console.log('initialReturnAmount', initialReturnAmount)
+  // console.log('initialReturnAmount', initialReturnAmount)
 
-  useEffect(() => {
-    let result = totalAmountCustomerNeedToPay < 0
-    ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
-    : 0
-    setInitialReturnAmount(result)
-  }, [totalAmountCustomerNeedToPay])
+  // useEffect(() => {
+  //   let result = totalAmountCustomerNeedToPay < 0
+  //   ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
+  //   : 0
+  //   setInitialReturnAmount(result)
+
+  // }, [totalAmountCustomerNeedToPay])
   
 
   return (
@@ -110,10 +111,10 @@ function ReturnMoneySelect(props: PropTypes) {
                             }}
                             maxLength={14}
                             minLength={0}
-                            value={initialReturnAmount}
-                            onChange={(value) => {
-                              setInitialReturnAmount(value || 0);
-                            }}
+                            // value={initialReturnAmount}
+                            // onChange={(value) => {
+                            //   // setInitialReturnAmount(value || 0);
+                            // }}
                           />
                         </Form.Item>
                       </Col>
