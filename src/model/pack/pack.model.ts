@@ -44,6 +44,7 @@ export interface fulfillmentsModel{
     id?:number;
   }
   items:Array<VariantModel>;
+  return_status?:string|null;
 }
 export interface VariantModel{
   sku: string;
