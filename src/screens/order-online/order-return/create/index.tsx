@@ -690,7 +690,7 @@ ShippingServiceConfigDetailResponseModel[]
     //   }
     // }
     return result;
-  }, [customer?.id, getFormReturnMoneyValues, listPaymentMethods, returnMoneyType, totalAmountCustomerNeedToPay])
+  }, [customer?.id, getFormReturnMoneyValues, listPaymentMethods, returnMoneyType, totalAmountCustomerNeedToPay, totalAmountReturnProducts])
 
   /**
    * lấy payment của đơn trả cho trường hợp chỉ trả ko đổi
