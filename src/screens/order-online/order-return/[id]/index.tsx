@@ -183,14 +183,15 @@ const ScreenReturnDetail = (props: PropTypes) => {
     });
   };
 
+  // tổng tiền trừ điểm
   const totalAmountReturnToCustomer = useMemo(() => {
     return Math.ceil((OrderDetail?.total || 0) - refund.money);
   }, [OrderDetail?.total, refund.money]);
 
-  const totalAmountHasPaidToCustomer = useMemo(() => {
+  const totalAmountHasPaidToCustomerWithoutPointRefund = useMemo(() => {
     let result = 0;
     OrderDetail?.payments?.forEach(single => {
-      if(single.status === ORDER_PAYMENT_STATUS.paid) {
+      if(single.status === ORDER_PAYMENT_STATUS.paid && single.payment_method_code !== PaymentMethodCode.POINT_REFUND) {
         result = result + single.paid_amount;
       }
     })
@@ -198,8 +199,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
   }, [OrderDetail?.payments])
 
   const totalAmountReturnToCustomerLeft = useMemo(() => {
-    return totalAmountReturnToCustomer - totalAmountHasPaidToCustomer;
-  }, [totalAmountHasPaidToCustomer, totalAmountReturnToCustomer]);
+    return totalAmountReturnToCustomer - totalAmountHasPaidToCustomerWithoutPointRefund;
+  }, [totalAmountHasPaidToCustomerWithoutPointRefund, totalAmountReturnToCustomer]);
   
   console.log('totalAmountReturnToCustomerLeft', totalAmountReturnToCustomerLeft)
 
