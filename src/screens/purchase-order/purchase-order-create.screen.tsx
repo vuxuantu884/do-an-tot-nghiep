@@ -274,7 +274,7 @@ const POCreateScreen: React.FC = () => {
       dispatch(PoDetailAction(Number(poId), (data: PurchaseOrder | null) => {
         if (data) {
           setIsGridMode(data.is_grid_mode);
-          fetchProductGridData(data.is_grid_mode, data, "CREATE", dispatch, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate);
+          fetchProductGridData(data.is_grid_mode, data, "READ_UPDATE", dispatch, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate);
           const line_items = data.line_items.map((item: PurchaseOrderLineItem) => {
             return { ...item, receipt_quantity: 0, planned_quantity: 0 }
           })
