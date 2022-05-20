@@ -170,6 +170,11 @@ const ScreenReturnDetail = (props: PropTypes) => {
                       if (_data.payments) {
                         setPayments(_data.payments);
                       }
+                      if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                        setIsShowPaymentMethod(true)
+                      } else {
+                        setIsShowPaymentMethod(false)
+                      }
                       setCountChangeSubStatus(countChangeSubStatus + 1);
                     }
                   }

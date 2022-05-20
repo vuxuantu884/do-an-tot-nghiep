@@ -86,8 +86,8 @@ function ReturnMoneySelect(props: PropTypes) {
                               style={{ width: "100%" }}
                               placeholder="Chọn hình thức thanh toán"
                               notFoundContent="Không tìm thấy hình thức thanh toán"
-                              value= {returnPaymentMethodCode}
-                              onChange={setReturnPaymentMethodCode}
+                              // value= {returnPaymentMethodCode}
+                              // onChange={setReturnPaymentMethodCode}
                             >
                               {listPaymentMethodsResult &&
                                 listPaymentMethodsResult.map((single) => {
