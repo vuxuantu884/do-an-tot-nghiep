@@ -744,7 +744,7 @@ const AllTab: React.FC<any> = (props) => {
       setStatusExportDetail(STATUS_IMPORT_EXPORT.DEFAULT);
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
-        setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+        setStatusExportDetail(0);
         showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
         setVExportInventory(false);
         return;
@@ -752,7 +752,7 @@ const AllTab: React.FC<any> = (props) => {
 
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
-        setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+        setStatusExportDetail(0);
         showWarning("Không có sản phẩm nào đủ điều kiện");
         return;
       }
