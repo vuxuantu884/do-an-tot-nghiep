@@ -164,6 +164,7 @@ const OrderDetail = (props: PropType) => {
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
+  console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   //loyalty
