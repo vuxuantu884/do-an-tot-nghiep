@@ -569,15 +569,17 @@ ShippingServiceConfigDetailResponseModel[]
       const moneyPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
       const formValuePayment = getFormReturnMoneyValues();
       let returnMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
+      const amount = Math.ceil(totalAmountReturnProducts);
+      const paidAmount = returnMoneyAmount + amount;
       if(moneyPayment) {
         result.push({
           payment_method_id: moneyPayment.id,
           payment_method: moneyPayment.name,
           payment_method_code: moneyPayment.code,
-          amount: returnMoneyAmount,
+          amount: paidAmount,
           reference: "",
           source: "",
-          paid_amount: returnMoneyAmount,
+          paid_amount: paidAmount,
           return_amount: 0,
           status: ORDER_PAYMENT_STATUS.paid,
           customer_id: customer?.id || null,
