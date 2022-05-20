@@ -31,6 +31,7 @@ export interface ReturnModel {
   updated_by: string;
   updated_date: string;
   updated_name: string;
+  discounts: Array<any>;
   items: Array<OrderLineItemResponse>;
 }
 
