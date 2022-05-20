@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
 import CreateBillStep from "component/header/create-bill-step";
+import UrlConfig from "config/url.config";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -285,6 +286,17 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         In lại hoá đơn
                       </Menu.Item>
                     ) : null}
+                    
+                    <Menu.Item
+                      key="warranty"
+                      onClick={() => window.open(
+                        `${UrlConfig.WARRANTY}/create?orderID=${orderDetail?.id}`,
+                        '_blank' // <- This is what makes it open in a new window.
+                      )}
+                      disabled={orderDetail?.status !== OrderStatus.FINISHED}
+                    >
+                     Tạo bảo hành
+                  </Menu.Item>
                   </Menu>
                 }
                 trigger={["click"]}

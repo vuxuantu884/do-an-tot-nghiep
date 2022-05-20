@@ -29,7 +29,7 @@ function ReturnMoneySelect(props: PropTypes) {
   ];
 
   const {
-    totalAmountCustomerNeedToPay,
+    // totalAmountCustomerNeedToPay,
     isShowButtonReturnMoney,
     listPaymentMethods,
     handleReturnMoney,

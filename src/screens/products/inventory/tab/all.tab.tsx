@@ -105,6 +105,8 @@ const AllTab: React.FC<any> = (props) => {
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
+  const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
+  const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -684,9 +686,10 @@ const AllTab: React.FC<any> = (props) => {
     let items: Array<InventoryResponse> = [];
     const limit = 200;
     let times = 0;
+    setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
     switch (type) {
       case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,limit: params.limit ?? 200});
+        res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsInventoriesApi, {...params,limit: params.limit ?? 200});
         if (res) {
           items= items.concat(res.items);
         }
@@ -702,10 +705,12 @@ const AllTab: React.FC<any> = (props) => {
           const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
-          const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
+          const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
           if (res) {
             items= items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
+          setExportProgressDetail(percent);
         }
         
         break;
@@ -719,22 +724,27 @@ const AllTab: React.FC<any> = (props) => {
           const output = document.getElementById("processExport"); 
           if (output) output.innerHTML=items.length.toString();
           
-           const res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
+           const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
            if (res) {
             items= items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
+          setExportProgressDetail(percent);
         }
         break;
       default:
         break;
     }
+    setExportProgressDetail(100);
     return items;
   },[dispatch,selected,params,data,totalItems])
 
   const actionExport = {
     Ok: async (typeExport: string) => {
+      setStatusExportDetail(STATUS_IMPORT_EXPORT.DEFAULT);
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
+        setStatusExportDetail(0);
         showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
         setVExportInventory(false);
         return;
@@ -742,6 +752,7 @@ const AllTab: React.FC<any> = (props) => {
 
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
+        setStatusExportDetail(0);
         showWarning("Không có sản phẩm nào đủ điều kiện");
         return;
       }
@@ -750,10 +761,10 @@ const AllTab: React.FC<any> = (props) => {
         const item = convertItemExport(e);
         dataExport.push(item);
       }
-
       let worksheet = XLSX.utils.json_to_sheet(dataExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
       const today = moment(new Date(), 'YYYY/MM/DD');
 
       const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
@@ -765,9 +776,13 @@ const AllTab: React.FC<any> = (props) => {
       const data = new Blob([excelBuffer], { type: fileType });
       FileSaver.saveAs(data, `inventory_${day}_${month}_${year}.xlsx`);
       setVExportInventory(false);
+      setExportProgressDetail(0);
+      setStatusExportDetail(0);
     },
     Cancel: () => {
       setVExportInventory(false);
+      setExportProgressDetail(0);
+      setStatusExportDetail(0);
     },
     OnExport: useCallback(()=>{
       let remain = "total_stock";
@@ -968,6 +983,8 @@ const AllTab: React.FC<any> = (props) => {
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportInventory}
+        exportProgressDetail={exportProgressDetail}
+        statusExportDetail={statusExportDetail}
       />
        {showExportModal && (
          <InventoryExportModal

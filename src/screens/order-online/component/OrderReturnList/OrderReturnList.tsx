@@ -340,10 +340,10 @@ function OrderReturnList(props: PropTypes) {
       dataIndex: "items",
       key: "productNameQuantityPrice",
       className: "productNameQuantityPrice",
-      render: (record: Array<OrderLineItemResponse>) => {
+      render: (items: Array<OrderLineItemResponse>) => {
         return (
           <div className="items">
-            {record.map((item, i) => {
+            {items.map((item, i) => {
               return (
                 <div className="item custom-td" key={i}>
                   <div className="product productNameWidth 2">
@@ -508,6 +508,13 @@ function OrderReturnList(props: PropTypes) {
                 </span>
               </Tooltip> */}
             </>
+          ) : null}
+          {record.discounts.length > 0 ? (
+            <Tooltip title="Khuyến mại đơn hàng">
+              <div className="itemDiscount" style={{ color: dangerColor }}>
+                <span> - {formatCurrency(record.discounts[0].value)}</span>
+              </div>
+            </Tooltip>
           ) : null}
         </>
       ),

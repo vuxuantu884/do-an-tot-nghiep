@@ -40,6 +40,9 @@ import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
 import FormSaveFilter from "./components/FormSaveFilter";
 import TreeStore from "./TreeStore";
+import { generateQuery} from "utils/AppUtils";
+import {useHistory} from "react-router-dom";
+import { InventoryTabUrl } from "config/url.config";
 
 export interface InventoryFilterProps {
   params: any;
@@ -116,6 +119,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+  const history = useHistory();
 
   const [designers, setDeisgner] = useState<PageResponse<AccountResponse>>(
     {
@@ -480,6 +484,24 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     setVisible(false);
     onCloseFilterConfig();
   }, [formAdvanceFilter, onCloseFilterConfig]);
+  
+  const onChangeStore = useCallback((e:Array<number>)=>{
+    if (e) {
+      let newParams = {...params, store_ids: e.length === 0 ? undefined : e.toString()};
+      let queryParam = generateQuery({...newParams});
+      
+      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+    }
+  },[history, params]);
+
+  const onChangeRemain = useCallback((e: string)=>{
+    if (e) {
+      let newParams = {...params, remain: e};
+      let queryParam = generateQuery({...newParams});
+      
+      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+    }
+  },[history, params])
 
   useEffect(() => {
     setAdvanceFilters({ ...params });
@@ -521,6 +543,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   style={{ width: "100%" }}
                   optionFilterProp="children"
                   getPopupContainer={(trigger) => trigger.parentNode}
+                  onChange={onChangeRemain}
                   maxTagCount="responsive">
                   {ArrRemain?.map((item) => (
                     <CustomSelect.Option key={item.key} value={item.key}>
@@ -535,6 +558,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 name={InventoryQueryField.store_ids}
                 placeholder="Chọn cửa hàng"
                 listStore={listStore}
+                onChange={onChangeStore}
               />
             </Item>
             <Item>
@@ -607,12 +631,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.store_ids} className="store">
                     <TreeStore
-                      form={formBaseFilter}
-                      name={InventoryQueryField.store_ids}
-                      placeholder="Chọn cửa hàng"
-                      listStore={listStore}
-                    />
-                  </Item>
+                        form={formBaseFilter}
+                        name={InventoryQueryField.store_ids}
+                        placeholder="Chọn cửa hàng"
+                        listStore={listStore}
+                        onChange={onChangeStore}
+                      />
+                  </Item> 
                 </Col>
               </Row>
               <Row gutter={25}>
@@ -707,6 +732,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       style={{ width: "100%" }}
                       optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
+                      onChange={onChangeRemain}
                       maxTagCount="responsive">
                       {ArrRemain?.map((item) => (
                         <CustomSelect.Option key={item.key} value={item.key}>
