@@ -13,22 +13,24 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
-  ProcurementConfirm,
+  POProcumentField,
+  // ProcurementConfirm,
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
-import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState, lazy } from "react";
-import { useDispatch } from "react-redux";
+import { useCallback, useEffect, useMemo, useState, lazy } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import {formatCurrency, generateQuery} from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import {
   OFFSET_HEADER_TABLE,
   POStatus,
   ProcumentStatus,
   ProcurementStatus,
   ProcurementStatusName,
+  STATUS_IMPORT_EXPORT,
 } from "utils/Constants";
 import {
   ConvertDateToUtc,
@@ -39,32 +41,41 @@ import {
   getStartOfDayCommon,
 } from "utils/DateUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
-import {getQueryParams, useQuery} from "utils/useQuery";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import TabListFilter from "../../filter/TabList.filter";
 import { PoDetailAction } from "domain/actions/po/po.action";
 import { StyledComponent } from "./styles";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import CustomFilter from "component/table/custom.filter";
-import { MenuAction } from "component/table/ActionButton";
+// import CustomFilter from "component/table/custom.filter";
+// import { MenuAction } from "component/table/ActionButton";
 import { callApiNative } from "utils/ApiUtils";
-import { confirmProcumentsMerge, searchProcurementApi } from "service/purchase-order/purchase-procument.service";
-import { ProcurementListWarning } from "../../components/ProcumentListWarning";
-import BaseTagStatus from "component/base/BaseTagStatus";
+import { searchProcurementApi, updatePurchaseProcumentNoteService } from "service/purchase-order/purchase-procument.service";
+// import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 import { cloneDeep } from "lodash";
 import ProcurementExport from "../components/ProcurementExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import * as XLSX from 'xlsx';
 import { ProcurementExportLineItemField } from 'model/procurement/field'
+import { PhoneOutlined } from "@ant-design/icons";
+import EditNote from "screens/order-online/component/edit-note";
+import { primaryColor } from "utils/global-styles/variables";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import statusDraft from 'assets/icon/status-draft-color.svg'
+import statusFinalized from 'assets/icon/status-finalized-color.svg'
+import statusStored from 'assets/icon/status-stored-color.svg'
+import statusCancelled from 'assets/icon/status-cancelled-color.svg'
+import TagStatus, { TagStatusType } from "component/tag/tag-status";
 
 const ProcumentConfirmModal = lazy(() => import("screens/purchase-order/modal/procument-confirm.modal"))
-const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
-const ProducmentInventoryMultiModal = lazy(() => import("screens/purchase-order/modal/procument-inventory-multi.modal"))
+// const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
+// const ProducmentInventoryMultiModal = lazy(() => import("screens/purchase-order/modal/procument-inventory-multi.modal"))
 const ProcumentInventoryModal = lazy(() => import("screens/purchase-order/modal/procument-inventory.modal"))
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
 
-const ACTIONS_INDEX = {
-  CONFIRM_MULTI: 1,
-};
+// const ACTIONS_INDEX = {
+//   CONFIRM_MULTI: 1,
+// };
 
 interface TabListProps {
   vExportDetailProcurement: boolean;
@@ -91,11 +102,13 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [item, setItem] = useState<PurchaseProcument | null>(null);
   const [selected, setSelected] = useState<Array<PurchaseProcument>>([]);
-  const [showWarConfirm, setShowWarConfirm] = useState<boolean>(false);
-  const [showConfirm, setShowConfirm] = useState<boolean>(false);
-  const [contentWarning,setContentWarning] = useState<ReactNode>();
-  const [listProcurement, setListProcurement] =
-    useState<Array<PurchaseProcument>>();
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(0);
+  // const [showWarConfirm, setShowWarConfirm] = useState<boolean>(false);
+  // const [showConfirm, setShowConfirm] = useState<boolean>(false);
+  // const [contentWarning,setContentWarning] = useState<ReactNode>();
+  // const [listProcurement, setListProcurement] =
+  //   useState<Array<PurchaseProcument>>();
   const [data, setData] = useState<PageResponse<PurchaseProcument>>({
     metadata: {
       limit: 30,
@@ -109,72 +122,76 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   );
   const [totalItems, setTotalItems] = useState<number>(0);
 
-  const actions: Array<MenuAction> = useMemo(()=>{
-    return [
-     {
-       id: ACTIONS_INDEX.CONFIRM_MULTI,
-       name: "Xác nhận nhanh",
-     },
-   ]
-   },[]);
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions
+  );
 
-  const checkConfirmProcurement = useCallback(() => {
-    let pass = true;
-    let listProcurementCode = "";
+  // const actions: Array<MenuAction> = useMemo(()=>{
+  //   return [
+  //    {
+  //      id: ACTIONS_INDEX.CONFIRM_MULTI,
+  //      name: "Xác nhận nhanh",
+  //    },
+  //  ]
+  //  },[]);
 
-    for (let index = 0; index < selected.length; index++) {
-      const element = selected[index];
-      if (element.status !== ProcumentStatus.NOT_RECEIVED) {
-        listProcurementCode += `${element.code},`;
-        pass = false;
-      }
-    }
-    if (!pass) {
-      setContentWarning(()=>ProcurementListWarning(listProcurementCode));
-      setShowWarConfirm(true);
-      return false;
-    }
-    for (let index = 0; index < selected.length; index++) {
-      const element = selected[index];
-      const firstElement = selected[0];
-      listProcurementCode = firstElement.code;
-      if (firstElement.purchase_order.supplier_id !== element.purchase_order.supplier_id
-          || ConvertUtcToLocalDate(firstElement.stock_in_date,DATE_FORMAT.DDMMYYY) !== ConvertUtcToLocalDate(element.stock_in_date,DATE_FORMAT.DDMMYYY)
-          || firstElement.store_id !== element.store_id) {
-            listProcurementCode +=`, ${element.code},`;
-         pass = false;
-      }
-    }
-    if (!pass) {
-      setContentWarning(()=>ProcurementListWarning(listProcurementCode));
-      setShowWarConfirm(true);
-      return false;
-    }
-    setListProcurement(selected);
-    setShowConfirm(true);
-  },[selected]);
+  // const checkConfirmProcurement = useCallback(() => {
+  //   let pass = true;
+  //   let listProcurementCode = "";
 
-  const onMenuClick = useCallback((index: number) => {
-    switch (index) {
-      case ACTIONS_INDEX.CONFIRM_MULTI:
-        checkConfirmProcurement();
-        break;
-      default:
-        break;
-    }
-  }, [checkConfirmProcurement]);
+  //   for (let index = 0; index < selected.length; index++) {
+  //     const element = selected[index];
+  //     if (element.status !== ProcumentStatus.NOT_RECEIVED) {
+  //       listProcurementCode += `${element.code},`;
+  //       pass = false;
+  //     }
+  //   }
+  //   if (!pass) {
+  //     setContentWarning(()=>ProcurementListWarning(listProcurementCode));
+  //     setShowWarConfirm(true);
+  //     return false;
+  //   }
+  //   for (let index = 0; index < selected.length; index++) {
+  //     const element = selected[index];
+  //     const firstElement = selected[0];
+  //     listProcurementCode = firstElement.code;
+  //     if (firstElement.purchase_order.supplier_id !== element.purchase_order.supplier_id
+  //         || ConvertUtcToLocalDate(firstElement.stock_in_date,DATE_FORMAT.DDMMYYY) !== ConvertUtcToLocalDate(element.stock_in_date,DATE_FORMAT.DDMMYYY)
+  //         || firstElement.store_id !== element.store_id) {
+  //           listProcurementCode +=`, ${element.code},`;
+  //        pass = false;
+  //     }
+  //   }
+  //   if (!pass) {
+  //     setContentWarning(()=>ProcurementListWarning(listProcurementCode));
+  //     setShowWarConfirm(true);
+  //     return false;
+  //   }
+  //   setListProcurement(selected);
+  //   setShowConfirm(true);
+  // },[selected]);
 
-  const ActionComponent = useCallback(()=>{
-      let Compoment = () => <span>Mã phiếu nhập kho</span>;
-      if (selected?.length > 1) {
-        Compoment = () => (
-          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-            <Fragment />
-          </CustomFilter>
-        );
-      }
-      return <Compoment />;
-  },[selected,actions, onMenuClick ])
+  // const onMenuClick = useCallback((index: number) => {
+  //   switch (index) {
+  //     case ACTIONS_INDEX.CONFIRM_MULTI:
+  //       checkConfirmProcurement();
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }, [checkConfirmProcurement]);
+
+  // const ActionComponent = useCallback(()=>{
+  //     let Compoment = () => <span>Mã phiếu nhập kho</span>;
+  //     if (selected?.length > 1) {
+  //       Compoment = () => (
+  //         <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+  //           <Fragment />
+  //         </CustomFilter>
+  //       );
+  //     }
+  //     return <Compoment />;
+  // },[selected,actions, onMenuClick ])
 
   // const getTotalProcurementItemsQuantity = (item: PurchaseProcument): number => {
   //   let totalConfirmQuantity = 0;
@@ -184,8 +201,58 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   //     return totalConfirmQuantity;
   // }
 
-  const getTotalProcurementQuantity = useCallback((callback: (procurement:PurchaseProcument) => number): string => {
-    let total:number[] = [];
+  const query = useQuery();
+  let paramsrUrl: any = useMemo(() => {
+    return { ...getQueryParams(query) }
+  }, [query]);
+
+  const search = useCallback(() => {
+    setLoading(true);
+    const newParams = {
+      ...paramsrUrl,
+      expect_receipt_from: paramsrUrl.expect_receipt_from && getStartOfDayCommon(paramsrUrl.expect_receipt_from)?.format(),
+      expect_receipt_to: paramsrUrl.expect_receipt_to && getEndOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
+      stock_in_from: paramsrUrl.stock_in_from && formatDateTimeFilter(paramsrUrl.stock_in_from, 'DD/MM/YYYY HH:mm')?.format(),
+      stock_in_to: paramsrUrl.stock_in_to && formatDateTimeFilter(paramsrUrl.stock_in_to, 'DD/MM/YYYY HH:mm')?.format(),
+      active_from: paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
+      active_to: paramsrUrl.active_to && getEndOfDayCommon(paramsrUrl.active_to)?.format(),
+    }
+    dispatch(
+      POSearchProcurement(newParams, (result) => {
+        setLoading(false);
+        if (result) {
+          setData(result);
+          setTotalItems(result.metadata.total)
+        }
+      })
+    );
+  }, [dispatch, paramsrUrl])
+
+  const onUpdateReceivedProcurement = useCallback(async (note: string, procurement: PurchaseProcument) => {
+    if (procurement) {
+      const poID = procurement.purchase_order.id
+      const prID = procurement.id
+      const data: PurchaseProcument = { ...procurement, [POProcumentField.note]: note }
+      const res = await callApiNative({ isShowError: true }, dispatch, updatePurchaseProcumentNoteService, poID, prID, data)
+      if (res) {
+        search()
+        showSuccess('Cập nhật thành công')
+      }
+    }
+  }, [dispatch, search])
+
+  const getTotalProcurementItems = useCallback(() => {
+    let total = 0;
+    const procurementsData = cloneDeep(data.items)
+    procurementsData.forEach((element: PurchaseProcument) => {
+      if (!element.procurement_items.length) element.procurement_items.length = 0
+      total += element.procurement_items.length
+    });
+    return formatCurrency(total, ".")
+  }, [data])
+
+  const getTotalProcurementQuantity = useCallback((callback: (procurement: PurchaseProcument) => number): string => {
+    let total: number[] = [];
     const procurementsData = cloneDeep(data.items)
     // const procurementsData = procurementsClone.filter((item: PurchaseProcument) =>
     //   item.status === ProcurementStatus.not_received || item.status === ProcurementStatus.received)
@@ -209,7 +276,8 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = useMemo(() => {
     return [
       {
-        title: ActionComponent,
+        // title: ActionComponent,
+        title: "Mã phiếu nhập kho",
         dataIndex: "code",
         fixed: "left",
         width: 150,
@@ -218,11 +286,27 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           // Cải tiến UI chuyển từ modal sang chế độ view full screen
           let improveProcurementTemporary = true
           return improveProcurementTemporary ? (
-            <Link to={{
-              pathname: `${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}/procurements/${record.id}`,
-            }}>
-              {value}
-            </Link>
+            <>
+              <div>
+                <Link to={{
+                  pathname: `${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}/procurements/${record.id}`,
+                }}>
+                  <b>{value}</b>
+                </Link>
+              </div>
+              <div>
+                <div>Mã đơn đặt hàng:</div>
+                <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
+                  {record.purchase_order.code}
+                </Link>
+              </div>
+              <div>
+                <div>Mã tham chiếu:</div>
+                <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
+                  {record.purchase_order.reference}
+                </Link>
+              </div>
+            </>
           ) : (
             <div
               className="procurement-code"
@@ -233,111 +317,121 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         },
       },
       {
-        title: "Mã đơn đặt hàng",
-        dataIndex: "purchase_order",
-        fixed: "left",
-        width: 150,
-        visible: true,
-        render: (value, record, index) => {
-          return (
-            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${value.id}`}>
-              {value.code}
-            </Link>
-          );
-        },
-      },
-      {
-        title: "Mã tham chiếu",
-        dataIndex: "purchase_order",
-        fixed: "left",
-        width: 120,
-        visible: true,
-        render: (value) => {
-          return (value?.reference)
-        },
-      },
-      {
         title: "Nhà cung cấp",
         dataIndex: "purchase_order",
         visible: true,
-        render: (value, row) => {
+        render: (value, record) => {
           return (
-            <Link
-              to={`${UrlConfig.SUPPLIERS}/${row.purchase_order.supplier_id}`}
-              className="link-underline"
-              target="_blank"
-            >
-              {value?.supplier}
-            </Link>
+            <>
+              <Link
+                to={`${UrlConfig.SUPPLIERS}/${value.supplier_id}`}
+                className="link-underline"
+                target="_blank"
+              >
+                {value?.supplier}
+              </Link>
+              <div>
+                <PhoneOutlined /> {value?.phone}
+              </div>
+              <div>
+                <div>Merchandiser: </div>
+                <Link to={`${UrlConfig.ACCOUNTS}/${value.merchandiser_code}`} target="_blank" rel="noopener noreferrer">
+                  {`${value?.merchandiser_code} - ${value?.merchandiser}`}
+                </Link>
+              </div>
+            </>
           )
         }
       },
       {
-        title: "Merchandiser",
-        dataIndex: "purchase_order",
-        // width: 130,
-        visible: true,
-        render: (value, row) => {
-          if (!row || !row.purchase_order.merchandiser_code || !row.purchase_order.merchandiser) return "";
+        title: "Kho nhận hàng",
+        dataIndex: "store",
+        align: 'center',
+        render: (value, record, index) => {
           return (
-            <Link
-              to={`${UrlConfig.ACCOUNTS}/${row.purchase_order.merchandiser_code}`}
-              className="link-underline"
-              target="_blank"
-            >
-              {`${row.purchase_order.merchandiser_code} - ${row.purchase_order.merchandiser}`}
-            </Link>
+            <>
+              {value}
+              <div>
+                Ngày nhận:
+                <div>{ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.HHmm_DDMMYYYY)}</div>
+              </div>
+            </>
           )
         },
-      },
-      {
-        title: "Kho nhận hàng dự kiến",
-        dataIndex: "store",
-        render: (value, record, index) => value,
         visible: true,
-        width: 200,
+        // width: 200,
       },
       {
-        title: "Ngày nhận hàng dự kiến",
-        dataIndex: "expect_receipt_date",
+        title: "Người nhận",
+        dataIndex: "stock_in_by",
+        align: 'center',
         visible: true,
-        render: (value, record, index) =>
-          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
-        width: 200,
+        render: (value, row) => {
+          if (value) {
+            const name = value.split('-')
+            return (
+              <>
+                <div>
+                  <Link
+                    to={`${UrlConfig.ACCOUNTS}/${name[0]}`}
+                    className="primary"
+                    target="_blank"
+                  >
+                    {name[0]}
+                  </Link>
+                </div>
+                <b> {name[1]}</b>
+              </>
+            )
+          } else {
+            return ""
+          }
+        }
       },
       {
-        title: "Trạng thái phiếu nhập kho",
+        title: "Trạng thái",
         dataIndex: "status",
         visible: true,
-        render: (status: string) => {
+        render: (status: string, record) => {
+          let icon = "";
+          let type = TagStatusType.normal;
+          if (!status) {
+            return "";
+          }
+          switch (record.status) {
+            case ProcurementStatus.draft:
+              icon = statusDraft
+              break;
+            case ProcurementStatus.not_received:
+              icon = statusFinalized
+              type = TagStatusType.primary;
+              break;
+            case ProcurementStatus.received:
+              icon = statusStored
+              type = TagStatusType.success;
+              break;
+            case ProcurementStatus.cancelled:
+              icon = statusCancelled
+              type = TagStatusType.danger
+              break;
+          }
           return (
-            <div>
-              {
-                status !== ProcurementStatus.cancelled &&
-                <BaseTagStatus
-                  fullWidth
-                  color={
-                    status === ProcurementStatus.draft ? "gray"
-                      : status === ProcurementStatus.not_received ? "blue"
-                      : status === ProcurementStatus.received ? "green"
-                        :undefined
-                  }
-                >
-                  { ProcurementStatusName[status] }
-                </BaseTagStatus>
-              }
-            </div>
+            <>
+              <div>
+                {
+                  <TagStatus
+                    icon={icon}
+                    type={type}
+                  >
+                    {ProcurementStatusName[status]}
+                  </TagStatus>
+                }
+              </div>
+            </>
           );
         },
         align: "center",
-        width: 200,
-      },
-      {
-        title: "Trạng thái hủy",
-        dataIndex: "is_cancelled",
-        visible: true,
-        render: (value, record, index) =>
-          value || record?.status === "cancelled" ? "Đã hủy" : "",
+        // width: 200,
       },
       // {
       //   title: <div>SL được duyệt (<span style={{color: "#2A2A86"}}>{getTotalProcurementQuantity(getTotalProcurementItemsQuantity)}</span>)</div>,
@@ -358,7 +452,17 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       //   },
       // },
       {
-        title: <div>SL thực nhận (<span style={{color: "#2A2A86"}}>{getTotalProcurementQuantity(getTotalProcurementItemsRealQuantity)}</span>)</div>,
+        title: <div>Sản phẩm (<span style={{ color: "#2A2A86" }}>{getTotalProcurementItems()}</span>)</div>,
+        align: "center",
+        dataIndex: "procurement_items",
+        visible: true,
+        render: (value, record, index) => {
+          let totalItems = value?.length ?? 0
+          return <b >{formatCurrency(totalItems, ".")}</b>
+        },
+      },
+      {
+        title: <div>SL thực nhận (<span style={{ color: "#2A2A86" }}>{getTotalProcurementQuantity(getTotalProcurementItemsRealQuantity)}</span>)</div>,
         align: "center",
         dataIndex: "procurement_items",
         visible: true,
@@ -371,11 +475,30 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         },
       },
       {
-        title: "Ngày tạo",
+        title: "Ghi chú",
         align: "center",
-        dataIndex: "created_date",
+        dataIndex: "note",
         visible: true,
-        render: (value) => ConvertUtcToLocalDate(value),
+        render: (value, record) => {
+          const hasPermission = [PurchaseOrderPermission.update].some((element) => {
+            return currentPermissions.includes(element);
+          });
+          return (
+            <>
+              <EditNote
+                isHaveEditPermission={hasPermission}
+                note={value}
+                title="Ghi chú: "
+                color={primaryColor}
+                onOk={(newNote) => {
+                  onUpdateReceivedProcurement(newNote, record)
+                  // editNote(newNote, "customer_note", record.id, record);
+                }}
+              // isDisable={record.status === OrderStatus.FINISHED}
+              />
+            </>
+          )
+        },
       },
       // {
       //   title: "Ngày duyệt",
@@ -398,30 +521,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       //     )
       //   }
       // },
-      {
-        title: "Ngày nhập kho",
-        dataIndex: "stock_in_date",
-        visible: true,
-        render: (value, record, index) => ConvertUtcToLocalDate(value),
-      },
-      {
-        title: "Người nhận",
-        dataIndex: "stock_in_by",
-        visible: true,
-        render: (value, row) => {
-          return (
-            <Link
-              to={`${UrlConfig.ACCOUNTS}/${row.stock_in_by}`}
-              className="primary"
-              target="_blank"
-            >
-              {value}
-            </Link>
-          )
-        }
-      },
     ]
-  },[ActionComponent, getTotalProcurementQuantity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getTotalProcurementItems, getTotalProcurementQuantity]);
 
   const [columns, setColumns] = useState<
     Array<ICustomTableColumType<PurchaseProcument>>
@@ -431,9 +533,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     setColumns(defaultColumns);
   }, [selected, defaultColumns]);
 
-  const columnFinal = useMemo(()=>
-   columns.filter((item) => item.visible === true)
-  ,[columns]);
+  const columnFinal = useMemo(() =>
+    columns.filter((item) => item.visible === true)
+    , [columns]);
 
   let now = moment();
   const initPurchaseOrder = {
@@ -478,11 +580,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     cancelled_date: null,
     completed_date: null,
   };
-
-  const query = useQuery();
-  let paramsrUrl: any = useMemo(() => {
-    return {...getQueryParams(query)}
-  }, [query]);
 
   const onDetail = useCallback((result: PurchaseOrder | null) => {
     setLoading(false);
@@ -577,18 +674,18 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     [onAddProcumentSuccess]
   );
 
-  const onReciveMuiltiProcumentCallback = useCallback(
-    (value: boolean) => {
-      setLoadingConfirm(false);
-      if (value !== null) {
-        showSuccess("Xác nhận nhập kho thành công");
-        setShowConfirm(false);
-        setLoadingRecive(false);
-        onAddProcumentSuccess && onAddProcumentSuccess(false);
-      }
-    },
-    [onAddProcumentSuccess]
-  );
+  // const onReciveMuiltiProcumentCallback = useCallback(
+  //   (value: boolean) => {
+  //     setLoadingConfirm(false);
+  //     if (value !== null) {
+  //       showSuccess("Xác nhận nhập kho thành công");
+  //       setShowConfirm(false);
+  //       setLoadingRecive(false);
+  //       onAddProcumentSuccess && onAddProcumentSuccess(false);
+  //     }
+  //   },
+  //   [onAddProcumentSuccess]
+  // );
 
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
@@ -607,21 +704,21 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     [dispatch, poId, onReciveProcumentCallback]
   );
 
-  const onReciveMultiProcument = useCallback(
-   async (value: Array<PurchaseProcumentLineItem>) => {
-      if (listProcurement) {
-        const PrucurementConfirm = {
-          procurement_items: value,
-          refer_ids: listProcurement.map(e=>e.id)
-        } as ProcurementConfirm;
-        const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm);
-        if (res) {
-          onReciveMuiltiProcumentCallback(true);
-        }
-      }
-    },
-    [listProcurement,dispatch,onReciveMuiltiProcumentCallback]
-  );
+  // const onReciveMultiProcument = useCallback(
+  //  async (value: Array<PurchaseProcumentLineItem>) => {
+  //     if (listProcurement) {
+  //       const PrucurementConfirm = {
+  //         procurement_items: value,
+  //         refer_ids: listProcurement.map(e=>e.id)
+  //       } as ProcurementConfirm;
+  //       const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm);
+  //       if (res) {
+  //         onReciveMuiltiProcumentCallback(true);
+  //       }
+  //     }
+  //   },
+  //   [listProcurement,dispatch,onReciveMuiltiProcumentCallback]
+  // );
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
@@ -669,28 +766,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     }
   }, [dispatch, poId, visibleDraft, onDetail]);
 
-  const search = useCallback(()=> {
-    setLoading(true);
-    const newParams = {
-      ...paramsrUrl,
-      expect_receipt_from: paramsrUrl.expect_receipt_from && getStartOfDayCommon(paramsrUrl.expect_receipt_from)?.format(),
-      expect_receipt_to: paramsrUrl.expect_receipt_to && getEndOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
-      stock_in_from: paramsrUrl.stock_in_from && formatDateTimeFilter(paramsrUrl.stock_in_from, 'DD/MM/YYYY HH:mm')?.format(),
-      stock_in_to: paramsrUrl.stock_in_to && formatDateTimeFilter(paramsrUrl.stock_in_to, 'DD/MM/YYYY HH:mm')?.format(),
-      active_from: paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
-      active_to: paramsrUrl.active_to && getEndOfDayCommon(paramsrUrl.active_to)?.format(),
-    }
-    dispatch(
-      POSearchProcurement(newParams, (result) => {
-        setLoading(false);
-        if (result) {
-          setData(result);
-          setTotalItems(result.metadata.total)
-        }
-      })
-    );
-  },[dispatch, paramsrUrl])
-
   useEffect(() => {
     search();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -700,17 +775,17 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     dispatch(StoreGetListAction(setListStore));
   }, [dispatch]);
 
-  const titleMultiConfirm = useMemo(() => {
-    return <>
-      Xác nhận nhập kho {listProcurement?.map((e, i) => {
-        return <>
-          <Link target="_blank" to={`${UrlConfig.PURCHASE_ORDERS}/${e.purchase_order.id}`}>
-            {e.code}
-          </Link>{i === (listProcurement.length - 1) ? "" : ", "}
-        </>
-      })}
-    </>
-  }, [listProcurement]);
+  // const titleMultiConfirm = useMemo(() => {
+  //   return <>
+  //     Xác nhận nhập kho {listProcurement?.map((e, i) => {
+  //       return <>
+  //         <Link target="_blank" to={`${UrlConfig.PURCHASE_ORDERS}/${e.purchase_order.id}`}>
+  //           {e.code}
+  //         </Link>{i === (listProcurement.length - 1) ? "" : ", "}
+  //       </>
+  //     })}
+  //   </>
+  // }, [listProcurement]);
 
   const getItemsByCondition = useCallback(async (type: string) => {
     let items: Array<PurchaseProcument> = [];
@@ -725,16 +800,19 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       active_from: paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
       active_to: paramsrUrl.active_to && getEndOfDayCommon(paramsrUrl.active_to)?.format(),
     }
+    setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
     switch (type) {
       case TYPE_EXPORT.all:
         const roundAll = Math.round(data.metadata.total / limit);
         times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
 
         for (let index = 1; index <= times; index++) {
-          const res = await callApiNative({ isShowLoading: true }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
+          const res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
           if (res) {
             items = items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+          setExportProgress(percent);
         }
 
         break;
@@ -747,15 +825,18 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
 
         for (let index = 1; index <= times; index++) {
 
-          const res = await callApiNative({ isShowLoading: true }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
+          const res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
           if (res) {
             items = items.concat(res.items);
           }
+          const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+          setExportProgress(percent);
         }
         break;
       default:
         break;
     }
+    setExportProgress(100);
     return items;
   }, [dispatch, paramsrUrl, data, totalItems])
 
@@ -797,15 +878,16 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
 
   const actionExport = {
     Ok: async (typeExport: string) => {
-      if(!typeExport) {
+      if (!typeExport) {
         setVExportDetailProcurement(false);
         return
       }
       // let dataExport: any = [];
-
+      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
         showWarning("Không có phiếu nhập kho nào đủ điều kiện");
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
         return;
       }
 
@@ -825,16 +907,20 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
 
       let worksheet = XLSX.utils.json_to_sheet(item);
       XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-
+      setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
       const today = moment(new Date(), 'YYYY/MM/DD');
       const month = today.format('M');
       const day = today.format('D');
       const year = today.format('YYYY');
       XLSX.writeFile(workbook, `Unicorn_phiếu nhập kho ncc_${day}_${month}_${year}.xlsx`);
       setVExportDetailProcurement(false);
+      setExportProgress(0);
+      setStatusExport(0);
     },
     Cancel: () => {
       setVExportDetailProcurement(false);
+      setExportProgress(0);
+      setStatusExport(0);
     },
   }
 
@@ -850,7 +936,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
           columns={columnFinal}
           rowKey={(item) => item.id}
-          scroll={{ x: 2000 }}
+          // scroll={{ x: 2000 }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -860,6 +946,8 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
             onShowSizeChange: onPageChange,
           }}
           onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+          isShowPaginationAtHeader
+          bordered
         />
         {/* Duyệt phiếu nháp */}
         {
@@ -899,7 +987,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           )
         }
         {/* Xác nhận nhập */}
-        {
+        {/* {
           showConfirm && (
             <ProducmentInventoryMultiModal
               title={titleMultiConfirm}
@@ -914,7 +1002,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
               }}
             />
           )
-        }
+        } */}
         {/* Xác nhận nhập và Chi tiết phiếu nhập kho */}
         {
           visibleConfirm && (
@@ -941,7 +1029,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
             />
           )
         }
-        {
+        {/* {
           showWarConfirm && (
             <ModalConfirm
               onCancel={(()=>{
@@ -958,11 +1046,13 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
               visible={showWarConfirm}
             />
           )
-        }
+        } */}
         <ProcurementExport
           onCancel={actionExport.Cancel}
           onOk={actionExport.Ok}
           visible={vExportDetailProcurement}
+          exportProgress={exportProgress}
+          statusExport={statusExport}
         />
       </div>
     </StyledComponent>
