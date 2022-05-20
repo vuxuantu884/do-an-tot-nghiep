@@ -570,16 +570,16 @@ ShippingServiceConfigDetailResponseModel[]
       const formValuePayment = getFormReturnMoneyValues();
       let returnMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
       const amount = Math.ceil(totalAmountReturnProducts);
-      const paidAmount = returnMoneyAmount + amount;
+      const paidAmount = amount;
       if(moneyPayment) {
         result.push({
           payment_method_id: moneyPayment.id,
           payment_method: moneyPayment.name,
           payment_method_code: moneyPayment.code,
-          amount: amount,
+          amount: paidAmount,
           reference: "",
           source: "",
-          paid_amount: amount,
+          paid_amount: paidAmount,
           return_amount: 0,
           status: ORDER_PAYMENT_STATUS.paid,
           customer_id: customer?.id || null,
@@ -700,7 +700,9 @@ ShippingServiceConfigDetailResponseModel[]
     let paidStatus = ORDER_PAYMENT_STATUS.paid;
 
     const formValuePayment = getFormReturnMoneyValues();
-    let paidMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
+    const amount = Math.ceil(totalAmountReturnProducts);
+    let returnMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
+    const paidAmount = amount;
     // trả tiền 
     // mặc định là tiền mặt
     const cashPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
@@ -728,14 +730,14 @@ ShippingServiceConfigDetailResponseModel[]
       }
       result.push({
         payment_method_id: paidMoneyMethod.payment_method_id,
-        amount: paidMoneyAmount,
+        amount: paidAmount,
         return_amount: 0,
         status: paidStatus,
         payment_method: paidMoneyMethod.payment_method,
         payment_method_code: paidMoneyMethod.payment_method_code,
         reference: "",
         source: "",
-        paid_amount: paidMoneyAmount,
+        paid_amount: paidAmount,
         customer_id: customer?.id || null,
         type: "",
         note: paidMoneyMethod.note,

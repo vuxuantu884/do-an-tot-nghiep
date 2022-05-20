@@ -21,11 +21,10 @@ type PropTypes = {
  */
 function ReturnMoneySelect(props: PropTypes) {
   /**
-   * payment method bỏ tiêu điểm và qr pay
+   * payment method chỉ hoàn tiền mặt
    */
-  const exceptMethods = [
-    PaymentMethodCode.QR_CODE,
-    PaymentMethodCode.POINT,
+  const paymentMethodsArr = [
+    PaymentMethodCode.CASH
   ];
 
   const {
@@ -43,7 +42,7 @@ function ReturnMoneySelect(props: PropTypes) {
   }
   
   let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
-    return !exceptMethods.includes(single.code);
+    return paymentMethodsArr.includes(single.code);
   });
   console.log('listPaymentMethodsResult', listPaymentMethodsResult)
 
