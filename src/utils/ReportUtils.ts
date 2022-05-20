@@ -305,3 +305,15 @@ export const showErrorReport = (errorMsg: React.ReactNode) => {
     showError(errorMsg);
   }
 }
+
+export const formatDataToSetUrl = (data: string, field: string) => {
+  let formattedData = data;
+  if (field === "order_return_code") {
+    if (data.includes('!')) {
+      formattedData = data.replace('!', '%21');
+    } else {
+      formattedData = (+data.toString().replace(/\D/g, '')).toString();
+    }
+  }
+  return encodeURIComponent(formattedData);
+}

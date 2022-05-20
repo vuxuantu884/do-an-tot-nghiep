@@ -4,7 +4,7 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { FulfillmentsItemModel, GoodsReceiptsOrderListModel } from "model/pack/pack.model";
 import React, { createRef, useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
 import { StyledComponent } from "../../index.screen.styles";
 import EditNote from "screens/order-online/component/edit-note";
@@ -13,62 +13,123 @@ import { useDispatch } from "react-redux";
 import { updateOrderPartial } from "domain/actions/order/order.action";
 import { formatCurrency } from "utils/AppUtils";
 import { fullTextSearch } from "utils/StringUtils";
+import {
+  FileExcelOutlined,
+  PrinterOutlined,
+  ReconciliationOutlined,
+} from "@ant-design/icons";
+import { getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
+import { useReactToPrint } from "react-to-print";
+import { exportFile, getFile } from "service/other/export.service";
+import { generateQuery } from "utils/AppUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
+import { HttpStatus } from "config/http-status.config";
+// import { hideLoading, showLoading } from "domain/actions/loading.action";
+// import { changeOrderStatusToPickedService } from "service/order/order.service";
+
 const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
-  actions: Array<MenuAction>;
   handleSearchOrder: (item: any) => void;
-  onMenuClick: (item: number) => void;
+  packDetail: GoodsReceiptsResponse | undefined;
 };
+
+interface GoodReceiptPrint {
+  good_receipt_id: number;
+  html_content: string;
+  size: string;
+}
+
+const actions: Array<MenuAction> = [
+  {
+    id: 1,
+    name: "In biên bản đầy đủ",
+    icon: <PrinterOutlined />,
+  },
+  {
+    id: 2,
+    name: "In biên bản rút gọn",
+    icon: <PrinterOutlined />,
+  },
+  {
+    id: 3,
+    name: "Xuất excel đơn hàng trong biên bản",
+    icon: <FileExcelOutlined />,
+  },
+  {
+    id: 4,
+    name: "Thêm/xoá đơn hàng vào biên bản",
+    icon: <ReconciliationOutlined />,
+  },
+  {
+    id: 5,
+    name: "In phiếu giao hàng",
+    icon: <PrinterOutlined />,
+  },
+  {
+    id: 6,
+    name: "In phiếu xuất kho",
+    icon: <PrinterOutlined />,
+  }
+];
+
+const typePrint = {
+  simple: "simple",
+  detail: "detail"
+}
+
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
-  const { packOrderList, actions, handleSearchOrder, onMenuClick } = props;
-  const dispatch=useDispatch();
+  const { packOrderList, handleSearchOrder, packDetail } = props;
+  const dispatch = useDispatch();
   const formSearchOrderRef = createRef<FormInstance>();
+  const history = useHistory();
+
+  //useRef
+  const printElementRef = React.useRef(null);
 
   const [dataPackOrderList, setDataPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowOrderId, setSelectedRowOrderId] = useState([]);
+
+  const [htmlContent, setHtmlContent] = useState("");
+
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+  const [statusExport, setStatusExport] = useState<number>(1);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
 
   const packOrderLists = useCallback(
     (value: any) => {
-      let query:string = value?.search_term?value?.search_term.trim():"";
-      
-      if(!query || query.length<=0) {
+      let query: string = value?.search_term ? value?.search_term.trim() : "";
+
+      if (!query || query.length <= 0) {
         setDataPackOrderList([...packOrderList])
-      }else{
+      } else {
         let newData: GoodsReceiptsOrderListModel[] = packOrderList.filter(function (el) {
           // return el.order_code.toLowerCase().indexOf(query.toLowerCase()) !== -1
-          return fullTextSearch(el.order_code, query) 
-              || (el.ffm_code &&fullTextSearch(el.ffm_code,query)) 
-              || (el.tracking_code &&fullTextSearch(el.tracking_code,query));
+          return fullTextSearch(el.order_code, query)
+            || (el.ffm_code && fullTextSearch(el.ffm_code, query))
+            || (el.tracking_code && fullTextSearch(el.tracking_code, query));
         })
         setDataPackOrderList(newData);
       }
-      
+
     },
     [packOrderList],
   )
 
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
-      // const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
-      // if (indexOrder > -1) {
-      //   if (noteType === "note") {
-      //     itemResult[indexOrder].note = newNote;
-      //   } else if (noteType === "customer_note") {
-      //     itemResult[indexOrder].customer_note = newNote;
-      //   }
-      // }
-      // setItems(itemResult);
-      //dataPackOrderList, setDataPackOrderList
-      const dataPackOrderListCopy=[...dataPackOrderList]
-      const indexOrder= dataPackOrderListCopy.findIndex((item)=>item.order_id===orderID);
-      if(indexOrder!==-1)
-      {
-        if (noteType === "note")
-        {
-          dataPackOrderListCopy[indexOrder].note=newNote;
+      const dataPackOrderListCopy = [...dataPackOrderList]
+      const indexOrder = dataPackOrderListCopy.findIndex((item) => item.order_id === orderID);
+      if (indexOrder !== -1) {
+        if (noteType === "note") {
+          dataPackOrderListCopy[indexOrder].note = newNote;
         }
-        else if(noteType === "customer_note") {
-          dataPackOrderListCopy[indexOrder].customer_note=newNote
+        else if (noteType === "customer_note") {
+          dataPackOrderListCopy[indexOrder].customer_note = newNote
         }
       }
       setDataPackOrderList([...dataPackOrderListCopy]);
@@ -78,6 +139,10 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
+      if(newNote && newNote.length>255){
+        showError("độ dài kí tự phải từ 0 đến 255");
+        return;
+      }
       let params: any = {};
       if (noteType === "note") {
         params.note = newNote;
@@ -86,7 +151,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID, ))
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID,))
       );
     },
     [dispatch, onSuccessEditNote]
@@ -117,7 +182,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       render: (value: string) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.ORDER}/${value}`} style={{whiteSpace:"nowrap"}}>
+            <Link target="_blank" to={`${UrlConfig.ORDER}/${value}`} style={{ whiteSpace: "nowrap" }}>
               {value}
             </Link>
           </React.Fragment>
@@ -251,49 +316,243 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
   ];
 
-  return (
-    <StyledComponent>
-      <Card title="Danh sách đơn hàng trong biên bản" className="pack-card-orders">
-        <div className="order-filter">
-          <div className="page-filter">
-            <div className="page-filter-heading">
-              <div className="page-filter-left">
-                <ActionButton menu={actions} onMenuClick={onMenuClick} />
-              </div>
-              <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}
-                className="page-filter-right"
-                style={{ width: "40%", flexWrap: "nowrap", justifyContent: " flex-end" }}
-              >
-                <Item name="search_term" style={{ width: "100%", marginRight:"10px" }}>
-                  <Input
-                    style={{ width: "100%" }}
-                    prefix={<img src={search} alt="" />}
-                    placeholder="ID đơn hàng/Mã vận đơn"
-                  />
-                </Item>
+  const handlePrintPack = useCallback((type: string) => {
+    if (packDetail) {
+      dispatch(getPrintGoodsReceipts([packDetail.id], type, (data: GoodReceiptPrint[]) => {
+        if (data && data.length > 0) {
+          setHtmlContent(data[0].html_content);
+          setTimeout(() => {
+            if (handlePrint) {
+              handlePrint();
+            }
+          }, 500);
+        }
+      }))
+    }
+  }, [dispatch, handlePrint, packDetail]);
 
-                <Item style={{ width: "62px", marginRight: 0 }}>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    onClick={handleSearchOrder}
-                  >
-                    Lọc
-                  </Button>
-                </Item>
-              </Form>
+  const handleExportExcelOrderPack = useCallback(() => {
+    let codes: any[] = [];
+    packDetail && packDetail.orders && packDetail.orders.forEach((p) => codes.push(p.code));
+    let queryParams = generateQuery({ code: codes });
+    console.log("queryParams", queryParams)
+    exportFile({
+      conditions: queryParams,
+      type: "EXPORT_ORDER"
+      //hidden_fields: hiddenFieldsExport,
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(2);
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+          if (response.data && response.data.status === "FINISH") {
+            window.open(response.data.url);
+            setStatusExport(3);
+          }
+        }
+      })
+      .catch((error) => {
+        console.log("orders export file error", error);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [listExportFile, packDetail]);
+
+  const setParamPrint = (index: number, row: number[]) => {
+    let params = {
+      action: "print",
+      ids: row,
+      "print-type": index === 5 ? "shipment" : "stock_export",
+      "print-dialog": true,
+    };
+    const queryParam = generateQuery(params);
+    return queryParam;
+  }
+
+  const onMenuClick = useCallback(
+    (index: number) => {
+      if (!packDetail) return;
+      //let fullfilmentPrint: number[] = [];
+      let queryParam=  setParamPrint(index, selectedRowOrderId);
+
+      switch (index) {
+        case 1:
+          handlePrintPack(typePrint.detail);
+          break;
+        case 2:
+          handlePrintPack(typePrint.simple);
+          break;
+        case 3:
+          handleExportExcelOrderPack();
+          break;
+        case 4:
+          if (packDetail)
+            history.push(`${UrlConfig.DELIVERY_RECORDS}/${packDetail.id}/update`);
+          break;
+        case 5:
+          {
+            if (selectedRowKeys.length <= 0) {
+              showError("Vui lòng chọn đơn hàng cần xử lí");
+              break;
+            }
+  
+            // packDetail.orders?.forEach((order) => {
+            //   if (selectedRowKeys.some((p: any) => p === order.id)) {
+            //     order.fulfillments?.forEach((ffm) => {
+            //       fullfilmentPrint.push(ffm.id);
+            //     })
+            //   }
+            // })
+            // dispatch(showLoading());
+            // changeOrderStatusToPickedService(fullfilmentPrint)
+            //   .then((response) => {
+            //     if (isFetchApiSuccessful(response)) {
+            //       window.location.reload();
+            //     } else {
+            //       handleFetchApiError(response, "In phiếu giao hàng", dispatch)
+            //     }
+            //   })
+            //   .catch((error) => {
+            //     console.log("error", error);
+            //   })
+            //   .finally(() => {
+            //     dispatch(hideLoading());
+            //   });
+            
+            const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+            window.open(printPreviewUrl);
+            break;
+          }
+        case 6:
+          {
+            if (selectedRowKeys.length <= 0) {
+              showError("Vui lòng chọn đơn hàng cần xử lí");
+              break;
+            }
+            
+            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+            window.open(printPreviewUrlExport);
+            break;
+          }
+
+        default:
+          break;
+      }
+    },
+    [packDetail, selectedRowOrderId, handlePrintPack, handleExportExcelOrderPack, history, selectedRowKeys]
+  );
+
+  const checkExportFile = useCallback(() => {
+
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.status === "FINISH") {
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+            setStatusExport(3);
+          }
+          if (response.data && response.data.status === "ERROR") {
+            setStatusExport(4);
+            showError("Có lỗi xảy ra, vui lòng thử lại sau");
+            // setExportError(response.data.message);
+          }
+        } else {
+          setStatusExport(4);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        }
+      });
+    });
+  }, [listExportFile]);
+
+  const rowSelection = {
+    selectedRowKeys: selectedRowKeys,
+    onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
+      const keys = selectedRows.map((row: any) => row.key);
+      //const codes = selectedRows.map((row: any) => row.fulfillment_code);
+      const orderIds = selectedRows.map((row: any) => row.order_id);
+      console.log(selectedRows);
+      setSelectedRowKeys(keys);
+      // setSelectedRowCode(codes);
+      setSelectedRowOrderId(orderIds);
+    }
+  };
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
+
+  return (
+    <React.Fragment>
+      <StyledComponent>
+        <Card title="Danh sách đơn hàng trong biên bản" className="pack-card-orders">
+          <div className="order-filter">
+            <div className="page-filter">
+              <div className="page-filter-heading">
+                <div className="page-filter-left">
+                  <ActionButton menu={actions} onMenuClick={onMenuClick} />
+                </div>
+                <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}
+                  className="page-filter-right"
+                  style={{ width: "40%", flexWrap: "nowrap", justifyContent: " flex-end" }}
+                >
+                  <Item name="search_term" style={{ width: "100%", marginRight: "10px" }}>
+                    <Input
+                      style={{ width: "100%" }}
+                      prefix={<img src={search} alt="" />}
+                      placeholder="ID đơn hàng/Mã vận đơn"
+                    />
+                  </Item>
+
+                  <Item style={{ width: "62px", marginRight: 0 }}>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      onClick={handleSearchOrder}
+                    >
+                      Lọc
+                    </Button>
+                  </Item>
+                </Form>
+              </div>
             </div>
           </div>
+          <Table
+            dataSource={dataPackOrderList}
+            scroll={{ x: 1500 }}
+            columns={column}
+            //pagination={false}
+            bordered
+            rowSelection={{
+              type: "checkbox",
+              ...rowSelection,
+            }}
+          />
+        </Card>
+      </StyledComponent>
+
+      <div style={{ display: "none" }}>
+        <div className="printContent" ref={printElementRef}>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: htmlContent,
+            }}
+          >
+          </div>
         </div>
-        <Table
-          dataSource={dataPackOrderList}
-          scroll={{ x: 1500 }}
-          columns={column}
-          //pagination={false}
-          bordered
-        />
-      </Card>
-    </StyledComponent>
+      </div>
+    </React.Fragment>
   );
 };
 

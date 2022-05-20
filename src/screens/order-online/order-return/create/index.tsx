@@ -306,6 +306,7 @@ ShippingServiceConfigDetailResponseModel[]
         {
           returnMoneyMethod: listPaymentMethodsReturnToCustomer?.code,
           returnMoneyNote: undefined,
+          returnMoneyAmount: 0,
         },
       ],
       account_code: recentAccountCode.accountCode,
@@ -316,6 +317,9 @@ ShippingServiceConfigDetailResponseModel[]
       customer_note: OrderDetail?.customer_note,
     }
   }, [OrderDetail?.assignee_code, OrderDetail?.coordinator_code, OrderDetail?.customer_note, OrderDetail?.marketer_code, OrderDetail?.note, initialForm, isExchange, listPaymentMethodsReturnToCustomer?.code, recentAccountCode.accountCode])
+
+  
+  
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -551,10 +555,10 @@ ShippingServiceConfigDetailResponseModel[]
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
-              amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
+              amount: Math.ceil(formReturnMoney?.returnMoneyAmount || 0),
               reference: "",
               source: "",
-              paid_amount: Math.ceil(Math.abs(totalAmountCustomerNeedToPay)),
+              paid_amount: Math.ceil(formReturnMoney?.returnMoneyAmount || 0),
               return_amount: 0.0,
               status: "paid",
               customer_id: customer?.id || null,
@@ -1304,6 +1308,36 @@ ShippingServiceConfigDetailResponseModel[]
     isStepExchange,
     listStoreReturn
   };
+
+  useEffect(() => {
+    let result = totalAmountCustomerNeedToPay < 0
+    ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
+    : 0;
+    form.setFieldsValue({
+      returnMoneyField: [
+        {
+          ...initialFormValueWithReturn.returnMoneyField[0],
+          returnMoneyAmount: result,
+        },
+      ],
+    })
+  }, [form, initialFormValueWithReturn, totalAmountCustomerNeedToPay])
+
+  useEffect(() => {
+    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
+      return single.code === PaymentMethodCode.CASH;
+    });
+    if(paymentMethodReturnToCustomer) {
+      form.setFieldsValue({
+        returnMoneyField: [
+          {
+            ...initialFormValueWithReturn.returnMoneyField[0],
+            returnMoneyMethod: paymentMethodReturnToCustomer.code,
+          },
+        ],
+      })
+    }
+  }, [form, initialFormValueWithReturn, listPaymentMethods])
 
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;

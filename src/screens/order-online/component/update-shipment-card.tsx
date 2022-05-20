@@ -1549,16 +1549,16 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																	: "saleorder-steps-two saleorder-steps dot-active"
 															}
 														>
-															<span>Ngày hủy</span>
+															<span>Ngày nhận hàng </span>
 															<span>
-																{ConvertUtcToLocalDate(fulfillment?.cancel_date, DATE_FORMAT.fullDate)}
+																{ConvertUtcToLocalDate(fulfillment?.receive_cancellation_on, DATE_FORMAT.fullDate)}
 															</span>
 														</div>
 													)}
 												{fulfillment.status_before_cancellation !==
 													FulFillmentStatus.SHIPPING && (
 														<div className="saleorder-steps-three saleorder-steps dot-active">
-															<span>Ngày nhận lại</span>
+															<span>Ngày hủy giao</span>
 															<span>
 																{ConvertUtcToLocalDate(fulfillment?.cancel_date, DATE_FORMAT.fullDate)}
 															</span>

@@ -9,7 +9,7 @@ import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { TYPE_EXPORT } from "screens/products/constants";
+import { documentTypes, TYPE_EXPORT } from "screens/products/constants";
 import { formatCurrency, generateQuery, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -70,14 +70,24 @@ const HistoryTab: React.FC<any> = (props) => {
   );
   const onResult = useCallback(
     (result: PageResponse<HistoryInventoryResponse> | false) => {
+      setLoading(false);
       if (result) {
-        setLoading(false);
         setData(result);
         if (firstLoad) {
           setTotalItems(result.metadata.total);
         }
         firstLoad = false;
+        return;
       }
+
+      setData({
+        metadata: {
+          limit: 30,
+          page: 1,
+          total: 0,
+        },
+        items: [],
+      });
     },
     []
   );
@@ -134,6 +144,11 @@ const HistoryTab: React.FC<any> = (props) => {
     return strName
   }
 
+  const convertDocumentType = (type: string) => {
+    const documentFiltered = documentTypes.filter((item) => item.value === type);
+    return documentFiltered.length > 0 ? documentFiltered[0].name : '';
+  };
+
   const defaultColumns: Array<ICustomTableColumType<HistoryInventoryResponse>> = [
     {
       title: <ActionComponent />,
@@ -168,6 +183,19 @@ const HistoryTab: React.FC<any> = (props) => {
             <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>
               {value}
             </Link>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Kiểu nhập xuất",
+      visible: true,
+      width: 150,
+      dataIndex: "document_type",
+      render: (value) => {
+        return (
+          <div>
+            {convertDocumentType(value)}
           </div>
         );
       },
@@ -251,15 +279,16 @@ const HistoryTab: React.FC<any> = (props) => {
     setColumn(defaultColumns);
     const search = new URLSearchParams(history.location.search);
     if (search) {
-      let condition =  search.get('condition');
+      let condition = search.get('condition');
       condition = condition && condition.trim();
-      const store_ids =  search.get('store_ids');
-      if ((condition && condition !== null)) {
-        setPrams({...params, condition: condition ?? ""});
-      }
-      if ((store_ids && store_ids !== null)) {
-        setPrams({...params,condition: condition ?? "", store_ids:  store_ids.split(',').map(Number)});
-      }
+      const store_ids = search.get('store_ids');
+      const document_type = search.get('document_type');
+      setPrams({
+        ...params,
+        condition: condition ?? "",
+        store_ids: store_ids ? store_ids.split(',').map(Number) : [],
+        document_type: document_type ? document_type : null,
+      });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, history.location.search]);
@@ -295,7 +324,7 @@ const HistoryTab: React.FC<any> = (props) => {
   }
 
   const getItemsByCondition = useCallback(async (type: string) => {
-    let res: any; 
+    let res: any;
     let items: Array<HistoryInventoryResponse> = [];
     const limit = 50;
     let times = 0;
@@ -312,9 +341,9 @@ const HistoryTab: React.FC<any> = (props) => {
        times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
 
         for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport"); 
+          const output = document.getElementById("processExport");
           if (output) output.innerHTML=items.length.toString();
-          
+
           const res1 = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, {...params,page: index,limit:limit});
           items= items.concat(res1.items);
         }
@@ -326,9 +355,9 @@ const HistoryTab: React.FC<any> = (props) => {
         const roundAllin = Math.round(totalItems / limit);
         times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
         for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport"); 
+          const output = document.getElementById("processExport");
           if (output) output.innerHTML=items.length.toString();
-          
+
           const res1 = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, {...params,page: index,limit:limit});
           items= items.concat(res1.items);
         }
@@ -337,7 +366,7 @@ const HistoryTab: React.FC<any> = (props) => {
         break;
     }
     return items;
-  },[dispatch,selected,params,data,totalItems])  
+  },[dispatch,selected,params,data,totalItems])
 
   const actionExport = {
     Ok: async (typeExport: string) => {

@@ -96,11 +96,13 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const [isShowPaymentMethod, setIsShowPaymentMethod] = useState(false);
 
-  const initialFormValue = {
-    returnMoneyField: [
-      { returnMoneyMethod: PaymentMethodCode.CASH, returnMoneyNote: undefined },
-    ],
-  };
+  const initialFormValue = useMemo(() => {
+    return {
+      returnMoneyField: [
+        { returnMoneyMethod: PaymentMethodCode.CASH, returnMoneyNote: undefined, returnMoneyAmount: 0 },
+      ],
+    }
+  }, [])
 
   const handleReturnMoney = () => {
     form.validateFields().then(() => {
@@ -119,9 +121,9 @@ const ScreenReturnDetail = (props: PropType) => {
               note: formValuePayment.returnMoneyNote || "",
               amount: 0,
               paid_amount:
-                Math.ceil(totalAmountReturnToCustomer || 0) ,
+                Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
               return_amount:
-                Math.ceil(totalAmountReturnToCustomer || 0),
+                Math.ceil(formValuePayment?.returnMoneyAmount || 0),
               customer_id: OrderDetail?.customer_id,
             },
           ];
@@ -155,6 +157,33 @@ const ScreenReturnDetail = (props: PropType) => {
   const totalAmountReturnToCustomer = useMemo(() => {
     return (OrderDetail?.total || 0) - getOrderTotalPaymentAmount(OrderDetail?.payments || [] )
   }, [OrderDetail?.payments, OrderDetail?.total])
+  
+  useEffect(() => {
+    form.setFieldsValue({
+      returnMoneyField: [
+        {
+          ...initialFormValue.returnMoneyField,
+          returnMoneyAmount: totalAmountReturnToCustomer,
+        },
+      ],
+    })
+  }, [form, initialFormValue, totalAmountReturnToCustomer])
+
+  useEffect(() => {
+    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
+      return single.code === PaymentMethodCode.CASH;
+    });
+    if(paymentMethodReturnToCustomer) {
+      form.setFieldsValue({
+        returnMoneyField: [
+          {
+            ...initialFormValue.returnMoneyField,
+            returnMoneyMethod: paymentMethodReturnToCustomer.code,
+          },
+        ],
+      })
+    }
+  }, [form, initialFormValue, listPaymentMethods])
  
   /**
    * theme context data
@@ -282,7 +311,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
                   pointUsing={OrderDetail?.point_refund}
-                  totalAmountReturnToCustomer={OrderDetail?.money_refund}
+                  totalAmountReturnToCustomer={OrderDetail?.total}
                   isDetailPage
 									OrderDetail={OrderDetail}
                 />
