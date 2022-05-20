@@ -85,6 +85,7 @@ import {
   TaxTreatment
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS, PAYMENT_METHOD_ENUM, RETURN_MONEY_TYPE, RETURN_TYPE_VALUES } from "utils/Order.constants";
+import { findPaymentMethodByCode } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -565,56 +566,81 @@ ShippingServiceConfigDetailResponseModel[]
   */
   const getPaymentOfReturnInExchange = useCallback(() => {
     let result: OrderPaymentRequest[] = [];
-    if(returnMoneyType === RETURN_MONEY_TYPE.return_now || totalAmountCustomerNeedToPay > 0) {
-      const moneyPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
-      const formValuePayment = getFormReturnMoneyValues();
-      let returnMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
-      const amount = Math.ceil(totalAmountReturnProducts);
-      const paidAmount = amount;
-      if(moneyPayment) {
-        result.push({
-          payment_method_id: moneyPayment.id,
-          payment_method: moneyPayment.name,
-          payment_method_code: moneyPayment.code,
-          amount: paidAmount,
-          reference: "",
-          source: "",
-          paid_amount: paidAmount,
-          return_amount: 0,
-          status: ORDER_PAYMENT_STATUS.paid,
-          customer_id: customer?.id || null,
-          type: "",
-          note: "Tiền đơn trả",
-          code: "",
-        })
-      }
-      // // trả lại khách
-      // if(totalAmountCustomerNeedToPay < 0) {
-      // } else {
-      //   let amount = 0;
-      //   returnItems.forEach((item) => {
-      //     amount = amount + getReturnPricePerOrder(OrderDetail, item);
-      //   })
-      //   if(moneyPayment) {
-      //     result.push({
-      //       payment_method_id: moneyPayment.id,
-      //       payment_method: moneyPayment.name,
-      //       payment_method_code: moneyPayment.code,
-      //       amount: amount,
-      //       reference: "",
-      //       source: "",
-      //       paid_amount: amount,
-      //       return_amount: 0,
-      //       status: ORDER_PAYMENT_STATUS.paid,
-      //       customer_id: customer?.id || null,
-      //       type: "",
-      //       note: "Tiền đơn trả",
-      //       code: "",
-      //     })
-      //   }
-      // }
+    if(returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+      
+      // 
+      
+      if(totalAmountCustomerNeedToPay < 0) {
+        // truyền giá trị đơn đổi
+        const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
+        const paidAmount = Math.ceil(totalAmountExchange);
+        if(moneyPayment) {
+          result.push({
+            payment_method_id: PAYMENT_METHOD_ENUM.exchange.id,
+            payment_method: PAYMENT_METHOD_ENUM.exchange.name,
+            payment_method_code: PAYMENT_METHOD_ENUM.exchange.code,
+            amount: paidAmount,
+            reference: "",
+            source: "",
+            paid_amount: paidAmount,
+            return_amount: 0,
+            status: ORDER_PAYMENT_STATUS.paid,
+            customer_id: customer?.id || null,
+            type: "",
+            note: "",
+            code: "",
+          })
+        }
+        // truyền giá trị trong form
+        const formValuePayment = getFormReturnMoneyValues();
+        let returnMoneyMethod = listPaymentMethods.find((single) => {
+          return single.code === formValuePayment?.returnMoneyMethod;
+        });
+        let returnMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
+        if (returnMoneyMethod) {
+          result.push({
+            payment_method_id: returnMoneyMethod.id,
+            amount: returnMoneyAmount,
+            return_amount: 0,
+            status: ORDER_PAYMENT_STATUS.paid,
+            payment_method: returnMoneyMethod.name,
+            payment_method_code: returnMoneyMethod.code,
+            reference: "",
+            source: "",
+            paid_amount: returnMoneyAmount,
+            customer_id: customer?.id || null,
+            type: "",
+            note: formValuePayment.note || "",
+            code: "",
+          })
+        }
+        
 
-      // tạm thời nếu hoàn tiền cho khách thì ko truyền pointRefund
+      } else {
+        // giá trị đơn trả
+        const cashPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
+        if(cashPayment) {
+          const paidAmount = Math.ceil(totalAmountReturnProducts);
+          result.push({
+            payment_method_id: PAYMENT_METHOD_ENUM.exchange.id,
+            amount: paidAmount,
+            return_amount: 0,
+            status: ORDER_PAYMENT_STATUS.paid,
+            payment_method: PAYMENT_METHOD_ENUM.exchange.name,
+            payment_method_code: PAYMENT_METHOD_ENUM.exchange.code,
+            reference: "",
+            source: "",
+            paid_amount: paidAmount,
+            customer_id: customer?.id || null,
+            type: "",
+            note: "",
+            code: "",
+          })
+
+        }
+      }
+      // tạm thời ko hoàn điểm
+
       // if(refund.pointRefund > 0) {
       //   const pointPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.POINT);
       //   const pointPaymentFromOrderDetail = OrderDetail?.payments?.filter(single => single.payment_method_code === PaymentMethodCode.POINT);
@@ -641,18 +667,19 @@ ShippingServiceConfigDetailResponseModel[]
       //       reference: "",
       //       source: "",
       //       paid_amount: Math.ceil(amountPointReturn),
+      //       payment_method_code: pointEnum.code,
       //       point: refund.pointRefund,
       //       return_amount: 0,
-      //       status: ORDER_PAYMENT_STATUS.paid,
+      //       status: paidStatus,
       //       customer_id: customer?.id || null,
       //       type: "",
       //       note: "Hoàn điểm",
       //       code: pointEnum.code,
-      //       payment_method_code: pointEnum.code,
       //     })
       //   }
       // }
-
+    } else { // trả tiền sau
+      
     }
     // if(refund.pointRefund > 0) {
     //   const pointPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.POINT);
@@ -690,60 +717,174 @@ ShippingServiceConfigDetailResponseModel[]
     //   }
     // }
     return result;
-  }, [customer?.id, getFormReturnMoneyValues, listPaymentMethods, returnMoneyType, totalAmountCustomerNeedToPay, totalAmountReturnProducts])
+  }, [customer?.id, getFormReturnMoneyValues, listPaymentMethods, returnMoneyType, totalAmountCustomerNeedToPay, totalAmountExchange, totalAmountReturnProducts])
+
+  /**
+  * tính tiền đơn đổi của đơn đổi trả
+  */
+   const getPaymentOfExchangeInExchange = useCallback(() => {
+    let result: OrderPaymentRequest[] = [];
+    if(returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+      
+      // 
+      
+      if(totalAmountCustomerNeedToPay < 0) {
+        // truyền giá trị đơn đổi
+        const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
+        const paidAmount = Math.ceil(totalAmountExchange);
+        if(moneyPayment) {
+          result.push({
+            payment_method_id: PAYMENT_METHOD_ENUM.exchange.id,
+            payment_method: PAYMENT_METHOD_ENUM.exchange.name,
+            payment_method_code: PAYMENT_METHOD_ENUM.exchange.code,
+            amount: paidAmount,
+            reference: "",
+            source: "",
+            paid_amount: paidAmount,
+            return_amount: 0,
+            status: ORDER_PAYMENT_STATUS.paid,
+            customer_id: customer?.id || null,
+            type: "",
+            note: "",
+            code: "",
+          })
+        }
+      } else {
+        // giá trị trả thêm
+        result = [...payments];
+        // giá trị đơn trả
+        const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
+        const paidAmount = Math.ceil(totalAmountReturnProducts);
+        if(moneyPayment) {
+          result.push({
+            payment_method_id: PAYMENT_METHOD_ENUM.exchange.id,
+            payment_method: PAYMENT_METHOD_ENUM.exchange.name,
+            payment_method_code: PAYMENT_METHOD_ENUM.exchange.code,
+            amount: paidAmount,
+            reference: "",
+            source: "",
+            paid_amount: paidAmount,
+            return_amount: 0,
+            status: ORDER_PAYMENT_STATUS.paid,
+            customer_id: customer?.id || null,
+            type: "",
+            note: "",
+            code: "",
+          })
+        }
+      }
+      // tạm thời ko hoàn điểm
+
+      // if(refund.pointRefund > 0) {
+      //   const pointPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.POINT);
+      //   const pointPaymentFromOrderDetail = OrderDetail?.payments?.filter(single => single.payment_method_code === PaymentMethodCode.POINT);
+      //   let pointRateFromOrderDetail = 0;
+      //   let totalAmountPoint = 0;
+      //   let totalPoint = 0;
+      //   let amountPointReturn =0;
+      //   if(pointPaymentFromOrderDetail) {
+      //     pointPaymentFromOrderDetail.forEach(single => {
+      //       totalAmountPoint = totalAmountPoint + single.paid_amount;
+      //       totalPoint = totalPoint + (single?.point || 0);
+      //     })
+      //   }
+      //   if(totalPoint > 0) {
+      //     pointRateFromOrderDetail = totalAmountPoint / totalPoint;
+      //   }
+      //   if(pointPayment) {
+      //     amountPointReturn = refund.pointRefund * pointRateFromOrderDetail;
+      //     let pointEnum = PAYMENT_METHOD_ENUM.pointRefund;
+      //     result.push({
+      //       payment_method_id: pointEnum.id,
+      //       payment_method: pointEnum.name,
+      //       amount: returnMoneyType === RETURN_MONEY_TYPE.return_now ? Math.ceil(amountPointReturn) : 0,
+      //       reference: "",
+      //       source: "",
+      //       paid_amount: Math.ceil(amountPointReturn),
+      //       payment_method_code: pointEnum.code,
+      //       point: refund.pointRefund,
+      //       return_amount: 0,
+      //       status: paidStatus,
+      //       customer_id: customer?.id || null,
+      //       type: "",
+      //       note: "Hoàn điểm",
+      //       code: pointEnum.code,
+      //     })
+      //   }
+      // }
+    } else { // trả tiền sau
+      
+    }
+    // if(refund.pointRefund > 0) {
+    //   const pointPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.POINT);
+    //   const pointPaymentFromOrderDetail = OrderDetail?.payments?.filter(single => single.payment_method_code === PaymentMethodCode.POINT);
+    //   let pointRateFromOrderDetail = 0;
+    //   let totalAmountPoint = 0;
+    //   let totalPoint = 0;
+    //   let amountPointReturn =0;
+    //   if(pointPaymentFromOrderDetail) {
+    //     pointPaymentFromOrderDetail.forEach(single => {
+    //       totalAmountPoint = totalAmountPoint + single.paid_amount;
+    //       totalPoint = totalPoint + (single?.point || 0);
+    //     })
+    //   }
+    //   if(totalPoint > 0) {
+    //     pointRateFromOrderDetail = totalAmountPoint / totalPoint;
+    //   }
+    //   if(pointPayment) {
+    //     amountPointReturn = refund.pointRefund * pointRateFromOrderDetail;
+    //     result.push({
+    //       payment_method_id: pointPayment.id,
+    //       payment_method: pointPayment.name,
+    //       amount: Math.ceil(amountPointReturn),
+    //       reference: "",
+    //       source: "",
+    //       paid_amount: Math.ceil(amountPointReturn),
+    //       point: refund.moneyRefund,
+    //       return_amount: 0,
+    //       status: "paid",
+    //       customer_id: customer?.id || null,
+    //       type: "",
+    //       note: "Điểm đơn trả",
+    //       code: "",
+    //     })
+    //   }
+    // }
+    return result;
+  }, [customer?.id, listPaymentMethods, payments, returnMoneyType, totalAmountCustomerNeedToPay, totalAmountExchange, totalAmountReturnProducts])
+  
 
   /**
    * lấy payment của đơn trả cho trường hợp chỉ trả ko đổi
    */
   const getPaymentOfReturnInReturn = useCallback(() => {
     let result:OrderPaymentRequest[] = [];
-    let paidStatus = ORDER_PAYMENT_STATUS.paid;
 
-    const formValuePayment = getFormReturnMoneyValues();
-    const amount = Math.ceil(totalAmountReturnProducts);
-    let returnMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
-    const paidAmount = amount;
     // trả tiền 
-    // mặc định là tiền mặt
-    const cashPayment = listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH);
-    let paidMoneyMethod = {
-      payment_method_id: cashPayment?.id || 0,
-      payment_method: cashPayment?.name || "",
-      payment_method_code: cashPayment?.code || "",
-      note: "",
-    }
 
     // trả tiền trước
     if(returnMoneyType === RETURN_MONEY_TYPE.return_now) {
-      
-      let returnMoneyMethod = listPaymentMethods.find((single) => {
-        return single.code === formValuePayment?.returnMoneyMethod;
-      });
-  
-      if (returnMoneyMethod) {
-        paidMoneyMethod = {
-          payment_method_id: returnMoneyMethod?.id,
-          payment_method: returnMoneyMethod?.name,
-          payment_method_code: returnMoneyMethod?.code,
-          note: formValuePayment.returnMoneyNote || "",
-        }
+      const formValuePayment = getFormReturnMoneyValues();
+      let returnMoneyAmount = formValuePayment?.returnMoneyAmount ? formValuePayment?.returnMoneyAmount : 0;
+      const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
+      if(moneyPayment) {
+        result.push({
+          payment_method_id: moneyPayment.id,
+          payment_method: moneyPayment.name,
+          payment_method_code: moneyPayment.code,
+          amount: returnMoneyAmount,
+          reference: "",
+          source: "",
+          paid_amount: returnMoneyAmount,
+          return_amount: 0,
+          status: ORDER_PAYMENT_STATUS.paid,
+          customer_id: customer?.id || null,
+          type: "",
+          note: "",
+          code: "",
+        })
       }
-      result.push({
-        payment_method_id: paidMoneyMethod.payment_method_id,
-        amount: paidAmount,
-        return_amount: 0,
-        status: paidStatus,
-        payment_method: paidMoneyMethod.payment_method,
-        payment_method_code: paidMoneyMethod.payment_method_code,
-        reference: "",
-        source: "",
-        paid_amount: paidAmount,
-        customer_id: customer?.id || null,
-        type: "",
-        note: paidMoneyMethod.note,
-        code: "",
-      })
-
+      
       // tạm thời ko hoàn điểm
 
       // if(refund.pointRefund > 0) {
@@ -1507,7 +1648,7 @@ ShippingServiceConfigDetailResponseModel[]
        order_exchange.url = form.getFieldValue("url");
        order_exchange.fulfillments = createFulFillmentRequest(values);
        order_exchange.items = listExchangeProducts.concat(itemGifts);
-       order_exchange.payments = totalAmountCustomerNeedToPay > 0 ? payments.filter(payment => payment.paid_amount > 0) : [];
+       order_exchange.payments = getPaymentOfExchangeInExchange()
        const valuesExchange = {
          origin_order_id,
          order_return,
@@ -1551,7 +1692,7 @@ ShippingServiceConfigDetailResponseModel[]
        }
      }
     },
-    [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, payments, recentAccountCode.accountCode, refund.moneyRefund, shipmentMethod, shippingAddress, storeReturn, thirdPL.service, totalAmountCustomerNeedToPay],
+    [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfExchangeInExchange, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, recentAccountCode.accountCode, refund.moneyRefund, shipmentMethod, shippingAddress, storeReturn, thirdPL.service],
   )
  
 
