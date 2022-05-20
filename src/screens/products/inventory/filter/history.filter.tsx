@@ -1,5 +1,5 @@
 import {FilterOutlined} from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
@@ -22,8 +22,8 @@ import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import {DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon} from "utils/DateUtils";
 import {QuantityButtonStyle} from "./history-filter.style";
 import TreeStore from "./TreeStore";
-import CustomSelect from "../../../../component/custom/select.custom";
-import { documentTypes } from "../../constants";
+// import CustomSelect from "../../../../component/custom/select.custom";
+// import { documentTypes } from "../../constants";
 
 interface HistoryInventoryFilterProps {
   params: HistoryInventoryQuery;
@@ -192,21 +192,21 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                 listStore={listStore}
               />
             </Item>
-            <Item name={HistoryInventoryQueryField.document_type} className="search">
-              <CustomSelect
-                allowClear
-                placeholder="Kiểu nhập xuất"
-                style={{
-                  width: '100%',
-                }}
-              >
-                {documentTypes.map((item, index) => (
-                  <Select.Option key={index} value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </CustomSelect>
-            </Item>
+            {/*<Item name={HistoryInventoryQueryField.document_type} className="search">*/}
+            {/*  <CustomSelect*/}
+            {/*    allowClear*/}
+            {/*    placeholder="Kiểu nhập xuất"*/}
+            {/*    style={{*/}
+            {/*      width: '100%',*/}
+            {/*    }}*/}
+            {/*  >*/}
+            {/*    {documentTypes.map((item, index) => (*/}
+            {/*      <Select.Option key={index} value={item.value}>*/}
+            {/*        {item.name}*/}
+            {/*      </Select.Option>*/}
+            {/*    ))}*/}
+            {/*  </CustomSelect>*/}
+            {/*</Item>*/}
             <Item>
               <Button type="primary" htmlType="submit">
                 Lọc
