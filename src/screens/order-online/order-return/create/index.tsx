@@ -784,6 +784,15 @@ ShippingServiceConfigDetailResponseModel[]
     return result;
   }, [OrderDetail?.payments, customer?.id, getFormReturnMoneyValues, listPaymentMethods, refund.pointRefund, returnMoneyType]);
 
+  const handleReturnCallback = useCallback((response: any) => {
+    setListReturnProducts([]);
+    dispatch(hideLoading());
+    setTimeout(() => {
+      history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+    }, 500);
+   
+  }, [dispatch, history]);
+
   const handleSubmitFormReturn = useCallback(() => {
     
     if (OrderDetail && listReturnProducts) {
@@ -859,8 +868,8 @@ ShippingServiceConfigDetailResponseModel[]
         reference_code: "",
         customer_note: form.getFieldValue("customer_note"),
         note: form.getFieldValue("note"),
-        url: "",
-        tags: null,
+        url: form.getFieldValue("url") || "",
+        tags: tags,
         type: orderReturnType,
         //channel
         channel_id: getChannelIdReturn(OrderDetail),
@@ -883,18 +892,10 @@ ShippingServiceConfigDetailResponseModel[]
                 response.id,
                 printType.return,
               ).then(() => {
-                setListReturnProducts([]);
-                dispatch(hideLoading());
-                setTimeout(() => {
-                  history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
-                }, 500);
+                handleReturnCallback(response);
               });
             } else {
-              setListReturnProducts([]);
-              dispatch(hideLoading());
-              setTimeout(() => {
-                history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
-              }, 500);
+              handleReturnCallback(response);
             }
           },
           () => {
@@ -903,7 +904,7 @@ ShippingServiceConfigDetailResponseModel[]
         ),
       );
     }
-  }, [OrderDetail, dispatch, form, getChannelIdReturn, getPaymentOfReturnInReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, history, isReceivedReturnProducts, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, refund.moneyRefund, returnItems, storeReturn]);
+  }, [OrderDetail, dispatch, form, getChannelIdReturn, getPaymentOfReturnInReturn, handlePrintOrderReturnOrExchange, handleRecalculateOriginDiscount, handleReturnCallback, isReceivedReturnProducts, listReturnProducts, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, printType.return, recentAccountCode.accountCode, refund.moneyRefund, returnItems, storeReturn, tags]);
 
   const checkIfHasReturnProduct = listReturnProducts.some((single) => {
     return single.quantity > 0;
@@ -986,6 +987,13 @@ ShippingServiceConfigDetailResponseModel[]
     return true;
   };
 
+  const handleExchangeCallback = useCallback((value: OrderResponse) => {
+    setTimeout(() => {
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
+    }, 500);
+   
+  }, [history]);
+
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
       if(!value.order_return_origin?.id) {
@@ -999,17 +1007,13 @@ ShippingServiceConfigDetailResponseModel[]
           value.order_return_origin.id,
           printType.returnAndExchange,
         ).then(() => {
-          setTimeout(() => {
-            history.push(`${UrlConfig.ORDER}/${value.id}`);
-          }, 500);
+          handleExchangeCallback(value)
         });
       } else {
-        setTimeout(() => {
-          history.push(`${UrlConfig.ORDER}/${value.id}`);
-        }, 500);
+        handleExchangeCallback(value)
       }
     },
-    [handlePrintOrderReturnOrExchange, history, printType.returnAndExchange],
+    [handleExchangeCallback, handlePrintOrderReturnOrExchange, printType.returnAndExchange],
   );
 
   const createShipmentRequest = useCallback(
