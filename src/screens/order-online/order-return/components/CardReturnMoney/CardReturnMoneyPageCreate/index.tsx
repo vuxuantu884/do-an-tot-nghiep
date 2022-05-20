@@ -1,4 +1,4 @@
-import { Card, Radio, Space } from "antd";
+import { Card } from "antd";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { OrderPaymentRequest } from "model/request/order.request";
@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 
-type PropType = {
+type PropTypes = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentRequest[];
 	totalAmountOrder: number;
@@ -33,8 +33,10 @@ type PropType = {
 /**
  * input: listPaymentMethod, returnMoneyType
  * output: setReturnMoneyType
+ * 
+ * ghi chú: hiện tại ko cho hoàn tiền sau
  */
-function CardReturnMoneyPageCreate(props: PropType) {
+function CardReturnMoneyPageCreate(props: PropTypes) {
   const {
     listPaymentMethods,
     payments,
@@ -46,7 +48,6 @@ function CardReturnMoneyPageCreate(props: PropType) {
     paymentMethod,
     returnOrderInformation,
     setPayments,
-    setReturnMoneyType,
     setPaymentMethod,
     isOrderReturnFromPOS,
     returnPaymentMethodCode,
@@ -63,7 +64,8 @@ console.log('listPaymentMethods', listPaymentMethods)
   const renderWhenReturnMoneyToCustomer = () => {
     return (
       <div className="create-order-payment">
-        <Radio.Group
+        {/* ko cho hoàn tiền sau */}
+        {/* <Radio.Group
           value={returnMoneyType}
           onChange={(e) => {
             if (setReturnMoneyType) {
@@ -76,7 +78,7 @@ console.log('listPaymentMethods', listPaymentMethods)
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
             <Radio value={RETURN_MONEY_TYPE.return_later}>Hoàn tiền sau</Radio>
           </Space>
-        </Radio.Group>
+        </Radio.Group> */}
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
             listPaymentMethods={listPaymentMethods}

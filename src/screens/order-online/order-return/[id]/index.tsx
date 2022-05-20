@@ -307,9 +307,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
           (single) => single.code
         );
         setListPaymentMethods(result);
-        if (!Number.isNaN(returnOrderId)) {
+        if (id) {
           dispatch(
-            actionGetOrderReturnDetails(returnOrderId, (data: OrderReturnModel) => {
+            actionGetOrderReturnDetails(id, (data: OrderReturnModel) => {
               setIsReceivedReturnProducts(data.received);
               if (!data) {
                 setError(true);
@@ -353,7 +353,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
         }
       })
     );
-  }, [dispatch, handleOrderOriginId, returnOrderId]);
+  }, [dispatch, handleOrderOriginId, id]);
 
   useEffect(() => {
     if (OrderDetail != null) {
@@ -436,7 +436,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
             <Col md={6}>
               <OrderShortDetailsReturn OrderDetail={OrderDetail} />
               <OrderReturnActionHistory
-                orderId={id}
+                orderId={returnOrderId}
                 countChangeSubStatus={countChangeSubStatus}
               />
               <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />

@@ -1,4 +1,4 @@
-import { Card, Radio, Space } from "antd";
+import { Card } from "antd";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../../ReturnMoneySelect";
@@ -15,13 +15,14 @@ type PropTypes = {
 /**
  * input: listPaymentMethod, returnMoneyType
  * output: setReturnMoneyType
+ * 
+ * ghi chú: hiện tại ko cho hoàn tiền sau
  */
 function CardReturnMoneyPageCreateReturn(props: PropTypes) {
   const {
     listPaymentMethods,
     totalAmountCustomerNeedToPay,
     returnMoneyType,
-    setReturnMoneyType,
     setReturnPaymentMethodCode,
     returnPaymentMethodCode,
   } = props;
@@ -31,7 +32,8 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
   return (
     <Card className="margin-top-20" title={<span className="title-card">Hoàn tiền</span>}>
       <div className="create-order-payment">
-        <Radio.Group
+       {/* không cho hoàn tiền sau */}
+        {/* <Radio.Group
           value={returnMoneyType}
           onChange={(e) => {
             if (setReturnMoneyType) {
@@ -44,7 +46,7 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
             <Radio value={RETURN_MONEY_TYPE.return_later}>Hoàn tiền sau</Radio>
           </Space>
-        </Radio.Group>
+        </Radio.Group> */}
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
             listPaymentMethods={listPaymentMethods}

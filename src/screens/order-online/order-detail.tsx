@@ -828,7 +828,7 @@ const OrderDetail = (props: PropType) => {
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
                   totalAmountReturnToCustomer={
-                    OrderDetail?.order_return_origin.money_refund
+                    OrderDetail?.order_return_origin.total
                   }
                   OrderDetail={OrderDetail}
                 />
