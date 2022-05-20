@@ -11,7 +11,7 @@ import {
 } from "domain/actions/content/content.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
-import { PoCreateAction } from "domain/actions/po/po.action";
+import { PoCreateAction, PoDetailAction } from "domain/actions/po/po.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
@@ -31,7 +31,7 @@ import {
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ProductResponse } from "../../model/product/product.model";
-import { combineLineItemToSubmitData, getTotalPriceOfAllLineItem, POUtils, validateLineItem } from "../../utils/POUtils";
+import { combineLineItemToSubmitData, fetchProductGridData, getTotalPriceOfAllLineItem, POUtils, validateLineItem } from "../../utils/POUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import PoProductContainer from "./component/po-product-form-grid/po-product-container";
@@ -39,7 +39,8 @@ import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import PurchaseOrderProvider from "./provider/purchase-order.provider";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
+import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 
 const POProductFormOld = React.lazy(() => import("./component/po-product.form"));
 const POProductFormNew = React.lazy(() => import("./component/po-product-form-grid"));
@@ -104,9 +105,11 @@ const initPurchaseOrder = {
 };
 
 const POCreateScreen: React.FC = () => {
-  let now = moment();
-  const dispatch = useDispatch();
+  const now = moment();
   const history = useHistory();
+  const searchParams = new URLSearchParams(history.location.search)
+  const poId = searchParams.get("poId");
+  const dispatch = useDispatch();
   const [formMain] = Form.useForm();
 
   const [formInitial] = useState(initPurchaseOrder)
@@ -122,8 +125,8 @@ const POCreateScreen: React.FC = () => {
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
 
   //context 
-  const { taxRate, poLineItemGridChema, poLineItemGridValue, isGridMode } = useContext(PurchaseOrderCreateContext);
-  
+  const { taxRate, poLineItemGridChema, poLineItemGridValue, isGridMode, setIsGridMode, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate } = useContext(PurchaseOrderCreateContext);
+
   //reducer
   const myAccountCode = useSelector((state: RootReducerType) => state.userReducer.account?.code);
 
@@ -132,7 +135,7 @@ const POCreateScreen: React.FC = () => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
-      }else {
+      } else {
         setLoadingSaveButton(false);
         setLoadingDraftButton(false);
         // throw new Error("Lỗi khi lưu dữ liệu");
@@ -172,10 +175,10 @@ const POCreateScreen: React.FC = () => {
         // const payment_discount_value = formMain.getFieldValue(
         //   POField.trade_discount_value
         // );
-        const trade_discount_amount = POUtils.getTotalDiscount(formMain,untaxed_amount);
+        const trade_discount_amount = POUtils.getTotalDiscount(formMain, untaxed_amount);
 
         const total_after_tax = POUtils.getTotalAfterTax(formMain);
-        const payment_discount_amount = POUtils.getTotalDiscount(formMain,total_after_tax);
+        const payment_discount_amount = POUtils.getTotalDiscount(formMain, total_after_tax);
 
         data.line_items = newDataItems
         data.trade_discount_amount = trade_discount_amount
@@ -213,7 +216,7 @@ const POCreateScreen: React.FC = () => {
       //     isValidReceiptDateAndStore = false;
       //   }
       // });
-      if ( dataClone.procurements.length > 0) {
+      if (dataClone.procurements.length > 0) {
         switch (dataClone.status) {
           case POStatus.DRAFT:
             setLoadingDraftButton(true);
@@ -251,11 +254,10 @@ const POCreateScreen: React.FC = () => {
   const createPurchaseOrder = (status: string) => {
     setStatusAction(status);
     formMain.submit();
-    // remove()
   }
 
   useEffect(() => {
-    if(myAccountCode){
+    if (myAccountCode) {
       formMain.setFieldsValue({ [POField.merchandiser_code]: myAccountCode });
     }
   }, [myAccountCode, formMain]);
@@ -267,6 +269,47 @@ const POCreateScreen: React.FC = () => {
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (poId) {
+      dispatch(PoDetailAction(Number(poId), (data: PurchaseOrder | null) => {
+        if (data) {
+          setIsGridMode(data.is_grid_mode);
+          fetchProductGridData(data.is_grid_mode, data, "READ_UPDATE", dispatch, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate);
+          const line_items = data.line_items.map((item: PurchaseOrderLineItem) => {
+            return { ...item, receipt_quantity: 0, planned_quantity: 0 }
+          })
+          const procurements = [data.procurements[0]];
+          procurements?.forEach((pro: any) => {
+            pro.code = null;
+            pro.id = null;
+            pro.procurement_items.forEach((item: any) => {
+              item.id = null;
+              item.code = null;
+            }
+            )
+          });
+          const params = {
+            ...data,
+            line_items,
+            procurements,
+            id: null,
+            code: null,
+            status: POStatus.DRAFT,
+            total_payment: 0,
+            payments: [],
+            payment_discount_amount: 0,
+            payment_discount_rate: null,
+            payment_discount_value: null,
+            payment_note: null,
+            payment_refunds: null,
+            receive_status: POStatus.DRAFT,
+          }
+          formMain.setFieldsValue(params);
+        }
+      }));
+    }
+
+  }, [poId, dispatch, formMain, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate, setIsGridMode]);
 
   return (
     <ContentContainer
@@ -391,7 +434,6 @@ const POCreateScreen: React.FC = () => {
   );
 };
 
-// export default POCreateScreen;
 const POCreateWithProvider = (props: any) => (
   <PurchaseOrderProvider>
     <POCreateScreen {...props} />
