@@ -184,7 +184,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
   };
 
   const totalAmountReturnToCustomer = useMemo(() => {
-    return (OrderDetail?.total || 0) - refund.money;
+    return Math.ceil((OrderDetail?.total || 0) - refund.money);
   }, [OrderDetail?.total, refund.money]);
 
   const totalAmountHasPaidToCustomer = useMemo(() => {
@@ -230,7 +230,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
   // };
 
   const calculateRefund= useCallback(
-    (response: OrderResponse, OrderDetail: OrderResponse | null) => {
+    (response: OrderResponse, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
       console.log('response', response);
       let isUsingPoint = isOrderDetailHasPointPayment(response, listPaymentMethods);
       console.log('isUsingPoint', isUsingPoint);
@@ -280,14 +280,14 @@ const ScreenReturnDetail = (props: PropTypes) => {
         setLoadingData(false)
       }
     },
-    [listPaymentMethods],
+    [],
   )
 
   const handleOrderOriginId = useCallback(
-    (orderOriginId: number|undefined, OrderDetail: OrderResponse | null) => {
+    (orderOriginId: number|undefined, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
       if (orderOriginId) {
         dispatch(OrderDetailAction(orderOriginId.toString(), (response) => {
-          calculateRefund(response, OrderDetail);
+          calculateRefund(response, OrderDetail, listPaymentMethods);
         }));
       } else {
         setLoadingData(false)
@@ -295,52 +295,64 @@ const ScreenReturnDetail = (props: PropTypes) => {
     },
     [calculateRefund, dispatch],
   )
-
+  
   useEffect(() => {
-    if (!Number.isNaN(returnOrderId)) {
-      dispatch(
-        actionGetOrderReturnDetails(returnOrderId, (data: OrderReturnModel) => {
-          setIsReceivedReturnProducts(data.received);
-          if (!data) {
-            setError(true);
-          } else {
-            let _data = { ...data };
-            _data.fulfillments = _data.fulfillments?.filter(
-              (f) =>
-                f.status !== FulFillmentStatus.CANCELLED &&
-                f.status !== FulFillmentStatus.RETURNED &&
-                f.status !== FulFillmentStatus.RETURNING
-            );
-            setOrderDetail(_data);
-            if (_data.items) {
-              let returnProductFormatted: ReturnProductModel[] =
-                _data.items.map((single) => {
-                  return {
-                    ...single,
-                    maxQuantityCanBeReturned: single.quantity,
-                  };
-                });
-              setListReturnProducts(returnProductFormatted);
-            }
-
-            if (_data.payments) {
-              setPayments(_data.payments);
-            }
-
-            const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
-            handleOrderOriginId(orderOriginId, _data);
-            if(_data?.payment_status) {
-              setReturnPaymentStatus(_data.payment_status);
-              if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
-                setIsShowPaymentMethod(true)
+    dispatch(
+      PaymentMethodGetList((response) => {
+        // let result = response.filter(
+        //   (single) => single.code !== PaymentMethodCode.CARD
+        // );
+        // update: ko bỏ quẹt thẻ nữa
+        let result = response.filter(
+          (single) => single.code
+        );
+        setListPaymentMethods(result);
+        if (!Number.isNaN(returnOrderId)) {
+          dispatch(
+            actionGetOrderReturnDetails(returnOrderId, (data: OrderReturnModel) => {
+              setIsReceivedReturnProducts(data.received);
+              if (!data) {
+                setError(true);
+              } else {
+                let _data = { ...data };
+                _data.fulfillments = _data.fulfillments?.filter(
+                  (f) =>
+                    f.status !== FulFillmentStatus.CANCELLED &&
+                    f.status !== FulFillmentStatus.RETURNED &&
+                    f.status !== FulFillmentStatus.RETURNING
+                );
+                setOrderDetail(_data);
+                if (_data.items) {
+                  let returnProductFormatted: ReturnProductModel[] =
+                    _data.items.map((single) => {
+                      return {
+                        ...single,
+                        maxQuantityCanBeReturned: single.quantity,
+                      };
+                    });
+                  setListReturnProducts(returnProductFormatted);
+                }
+    
+                if (_data.payments) {
+                  setPayments(_data.payments);
+                }
+    
+                const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
+                handleOrderOriginId(orderOriginId, _data, response);
+                if(_data?.payment_status) {
+                  setReturnPaymentStatus(_data.payment_status);
+                  if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                    setIsShowPaymentMethod(true)
+                  }
+                }
               }
-            }
-          }
-        })
-      );
-    } else {
-      setError(true);
-    }
+            })
+          );
+        } else {
+          setError(true);
+        }
+      })
+    );
   }, [dispatch, handleOrderOriginId, returnOrderId]);
 
   useEffect(() => {
@@ -359,21 +371,6 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(
-      PaymentMethodGetList((response) => {
-        // let result = response.filter(
-        //   (single) => single.code !== PaymentMethodCode.CARD
-        // );
-        // update: ko bỏ quẹt thẻ nữa
-        let result = response.filter(
-          (single) => single.code
-        );
-        setListPaymentMethods(result);
-      })
-    );
   }, [dispatch]);
 
   return (

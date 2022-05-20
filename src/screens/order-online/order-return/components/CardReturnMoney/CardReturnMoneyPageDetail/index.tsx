@@ -46,7 +46,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
 								marginLeft: 10,
               }}
             >
-              Đã thanh toán
+              Đã hoàn tiền
             </Tag>
           )}
         </span>
