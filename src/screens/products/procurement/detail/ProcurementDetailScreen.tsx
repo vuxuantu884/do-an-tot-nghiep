@@ -8,7 +8,7 @@ import { isEmpty } from 'lodash';
 import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
 import { POProcumentField, POProcumentLineItemField, PurchaseProcument, PurchaseProcumentLineItem } from 'model/purchase-order/purchase-procument';
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useParams } from 'react-router-dom'
 import PurchaseOrderHistory from 'screens/purchase-order/tab/PurchaseOrderHistory';
 import { getPurchaseOrderApi } from 'service/purchase-order/purchase-order.service';
@@ -27,6 +27,7 @@ import { PurchaseOrderPermission } from 'config/permissions/purchase-order.permi
 import { PoProcumentDeleteAction } from 'domain/actions/po/po-procument.action';
 import { showSuccess } from 'utils/ToastUtils';
 import { updatePurchaseProcumentNoteService } from 'service/purchase-order/purchase-procument.service';
+import { RootReducerType } from 'model/reducers/RootReducerType';
 
 type ProcurementParam = {
   id: string;
@@ -45,6 +46,9 @@ const ProcurementDetailScreen: React.FC = () => {
   const dispatch = useDispatch()
   const { TabPane } = Tabs
   const { Text } = Typography;
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions
+  );
 
   const getPODetail = useCallback(async () => {
     const res: PurchaseOrder = await callApiNative({ isShowError: true, isShowLoading: true }, dispatch, getPurchaseOrderApi, poID)
@@ -129,6 +133,13 @@ const ProcurementDetailScreen: React.FC = () => {
     }
   }
 
+  const isHaveEditPermission = () => {
+    const hasPermission = [PurchaseOrderPermission.update].some((element) => {
+      return currentPermissions.includes(element);
+    });
+    return hasPermission
+  }
+
   return (
     <ContentContainer
       isError={isError}
@@ -203,6 +214,7 @@ const ProcurementDetailScreen: React.FC = () => {
                 <Col span={8}>
                   {procurementData &&
                     <EditNote
+                      isHaveEditPermission={isHaveEditPermission()}
                       note={procurementData.note}
                       title="Ghi chú: "
                       color={primaryColor}
