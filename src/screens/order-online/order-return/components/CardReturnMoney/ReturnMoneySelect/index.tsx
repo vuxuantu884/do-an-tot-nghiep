@@ -1,7 +1,6 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useMemo, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
@@ -119,12 +118,12 @@ function ReturnMoneySelect(props: PropTypes) {
                               minLength={0}
                               max={Math.abs(totalAmountCustomerNeedToPay)}
                               // value={initialReturnAmount}
-                              // onChange={(value) => {
-                              //   if(value &&value > Math.abs(totalAmountCustomerNeedToPay)) {
-                              //     showError("Không nhập quá số tiền trả khách")
-                              //   }
-                              //   // setInitialReturnAmount(value || 0);
-                              // }}
+                              onChange={(value) => {
+                                if(value &&value > Math.abs(totalAmountCustomerNeedToPay)) {
+                                  showError("Không nhập quá số tiền trả khách")
+                                }
+                                // setInitialReturnAmount(value || 0);
+                              }}
                             />
                           </Form.Item>
                         </Col>

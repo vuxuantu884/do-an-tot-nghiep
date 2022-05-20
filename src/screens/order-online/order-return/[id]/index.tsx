@@ -9,13 +9,11 @@ import {
   getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  actionGetOrderReturnCalculateRefund,
   actionGetOrderReturnDetails,
   actionOrderRefund,
   actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
 import { OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
-import { OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -30,11 +28,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getRefundInformationService } from "service/order/order.service";
-import { getOrderTotalPaymentAmountReturn, isOrderFromPOS } from "utils/AppUtils";
+import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import { findPaymentMethodByCode, isOrderDetailHasPointPayment } from "utils/OrderUtils";
-import { getTotalPriceOfAllLineItem } from "utils/POUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -279,6 +276,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
           //   })
           // );
         }
+      } else {
+        setLoadingData(false)
       }
     },
     [listPaymentMethods],

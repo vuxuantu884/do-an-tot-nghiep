@@ -86,7 +86,6 @@ import {
   TaxTreatment
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS, PAYMENT_METHOD_ENUM, RETURN_MONEY_TYPE, RETURN_TYPE_VALUES } from "utils/Order.constants";
-import { findPaymentMethodByCode } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -918,8 +917,8 @@ ShippingServiceConfigDetailResponseModel[]
         return;
       }
       if (!checkIfHasReturnProduct) {
-        showError("Vui lòng chọn ít nhất 1 sản phẩm!");
-        const element: any = document.getElementById("search_product");
+        showError("Vui lòng chọn ít nhất 1 sản phẩm trả!");
+        const element: any = document.getElementById("search_product_return");
         scrollAndFocusToDomElement(element);
         return;
       }
