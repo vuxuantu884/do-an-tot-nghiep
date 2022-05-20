@@ -6,7 +6,6 @@ import {generateQuery} from "utils/AppUtils";
 import {HttpStatus} from "config/http-status.config";
 import {exportCustomerFile, getCustomerFile} from "service/customer/customer.service";
 
-import {StyledModalFooter} from "screens/ecommerce/common/commonStyle";
 import {ExportCustomerModalStyled} from "screens/customer/export-file/ExportCustomerStyled";
 
 type ExportCustomerFileType = {
@@ -23,11 +22,12 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   const { cancelExportModal, isVisibleExportModal, customerData, params } = props;
 
   // handle export file
-  const [isVisibleWarningExportModal, setIsVisibleWarningExportModal] = useState(false);
   const [exportPageAll, setExportPageAll] = useState(true);
   const [exportColumnAll, setExportColumnAll] = useState(true);
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
-
+  const [exportItemNumber, setExportItemNumber] = useState<number>(0);
+  const [isExporting, setIsExporting] = useState(false);
+  
   const onChangeExportPageOption = (e: any) => {
     setExportPageAll(e.target.value);
   };
@@ -36,17 +36,6 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
     setExportColumnAll(e.target.value);
   };
 
-  // warning export 10k customers
-  const onOkWarningExportModal = () => {
-    setIsVisibleWarningExportModal(false);
-  };
-
-  const onCancelWarningExportModal = () => {
-    setIsVisibleWarningExportModal(false);
-    handleCancelExportModal();
-  };
-  // end warning export 10k customers
-
   const okExportModal = () => {
     let newParams = { ...params };
     newParams.search_type = undefined;  //remove search_type param
@@ -54,6 +43,8 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
       newParams.limit = customerData?.metadata?.total;
       newParams.page = undefined;
     }
+    setExportItemNumber(newParams.limit);
+    setIsExporting(true);
     const exportParams = generateQuery(newParams);
 
     exportCustomerFile({
@@ -67,19 +58,17 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           handleCancelExportModal();
           setExportCodeList([...exportCodeList, response.data.code]);
         }
+        setIsExporting(false);
       })
       .catch(() => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        setIsExporting(false);
       });
   };
 
   const onOkExportModal = () => {
     resetProgress();
-    if (exportPageAll && customerData?.metadata?.total >= 10000) {
-      setIsVisibleWarningExportModal(true);
-    } else {
-      okExportModal();
-    }
+    okExportModal();
   };
 
   const handleCancelExportModal = () => {
@@ -94,6 +83,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   const resetProgress = () => {
     setExportProgress(0);
     setExportCodeList([]);
+    setExportItemNumber(0);
   }
 
   const onCancelProgressModal = () => {
@@ -122,7 +112,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
             if (response.data.processed >= response.data.total) {
               setExportProgress(99);
             } else {
-              const percent = Math.floor((response.data.processed / response.data.total) * 100);
+              const percent = Math.round((response.data.processed / response.data.total) * 100 * 100) / 100;
               setExportProgress(percent);
             }
           }
@@ -136,9 +126,10 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
 
     checkExportFile();
 
-    const getFileInterval = setInterval(checkExportFile, 3000);
+    const getFileInterval = setInterval(checkExportFile, exportItemNumber > 1000 ? 3000 : 2000);
     return () => clearInterval(getFileInterval);
-  }, [checkExportFile, exportProgress, exportCodeList]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkExportFile, exportCodeList, exportItemNumber]);
   // end handle export file
 
   //handle select column export
@@ -203,7 +194,10 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           cancelText="Đóng"
           onCancel={handleCancelExportModal}
           onOk={onOkExportModal}
-          okButtonProps={{ disabled: (!exportColumnAll && !columnSelectedList.length) }}
+          okButtonProps={{
+            disabled: (!exportColumnAll && !columnSelectedList.length),
+            loading: isExporting
+          }}
           maskClosable={false}>
           <ExportCustomerModalStyled>
             <div className="export-customer-modal">
@@ -245,33 +239,6 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
         </Modal>
       }
 
-      {/* Warning export customer data */}
-      {isVisibleWarningExportModal &&
-        <Modal
-          centered
-          width="600px"
-          visible={isVisibleWarningExportModal}
-          title=""
-          closable={false}
-          maskClosable={false}
-          footer={
-            <StyledModalFooter>
-              <Button key="cancel-warning-modal" danger onClick={onCancelWarningExportModal}>
-                Thoát
-              </Button>
-
-              <Button key="ok-warning-modal" type="primary" onClick={onOkWarningExportModal}>
-                Đồng ý
-              </Button>
-            </StyledModalFooter>
-          }>
-          <div>
-            Để đảm bảo hệ thống và tốc độ tải dữ liệu, xin vui lòng xuất dữ liệu dưới <b>10.000</b> khách hàng.
-          </div>
-          <div>Xin cảm ơn!</div>
-        </Modal>
-      }
-
       {/* Progress export customer data */}
       {isVisibleProgressModal &&
         <Modal
@@ -297,7 +264,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           <div style={{ textAlign: "center" }}>
             <div style={{ marginBottom: 15 }}>
               {exportProgress < 100 ?
-                <span>Đang tạo file, vui lòng đợi trong giây lát!</span>
+                <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
                 :
                 <span style={{ color: "#27AE60" }}>Đã xuất file dữ liệu khách hàng thành công!</span>
               }

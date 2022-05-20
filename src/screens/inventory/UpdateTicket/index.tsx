@@ -104,6 +104,9 @@ const UpdateTicket: FC = () => {
       if (!result) {
         return;
       } else {
+        if (CopyId) {
+          result.note = `Bản sao của phiếu ${result.code}`;
+        }
         form.setFieldsValue(result);
         setInitDataForm(result);
         setDataTable(result.line_items);
@@ -119,7 +122,7 @@ const UpdateTicket: FC = () => {
         setToStoreData(stores.find(e=>e.id=== result.to_store_id));
       }
     },
-    [stores, form]
+    [CopyId, form, stores]
   );
 
   function onQuantityChange(quantity: number | null, index: number) {
