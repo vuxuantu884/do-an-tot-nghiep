@@ -1,7 +1,6 @@
 
 import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
-	Alert,
 	AutoComplete,
 	Button,
 	Card,
@@ -199,7 +198,6 @@ const initQueryVariant: VariantSearchQuery = {
  *
  */
 function OrderCreateProduct(props: PropTypes) {
-	const isUpdate = true;
 	let isQuantityIsSame = false;
 	/**
 	 * thời gian delay khi thay đổi số lượng sản phẩm để apply chiết khấu
@@ -307,7 +305,7 @@ function OrderCreateProduct(props: PropTypes) {
 				findProductInput?.focus()
 				break;
 			case "F12":
-				if (levelOrder <= 3) {
+				if(levelOrder <= 3){
 					form.setFieldsValue({
 						automatic_discount: !isAutomaticDiscount
 					})
@@ -319,7 +317,7 @@ function OrderCreateProduct(props: PropTypes) {
 						showSuccess("Bật chiết khấu tự động thành công!")
 					}
 				}
-
+				
 				break;
 			default:
 				break;
@@ -419,7 +417,7 @@ function OrderCreateProduct(props: PropTypes) {
 
 	useEffect(() => {
 		window.addEventListener("keypress", eventKeyPress);
-		window.addEventListener("keydown", eventKeydown);
+		window.addEventListener("keydown",eventKeydown);
 		window.addEventListener("keydown", handlePressKeyBoards);
 		return () => {
 			window.removeEventListener("keypress", eventKeyPress);
@@ -1147,8 +1145,8 @@ function OrderCreateProduct(props: PropTypes) {
 	// };
 
 	/**
-	* nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
-	*/
+  * nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
+  */
 	const checkIfReplaceDiscountLineItem = (item: OrderLineItemRequest, newDiscountValue: number) => {
 		if (item.discount_items[0] && !item.discount_items[0].promotion_id) {
 			return false;
@@ -1700,8 +1698,8 @@ function OrderCreateProduct(props: PropTypes) {
 	};
 
 	const onSearchVariantSelect = useCallback(
-		(v, o) => {
-			const selectProduct = () => {
+		 (v, o) => {
+			const selectProduct=()=>{
 				if (isBarcode === true) return;
 				if (!items) {
 					return;
@@ -1958,13 +1956,13 @@ function OrderCreateProduct(props: PropTypes) {
 				let totalOrderAmount = totalAmount(_items);
 				if (discountType === MoneyType.MONEY) {
 					_value = promotion?.value || 0;
-					if (_value > totalOrderAmount) {
+					if(_value > totalOrderAmount) {
 						_value = totalOrderAmount;
 					}
 					_rate = (_value / totalOrderAmount) * 100;
 				} else if (discountType === MoneyType.PERCENT) {
 					_rate = promotion?.rate || 0;
-					if (_rate > 100) {
+					if(_rate > 100) {
 						_rate = 100;
 					}
 					_value = (_rate * totalOrderAmount) / 100;
@@ -2193,31 +2191,33 @@ function OrderCreateProduct(props: PropTypes) {
 		});
 	}
 
-	const onChangeStore = useCallback((value: number) => {
+	const onChangeStore=useCallback((value:number)=>{
 		setStoreId(value);
 		setIsShowProductSearch(true);
 		onClearVariant();
-		if (items && inventoryResponse) {
-			let inventoryInStore = inventoryResponse?.filter(p => p.store_id === value);
-			let itemCopy = [...items];
-			console.log("item", items)
-			console.log("inventoryInStore", inventoryInStore)
-			if (inventoryInStore && inventoryInStore.length > 0) {
-				inventoryInStore?.forEach((data) => {
-					let index = itemCopy.findIndex((p) => p.variant_id === data.variant_id);
-					if (index !== -1) itemCopy[index].available = data?.available;
+		if(items && inventoryResponse)
+		{
+			let inventoryInStore = inventoryResponse?.filter(p=>p.store_id===value);
+			let itemCopy=[...items];
+			console.log("item",items)
+			console.log("inventoryInStore",inventoryInStore)
+			if(inventoryInStore && inventoryInStore.length>0)
+			{
+				inventoryInStore?.forEach((data)=>{
+					let index=itemCopy.findIndex((p)=>p.variant_id===data.variant_id);
+					if(index!==-1) itemCopy[index].available=data?.available;
 				})
 			}
-			else {
-				items.forEach(p => {
-					let index = itemCopy.findIndex((p1) => p1.variant_id === p.variant_id);
-					itemCopy[index].available = 0;
+			else{
+				items.forEach(p=>{
+					let index=itemCopy.findIndex((p1)=>p1.variant_id===p.variant_id);
+					itemCopy[index].available=0;
 				})
 			}
-
+			
 			setItems(itemCopy)
 		}
-	}, [inventoryResponse, items, setItems, setStoreId])
+	},[inventoryResponse, items, setItems, setStoreId])
 
 	useEffect(() => {
 		if (items && items.length > 0) {
@@ -2279,64 +2279,43 @@ function OrderCreateProduct(props: PropTypes) {
 
 	return (
 		<StyledComponent>
-			{isUpdate ? (
-				<Card title="Thông tin sản phẩm đổi">
-					<Alert type="warning" message={(
-						<React.Fragment>
-							<div>
-								Tính năng đổi đang được nâng cấp (dự kiến hoàn thành vào ngày 23/05/2022)
-								Để đổi hàng cho Khách hàng, bạn vui lòng làm theo hướng dẫn
-							</div>
-							<ul className="=">
-								<li>
-									B1: Tạo đơn trả
-								</li>
-								<li>
-									B2: Tạo đơn hàng mới cho khách
-								</li>
-							</ul>
-						</React.Fragment>
-					)} />
-
-				</Card>
-			) : (
-				<Card
-					title={returnOrderInformation ? "Thông tin sản phẩm đổi" : "Sản phẩm"}
-					extra={
-						<Space size={window.innerWidth > 1366 ? 20 : 10}>
-							<Checkbox onChange={() => setSplitLine(!splitLine)} disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}>Tách dòng</Checkbox>
-							{/* <span>Chính sách giá:</span> */}
-							<Form.Item name="price_type" hidden>
-								<Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
-									<Select.Option value="retail_price" color="#222222">
-										Giá bán lẻ
-									</Select.Option>
-									<Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
-								</Select>
-							</Form.Item>
-							<Form.Item name="automatic_discount" valuePropName="checked">
-								<Checkbox
-									disabled={levelOrder > 3 || isLoadingDiscount}
-									value={isAutomaticDiscount}
-									onChange={(e) => {
-										if (e.target.checked) {
-											setCoupon && setCoupon("");
-											handleApplyDiscount(items, true);
-											setIsAutomaticDiscount(true);
-										} else {
-											setIsDisableOrderDiscount(false);
-											handleRemoveAllAutomaticDiscount();
-											setIsAutomaticDiscount(false);
-											if (items) {
-												calculateChangeMoney(items, promotion)
-											}
+			<Card
+				title={returnOrderInformation ? "Thông tin sản phẩm đổi" : "Sản phẩm"}
+				extra={
+					<Space size={window.innerWidth > 1366 ? 20 : 10}>
+						<Checkbox onChange={() => setSplitLine(!splitLine)} disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}>Tách dòng</Checkbox>
+						{/* <span>Chính sách giá:</span> */}
+						<Form.Item name="price_type" hidden>
+							<Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
+								<Select.Option value="retail_price" color="#222222">
+									Giá bán lẻ
+								</Select.Option>
+								<Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
+							</Select>
+						</Form.Item>
+						<Form.Item name="automatic_discount" valuePropName="checked">
+							<Checkbox
+								disabled={levelOrder > 3 || isLoadingDiscount}
+								value={isAutomaticDiscount}
+								onChange={(e) => {
+									if (e.target.checked) {
+										setCoupon && setCoupon("");
+										handleApplyDiscount(items, true);
+										setIsAutomaticDiscount(true);
+									} else {
+										setIsDisableOrderDiscount(false);
+										handleRemoveAllAutomaticDiscount();
+										setIsAutomaticDiscount(false);
+										if (items) {
+											calculateChangeMoney(items, promotion)
 										}
-									}}
-								>
-									Chiết khấu tự động
-								</Checkbox>
-							</Form.Item>
-							{/* <Select
+									}
+								}}
+							>
+								Chiết khấu tự động
+							</Checkbox>
+						</Form.Item>
+						{/* <Select
 							style={{ minWidth: 145, height: 38 }}
 							placeholder="Chương trình khuyến mại"
 						>
@@ -2344,81 +2323,81 @@ function OrderCreateProduct(props: PropTypes) {
 								(Tạm thời chưa có)
 							</Select.Option>
 						</Select> */}
-							<Button
-								disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}
-								onClick={() => {
-									showInventoryModal();
-								}}
-							>
-								Kiểm tra tồn
-							</Button>
-						</Space>
-					}
-				>
-					<Row gutter={15} className="rowSelectStoreAndProducts">
-						<Col md={8}>
-							<Form.Item
-								name="store_id"
-								rules={[
-									{
-										required: !(isCreateReturn && !isExchange),
-										message: "Vui lòng chọn cửa hàng!",
-									},
-								]}
-							>
-								<CustomSelect
-									className="select-with-search"
-									showSearch
-									allowClear
-									style={{ width: "100%" }}
-									placeholder="Chọn cửa hàng"
-									notFoundContent="Không tìm thấy kết quả"
-									onChange={(value?: number) => {
-										if (value) {
-											// setStoreId(value);
-											// setIsShowProductSearch(true);
-											// onClearVariant();
-											onChangeStore(value)
-										} else {
-											setIsShowProductSearch(false);
-										}
-										dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
-									}}
-									disabled={levelOrder > 3}
-								>
-									{dataCanAccess.map((item, index) => (
-										<Select.Option key={index} value={item.id}>
-											{item.name}
-										</Select.Option>
-									))}
-								</CustomSelect>
-							</Form.Item>
-						</Col>
-						<Col md={16}>
-							<Form.Item>
-								<AutoComplete
-									notFoundContent={
-										keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+						<Button
+							disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}
+							onClick={() => {
+								showInventoryModal();
+							}}
+						>
+							Kiểm tra tồn
+						</Button>
+					</Space>
+				}
+			>
+				<Row gutter={15} className="rowSelectStoreAndProducts">
+					<Col md={8}>
+						<Form.Item
+							name="store_id"
+							rules={[
+								{
+									required: !(isCreateReturn && !isExchange),
+									message: "Vui lòng chọn cửa hàng!",
+								},
+							]}
+						>
+							<CustomSelect
+								className="select-with-search"
+								showSearch
+								allowClear
+								style={{ width: "100%" }}
+								placeholder="Chọn cửa hàng"
+								notFoundContent="Không tìm thấy kết quả"
+								onChange={(value?: number) => {
+									if (value) {
+										// setStoreId(value);
+										// setIsShowProductSearch(true);
+										// onClearVariant();
+										onChangeStore(value)
+									} else {
+										setIsShowProductSearch(false);
 									}
-									id="search_product"
-									value={keySearchVariant}
-									ref={autoCompleteRef}
-									onSelect={onSearchVariantSelect}
-									dropdownClassName="search-layout dropdown-search-header"
-									dropdownMatchSelectWidth={456}
-									className="w-100"
-									onSearch={onChangeProductSearch}
-									//onKeyDown={eventKeydown}
-									options={convertResultSearchVariant}
-									maxLength={255}
-									// open={isShowProductSearch && isInputSearchProductFocus}
-									onFocus={onInputSearchProductFocus}
-									onBlur={onInputSearchProductBlur}
-									disabled={levelOrder > 3 || loadingAutomaticDiscount}
-									defaultActiveFirstOption
-									dropdownRender={(menu) => (
-										<div>
-											{/* <div
+									dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
+								}}
+								disabled={levelOrder > 3}
+							>
+								{dataCanAccess.map((item, index) => (
+									<Select.Option key={index} value={item.id}>
+										{item.name}
+									</Select.Option>
+								))}
+							</CustomSelect>
+						</Form.Item>
+					</Col>
+					<Col md={16}>
+						<Form.Item>
+							<AutoComplete
+								notFoundContent={
+									keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+								}
+								id="search_product"
+								value={keySearchVariant}
+								ref={autoCompleteRef}
+								onSelect={onSearchVariantSelect}
+								dropdownClassName="search-layout dropdown-search-header"
+								dropdownMatchSelectWidth={456}
+								className="w-100"
+								onSearch={onChangeProductSearch}
+								//onKeyDown={eventKeydown}
+								options={convertResultSearchVariant}
+								maxLength={255}
+								// open={isShowProductSearch && isInputSearchProductFocus}
+								onFocus={onInputSearchProductFocus}
+								onBlur={onInputSearchProductBlur}
+								disabled={levelOrder > 3 || loadingAutomaticDiscount}
+								defaultActiveFirstOption
+								dropdownRender={(menu) => (
+									<div>
+										{/* <div
                       className="row-search w-100"
                       style={{
                         minHeight: "42px",
@@ -2441,166 +2420,164 @@ function OrderCreateProduct(props: PropTypes) {
                       </div>
                     </div>
                     <Divider style={{ margin: "4px 0" }} /> */}
-											{menu}
-										</div>
-									)}
+										{menu}
+									</div>
+								)}
+							>
+								<Input
+									size="middle"
+									className="yody-search"
+									placeholder="Tìm sản phẩm mã 7... (F3)"
+									prefix={
+										searchProducts ? (
+											<LoadingOutlined style={{ color: "#2a2a86" }} />
+										) : (
+											<SearchOutlined style={{ color: "#ABB4BD" }} />
+										)
+									}
+									disabled={levelOrder > 3}
+								/>
+							</AutoComplete>
+						</Form.Item>
+					</Col>
+				</Row>
+				<AddGiftModal
+					items={itemGifts}
+					onUpdateData={onUpdateData}
+					onCancel={onCancleConfirm}
+					onOk={onOkConfirm}
+					visible={isVisibleGift}
+					storeId={storeId}
+				/>
+				<Table
+					locale={{
+						emptyText: (
+							<div className="sale_order_empty_product">
+								Đơn hàng của bạn chưa có sản phẩm nào!
+							</div>
+						),
+					}}
+					rowKey={(record, index) => record.id + (index || 0)}
+					columns={columns}
+					dataSource={items}
+					className="sale-product-box-table2 w-100"
+					tableLayout="fixed"
+					pagination={false}
+					// scroll={{ y: 300 }}
+					sticky
+					footer={() =>
+						items && items.length > 0 ? (
+							<div className="row-footer-custom">
+								<div
+									className="yody-foot-total-text"
+									style={{
+										width: "32%",
+										float: "left",
+										fontWeight: 700,
+									}}
 								>
-									<Input
-										size="middle"
-										className="yody-search"
-										placeholder="Tìm sản phẩm mã 7... (F3)"
-										prefix={
-											searchProducts ? (
-												<LoadingOutlined style={{ color: "#2a2a86" }} />
-											) : (
-												<SearchOutlined style={{ color: "#ABB4BD" }} />
-											)
-										}
-										disabled={levelOrder > 3}
-									/>
-								</AutoComplete>
-							</Form.Item>
-						</Col>
-					</Row>
-					<AddGiftModal
-						items={itemGifts}
-						onUpdateData={onUpdateData}
-						onCancel={onCancleConfirm}
-						onOk={onOkConfirm}
-						visible={isVisibleGift}
-						storeId={storeId}
-					/>
-					<Table
-						locale={{
-							emptyText: (
-								<div className="sale_order_empty_product">
-									Đơn hàng của bạn chưa có sản phẩm nào!
+									TỔNG
 								</div>
-							),
-						}}
-						rowKey={(record, index) => record.id + (index || 0)}
-						columns={columns}
-						dataSource={items}
-						className="sale-product-box-table2 w-100"
-						tableLayout="fixed"
-						pagination={false}
-						// scroll={{ y: 300 }}
-						sticky
-						footer={() =>
-							items && items.length > 0 ? (
-								<div className="row-footer-custom">
-									<div
-										className="yody-foot-total-text"
-										style={{
-											width: "32%",
-											float: "left",
-											fontWeight: 700,
-										}}
-									>
-										TỔNG
-									</div>
 
-									<div
-										style={{
-											width: "27.5%",
-											float: "left",
-											textAlign: "right",
-										}}
-									>
-										{formatCurrency(getTotalAmount(items))}
-									</div>
-
-									<div
-										style={{
-											width: "14.5%",
-											float: "left",
-											textAlign: "right",
-										}}
-									>
-										{formatCurrency(getTotalDiscount(items))}
-									</div>
-
-									<div
-										style={{
-											width: "13.5%",
-											float: "left",
-											textAlign: "right",
-											color: "#000000",
-											fontWeight: 700,
-										}}
-									>
-										{formatCurrency(getTotalAmountAfterDiscount(items))}
-									</div>
+								<div
+									style={{
+										width: "27.5%",
+										float: "left",
+										textAlign: "right",
+									}}
+								>
+									{formatCurrency(getTotalAmount(items))}
 								</div>
-							) : (
-								<div />
-							)
-						}
-					/>
 
-					{/* nếu có sản phẩm trong đơn hàng mới hiển thị thông tin ở dưới  */}
-					{items && items.length > 0 && (
-						<CardProductBottom
+								<div
+									style={{
+										width: "14.5%",
+										float: "left",
+										textAlign: "right",
+									}}
+								>
+									{formatCurrency(getTotalDiscount(items))}
+								</div>
+
+								<div
+									style={{
+										width: "13.5%",
+										float: "left",
+										textAlign: "right",
+										color: "#000000",
+										fontWeight: 700,
+									}}
+								>
+									{formatCurrency(getTotalAmountAfterDiscount(items))}
+								</div>
+							</div>
+						) : (
+							<div />
+						)
+					}
+				/>
+
+				{/* nếu có sản phẩm trong đơn hàng mới hiển thị thông tin ở dưới  */}
+				{items && items.length > 0 && (
+					<CardProductBottom
+						amount={orderAmount}
+						totalAmountOrder={totalAmountOrder}
+						calculateChangeMoney={calculateChangeMoney}
+						changeMoney={changeMoney}
+						setCoupon={setCoupon}
+						promotion={promotion}
+						setPromotion={setPromotion}
+						showDiscountModal={() => setVisiblePickDiscount(true)}
+						showCouponModal={() => setIsVisiblePickCoupon(true)}
+						orderAmount={orderAmount}
+						items={items}
+						shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+						returnOrderInformation={returnOrderInformation}
+						totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+						isDisableOrderDiscount={isDisableOrderDiscount}
+						isCouponValid={isCouponValid}
+						couponInputText={couponInputText}
+						setCouponInputText={setCouponInputText}
+						handleRemoveAllDiscount={handleRemoveAllDiscount}
+					/>
+				)}
+				{setPromotion && (
+					<React.Fragment>
+						<PickDiscountModal
 							amount={orderAmount}
-							totalAmountOrder={totalAmountOrder}
-							calculateChangeMoney={calculateChangeMoney}
-							changeMoney={changeMoney}
-							setCoupon={setCoupon}
-							promotion={promotion}
-							setPromotion={setPromotion}
-							showDiscountModal={() => setVisiblePickDiscount(true)}
-							showCouponModal={() => setIsVisiblePickCoupon(true)}
-							orderAmount={orderAmount}
-							items={items}
-							shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-							returnOrderInformation={returnOrderInformation}
-							totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-							isDisableOrderDiscount={isDisableOrderDiscount}
-							isCouponValid={isCouponValid}
+							type={discountType}
+							value={discountValue}
+							rate={discountRate}
+							// coupon={coupon}
+							onCancelDiscountModal={() => setVisiblePickDiscount(false)}
+							onOkDiscountModal={onOkDiscountConfirm}
+							visible={isVisiblePickDiscount}
+						/>
+						<PickCouponModal
 							couponInputText={couponInputText}
-							setCouponInputText={setCouponInputText}
-							handleRemoveAllDiscount={handleRemoveAllDiscount}
+							onCancelCouponModal={() => {
+								setIsVisiblePickCoupon(false);
+							}}
+							onOkCouponModal={onOkCouponConfirm}
+							visible={isVisiblePickCoupon}
 						/>
-					)}
-					{setPromotion && (
-						<React.Fragment>
-							<PickDiscountModal
-								amount={orderAmount}
-								type={discountType}
-								value={discountValue}
-								rate={discountRate}
-								// coupon={coupon}
-								onCancelDiscountModal={() => setVisiblePickDiscount(false)}
-								onOkDiscountModal={onOkDiscountConfirm}
-								visible={isVisiblePickDiscount}
-							/>
-							<PickCouponModal
-								couponInputText={couponInputText}
-								onCancelCouponModal={() => {
-									setIsVisiblePickCoupon(false);
-								}}
-								onOkCouponModal={onOkCouponConfirm}
-								visible={isVisiblePickCoupon}
-							/>
-						</React.Fragment>
-					)}
-					{isInventoryModalVisible && (
-						<InventoryModal
-							isModalVisible={isInventoryModalVisible}
-							setInventoryModalVisible={setInventoryModalVisible}
-							storeId={storeId}
-							onChangeStore={onChangeStore}
-							columnsItem={items}
-							inventoryArray={inventoryResponse}
-							storeArrayResponse={storeArrayResponse}
-							handleCancel={handleInventoryCancel}
-						// setStoreForm={setStoreForm}
-						/>
+					</React.Fragment>
+				)}
+				{isInventoryModalVisible && (
+					<InventoryModal
+						isModalVisible={isInventoryModalVisible}
+						setInventoryModalVisible={setInventoryModalVisible}
+						storeId={storeId}
+						onChangeStore={onChangeStore}
+						columnsItem={items}
+						inventoryArray={inventoryResponse}
+						storeArrayResponse={storeArrayResponse}
+						handleCancel={handleInventoryCancel}
+					// setStoreForm={setStoreForm}
+					/>
 
-					)}
-				</Card>
-			)}
-
+				)}
+			</Card>
 		</StyledComponent>
 	);
 }
