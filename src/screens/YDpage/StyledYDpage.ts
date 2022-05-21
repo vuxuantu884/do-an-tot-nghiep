@@ -69,9 +69,10 @@ export const StyledYDpage = styled.div`
     }
   }
   .ydpage-iframe {
-    border: none;
-    margin-left: -20px;
     width: calc(100% + 40px) !important;
     height: calc(100% + 55px) !important;
+    display: flex;
+    margin-left: -20px;
+    border: none;
   }
 `;
