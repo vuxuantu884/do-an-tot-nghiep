@@ -103,6 +103,8 @@ const initQuery: InventoryTransferSearchQuery = {
   to_transfer_date: null,
   from_receive_date: null,
   to_receive_date: null,
+  from_cancel_date: null,
+  to_cancel_date: null,
 };
 
 type InventoryTransferTabProps = {
@@ -232,7 +234,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         <div>
           <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
           <div>
-            {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYYY)}
+            {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
         </div>
       ),
@@ -364,7 +366,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       visible: true,
       align: "center",
       width: "110px",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value,DATE_FORMAT.DDMMYYY)}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value,DATE_FORMAT.DDMMYY_HHmm)}</div>,
     },
     {
       title: "Ngày nhận",
@@ -372,7 +374,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       visible: true,
       align: "center",
       width: "100px",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
+    },
+    {
+      title: "Ngày hủy",
+      dataIndex: "cancel_date",
+      visible: true,
+      align: "center",
+      width: "100px",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
     },
     {
       title: "Tệp đính kèm",
@@ -669,11 +679,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       [TransferExportField.total_variant]: item.total_variant,
       [TransferExportField.total_quantity]: item.total_quantity === 0 ? null : item.total_quantity,
       [TransferExportField.total_amount]: item.total_amount,
-      [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYY_HHmm),
       [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
-      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYY_HHmm),
       [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
-      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYYY),
+      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYY_HHmm),
       [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
       [TransferExportField.note]: item.note,
     };
@@ -696,12 +706,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
         [TransferExportLineItemField.total_amount]: (item.transfer_quantity ?? 0) * (item.price ?? 0),
         [TransferExportLineItemField.real_quantity]: item.real_quantity === 0 ? null :item.real_quantity,
-        [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYYY),
+        [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYY_HHmm),
         [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
-        [TransferExportField.transfer_date]: ConvertUtcToLocalDate(transfer.transfer_date,DATE_FORMAT.DDMMYYY),
+        [TransferExportField.transfer_date]: ConvertUtcToLocalDate(transfer.transfer_date,DATE_FORMAT.DDMMYY_HHmm),
         [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
-        [TransferExportField.receive_date]: ConvertUtcToLocalDate(transfer.receive_date,DATE_FORMAT.DDMMYYY),
-        [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+        [TransferExportField.receive_date]: ConvertUtcToLocalDate(transfer.receive_date,DATE_FORMAT.DDMMYY_HHmm),
+        [TransferExportField.receive_by]: transfer.receive_date ? `${item.updated_by} - ${item.updated_name}`: null,
         [TransferExportField.note]: transfer.note,
       });
     }
