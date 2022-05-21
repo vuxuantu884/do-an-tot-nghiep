@@ -93,6 +93,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     to_transfer_date: formatDateFilter(params.to_transfer_date),
     from_receive_date: formatDateFilter(params.from_receive_date),
     to_receive_date: formatDateFilter(params.to_receive_date),
+    from_cancel_date: formatDateFilter(params.from_cancel_date),
+    to_cancel_date: formatDateFilter(params.to_cancel_date),
   };
   const initialValues = useMemo(() => {
     return filterFromParams;
@@ -191,6 +193,12 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       to_receive_date: formAdv.getFieldValue('to_receive_date')
         ? formatDateTimeFilter(formAdv.getFieldValue('to_receive_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
+      from_cancel_date: formAdv.getFieldValue('from_cancel_date')
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_cancel_date'), 'DD/MM/YYYY HH:mm')?.format()
+        : null,
+      to_cancel_date: formAdv.getFieldValue('to_cancel_date')
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_cancel_date'), 'DD/MM/YYYY HH:mm')?.format()
+        : null,
     }
     onFilter && onFilter(valuesForm);
   }, [formAdv, onFilter]);
@@ -253,6 +261,10 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         case 'receive_date':
           onFilter && onFilter({...params, from_receive_date: null, to_receive_date: null});
           formAdv.resetFields(['from_receive_date', 'to_receive_date'])
+          break;
+        case 'cancel_date':
+          onFilter && onFilter({...params, from_cancel_date: null, to_cancel_date: null});
+          formAdv.resetFields(['from_cancel_date', 'to_cancel_date'])
           break;
         default: break
       }
@@ -370,6 +382,14 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         key: 'receive_date',
         name: 'Ngày nhận',
         value: textReceiveDate
+      })
+    }
+    if (initialValues.from_cancel_date || initialValues.to_cancel_date) {
+      let textCancelDate = (initialValues.from_cancel_date ? moment(initialValues.from_cancel_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_cancel_date ? moment(initialValues.to_cancel_date).format('DD-MM-YYYY HH:mm') : '??')
+      list.push({
+        key: 'cancel_date',
+        name: 'Ngày hủy',
+        value: textCancelDate
       })
     }
 
@@ -658,6 +678,18 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 <Item name="note" label="Ghi chú">
                   <Input className="w-100" />
                 </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày Hủy</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_cancel_date"
+                  fieldNameTo="to_cancel_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime
+                />
               </Col>
             </Row>
           </BaseFilterWrapper>

@@ -22,6 +22,8 @@ export interface InventoryTransferSearchQuery {
   to_transfer_date: any,
   from_receive_date: any,
   to_receive_date: any,
+  from_cancel_date: any,
+  to_cancel_date: any,
 }
 
 export interface InventoryTransferLogSearchQuery{
