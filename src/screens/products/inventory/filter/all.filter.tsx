@@ -681,25 +681,23 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               </Row>
               <Row gutter={25}>
               <Col span={8}>
-                  <Item name={AvdInventoryFilter.collection_codes} label="Nhóm hàng">
-                      <CustomSelect
-                          showSearch
-                          optionFilterProp="children"
-                          showArrow
-                          placeholder="Chọn nhóm hàng"
-                          mode="multiple"
-                          allowClear
-                          tagRender={tagRender}
-                          notFoundContent="Không tìm thấy kết quả"
-                          maxTagCount="responsive"
-                        >
-                          {lstCollection?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.code}>
-                              {item.name}
-                            </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                  </Item>
+                  <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
+                    <CustomSelect
+                      showSearch
+                      allowClear
+                      showArrow
+                      placeholder="Chọn trạng thái tồn"
+                      style={{ width: "100%" }}
+                      optionFilterProp="children"
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      maxTagCount="responsive">
+                      {ArrRemain?.map((item) => (
+                        <CustomSelect.Option key={item.key} value={item.key}>
+                          {item.value}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>      
                 </Col>
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
@@ -723,59 +721,33 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>
                 </Col>
                 <Col span={8}>
-                  <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
-                    <CustomSelect
-                      showSearch
-                      allowClear
-                      showArrow
-                      placeholder="Chọn trạng thái tồn"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      onChange={onChangeRemain}
-                      maxTagCount="responsive">
-                      {ArrRemain?.map((item) => (
-                        <CustomSelect.Option key={item.key} value={item.key}>
-                          {item.value}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={25}>
-              <Col span={8}>
-                  <Row className="price">
-                   <Col span={24}>
-                   <Item label="Giá bán">
-                     <Input.Group compact>
-                       <Item hidden={true} name="variant_prices">
-                       </Item>
-                       <Item name="from_price" style={{ width: '45%', textAlign: 'center' }}>
-                         <InputNumber
-                           className="price_min"
-                           placeholder="Từ"
-                           formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                           min="0"
-                           max="100000000"
-                         />
-                       </Item>
-                       <div
-                         className="site-input-split"
-                       >~</div>
-                       <Item name="to_price" style={{ width: '45%', textAlign: 'center' }}>
-                         <InputNumber
-                           className="site-input-right price_max"
-                           placeholder="Đến"
-                           formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                           min="0"
-                           max="1000000000"
-                         />
-                       </Item>
-                     </Input.Group>
-                   </Item>
-                   </Col>
-                  </Row>
+                  <Item label="Giá bán">
+                      <Input.Group compact>
+                        <Item hidden={true} name="variant_prices">
+                        </Item>
+                        <Item name="from_price" style={{ width: '45%', textAlign: 'center' }}>
+                          <InputNumber
+                            className="price_min"
+                            placeholder="Từ"
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            min="0"
+                            max="100000000"
+                          />
+                        </Item>
+                        <div
+                          className="site-input-split"
+                        >~</div>
+                        <Item name="to_price" style={{ width: '45%', textAlign: 'center' }}>
+                          <InputNumber
+                            className="site-input-right price_max"
+                            placeholder="Đến"
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            min="0"
+                            max="1000000000"
+                          />
+                        </Item>
+                      </Input.Group>
+                    </Item>    
                 </Col>
               </Row>
           </Form>
