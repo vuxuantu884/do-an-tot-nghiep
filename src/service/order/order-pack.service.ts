@@ -123,7 +123,7 @@ export const getPrintGoodsReceiptsService = (
 /**
  * Cập nhật ghi chú biên bản bàn giao
  */
-export const updateNoteGoodreceiptService=(id:number, note:string):Promise<GoodsReceiptsResponse>=>{
-  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts-note/${id}`;
-  return BaseAxios.put(link, {note:note})
-}
+// export const updateNoteGoodreceiptService=(id:number, note:string):Promise<GoodsReceiptsResponse>=>{
+//   const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts-note/${id}`;
+//   return BaseAxios.put(link, {note:note})
+// }

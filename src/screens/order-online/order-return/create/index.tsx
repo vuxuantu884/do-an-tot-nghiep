@@ -1,4 +1,3 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import ContentContainer from "component/container/content.container";

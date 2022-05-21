@@ -55,6 +55,6 @@ export const deleteOrdergoodsReceips = (order_ids: number[], goods_receipt_ids: 
 /**
  * Cập nhật ghi chú biên bản bàn giao
  */
-export const updateNoteGoodreceipt = (id: number, note: string, onSuccess: (data?: boolean) => void) => {
-    return BaseAction(GoodsReceiptsType.UPDATE_NOTE_GOODS_RECEIPT, { id, note, onSuccess })
-}
+// export const updateNoteGoodreceipt = (id: number, note: string, onSuccess: (data?: boolean) => void) => {
+//     return BaseAction(GoodsReceiptsType.UPDATE_NOTE_GOODS_RECEIPT, { id, note, onSuccess })
+// }
