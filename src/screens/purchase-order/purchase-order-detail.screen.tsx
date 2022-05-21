@@ -15,24 +15,20 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import {
-  POCancelAction,
-  PoCreateAction,
-  PoDetailAction, POGetPurchaseOrderActionLogs, PoUpdateAction
+  POCancelAction, PoDetailAction, POGetPurchaseOrderActionLogs, PoUpdateAction
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import _, { cloneDeep } from "lodash";
+import _ from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
 import { ImportResponse } from "model/other/files/export-model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
-import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
-  POLineItemGridValue,
   PurchaseOrder,
   PurchaseOrderPrint
 } from "model/purchase-order/purchase-order.model";
@@ -43,12 +39,11 @@ import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
-import { productDetailApi } from "service/product/product.service";
 import { getPrintContent } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
-import { combineLineItemToSubmitData, getTotalPriceOfAllLineItem, initSchemaLineItem, initValueLineItem, POUtils, validateLineItem } from "utils/POUtils";
+import { combineLineItemToSubmitData, fetchProductGridData, getTotalPriceOfAllLineItem, POUtils, validateLineItem } from "utils/POUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
@@ -149,7 +144,7 @@ const PODetailScreen: React.FC = () => {
   const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
   const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
 
-  const {setPoLineItemGridChema,setPoLineItemGridValue, setTaxRate, isGridMode, setIsGridMode, poLineItemGridValue, poLineItemGridChema, taxRate }= useContext(PurchaseOrderCreateContext);
+  const { setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate, isGridMode, setIsGridMode, poLineItemGridValue, poLineItemGridChema, taxRate } = useContext(PurchaseOrderCreateContext);
 
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
@@ -168,10 +163,10 @@ const PODetailScreen: React.FC = () => {
       setLoading(false);
       if (!result) {
         setError(true);
-      } else {      
+      } else {
         setPurchaseItem(result);
         formMain.setFieldsValue(result);
-        setStatus(result.status);        
+        setStatus(result.status);
       }
     },
     [formMain]
@@ -193,7 +188,7 @@ const PODetailScreen: React.FC = () => {
 
   const onStoreResult = useCallback((result: Array<StoreResponse>) => {
     if (result) {
-      const storeTotals = result.filter(e=>e.name?.toLocaleLowerCase().includes('kho tổng'));
+      const storeTotals = result.filter(e => e.name?.toLocaleLowerCase().includes('kho tổng'));
 
       let res = _.uniqBy([...storeTotals, ...result], "name");
       setListStore(res);
@@ -212,72 +207,72 @@ const PODetailScreen: React.FC = () => {
     [idNumber, loadDetail]
   );
   const onFinish = (value: PurchaseOrder) => {
-      value.is_grid_mode = isGridMode;
-      if(isGridMode){
-          const isValid = validateLineItem(poLineItemGridValue);
-          if(!isValid){
-              return;
-          }
-          const newDataItems: any = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
-    
-          const untaxed_amount = Math.round(getTotalPriceOfAllLineItem(poLineItemGridValue))
-          
-          const tax_lines = [
-            {
-              rate: taxRate,
-              amount: Math.round((untaxed_amount * taxRate) / 100)
-            }
-          ]
-    
-          // const trade_discount_rate = formMain.getFieldValue(
-          //   POField.trade_discount_rate
-          // );
-          // const trade_discount_value = formMain.getFieldValue(
-          //   POField.trade_discount_value
-          // );
-          // const payment_discount_rate = formMain.getFieldValue(
-          //   POField.payment_discount_rate
-          // );
-          // const payment_discount_value = formMain.getFieldValue(
-          //   POField.trade_discount_value
-          // );
-          const trade_discount_amount = POUtils.getTotalDiscount(formMain,untaxed_amount);
-    
-          const total_after_tax = POUtils.getTotalAfterTax(formMain);
-          const payment_discount_amount = POUtils.getTotalDiscount(formMain,total_after_tax);
-    
-          value.line_items = newDataItems
-          value.trade_discount_amount = trade_discount_amount
-          value.payment_discount_amount = payment_discount_amount
-          value.total = Math.round(untaxed_amount + (untaxed_amount * taxRate) / 100)
-          value.untaxed_amount = untaxed_amount
-          value.tax_lines = tax_lines
-        
-      }else{
-        if (poData?.line_items.length === 0) {
-          let element: any = document.getElementById("#product_search");
-          element?.focus();
-          const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-          window.scrollTo({ top: y, behavior: "smooth" });
-          showError("Vui lòng thêm sản phẩm");
-          return;
+    value.is_grid_mode = isGridMode;
+    if (isGridMode) {
+      const isValid = validateLineItem(poLineItemGridValue);
+      if (!isValid) {
+        return;
+      }
+      const newDataItems: any = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
+
+      const untaxed_amount = Math.round(getTotalPriceOfAllLineItem(poLineItemGridValue))
+
+      const tax_lines = [
+        {
+          rate: taxRate,
+          amount: Math.round((untaxed_amount * taxRate) / 100)
         }
+      ]
+
+      // const trade_discount_rate = formMain.getFieldValue(
+      //   POField.trade_discount_rate
+      // );
+      // const trade_discount_value = formMain.getFieldValue(
+      //   POField.trade_discount_value
+      // );
+      // const payment_discount_rate = formMain.getFieldValue(
+      //   POField.payment_discount_rate
+      // );
+      // const payment_discount_value = formMain.getFieldValue(
+      //   POField.trade_discount_value
+      // );
+      const trade_discount_amount = POUtils.getTotalDiscount(formMain, untaxed_amount);
+
+      const total_after_tax = POUtils.getTotalAfterTax(formMain);
+      const payment_discount_amount = POUtils.getTotalDiscount(formMain, total_after_tax);
+
+      value.line_items = newDataItems
+      value.trade_discount_amount = trade_discount_amount
+      value.payment_discount_amount = payment_discount_amount
+      value.total = Math.round(untaxed_amount + (untaxed_amount * taxRate) / 100)
+      value.untaxed_amount = untaxed_amount
+      value.tax_lines = tax_lines
+
+    } else {
+      if (poData?.line_items.length === 0) {
+        let element: any = document.getElementById("#product_search");
+        element?.focus();
+        const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        window.scrollTo({ top: y, behavior: "smooth" });
+        showError("Vui lòng thêm sản phẩm");
+        return;
       }
-      const dataClone: any = { ...poData, ...value, status: statusAction };
-      switch (dataClone.status) {
-        case POStatus.DRAFT:
-        case POStatus.STORED:
-        case POStatus.COMPLETED:
-        case POStatus.FINISHED:
-        case POStatus.CANCELLED:
-          setLoadingSaveDraftButton(true);
-          dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
-          break;
-        case POStatus.FINALIZED:
-          setLoadingConfirmButton(true);
-          dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
-          break;
-      }
+    }
+    const dataClone: any = { ...poData, ...value, status: statusAction };
+    switch (dataClone.status) {
+      case POStatus.DRAFT:
+      case POStatus.STORED:
+      case POStatus.COMPLETED:
+      case POStatus.FINISHED:
+      case POStatus.CANCELLED:
+        setLoadingSaveDraftButton(true);
+        dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+        break;
+      case POStatus.FINALIZED:
+        setLoadingConfirmButton(true);
+        dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+        break;
+    }
   };
 
   const onAddProcumentSuccess = useCallback(
@@ -313,46 +308,8 @@ const PODetailScreen: React.FC = () => {
   }, [dispatch, idNumber, loadDetail]);
 
   const handleClonePo = useCallback(() => {
-    let params = formMain.getFieldsValue(true);
-    const paramsData = cloneDeep(params)
-    const line_items = paramsData.line_items.map((item: PurchaseOrderLineItem) => {
-      return {...item, receipt_quantity: 0, planned_quantity: 0}
-    })
-    const procurements = [params.procurements[0]];
-    procurements?.forEach((pro: any) => {
-      pro.code = null;
-      pro.id = null;
-      pro.procurement_items.forEach((item: any) => {
-        item.id = null;
-        item.code = null;
-      }
-      )
-    });
-    const paramsSubmit = {
-      ...paramsData,
-      line_items,
-      procurements,
-      id: null,
-      code: null,
-      status: POStatus.DRAFT,
-      total_payment: 0,
-      payments: [],
-      payment_discount_amount: 0,
-      payment_discount_rate: null,
-      payment_discount_value: null,
-      payment_note: null,
-      payment_refunds: null,
-    }
-    dispatch(showLoading())
-    dispatch(PoCreateAction(paramsSubmit, (result) => {
-      if (result) {
-        showSuccess("Sao chép đơn đặt hàng thành công");
-        dispatch(hideLoading())
-        window.open(`${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${result.id}`, "_blank");
-        // loadDetail(result.id, true, false);
-      }
-    }));
-  }, [dispatch, formMain]);
+    window.open(`${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/create?poId=${idNumber}`, "_blank");
+  }, [idNumber]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -363,22 +320,22 @@ const PODetailScreen: React.FC = () => {
         case ActionMenu.EXPORT:
           setShowExportModal(true);
           break;
-          case ActionMenu.CLONE:
+        case ActionMenu.CLONE:
           handleClonePo();
       }
     },
     [setConfirmDelete, handleClonePo]
   );
 
-  const actionPrint = useCallback(async (poId: number,printType: string) =>{
-    const res = await callApiNative({isShowLoading: true},dispatch,getPrintContent,poId,printType);
+  const actionPrint = useCallback(async (poId: number, printType: string) => {
+    const res = await callApiNative({ isShowLoading: true }, dispatch, getPrintContent, poId, printType);
     if (res && res.data && res.data.message) {
       showError(res.data.message);
-    }else{
+    } else {
       printContentCallback(res);
       handlePrint && handlePrint();
     }
-  },[dispatch, handlePrint, printContentCallback]);
+  }, [dispatch, handlePrint, printContentCallback]);
 
   const onMenuPrint = useCallback(
     (index: number) => {
@@ -403,7 +360,7 @@ const PODetailScreen: React.FC = () => {
   );
 
   const redirectToReturn = useCallback(() => {
-    if(poData?.status === POStatus.FINALIZED){
+    if (poData?.status === POStatus.FINALIZED) {
       setPaymentItem(undefined);
       setVisiblePaymentModal(true)
       setInitValue({
@@ -455,7 +412,7 @@ const PODetailScreen: React.FC = () => {
 
     const imgWidth = pageWidth;
     const rate = 1.8 // mò ra
-    const imgHeight  = (value.offsetHeight)* (value.offsetWidth/canvasFormWidth) / rate;
+    const imgHeight = (value.offsetHeight) * (value.offsetWidth / canvasFormWidth) / rate;
 
     var heightLeft = imgHeight;
     var position = 0;
@@ -479,7 +436,7 @@ const PODetailScreen: React.FC = () => {
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
       dispatch(hideLoading())
     });
-  },[dispatch, idNumber, printContent]);
+  }, [dispatch, idNumber, printContent]);
 
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [
@@ -500,8 +457,8 @@ const PODetailScreen: React.FC = () => {
         name: "Hủy",
       });
     return menuActions;
-  }, [poData, canCancelPO]);  
-  
+  }, [poData, canCancelPO]);
+
   const menuPrint: Array<MenuAction> = useMemo(() => {
     return [
       {
@@ -639,13 +596,13 @@ const PODetailScreen: React.FC = () => {
         <div id="bottomRight" className="page-filter" style={{ marginRight: -14 }}>
           <Space direction="horizontal" id="bottomRight">
             <Button
-                type="default"
-                hidden
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleExport();
-                }}
-                icon={<FilePdfOutlined />}
+              type="default"
+              hidden
+              onClick={(e) => {
+                e.stopPropagation();
+                handleExport();
+              }}
+              icon={<FilePdfOutlined />}
             >Xuất file</Button>
             <ActionButton
               menu={menu}
@@ -656,31 +613,31 @@ const PODetailScreen: React.FC = () => {
               getPopupContainer={(trigger: any) => trigger.parentNode}
             />
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
-                <ActionButton
-                  menu={menuPrint}
-                  onMenuClick={onMenuPrint}
-                  type="primary"
-                  placement={'topCenter'}
-                  buttonStyle={{ borderRadius: 2 }}
-                  buttonText="In phiếu"
-                  getPopupContainer={(trigger: any) => trigger.parentNode}
-                />
+              <ActionButton
+                menu={menuPrint}
+                onMenuClick={onMenuPrint}
+                type="primary"
+                placement={'topCenter'}
+                buttonStyle={{ borderRadius: 2 }}
+                buttonText="In phiếu"
+                getPopupContainer={(trigger: any) => trigger.parentNode}
+              />
             </AuthWrapper>
             <div style={{ display: "none" }}>
-                <div className="printContent" ref={printElementRef}>
-                    <div
-                        dangerouslySetInnerHTML={{
-                          __html: purify.sanitize(printContent),
-                        }}
-                    />
-                </div>
+              <div className="printContent" ref={printElementRef}>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: purify.sanitize(printContent),
+                  }}
+                />
+              </div>
             </div>
           </Space>
         </div>
-        <ActionByStatus/>
+        <ActionByStatus />
       </>
-    ) 
-  }, [    status,formMain, isEditDetail, loadingSaveDraftButton, loadingConfirmButton, onConfirmButton,  onMenuClick,handleExport, onMenuPrint, printElementRef, printContent, menu, menuPrint]);
+    )
+  }, [status, formMain, isEditDetail, loadingSaveDraftButton, loadingConfirmButton, onConfirmButton, onMenuClick, handleExport, onMenuPrint, printElementRef, printContent, menu, menuPrint]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(onStoreResult));
@@ -709,42 +666,11 @@ const PODetailScreen: React.FC = () => {
   /**
    * Load data cho lineItem dạng bảng grid
    */
-   useEffect(() => {
-    const fetchProductLineItem = async () => {
-      if (poData  && poData.is_grid_mode) {
-          /**
-           *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
-           */
-          const productId = poData.line_items[0].product_id // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
-          const product = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
-
-          if (product.variants) {
-            /**
-             * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
-             */
-            const newpoLineItemGridChema = [];
-            newpoLineItemGridChema.push(initSchemaLineItem(product, "READ_UPDATE", poData.line_items));
-            setPoLineItemGridChema?.(newpoLineItemGridChema);
-
-            /**
-             * Tạo giá trị mặc định cho bảng
-            */
-            const newpoLineItemGridValue: Map<string, POLineItemGridValue>[] = [];
-            newpoLineItemGridChema.forEach(schema => {
-              newpoLineItemGridValue.push(initValueLineItem(schema, poData.line_items));
-            })
-            setPoLineItemGridValue?.(newpoLineItemGridValue);
-
-            /**
-             * Set giá trị thuế
-             * Đối với mode grid thì thuế là chung cho các variant nên chỉ cần set 1 chỗ
-             */
-             setTaxRate(poData.line_items[0].tax_rate);
-          }
-      }
+  useEffect(() => {
+    if (poData) {
+      setIsGridMode?.(poData?.is_grid_mode);
+      fetchProductGridData(!!poData.is_grid_mode, poData,"READ_UPDATE", dispatch, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate);
     }
-    setIsGridMode?.(!!poData?.is_grid_mode);
-    fetchProductLineItem();
   }, [poData, dispatch, setPoLineItemGridValue, setPoLineItemGridChema, setTaxRate, setIsGridMode]);
 
 
@@ -769,7 +695,7 @@ const PODetailScreen: React.FC = () => {
 
   const checkCanEditDraft = () => {
     const stt = formMain.getFieldValue(POField.status);
-    return isEditDetail && ( !stt || stt  === POStatus.DRAFT);
+    return isEditDetail && (!stt || stt === POStatus.DRAFT);
   };
 
   return (
@@ -834,11 +760,11 @@ const PODetailScreen: React.FC = () => {
             <PoProductContainer isEditMode={checkCanEditDraft()} isDisableSwitch={true} form={formMain}>
               {() => (
                 isGridMode ? (
-                    <POProductFormNew
-                      formMain={formMain}
-                      isEditMode={checkCanEditDraft()}
-                    />
-                  ) :
+                  <POProductFormNew
+                    formMain={formMain}
+                    isEditMode={checkCanEditDraft()}
+                  />
+                ) :
                   <POProductFormOld isEdit={!isEditDetail} formMain={formMain} />
               )}
             </PoProductContainer>
@@ -899,7 +825,7 @@ const PODetailScreen: React.FC = () => {
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
           height={55}
-          rightComponent={<RightAction/>}
+          rightComponent={<RightAction />}
         />
       </Form>
       {renderModalDelete()}

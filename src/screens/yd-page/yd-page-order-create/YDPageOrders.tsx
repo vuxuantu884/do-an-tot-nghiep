@@ -589,8 +589,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
-    const fbAdsIdTags = fbAdsId ? `ad_id: ${fbAdsId}` : "";
-    values.tags = fbAdsIdTags;
+    values.tags = fbAdsId ? `ad_id: ${fbAdsId}` : "";
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
@@ -745,7 +744,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const mergePaymentData = (payments: OrderPaymentResponse[]) => {
     let result: OrderPaymentResponse[] = [];
     payments.forEach(payment => {
-      let existing = result.filter(function (v, i) {
+      let existing = result.filter(function (v) {
         return v.payment_method_code === payment.payment_method_code;
       });
       if (existing.length) {
@@ -1213,7 +1212,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     if (newOrderData) {
       return [
         {
-          name: "Mã đơn hàng",
+          name: "Mã đơn hàng:",
           value:
             <Link target="_blank" to={`${UrlConfig.ORDER}/${newOrderData.id}`}>
               {newOrderData.code}
@@ -1355,7 +1354,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     align: "right",
     width: "80px",
     render: (data: OrderLineItemResponse) => {
-      const discountItem = data?.discount_items && data.discount_items[0]?.value;
+      const discountItem = (data?.discount_items && data.discount_items[0]?.value) || 0;
       return (
         <div>
           {formatCurrency((data.price - discountItem) * data.quantity)}
@@ -1532,7 +1531,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         icon={WarningIcon}
       />
 
-       <Modal
+      <Modal
         title="Đơn hàng đã được tạo thành công"
         visible={isShowOrderModal}
         okText="Thoát"
@@ -1540,95 +1539,95 @@ export default function Order(props: OrdersCreatePermissionProps) {
         onCancel={onCloseOrderCreatedModal}
         cancelButtonProps={{ style: { display: 'none' } }}
       >
-        	<Row
-            justify="space-between"
-            align="middle"
-            className="order-info"
-            style={{ width: "100%" }}
-          >
-            {getNewOrderDetail()?.map(order => (
-              <div key={order.key} className="order-info-customer">
-                <span className="order-info-customer-title">{order.name !== "Mã đơn hàng" && order.name}</span>
-                <span className={order.name !== "Mã đơn hàng"  ? "order-info-customer-content" : ""}>{order.value ? order.value : "_-_"}</span>
-              </div>
-            ))}
-          </Row>
-
-          <Table
-            bordered
-            className="create-order-table"
-            rowKey={(record) => record.id}
-            columns={columns}
-            dataSource={newOrderData?.items}
-            tableLayout="fixed"
-            pagination={false}
-          />
-
-          {newOrderData &&
-            <div style={{ padding: "12px", alignItems: "center" }}>
-              <Row gutter={24}>
-                <Col span={10}>Tổng tiền:</Col>
-                <Col span={14} style={{ textAlign: "right" }}>
-                  <span>{formatCurrency(newOrderData.total_line_amount_after_line_discount)}</span>
-                </Col>
-              </Row>
-
-              <Row gutter={24}>
-                <Col span={10} style={{ padding: "0" }}>Chiết khấu đơn hàng:</Col>
-                <Col span={14}
-                  style={{ textAlign: "right" }}>
-                  <div style={{color: "#EF5B5B"}}>
-                    <div>
-                      <span>- </span>
-                      <NumberFormat
-                        value={(newOrderData.discounts && newOrderData.discounts[0]?.amount) || 0}
-                        className="foo"
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-
-              <Row gutter={24}>
-                <Col span={10} style={{ padding: "0" }}>Phí ship báo khách:</Col>
-                <Col span={14} style={{ textAlign: "right" }}>
-                  <span className="t-result-blue">
-                    {newOrderData.shipping_fee_informed_to_customer
-                      ? formatCurrency(newOrderData.shipping_fee_informed_to_customer)
-                      : "--"}
-                  </span>
-                </Col>
-              </Row>
-
-              <Divider style={{margin: "2px 0"}} />
-
-              <Row gutter={24}>
-                <Col span={10}>Khách cần trả:</Col>
-                <Col span={14} style={{ color: "#2a2a86", textAlign: "right" }}>
-                  <span className="t-result-blue">{formatCurrency(newOrderData.total)}</span>
-                </Col>
-              </Row>
-
-              <Row gutter={24}>
-                <Col span={10}> Đã thanh toán: </Col>
-                <Col span={14} style={{  color: "#2a2a86", textAlign: "right" }}>
-                  <span style={{color: yellowColor}}>{formatCurrency(getAmountPayment(newOrderData.payments))}</span>
-                </Col>
-              </Row>
-
-              <Row gutter={24}>
-                <Col span={10}>Còn phải trả:</Col>
-                <Col span={14} style={{ textAlign: "right" }}>
-                  {newOrderData.fulfillments && newOrderData.fulfillments[0]?.shipment?.cod
-                    ? <span style={{color: dangerColor}}>{formatCurrency(newOrderData.fulfillments[0]?.shipment?.cod)}</span>
-                    : <span>{"--"}</span>
-                  }
-                </Col>
-              </Row>
+        <Row
+          justify="space-between"
+          align="middle"
+          className="order-info"
+          style={{ width: "100%" }}
+        >
+          {getNewOrderDetail()?.map(order => (
+            <div key={order.key} className="order-info-customer">
+              <span className="order-info-customer-title">{order.name}</span>
+              <span className={"order-info-customer-content"}>{order.value ? order.value : "_-_"}</span>
             </div>
-          }
+          ))}
+        </Row>
+
+        <Table
+          bordered
+          className="create-order-table"
+          rowKey={(record) => record.id}
+          columns={columns}
+          dataSource={newOrderData?.items}
+          tableLayout="fixed"
+          pagination={false}
+        />
+
+        {newOrderData &&
+          <div style={{ padding: "12px", alignItems: "center" }}>
+            <Row gutter={24}>
+              <Col span={14}>Tổng tiền:</Col>
+              <Col span={10} style={{ textAlign: "right" }}>
+                <span>{formatCurrency(newOrderData.total_line_amount_after_line_discount)}</span>
+              </Col>
+            </Row>
+
+            <Row gutter={24}>
+              <Col span={14} style={{ paddingLeft: 12 }}>Chiết khấu đơn hàng:</Col>
+              <Col span={10}
+                style={{ textAlign: "right" }}>
+                <div style={{color: "#EF5B5B"}}>
+                  <div>
+                    <span>- </span>
+                    <NumberFormat
+                      value={(newOrderData.discounts && newOrderData.discounts[0]?.amount) || 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                </div>
+              </Col>
+            </Row>
+
+            <Row gutter={24}>
+              <Col span={14} style={{ paddingLeft: 12 }}>Phí ship báo khách:</Col>
+              <Col span={10} style={{ textAlign: "right" }}>
+                <span className="t-result-blue">
+                  {newOrderData.shipping_fee_informed_to_customer
+                    ? formatCurrency(newOrderData.shipping_fee_informed_to_customer)
+                    : "--"}
+                </span>
+              </Col>
+            </Row>
+
+            <Divider style={{margin: "2px 0"}} />
+
+            <Row gutter={24}>
+              <Col span={14}>Khách cần trả:</Col>
+              <Col span={10} style={{ color: "#2a2a86", textAlign: "right" }}>
+                <span className="t-result-blue">{formatCurrency(newOrderData.total)}</span>
+              </Col>
+            </Row>
+
+            <Row gutter={24}>
+              <Col span={14}> Đã thanh toán: </Col>
+              <Col span={10} style={{  color: "#2a2a86", textAlign: "right" }}>
+                <span style={{color: yellowColor}}>{formatCurrency(getAmountPayment(newOrderData.payments))}</span>
+              </Col>
+            </Row>
+
+            <Row gutter={24}>
+              <Col span={14}>Còn phải trả:</Col>
+              <Col span={10} style={{ textAlign: "right" }}>
+                {newOrderData.fulfillments && newOrderData.fulfillments[0]?.shipment?.cod
+                  ? <span style={{color: dangerColor}}>{formatCurrency(newOrderData.fulfillments[0]?.shipment?.cod)}</span>
+                  : <span>{"--"}</span>
+                }
+              </Col>
+            </Row>
+          </div>
+        }
       </Modal>
     </div>
   );

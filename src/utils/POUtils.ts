@@ -9,13 +9,16 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
-import { POLineItemColor, POLineItemGridSchema, POLineItemGridValue, POPairSizeColor, POPairSizeQuantity } from "model/purchase-order/purchase-order.model";
+import { POLineItemColor, POLineItemGridSchema, POLineItemGridValue, POPairSizeColor, POPairSizeQuantity, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   PurchaseProcumentLineItem,
   PurchaseProcument,
   PurchaseProcurementViewDraft
 } from "model/purchase-order/purchase-procument";
+import { Dispatch } from "react";
 import { QUANTITY_PROCUREMENT_UNIT, QuickInputQtyProcurementLineItem } from "screens/purchase-order/provider/purchase-order.provider";
+import { productDetailApi } from "service/product/product.service";
+import { callApiNative } from "./ApiUtils";
 import { Products } from "./AppUtils";
 import { showError } from "./ToastUtils";
 
@@ -608,4 +611,44 @@ export const setProcurementLineItemById =
       [POField.procurements]: [...procurements],
     });
   }
+
+export const fetchProductGridData = async (isGridMode: boolean,
+  poData: PurchaseOrder,
+  mode: "CREATE" | "READ_UPDATE",
+  dispatch: Dispatch<any>,
+  setPoLineItemGridSchema: (value: POLineItemGridSchema[]) => void,
+  setPoLineItemGridValue: (value: Map<string, POLineItemGridValue>[])=> void,
+  setTaxRate: (value: number)=>void) => {
+  if (isGridMode) {
+    /**
+     *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
+     */
+    const productId = poData.line_items[0].product_id // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
+    const product = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
+
+    if (product.variants) {
+      /**
+       * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
+       */
+      const newpoLineItemGridChema = [];
+      newpoLineItemGridChema.push(initSchemaLineItem(product, mode, poData.line_items));
+      setPoLineItemGridSchema(newpoLineItemGridChema);
+
+      /**
+       * Tạo giá trị mặc định cho bảng
+      */
+      const newpoLineItemGridValue: Map<string, POLineItemGridValue>[] = [];
+      newpoLineItemGridChema.forEach(schema => {
+        newpoLineItemGridValue.push(initValueLineItem(schema, poData.line_items));
+      })
+      setPoLineItemGridValue(newpoLineItemGridValue);
+
+      /**
+       * Set giá trị thuế
+       * Đối với mode grid thì thuế là chung cho các variant nên chỉ cần set 1 chỗ
+       */
+      setTaxRate(poData.line_items[0].tax_rate);
+    }
+  }
+}
 export { POUtils };

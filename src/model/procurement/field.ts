@@ -33,7 +33,9 @@ const ProcurementLineItemField = {
     activated_by: 'activated_by',
     stock_in_date: 'stock_in_date',
     stock_in_by: 'stock_in_by',
-    is_cancelled: 'is_cancelled'
+    is_cancelled: 'is_cancelled',
+    purchase_order_merchandiser: 'purchase_order_merchandiser',
+    purchase_order_designer: 'purchase_order_designer'
 }
 
 const ProcurementExportLineItemField = {
@@ -51,7 +53,9 @@ const ProcurementExportLineItemField = {
     [ProcurementLineItemField.created_date]: 'Ngày tạo',
     [ProcurementLineItemField.created_name]: 'Người tạo',
     [ProcurementLineItemField.stock_in_date]: 'Ngày nhận',
-    [ProcurementLineItemField.stock_in_by]: 'Người nhận'
+    [ProcurementLineItemField.stock_in_by]: 'Người nhận',
+    [ProcurementLineItemField.purchase_order_merchandiser]: 'Merchandiser',
+    [ProcurementLineItemField.purchase_order_designer]: 'Người thiết kế'
 }
 
 export { ProcurementField, ProcurementExportLineItemField }
