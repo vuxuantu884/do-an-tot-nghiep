@@ -71,7 +71,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
   }, [deliveryServices, infoFees]);
 
   const shippingAddress = useMemo(() => {
-    const address = customer?.shipping_addresses.find((item) => {
+    const address = customer?.shipping_addresses?.find((item) => {
       return item.default;
     })
     if(address) {
