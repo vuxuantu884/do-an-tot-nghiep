@@ -768,7 +768,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
       let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
-        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+        setStatusExport(0);
         showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
         setVExportTransfer(false);
         setVExportDetailTransfer(false);
@@ -776,7 +776,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       }
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
-        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+        setStatusExport(0);
         showWarning("Không có phiếu chuyển nào đủ điều kiện");
         return;
       }
