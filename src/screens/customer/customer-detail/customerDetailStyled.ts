@@ -114,12 +114,6 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
     }
   }
 
-  .order-point-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
   .order-reason {
     text-align: center;
     &-heading {
