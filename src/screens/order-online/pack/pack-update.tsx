@@ -229,7 +229,6 @@ const PackUpdate: React.FC = () => {
             if (item.fulfillments && item.fulfillments.length > 0) {
               if (packDetail.receipt_type_id === 1) {
                 let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
-                console.log("2.1", fulfillments)
                 if (fulfillments.length > 0) {
                   let indexFFM = fulfillments.length - 1;
                   let FFMCode: string | null = fulfillments[indexFFM].code;
@@ -239,20 +238,20 @@ const PackUpdate: React.FC = () => {
                     success = false;
                     showError(`Đơn hàng ${item.code} đã có trong biên bản`);
                   }
-                  console.log("2.1", codes)
                 }
               }
               else if (packDetail.receipt_type_id === 2) {
-                let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED)
-                console.log("2.2", fulfillments)
+                let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED && p.return_status===FulFillmentStatus.RETURNING)
                 if (fulfillments.length > 0) {
                   let indexFFM = fulfillments.length - 1;
                   let FFMCode: string | null = fulfillments[indexFFM].code;
                   if (FFMCode && order_id !== FFMCode)
                     codes.push(FFMCode);
                   else
+                   {
                     success = false;
-                  showError(`Đơn hàng ${item.code} đã có trong biên bản`);
+                    showError(`Đơn hàng ${item.code} đã có trong biên bản`);
+                   }
                 }
               }
             }
@@ -261,15 +260,12 @@ const PackUpdate: React.FC = () => {
 
       codes = insert([...codes], 0, order_id);
 
-      console.log("codes", codes, order_id)
-
       let id = packDetail?.id ? packDetail?.id : 0;
       let param: any = {
         ...packDetail,
         codes: codes,
       };
 
-      console.log("ok", param)
       if (success) {
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {

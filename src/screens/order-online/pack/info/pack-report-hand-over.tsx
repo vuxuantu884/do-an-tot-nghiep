@@ -13,7 +13,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
-  updateNoteGoodreceipt,
+  updateGoodsReceipts,
+  // updateNoteGoodreceipt,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
 import { COLUMN_CONFIG_TYPE, FulFillmentStatus } from "utils/Constants";
@@ -299,7 +300,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         note: item.note,
         goods_receipts: item
       };
-      console.log("dataResult", _result)
       dataResult.push(_result);
 
     });
@@ -445,14 +445,27 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     );
   };
 
-  const editNote= useCallback((id:number, newNote:string)=>{
+  const editNote= useCallback((id:number, newNote:string, record?:GoodsReceiptsSearhModel)=>{
     if(!id) return;
     if(newNote && newNote.length>255){
       showError("độ dài kí tự phải từ 0 đến 255");
       return;
     }
-    dispatch(updateNoteGoodreceipt(id, newNote, (success?:boolean)=>{
-      if(success)
+    if(newNote.length<=0) return;
+ 
+    if(!record?.goods_receipts){
+      showError("Không tìm thấy biên bản bàn giao");
+      return;
+    }
+
+    let newRequest:any={
+      ...record?.goods_receipts,
+      codes:[],
+      note:newNote,
+    }
+
+    dispatch(updateGoodsReceipts(id, newRequest, (data: GoodsReceiptsResponse)=>{
+      if(data)
       {
         setTableLoading(true);
         dispatch(
@@ -636,23 +649,25 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       width: "160px",
       align: "left",
-      render: (value: string, record: GoodsReceiptsSearhModel) => (
-        <div className="orderNotes">
-          <div className="inner">
-            <div className="single">
-              <EditNote
-                note={record?.note}
-                //title="Khách hàng: "
-                color={"#2a2a86"}
-                onOk={(newNote) => {
-                   editNote(record.id_handover_record, newNote);
-                }}
-              // isDisable={record.status === OrderStatus.FINISHED}
-              />
+      render: (value: string, record: GoodsReceiptsSearhModel) => {
+        return (
+          <div className="orderNotes">
+            <div className="inner">
+              <div className="single">
+                <EditNote
+                  note={record?.note}
+                  //title="Khách hàng: "
+                  color={"#2a2a86"}
+                  onOk={(newNote) => {
+                     editNote(record.id_handover_record, newNote, record);
+                  }}
+                // isDisable={record.status === OrderStatus.FINISHED}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ),
+        )
+      },
     },
     {
       title: "Người tạo",
@@ -735,7 +750,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         store_ids: params.store_ids && params.store_ids.length > 0 ? params.store_ids : listStoresDataCanAccess.map(p => p.id),
       }
 
-      console.log("query", query)
       dispatch(
         getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
           if (data) {
@@ -749,7 +763,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               },
               items: dataResult,
             });
-
             setGoodsReceipt(data.items);
           } else setData({
             metadata: {

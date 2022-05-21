@@ -22,7 +22,7 @@ import {
   getPrintGoodsReceiptsService,
   deleteAllGoodsReceipService,
   deleteOrdergoodsReceipService,
-  updateNoteGoodreceiptService,
+  // updateNoteGoodreceiptService,
 } from "service/order/order-pack.service";
 import {unauthorizedAction} from "./../../actions/auth/auth.action";
 import {showError} from "utils/ToastUtils";
@@ -342,32 +342,32 @@ function* deleteOrdergoodsReceipSaga(action: YodyAction)
 /**
  * Cập nhật ghi chú biên bản bàn giao
  */
-function* updateNoteGoodreceiptSaga(action:YodyAction)
-{
-  const {id,note, onSuccess}=action.payload;
+// function* updateNoteGoodreceiptSaga(action:YodyAction)
+// {
+//   const {id,note, onSuccess}=action.payload;
   
-  try{
-    console.log(id,note, onSuccess);
-    let response:BaseResponse<GoodsReceiptsResponse>= yield call(updateNoteGoodreceiptService,id, note);
+//   try{
+//     console.log(id,note, onSuccess);
+//     let response:BaseResponse<GoodsReceiptsResponse>= yield call(updateNoteGoodreceiptService,id, note);
     
-    switch(response.code)
-    {
-      case HttpStatus.SUCCESS:
-        onSuccess(true);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e:any)=>showError(e));
-        break;
-    }
-  }
-  catch(e){
-    console.log(e);
-    showError("xảy ra lỗi cập nhật ghi chú biên bản bàn giao, vui long thử lại sau")
-  }
-}
+//     switch(response.code)
+//     {
+//       case HttpStatus.SUCCESS:
+//         onSuccess(true);
+//         break;
+//       case HttpStatus.UNAUTHORIZED:
+//         yield put(unauthorizedAction());
+//         break;
+//       default:
+//         response.errors.forEach((e:any)=>showError(e));
+//         break;
+//     }
+//   }
+//   catch(e){
+//     console.log(e);
+//     showError("xảy ra lỗi cập nhật ghi chú biên bản bàn giao, vui long thử lại sau")
+//   }
+// }
 
 export function* GoodsReceiptsSaga() {
   yield takeLatest(GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE, getGoodsReceiptsTypeSaga);
@@ -384,5 +384,5 @@ export function* GoodsReceiptsSaga() {
   yield takeLatest(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS, getPrintGoodsReceiptsSaga)
   yield takeLatest(GoodsReceiptsType.DELETE_ALL_GOODS_RECEIPTS,deleteAllGoodsReceipSaga)
   yield takeLatest(GoodsReceiptsType.DELETE_ORDER_GOODS_RECEIPTS, deleteOrdergoodsReceipSaga)
-  yield takeLatest(GoodsReceiptsType.UPDATE_NOTE_GOODS_RECEIPT, updateNoteGoodreceiptSaga)
+  // yield takeLatest(GoodsReceiptsType.UPDATE_NOTE_GOODS_RECEIPT, updateNoteGoodreceiptSaga)
 }
