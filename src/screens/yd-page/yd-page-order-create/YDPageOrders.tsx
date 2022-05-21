@@ -1566,15 +1566,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
         {newOrderData &&
           <div style={{ padding: "12px", alignItems: "center" }}>
             <Row gutter={24}>
-              <Col span={10}>Tổng tiền:</Col>
-              <Col span={14} style={{ textAlign: "right" }}>
+              <Col span={14}>Tổng tiền:</Col>
+              <Col span={10} style={{ textAlign: "right" }}>
                 <span>{formatCurrency(newOrderData.total_line_amount_after_line_discount)}</span>
               </Col>
             </Row>
 
             <Row gutter={24}>
-              <Col span={10} style={{ paddingLeft: 12 }}>Chiết khấu đơn hàng:</Col>
-              <Col span={14}
+              <Col span={14} style={{ paddingLeft: 12 }}>Chiết khấu đơn hàng:</Col>
+              <Col span={10}
                 style={{ textAlign: "right" }}>
                 <div style={{color: "#EF5B5B"}}>
                   <div>
@@ -1591,8 +1591,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
             </Row>
 
             <Row gutter={24}>
-              <Col span={10} style={{ paddingLeft: 12 }}>Phí ship báo khách:</Col>
-              <Col span={14} style={{ textAlign: "right" }}>
+              <Col span={14} style={{ paddingLeft: 12 }}>Phí ship báo khách:</Col>
+              <Col span={10} style={{ textAlign: "right" }}>
                 <span className="t-result-blue">
                   {newOrderData.shipping_fee_informed_to_customer
                     ? formatCurrency(newOrderData.shipping_fee_informed_to_customer)
@@ -1604,22 +1604,22 @@ export default function Order(props: OrdersCreatePermissionProps) {
             <Divider style={{margin: "2px 0"}} />
 
             <Row gutter={24}>
-              <Col span={10}>Khách cần trả:</Col>
-              <Col span={14} style={{ color: "#2a2a86", textAlign: "right" }}>
+              <Col span={14}>Khách cần trả:</Col>
+              <Col span={10} style={{ color: "#2a2a86", textAlign: "right" }}>
                 <span className="t-result-blue">{formatCurrency(newOrderData.total)}</span>
               </Col>
             </Row>
 
             <Row gutter={24}>
-              <Col span={10}> Đã thanh toán: </Col>
-              <Col span={14} style={{  color: "#2a2a86", textAlign: "right" }}>
+              <Col span={14}> Đã thanh toán: </Col>
+              <Col span={10} style={{  color: "#2a2a86", textAlign: "right" }}>
                 <span style={{color: yellowColor}}>{formatCurrency(getAmountPayment(newOrderData.payments))}</span>
               </Col>
             </Row>
 
             <Row gutter={24}>
-              <Col span={10}>Còn phải trả:</Col>
-              <Col span={14} style={{ textAlign: "right" }}>
+              <Col span={14}>Còn phải trả:</Col>
+              <Col span={10} style={{ textAlign: "right" }}>
                 {newOrderData.fulfillments && newOrderData.fulfillments[0]?.shipment?.cod
                   ? <span style={{color: dangerColor}}>{formatCurrency(newOrderData.fulfillments[0]?.shipment?.cod)}</span>
                   : <span>{"--"}</span>
