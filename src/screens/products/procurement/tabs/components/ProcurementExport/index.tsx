@@ -34,7 +34,7 @@ const ProcurementExport: React.FC<ExportModalProps> = (props: ExportModalProps) 
       <Form
         form={form}
         initialValues={{
-          record: TYPE_EXPORT.all,
+          record: TYPE_EXPORT.page,
         }}
         layout="vertical"
       >
@@ -44,8 +44,8 @@ const ProcurementExport: React.FC<ExportModalProps> = (props: ExportModalProps) 
             <Form.Item name="record">
               <Radio.Group>
                 <Space direction="vertical">
-                  {/* <Radio value={TYPE_EXPORT.page}>Phiếu chuyển trên trang này</Radio>
-                    <Radio value={TYPE_EXPORT.selected}>Các dòng được chọn</Radio> */}
+                  <Radio value={TYPE_EXPORT.page}>Phiếu chuyển trên trang này</Radio>
+                    <Radio value={TYPE_EXPORT.selected}>Các dòng được chọn</Radio>
                   <Radio value={TYPE_EXPORT.all}>Tất cả phiếu nhập kho theo điều kiện lọc</Radio>
                   <Radio value={TYPE_EXPORT.allin}>Tất cả phiếu nhập kho</Radio>
                 </Space>

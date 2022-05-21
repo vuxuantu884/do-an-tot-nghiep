@@ -788,6 +788,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   // }, [listProcurement]);
 
   const getItemsByCondition = useCallback(async (type: string) => {
+    let res: any;
     let items: Array<PurchaseProcument> = [];
     const limit = 50;
     let times = 0;
@@ -802,20 +803,31 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     }
     setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
     switch (type) {
+      case TYPE_EXPORT.page:
+        res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, { ...newParams, limit: paramsrUrl.limit ?? 50 });
+        if (res) {
+          items = items.concat(res.items);
+        }
+        break;
+
+      case TYPE_EXPORT.selected:
+        items = selected;
+        break;
+
       case TYPE_EXPORT.all:
         const roundAll = Math.round(data.metadata.total / limit);
         times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
 
         for (let index = 1; index <= times; index++) {
-          const res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
+          res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
           if (res) {
             items = items.concat(res.items);
           }
           const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
           setExportProgress(percent);
         }
-
         break;
+
       case TYPE_EXPORT.allin:
         if (!totalItems || totalItems === 0) {
           break;
@@ -825,7 +837,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
 
         for (let index = 1; index <= times; index++) {
 
-          const res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
+          res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, { ...newParams, page: index, limit: limit });
           if (res) {
             items = items.concat(res.items);
           }
@@ -838,7 +850,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     }
     setExportProgress(100);
     return items;
-  }, [dispatch, paramsrUrl, data, totalItems])
+  }, [paramsrUrl, dispatch, selected, data, totalItems])
 
   // const convertItemExport = (item: PurchaseProcument) => {
 
@@ -870,6 +882,8 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         [ProcurementExportLineItemField.created_date]: ConvertUtcToLocalDate(procurement.created_date, DATE_FORMAT.DDMMYYY),
         [ProcurementExportLineItemField.stock_in_date]: ConvertUtcToLocalDate(procurement.stock_in_date, DATE_FORMAT.DDMMYYY),
         [ProcurementExportLineItemField.stock_in_by]: `${procurement.stock_in_by}`,
+        [ProcurementExportLineItemField.purchase_order_merchandiser]: `${procurement.purchase_order.merchandiser}`,
+        [ProcurementExportLineItemField.purchase_order_designer]: `${procurement.purchase_order.designer}`,
 
       });
     }
@@ -884,10 +898,16 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       }
       // let dataExport: any = [];
       setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
+        setStatusExport(0);
+        showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
+        setVExportDetailProcurement(false);
+        return;
+      }
       const res = await getItemsByCondition(typeExport);
       if (res && res.length === 0) {
         showWarning("Không có phiếu nhập kho nào đủ điều kiện");
-        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+        setStatusExport(0);
         return;
       }
 
