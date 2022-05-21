@@ -382,12 +382,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     (record: any) => {
       return (
         <React.Fragment>
-          {record.change_point?.add ?
+          {record.point_refund ?
             <Tooltip title="Hoàn điểm">
               <div>
                 <img src={IconPaymentPoint} alt="" />
                 <NumberFormat
-                  value={record.change_point?.add}
+                  value={record.point_refund}
                   className="foo"
                   displayType={"text"}
                   thousandSeparator={true}
@@ -398,18 +398,16 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             : <></>
           }
 
-          {record.total &&
-            <Tooltip title="Tiền trả khách">
-              <div style={{ fontWeight: 500 }}>
-                <NumberFormat
-                  value={record.total || 0}
-                  className="foo"
-                  displayType={"text"}
-                  thousandSeparator={true}
-                />
-              </div>
-            </Tooltip>
-          }
+          <Tooltip title="Tiền trả khách">
+            <div style={{ fontWeight: 500 }}>
+              <NumberFormat
+                value={record.money_refund || 0}
+                className="foo"
+                displayType={"text"}
+                thousandSeparator={true}
+              />
+            </div>
+          </Tooltip>
         </React.Fragment>
       );
     },
