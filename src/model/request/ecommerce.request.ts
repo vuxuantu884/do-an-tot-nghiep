@@ -29,6 +29,7 @@ export interface EcommerceOrderStatusRequest {
 export interface EcommerceSearchQuery {
   shop_id: string | null;
   code: string | null;
+  state: String | null
 }
 export interface EcommerceShopInventoryDto {
   store: String; //

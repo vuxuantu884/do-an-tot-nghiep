@@ -3,12 +3,12 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import tiktokIcon from "assets/icon/e-tiktok.svg";
 
-export const ECOMMERCE_CHANNEL = ["shopee", "lazada", "tiki", "sendo"];
+export const ECOMMERCE_CHANNEL = ["shopee", "lazada", "tiki", "tiktok"];
 
 export enum EcommerceChannelId {
   SHOPEE = 3,
   LAZADA = 15,
-  SENDO = 16,
+  TIKTOK = 20,
   TIKI = 17,
 }
 
@@ -23,7 +23,7 @@ export const ECOMMERCE_ID = {
   SHOPEE: 1,
   LAZADA: 2,
   TIKI: 3,
-  SENDO: 4,
+  TIKTOK: 4,
 };
 
 export const ECOMMERCE_LIST = [
@@ -34,6 +34,7 @@ export const ECOMMERCE_LIST = [
     ecommerce_id: 1,
     channel_id: 3
   },
+
   {
     title: "Sàn Lazada",
     icon: lazadaIcon,
@@ -41,6 +42,7 @@ export const ECOMMERCE_LIST = [
     ecommerce_id: 2,
     channel_id: 15
   },
+
   {
     title: "Sàn Tiki",
     icon: tikiIcon,
