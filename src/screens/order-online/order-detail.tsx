@@ -846,7 +846,8 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end product ---*/}
 
-              {OrderDetail?.order_return_origin?.payment_status && OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid && (
+              {/* ko hiển thị hoàn tiền ở chi tiết đơn đổi */}
+              {OrderDetail?.order_return_origin?.payment_status && OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid && false && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
