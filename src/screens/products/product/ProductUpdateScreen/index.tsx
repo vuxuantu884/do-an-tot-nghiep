@@ -482,7 +482,6 @@ const ProductDetailScreen: React.FC = () => {
       });
       form.setFieldsValue({variants: [...variants]});
       setVisiblePickAvatar(false);
-      debugger
       if (isReload) history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
     },
     [form, history, idNumber]
