@@ -35,13 +35,13 @@ const AccountUpdatePassScreen: React.FC = () => {
   });
   const history = useHistory();
   const dispatch = useDispatch();
-  const isFirstChangePassword = useSelector((state: RootReducerType) => state.userReducer.account?.is_first_change_password);
+  const isFirstChangePassword = useSelector((state: RootReducerType) => state.userReducer.account?.temporary_password);
 
   const backAction = () => {
     history.push(`${UrlConfig.ACCOUNTS}/me`);
   };
 
-  const onRes = (res: AccountResponse) => {
+  const handleUpdateAccount = (res: AccountResponse) => {
     if (res) {
       showSuccess("Đặt lại mật khẩu thành công.");
       dispatch(loadUserFromStorageAction(() => {
@@ -51,23 +51,9 @@ const AccountUpdatePassScreen: React.FC = () => {
     setLoading(false);
   };
 
-  // const validateRePassNew = useCallback((): boolean => {
-  //   setLoading(false);
-  //   const password = form.getFieldValue('password'),
-  //     confirmPassword = form.getFieldValue('confirm_password');
-
-  //   if (password !== confirmPassword) {
-  //     showError("Mật khẩu không khớp nhau, xin vui lòng thử lại.");
-  //     return false;
-  //   }
-  //   return true;
-  // }, [form])
-
   const onFinish = (values: AccountRequest) => {
     setLoading(true);
-    // if (validateRePassNew()) {
-      dispatch(AccountUpdatePassAction(values, onRes));
-    // }
+    dispatch(AccountUpdatePassAction(values, handleUpdateAccount));
   };
 
   return (
@@ -119,13 +105,6 @@ const AccountUpdatePassScreen: React.FC = () => {
               </Row>
               <Row>
                 <Col span={24} style={{ maxWidth: 400 }}>
-                  {/* <Item
-                    rules={[{ required: true, message: "Vui lòng nhập lại mật khẩu mới" },
-                    { min: 6, max: 12, message: "Mật khẩu mới từ 6 đến 12 ký tự" }]}
-                    label="Nhập lại mật khẩu mới"
-                    name="confirm_password">
-                    <Input.Password prefix={<LockOutlined className="site-form-item-icon" />} placeholder="Mật khẩu mới" />
-                  </Item> */}
                   <Item
                     name="confirm_password"
                     label="Nhập lại mật khẩu"
@@ -161,7 +140,7 @@ const AccountUpdatePassScreen: React.FC = () => {
         backAction={backAction}
         rightComponent={
           <Space>
-            {allowUpdateAcc && <Button loading={loading} type="primary" onClick={()=> form.submit()}>
+            {allowUpdateAcc && <Button loading={loading} type="primary" onClick={() => form.submit()}>
               Đặt lại mật khẩu
             </Button>}
           </Space>
