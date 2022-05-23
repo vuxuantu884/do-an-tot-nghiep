@@ -803,7 +803,14 @@ function OrderCreateProduct(props: PropTypes) {
 			return (
 				<div className="yody-pos-qtt">
 					<NumberInput
-						format={(a: string) => formatCurrency(a)}
+						// format={(a: string) => formatCurrency(a)}
+						format={(a: string) => {
+							if(a && a !=="0") {
+								return formatCurrency(a)
+							} else {
+								return formatCurrency(1)
+							}
+						}}
 						replace={(a: string) => replaceFormatString(a)}
 						style={{ textAlign: "right", fontWeight: 500, color: "#222222" }}
 						value={l.quantity}
