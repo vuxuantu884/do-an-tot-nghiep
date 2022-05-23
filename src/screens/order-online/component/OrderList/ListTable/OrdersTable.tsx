@@ -1587,7 +1587,7 @@ function OrdersTable(props: PropTypes) {
       let returnAmount = 0;
       let pointAmount = 0;
       item.payments.forEach((single) => {
-        if(single.payment_method === "Hàng đổi") {
+        if(single.payment_method === PAYMENT_METHOD_ENUM.exchange.name) {
           returnAmount = returnAmount + single.amount;
         }
         if(single.payment_method_code === PaymentMethodCode.POINT) {

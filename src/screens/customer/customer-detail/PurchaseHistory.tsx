@@ -46,6 +46,7 @@ import queryString from "query-string";
 import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
 import _ from "lodash";
 import {RootReducerType} from "../../../model/reducers/RootReducerType";
+import { PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 
 
 const PAYMENT_ICON = [
@@ -322,7 +323,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             if(single.payment_method_code === "cod") {
               return single.payment_method_code === payment.payment_method
             } else if(!single.payment_method_code ){
-              return payment.payment_method=== "Hàng đổi"
+              return payment.payment_method=== PAYMENT_METHOD_ENUM.exchange.name
             } else {
               return single.payment_method_code === payment.payment_method_code
             }
