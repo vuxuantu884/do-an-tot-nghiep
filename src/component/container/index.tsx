@@ -39,7 +39,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
 
   const isLogin = useSelector((state: RootReducerType) => state.userReducer.isLogin);
   const isLoadUser = useSelector((state: RootReducerType) => state.userReducer.isLoad);
-  const isFirstChangePassword = useSelector((state: RootReducerType) => state.userReducer.account?.is_first_change_password);
+  const isTemporaryPassword = useSelector((state: RootReducerType) => state.userReducer.account?.temporary_password);
   const isLoadBootstrap = useSelector((state: RootReducerType) => state.bootstrapReducer.isLoad);
   const collapsed = useSelector((state: RootReducerType) => Boolean(state.appSettingReducer.collapse));
 
@@ -64,7 +64,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
     return <SplashScreen />;
   }
 
-  if (isLoadUser && isLogin && isFirstChangePassword && location.pathname !== AccountUrl.UPDATE_PASSWORD){
+  if (isLoadUser && isLogin && isTemporaryPassword && location.pathname !== AccountUrl.UPDATE_PASSWORD){
     showInfo("Bạn cần đổi mật khẩu lần đầu để tiếp tục sử dụng ứng dụng");
     return <Redirect to={AccountUrl.UPDATE_PASSWORD} />;
   }
