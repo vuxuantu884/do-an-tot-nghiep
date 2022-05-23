@@ -1461,7 +1461,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       const order_return = cloneDeep(orderDetailResult);
       order_return.fulfillments = [];
       order_return.items = itemsResult;
-      order_return.payments = getPaymentOfReturnInExchange().filter(single => single.paid_amount > 0);
+      order_return.payments = getPaymentOfReturnInExchange();
 
       let values: OrderRequest = form.getFieldsValue();
       let order_exchange = onFinish(values);
@@ -1483,7 +1483,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       order_exchange.url = form.getFieldValue("url");
       order_exchange.fulfillments = createFulFillmentRequest(values);
       order_exchange.items = listExchangeProducts.concat(itemGifts);
-      order_exchange.payments = getPaymentOfExchangeInExchange().filter(single => single.paid_amount > 0);;
+      order_exchange.payments = getPaymentOfExchangeInExchange();
       const valuesExchange = {
         origin_order_id,
         order_return,
