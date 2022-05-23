@@ -1484,6 +1484,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
       order_exchange.fulfillments = createFulFillmentRequest(values);
       order_exchange.items = listExchangeProducts.concat(itemGifts);
       order_exchange.payments = getPaymentOfExchangeInExchange();
+
+      // phí ship báo khách truyền trong đơn đổi
+      order_exchange.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer
       const valuesExchange = {
         origin_order_id,
         order_return,
@@ -1523,34 +1526,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         }
       }
     }
-  }, [
-    OrderDetail,
-    checkIfHasReturnProduct,
-    checkIfNotHavePaymentsWhenReceiveAtStorePOS,
-    checkPointFocus,
-    createFulFillmentRequest,
-    form,
-    getChannelIdExchange,
-    getChannelIdReturn,
-    getPaymentOfExchangeInExchange,
-    getPaymentOfReturnInExchange,
-    handleCreateOrderExchangeByValue,
-    handleRecalculateOriginDiscount,
-    isReceivedReturnProducts,
-    itemGifts,
-    listExchangeProducts,
-    listReturnProducts,
-    onFinish,
-    orderReturnReasonResponse?.id,
-    orderReturnReasonResponse?.sub_reasons,
-    orderReturnType,
-    recentAccountCode.accountCode,
-    refund.moneyRefund,
-    shipmentMethod,
-    shippingAddress,
-    storeReturn,
-    thirdPL.service,
-  ]);
+  }, [OrderDetail, checkIfHasReturnProduct, checkIfNotHavePaymentsWhenReceiveAtStorePOS, checkPointFocus, createFulFillmentRequest, form, getChannelIdExchange, getChannelIdReturn, getPaymentOfExchangeInExchange, getPaymentOfReturnInExchange, handleCreateOrderExchangeByValue, handleRecalculateOriginDiscount, isReceivedReturnProducts, itemGifts, listExchangeProducts, listReturnProducts, onFinish, orderReturnReasonResponse?.id, orderReturnReasonResponse?.sub_reasons, orderReturnType, recentAccountCode.accountCode, refund.moneyRefund, shipmentMethod, shippingAddress, shippingFeeInformedToCustomer, storeReturn, thirdPL.service]);
 
   const onReturnAndExchange = useCallback(() => {
     form
