@@ -841,7 +841,7 @@ const OrderDetail = (props: PropType) => {
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                 // shippingFeeInformedCustomer={form.getFieldValue("shipping_fee_informed_to_customer")}
                 customerNeedToPayValue={customerNeedToPayValue}
-                totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_refund}
+                totalAmountReturnProducts={OrderDetail?.order_return_origin?.total}
               />
               {/*--- end product ---*/}
 

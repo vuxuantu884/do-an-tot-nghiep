@@ -626,7 +626,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   );
 
   // giá trị đơn trả
-  const addReturnPaymentAmountToPayment = useCallback(
+  const addReturnPaymentAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
       const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
       const paidAmount = Math.ceil(totalAmountReturnProducts);
@@ -652,7 +652,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   );
 
   // truyền giá trị trong form
-  const addFormAmountToRPayment = useCallback(
+  const addFormAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
       const formValuePayment = getFormReturnMoneyValues();
       let returnMoneyMethod = listPaymentMethods.find((single) => {
@@ -694,10 +694,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // truyền giá trị đơn đổi
         addReturnAmountToPayments(result);
         // truyền giá trị trong form
-        addFormAmountToRPayment(result);
+        addFormAmountToPayments(result);
       } else {
         // giá trị đơn trả
-        addReturnPaymentAmountToPayment(result);
+        addReturnPaymentAmountToPayments(result);
       }
       // tạm thời ko hoàn điểm
     } else {
@@ -705,9 +705,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
     return result;
   }, [
-    addFormAmountToRPayment,
+    addFormAmountToPayments,
     addReturnAmountToPayments,
-    addReturnPaymentAmountToPayment,
+    addReturnPaymentAmountToPayments,
     returnMoneyType,
     totalAmountCustomerNeedToPay,
   ]);
@@ -717,9 +717,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
    */
   const getPaymentOfExchangeInExchange = useCallback(() => {
     let result: OrderPaymentRequest[] = [];
+    // trả tiền trước
     if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
-      //
-
       if (totalAmountCustomerNeedToPay < 0) {
         // truyền giá trị đơn đổi
         addReturnAmountToPayments(result);
@@ -727,7 +726,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // giá trị trả thêm
         addExtraPaymentAmountToPayment(result);
         // giá trị đơn trả
-        addReturnPaymentAmountToPayment(result);
+        addReturnPaymentAmountToPayments(result);
       }
       // tạm thời ko hoàn điểm
     } else {
@@ -737,7 +736,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }, [
     addExtraPaymentAmountToPayment,
     addReturnAmountToPayments,
-    addReturnPaymentAmountToPayment,
+    addReturnPaymentAmountToPayments,
     returnMoneyType,
     totalAmountCustomerNeedToPay,
   ]);
