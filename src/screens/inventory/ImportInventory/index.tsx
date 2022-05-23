@@ -235,7 +235,20 @@ const UpdateTicket: FC = () => {
                         ]}
                         labelCol={{ span: 24, offset: 0 }}
                       >
-                        <MyStoreSelect placeholder="Chọn kho gửi" optionFilterProp="children"/>
+                        {myStores.length > 0 ? (
+                          <MyStoreSelect placeholder="Chọn kho gửi" optionFilterProp="children"/>
+                        ) : (
+                          <Select placeholder="Chọn kho gửi">
+                            {stores.map((item, index) => (
+                              <Option
+                                key={"store_id" + index}
+                                value={item.id.toString()}
+                              >
+                                {item.name}
+                              </Option>
+                            ))}
+                          </Select>
+                        )}
                       </Form.Item>
                     </Col>
                     <Col span={12}>
