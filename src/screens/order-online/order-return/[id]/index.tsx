@@ -13,7 +13,7 @@ import {
   actionOrderRefund,
   actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
-import { PaymentMethodGetList } from "domain/actions/order/order.action";
+import { OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -24,11 +24,14 @@ import {
   ReturnProductModel
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getOrderTotalPaymentAmount, isOrderFromPOS } from "utils/AppUtils";
+import { getRefundInformationService } from "service/order/order.service";
+import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
+import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
+import { findPaymentMethodByCode, isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -36,12 +39,12 @@ import CardShowReturnProducts from "../components/CardShowReturnProducts";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
 
-type PropType = {};
+type PropTypes = {};
 type OrderParam = {
   id: string;
 };
 
-const ScreenReturnDetail = (props: PropType) => {
+const ScreenReturnDetail = (props: PropTypes) => {
   let { id } = useParams<OrderParam>();
   let returnOrderId = parseInt(id);
   const dispatch = useDispatch();
@@ -65,6 +68,13 @@ const ScreenReturnDetail = (props: PropType) => {
   const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
+
+  const [refund, setRefund] = useState({
+    point: 0,
+    money: 0,
+  })
+
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -94,6 +104,8 @@ const ScreenReturnDetail = (props: PropType) => {
     );
   };
 
+  const [returnPaymentStatus, setReturnPaymentStatus] = useState(ORDER_PAYMENT_STATUS.paid);
+
   const [isShowPaymentMethod, setIsShowPaymentMethod] = useState(false);
 
   const initialFormValue = useMemo(() => {
@@ -113,20 +125,37 @@ const ScreenReturnDetail = (props: PropType) => {
           return single.code === formValuePayment.returnMoneyMethod;
         });
         if (returnMoneyMethod) {
-          const payments = [
+          let payments = [
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
               name: returnMoneyMethod.name,
               note: formValuePayment.returnMoneyNote || "",
-              amount: 0,
+              amount: Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
               paid_amount:
                 Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
-              return_amount:
-                Math.ceil(formValuePayment?.returnMoneyAmount || 0),
+              return_amount:0,
               customer_id: OrderDetail?.customer_id,
+              payment_method_code: returnMoneyMethod.code,
             },
           ];
+          if(refund.money > 0 && refund.point > 0 && OrderDetail?.payment_status === ORDER_PAYMENT_STATUS.unpaid) {
+            const pointPaymentMethod = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.POINT);
+            if(pointPaymentMethod) {
+              payments.push({
+                payment_method_id: pointPaymentMethod.id,
+                payment_method: pointPaymentMethod.name,
+                name: pointPaymentMethod.name,
+                note: "",
+                amount: refund.money,
+                paid_amount: refund.money,
+                return_amount: 0,
+                customer_id: OrderDetail?.customer_id,
+                payment_method_code: pointPaymentMethod.code,
+            })
+          }}
+          console.log('payments', payments);
+          // return;
           dispatch(
             actionOrderRefund(returnOrderId, { payments }, (response) => {
               dispatch(
@@ -141,12 +170,17 @@ const ScreenReturnDetail = (props: PropType) => {
                       if (_data.payments) {
                         setPayments(_data.payments);
                       }
+                      if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                        setIsShowPaymentMethod(true)
+                      } else {
+                        setIsShowPaymentMethod(false)
+                      }
                       setCountChangeSubStatus(countChangeSubStatus + 1);
                     }
                   }
                 )
               );
-              setIsShowPaymentMethod(false);
+              setReturnPaymentStatus(ORDER_PAYMENT_STATUS.paid);
             })
           );
         }
@@ -154,36 +188,38 @@ const ScreenReturnDetail = (props: PropType) => {
     });
   };
 
+  // tổng tiền trừ điểm
   const totalAmountReturnToCustomer = useMemo(() => {
-    return (OrderDetail?.total || 0) - getOrderTotalPaymentAmount(OrderDetail?.payments || [] )
-  }, [OrderDetail?.payments, OrderDetail?.total])
+    return Math.ceil((OrderDetail?.total || 0) - refund.money);
+  }, [OrderDetail?.total, refund.money]);
+
+  const totalAmountHasPaidToCustomerWithoutPointRefund = useMemo(() => {
+    let result = 0;
+    OrderDetail?.payments?.forEach(single => {
+      if(single.status === ORDER_PAYMENT_STATUS.paid && single.payment_method_code !== PaymentMethodCode.POINT_REFUND) {
+        result = result + single.paid_amount;
+      }
+    })
+    return result;
+  }, [OrderDetail?.payments])
+
+  const totalAmountReturnToCustomerLeft = useMemo(() => {
+    return totalAmountReturnToCustomer - totalAmountHasPaidToCustomerWithoutPointRefund;
+  }, [totalAmountHasPaidToCustomerWithoutPointRefund, totalAmountReturnToCustomer]);
   
+  console.log('totalAmountReturnToCustomerLeft', totalAmountReturnToCustomerLeft)
+
   useEffect(() => {
     form.setFieldsValue({
       returnMoneyField: [
         {
-          ...initialFormValue.returnMoneyField,
-          returnMoneyAmount: totalAmountReturnToCustomer,
+          ...initialFormValue.returnMoneyField[0],
+          returnMoneyMethod: returnPaymentMethodCode,
+          returnMoneyAmount: totalAmountReturnToCustomerLeft,
         },
       ],
     })
-  }, [form, initialFormValue, totalAmountReturnToCustomer])
-
-  useEffect(() => {
-    let paymentMethodReturnToCustomer = listPaymentMethods.find((single) => {
-      return single.code === PaymentMethodCode.CASH;
-    });
-    if(paymentMethodReturnToCustomer) {
-      form.setFieldsValue({
-        returnMoneyField: [
-          {
-            ...initialFormValue.returnMoneyField,
-            returnMoneyMethod: paymentMethodReturnToCustomer.code,
-          },
-        ],
-      })
-    }
-  }, [form, initialFormValue, listPaymentMethods])
+  }, [form, initialFormValue.returnMoneyField, returnPaymentMethodCode, totalAmountReturnToCustomerLeft])
  
   /**
    * theme context data
@@ -193,53 +229,137 @@ const ScreenReturnDetail = (props: PropType) => {
     listReturnProducts,
   };
 
-  const checkIfHasReturnMoneyAll = (OrderDetail?: OrderResponse ) => {
-    const total = getOrderTotalPaymentAmount(OrderDetail?.payments || []);
-    return total >= Math.floor(OrderDetail?.money_refund || 0)
-  };
+  // const checkIfHasReturnMoneyAll = (OrderDetail?: OrderResponse ) => {
+  //   // const total = getOrderTotalPaymentAmount(OrderDetail?.payments || []);
+  //   const total = getOrderTotalPaymentAmountReturn(OrderDetail?.payments || []);
+  //   return total >= Math.floor(OrderDetail?.money_refund || 0)
+  // };
 
-  useEffect(() => {
-    if (!Number.isNaN(returnOrderId)) {
-      dispatch(
-        actionGetOrderReturnDetails(returnOrderId, (data: OrderReturnModel) => {
-          setLoadingData(false);
-          setIsReceivedReturnProducts(data.received);
-          if (!data) {
+  const calculateRefund= useCallback(
+    (response: OrderResponse, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
+      console.log('response', response);
+      let isUsingPoint = isOrderDetailHasPointPayment(response, listPaymentMethods);
+      console.log('isUsingPoint', isUsingPoint);
+      if(isUsingPoint) {
+        const orderReturns = response.order_returns;
+        const currentOrderReturn = orderReturns?.find(single => single.id === OrderDetail?.id);
+        console.log('currentOrderReturn', currentOrderReturn);
+        if(currentOrderReturn && OrderDetail?.customer_id && currentOrderReturn.items) {
+          getRefundInformationService(OrderDetail?.customer_id, response?.id).then(response => {
+            console.log('response', response);
+            const currentRefund = response.data.find(single => single.sub_order_id === OrderDetail.id);
+            if(currentRefund) {
+              setRefund({
+                money: currentRefund.money_point,
+                point: currentRefund.change_point,
+              })
+            }
+          }).catch((error) => {
             setError(true);
-          } else {
-            let _data = { ...data };
-            _data.fulfillments = _data.fulfillments?.filter(
-              (f) =>
-                f.status !== FulFillmentStatus.CANCELLED &&
-                f.status !== FulFillmentStatus.RETURNED &&
-                f.status !== FulFillmentStatus.RETURNING
-            );
-            setOrderDetail(_data);
-            if (_data.items) {
-              let returnProductFormatted: ReturnProductModel[] =
-                _data.items.map((single) => {
-                  return {
-                    ...single,
-                    maxQuantityCanBeReturned: single.quantity,
-                  };
-                });
-              setListReturnProducts(returnProductFormatted);
-            }
+          }).finally(() => {
+            setLoadingData(false)
 
-            if (_data.payments) {
-              setPayments(_data.payments);
-            }
+          })
+          // const refund_money = currentOrderReturn.total;
+          // const otherOrderReturnArr = orderReturns?.filter(single => single.id !== OrderDetail?.id) || []
+          // const currentOrderReturnArr:OrderResponse[] = [{
+          //   ...currentOrderReturn,
+          //   id: response.id,
+          //   money_refund: undefined,
+          //   point_refund :undefined,
+          // }];
+          // let return_items = [...otherOrderReturnArr, ...currentOrderReturnArr];
+          // const params: OrderReturnCalculateRefundRequestModel = {
+          //   customerId: OrderDetail?.customer_id,
+          //   items: response.items,
+          //   orderId: currentOrderReturn.id,
+          //   refund_money,
+          //   return_items,
+          // };
+          // dispatch(
+          //   actionGetOrderReturnCalculateRefund(params, (response) => {
+          //     console.log('response', response)
+          //   })
+          // );
+        }
+      } else {
+        setLoadingData(false)
+      }
+    },
+    [],
+  )
 
-            if(!checkIfHasReturnMoneyAll(_data)) {
-              setIsShowPaymentMethod(true)
-            }
-          }
-        })
-      );
-    } else {
-      setError(true);
-    }
-  }, [dispatch, returnOrderId]);
+  const handleOrderOriginId = useCallback(
+    (orderOriginId: number|undefined, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
+      if (orderOriginId) {
+        dispatch(OrderDetailAction(orderOriginId.toString(), (response) => {
+          calculateRefund(response, OrderDetail, listPaymentMethods);
+        }));
+      } else {
+        setLoadingData(false)
+      }
+    },
+    [calculateRefund, dispatch],
+  )
+  
+  useEffect(() => {
+    dispatch(
+      PaymentMethodGetList((response) => {
+        // let result = response.filter(
+        //   (single) => single.code !== PaymentMethodCode.CARD
+        // );
+        // update: ko bỏ quẹt thẻ nữa
+        let result = response.filter(
+          (single) => single.code
+        );
+        setListPaymentMethods(result);
+        if (id) {
+          dispatch(
+            actionGetOrderReturnDetails(id, (data: OrderReturnModel) => {
+              setIsReceivedReturnProducts(data.received);
+              if (!data) {
+                setError(true);
+              } else {
+                let _data = { ...data };
+                _data.fulfillments = _data.fulfillments?.filter(
+                  (f) =>
+                    f.status !== FulFillmentStatus.CANCELLED &&
+                    f.status !== FulFillmentStatus.RETURNED &&
+                    f.status !== FulFillmentStatus.RETURNING
+                );
+                setOrderDetail(_data);
+                if (_data.items) {
+                  let returnProductFormatted: ReturnProductModel[] =
+                    _data.items.map((single) => {
+                      return {
+                        ...single,
+                        maxQuantityCanBeReturned: single.quantity,
+                      };
+                    });
+                  setListReturnProducts(returnProductFormatted);
+                }
+    
+                if (_data.payments) {
+                  setPayments(_data.payments);
+                }
+    
+                const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
+                handleOrderOriginId(orderOriginId, _data, response);
+                if(_data?.payment_status) {
+                  setReturnPaymentStatus(_data.payment_status);
+                  if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                    setIsShowPaymentMethod(true)
+                  }
+                }
+              }
+            })
+          );
+        } else {
+          setError(true);
+        }
+      })
+    );
+  }, [dispatch, handleOrderOriginId, id]);
 
   useEffect(() => {
     if (OrderDetail != null) {
@@ -257,21 +377,6 @@ const ScreenReturnDetail = (props: PropType) => {
 
   useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(
-      PaymentMethodGetList((response) => {
-        // let result = response.filter(
-        //   (single) => single.code !== PaymentMethodCode.CARD
-        // );
-        // update: ko bỏ quẹt thẻ nữa
-        let result = response.filter(
-          (single) => single.code
-        );
-        setListPaymentMethods(result);
-      })
-    );
   }, [dispatch]);
 
   return (
@@ -308,20 +413,24 @@ const ScreenReturnDetail = (props: PropType) => {
                   loyaltyPoint={loyaltyPoint}
                   loyaltyUsageRules={loyaltyUsageRules}
                 />
+                {/* chi tiết đơn trả có điểm thì cần call api tính điểm hoàn, chi tiết đơn đổi thì ko cần */}
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
-                  pointUsing={OrderDetail?.point_refund}
-                  totalAmountReturnToCustomer={OrderDetail?.total}
+                  pointUsing={refund.point}
+                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isDetailPage
 									OrderDetail={OrderDetail}
                 />
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}
                   payments={payments}
-                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
-                  isShowPaymentMethod={isShowPaymentMethod}
-                  setIsShowPaymentMethod={setIsShowPaymentMethod}
+                  totalAmountReturnToCustomerLeft={totalAmountReturnToCustomerLeft}
+                  returnPaymentStatus={returnPaymentStatus}
                   handleReturnMoney={handleReturnMoney}
+                  returnPaymentMethodCode={returnPaymentMethodCode}
+                  setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+                  setIsShowPaymentMethod={setIsShowPaymentMethod}
+                  isShowPaymentMethod={isShowPaymentMethod}
                 />
                 <CardReturnReceiveProducts
                   isDetailPage
@@ -333,7 +442,7 @@ const ScreenReturnDetail = (props: PropType) => {
             <Col md={6}>
               <OrderShortDetailsReturn OrderDetail={OrderDetail} />
               <OrderReturnActionHistory
-                orderId={id}
+                orderId={returnOrderId}
                 countChangeSubStatus={countChangeSubStatus}
               />
               <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />

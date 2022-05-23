@@ -110,3 +110,46 @@ export const ORDER_EXPORT_TYPE = {
   orders_offline: "orders_offline",
   returns: "returns",
 }
+
+export const  PAYMENT_METHOD_ENUM = {
+  cod: {
+    id: 0,
+    code: "cod",
+    name: "COD",
+  },
+  point: {
+    id: 1,
+    code: "point",
+    name: "Tiêu điểm",
+  },
+  cash: {
+    id: 2,
+    code: "cash",
+    name: "Tiền mặt",
+  },
+  bankTransfer: {
+    id: 3,
+    code: "bank_transfer",
+    name: "Chuyển khoản"
+  },
+  qrPay: {
+    id: 4,
+    code: "qr_pay",
+    name: "QR",
+  },
+  card: {
+    id: 6,
+    code: "card",
+    name: "Quẹt thẻ",
+  },
+  exchange: {
+    id: 0,
+    code: "exchange",
+    name: "Hàng đổi",
+  },
+  pointRefund: {
+    id: 0,
+    code: "point_refund",
+    name: "Hoàn điểm",
+  },
+}
