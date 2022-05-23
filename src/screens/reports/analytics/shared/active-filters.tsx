@@ -21,7 +21,7 @@ function ActiveFilters({ filters, action }: Props) {
                                 action({ field, title, value: valueItem })
                             }}
                             key={`${field}${valueItem}`}
-                            className="fade margin-bottom-20"
+                            className="fade margin-bottom-10"
                             closable
                             closeIcon={[YEAR, MONTH, DAY, HOUR].includes(field) ? <BackwardOutlined /> : <CloseOutlined />}
                         >{title}: {valueItem}</Tag>
