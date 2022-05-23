@@ -15,6 +15,7 @@ import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { PrintFormByOrderIdsResponseModel } from "model/response/printer.response";
 import { getPrintFormByWarrantyIdsService } from "service/warranty/warranty.service";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 interface GoodReceiptPrint {
   good_receipt_id: number;
@@ -75,6 +76,7 @@ function OrderPrint(props: PropType) {
   };
 
   useEffect(() => {
+    dispatch(showLoading())
     if (queryPrintType && queryPrintType === printType.print_pack) {
       if (queryIds && queryIds.length > 0 && queryPrintType && queryPackType && handlePrint) {
         dispatch(
@@ -91,6 +93,7 @@ function OrderPrint(props: PropType) {
               let result = textResponseFormatted.replaceAll("<p></p>", "");
               setPrintContent(result);
               handlePrint();
+              dispatch(hideLoading())
             },
           ),
         );
@@ -108,6 +111,7 @@ function OrderPrint(props: PropType) {
                 dispatch,
               );
             }
+            dispatch(hideLoading())
           },
         );
       }
@@ -148,6 +152,7 @@ function OrderPrint(props: PropType) {
                   dispatch,
                 );
               }
+              dispatch(hideLoading())
             });
             break;
           default:
@@ -157,6 +162,7 @@ function OrderPrint(props: PropType) {
                 queryPrintType,
                 (response) => {
                   handlePrintIfGetData(response);
+                  dispatch(hideLoading())
                 },
               ),
             );
@@ -182,11 +188,10 @@ function OrderPrint(props: PropType) {
   return (
     <StyledComponent>
       <ContentContainer
-        title={`${
-          queryPrintType === printType.print_pack
+        title={`${queryPrintType === printType.print_pack
             ? "Mẫu in biên bản bàn giao"
             : "Mẫu in đơn hàng"
-        }`}
+          }`}
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -197,13 +202,12 @@ function OrderPrint(props: PropType) {
             path: UrlConfig.ORDER,
           },
           {
-            name: `${
-              queryPrintType === printType.print_pack
+            name: `${queryPrintType === printType.print_pack
                 ? "Mẫu in biên bản bàn giao"
                 : queryPrintType === printType.warranty
-                ? "Mẫu in bảo hành"
-                : "Mẫu in đơn hàng"
-            }`,
+                  ? "Mẫu in bảo hành"
+                  : "Mẫu in đơn hàng"
+              }`,
           },
         ]}
       >
