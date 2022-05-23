@@ -1044,7 +1044,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
             delivery_service_provider_code: thirdPL.delivery_service_provider_code,
             delivery_service_provider_name: thirdPL.delivery_service_provider_name,
             sender_address_id: storeId,
-            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+            shipping_fee_informed_to_customer: null, // không gửi phí ship báo khách trong ffm
             service: thirdPL.service,
             shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
           };
@@ -1055,7 +1055,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
             delivery_service_provider_type: thirdPL.delivery_service_provider_code,
             service: thirdPL.service,
             shipper_code: value.shipper_code,
-            shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+            shipping_fee_informed_to_customer: null, // không gửi phí ship báo khách trong ffm
             shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
             cod:
               totalAmountExchange +
