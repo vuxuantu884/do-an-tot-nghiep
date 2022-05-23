@@ -941,7 +941,7 @@ const OrderDetail = (props: PropType) => {
                                     // }
                                     return (
                                       payment.payment_method_code !== PaymentMethodCode.COD
-                                      // && payment.amount
+                                      && payment.paid_amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (

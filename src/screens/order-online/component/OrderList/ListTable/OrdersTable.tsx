@@ -52,7 +52,7 @@ import {
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS, ORDER_TYPES } from "utils/Order.constants";
+import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
@@ -286,10 +286,10 @@ function OrdersTable(props: PropTypes) {
     html = orderDetail.payments.map((payment) => {
       let selectedPayment = paymentIcons.find(
         (single) => {
-          if(single.payment_method_code === "cod") {
+          if(single.payment_method_code === PaymentMethodCode.COD) {
             return single.payment_method_code === payment.payment_method
           } else if(!single.payment_method_code ){
-            return payment.payment_method=== "Hàng đổi"
+            return payment.payment_method=== PAYMENT_METHOD_ENUM.exchange.name
           } else {
             return single.payment_method_code === payment.payment_method_code
           }
