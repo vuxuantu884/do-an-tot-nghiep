@@ -618,9 +618,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
   );
 
   // giá trị trả thêm
-  const addExtraPaymentAmountToPayment = useCallback(
+  const addExtraPaymentAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
-      result = [...payments];
+      console.log('payments', payments)
+      const newResult = result.concat([...payments]);
+      return newResult
     },
     [payments]
   );
@@ -724,7 +726,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         addReturnAmountToPayments(result);
       } else {
         // giá trị trả thêm
-        addExtraPaymentAmountToPayment(result);
+        result=addExtraPaymentAmountToPayments(result);
         // giá trị đơn trả
         addReturnPaymentAmountToPayments(result);
       }
@@ -734,7 +736,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
     return result;
   }, [
-    addExtraPaymentAmountToPayment,
+    addExtraPaymentAmountToPayments,
     addReturnAmountToPayments,
     addReturnPaymentAmountToPayments,
     returnMoneyType,
@@ -1488,7 +1490,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_exchange,
       };
       console.log("valuesExchange", valuesExchange);
-      //  return;
+       return;
       if (checkPointFocus(order_exchange)) {
         if (!order_exchange?.customer_id) {
           showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
