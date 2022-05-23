@@ -1,5 +1,5 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { Button, Form } from 'antd'
+import { Button, Collapse, Form } from 'antd'
 import exportIcon from "assets/icon/export.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
@@ -17,10 +17,13 @@ import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalytic
 import { callApiNative } from 'utils/ApiUtils'
 import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getChartQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
+import { ReportBottomBarStyle } from '../index.style'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
 import AnnotationTableModal from '../shared/annotation-table-modal'
 import ModalFormAnalyticsInfo from '../shared/form-analytics-info-modal'
+
+const { Panel } = Collapse;
 
 function CreateAnalytics() {
     const [form] = Form.useForm();
@@ -315,78 +318,157 @@ function CreateAnalytics() {
     }, [chartColumnSelected, dataQuery, dispatch, form, setChartDataQuery])
 
     return (
-        <ContentContainer
-            title={reportInfo?.name || "Báo cáo tuỳ chỉnh"}
-            breadcrumb={[
-                {
-                    name: "Danh sách báo cáo tuỳ chỉnh",
-                    path: UrlConfig.ANALYTIC_SALES_OFFLINE
-                },
-                {
-                    name: reportInfo?.name || "Báo cáo tuỳ chỉnh",
-                }
-            ]}
-        >
-            <AnalyticsForm form={form} handleRQuery={handleRQuery} mode={mode} chartInfo={chartInfo} />
-            <BottomBarContainer
-                back="Quay lại trang danh sách"
-                rightComponent={
-                    <div style={{ display: "inline-flex", gap: "10px" }}>
-                        {
-                            currentAnnotation && (
-                                <Button type="primary" ghost className='margin-left-20' onClick={() => setIsVisibleAnnotation(true)}>
-                                    <QuestionCircleOutlined />
-                                    <span className='margin-left-10'>Giải thích thuật ngữ</span>
-                                </Button>
-                            )
-                        }
-                        {
-                            isMyReport && (
-                                <>
-                                    <Button danger
-                                        onClick={() => { setIsConfirmDeleteVisible(true) }}
-                                    >
-                                        Xoá
-                                    </Button>
-                                    <Button
-                                        onClick={() => setIsModalEditNameVisible(true)} icon={<AiOutlineEdit />}>
-                                        &nbsp; Đổi tên
-                                    </Button>
-                                </>
-                            )
-                        }
-
-                        {
-                            <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
-                                Nhân bản báo cáo
-                            </Button>
-                        }
-
-                        <Button icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />} loading={isLoadingExport} onClick={handleExportReport}>
-                            Xuất báo cáo
+      <ContentContainer
+        title={reportInfo?.name || "Báo cáo tuỳ chỉnh"}
+        breadcrumb={[
+          {
+            name: "Danh sách báo cáo tuỳ chỉnh",
+            path: UrlConfig.ANALYTIC_SALES_OFFLINE,
+          },
+          {
+            name: reportInfo?.name || "Báo cáo tuỳ chỉnh",
+          },
+        ]}>
+        <AnalyticsForm form={form} handleRQuery={handleRQuery} mode={mode} chartInfo={chartInfo} />
+        <ReportBottomBarStyle>
+          <BottomBarContainer
+            classNameContainer="report-bottom-bar-container"
+            back="Quay lại trang danh sách"
+            rightComponent={
+              <>
+                <Collapse accordion bordered={false} className="report-actions-collapse">
+                  <Panel header="Thao tác với báo cáo" key="1">
+                    <div
+                      className="function-buttons"
+                      style={{ display: "inline-flex", gap: "10px" }}>
+                      {currentAnnotation && (
+                        <Button
+                          type="primary"
+                          ghost
+                          className="margin-left-20"
+                          onClick={() => setIsVisibleAnnotation(true)}>
+                          <QuestionCircleOutlined />
+                          <span className="margin-left-10">Giải thích thuật ngữ</span>
                         </Button>
+                      )}
+                      {isMyReport && (
+                        <>
+                          <Button
+                            danger
+                            onClick={() => {
+                              setIsConfirmDeleteVisible(true);
+                            }}>
+                            Xoá
+                          </Button>
+                          <Button
+                            onClick={() => setIsModalEditNameVisible(true)}
+                            icon={<AiOutlineEdit />}>
+                            &nbsp; Đổi tên
+                          </Button>
+                        </>
+                      )}
 
-                        {
-                            isMyReport && (
-                                <Button type="primary" onClick={handleSaveReport}>
-                                    Lưu báo cáo
-                                </Button>
-                            )
-                        }
+                      {
+                        <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
+                          Nhân bản báo cáo
+                        </Button>
+                      }
+
+                      <Button
+                        icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                        loading={isLoadingExport}
+                        onClick={handleExportReport}>
+                        Xuất báo cáo
+                      </Button>
+
+                      {isMyReport && (
+                        <Button type="primary" onClick={handleSaveReport}>
+                          Lưu báo cáo
+                        </Button>
+                      )}
                     </div>
-                }
-            />
-            <ModalFormAnalyticsInfo form={formEditInfo} title="Đổi tên báo cáo" isVisiable={isModalEditNameVisible} handleOk={handleOk} handleCancel={handleCancel} />
-            <ModalDeleteConfirm onOk={confirmDelete} onCancel={() => setIsConfirmDeleteVisible(false)}
-                visible={isConfirmDeleteVisible}
-                title="Xóa báo cáo"
-                subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
-            />
-            <ModalFormAnalyticsInfo form={formCloneReport} title="Nhân bản báo cáo" isVisiable={visiableCloneReportModal} handleOk={handleCloneReport} handleCancel={handleCancelCloneReport} />
-            <AnnotationTableModal isVisiable={isVisibleAnnotation} handleCancel={() => setIsVisibleAnnotation(false)} annotationData={currentAnnotation?.data || []} documentLink={currentAnnotation?.documentLink || ''} />
+                  </Panel>
+                </Collapse>
+                <div className="report-actions" style={{ display: "inline-flex", gap: "10px" }}>
+                  {currentAnnotation && (
+                    <Button
+                      type="primary"
+                      ghost
+                      className="margin-left-20"
+                      onClick={() => setIsVisibleAnnotation(true)}>
+                      <QuestionCircleOutlined />
+                      <span className="margin-left-10">Giải thích thuật ngữ</span>
+                    </Button>
+                  )}
+                  {isMyReport && (
+                    <>
+                      <Button
+                        danger
+                        onClick={() => {
+                          setIsConfirmDeleteVisible(true);
+                        }}>
+                        Xoá
+                      </Button>
+                      <Button
+                        onClick={() => setIsModalEditNameVisible(true)}
+                        icon={<AiOutlineEdit />}>
+                        &nbsp; Đổi tên
+                      </Button>
+                    </>
+                  )}
 
-        </ContentContainer>
-    )
+                  {
+                    <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
+                      Nhân bản báo cáo
+                    </Button>
+                  }
+
+                  <Button
+                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                    loading={isLoadingExport}
+                    onClick={handleExportReport}>
+                    Xuất báo cáo
+                  </Button>
+
+                  {isMyReport && (
+                    <Button type="primary" onClick={handleSaveReport}>
+                      Lưu báo cáo
+                    </Button>
+                  )}
+                </div>
+              </>
+            }
+          />
+        </ReportBottomBarStyle>
+        <ModalFormAnalyticsInfo
+          form={formEditInfo}
+          title="Đổi tên báo cáo"
+          isVisiable={isModalEditNameVisible}
+          handleOk={handleOk}
+          handleCancel={handleCancel}
+        />
+        <ModalDeleteConfirm
+          onOk={confirmDelete}
+          onCancel={() => setIsConfirmDeleteVisible(false)}
+          visible={isConfirmDeleteVisible}
+          title="Xóa báo cáo"
+          subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
+        />
+        <ModalFormAnalyticsInfo
+          form={formCloneReport}
+          title="Nhân bản báo cáo"
+          isVisiable={visiableCloneReportModal}
+          handleOk={handleCloneReport}
+          handleCancel={handleCancelCloneReport}
+        />
+        <AnnotationTableModal
+          isVisiable={isVisibleAnnotation}
+          handleCancel={() => setIsVisibleAnnotation(false)}
+          annotationData={currentAnnotation?.data || []}
+          documentLink={currentAnnotation?.documentLink || ""}
+        />
+      </ContentContainer>
+    );
 }
 
 const CreateAnalyticsWithProvider = () => {
