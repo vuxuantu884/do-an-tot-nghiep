@@ -1573,7 +1573,7 @@ export default function Order(props: PropTypes) {
 																				//   return true;
 																				// }
 																				return (
-																					payment.payment_method_code !== PaymentMethodCode.COD && payment.paid_amount
+																					payment.payment_method_code !== PaymentMethodCode.COD && payment.amount
 																				);
 																			})
 																			.map((payment: any, index: number) => (

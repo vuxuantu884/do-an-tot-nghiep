@@ -18,7 +18,4 @@ export const StyledComponent = styled.div`
   .ant-timeline-item-head {
     background: #27ae60;
   }
-	.returnMoney {
-		margin-top: 10px;
-	}
 `;

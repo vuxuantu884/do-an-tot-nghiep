@@ -15,8 +15,6 @@ export const PaymentMethodCode = {
   QR_CODE: "qr_pay",
   POINT: "point",
   COD: "cod",
-  EXCHANGE: "exchange",
-  POINT_REFUND: "point_refund",
 };
 
 export const OrderStatus = {

@@ -72,22 +72,3 @@ export interface ReturnCalculateRefundModel {
   money_refund: number; 
   point_refund: number; 
 }
-
-export interface RefundModel {
-  moneyRefund: number; 
-  pointRefund: number; 
-}
-
-export interface RefundTransactionModel {
-  change_point: number;
-  customer_id: number;
-  expired_date: string|null;
-  money_point: number;
-  note: string|null;
-  order_id: number;
-  reason: null
-  reference_code: null
-  status: string|null;
-  sub_order_id: number;
-  type: string|null;
-}

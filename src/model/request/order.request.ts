@@ -62,13 +62,10 @@ export interface ReturnRequest extends OrderRequest {
   store_phone_number:string;
   store_full_address:string;
   type: string;
-  money_refund: number;
 }
 
-export interface ExchangeRequest {
-  origin_order_id: number;
-  order_return: OrderRequest;
-  order_exchange: OrderRequest;
+export interface ExchangeRequest extends OrderRequest {
+  order_return_id: number;
 }
 
 export interface FulFillmentRequest {

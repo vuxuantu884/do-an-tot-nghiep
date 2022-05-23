@@ -1,4 +1,4 @@
-import { Card } from "antd";
+import { Card, Radio, Space } from "antd";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { OrderPaymentRequest } from "model/request/order.request";
@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 
-type PropTypes = {
+type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentRequest[];
 	totalAmountOrder: number;
@@ -26,17 +26,13 @@ type PropTypes = {
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   setReturnMoneyType?: (value: string) => void;
   setPaymentMethod: (value: number) => void;
-  returnPaymentMethodCode: string;
-  setReturnPaymentMethodCode: (value: string) => void;
 };
 
 /**
  * input: listPaymentMethod, returnMoneyType
  * output: setReturnMoneyType
- * 
- * ghi chú: hiện tại ko cho hoàn tiền sau
  */
-function CardReturnMoneyPageCreate(props: PropTypes) {
+function CardReturnMoneyPageCreate(props: PropType) {
   const {
     listPaymentMethods,
     payments,
@@ -48,10 +44,9 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
     paymentMethod,
     returnOrderInformation,
     setPayments,
+    setReturnMoneyType,
     setPaymentMethod,
     isOrderReturnFromPOS,
-    returnPaymentMethodCode,
-    setReturnPaymentMethodCode,
   } = props;
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
@@ -64,8 +59,7 @@ console.log('listPaymentMethods', listPaymentMethods)
   const renderWhenReturnMoneyToCustomer = () => {
     return (
       <div className="create-order-payment">
-        {/* ko cho hoàn tiền sau */}
-        {/* <Radio.Group
+        <Radio.Group
           value={returnMoneyType}
           onChange={(e) => {
             if (setReturnMoneyType) {
@@ -78,7 +72,7 @@ console.log('listPaymentMethods', listPaymentMethods)
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
             <Radio value={RETURN_MONEY_TYPE.return_later}>Hoàn tiền sau</Radio>
           </Space>
-        </Radio.Group> */}
+        </Radio.Group>
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
             listPaymentMethods={listPaymentMethods}
@@ -87,8 +81,6 @@ console.log('listPaymentMethods', listPaymentMethods)
             }
             handleReturnMoney={() => {}}
             isShowButtonReturnMoney={false}
-            returnPaymentMethodCode={returnPaymentMethodCode}
-            setReturnPaymentMethodCode={setReturnPaymentMethodCode}
           />
         )}
       </div>

@@ -11,7 +11,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   countChangeSubStatus: number;
-  orderId: number;
+  orderId: string;
 };
 
 function OrderReturnActionHistory(props: PropType) {

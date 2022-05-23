@@ -6,7 +6,7 @@ import { OrderActionLogResponse } from "model/response/order/action-log.response
 import { OrderReasonModel } from "model/response/order/order.response";
 
 export const actionGetOrderReturnDetails = (
-  id: number|string,
+  id: number,
   handleData: (data: any) => void
 ) => {
   return {

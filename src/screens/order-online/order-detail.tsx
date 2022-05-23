@@ -80,7 +80,6 @@ import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderSt
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import CreateBillStep from "component/header/create-bill-step";
 import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
-import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 
 const {Panel} = Collapse;
 
@@ -165,7 +164,6 @@ const OrderDetail = (props: PropType) => {
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
-  console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   //loyalty
@@ -183,8 +181,6 @@ const OrderDetail = (props: PropType) => {
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
-
-  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
 
   const updateShipmentCardRef = useRef<any>();
 
@@ -339,7 +335,6 @@ const OrderDetail = (props: PropType) => {
       );
 
       setOrderDetail(_data);
-      setShippingFeeInformedCustomer(_data?.shipping_fee_informed_to_customer || 0);
       // setOrderDetail({
       //   ..._data,
       //   affiliate: '123',
@@ -697,7 +692,23 @@ const OrderDetail = (props: PropType) => {
 
   // khách cần trả
   const customerNeedToPay: any = () => {
-    if (OrderDetail?.total_line_amount_after_line_discount) {
+    if (
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+    ) {
+      return (
+        OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0]?.amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
+      );
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
       return (
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
@@ -710,8 +721,6 @@ const OrderDetail = (props: PropType) => {
     }
     return 0;
   };
-
-  console.log('shippingFeeInformedCustomer', shippingFeeInformedCustomer)
 
   const customerNeedToPayValue = customerNeedToPay();
   const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
@@ -824,7 +833,6 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end customer ---*/}
 
-              {/* chi tiết đơn trả có điểm thì cần call api tính điểm hoàn, chi tiết đơn đổi thì ko cần */}
               {OrderDetail?.order_return_origin?.items && (
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
@@ -842,12 +850,14 @@ const OrderDetail = (props: PropType) => {
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                 // shippingFeeInformedCustomer={form.getFieldValue("shipping_fee_informed_to_customer")}
                 customerNeedToPayValue={customerNeedToPayValue}
-                totalAmountReturnProducts={OrderDetail?.order_return_origin?.total}
+                totalAmountReturnProducts={totalAmountReturnProducts}
               />
               {/*--- end product ---*/}
 
-              {/* ko hiển thị hoàn tiền ở chi tiết đơn đổi */}
-              {OrderDetail?.order_return_origin?.payment_status && OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid && false && (
+              {OrderDetail?.order_return_origin?.items &&
+                customerNeedToPayValue -
+                totalPaid <
+                0 && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
@@ -858,8 +868,6 @@ const OrderDetail = (props: PropType) => {
                     isShowPaymentMethod={true}
                     setIsShowPaymentMethod={() => { }}
                     handleReturnMoney={handleReturnMoney}
-                    returnPaymentMethodCode={returnPaymentMethodCode}
-                    setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                   />
                 )}
 
@@ -940,7 +948,7 @@ const OrderDetail = (props: PropType) => {
                                     // }
                                     return (
                                       payment.payment_method_code !== PaymentMethodCode.COD
-                                      && payment.paid_amount
+                                      // && payment.amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (

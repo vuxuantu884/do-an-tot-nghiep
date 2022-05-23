@@ -592,11 +592,7 @@ function OrderCreateProduct(props: PropTypes) {
 
 	const onChangePrice = (value: number | null, index: number) => {
 		if (items) {
-			let _items = _.cloneDeep(items);
-			if (value === _items[index].price) {
-				setIsLineItemChanging(false)
-				return;
-			}
+			let _items = _.cloneDeep(items)
 			if (value !== null && value !== _items[index].price) {
 				_items[index].price = value;
 				handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);

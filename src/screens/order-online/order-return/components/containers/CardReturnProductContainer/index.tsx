@@ -8,9 +8,8 @@ import { OrderReturnCalculateRefundRequestModel } from "model/request/order.requ
 import {
   OrderLineItemResponse,
   OrderResponse,
-  ReturnProductModel
+  ReturnProductModel,
 } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -20,15 +19,15 @@ import {
   getLineItemDiscountRate,
   getLineItemDiscountValue,
   getProductDiscountPerOrder,
-  getProductDiscountPerProduct
+  getProductDiscountPerProduct,
 } from "utils/AppUtils";
-import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 // import { fullTextSearch } from "utils/StringUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
 type PropTypes = {
   autoCompleteRef: React.RefObject<RefSelectProps>;
+  isDetailPage?: boolean;
   discountRate?: number;
   orderId: number | undefined;
   searchVariantInputValue:string;
@@ -38,12 +37,12 @@ type PropTypes = {
   setSearchVariantInputValue: (value: string) => void;
   setListOrderProductsResult:(value:OrderLineItemResponse[])=>void;
   isAlreadyShowWarningPoint: boolean;
-  listPaymentMethods: PaymentMethodResponse[];
 };
 
 function CardReturnProductContainer(props: PropTypes) {
   const {
     handleCanReturn,
+    isDetailPage,
     orderId,
     setIsVisibleModalWarningPointRefund,
     autoCompleteRef,searchVariantInputValue,
@@ -51,16 +50,17 @@ function CardReturnProductContainer(props: PropTypes) {
     setListOrderProductsResult,
     listStores,
     isAlreadyShowWarningPoint,
-    listPaymentMethods,
   } = props;
 
   const dispatch = useDispatch();
+
+  const pointPaymentMethodId = 1;
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
 
 
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
-  
+  const [pointRefund, setPointRefund] = useState(0);
 
   const listReturnProducts = createOrderReturnContext?.return.listReturnProducts;
   const listItemCanBeReturn = createOrderReturnContext?.return.listItemCanBeReturn;
@@ -69,10 +69,11 @@ function CardReturnProductContainer(props: PropTypes) {
   const setTotalAmountReturnProducts =
     createOrderReturnContext?.return.setTotalAmountReturnProducts;
   const totalAmountReturnProducts = createOrderReturnContext?.return.totalAmountReturnProducts;
-  const refund = createOrderReturnContext?.return.refund;
-  const setRefund = createOrderReturnContext?.return.setRefund;
+  const moneyRefund = createOrderReturnContext?.return.moneyRefund;
+  const setMoneyRefund = createOrderReturnContext?.return.setMoneyRefund;
   const OrderDetail = createOrderReturnContext?.orderDetail;
   // const listOrderProducts = OrderDetail?.items;
+  const isStepExchange = createOrderReturnContext?.isStepExchange;
   const isExchange = createOrderReturnContext?.isExchange;
 
   const onSelectSearchedVariant = (value: string) => {
@@ -250,8 +251,7 @@ function CardReturnProductContainer(props: PropTypes) {
     let result = listItemCanBeReturn?.filter((single) => {
       return (
         fullTextSearch(searchVariantInputValue, single.variant) ||
-        fullTextSearch(searchVariantInputValue, single.sku) ||
-        fullTextSearch(searchVariantInputValue, single.variant_barcode)
+        fullTextSearch(searchVariantInputValue, single.sku)
       );
     })||[];
 
@@ -347,6 +347,14 @@ function CardReturnProductContainer(props: PropTypes) {
     [OrderDetail]
   );
 
+  const isShowProductSearch = () => {
+    let result = true;
+    if (isDetailPage || isStepExchange) {
+      result = false;
+    }
+    return result;
+  };
+
   // const totalPriceReturnToCustomer = useMemo(() => {
   //   let result = listReturnProducts
   //     ? Math.round(getTotalPrice(listReturnProducts))
@@ -371,21 +379,6 @@ function CardReturnProductContainer(props: PropTypes) {
   //   return result;
   // }, [OrderDetail, dispatch, getTotalPrice, listReturnProducts, orderId]);
 
-  // const eventKeyPress = useCallback(
-	// 	(event: KeyboardEvent) => {
-			
-	// 	},
-
-	// 	[onChangeProductSearchValue]
-	// );
-
-  // useEffect(() => {
-	// 	window.addEventListener("keypress", eventKeyPress);
-	// 	return () => {
-	// 		window.removeEventListener("keypress", eventKeyPress);
-	// 	};
-	// }, [eventKeyPress]);
-
   /**
    * tính toán refund khi tiêu điểm
    */
@@ -393,7 +386,9 @@ function CardReturnProductContainer(props: PropTypes) {
     if (!listReturnProducts) {
       return;
     }
-    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods)
+    let isUsingPoint = OrderDetail?.payments?.some((single) => {
+      return single.payment_method_id === pointPaymentMethodId;
+    });
     const refund_money = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
     if (isUsingPoint) {
       if (OrderDetail?.customer_id && orderId && refund_money > 0) {
@@ -405,15 +400,15 @@ function CardReturnProductContainer(props: PropTypes) {
           return rest;
         });
         console.log('returnItems', returnItems)
-        const returnOrderNow: OrderResponse[] = [
+        const returnItemsNow: OrderResponse[] = [
           {
             ...OrderDetail,
             items: returnItems,
           },
         ];
-        let return_items = [...returnOrderNow];
+        let return_items = [...returnItemsNow];
         if (OrderDetail.order_returns) {
-          return_items = [...OrderDetail.order_returns, ...returnOrderNow];
+          return_items = [...OrderDetail.order_returns, ...returnItemsNow];
         }
         let params: OrderReturnCalculateRefundRequestModel = {
           customerId: OrderDetail.customer_id,
@@ -431,52 +426,53 @@ function CardReturnProductContainer(props: PropTypes) {
                   // setIsAlreadyShowWarningPoint(true)
                 }
               }
-              if (setRefund) {
-                setRefund({
-                  ...refund,
-                  pointRefund: response.point_refund,
-                  moneyRefund: response.money_refund,
-                });
+              setPointRefund(response.point_refund);
+              if (setMoneyRefund) {
+                setMoneyRefund(response.money_refund);
               }
             })
           );
           
         }, 500);
       } else {
-        if (setRefund) {
-          setRefund({
-            ...refund,
-            pointRefund: 0,
-            moneyRefund: 0,
-          });
+        setPointRefund(0);
+        if (setMoneyRefund) {
+          setMoneyRefund(0);
         }
       }
     }
   // bỏ isAlreadyShowWarningPoint
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setIsVisibleModalWarningPointRefund, setRefund]);
+  }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setIsVisibleModalWarningPointRefund, setMoneyRefund]);
 
   useEffect(() => {
     if (!listReturnProducts) {
       return;
     }
     let result = 0;
-    
-    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods)
+    let isUsingPoint = OrderDetail?.payments?.some((single) => {
+      return single.payment_method_id === pointPaymentMethodId;
+    });
     if (!isUsingPoint) {
       if (setTotalAmountReturnProducts) {
         result = getTotalPrice(listReturnProducts);
       }
     } else {
-      if (refund?.moneyRefund) {
-        result = refund?.moneyRefund;
+      if (moneyRefund) {
+        result = moneyRefund;
       }
     }
 
     if (setTotalAmountReturnProducts) {
-      setTotalAmountReturnProducts(Math.ceil(result));
+      setTotalAmountReturnProducts(result);
     }
-  }, [OrderDetail, getTotalPrice, listPaymentMethods, listReturnProducts, refund?.moneyRefund, setTotalAmountReturnProducts]);
+  }, [
+    OrderDetail?.payments,
+    getTotalPrice,
+    listReturnProducts,
+    moneyRefund,
+    setTotalAmountReturnProducts,
+  ]);
 
   return (
     <CardReturnProducts
@@ -484,15 +480,16 @@ function CardReturnProductContainer(props: PropTypes) {
       convertResultSearchVariant={convertResultSearchVariant}
       handleChangeReturnAll={handleChangeReturnAll}
       isExchange={isExchange}
+      isStepExchange={isStepExchange}
       isCheckReturnAll={isCheckReturnAll}
       listReturnProducts={listReturnProducts}
       onChangeProductQuantity={onChangeProductQuantity}
       onChangeProductSearchValue={onChangeProductSearchValue}
       onSelectSearchedVariant={onSelectSearchedVariant}
-      pointUsing={refund?.pointRefund}
+      pointUsing={pointRefund}
       searchVariantInputValue={searchVariantInputValue}
       totalAmountReturnProducts={totalAmountReturnProducts}
-      isShowProductSearch={true}
+      isShowProductSearch={isShowProductSearch()}
       setListReturnProducts={setListReturnProducts}
       listStores={listStores}
       autoCompleteRef={autoCompleteRef}

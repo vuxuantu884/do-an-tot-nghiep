@@ -46,7 +46,7 @@ function AccountCustomSearchSelect(props: PropType) {
         if (value.trim() !== "" && value.length >= 3) {
           setIsLoading(true);
           searchAccountPublicApi({
-            codes: value,
+            condition: value,
             limit: undefined,
           })
             .then((response) => {

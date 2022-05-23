@@ -97,7 +97,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
 					setYodyAccountData(storeAccountData);
         } else {
 					searchAccountPublicApi({
-						codes: fieldNameValue,
+						condition: fieldNameValue,
 					})
 						.then((response) => {
 							if (isFetchApiSuccessful(response)) {

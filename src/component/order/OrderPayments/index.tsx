@@ -153,7 +153,6 @@ function OrderPayments(props: PropType): JSX.Element {
     }
     handlePayment([...payments]);
   };
-  console.log('payments', payments)
   const handleInputMoney = (index: number, amount: number | null) => {
     if (!amount) {
       amount = 0
