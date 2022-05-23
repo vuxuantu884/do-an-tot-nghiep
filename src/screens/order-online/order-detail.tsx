@@ -80,6 +80,7 @@ import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderSt
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import CreateBillStep from "component/header/create-bill-step";
 import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
+import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 
 const {Panel} = Collapse;
 
@@ -845,10 +846,7 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end product ---*/}
 
-              {OrderDetail?.order_return_origin?.items &&
-                customerNeedToPayValue -
-                totalPaid <
-                0 && (
+              {OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}

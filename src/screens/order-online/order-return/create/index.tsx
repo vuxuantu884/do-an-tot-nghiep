@@ -351,7 +351,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
 
   const totalAmountExchange = useMemo(() => {
-    return getTotalPrice(listExchangeProducts);
+    return Math.ceil(getTotalPrice(listExchangeProducts));
   }, [listExchangeProducts]);
 
   const totalAmountExchangePlusShippingFee = useMemo(() => {
