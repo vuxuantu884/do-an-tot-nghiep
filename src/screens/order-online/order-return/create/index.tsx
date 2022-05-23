@@ -151,7 +151,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
-  const [isCanExchange, setIsCanExchange] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false); // đang bị thừa
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(true);
@@ -1834,7 +1833,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
             onReturnAndExchange();
           }}
           onCancel={() => handleCancel()}
-          isCanExchange={isCanExchange}
           isExchange={isExchange}
         />
         <ModalConfirm
@@ -2126,12 +2124,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
       setCountFinishingUpdateCustomer((prev) => prev + 1);
     }
   }, [dispatch, customer]);
-
-  useEffect(() => {
-    if (isStepExchange && listExchangeProducts.length > 0) {
-      setIsCanExchange(true);
-    }
-  }, [isStepExchange, listExchangeProducts.length]);
 
   useEffect(() => {
     dispatch(
