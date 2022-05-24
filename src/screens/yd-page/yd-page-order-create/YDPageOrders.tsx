@@ -599,6 +599,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     values.customer_ward = customer?.ward;
     values.customer_district = customer?.district;
     values.customer_city = customer?.city;
+    values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -613,13 +614,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
       // values.payments = [];
       values.payments = payments.filter((payment) => payment.amount > 0);
 
-      values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
       values.total = getTotalAmount(values.items);
-      values.shipping_fee_informed_to_customer = 0;
     } else {
       //Nếu là đơn lưu và duyệt
-      values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount !== 0);
