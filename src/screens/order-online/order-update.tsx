@@ -19,6 +19,7 @@ import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import ContentContainer from "component/container/content.container";
+import NumberInput from "component/custom/number-input.custom";
 import CreateBillStep from "component/header/create-bill-step";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
@@ -90,6 +91,7 @@ import {
 	handleFetchApiError,
 	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
+	replaceFormatString,
 	sortFulfillments,
 	SumCOD,
 	SumWeightResponse,
@@ -495,7 +497,6 @@ export default function Order(props: PropTypes) {
 					delivery_service_provider_code: thirdPL.delivery_service_provider_code,
 					delivery_service_provider_name: thirdPL.delivery_service_provider_name,
 					sender_address_id: storeId,
-					shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
 					service: thirdPL.service,
 					shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
 				};
@@ -505,7 +506,6 @@ export default function Order(props: PropTypes) {
 					...objShipment,
 					delivery_service_provider_type: thirdPL.delivery_service_provider_code,
 					shipper_code: value.shipper_code,
-					shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
 					shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
 					service: thirdPL.service,
 					cod:
@@ -975,7 +975,6 @@ export default function Order(props: PropTypes) {
 			const shipment = fulfillment.shipment;
 			let newEcommerceShipment = {
 				cod: shipment.cod,
-				shipping_fee_informed_to_customer: shipment.shipping_fee_informed_to_customer,
 				shipping_fee_paid_to_three_pls: shipment.shipping_fee_paid_to_three_pls,
 				delivery_service_provider_code: shipment.delivery_service_provider_code,
 				delivery_service_provider_id: shipment.delivery_service_provider_id,
@@ -1104,6 +1103,7 @@ export default function Order(props: PropTypes) {
 						sub_status_code: response.sub_status_code,
 						automatic_discount: response.automatic_discount,
 					});
+					setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
 					if (
 						response.fulfillments &&
 						response.fulfillments[0] &&
@@ -1112,7 +1112,6 @@ export default function Order(props: PropTypes) {
 						setShipmentMethod(0);
 						const newFulfillments = [...response.fulfillments];
 						setFulfillments(newFulfillments.reverse());
-						setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
 
 						if (
 							response.fulfillments[0] &&
@@ -1708,11 +1707,7 @@ export default function Order(props: PropTypes) {
 											OrderDetail.fulfillments[0].status === "returning" ||
 											OrderDetail.fulfillments[0].status === "returned") &&
 										OrderDetail.fulfillments[0].shipment?.cod ===
-										(OrderDetail?.fulfillments[0].shipment
-											.shipping_fee_informed_to_customer
-											? OrderDetail?.fulfillments[0].shipment
-												.shipping_fee_informed_to_customer
-											: 0) +
+										(OrderDetail?.shipping_fee_informed_to_customer || 0) +
 										OrderDetail?.total_line_amount_after_line_discount -
 										(OrderDetail?.discounts &&
 											OrderDetail?.discounts.length > 0 &&
@@ -1913,15 +1908,28 @@ export default function Order(props: PropTypes) {
 																)}
 														</div>
 													)}
-												{/* {requirementNameView && (
-													<div className="text-menu">
-														<img src={eyeOutline} alt="eye"></img>
-														<span style={{marginLeft: "5px", fontWeight: 500}}>
-															{requirementNameView}
-														</span>
-													</div>
-												)} */}
-												{/* {newFulfillments[0].shipment?.office_time ? "Giờ hành chính" : ""} */}
+												<Form.Item
+													label="Phí ship báo khách:"
+													name="shipping_fee_informed_to_customer"
+													className="shipping_fee_customer"
+												>
+													<NumberInput
+														format={(a: string) => formatCurrency(a)}
+														replace={(a: string) => replaceFormatString(a)}
+														placeholder="0"
+														className="formInputAmount"
+														maxLength={9}
+														minLength={0}
+														onChange={(value) => {
+															if (value) {
+																setShippingFeeInformedToCustomer(value);
+															} else {
+																setShippingFeeInformedToCustomer(0);
+															}
+														}}
+														disabled={levelOrder > 3}
+													/>
+												</Form.Item>
 											</Space>
 										}
 									>
@@ -2212,13 +2220,7 @@ export default function Order(props: PropTypes) {
 																					</Col>
 																					<Col span={14}>
 																						<b className="text-field">
-																							{formatCurrency(
-																								fulfillment.shipment
-																									?.shipping_fee_informed_to_customer
-																									? fulfillment.shipment
-																										?.shipping_fee_informed_to_customer
-																									: 0
-																							)}
+																							{formatCurrency(OrderDetail?.shipping_fee_informed_to_customer || 0)}
 																						</b>
 																					</Col>
 																				</Row>

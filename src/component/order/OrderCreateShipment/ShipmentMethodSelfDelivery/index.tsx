@@ -31,7 +31,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     isCancelValidateDelivery,
 		storeId,
     listExternalShippers,
-    setShippingFeeInformedToCustomer,
+    // setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
     setThirdPL,
     form,
@@ -267,31 +267,6 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                     })
                   }
                 }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="shipping_fee_informed_to_customer"
-              label="Phí ship báo khách"
-            >
-              <NumberInput
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                placeholder="0"
-                style={{
-                  textAlign: "right",
-                  width: "100%",
-                  color: "#222222",
-                }}
-                maxLength={15}
-                minLength={0}
-                onChange={(value) => {
-                  if (value) {
-                    setShippingFeeInformedToCustomer(value);
-                  } else {
-                    setShippingFeeInformedToCustomer(0);
-                  }
-                }}
-                disabled={levelOrder > 3}
               />
             </Form.Item>
           </Col>
