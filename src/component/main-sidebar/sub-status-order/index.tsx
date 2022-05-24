@@ -18,6 +18,7 @@ type PropTypes = {
   handleUpdateSubStatus: () => void;
   setReload: (value: boolean) => void;
   OrderDetailAllFulfillment?: OrderResponse | null;
+  isDisableUpdate?: boolean;
 };
 
 function SubStatusOrder(props: PropTypes): React.ReactElement {
@@ -27,7 +28,8 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     subStatusCode,
     handleUpdateSubStatus,
     OrderDetailAllFulfillment,
-    setReload
+    setReload,
+    isDisableUpdate = false,
   } = props;
   const dispatch = useDispatch();
   const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
@@ -100,6 +102,10 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     setReload(true)
   };
 
+  const checkIfIsDisableUpdateSubStatus = () => {
+    return isOrderFinishedOrCancel(OrderDetailAllFulfillment) || isDisableUpdate
+  };
+
   useEffect(() => {
     if (subStatusCode) {
       setValueSubStatusCode(subStatusCode);
@@ -135,7 +141,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
-        disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
+        disabled={checkIfIsDisableUpdateSubStatus()}
         listHeight= {300}
         key={Math.random()}>
         {subStatuses &&

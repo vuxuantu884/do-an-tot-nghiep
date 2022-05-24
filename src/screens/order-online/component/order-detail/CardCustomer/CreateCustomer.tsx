@@ -7,7 +7,7 @@ import {
   PhoneOutlined,
   TeamOutlined,
   UpOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import {
   Button,
@@ -15,27 +15,25 @@ import {
   Col,
   DatePicker,
   Divider,
-  Form,
-  FormInstance,
-  Input,
+  Form, Input,
   Row,
-  Select,
+  Select
 } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  CustomerCreateAction,
+  CustomerCreateAction
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import {
   CustomerContactClass,
   CustomerModel,
   CustomerShippingAddress,
-  CustomerShippingAddressClass,
+  CustomerShippingAddressClass
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
