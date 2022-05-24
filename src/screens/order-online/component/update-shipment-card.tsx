@@ -146,7 +146,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
       const shipment = fulfillment.shipment;
       let newEcommerceShipment = {
         cod: shipment.cod,
-        shipping_fee_informed_to_customer: shipment.shipping_fee_informed_to_customer,
         shipping_fee_paid_to_three_pls: shipment.shipping_fee_paid_to_three_pls,
         delivery_service_provider_code: shipment.delivery_service_provider_code,
         delivery_service_provider_id: shipment.delivery_service_provider_id,

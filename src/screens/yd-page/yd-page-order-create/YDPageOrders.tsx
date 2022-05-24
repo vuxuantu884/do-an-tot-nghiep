@@ -403,7 +403,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
       shipping_fee_paid_to_three_pls: null,
       expected_received_date: value.dating_ship?.utc().format(),
       reference_status: "",
-      shipping_fee_informed_to_customer: null,
       reference_status_explanation: "",
       cod: null,
       cancel_reason: "",
@@ -427,7 +426,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
           delivery_service_provider_code: thirdPL.delivery_service_provider_code,
           delivery_service_provider_name: thirdPL.delivery_service_provider_name,
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           service: thirdPL.service,
           shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
@@ -438,7 +436,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
           delivery_service_provider_type: thirdPL.delivery_service_provider_code,
           service: thirdPL.service,
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
@@ -489,7 +486,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setPaymentMethod(PaymentMethodOption.COD);
     setOrderAmount(0);
     setCheckSplitLine(false);
-    setThirdPL(thirdPL.delivery_transport_type = "")
+    setThirdPL(thirdPL.delivery_transport_type = "");
+    setShippingFeeInformedToCustomer(null);
   }
 
   const createOrderCallback = useCallback(

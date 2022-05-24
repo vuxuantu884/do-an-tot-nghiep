@@ -71,9 +71,9 @@ function ShipmentMethodEcommerce(props: PropType) {
             <div className="shipment-item">
               <span className="title">Phí ship báo khách: </span>
               <span className="content">
-                {ecommerceShipment ?
+                {OrderDetail?.shipping_fee_informed_to_customer ?
                   <NumberFormat
-                    value={ecommerceShipment.shipping_fee_informed_to_customer}
+                    value={OrderDetail.shipping_fee_informed_to_customer}
                     displayType={"text"}
                     thousandSeparator={true}
                   />

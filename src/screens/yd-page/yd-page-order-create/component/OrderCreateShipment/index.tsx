@@ -5,8 +5,8 @@ import {
   DatePicker,
   Form,
   FormInstance,
+  InputNumber,
   Row,
-  Select,
   Space,
   Tooltip,
 } from "antd";
@@ -22,7 +22,6 @@ import {
 } from "domain/actions/settings/order-settings.action";
 import { DeliverPartnerResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { StoreCustomResponse } from "model/response/order/order.response";
@@ -32,8 +31,8 @@ import {
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
+import { useDispatch } from "react-redux";
+import { getShippingAddressDefault, SumWeight} from "utils/AppUtils";
 import { ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
@@ -149,10 +148,6 @@ function OrderCreateShipment(props: PropType) {
       });
     }
   };
-
-  const shipping_requirements = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
-  );
 
   const shipmentButton: Array<ShipmentButtonType> = [
     {
@@ -336,31 +331,22 @@ function OrderCreateShipment(props: PropType) {
           </Col>
 
           <Col span={11} style={{padding: "0 10px 0 5px"}}>
-            <Form.Item name="requirements">
-              <Select
-                className="select-with-search"
-                showSearch
-                showArrow
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: "100%" }}
-                placeholder="Yêu cầu xem hàng"
-                disabled={orderConfig?.for_all_order}
-                getPopupContainer={(trigger: any) => trigger.parentElement}
-                filterOption={(input, option) => {
-                  if (option) {
-                    return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+            <Form.Item>
+              <InputNumber
+                style={{textAlign: "left", width: "100%"}}
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                placeholder="Phí ship báo khách"
+                min={0}
+                max={999999999}
+                onChange={(value) => {
+                  if (value) {
+                    setShippingFeeInformedToCustomer(Number(value));
+                  } else {
+                    setShippingFeeInformedToCustomer(0);
                   }
-                  return false;
-                }}>
-                {shipping_requirements?.map((item, index) => (
-                  <Select.Option
-                    style={{ width: "100%" }}
-                    key={index.toString()}
-                    value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
+                }}
+                value={shippingFeeInformedToCustomer || ''}
+              />
             </Form.Item>
           </Col>
 
@@ -398,7 +384,6 @@ function OrderCreateShipment(props: PropType) {
               setThirdPL={setThirdPL}
               shippingServiceConfig={shippingServiceConfig}
               setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-							shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
               infoFees={infoFees}
               addressError={addressError}
               levelOrder={levelOrder}
@@ -413,7 +398,6 @@ function OrderCreateShipment(props: PropType) {
             <ShipmentMethodSelfDelivery
               totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
               levelOrder={levelOrder}
-              setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
               isCancelValidateDelivery={isCancelValidateDelivery}
               storeId={storeDetail?.id}
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
