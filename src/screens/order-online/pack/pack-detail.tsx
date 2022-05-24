@@ -90,7 +90,7 @@ const PackDetail: React.FC = () => {
             }
           });
 
-          data.orders?.forEach(function (itemOrder) {
+          data.orders?.forEach((itemOrder) => {
             let total_quantity = 0;
             let total_price = 0;
             let postage = 0;
@@ -106,10 +106,10 @@ const PackDetail: React.FC = () => {
 
               total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
               total_price += itemFFM.total ? itemFFM.total : 0;
-              postage += itemFFM?.shipment?.shipping_fee_informed_to_customer ? itemFFM.shipment.shipping_fee_informed_to_customer : 0;
+              postage += itemOrder?.shipping_fee_informed_to_customer ? itemOrder.shipping_fee_informed_to_customer : 0;
               ffrmCode = itemFFM.code;
               trackingCode = itemFFM.shipment?.tracking_code;
-              itemFFM.items.forEach(function (itemProduct) {
+              itemFFM.items.forEach((itemProduct) => {
                 _itemProduct.push({
                   sku: itemProduct.sku,
                   product_id: itemProduct.product_id,
@@ -123,7 +123,7 @@ const PackDetail: React.FC = () => {
               });
             }
 
-            itemOrder.payments?.forEach(function (itemPayment) {
+            itemOrder.payments?.forEach((itemPayment) => {
               card_number += itemPayment.amount;
             })
 
