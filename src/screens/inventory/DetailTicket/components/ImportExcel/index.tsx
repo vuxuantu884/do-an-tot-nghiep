@@ -110,13 +110,13 @@ const ImportExcel: React.FC<ModalImportProps> = (
       let jsonData: any = XLSX.utils.sheet_to_json(workSheet);
 
       let range = XLSX.utils.sheet_to_json(workSheet,{range: workSheet["!ref"], blankrows: true });
-     
+
       if (range && range.length > 0) {
         jsonData = [];
         let lineNumber = 1;
         for (let i = 0; i < range.length; i++) {
           const item:any = range[i];
-          
+
           if (Object.values(item)[0]) {
             jsonData.push({
               barcode: Object.values(item)[0],
@@ -155,48 +155,69 @@ const ImportExcel: React.FC<ModalImportProps> = (
         }
 
         if (convertData && convertData.length > 0) {
+
+          console.log(convertData, data)
+
           for (let i = 0; i < convertData.length; i++) {
             const element = convertData[i];
-            const fi = data?.findIndex((e: VariantResponse) => e.barcode.toString() === element.barcode.toString());
-
+            // const fi = data?.findIndex((e: VariantResponse) => e.barcode.toString() === element.barcode.toString());
             if (element.quantity && typeof element.quantity !== "number") {
-              error.push(`Dòng ${element.lineNumber}: Số lượng chỉ được nhập kiểu số nguyên`);  
+              error.push(`Dòng ${element.lineNumber}: Số lượng chỉ được nhập kiểu số nguyên`);
               process.error += 1;
-              continue;
             }
-            
+
+
             //tìm kiếm sản phẩm đã có chưa có trên phiếu thì cập nhật số lượng không thì phải đi call api lấy thông tin
-            if (fi >= 0) {
-              data[fi].real_quantity = element.quantity;
-              process.success += 1;
-            } else {
-              //call api lấy sản phẩm vào phiếu
-              let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: element.barcode, store_ids: null });
-              if (res && res.items && res.items.length > 0) {
-                let newItem: VariantResponse = {
-                  ...res.items[0],
-                  id: null,
-                  variant_id: res.items[0].id,
-                  transfer_quantity: 0,
-                  real_quantity: null
-                }
+            // if (fi >= 0) {
+            //   data[fi].real_quantity = element.quantity;
+            //   process.success += 1;
+            // } else {
+            //   //call api lấy sản phẩm vào phiếu
+            //   let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: element.barcode, store_ids: null });
+            //   if (res && res.items && res.items.length > 0) {
+            //     let newItem: VariantResponse = {
+            //       ...res.items[0],
+            //       id: null,
+            //       variant_id: res.items[0].id,
+            //       transfer_quantity: 0,
+            //       real_quantity: null
+            //     }
+            //
+            //     const findIndex = convertData.findIndex(e => e.barcode && (e.barcode.toString() === newItem.barcode.toString()));
+            //
+            //     if (findIndex >= 0) {
+            //       newItem.real_quantity = convertData[findIndex].quantity;
+            //     }
+            //     data.push(newItem);
+            //     process.success += 1;
+            //   }else{
+            //      error.push(`${element.barcode}: Sản phẩm không tồn tại trên hệ thống`);
+            //      process.error += 1;
+            //   }
+            // }
+          }
 
-                const findIndex = convertData.findIndex(e => e.barcode && (e.barcode.toString() === newItem.barcode.toString()));
+          const barcodes: string[] = convertData.map((item) => item.barcode);
 
-                if (findIndex >= 0) {
-                  newItem.real_quantity = convertData[findIndex].quantity;
-                }
-                data.push(newItem);
-                process.success += 1;
-              }else{
-                 error.push(`${element.barcode}: Sản phẩm không tồn tại trên hệ thống`);  
-                 process.error += 1;
+          let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: barcodes.join(','), store_ids: null });
+
+          console.log(res.items)
+
+          for (let i = 0; i < data.length; i++) {
+            for (let j = 0; j < convertData.length; j++) {
+              if (data[i].barcode.toString() === convertData[j].barcode.toString()) {
+                break;
+              }
+
+              if (j === convertData.length - 1) {
+                error.push(`${data[i].barcode}: Sản phẩm không tồn tại trên hệ thống`);
+                process.error += 1;
               }
             }
           }
         }
       }
-      
+
       setProgressData({...process});
       setErrorData([...error]);
     }, [data, dispatch])
