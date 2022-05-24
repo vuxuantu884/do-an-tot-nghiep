@@ -1523,7 +1523,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   handleReceivedReturnProducts={setIsReceivedReturnProducts}
                 />
                 <div style={{color:"#e24343", lineHeight:"10px", fontWeight:500, fontSize:"18px"}}>
-                  <p>Tính năng đổi đang được nâng cấp (dự kiến hoàn thành vào ngày 23/05/2022)</p>
+                  <p>Tính năng đổi đang được nâng cấp</p>
                   <p>Để đổi hàng cho Khách hàng, bạn vui lòng làm theo hướng dẫn:</p>
                   <ul style={{lineHeight:"18px"}}>
                       <li>B1: Tạo đơn trả</li>
