@@ -22,7 +22,6 @@ type PropType = {
   isCancelValidateDelivery: boolean;
   listExternalShippers: any;
   storeId?: number | null;
-  setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   form: FormInstance<any>;
