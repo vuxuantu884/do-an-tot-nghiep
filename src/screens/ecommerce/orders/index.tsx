@@ -916,8 +916,8 @@ const EcommerceOrders: React.FC = () => {
         visible: true,
         width: 130,
         align: "center",
-        render: (item: any) => {
-          const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
+        render: (order: any) => {
+          const shipment = order.fulfillments && order.fulfillments[0] && order.fulfillments[0].shipment;
           return (
             <>
               {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
@@ -926,7 +926,7 @@ const EcommerceOrders: React.FC = () => {
                   <div>
                     <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
                     <NumberFormat
-                      value={shipment?.shipping_fee_informed_to_customer}
+                      value={order?.shipping_fee_informed_to_customer || 0}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
