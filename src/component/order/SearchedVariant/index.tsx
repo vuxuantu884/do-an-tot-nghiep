@@ -3,7 +3,7 @@ import imgDefault from "assets/icon/img-default.svg";
 import { AppConfig } from "config/app.config";
 import { VariantResponse } from "model/product/product.model";
 import React from "react";
-import { findAvatar, findPrice } from "utils/AppUtils";
+import { findPrice, findVariantAvatar } from "utils/AppUtils";
 
 type PropTypes = {
   item: VariantResponse;
@@ -14,7 +14,7 @@ function SearchedVariant(props: PropTypes): JSX.Element {
 
   const {item} = props;
 
-  let avatar = findAvatar(item.variant_images);
+  let avatar = findVariantAvatar(item.variant_images);
 		return (
 			<Row>
 				<Col
