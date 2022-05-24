@@ -155,12 +155,8 @@ const ImportExcel: React.FC<ModalImportProps> = (
         }
 
         if (convertData && convertData.length > 0) {
-
-          console.log(convertData, data)
-
           for (let i = 0; i < convertData.length; i++) {
             const element = convertData[i];
-            // const fi = data?.findIndex((e: VariantResponse) => e.barcode.toString() === element.barcode.toString());
             if (element.quantity && typeof element.quantity !== "number") {
               error.push(`Dòng ${element.lineNumber}: Số lượng chỉ được nhập kiểu số nguyên`);
               process.error += 1;
@@ -197,24 +193,56 @@ const ImportExcel: React.FC<ModalImportProps> = (
             // }
           }
 
+          console.log(convertData)
+
           const barcodes: string[] = convertData.map((item) => item.barcode);
+          let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: barcodes.join(','), store_ids: null, limit: 1000 });
 
-          let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: barcodes.join(','), store_ids: null });
+          if (res.items.length === 0) return;
 
-          console.log(res.items)
+          let dataTable = [...res.items];
 
-          for (let i = 0; i < data.length; i++) {
-            for (let j = 0; j < convertData.length; j++) {
-              if (data[i].barcode.toString() === convertData[j].barcode.toString()) {
+          for (let i = 0; i < convertData.length; i++) {
+            for (let j = 0; j < dataTable.length; j++) {
+              if (convertData[i].barcode.toString() === dataTable[j].barcode.toString()) {
+                process.success += 1;
                 break;
               }
 
-              if (j === convertData.length - 1) {
-                error.push(`${data[i].barcode}: Sản phẩm không tồn tại trên hệ thống`);
+              if (j === dataTable.length - 1) {
+                error.push(`${convertData[i].barcode}: Sản phẩm không tồn tại trên hệ thống`);
                 process.error += 1;
               }
             }
           }
+
+          console.log(dataTable, convertData)
+          for (let i = 0; i < dataTable.length; i++) {
+            let real_quantity: any = null;
+
+            const findIndex = convertData.findIndex((e) => e.barcode.toString() === dataTable[i].barcode.toString());
+            if (findIndex >= 0) {
+              real_quantity = convertData[findIndex].quantity;
+            }
+
+            if (dataTable[i].reference_barcodes) {
+              const referenceBarcodes = dataTable[i].reference_barcodes.split(',');
+
+              referenceBarcodes.forEach((item: any, index: number) => {
+                let idx: number = convertData.findIndex((e) => e.barcode.toString() === item.toString());
+
+                real_quantity = real_quantity + idx;
+              });
+            }
+
+            dataTable[i].real_quantity = real_quantity;
+          }
+
+          console.log(dataTable)
+
+          setData(dataTable);
+
+          //newItem.real_quantity = convertData[findIndex].quantity;
         }
       }
 
