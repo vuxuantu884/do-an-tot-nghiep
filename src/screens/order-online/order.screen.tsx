@@ -1,6 +1,7 @@
 import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
+import NumberInput from "component/custom/number-input.custom";
 import CreateBillStep from "component/header/create-bill-step";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
@@ -74,7 +75,9 @@ import {
 	reCalculatePaymentReturn,
 	scrollAndFocusToDomElement,
 	sortFulfillments,
-	totalAmount
+	totalAmount,
+	formatCurrency,
+	replaceFormatString
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
@@ -384,7 +387,6 @@ export default function Order() {
 					delivery_service_provider_code: thirdPL.delivery_service_provider_code,
 					delivery_service_provider_name: thirdPL.delivery_service_provider_name,
 					sender_address_id: storeId,
-					shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
 					service: thirdPL.service,
 					shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
 				};
@@ -395,7 +397,6 @@ export default function Order() {
 					delivery_service_provider_type: thirdPL.delivery_service_provider_code,
 					service: thirdPL.service,
 					shipper_code: value.shipper_code,
-					shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
 					shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
 					cod:
 						orderAmount +
@@ -525,6 +526,7 @@ export default function Order() {
 		values.customer_city = customer?.city;
 		values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 		values.export_bill = isExportBill;
+		values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
 
 		//Nếu là lưu nháp Fulfillment = [], payment = []
 		if (typeButton === OrderStatus.DRAFT) {
@@ -539,13 +541,10 @@ export default function Order() {
 			// values.payments = [];
 			values.payments = payments.filter((payment) => payment.amount > 0);
 
-			values.shipping_fee_informed_to_customer = 0;
 			values.action = OrderStatus.DRAFT;
 			values.total = getTotalAmount(values.items);
-			values.shipping_fee_informed_to_customer = 0;
 		} else {
 			//Nếu là đơn lưu và xác nhận
-			values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
 			values.fulfillments = lstFulFillment;
 			values.action = OrderStatus.FINALIZED;
 			values.payments = payments.filter((payment) => payment.amount !== 0);
@@ -1349,7 +1348,32 @@ export default function Order() {
 											/>
 										</Card>
 
-										<Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+										<Card
+											title="ĐÓNG GÓI VÀ GIAO HÀNG"
+											extra={
+												<Form.Item
+													label="Phí ship báo khách:"
+													name="shipping_fee_informed_to_customer"
+													className="shipping_fee_customer"
+												>
+													<NumberInput
+														format={(a: string) => formatCurrency(a)}
+														replace={(a: string) => replaceFormatString(a)}
+														placeholder="0"
+														className="formInputAmount"
+														maxLength={9}
+														minLength={0}
+														onChange={(value) => {
+															if (value) {
+																setShippingFeeInformedToCustomer(value);
+															} else {
+																setShippingFeeInformedToCustomer(0);
+															}
+														}}
+													/>
+												</Form.Item>
+											}
+										>
 											<OrderCreateShipment
 												shipmentMethod={shipmentMethod}
 												orderPrice={orderAmount}

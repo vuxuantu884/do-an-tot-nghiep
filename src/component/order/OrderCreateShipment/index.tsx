@@ -155,7 +155,7 @@ function OrderCreateShipment(props: PropType) {
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
-    setShippingFeeInformedToCustomer(0);
+    // setShippingFeeInformedToCustomer(0);
     if(value === ShipmentMethodOption.DELIVER_PARTNER) {
       setThirdPL({
         delivery_service_provider_code: "",
@@ -167,7 +167,6 @@ function OrderCreateShipment(props: PropType) {
         shipping_fee_paid_to_three_pls: null,
       });
     }
-    form.setFieldsValue({shipping_fee_informed_to_customer: 0})
   };
 
   const shipping_requirements = useSelector(

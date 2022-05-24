@@ -1,6 +1,7 @@
 import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import ContentContainer from "component/container/content.container";
+import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
@@ -61,6 +62,7 @@ import { getPrintOrderReturnContentService, getStoreBankAccountNumbersService } 
 import {
 
   checkIfOrderCanBeReturned,
+  formatCurrency,
   getAmountPayment,
   getAmountPaymentRequest,
   getListItemsCanReturn,
@@ -70,6 +72,7 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
   isOrderFromPOS,
+  replaceFormatString,
   scrollAndFocusToDomElement,
   totalAmount
 } from "utils/AppUtils";
@@ -1497,7 +1500,32 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   />
                 )}
                 {isExchange && (
-                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+                  <Card
+                    title="ĐÓNG GÓI VÀ GIAO HÀNG"
+                    extra={
+                      <Form.Item
+													label="Phí ship báo khách:"
+													name="shipping_fee_informed_to_customer"
+													className="shipping_fee_customer"
+												>
+													<NumberInput
+														format={(a: string) => formatCurrency(a)}
+														replace={(a: string) => replaceFormatString(a)}
+														placeholder="0"
+														className="formInputAmount"
+														maxLength={9}
+														minLength={0}
+														onChange={(value) => {
+															if (value) {
+																setShippingFeeInformedToCustomer(value);
+															} else {
+																setShippingFeeInformedToCustomer(0);
+															}
+														}}
+													/>
+												</Form.Item>
+                    }
+                  >
                     <OrderCreateShipment
                       shipmentMethod={isOrderFromPOS(OrderDetail) ? ShipmentMethodOption.PICK_AT_STORE : shipmentMethod}
                       orderPrice={orderAmount}

@@ -876,17 +876,6 @@ function OrdersTable(props: PropTypes) {
               </React.Fragment>
             );
           }
-          // if (
-          //   record?.fulfillments &&
-          //   record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED
-          // ) {
-          //   return (
-          //     <div className="single">
-          //       <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
-          //       Đã hủy vận chuyển
-          //     </div>
-          //   );
-          // }
           if (sortedFulfillments) {
             if (sortedFulfillments[0]?.shipment) {
               switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
@@ -910,12 +899,7 @@ function OrdersTable(props: PropTypes) {
                             <div className="single">
                               <img src={iconShippingFeeInformedToCustomer} alt="" />
                               <span>
-                                {formatCurrency(
-                                  sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
-                                    ? sortedFulfillments[0]?.shipment
-                                      .shipping_fee_informed_to_customer || 0
-                                    : 0
-                                )}
+                                {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                               </span>
                             </div>
                           </Tooltip>
@@ -1027,10 +1011,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                              0
-                            )}
+                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1066,10 +1047,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                              0
-                            )}
+                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1098,10 +1076,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                              0
-                            )}
+                          {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1129,9 +1104,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment.shipping_fee_informed_to_customer || 0
-                            )}
+                          {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1633,7 +1606,7 @@ function OrdersTable(props: PropTypes) {
     data.items.forEach((item) => {
       const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
       if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
-        result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0);
+        result = result + (item.shipping_fee_informed_to_customer || 0);
       }
     });
     return result;
