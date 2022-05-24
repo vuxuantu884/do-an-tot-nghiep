@@ -429,6 +429,15 @@ export const findAvatar = (VariantImage: Array<VariantImage>): string => {
   return avatar;
 };
 
+export const findVariantAvatar = (variantImageArr: Array<VariantImage>): string => {
+  let result = "";
+  const defaultVariantImage = variantImageArr.find(single => single.variant_avatar && single.url);
+  if(defaultVariantImage) {
+    result = defaultVariantImage.url;
+  }
+  return result;
+};
+
 export const haveAccess = (
   storeId: number,
   accountStores: Array<AccountStoreResponse>
