@@ -1,14 +1,15 @@
-import { DownOutlined, EyeOutlined, FileImageOutlined, PhoneOutlined, PictureOutlined, PlusOutlined } from "@ant-design/icons";
+import { DownOutlined, EyeOutlined, PhoneOutlined, PictureOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Image, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import iconPrint from "assets/icon/Print.svg";
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
+import iconPrint from "assets/icon/Print.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
 import search from "assets/img/search.svg";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getTrackingLogFulfillmentAction, updateOrderPartial
 } from "domain/actions/order/order.action";
@@ -30,6 +31,7 @@ import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
+import { getVariantApi } from "service/product/product.service";
 import {
   checkIfFulfillmentCanceled,
   checkIfOrderCanBeReturned,
@@ -75,9 +77,6 @@ import IconPaymentCash from "./images/tien-mat.svg";
 import InventoryTable from "./InventoryTable";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import { getVariantApi } from "service/product/product.service";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 type PropTypes = {
   tableLoading: boolean;

@@ -68,6 +68,7 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
           handleUpdateSubStatus={handleUpdateSubStatus}
           OrderDetailAllFulfillment={orderDetail}
           setReload={updateOrder ? () => {} : setReload} // update thì ko load lại
+          isDisableUpdate = {updateOrder} // update thì ko cho thay đổi subStatus
         />
       )}
       <Card title="THÔNG TIN BỔ SUNG">
