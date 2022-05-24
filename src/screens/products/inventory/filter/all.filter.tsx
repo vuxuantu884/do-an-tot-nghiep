@@ -113,30 +113,23 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     setLstCollection(data.items);
   }, []);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
-  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
+  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
   const history = useHistory();
-
-  const [designers, setDeisgner] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
-  const setDataDesigners = useCallback(
+  const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) return;
-      setDeisgner((designer) => {
+      setAccounts((accounts) => {
         return {
-          ...designer,
+          ...accounts,
           items: [
-            ...designer.items,
+            ...accounts.items,
             ...data.items
           ],
           metadata: data.metadata,
@@ -146,40 +139,14 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     []
   );
 
-  const setDataWins = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) return;
-      setWins((wins) => {
-        return {
-          ...wins,
-          items: [
-            ...wins.items,
-            ...data.items
-          ],
-          metadata: data.metadata,
-        }
-      });
-    },
-    []
-  );
-
-  const getDesigners = useCallback((code: string, page: number) => {
+  const getAccounts = useCallback((code: string, page: number) => {
     dispatch(
       searchAccountPublicAction(
         { codes: code, page: page },
-        setDataDesigners
+        setDataAccounts
       )
     );
-  }, [dispatch, setDataDesigners]);
-
-  const getWins = useCallback((code: string, page: number) => {
-    dispatch(
-      searchAccountPublicAction(
-        { codes: code, page: page },
-        setDataWins
-      )
-    );
-  }, [dispatch, setDataWins]);
+  }, [dispatch, setDataAccounts]);
 
   useEffect(() => {
     const {
@@ -193,8 +160,19 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       store_ids: store_ids ? Array.isArray(store_ids) ? store_ids.map((i: string) => Number(i)) : [Number(store_ids)] : [],
     };
 
-    if (designer_codes && designer_codes !== '') getDesigners(designer_codes, 1);
-    if (merchandiser_codes && merchandiser_codes !== '') getWins(merchandiser_codes, 1);
+    let codes = null;
+
+    if (designer_codes && designer_codes !== '') {
+      codes = designer_codes;
+    }
+
+    if (merchandiser_codes && merchandiser_codes !== '') {
+      codes = designer_codes && designer_codes !== '' ? codes + ',' + merchandiser_codes : merchandiser_codes;
+    }
+
+    if (codes) {
+      getAccounts(codes, 1)
+    }
 
     formAdvanceFilter.setFieldsValue(filter);
     formBaseFilter.setFieldsValue(filter);
@@ -205,7 +183,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
-  const FilterList = useCallback(({ filters, resetField, listCategory, lstCollection, listCountry, listStore, wins, designers }: any) => {
+  const FilterList = useCallback(({ filters, resetField, listCategory, lstCollection, listCountry, listStore, accounts }: any) => {
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null;
 
@@ -253,7 +231,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               case AvdAllFilter.designer_codes:
                 let designerTag = "";
                 newValues.forEach((item: string) => {
-                  const designer = designers.items?.find((e: any) => e.code === item);
+                  const designer = accounts.items?.find((e: any) => e.code === item);
 
                   designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
                 });
@@ -262,7 +240,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               case AvdAllFilter.merchandiser_codes:
                 let merchandiserTag = "";
                 newValues.forEach((item: string) => {
-                  const win = wins.items?.find((e: any) => e.code === item);
+                  const win = accounts.items?.find((e: any) => e.code === item);
 
                   merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
                 });
@@ -484,12 +462,12 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     setVisible(false);
     onCloseFilterConfig();
   }, [formAdvanceFilter, onCloseFilterConfig]);
-  
+
   const onChangeStore = useCallback((e:Array<number>)=>{
     if (e) {
       let newParams = {...params, store_ids: e.length === 0 ? undefined : e.toString()};
       let queryParam = generateQuery({...newParams});
-      
+
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     }
   },[history, params]);
@@ -498,7 +476,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     if (e) {
       let newParams = {...params, remain: e};
       let queryParam = generateQuery({...newParams});
-      
+
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     }
   },[history, params])
@@ -510,11 +488,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     dispatch(CountryGetAllAction(setListCountry));
     getConfigInventory();
   }, [params, dispatch,getConfigInventory, setDataCategory, setDataCollection]);
-
-  useEffect(()=>{
-    getWins('', 1);
-    getDesigners('', 1);
-  },[getWins, getDesigners]);
 
   return (
       <div className="inventory-filter">
@@ -577,8 +550,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           </FilterWrapper>
         </Form>
         <FilterList
-          wins={wins}
-          designers={designers}
+          accounts={accounts}
           filters={advanceFilters}
           resetField={resetField}
           listCategory={listCategory}
@@ -637,7 +609,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         listStore={listStore}
                         onChange={onChangeStore}
                       />
-                  </Item> 
+                  </Item>
                 </Col>
               </Row>
               <Row gutter={25}>
@@ -697,7 +669,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         </CustomSelect.Option>
                       ))}
                     </CustomSelect>
-                  </Item>      
+                  </Item>
                 </Col>
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
@@ -747,7 +719,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                           />
                         </Item>
                       </Input.Group>
-                    </Item>    
+                    </Item>
                 </Col>
               </Row>
           </Form>
