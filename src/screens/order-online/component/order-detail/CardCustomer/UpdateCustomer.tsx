@@ -8,7 +8,7 @@ import {
   PlusOutlined,
   TeamOutlined,
   UpOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import {
   Button,
@@ -25,17 +25,17 @@ import {
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  CustomerUpdateAction, getCustomerDetailAction,
+  CustomerUpdateAction, getCustomerDetailAction
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
 import {
   CustomerResponse,
-  ShippingAddress,
+  ShippingAddress
 } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
