@@ -33,7 +33,7 @@ type ProductCardUpdateProps = {
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
-  const { shippingFeeInformedCustomer = 0, OrderDetail, totalAmountReturnProducts, customerNeedToPayValue = 0 } = props;
+  const { OrderDetail, totalAmountReturnProducts, customerNeedToPayValue = 0 } = props;
   const ProductColumn = {
     title: () => (
       <div className="text-center">
@@ -373,7 +373,23 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <Row className="payment-row" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
-                {formatCurrency(shippingFeeInformedCustomer || 0)}
+                {(props.OrderDetail &&
+                  props.OrderDetail?.fulfillments &&
+                  props.OrderDetail?.fulfillments.length > 0 &&
+                  props.OrderDetail?.fulfillments[0].shipment &&
+                  props.OrderDetail?.fulfillments[0].shipment
+                    .shipping_fee_informed_to_customer &&
+                  formatCurrency(
+                    props.OrderDetail?.fulfillments[0].shipment
+                      .shipping_fee_informed_to_customer
+                  )) ||
+                  (props.shippingFeeInformedCustomer &&
+                    formatCurrency(props.shippingFeeInformedCustomer)) ||
+                  (props.OrderDetail?.shipping_fee_informed_to_customer &&
+                    formatCurrency(
+                      props.OrderDetail?.shipping_fee_informed_to_customer
+                    )) ||
+                  0}
               </div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
