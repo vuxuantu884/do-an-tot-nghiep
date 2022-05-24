@@ -1,5 +1,5 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { Button, Form } from 'antd'
+import { Button, Collapse, Form } from 'antd'
 import exportIcon from "assets/icon/export.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
@@ -16,10 +16,14 @@ import { executeAnalyticsQueryService, getAnalyticsMetadataService, saveAnalytic
 import { callApiNative } from 'utils/ApiUtils'
 import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
+import { ReportBottomBarStyle } from '../index.style'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
 import AnalyticsProvider, { AnalyticsContext } from '../shared/analytics-provider'
 import AnnotationTableModal from '../shared/annotation-table-modal'
 import ModalFormAnalyticsInfo from '../shared/form-analytics-info-modal'
+
+const { Panel } = Collapse;
+
 function UpdateAnalytics() {
     const [form] = Form.useForm();
     const [formSaveInfo] = Form.useForm();
@@ -277,28 +281,53 @@ function UpdateAnalytics() {
             ]}
         >
             <AnalyticsForm form={form} handleRQuery={handleQueryAfterSubmitForm} mode={mode} chartInfo={chartInfo} />
-            <BottomBarContainer
-                back="Quay lại trang danh sách"
-                backAction={() => history.push(matchPath.replace("/:id", ""))}
-                rightComponent={
-                    <div style={{ display: "inline-flex", columnGap: "10px" }}>
-                        {
-                            currentAnnotation && (
-                                <Button type="primary" ghost onClick={() => setIsVisibleAnnotation(true)}>
-                                    <QuestionCircleOutlined />
-                                    <span className='margin-left-10'>Giải thích thuật ngữ</span>
+            <ReportBottomBarStyle>
+                <BottomBarContainer
+                    classNameContainer="report-bottom-bar-container"
+                    back="Quay lại trang danh sách"
+                    backAction={() => history.push(matchPath.replace("/:id", ""))}
+                    rightComponent={
+                        <>
+                            <Collapse accordion bordered={false} className="report-actions-collapse">
+                                <Panel header="Thao tác với báo cáo" key="1">
+                                    <div className="function-buttons" style={{ display: "inline-flex", columnGap: "10px" }}>
+                                        {
+                                            currentAnnotation && (
+                                                <Button type="primary" ghost onClick={() => setIsVisibleAnnotation(true)}>
+                                                    <QuestionCircleOutlined />
+                                                    <span className='margin-left-10'>Giải thích thuật ngữ</span>
+                                                </Button>
+                                            )
+                                        }
+                                        <Button icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />} loading={isLoadingExport} onClick={handleExportReport}>
+                                            Xuất báo cáo
+                                        </Button>
+                                        <Button type="primary" onClick={() => setIsVisibleFormName(true)}>
+                                            Nhân bản báo cáo
+                                        </Button>
+                                    </div>
+                                </Panel>
+                            </Collapse>
+                            <div className="report-actions" style={{ display: "inline-flex", columnGap: "10px" }}>
+                                {
+                                    currentAnnotation && (
+                                        <Button type="primary" ghost onClick={() => setIsVisibleAnnotation(true)}>
+                                            <QuestionCircleOutlined />
+                                            <span className='margin-left-10'>Giải thích thuật ngữ</span>
+                                        </Button>
+                                    )
+                                }
+                                <Button icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />} loading={isLoadingExport} onClick={handleExportReport}>
+                                    Xuất báo cáo
                                 </Button>
-                            )
-                        }
-                        <Button icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />} loading={isLoadingExport} onClick={handleExportReport}>
-                            Xuất báo cáo
-                        </Button>
-                        <Button type="primary" onClick={() => setIsVisibleFormName(true)}>
-                            Nhân bản báo cáo
-                        </Button>
-                    </div>
-                }
-            />
+                                <Button type="primary" onClick={() => setIsVisibleFormName(true)}>
+                                    Nhân bản báo cáo
+                                </Button>
+                            </div>
+                        </>
+                    }
+                />
+            </ReportBottomBarStyle>
             <ModalFormAnalyticsInfo form={formSaveInfo} title="Nhân bản báo cáo" isVisiable={isVisibleFormName} handleOk={handleSaveReport} handleCancel={handleCancel} />
             <AnnotationTableModal isVisiable={isVisibleAnnotation} handleCancel={() => setIsVisibleAnnotation(false)} annotationData={currentAnnotation?.data || []} documentLink={currentAnnotation?.documentLink || ''} />
 

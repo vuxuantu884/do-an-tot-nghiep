@@ -183,7 +183,7 @@ function Analytics() {
                                     <Form.Item className="m-0" name={FormFilterCustomReport.OnlyMyReport} valuePropName="checked">
                                         <Checkbox onChange={fetchCustomAnalytics}>Báo cáo của tôi</Checkbox>
                                     </Form.Item>
-                                    <Form.Item className="m-0">
+                                    <Form.Item className="m-0 w-sm-100">
                                         <Input
                                             className="search"
                                             allowClear
@@ -192,7 +192,7 @@ function Analytics() {
                                             onChange={_.debounce((event) => onSearchCustomReport(event.target.value), 200)}
                                         />
                                     </Form.Item>
-                                    <Button type='primary' onClick={() => setIsModalCreateVisible(true)}>
+                                    <Button type='primary' className="w-sm-100" onClick={() => setIsModalCreateVisible(true)}>
                                         Tạo báo cáo tuỳ chỉnh
                                     </Button>
                                 </Form>
@@ -200,6 +200,7 @@ function Analytics() {
                         }
                     >
                         <Table dataSource={filteredAnalyticList ? filteredAnalyticList : analyticList}
+                            scroll={{ x: 'max-content' }}
                             rowKey={(record: any) => record.id}
                             rowClassName="ana-list__item"
                             loading={isLoadingAnalyticList}

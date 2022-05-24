@@ -1,5 +1,5 @@
-import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
+import { DownOutlined, EyeOutlined, FileImageOutlined, PhoneOutlined, PictureOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Col, Image, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconPrint from "assets/icon/Print.svg";
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
@@ -34,6 +34,7 @@ import {
   checkIfFulfillmentCanceled,
   checkIfOrderCanBeReturned,
   copyTextToClipboard,
+  findVariantAvatar,
   formatCurrency,
   getOrderTotalPaymentAmount,
   getTotalQuantity, handleFetchApiError,
@@ -54,7 +55,7 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
@@ -74,6 +75,9 @@ import IconPaymentCash from "./images/tien-mat.svg";
 import InventoryTable from "./InventoryTable";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { getVariantApi } from "service/product/product.service";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -184,6 +188,11 @@ function OrdersTable(props: PropTypes) {
       tooltip: "Tiêu điểm",
     },
   ];
+
+  // ảnh hiển thị
+  const [isVisiblePreviewProduct, setIsVisiblePreviewProduct] = useState(false)
+  const [variantPreviewUrl, setVariantPreviewUrl] = useState("")
+
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
       console.log('itemResult', itemResult)
@@ -517,6 +526,25 @@ function OrdersTable(props: PropTypes) {
     return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
   };
 
+  const handleShowVariantImage = (variantId: number) => {
+    dispatch(showLoading())
+    getVariantApi(variantId.toString()).then(response => {
+      if (isFetchApiSuccessful(response)) {
+        const defaultVariantImageUrl = findVariantAvatar(response.data.variant_images);
+        if(defaultVariantImageUrl) {
+          setVariantPreviewUrl(defaultVariantImageUrl)
+          setIsVisiblePreviewProduct(true);
+        } else {
+          showWarning("Không tìm thấy ảnh sản phẩm")
+        }
+      } else {
+        handleFetchApiError(response, "Tìm ảnh sản phẩm", dispatch)
+      }
+    }).finally(() => {
+      dispatch(hideLoading())
+    })
+  };
+
   const initColumnsDefault: ICustomTableColumTypeExtra = useMemo(() => {
     return [
       {
@@ -733,6 +761,7 @@ function OrdersTable(props: PropTypes) {
                   <div className="item custom-td" key={i}>
                     <div className="product productNameWidth 2">
                       <div className="inner">
+                        <PictureOutlined onClick={() =>handleShowVariantImage(item.variant_id)} className="previewImage" title="Click để hiển thị ảnh sản phẩm"/>
                         <Link
                           to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
                           {item.sku}
@@ -1797,6 +1826,22 @@ function OrdersTable(props: PropTypes) {
         toSubStatus={toSubStatusCode}
         setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
+      />
+      {/* hiển thị image ảnh sản phẩm */}
+      <Image
+        width={200}
+        style={{ display: 'none' }}
+        src={variantPreviewUrl}
+        preview={{
+          visible: isVisiblePreviewProduct,
+          src: variantPreviewUrl,
+          onVisibleChange: value => {
+            setIsVisiblePreviewProduct(value);
+            if(!value) {
+              setVariantPreviewUrl("")
+            }
+          },
+        }}
       />
     </StyledComponent>
   );

@@ -613,6 +613,9 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     // color: ${successColor};
     font-weight: bold;
   }
+  .previewImage {
+    margin-right: 6px;
+  }
 `;
 
 export {nameQuantityWidth}

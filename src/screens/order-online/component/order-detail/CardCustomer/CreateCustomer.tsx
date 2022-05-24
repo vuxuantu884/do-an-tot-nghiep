@@ -68,7 +68,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
-  const formRef = createRef<FormInstance>();
+  // const formRef = createRef<FormInstance>();
+  const formRef = useRef<any>();
 
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 

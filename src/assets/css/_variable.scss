@@ -25,6 +25,7 @@ $font-size: 14px;
 $font-size-medium: 18px;
 $font-size-large: 20px;
 $mobile-width: 991px;
+$sm-mobile-width: 576px;
 $tablet-width: 992px;
 $desktop-width: 1400px;
 $black: #000000;
@@ -46,6 +47,12 @@ $link-color-hover: #1890ff;
 
 @mixin desktop {
   @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
+
+@mixin sm-mobile {
+  @media (max-width: #{$sm-mobile-width}) {
     @content;
   }
 }

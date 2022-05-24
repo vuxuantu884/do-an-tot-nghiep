@@ -1,4 +1,8 @@
+@import "variable";
 .modal-confirm {
+  @include sm-mobile() {
+    width: 100% !important;
+  }
   &-container {
     display: flex;
     flex-direction: row;
