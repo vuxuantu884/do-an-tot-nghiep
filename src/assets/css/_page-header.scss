@@ -1,3 +1,4 @@
+// @import "variable";
 .page-header{
   height: 90px;
   top: 0;
@@ -52,6 +53,20 @@
     &-extra{
       display: flex;
       align-items: center;
+    }
+  }
+  @include sm-mobile() {
+    height: auto;
+    padding: 8px 0;
+    &-heading-title {
+      white-space: normal;
+      overflow: visible;
+      font-size: 16px;
+    }
+    &-heading-left {
+      .ant-breadcrumb span .ant-breadcrumb-link {
+        word-break: break-word;
+      }
     }
   }
 }

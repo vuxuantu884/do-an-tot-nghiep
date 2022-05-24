@@ -183,12 +183,12 @@ function CustomerVisitors() {
                     path: UrlConfig.ANALYTIC_SALES_OFFLINE,
                 }, { name: 'Nhập số lượng khách vào cửa hàng' }]}
             >
-                <Form form={form} name="filter-block" initialValues={initialFilterValues}>
+                <Form form={form} name="filter-block" initialValues={initialFilterValues} className="customer-visitors-wrapper">
                     <Card bodyStyle={{ paddingBottom: 0, paddingTop: 0 }} title="Bộ lọc">
-                        <div className="d-flex justify-content-start align-items-end pt-3">
+                        <div className="filter-container d-flex justify-content-start align-items-end py-3">
                             <Form.Item
                                 name={CustomerVisitorsFilter.StoreIds}
-                                className="input-width"
+                                className="input-width filter-item"
                                 help={false}>
                                 <TreeStore
                                     form={form}
@@ -199,7 +199,7 @@ function CustomerVisitors() {
                             </Form.Item>
                             <Form.Item
                                 name={CustomerVisitorsFilter.Month}
-                                className="input-width"
+                                className="input-width filter-item"
                                 help={false}>
                                 <Select
                                     placeholder="Chọn tháng">
@@ -214,7 +214,7 @@ function CustomerVisitors() {
                             </Form.Item>
                             <Form.Item
                                 name={CustomerVisitorsFilter.Year}
-                                className="input-width"
+                                className="input-width filter-item"
                                 help={false}>
                                 <Select
                                     placeholder="Chọn năm">
@@ -227,7 +227,7 @@ function CustomerVisitors() {
                                     })}
                                 </Select>
                             </Form.Item>
-                            <Form.Item>
+                            <Form.Item className="filter-item">
                                 <Button type="primary" onClick={() => handleFilter()}>Lọc</Button>
                             </Form.Item>
                         </div>
@@ -244,13 +244,13 @@ function CustomerVisitors() {
                                     sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                                     pagination={{defaultPageSize: 30, showSizeChanger: false }}
                                     bordered={true}
+                                    className="customer-visitors-table"
                                 >
                                     {columns.map((item: any, index: number) => {
                                         return (
                                             <Table.Column<any>
-                                                ellipsis
                                                 align="center"
-                                                className="px-1"
+                                                className="px-1 x-table-cell"
                                                 title={
                                                     <Tooltip
                                                         title={item.key.includes('day') ? (item.isToday ? 'Hôm nay' : `${item.title}/${form.getFieldValue(CustomerVisitorsFilter.Month)}/${form.getFieldValue(CustomerVisitorsFilter.Year)}`) : item.title}>

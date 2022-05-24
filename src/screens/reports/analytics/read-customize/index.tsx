@@ -345,7 +345,6 @@ function CreateAnalytics() {
                         <Button
                           type="primary"
                           ghost
-                          className="margin-left-20"
                           onClick={() => setIsVisibleAnnotation(true)}>
                           <QuestionCircleOutlined />
                           <span className="margin-left-10">Giải thích thuật ngữ</span>
@@ -394,7 +393,6 @@ function CreateAnalytics() {
                     <Button
                       type="primary"
                       ghost
-                      className="margin-left-20"
                       onClick={() => setIsVisibleAnnotation(true)}>
                       <QuestionCircleOutlined />
                       <span className="margin-left-10">Giải thích thuật ngữ</span>

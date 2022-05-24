@@ -12,16 +12,15 @@ export const AnalyticsStyle = styled.div`
     .filter-btn {
         margin-left: auto;
     }
+    .report-filter-item {
+        margin: 0;
+    }
     @media screen and (max-width: 768px) {
         .group-report-type {
             gap: 10px;
         }
-        .report-filter-item {
-            margin: 0;
-        }
         .filter-btn {
             margin-left: 0;
-            margin-bottom: 10px;
         }
     }
     @media screen and (max-width: 576px) {
@@ -68,11 +67,27 @@ export const AnalyticsStyle = styled.div`
         }
     }
 }
-.report-filter-wrapper {
+.chart-filter-wrapper {
     .chart-filter-container {
         display: flex;
         justify-content: flex-end;
         align-items: center;
+    }
+    @media screen and (max-width: 768px) {
+        .ant-card-head-wrapper {
+            flex-direction: column;
+            .ant-card-extra {
+                float: none;
+                width: 100%;
+                .chart-filter-container {
+                    justify-content: space-between;
+                    .chart-filter-item {
+                        width: 45%;
+                        margin: 10px 0;
+                    }
+                }
+            }
+        }
     }
     @media screen and (max-width: 576px) {
         .ant-card-head-wrapper {
@@ -256,10 +271,24 @@ export const ActiveFiltersStyle = styled.div`
 
 export const ReportBottomBarStyle = styled.div`
     .report-bottom-bar-container {
+        flex-wrap: wrap;
+        height: auto !important;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        .bottom__left {
+            padding: 8px 0;
+            margin-right: 20px;
+        }
+        .bottom__right .report-actions {
+            flex-wrap: wrap;
+        }
         .report-actions-collapse {
             display: none;
         }
-        @media screen and (max-width: 576px) {
+        @media screen and (max-width: 768px) {
+            flex-direction: column;
+            width: 100%;
+            padding: 0;
             .report-actions-collapse {
                 display: block;
                 width: 100%;
@@ -268,15 +297,11 @@ export const ReportBottomBarStyle = styled.div`
             .report-actions {
                 display: none !important;
             }
-            flex-direction: column;
-            width: 100%;
-            height: auto !important;
-            padding: 0;
-            .bottom__left {
-                padding: 10px 0;
-            }
             .bottom__right {
                 width: 100%;
+                .ant-collapse>.ant-collapse-item>.ant-collapse-header {
+                    padding: 8px 12px;
+                }
                 .function-buttons {
                     width: 100%;
                     display: flex !important;
