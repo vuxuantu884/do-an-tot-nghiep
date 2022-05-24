@@ -377,7 +377,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 onFinishFailed={handleFinishFailed}
                 form={form}
                 name="report-form-base">
-                <Card bodyStyle={{ paddingBottom: 0, paddingTop: 8 }} className="report-filter-wrapper">
+                <Card bodyStyle={{ paddingBottom: 8, paddingTop: 8 }} className="report-filter-wrapper">
                     <div className="group-report-type">
                         {cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
                             <Form.Item
@@ -448,7 +448,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                     </div>
                 </Card>
                 <Card
-                    className="report-filter-wrapper"
+                    className="chart-filter-wrapper"
                     title="Biểu đồ"
                     extra={
                         <div className="chart-filter-container">

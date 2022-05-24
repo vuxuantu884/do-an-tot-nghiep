@@ -54,4 +54,7 @@ const FilterAdvancedDrawer = ({
 export default FilterAdvancedDrawer;
 
 const DrawerContainer = styled(Drawer)`
+  .ant-drawer-content-wrapper {
+    max-width: 100%;
+  }
 `;
