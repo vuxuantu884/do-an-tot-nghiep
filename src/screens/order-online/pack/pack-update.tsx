@@ -82,7 +82,7 @@ const PackUpdate: React.FC = () => {
   useEffect(() => {
     if (packDetail) {
       let result: GoodsReceiptsInfoOrderModel[] = [];
-      packDetail.orders?.forEach((itemOrder, index) => {
+      packDetail.orders?.forEach(function (itemOrder, index) {
         let product: VariantModel[] = [];
         let ship_price = 0;
         let total_price = 0;
@@ -99,10 +99,10 @@ const PackUpdate: React.FC = () => {
 
         if (fulfillments && fulfillments.length > 0) {
           let indexFFM = fulfillments.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
-          ship_price = itemOrder?.shipping_fee_informed_to_customer || 0;
+          ship_price = fulfillments[indexFFM]?.shipment?.shipping_fee_informed_to_customer || 0;
           total_price = fulfillments[indexFFM].total || 0;
 
-          fulfillments[indexFFM].items.forEach((itemProduct) => {
+          fulfillments[indexFFM].items.forEach(function (itemProduct) {
             product.push({
               sku: itemProduct.sku,
               product_id: itemProduct.product_id,

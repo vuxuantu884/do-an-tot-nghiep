@@ -161,7 +161,8 @@ const OrderDetail = (props: PropType) => {
     },
   ]
   // đổi hàng
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
+  //   useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
@@ -251,6 +252,10 @@ const OrderDetail = (props: PropType) => {
     cauHinhInNhieuLienHoaDon: 1,
   });
 
+  // const handleReload = () => {
+  //   window.location.reload();
+  // };
+
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
     if (OrderDetail?.order_return_origin?.id) {
@@ -330,8 +335,15 @@ const OrderDetail = (props: PropType) => {
       );
 
       setOrderDetail(_data);
-      setShippingFeeInformedCustomer(_data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0);
-      form.setFieldsValue({shipping_fee_informed_to_customer: _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0})
+      // setOrderDetail({
+      //   ..._data,
+      //   affiliate: '123',
+      //   utm_source: '123',
+      //   utm_medium: '123',
+      //   utm_campaign: '123',
+      //   utm_term: '123',
+      //   utm_content: '123',
+      // });
       setOrderDetailAllFulfillment(data);
       setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
       if (_data.sub_status_code) {
@@ -339,6 +351,7 @@ const OrderDetail = (props: PropType) => {
       }
       if (
         _data.status === OrderStatus.DRAFT &&
+        // _data.fulfillments?.length === 0 &&
         _data.payments?.length === 0
       ) {
         setIsShowConfirmOrderButton(true);
@@ -349,7 +362,7 @@ const OrderDetail = (props: PropType) => {
         setTotalAmountReturnProducts(_data.order_return_origin?.total);
       }
     }
-  }, [form]);
+  }, []);
 
   const handleUpdateSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
@@ -460,6 +473,7 @@ const OrderDetail = (props: PropType) => {
           history.push(`${UrlConfig.ORDER}/${id}/update`);
           break;
         case "clone":
+          // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
           const newTab = window.open(
             `/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
             "_blank"
@@ -519,6 +533,7 @@ const OrderDetail = (props: PropType) => {
       };
       dispatch(
         confirmDraftOrderAction(OrderDetail.id, params, (response) => {
+          // handleReload();
           setReload(true);
         })
       );
@@ -558,7 +573,10 @@ const OrderDetail = (props: PropType) => {
 
   useEffect(() => {
     if (isFirstLoad.current || reload) {
+      // if (!Number.isNaN(OrderId)) {
       if (id) {
+        setShipmentMethod(4);
+        setShippingFeeInformedCustomer(0);
         dispatch(OrderDetailAction(id, onGetDetailSuccess));
       } else {
         setError(true);
@@ -580,8 +598,15 @@ const OrderDetail = (props: PropType) => {
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
     const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
     const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
+    console.log('trackingCode', trackingCode)
+    console.log('stepsStatusValue', stepsStatusValue)
+    console.log('pushingStatus', pushingStatus)
+    console.log('isRequest', isRequest)
+    console.log('numberReloadGetTrackingCodeGHTK', numberReloadGetTrackingCodeGHTK)
+    console.log('sortedFulfillments[0]?.shipment?.delivery_service_provider_code', sortedFulfillments[0]?.shipment?.delivery_service_provider_code)
     let getTrackingCode = setInterval(()=> {
       if (numberReloadGetTrackingCodeGHTK < maxNumberReloadGetTrackingCodeGHTK && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
+        console.log('den day')
         getOrderDetail(id).then(response => {
           numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
           const sortedFulfillments = sortFulfillments(response.data?.fulfillments ? response.data?.fulfillments : []);
@@ -666,16 +691,38 @@ const OrderDetail = (props: PropType) => {
   }, []);
 
   // khách cần trả
-  const customerNeedToPayValue = useMemo(()=> {
-    return (OrderDetail?.total_line_amount_after_line_discount ? OrderDetail?.total_line_amount_after_line_discount : 0 )
-    + shippingFeeInformedCustomer -
-    (OrderDetail?.discounts &&
-      OrderDetail?.discounts.length > 0 &&
-      OrderDetail?.discounts[0]?.amount
-      ? OrderDetail?.discounts[0].amount
-      : 0);
-  }, [shippingFeeInformedCustomer, OrderDetail?.total_line_amount_after_line_discount, OrderDetail?.discounts]);
+  const customerNeedToPay: any = () => {
+    if (
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+    ) {
+      return (
+        OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0]?.amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
+      );
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0]?.amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
+      );
+    }
+    return 0;
+  };
 
+  const customerNeedToPayValue = customerNeedToPay();
   const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
   // end
   const scroll = useCallback(() => {
@@ -801,6 +848,7 @@ const OrderDetail = (props: PropType) => {
               <UpdateProductCard
                 OrderDetail={OrderDetail}
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                // shippingFeeInformedCustomer={form.getFieldValue("shipping_fee_informed_to_customer")}
                 customerNeedToPayValue={customerNeedToPayValue}
                 totalAmountReturnProducts={totalAmountReturnProducts}
               />
@@ -982,8 +1030,13 @@ const OrderDetail = (props: PropType) => {
                                     showPartialPayment={true}
                                     isVisibleUpdatePayment={isVisibleUpdatePayment}
                                     amount={
-                                      customerNeedToPayValue -
-                                      getAmountPayment(OrderDetail.payments)
+                                      OrderDetail.total_line_amount_after_line_discount -
+                                      getAmountPayment(OrderDetail.payments) -
+                                      (OrderDetail?.discounts &&
+                                        OrderDetail?.discounts.length > 0 &&
+                                        OrderDetail?.discounts[0]?.amount
+                                        ? OrderDetail?.discounts[0].amount
+                                        : 0)
                                     }
                                     disabled={
                                       stepsStatusValue === OrderStatus.CANCELLED ||
@@ -1113,7 +1166,7 @@ const OrderDetail = (props: PropType) => {
                     setPayments={onPayments}
                     paymentMethod={paymentMethod}
                     shipmentMethod={shipmentMethod}
-                    amount={customerNeedToPayValue}
+                    amount={OrderDetail.total + shippingFeeInformedCustomer}
                     order_id={OrderDetail.id}
                     orderDetail={OrderDetail}
                     showPartialPayment={false}
@@ -1151,7 +1204,6 @@ const OrderDetail = (props: PropType) => {
                 storeDetail={storeDetail}
                 stepsStatusValue={stepsStatusValue}
                 totalPaid={totalPaid}
-                customerNeedToPayValue={customerNeedToPayValue}
                 officeTime={officeTime}
                 shipmentMethod={shipmentMethod}
                 isVisibleShipping={isVisibleShipping}
@@ -1168,6 +1220,24 @@ const OrderDetail = (props: PropType) => {
                 ref={updateShipmentCardRef}
               />
               {/*--- end shipment ---*/}
+
+              {/* <CardShipment
+                shipmentMethod={shipmentMethod}
+                orderPrice={OrderDetail?.total_line_amount_after_line_discount}
+                storeDetail={storeDetail}
+                customer={customerDetail}
+                items={OrderDetail?.items}
+                isCancelValidateDelivery={false}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
+                setShipmentMethod={setShipmentMethod}
+                setHVC={setHvc}
+                form={form}
+                serviceType3PL={serviceType3PL}
+                setServiceType3PL={setServiceType3PL}
+              /> */}
+
+              {/* {renderShipment()} */}
 
               {OrderDetail?.order_return_origin?.items && (
                 <CardReturnReceiveProducts

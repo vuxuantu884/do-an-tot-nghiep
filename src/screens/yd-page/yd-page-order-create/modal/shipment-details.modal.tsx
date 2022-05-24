@@ -132,7 +132,7 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
             <div>Phí giao hàng:</div>
             <div style={{ color: "#2A2A86" }}>
               <NumberFormat
-                value={shipmentDetails?.order?.shipping_fee_informed_to_customer ? shipmentDetails.order.shipping_fee_informed_to_customer : 0}
+                value={shipmentDetails?.shipment?.shipping_fee_informed_to_customer ? shipmentDetails.shipment.shipping_fee_informed_to_customer : 0}
                 className="foo"
                 displayType={"text"}
                 thousandSeparator={true}
