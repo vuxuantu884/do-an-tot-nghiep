@@ -343,7 +343,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           onFilter &&
             onFilter({ ...params, returned_date_min: null, returned_date_max: null });
           break;
-        case "exported":
+        case "exported_on":
           setExportedClick("");
           onFilter &&
             onFilter({ ...params, exported_on_min: null, exported_on_max: null });
