@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { STATUS_INVENTORY_TRANSFER } from "../../constants";
+import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
 
 export const BG_COLOR_TAG = {
   TRANSFERRING: {
