@@ -80,6 +80,7 @@ import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderSt
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import CreateBillStep from "component/header/create-bill-step";
 import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
+import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
 
 const {Panel} = Collapse;
 
@@ -667,14 +668,8 @@ const OrderDetail = (props: PropType) => {
 
   // khách cần trả
   const customerNeedToPayValue = useMemo(()=> {
-    return (OrderDetail?.total_line_amount_after_line_discount ? OrderDetail?.total_line_amount_after_line_discount : 0 )
-    + shippingFeeInformedCustomer -
-    (OrderDetail?.discounts &&
-      OrderDetail?.discounts.length > 0 &&
-      OrderDetail?.discounts[0]?.amount
-      ? OrderDetail?.discounts[0].amount
-      : 0);
-  }, [shippingFeeInformedCustomer, OrderDetail?.total_line_amount_after_line_discount, OrderDetail?.discounts]);
+    return (OrderDetail?.total || 0);
+  }, [OrderDetail?.total]);
 
   const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
   // end
@@ -822,321 +817,24 @@ const OrderDetail = (props: PropType) => {
                     handleReturnMoney={handleReturnMoney}
                   />
                 )}
-
-              {/*--- payment ---*/}
-              {OrderDetail !== null &&
-                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
-                  (OrderDetail.fulfillments &&
-                    OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined) || (OrderDetail.payments?.length  === 0 && OrderDetail.total === 0)) && (
-                  <Card
-                    title={
-                      <Space>
-                        <div className="d-flex">
-                          <span className="title-card">THANH TOÁN</span>
-                        </div>
-                        <PaymentStatusTag orderDetail={OrderDetail} />
-                      </Space>
-                    }
-                  >
-                    <div style={{ marginBottom: 20 }}>
-                      <Row>
-                        <Col span={8}>
-                          <span className="text-field margin-right-40">
-                            Đã thanh toán:
-                          </span>
-                          <b>
-                            {(OrderDetail?.fulfillments &&
-                              OrderDetail?.fulfillments.length > 0 &&
-                              OrderDetail?.fulfillments[0].status === "shipped" &&
-                              formatCurrency(customerNeedToPayValue)) ||
-                              formatCurrency(getAmountPayment(OrderDetail.payments))}
-                          </b>
-                        </Col>
-                        <Col span={8}>
-                          <span className="text-field margin-right-40">
-                            Còn phải trả:
-                          </span>
-                          <b style={{ color: "red" }}>
-                            {formatCurrency(
-                              customerNeedToPayValue - totalPaid > 0 ? customerNeedToPayValue - totalPaid : 0
-                            )}
-                          </b>
-                        </Col>
-                        {customerNeedToPayValue - totalPaid < 0 ? (
-                          <Col span={8}>
-                            <span className="text-field margin-right-40">
-                              Đã hoàn tiền cho khách:
-                            </span>
-                            <b style={{ color: yellowColor }}>
-                              {formatCurrency(
-                                Math.abs(
-                                  customerNeedToPayValue - totalPaid
-                                )
-                              )}
-                            </b>
-                          </Col>
-                        ) : null}
-                      </Row>
-                    </div>
-
-                    {OrderDetail?.payments && (
-                      <div>
-                        <div style={{ padding: "0 24px" }}>
-                          <Collapse
-                            className="orders-timeline"
-                            defaultActiveKey={["100"]}
-                            ghost
-                          >
-                            {OrderDetail.total === SumCOD(OrderDetail) &&
-                            OrderDetail.total === totalPaid ? (
-                              ""
-                            ) : (
-                              <React.Fragment>
-                                {OrderDetail?.payments
-                                  .filter((payment) => {
-                                    // nếu là đơn trả thì tính cả cod
-                                    // if (OrderDetail.order_return_origin) {
-                                    //   return true;
-                                    // }
-                                    return (
-                                      payment.payment_method_code !== PaymentMethodCode.COD
-                                      // && payment.amount
-                                    );
-                                  })
-                                  .map((payment: any, index: number) => (
-                                    <Panel
-                                      showArrow={false}
-                                      className="orders-timeline-custom success-collapse"
-                                      header={
-                                        <div className="orderPaymentItem">
-                                          <div className="orderPaymentItem__left">
-                                            <div>
-                                              {/* <b>{payment.payment_method}</b> */}
-                                              {/* trường hợp số tiền âm là hoàn lại tiền */}
-                                              <b>
-                                                {payment.paid_amount < 0
-                                                  ? "Hoàn tiền cho khách"
-                                                  : payment.payment_method}
-                                              </b>
-                                              <span style={{marginLeft: 12}}>
-                                                {payment.reference}
-                                              </span>
-                                              {payment.bank_account_number ? renderBankAccount(payment): null}
-                                              {payment.payment_method_id === 5 && (
-                                                <span style={{marginLeft: 10}}>
-                                                  {payment.amount / 1000} điểm
-                                                </span>
-                                              )}
-                                            </div>
-                                            <span className="amount">
-                                              {formatCurrency(
-                                                Math.abs(payment.paid_amount)
-                                              )}
-                                            </span>
-                                          </div>
-                                          <div className="orderPaymentItem__right">
-                                            <span className="date">
-                                              {ConvertUtcToLocalDate(
-                                                payment.created_date,
-                                                "DD/MM/YYYY HH:mm"
-                                              )}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      }
-                                      key={index}
-                                    ></Panel>
-                                  ))}
-                              </React.Fragment>
-                            )}
-                            {isShowPaymentPartialPayment && OrderDetail !== null && (
-                              <Panel
-                                className="orders-timeline-custom orders-dot-status"
-                                showArrow={false}
-                                header={
-                                  <b
-                                    style={{
-                                      paddingLeft: "14px",
-                                      color: "#222222",
-                                      textTransform: "uppercase",
-                                    }}
-                                  >
-                                    Lựa chọn 1 hoặc nhiều phương thức thanh toán
-                                  </b>
-                                }
-                                key="100"
-                              >
-                                {isShowPaymentPartialPayment && OrderDetail !== null && (
-                                  <UpdatePaymentCard
-                                    setPaymentMethod={onPaymentSelect}
-                                    setVisibleUpdatePayment={setVisibleUpdatePayment}
-                                    setShowPaymentPartialPayment={
-                                      setShowPaymentPartialPayment
-                                    }
-                                    setPayments={onPayments}
-                                    // setTotalPaid={setTotalPaid}
-                                    orderDetail={OrderDetail}
-                                    paymentMethod={paymentMethod}
-                                    shipmentMethod={shipmentMethod}
-                                    order_id={OrderDetail.id}
-                                    showPartialPayment={true}
-                                    isVisibleUpdatePayment={isVisibleUpdatePayment}
-                                    amount={
-                                      customerNeedToPayValue -
-                                      getAmountPayment(OrderDetail.payments)
-                                    }
-                                    disabled={
-                                      stepsStatusValue === OrderStatus.CANCELLED ||
-                                      stepsStatusValue === FulFillmentStatus.SHIPPED
-                                    }
-                                    reload={() => {
-                                      setReload(true);
-                                    }}
-                                    disabledActions={disabledActions}
-                                    listPaymentMethods={listPaymentMethods}
-                                    form={form}
-                                    isDisablePostPayment={isDisablePostPayment}
-                                  />
-                                )}
-                              </Panel>
-                            )}
-                            {OrderDetail?.fulfillments &&
-                              OrderDetail?.fulfillments.length > 0 &&
-                              OrderDetail?.fulfillments[0].shipment &&
-                              OrderDetail?.fulfillments[0].shipment.cod > 0 && (
-                                <Panel
-                                  className={
-                                    OrderDetail?.fulfillments[0].status !== "shipped"
-                                      ? "orders-timeline-custom orders-dot-status"
-                                      : "orders-timeline-custom "
-                                  }
-                                  showArrow={false}
-                                  header={
-                                    <>
-                                      <div className="orderPaymentItem">
-                                        <div className="orderPaymentItem__left">
-                                          <b>
-                                            COD
-                                            {OrderDetail.fulfillments[0].status !==
-                                              "shipped" ? (
-                                                <Tag
-                                                  className="orders-tag orders-tag-warning"
-                                                  style={{ marginLeft: 10 }}
-                                                >
-                                                  Đang chờ thu
-                                                </Tag>
-                                              ) : (
-                                                <Tag
-                                                  className="orders-tag orders-tag-success"
-                                                  style={{
-                                                    backgroundColor:
-                                                      "rgba(39, 174, 96, 0.1)",
-                                                    color: "#27AE60",
-                                                    marginLeft: 10,
-                                                  }}
-                                                >
-                                                  Đã thu COD
-                                                </Tag>
-                                              )}
-                                          </b>
-                                          <span className="amount">
-                                            {OrderDetail !== null &&
-                                              OrderDetail?.fulfillments
-                                              ? formatCurrency(
-                                                OrderDetail.fulfillments[0].shipment
-                                                  ?.cod
-                                              )
-                                              : 0}
-                                          </span>
-                                        </div>
-                                        <div className="orderPaymentItem__right">
-                                          {OrderDetail?.fulfillments[0].status ===
-                                            "shipped" && (
-                                              <div>
-                                                <span className="date">
-                                                  {ConvertUtcToLocalDate(
-                                                    OrderDetail?.updated_date,
-                                                    "DD/MM/YYYY HH:mm"
-                                                  )}
-                                                </span>
-                                              </div>
-                                            )}
-                                        </div>
-                                      </div>
-                                    </>
-                                  }
-                                  key="100"
-                                ></Panel>
-                              )}
-                          </Collapse>
-                        </div>{" "}
-                      </div>
-                    )}
-
-                    {(OrderDetail?.fulfillments &&
-                      OrderDetail?.fulfillments.length > 0 &&
-                      OrderDetail?.fulfillments[0].shipment &&
-                      OrderDetail?.fulfillments[0].shipment.cod !== null) ||
-                      (checkPaymentAll(OrderDetail) !== 1 &&
-                        isShowPaymentPartialPayment === false &&
-                        checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                          <div className="text-right">
-                            <Divider style={{ margin: "10px 0" }} />
-                            <Button
-                              type="primary"
-                              className="ant-btn-outline fixed-button"
-                              onClick={() => setShowPaymentPartialPayment(true)}
-                              style={{ marginTop: 10 }}
-                              // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
-                              disabled={
-                                OrderDetail.source_code !== "POS" &&
-                                (stepsStatusValue === OrderStatus.CANCELLED ||
-                                  stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                                  disabledBottomActions)
-                              }
-                            >
-                              Thanh toán
-                            </Button>
-                          </div>
-                        ))}
-                  </Card>
-                )}
-
-              {/* Chưa thanh toán đơn nháp*/}
-              {OrderDetail &&
-                OrderDetail.payments?.length === 0 &&
-                (OrderDetail.fulfillments?.length === 0 ||
-                  (OrderDetail?.fulfillments &&
-                    OrderDetail.fulfillments[0].shipment === null)) && OrderDetail.total > 0 && (
-                  <UpdatePaymentCard
-                    setPaymentMethod={onPaymentSelect}
-                    setPayments={onPayments}
-                    paymentMethod={paymentMethod}
-                    shipmentMethod={shipmentMethod}
-                    amount={customerNeedToPayValue}
-                    order_id={OrderDetail.id}
-                    orderDetail={OrderDetail}
-                    showPartialPayment={false}
-                    // setTotalPaid={setTotalPaid}
-                    isVisibleUpdatePayment={isVisibleUpdatePayment}
-                    setVisibleUpdatePayment={setVisibleUpdatePayment}
-                    // đơn POS vẫn cho thanh toán tiếp khi chưa thanh toán đủ
-                    disabled={
-                      OrderDetail.source_code !== "POS" &&
-                      (stepsStatusValue === OrderStatus.CANCELLED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                        disabledBottomActions)
-                    }
-                    reload={() => {
-                      setReload(true);
-                    }}
-                    disabledActions={disabledActions}
-                    listPaymentMethods={listPaymentMethods}
-                    form={form}
-                  />
-                )}
-
-              {/*--- end payment ---*/}
+              
+              <CardShowOrderPayments 
+                OrderDetail={OrderDetail}
+                disabledActions={disabledActions}
+                disabledBottomActions={disabledBottomActions}
+                form={form}
+                isDisablePostPayment={isDisablePostPayment}
+                isShowPaymentPartialPayment={isShowPaymentPartialPayment}
+                isVisibleUpdatePayment={isVisibleUpdatePayment}
+                onPaymentSelect={onPaymentSelect}
+                paymentMethod={paymentMethod}
+                paymentMethods={listPaymentMethods}
+                setReload={setReload}
+                setShowPaymentPartialPayment={setShowPaymentPartialPayment}
+                setVisibleUpdatePayment={setVisibleUpdatePayment}
+                shipmentMethod={shipmentMethod}
+                stepsStatusValue={stepsStatusValue}
+              />
 
               {/*--- shipment ---*/}
               <UpdateShipmentCard
