@@ -886,7 +886,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         (initialValues.returning_date_max ? initialValues.returning_date_max : "??");
       list.push({
         key: "returning",
-        name: "Ngày trả hàng",
+        name: "Ngày đang hoàn ",
         value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
       });
     }
@@ -898,7 +898,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         (initialValues.returned_date_max ? initialValues.returned_date_max : "??");
       list.push({
         key: "returned",
-        name: "Ngày nhận trả hàng",
+        name: "Ngày đã hoàn",
         value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>,
       });
     }
@@ -1870,7 +1870,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
-                    <label>Ngày trả hàng</label>
+                    <label>Ngày đang hoàn</label>
                   </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="returning_date_min"
@@ -1883,7 +1883,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                 </Col>
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
-                    <label>Ngày nhận trả hàng</label>
+                    <label>Ngày đã hoàn</label>
                   </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="returned_date_min"
