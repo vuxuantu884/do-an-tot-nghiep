@@ -243,7 +243,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                     // checked={allChecked}
                     onChange={(e) => fillAllLineReturn(e.target.checked)}
                   >
-                    Trả toàn bộ sản phẩmss
+                    Trả toàn bộ sản phẩm
                   </Checkbox>
                   <Form.Item
                     style={{ padding: 0 }}
@@ -394,7 +394,6 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                         width: "50%",
                                       }}
                                       className="hide-number-handle"
-                                      max={numberCanReturn}
                                       min={0}
                                       value={currentValue}
                                       default={0}
@@ -606,9 +605,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               {formatCurrency(totalReturn)}
                             </div>
                           </div>
-                          {vatLine.map((item: Vat) => {
+                          {vatLine.map((item: Vat, index: number) => {
                             return (
-                              <div className="po-payment-row">
+                              <div className="po-payment-row" key={index}>
                                 <div>{`VAT (${item.rate}%):`}</div>
                                 <div className="po-payment-row-result">
                                   {formatCurrency(Math.round(item.amount))}
