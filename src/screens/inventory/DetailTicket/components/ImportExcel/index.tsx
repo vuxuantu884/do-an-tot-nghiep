@@ -23,7 +23,7 @@ export interface ModalImportProps {
   cancelText?: string;
   loading?: boolean;
   dataTable?: Array<VariantResponse>
-};
+}
 
 type ImportProps = {
   barcode: string,
@@ -218,6 +218,14 @@ const ImportExcel: React.FC<ModalImportProps> = (
 
           console.log(dataTable, convertData)
           for (let i = 0; i < dataTable.length; i++) {
+
+            dataTable[i] = {
+              ...dataTable[i],
+              id: null,
+              variant_id: dataTable[i].id,
+              transfer_quantity: 0,
+              real_quantity: null
+            }
             let real_quantity: any = null;
 
             const findIndex = convertData.findIndex((e) => e.barcode.toString() === dataTable[i].barcode.toString());
@@ -228,19 +236,22 @@ const ImportExcel: React.FC<ModalImportProps> = (
             if (dataTable[i].reference_barcodes) {
               const referenceBarcodes = dataTable[i].reference_barcodes.split(',');
 
-              referenceBarcodes.forEach((item: any, index: number) => {
+              referenceBarcodes.forEach((item: any) => {
                 let idx: number = convertData.findIndex((e) => e.barcode.toString() === item.toString());
 
-                real_quantity = real_quantity + idx;
+                if (idx >= 0) {
+                  real_quantity = real_quantity + convertData[idx].quantity;
+                }
               });
             }
 
             dataTable[i].real_quantity = real_quantity;
           }
 
-          console.log(dataTable)
-
-          setData(dataTable);
+          setData([
+            ...data,
+            ...dataTable
+          ]);
 
           //newItem.real_quantity = convertData[findIndex].quantity;
         }
