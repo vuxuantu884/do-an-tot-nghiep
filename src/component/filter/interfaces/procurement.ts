@@ -57,3 +57,15 @@ export interface ProcurementFilter {
   stores: string;
   suppliers: string;
 }
+
+export enum ProcurementItemsFilterAdvanceEnum {
+  stock_in_date = "stock_in_date",
+  stock_in_by = "stock_in_by",
+  note = "note"
+}
+
+export const ProcurementItemsFilterAdvanceName = {
+  [ProcurementItemsFilterAdvanceEnum.stock_in_date]: "Ngày nhập kho",
+  [ProcurementItemsFilterAdvanceEnum.stock_in_by]: "Người nhận",
+  [ProcurementItemsFilterAdvanceEnum.note]: "Ghi chú",
+};

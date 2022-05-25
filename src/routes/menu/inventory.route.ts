@@ -190,6 +190,18 @@ export const inventory: Array<RouteMenu> = [
         permissions: [PurchaseOrderPermission.procurements_read],
         subMenu: [],
       },
+      {
+        path: `${ProcurementTabUrl.PRODUCTS}`,
+        exact: true,
+        title: "Nhập kho",
+        icon: "icon-dot",
+        component: ProcurementScreen,
+        key: "submenu254",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.procurements_read],
+        subMenu: [],
+      },
       // Do cải tiến PO và Procurement nên tạm thời k sử dụng 2 tabs này
       // {
       //   path: `${ProcurementTabUrl.TODAY}`,
