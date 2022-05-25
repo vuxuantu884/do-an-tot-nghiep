@@ -18,6 +18,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { POUtils } from "utils/POUtils";
+import { fullTextSearch } from "utils/StringUtils";
 import EmptyPlaceholder from "./EmptyPlaceholder";
 import POProgressView from "./po-progress-view";
 import "./po-return-form.scss";
@@ -195,10 +196,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                   showArrow
                                   optionFilterProp="children"
                                   placeholder="Chọn kho"
+                                  allowClear
+                                  filterOption={(input, option) => fullTextSearch(input, option?.children)}
                                 >
-                                  <Select.Option value="">
-                                    Chọn kho trả hàng
-                                  </Select.Option>
                                   {listStore.map((item) => (
                                     <Select.Option
                                       key={item.id}
