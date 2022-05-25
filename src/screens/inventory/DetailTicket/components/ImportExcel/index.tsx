@@ -161,39 +161,7 @@ const ImportExcel: React.FC<ModalImportProps> = (
               error.push(`Dòng ${element.lineNumber}: Số lượng chỉ được nhập kiểu số nguyên`);
               process.error += 1;
             }
-
-
-            //tìm kiếm sản phẩm đã có chưa có trên phiếu thì cập nhật số lượng không thì phải đi call api lấy thông tin
-            // if (fi >= 0) {
-            //   data[fi].real_quantity = element.quantity;
-            //   process.success += 1;
-            // } else {
-            //   //call api lấy sản phẩm vào phiếu
-            //   let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: element.barcode, store_ids: null });
-            //   if (res && res.items && res.items.length > 0) {
-            //     let newItem: VariantResponse = {
-            //       ...res.items[0],
-            //       id: null,
-            //       variant_id: res.items[0].id,
-            //       transfer_quantity: 0,
-            //       real_quantity: null
-            //     }
-            //
-            //     const findIndex = convertData.findIndex(e => e.barcode && (e.barcode.toString() === newItem.barcode.toString()));
-            //
-            //     if (findIndex >= 0) {
-            //       newItem.real_quantity = convertData[findIndex].quantity;
-            //     }
-            //     data.push(newItem);
-            //     process.success += 1;
-            //   }else{
-            //      error.push(`${element.barcode}: Sản phẩm không tồn tại trên hệ thống`);
-            //      process.error += 1;
-            //   }
-            // }
           }
-
-          console.log(convertData)
 
           const barcodes: string[] = convertData.map((item) => item.barcode);
           let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: barcodes.join(','), store_ids: null, limit: 1000 });
@@ -216,7 +184,6 @@ const ImportExcel: React.FC<ModalImportProps> = (
             }
           }
 
-          console.log(dataTable, convertData)
           for (let i = 0; i < dataTable.length; i++) {
 
             dataTable[i] = {
