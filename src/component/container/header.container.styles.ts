@@ -59,4 +59,24 @@ export const StyledComponent = styled.div`
 		height:30px;
 	}
   }
+  .hotline-info {
+		display: flex;
+		align-items: center;
+		margin-right: 10px;
+		.phone-number {
+			font-weight: bold;
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+      }
+		}
+  }
+  .support-link {
+		margin-right: 10px;
+    &:hover {
+      color: #1890ff;
+			cursor: pointer;
+			text-decoration: underline;
+    }
+  }
 `;
