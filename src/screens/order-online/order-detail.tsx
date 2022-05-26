@@ -80,6 +80,7 @@ import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderSt
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import CreateBillStep from "component/header/create-bill-step";
 import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
+import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 
 const {Panel} = Collapse;
 
@@ -163,6 +164,7 @@ const OrderDetail = (props: PropType) => {
   // đổi hàng
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
+  console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   //loyalty
@@ -180,6 +182,8 @@ const OrderDetail = (props: PropType) => {
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
+
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
 
   const updateShipmentCardRef = useRef<any>();
 
@@ -786,6 +790,7 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end customer ---*/}
 
+              {/* chi tiết đơn trả có điểm thì cần call api tính điểm hoàn, chi tiết đơn đổi thì ko cần */}
               {OrderDetail?.order_return_origin?.items && (
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
@@ -802,14 +807,12 @@ const OrderDetail = (props: PropType) => {
                 OrderDetail={OrderDetail}
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                 customerNeedToPayValue={customerNeedToPayValue}
-                totalAmountReturnProducts={totalAmountReturnProducts}
+                totalAmountReturnProducts={OrderDetail?.order_return_origin?.total}
               />
               {/*--- end product ---*/}
 
-              {OrderDetail?.order_return_origin?.items &&
-                customerNeedToPayValue -
-                totalPaid <
-                0 && (
+              {/* ko hiển thị hoàn tiền ở chi tiết đơn đổi */}
+              {OrderDetail?.order_return_origin?.payment_status && OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid && false && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
@@ -820,6 +823,8 @@ const OrderDetail = (props: PropType) => {
                     isShowPaymentMethod={true}
                     setIsShowPaymentMethod={() => { }}
                     handleReturnMoney={handleReturnMoney}
+                    returnPaymentMethodCode={returnPaymentMethodCode}
+                    setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                   />
                 )}
 
@@ -900,7 +905,7 @@ const OrderDetail = (props: PropType) => {
                                     // }
                                     return (
                                       payment.payment_method_code !== PaymentMethodCode.COD
-                                      // && payment.amount
+                                      && payment.paid_amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (

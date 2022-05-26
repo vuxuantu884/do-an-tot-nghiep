@@ -35,11 +35,11 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   FulFillmentResponse,
+  OrderDiscountResponse,
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
-  OrderResponse,
-  ReturnProductModel
+  OrderResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -737,6 +737,14 @@ export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>
   return total;
 };
 
+export const getOrderTotalPaymentAmountReturn = (payments: Array<OrderPaymentResponse>) => {
+  let total = 0;
+  payments.forEach((a) => {
+    total = total + a.paid_amount;
+  });
+  return total;
+};
+
 export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) => {
 	return lineItem.amount - lineItem.discount_amount;
 };
@@ -1163,7 +1171,7 @@ export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.Mut
 	}, delayTime);
 };
 
-export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+export const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {
 	let discountPerProduct = 0;
 	product.discount_items.forEach((single) => {
 		discountPerProduct += single.value;
@@ -1171,7 +1179,7 @@ export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
 	return discountPerProduct;
 };
 
-export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: ReturnProductModel) => {
+export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
 	let discountPerOrder = 0;
 	let totalDiscountRatePerOrder = 0;
 	OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
@@ -1185,7 +1193,16 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	return discountPerOrder;
 }
 
-export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
+/**
+* tính toán tiền trả lại khách khi đổi trả
+*/
+export const getReturnPricePerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
+  const discountPerProduct = getProductDiscountPerProduct(product);
+  const discountPerOrder = getProductDiscountPerOrder(OrderDetail, product);
+	return Math.ceil(product.price - discountPerProduct - discountPerOrder);
+}
+
+export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {
   if(!discounts) {
     return 0;
   }
