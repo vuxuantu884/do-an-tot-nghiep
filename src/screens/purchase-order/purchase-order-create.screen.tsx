@@ -17,11 +17,12 @@ import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
+import { POLineItemType, POLoadType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 import {
@@ -31,7 +32,7 @@ import {
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ProductResponse } from "../../model/product/product.model";
-import { combineLineItemToSubmitData, fetchProductGridData, getTotalPriceOfAllLineItem, POUtils, validateLineItem } from "../../utils/POUtils";
+import { combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, POUtils, validateLineItem } from "../../utils/POUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import PoProductContainer from "./component/po-product-form-grid/po-product-container";
@@ -39,8 +40,6 @@ import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import PurchaseOrderProvider from "./provider/purchase-order.provider";
-import { useSelector } from "react-redux";
-import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 
 const POProductFormOld = React.lazy(() => import("./component/po-product.form"));
 const POProductFormNew = React.lazy(() => import("./component/po-product-form-grid"));
@@ -138,58 +137,24 @@ const POCreateScreen: React.FC = () => {
       } else {
         setLoadingSaveButton(false);
         setLoadingDraftButton(false);
-        // throw new Error("Lỗi khi lưu dữ liệu");
       }
     },
     [history]
   );
 
-  const onFinish = (data: PurchaseOrder) => {
+  const onFinish = (value: PurchaseOrder) => {
     try {
       //TH chọn 1 mã 7
-      data.is_grid_mode = isGridMode;
+      value.is_grid_mode = isGridMode;
       if (isGridMode) {
         const isValid = validateLineItem(poLineItemGridValue);
         if (!isValid) {
           throw new Error("");
         }
-        const newDataItems: any = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
-
-        const untaxed_amount = Math.round(getTotalPriceOfAllLineItem(poLineItemGridValue))
-        const tax_lines = [
-          {
-            rate: taxRate,
-            amount: Math.round((untaxed_amount * taxRate) / 100)
-          }
-        ]
-
-        // const trade_discount_rate = formMain.getFieldValue(
-        //   POField.trade_discount_rate
-        // );
-        // const trade_discount_value = formMain.getFieldValue(
-        //   POField.trade_discount_value
-        // );
-        // const payment_discount_rate = formMain.getFieldValue(
-        //   POField.payment_discount_rate
-        // );
-        // const payment_discount_value = formMain.getFieldValue(
-        //   POField.trade_discount_value
-        // );
-        const trade_discount_amount = POUtils.getTotalDiscount(formMain, untaxed_amount);
-
-        const total_after_tax = POUtils.getTotalAfterTax(formMain);
-        const payment_discount_amount = POUtils.getTotalDiscount(formMain, total_after_tax);
-
-        data.line_items = newDataItems
-        data.trade_discount_amount = trade_discount_amount
-        data.payment_discount_amount = payment_discount_amount
-        data.total = Math.round(untaxed_amount + (untaxed_amount * taxRate) / 100)
-        data.untaxed_amount = untaxed_amount
-        data.tax_lines = tax_lines
+        value.line_items = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
       }
 
-      //TH chọn nhiều mã
-      if (Array.isArray(data.line_items) && data.line_items.length === 0) {
+      if (Array.isArray(value.line_items) && value.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
         const y =
@@ -200,7 +165,7 @@ const POCreateScreen: React.FC = () => {
       }
 
       // validate giá nhập     
-      const isNotValidPrice = data.line_items.some(item => {
+      const isNotValidPrice = value.line_items.some(item => {
         return !item.price
       })
       if (isNotValidPrice) {
@@ -208,14 +173,22 @@ const POCreateScreen: React.FC = () => {
         throw new Error("");
       }
 
-      const dataClone = { ...data, status: statusAction };
-      //validate expect_receipt_date and store_id
-      // let isValidReceiptDateAndStore = true;
-      // dataClone.procurements.forEach((element) => {
-      //   if (!element.expect_receipt_date || !element.store_id) {
-      //     isValidReceiptDateAndStore = false;
-      //   }
-      // });
+      const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL)
+      value.untaxed_amount = untaxed_amount
+      value.tax_lines = [
+        {
+          rate: taxRate,
+          amount: Math.round((untaxed_amount * taxRate) / 100)
+        }
+      ]
+      value.trade_discount_amount = POUtils.getTotalDiscount(formMain, untaxed_amount);
+      const total_after_tax = POUtils.getTotalAfterTax(formMain);
+      value.payment_discount_amount = POUtils.getTotalDiscount(formMain, total_after_tax);
+      value.total = Math.round(value.line_items.reduce((prev: number, cur: PurchaseOrderLineItem) => {
+        const untaxAmount = cur.quantity * cur.price
+        return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100)
+      }, 0))
+      const dataClone = { ...value, status: statusAction };
       if (dataClone.procurements.length > 0) {
         switch (dataClone.status) {
           case POStatus.DRAFT:
@@ -357,15 +330,13 @@ const POCreateScreen: React.FC = () => {
             />
             <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
               {
-                (isCodeSeven) => (
-                  isCodeSeven ? (
-                    <POProductFormNew
-                      formMain={formMain}
-                      isEditMode={true}
-                    />
-                  ) : (
-                    <POProductFormOld isCodeSeven={isCodeSeven} isEdit={false} formMain={formMain} />
-                  )
+                isGridMode ? (
+                  <POProductFormNew
+                    formMain={formMain}
+                    isEditMode={true}
+                  />
+                ) : (
+                  <POProductFormOld poLineItemType={POLineItemType.NORMAL} isEdit={true} formMain={formMain} />
                 )
               }
             </PoProductContainer>

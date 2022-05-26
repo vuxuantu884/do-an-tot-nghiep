@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import {ApiConfig} from "config/api.config";
 import {PageResponse} from "model/base/base-metadata.response";
 import {FulfillmentsOrderPackQuery, OrderModel, OrderSearchQuery, StoreBankAccountNumberModel, StoreBankAccountNumbersQueryModel} from "model/order/order.model";
-import {ReturnModel, ReturnSearchQuery} from "model/order/return.model";
+import {RefundTransactionModel, ReturnModel, ReturnSearchQuery} from "model/order/return.model";
 import {ShipmentModel, ShipmentSearchQuery} from "model/order/shipment.model";
 import {
   ConfirmDraftOrderRequest,
@@ -479,4 +479,12 @@ BaseResponse<OrderReturnResponse[]>> => {
     type
   });
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns/print_forms?${params}`);
+};
+
+/**
+* lấy lại điểm hoàn và tiền hoàn
+*/
+export const getRefundInformationService = (customerId: number, orderId: number):Promise<
+BaseResponse<RefundTransactionModel[]>> => {
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/customers/${customerId}/transactions?order-id=${orderId}`);
 };

@@ -39,7 +39,7 @@ import { copyTextToClipboard, formatCurrency, generateQuery } from "utils/AppUti
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor } from "utils/global-styles/variables";
-import { ORDER_TYPES } from "utils/Order.constants";
+import { ORDER_PAYMENT_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
@@ -440,23 +440,31 @@ function OrderReturnList(props: PropTypes) {
         if(!record?.payment_status) {
           return null
         }
-        let processIcon = "";
+        // let processIcon = "";
+        let textResult = "";
         switch (record.payment_status) {
-          case "unpaid":
-            processIcon = "icon-blank";
+          // case "unpaid":
+          case ORDER_PAYMENT_STATUS.unpaid:
+            // processIcon = "icon-blank";
+            textResult = "Chưa hoàn tiền"
             break;
-          case "paid":
-            processIcon = "icon-full";
+          // case "paid":
+          case ORDER_PAYMENT_STATUS.paid:
+            // processIcon = "icon-full";
+            textResult = "Đã hoàn tiền"
             break;
-          case "partial_paid":
-            processIcon = "icon-full";
+          // case "partial_paid":
+          case ORDER_PAYMENT_STATUS.partial_paid:
+            // processIcon = "icon-full";
+            textResult = "Hoàn tiền một phần"
             break;
           default:
             break;
         }
         return (
           <div className="text-center">
-            <div className={processIcon} />
+            {/* <div className={processIcon} /> */}
+            {textResult}
           </div>
         );
       },
@@ -675,7 +683,7 @@ function OrderReturnList(props: PropTypes) {
             const newListExportFile = listExportFile.filter((item) => {
               return item !== fileCode;
             });
-            window.open(response.data.url);
+            window.open(response.data.url, "_self");
             setListExportFile(newListExportFile);
           }
           if (response.data && response.data.status === "ERROR") {

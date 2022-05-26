@@ -82,7 +82,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
 					setMarketingAccountData(storeAccountData);
         } else {
 					searchAccountPublicApi({
-						condition: fieldNameValue,
+						codes: fieldNameValue,
 					})
 						.then((response) => {
 							if (isFetchApiSuccessful(response)) {

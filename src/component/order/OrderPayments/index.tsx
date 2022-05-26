@@ -79,8 +79,8 @@ function OrderPayments(props: PropType): JSX.Element {
   const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
     let paymentsResult = [...payments].map(payment => ({
       ...payment,
-      amount: Math.ceil(payment.amount),
-      paid_amount: Math.ceil(payment.paid_amount),
+      amount: Math.round(payment.amount),
+      paid_amount: Math.round(payment.paid_amount),
       return_amount: Math.round(payment.return_amount),
     }))
     // let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
@@ -153,6 +153,7 @@ function OrderPayments(props: PropType): JSX.Element {
     }
     handlePayment([...payments]);
   };
+  console.log('payments', payments)
   const handleInputMoney = (index: number, amount: number | null) => {
     if (!amount) {
       amount = 0

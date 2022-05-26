@@ -79,7 +79,7 @@ function OrderPrint(props: PropType) {
   useEffect(() => {
     dispatch(showLoading())
     if (queryPrintType && queryPrintType === printType.print_pack) {
-      if (queryIds && queryIds.length > 0 && queryPrintType && queryPackType && handlePrint) {
+      if (queryIds && queryIds.length > 0 && queryPrintType && queryPackType) {
         dispatch(
           getPrintGoodsReceipts(
             queryIds,
@@ -100,7 +100,7 @@ function OrderPrint(props: PropType) {
         );
       }
     } else if (queryPrintType && queryPrintType === printType.warranty) {
-      if (queryIds && queryIds.length > 0 && queryPrintType && handlePrint) {
+      if (queryIds && queryIds.length > 0 && queryPrintType) {
         getPrintFormByWarrantyIdsService(queryIds, queryPrintType).then(
           (response) => {
             if (isFetchApiSuccessful(response)) {
@@ -118,7 +118,7 @@ function OrderPrint(props: PropType) {
       }
       
     } else if (queryPrintType && queryPrintType === printType.warranty_returns) {
-      if (queryIds && queryIds.length > 0 && queryPrintType && handlePrint) {
+      if (queryIds && queryIds.length > 0 && queryPrintType) {
         getPrintFormByWarrantyIdsService(queryIds, queryPrintType).then(
           (response) => {
             if (isFetchApiSuccessful(response)) {
@@ -154,7 +154,7 @@ function OrderPrint(props: PropType) {
         queryAction === "print" &&
         queryPrintDialog === "true" &&
         isValidatePrintType();
-      if (queryIds && isCanPrint && handlePrint && queryPrintType) {
+      if (queryIds && isCanPrint && queryPrintType) {
         const queryIdsFormatted = queryIds.map((single: any) => +single);
         switch (queryPrintType) {
           case printType.order_exchange:

@@ -3,16 +3,18 @@ import { Button, Card, Dropdown, Menu, Tabs } from "antd";
 import color from "assets/css/export-variable.module.scss";
 import { ReactComponent as DeleteIcon } from "assets/icon/deleteIcon.svg";
 import { ReactComponent as EditIcon } from "assets/icon/edit.svg";
+import exportIcon from "assets/icon/export.svg";
 import MoreAction from "assets/icon/more-action.svg";
 import { ReactComponent as CycleIcon } from "assets/icon/return.svg";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
-  ICustomTableColumType,
+  ICustomTableColumType
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TagStatus from "component/tag/tag-status";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useGetPaymentMethods from "hook/order/useGetPaymentMethods";
@@ -28,7 +30,7 @@ import {
   WarrantyItemModel,
   WarrantyItemStatus,
   WarrantyReturnStatusModel,
-  WarrantyStatus,
+  WarrantyStatus
 } from "model/warranty/warranty.model";
 import moment from "moment";
 import React, {
@@ -36,18 +38,20 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, withRouter } from "react-router-dom";
+import ExportModal from "screens/order-online/modal/export.modal";
+import { exportFile, getFile } from "service/other/export.service";
 import {
   deleteWarrantiesService,
   sendToWarrantyCentersService,
   updateWarrantyDetailFeeService,
   updateWarrantyDetailNoteService,
   updateWarrantyDetailStatusService,
-  updateWarrantyLineItemService,
+  updateWarrantyLineItemService
 } from "service/warranty/warranty.service";
 import {
   changeMetaDataAfterDelete,
@@ -55,23 +59,23 @@ import {
   generateQuery,
   goToTopPage,
   handleFetchApiError,
-  isFetchApiSuccessful,
+  isFetchApiSuccessful
 } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { showSuccess, showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   WARRANTY_ITEM_STATUS,
   WARRANTY_RETURN_STATUS,
-  WARRANTY_TYPE,
+  WARRANTY_TYPE
 } from "utils/Warranty.constants";
 import WarrantyFilter from "../components/filter/WarrantyFilter";
 import AppointmentDateModal from "./components/AppointmentDateModal";
-import FeeModal from "./components/WarrantyReasonsPriceModal";
 import NoteModal from "./components/NoteModal";
 import ReasonModal from "./components/ReasonModal";
-import WarrantyStatusModal from "./components/WarrantyStatusModal";
 import WarrantyCenterModal from "./components/WarrantyCenterModal";
+import WarrantyReasonsPriceModal from "./components/WarrantyReasonsPriceModal";
+import WarrantyStatusModal from "./components/WarrantyStatusModal";
 import { StyledComponent } from "./WarrantyList.style";
 const { TabPane } = Tabs;
 
@@ -185,6 +189,11 @@ function WarrantyHistoryList(props: PropTypes) {
   const [columns, setColumns] = useState<
     Array<ICustomTableColumType<WarrantyItemModel>>
   >([]);
+
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+	const [exportProgress, setExportProgress] = useState<number>(0);
+	const [statusExport, setStatusExport] = useState<number>(1);
 
   const rowClicked = (record: any, index: number) => {
     rowSelected.current = { record, index };
@@ -1221,6 +1230,89 @@ function WarrantyHistoryList(props: PropTypes) {
     [columns],
   );
 
+  const onExport = useCallback((optionExport) => {
+		let newParams: any = { ...query };
+    let currentTab = query.tab;
+    let currentTabParams = TAB_STATUS.find(single => single.key === currentTab)?.countParam;
+    newParams = {
+      ...query,
+      ...currentTabParams,
+      tab: undefined,
+    }
+    
+		// let hiddenFields = [];
+		switch (optionExport) {
+			case 1: newParams = {}
+				break
+			case 2: break
+			case 3:
+				newParams = {
+					ids: selectedRowKeys
+				};
+				break
+			case 4:
+				delete newParams.page
+				delete newParams.limit
+				break
+			default: break
+		}
+
+		let queryParams = generateQuery(newParams);
+		exportFile({
+			conditions: queryParams,
+			type: "EXPORT_WARRANTY",
+		})
+			.then((response) => {
+				if (response.code === HttpStatus.SUCCESS) {
+					setStatusExport(2)
+					showSuccess("Đã gửi yêu cầu xuất file");
+					setListExportFile([...listExportFile, response.data.code]);
+				}
+			})
+			.catch((error) => {
+				setStatusExport(4)
+				console.log("orders export file error", error);
+				showError("Có lỗi xảy ra, vui lòng thử lại sau");
+			});
+	}, [query, selectedRowKeys, listExportFile]);
+	const checkExportFile = useCallback(() => {
+
+		let getFilePromises = listExportFile.map((code) => {
+			return getFile(code);
+		});
+		Promise.all(getFilePromises).then((responses) => {
+
+			responses.forEach((response) => {
+				if (response.code === HttpStatus.SUCCESS) {
+					setExportProgress(Math.round(response.data.num_of_record/response.data.total * 10000) / 100);
+					if (response.data && response.data.status === "FINISH") {
+						setStatusExport(3)
+						setExportProgress(100)
+						const fileCode = response.data.code
+						const newListExportFile = listExportFile.filter((item) => {
+							return item !== fileCode;
+						});
+						window.open(response.data.url, "_self");
+						setListExportFile(newListExportFile);
+					}
+					if (response.data && response.data.status === "ERROR") {
+						setStatusExport(4)
+					}
+				} else {
+					setStatusExport(4)
+				}
+			});
+		});
+	}, [listExportFile]);
+
+	useEffect(() => {
+		if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
+		checkExportFile();
+
+		const getFileInterval = setInterval(checkExportFile, 3000);
+		return () => clearInterval(getFileInterval);
+	}, [listExportFile, checkExportFile, statusExport]);
+
   useEffect(() => {
     if (columns.length === 0) {
       setColumns(initColumns);
@@ -1245,12 +1337,26 @@ function WarrantyHistoryList(props: PropTypes) {
         },
       ]}
       extra={
-        <Button
-          type="primary"
-          onClick={() => history.push(UrlConfig.WARRANTY + "/create")}
-        >
-          Thêm mới phiếu tiếp nhận yêu cầu bảo hành
-        </Button>
+        <>
+          <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              // onClick={onExport}
+              onClick={() => {
+                setShowExportModal(true);
+              }}
+            >
+              Xuất file
+            </Button>,
+          <Button
+            type="primary"
+            onClick={() => history.push(UrlConfig.WARRANTY + "/create")}
+          >
+            Thêm mới phiếu tiếp nhận yêu cầu bảo hành
+          </Button>
+        </>
       }
     >
       <StyledComponent>
@@ -1315,7 +1421,7 @@ function WarrantyHistoryList(props: PropTypes) {
           </Tabs>
         </Card>
       </StyledComponent>
-      <FeeModal
+      <WarrantyReasonsPriceModal
         visible={isFeeModalVisible}
         onCancel={() => setIsFeeModalVisible(false)}
         onOk={handleOkFeeModal}
@@ -1400,6 +1506,20 @@ function WarrantyHistoryList(props: PropTypes) {
         }}
         data={columns}
       />
+      {showExportModal && <ExportModal
+					visible={showExportModal}
+					onCancel={() => {
+						setShowExportModal(false)
+						setExportProgress(0)
+						setStatusExport(1)
+					}}
+					onOk={(optionExport) => onExport(optionExport)}
+					type="warranty"
+					total={metaDataShow?.total}
+					exportProgress={exportProgress}
+					statusExport={statusExport}
+					selected={selectedRowKeys.length ? true : false}
+				/>}
     </ContentContainer>
   );
 }

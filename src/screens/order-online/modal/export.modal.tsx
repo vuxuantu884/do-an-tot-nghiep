@@ -34,11 +34,13 @@ const ExportModal: React.FC<ExportModalProps> = (
         case "orders_online":
           return "đơn hàng";
         case "orders_offline":
-          return "đơn hàng"  
+          return "đơn hàng";
         case "shipments":
-          return "đơn giao hàng"
+          return "đơn giao hàng";
         case "returns":
-          return "đơn trả hàng"
+          return "đơn trả hàng";
+        case "warranty":
+          return "phiếu bảo hành"
         default: break
       }
     },
@@ -56,6 +58,8 @@ const ExportModal: React.FC<ExportModalProps> = (
           return "Đơn giao hàng"
         case "returns":
           return "Đơn trả hàng"
+        case "warranty":
+          return "Phiếu bảo hành"
         default: break
       }
     },
