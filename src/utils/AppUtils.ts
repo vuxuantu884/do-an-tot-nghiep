@@ -1517,7 +1517,10 @@ export const trimText = (text?: string) => {
   return text.replace(/(\s)+/g, '')
 }
 
-export const sortFulfillments = (fulfillments: FulFillmentResponse[]) => {
+export const sortFulfillments = (fulfillments: FulFillmentResponse[] | null | undefined) => {
+  if(!fulfillments) {
+    return []
+  }
   return fulfillments.sort((a, b) =>(b.id - a.id));
 }
 

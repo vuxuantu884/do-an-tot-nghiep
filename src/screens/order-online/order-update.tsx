@@ -1,12 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import {
-	Badge,
-	Button,
-	Card,
+	Badge, Card,
 	Col,
-	Collapse,
-	Divider,
-	Form,
+	Collapse, Form,
 	FormInstance,
 	Input,
 	Row,
@@ -84,7 +80,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
@@ -92,9 +87,7 @@ import {
 	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
 	replaceFormatString,
-	sortFulfillments,
-	SumCOD,
-	SumWeightResponse,
+	sortFulfillments, SumWeightResponse,
 	totalAmount,
 	TrackingCode
 } from "utils/AppUtils";
@@ -107,15 +100,16 @@ import {
 	TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { yellowColor } from "utils/global-styles/variables";
+import { FulfillmentCancelStatus } from "utils/Order.constants";
+import { checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
+import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
 // import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
-import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 
 // let typeButton = "";
@@ -232,8 +226,9 @@ export default function Order(props: PropTypes) {
 
 	const [isDisableSelectSource, setIsDisableSelectSource] = useState(false)
 
+	const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+
 	const stepsStatusValue = useMemo(() => {
-		console.log('123', OrderDetail)
 		if (OrderDetail?.status === OrderStatus.DRAFT) {
 			return OrderStatus.DRAFT;
 		}
@@ -257,7 +252,6 @@ export default function Order(props: PropTypes) {
 					OrderDetail.fulfillments !== null &&
 					OrderDetail.fulfillments.length > 0
 				) {
-					const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
 					if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED
 						|| sortedFulfillments[0].status === FulFillmentStatus.CANCELLED
 						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNED
@@ -282,7 +276,7 @@ export default function Order(props: PropTypes) {
 			return FulFillmentStatus.SHIPPED;
 		}
 		return "";
-	}, [OrderDetail]);
+	}, [OrderDetail?.fulfillments, OrderDetail?.status, sortedFulfillments]);
 
 	const setLevelOrder = useCallback(() => {
 		switch (OrderDetail?.status) {
@@ -386,8 +380,6 @@ export default function Order(props: PropTypes) {
 		[deliveryServices]
 	);
 
-	const sortedFulfillments = OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
-
 	const copyOrderID = (e: any, data: string | null) => {
 		e.stopPropagation();
 		e.target.style.width = "26px";
@@ -455,8 +447,6 @@ export default function Order(props: PropTypes) {
 		}
 		return listFulfillmentRequest;
 	};
-
-	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
 
 	const createShipmentRequest = (value: OrderRequest) => {
 		let objShipment: ShipmentRequest = {
@@ -1319,20 +1309,17 @@ export default function Order(props: PropTypes) {
 	//   [formRef]
 	// );
 	const isFulfillmentCancelled = (fulfillment: FulFillmentResponse) => {
-		if (fulfillment.status === FulFillmentStatus.CANCELLED ||
-			fulfillment.status === FulFillmentStatus.RETURNING ||
-			fulfillment.status === FulFillmentStatus.RETURNED) {
-			return true
+		if(!fulfillment.status) {
+			return false
 		}
-		return false
+		return FulfillmentCancelStatus.includes(fulfillment.status);
 	};
 
-	const renderBankAccount = (payment: any) => {
-		let arr = [payment.bank_account_number, payment.bank_account_holder];
-		let arrResult = arr.filter(single => single);
-		if (arrResult.length > 0) {
-			return ` (${arrResult.join(" - ")})`
-		}
+	const checkIfShowCreatePayment = () => {
+		return (
+			checkIfOrderHasNoPayment(OrderDetail) && 
+			(!checkIfOrderHasShipmentCod(OrderDetail) || checkIfOrderCancelled(OrderDetail))
+		)
 	};
 
 	useEffect(() => {
@@ -1498,356 +1485,47 @@ export default function Order(props: PropTypes) {
 										updateOrder
 									/>
 
-									{OrderDetail !== null &&
-										OrderDetail?.payments &&
-										OrderDetail?.payments?.length > 0 && (
-											<Card
-												className="margin-top-20"
-												title={
-													<Space>
-														<div className="d-flex">
-															<span className="title-card">THANH TOÁN</span>
-														</div>
-														<PaymentStatusTag orderDetail={OrderDetail} />
-													</Space>
-												}
-											>
-												<div style={{ marginBottom: 20 }}>
-													<Row>
-														<Col span={8}>
-															<span className="text-field margin-right-40">
-																Đã thanh toán:
-															</span>
-															<b>
-																{(OrderDetail?.fulfillments &&
-																	OrderDetail?.fulfillments.length > 0 &&
-																	OrderDetail?.fulfillments[0].status === "shipped" &&
-																	formatCurrency(totalAmountCustomerNeedToPay)) ||
-																	formatCurrency(getAmountPayment(OrderDetail.payments))}
-															</b>
-														</Col>
-														<Col span={8}>
-															<span className="text-field margin-right-40">
-																Còn phải trả:
-															</span>
-															<b style={{ color: "red" }}>
-																{formatCurrency(
-																	totalAmountCustomerNeedToPay > 0 ? totalAmountCustomerNeedToPay : 0
-																)}
-															</b>
-														</Col>
-														{totalAmountCustomerNeedToPay < 0 ? (
-															<Col span={8}>
-																<span className="text-field margin-right-40">
-																	Đã hoàn tiền cho khách:
-																</span>
-																<b style={{ color: yellowColor }}>
-																	{formatCurrency(
-																		Math.abs(
-																			totalAmountCustomerNeedToPay
-																		)
-																	)}
-																</b>
-															</Col>
-														) : null}
-													</Row>
-												</div>
-												{OrderDetail?.payments && (
-													<div>
-														<div style={{ padding: "0 24px 24px 24px" }}>
-															<Collapse
-																className="orders-timeline"
-																defaultActiveKey={["100"]}
-																ghost
-															>
-																{OrderDetail.total === SumCOD(OrderDetail) &&
-																	OrderDetail.total === totalPaid ? (
-																	""
-																) : (
-																	<>
-																		{OrderDetail?.payments
-																			.filter((payment) => {
-																				// nếu là đơn trả thì tính cả cod
-																				// if (OrderDetail.order_return_origin) {
-																				//   return true;
-																				// }
-																				return (
-																					payment.payment_method_code !== PaymentMethodCode.COD && payment.paid_amount
-																				);
-																			})
-																			.map((payment: any, index: number) => (
-																				<Collapse.Panel
-																					showArrow={false}
-																					className="orders-timeline-custom success-collapse"
-																					header={
-																						<div className="orderPaymentItem">
-																							<div className="orderPaymentItem__left">
-																								<div>
-																									{/* <b>{payment.payment_method}</b> */}
-																									{/* trường hợp số tiền âm là hoàn lại tiền */}
-																									<b>
-																										{payment.paid_amount < 0
-																											? "Hoàn tiền cho khách"
-																											: payment.payment_method}
-																									</b>
-																									<span style={{ marginLeft: 12 }}>
-																										{payment.reference}
-																									</span>
-																									{payment.bank_account_number ? renderBankAccount(payment) : null}
-																									{payment.payment_method_id === 5 && (
-																										<span style={{ marginLeft: 10 }}>
-																											{payment.amount / 1000} điểm
-																										</span>
-																									)}
-																								</div>
-																								<span className="amount">
-																									{formatCurrency(
-																										Math.abs(payment.paid_amount)
-																									)}
-																								</span>
-																							</div>
-																							<div className="orderPaymentItem__right">
-																								<span className="date">
-																									Thời gian: {ConvertUtcToLocalDate(
-																										payment.created_date,
-																										DATE_FORMAT.fullDate
-																									)}
-																								</span>
-																							</div>
-																						</div>
-																					}
-																					key={index}
-																				></Collapse.Panel>
-																			))}
-																	</>
-																)}
-
-																{OrderDetail?.fulfillments &&
-																	OrderDetail?.fulfillments.length > 0 &&
-																	OrderDetail?.fulfillments[0].shipment &&
-																	!isFulfillmentCancelled(OrderDetail.fulfillments[0]) &&
-																	OrderDetail?.fulfillments[0].shipment.cod > 0 && (
-																		<Collapse.Panel
-																			className={
-																				OrderDetail?.fulfillments[0].status !== "shipped"
-																					? "orders-timeline-custom orders-dot-status"
-																					: "orders-timeline-custom "
-																			}
-																			showArrow={false}
-																			header={
-																				<>
-																					<div className="orderPaymentItem">
-																						<div className="orderPaymentItem__left">
-																							<b>
-																								COD
-																								{OrderDetail.fulfillments[0].status !==
-																									"shipped" ? (
-																									<Tag
-																										className="orders-tag orders-tag-warning"
-																										style={{ marginLeft: 10 }}
-																									>
-																										Đang chờ thu
-																									</Tag>
-																								) : (
-																									<Tag
-																										className="orders-tag orders-tag-success"
-																										style={{
-																											backgroundColor:
-																												"rgba(39, 174, 96, 0.1)",
-																											color: "#27AE60",
-																											marginLeft: 10,
-																										}}
-																									>
-																										Đã thu COD
-																									</Tag>
-																								)}
-																							</b>
-																							<span className="amount">
-																								{OrderDetail !== null &&
-																									OrderDetail?.fulfillments
-																									? formatCurrency(
-																										OrderDetail.fulfillments[0].shipment
-																											?.cod
-																									)
-																									: 0}
-																							</span>
-																						</div>
-																						<div className="orderPaymentItem__right">
-																							{OrderDetail?.fulfillments[0].status ===
-																								"shipped" && (
-																									<div>
-																										<span className="date">
-																											{ConvertUtcToLocalDate(
-																												OrderDetail?.updated_date,
-																												DATE_FORMAT.fullDate
-																											)}
-																										</span>
-																									</div>
-																								)}
-																						</div>
-																					</div>
-																				</>
-																			}
-																			key="100"
-																		></Collapse.Panel>
-																	)}
-															</Collapse>
-														</div>{" "}
-													</div>
-												)}
-											</Card>
-										)}
-									{/* COD toàn phần */}
-									{OrderDetail &&
-										OrderDetail.fulfillments &&
-										OrderDetail.fulfillments.length > 0 &&
-										OrderDetail.fulfillments[0].shipment &&
-										// OrderDetail.fulfillments[0].status !== "cancelled" &&
-										!(OrderDetail.fulfillments[0].status === "cancelled" ||
-											OrderDetail.fulfillments[0].status === "returning" ||
-											OrderDetail.fulfillments[0].status === "returned") &&
-										OrderDetail.fulfillments[0].shipment?.cod ===
-										(OrderDetail?.shipping_fee_informed_to_customer || 0) +
-										OrderDetail?.total_line_amount_after_line_discount -
-										(OrderDetail?.discounts &&
-											OrderDetail?.discounts.length > 0 &&
-											OrderDetail?.discounts[0]?.amount
-											? OrderDetail?.discounts[0].amount
-											: 0) &&
-										checkPaymentStatusToShow(OrderDetail) !== 1 && (
-											<Card
-												className="margin-top-20"
-												title={
-													<Space>
-														<div className="d-flex">
-															<span className="title-card">THANH TOÁN</span>
-														</div>
-														{checkPaymentStatusToShow(OrderDetail) === 1 && (
-															<Tag
-																className="orders-tag orders-tag-success"
-																style={{
-																	backgroundColor: "rgba(39, 174, 96, 0.1)",
-																	color: "#27AE60",
-																}}
-															>
-																Đã thanh toán
-															</Tag>
-														)}
-													</Space>
-												}
-											>
-												<div style={{ paddingBottom: 20 }}>
-													<Row>
-														<Col span={12}>
-															<span className="text-field margin-right-40">
-																Đã thanh toán:
-															</span>
-															<b>0</b>
-														</Col>
-														<Col span={12}>
-															<span className="text-field margin-right-40">
-																Còn phải trả:
-															</span>
-															<b style={{ color: "red" }}>0</b>
-														</Col>
-													</Row>
-												</div>
-												<Divider style={{ margin: "0px" }} />
-												<div style={{ padding: "20px 20px 0 20px" }}>
-													<Collapse
-														className="orders-timeline"
-														defaultActiveKey={["1"]}
-														ghost
-													>
-														<Collapse.Panel
-															className={
-																OrderDetail?.fulfillments[0].status !== "shipped"
-																	? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
-																	: "orders-timeline-custom orders-dot-fullCod-status"
-															}
-															showArrow={false}
-															header={
-																<div
-																	style={{
-																		color: "#222222",
-																		paddingTop: 4,
-																		fontWeight: 500,
-																	}}
-																>
-																	COD
-																	<Tag
-																		className="orders-tag orders-tag-warning"
-																		style={{ marginLeft: 10 }}
-																	>
-																		Đang chờ thu
-																	</Tag>
-																	<b
-																		style={{
-																			marginLeft: "200px",
-																			color: "#222222",
-																		}}
-																	>
-																		{OrderDetail.fulfillments
-																			? formatCurrency(
-																				OrderDetail.fulfillments[0].shipment?.cod
-																			)
-																			: 0}
-																	</b>
-																</div>
-															}
-															key="1"
-														>
-															<Row gutter={24}>
-																{OrderDetail?.payments &&
-																	OrderDetail?.payments.map((item, index) => (
-																		<Col span={12} key={item.id}>
-																			<p className="text-field">{item.payment_method}</p>
-																			<p>{formatCurrency(item.paid_amount)}</p>
-																		</Col>
-																	))}
-															</Row>
-														</Collapse.Panel>
-													</Collapse>
-												</div>
-												<div className="text-right">
-													{OrderDetail?.payments !== null
-														? OrderDetail?.payments.map(
-															(item, index) =>
-																OrderDetail.total !== null &&
-																OrderDetail.total - item.paid_amount !== 0 && (
-																	<Button
-																		key={index}
-																		type="primary"
-																		className="ant-btn-outline fixed-button"
-																	>
-																		Thanh toán
-																	</Button>
-																)
-														)
-														: "Chưa thanh toán"}
-												</div>
-											</Card>
-										)}
-									{(!OrderDetail?.payments || !OrderDetail?.payments.length) &&
-										(!(OrderDetail?.fulfillments?.length && OrderDetail.fulfillments[0].shipment?.cod) ||
-											fulfillments[0].status === FulFillmentStatus.CANCELLED ||
-											fulfillments[0].status === FulFillmentStatus.RETURNING ||
-											fulfillments[0].status === FulFillmentStatus.RETURNED) && (
-											<Card title="THANH TOÁN">
-												<OrderCreatePayments
-													setPaymentMethod={setPaymentMethod}
-													payments={payments}
-													setPayments={setPayments}
-													paymentMethod={paymentMethod}
-													shipmentMethod={shipmentMethod}
-													totalAmountOrder={totalAmountOrder}
-													loyaltyRate={loyaltyRate}
-													isDisablePostPayment={isDisablePostPayment}
-													listPaymentMethod={listPaymentMethod}
-													orderDetail={OrderDetail}
-												/>
-											</Card>
-										)}
+									{checkIfShowCreatePayment() ? (
+										<Card title="THANH TOÁN">
+											<OrderCreatePayments
+												setPaymentMethod={setPaymentMethod}
+												payments={payments}
+												setPayments={setPayments}
+												paymentMethod={paymentMethod}
+												shipmentMethod={shipmentMethod}
+												totalAmountOrder={totalAmountOrder}
+												loyaltyRate={loyaltyRate}
+												isDisablePostPayment={isDisablePostPayment}
+												listPaymentMethod={listPaymentMethod}
+												orderDetail={OrderDetail}
+											/>
+										</Card>
+									) : (
+										<CardShowOrderPayments 
+											OrderDetail={OrderDetail}
+											// disabledActions={disabledActions}
+											disabledActions={()=>{}}
+											// disabledBottomActions={disabledBottomActions}
+											disabledBottomActions={false}
+											form={form}
+											isDisablePostPayment={isDisablePostPayment}
+											// isShowPaymentPartialPayment={isShowPaymentPartialPayment}
+											isShowPaymentPartialPayment={false}
+											// isVisibleUpdatePayment={isVisibleUpdatePayment}
+											isVisibleUpdatePayment={false}
+											// onPaymentSelect={onPaymentSelect}
+											onPaymentSelect={()=>{}}
+											paymentMethod={paymentMethod}
+											paymentMethods={listPaymentMethod}
+											setReload={setReload}
+											// setShowPaymentPartialPayment={setShowPaymentPartialPayment}
+											setShowPaymentPartialPayment={()=>{}}
+											// setVisibleUpdatePayment={setVisibleUpdatePayment}
+											setVisibleUpdatePayment={()=>{}}
+											shipmentMethod={shipmentMethod}
+											stepsStatusValue={stepsStatusValue}
+										/>
+									)}
 									<Card
 										className="orders-update-shipment "
 										title={
