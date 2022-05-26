@@ -220,6 +220,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
     0
   );
+  console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer)
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.PREPAYMENT);
   const [orderReturnReasonResponse, setOrderReturnReasonResponse] =
@@ -598,7 +599,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const addReturnAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
       const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
-      const paidAmount = Math.ceil(totalAmountExchange);
+      const paidAmount = Math.ceil(totalAmountExchangeFinal);
       if (moneyPayment) {
         result.push({
           payment_method_id: PAYMENT_METHOD_ENUM.exchange.id,
@@ -617,7 +618,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         });
       }
     },
-    [customer?.id, listPaymentMethods, totalAmountExchange]
+    [customer?.id, listPaymentMethods, totalAmountExchangeFinal]
   );
 
   // giá trị trả thêm
