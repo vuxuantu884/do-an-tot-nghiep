@@ -3,16 +3,18 @@ import { Button, Card, Dropdown, Menu, Tabs } from "antd";
 import color from "assets/css/export-variable.module.scss";
 import { ReactComponent as DeleteIcon } from "assets/icon/deleteIcon.svg";
 import { ReactComponent as EditIcon } from "assets/icon/edit.svg";
+import exportIcon from "assets/icon/export.svg";
 import MoreAction from "assets/icon/more-action.svg";
 import { ReactComponent as CycleIcon } from "assets/icon/return.svg";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
-  ICustomTableColumType,
+  ICustomTableColumType
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TagStatus from "component/tag/tag-status";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useGetPaymentMethods from "hook/order/useGetPaymentMethods";
@@ -28,7 +30,7 @@ import {
   WarrantyItemModel,
   WarrantyItemStatus,
   WarrantyReturnStatusModel,
-  WarrantyStatus,
+  WarrantyStatus
 } from "model/warranty/warranty.model";
 import moment from "moment";
 import React, {
@@ -36,18 +38,20 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, withRouter } from "react-router-dom";
+import ExportModal from "screens/order-online/modal/export.modal";
+import { exportFile, getFile } from "service/other/export.service";
 import {
   deleteWarrantiesService,
   sendToWarrantyCentersService,
   updateWarrantyDetailFeeService,
   updateWarrantyDetailNoteService,
   updateWarrantyDetailStatusService,
-  updateWarrantyLineItemService,
+  updateWarrantyLineItemService
 } from "service/warranty/warranty.service";
 import {
   changeMetaDataAfterDelete,
@@ -55,7 +59,7 @@ import {
   generateQuery,
   goToTopPage,
   handleFetchApiError,
-  isFetchApiSuccessful,
+  isFetchApiSuccessful
 } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -63,20 +67,16 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import {
   WARRANTY_ITEM_STATUS,
   WARRANTY_RETURN_STATUS,
-  WARRANTY_TYPE,
+  WARRANTY_TYPE
 } from "utils/Warranty.constants";
 import WarrantyFilter from "../components/filter/WarrantyFilter";
-import AppointmentDateModal from "./components/appointment-date-modal";
-import FeeModal from "./components/fee-modal";
-import NoteModal from "./components/note-modal";
-import ReasonModal from "./components/reason-modal";
-import WarrantyStatusModal from "./components/status-modal";
-import WarrantyCenterModal from "./components/warranty-center-modal";
-import exportIcon from "assets/icon/export.svg";
+import AppointmentDateModal from "./components/AppointmentDateModal";
+import NoteModal from "./components/NoteModal";
+import ReasonModal from "./components/ReasonModal";
+import WarrantyCenterModal from "./components/WarrantyCenterModal";
+import WarrantyReasonsPriceModal from "./components/WarrantyReasonsPriceModal";
+import WarrantyStatusModal from "./components/WarrantyStatusModal";
 import { StyledComponent } from "./WarrantyList.style";
-import ExportModal from "screens/order-online/modal/export.modal";
-import { exportFile, getFile } from "service/other/export.service";
-import { HttpStatus } from "config/http-status.config";
 const { TabPane } = Tabs;
 
 export const TAB_STATUS_KEY = {
@@ -1421,7 +1421,7 @@ function WarrantyHistoryList(props: PropTypes) {
           </Tabs>
         </Card>
       </StyledComponent>
-      <FeeModal
+      <WarrantyReasonsPriceModal
         visible={isFeeModalVisible}
         onCancel={() => setIsFeeModalVisible(false)}
         onOk={handleOkFeeModal}
