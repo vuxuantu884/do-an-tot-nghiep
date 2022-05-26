@@ -32,7 +32,7 @@ import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
-import { FulFillmentStatus } from "utils/Constants";
+import { getFullfilmentPacked, getFullfilmentReturning, bolFullfilmentShiping } from "./pack-utils";
 
 const { Item } = Form;
 type PackParam = {
@@ -88,34 +88,25 @@ const PackUpdate: React.FC = () => {
         let total_price = 0;
         let ffrmCode = null;
 
-        let fulfillments = itemOrder.fulfillments?.filter(ffm => {
-          if (packDetail.receipt_type_id === 1) {
-            return ffm.status === FulFillmentStatus.PACKED
-          }
-          return ffm.status === FulFillmentStatus.CANCELLED && ffm.return_status === FulFillmentStatus.RETURNING
-        });
+        let fulfillments = itemOrder.fulfillments
 
-        console.log("fulfillments",fulfillments)
+        ship_price = itemOrder?.shipping_fee_informed_to_customer || 0;
+        total_price = (fulfillments && fulfillments[0].total) || 0;
 
-        if (fulfillments && fulfillments.length > 0) {
-          let indexFFM = fulfillments.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
-          ship_price = itemOrder?.shipping_fee_informed_to_customer || 0;
-          total_price = fulfillments[indexFFM].total || 0;
+        fulfillments && fulfillments[0].items.forEach((itemProduct) => {
+          product.push({
+            sku: itemProduct.sku,
+            product_id: itemProduct.product_id,
+            product: itemProduct.product,
+            variant_id: itemProduct.variant_id,
+            variant: itemProduct.variant,
+            variant_barcode: itemProduct.variant_barcode,
+            quantity: itemProduct.quantity,
+            price: itemProduct.price
+          });
+        })
+        //}
 
-          fulfillments[indexFFM].items.forEach((itemProduct) => {
-            product.push({
-              sku: itemProduct.sku,
-              product_id: itemProduct.product_id,
-              product: itemProduct.product,
-              variant_id: itemProduct.variant_id,
-              variant: itemProduct.variant,
-              variant_barcode: itemProduct.variant_barcode,
-              quantity: itemProduct.quantity,
-              price: itemProduct.price
-            });
-          })
-        }
-      
         let resultItem: GoodsReceiptsInfoOrderModel = {
           key: index,
           order_id: itemOrder.id ? itemOrder.id : 0,
@@ -215,10 +206,10 @@ const PackUpdate: React.FC = () => {
         console.log("orders", packDetail.orders)
         console.log("1", packDetail?.orders)
         console.log("1", packDetail.receipt_type_id)
-        let indexShipping = packDetail.orders?.findIndex(p => p.fulfillments?.some(p => p.status === FulFillmentStatus.SHIPPING || p.status === FulFillmentStatus.SHIPPED));
+        let indexShipping = packDetail.orders?.findIndex(p => bolFullfilmentShiping(p.fulfillments));
 
         console.log("indexShipping", indexShipping)
-        if (indexShipping !== -1) {
+        if (indexShipping !== -1 && packDetail.receipt_type_id === 1) {
           success = false;
           console.log("indexShipping 1", indexShipping)
           showError(`Không thể cập nhật biên bản, Đơn hàng ${packDetail.orders[indexShipping].code} đã xuất kho`);
@@ -228,7 +219,7 @@ const PackUpdate: React.FC = () => {
           packDetail?.orders?.forEach((item) => {
             if (item.fulfillments && item.fulfillments.length > 0) {
               if (packDetail.receipt_type_id === 1) {
-                let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+                let fulfillments = getFullfilmentPacked(item.fulfillments);
                 if (fulfillments.length > 0) {
                   let indexFFM = fulfillments.length - 1;
                   let FFMCode: string | null = fulfillments[indexFFM].code;
@@ -241,17 +232,16 @@ const PackUpdate: React.FC = () => {
                 }
               }
               else if (packDetail.receipt_type_id === 2) {
-                let fulfillments = item.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED && p.return_status===FulFillmentStatus.RETURNING)
+                let fulfillments = getFullfilmentReturning(item.fulfillments);
                 if (fulfillments.length > 0) {
                   let indexFFM = fulfillments.length - 1;
                   let FFMCode: string | null = fulfillments[indexFFM].code;
                   if (FFMCode && order_id !== FFMCode)
                     codes.push(FFMCode);
-                  else
-                   {
+                  else {
                     success = false;
                     showError(`Đơn hàng ${item.code} đã có trong biên bản`);
-                   }
+                  }
                 }
               }
             }
