@@ -80,3 +80,14 @@ export interface PurchaseOrderLineItemDraft {
   showNote?: boolean;
   receipt_quantity?: number;
 }
+
+export enum POLoadType {
+  SUPPLEMENT = 'SUPPLEMENT',
+  NOT_SUPPLEMENT = 'NOT_SUPPLEMENT',
+  ALL = 'ALL'
+};
+
+export enum POLineItemType {
+  NORMAL = 'normal',
+  SUPPLEMENT = 'supplement',
+}

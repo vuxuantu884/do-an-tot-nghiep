@@ -17,152 +17,139 @@ import imgDefIcon from "assets/img/img-def.svg";
 import classNames from "classnames";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import NumberInput from "component/custom/number-input.custom";
+import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { debounce } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-import {  POField } from "model/purchase-order/po-field";
+import { POField } from "model/purchase-order/po-field";
 import {
+  POLineItemType,
+  POLoadType,
   PurchaseOrderLineItem,
   Vat
 } from "model/purchase-order/purchase-item.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
-import React, { createRef, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import useKeyboardJs from 'react-use/lib/useKeyboardJs';
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { POStatus } from "utils/Constants";
-import { POUtils } from "utils/POUtils";
+import { POStatus, ProcumentStatus } from "utils/Constants";
+import { getTotalAmountByLineItemType, getUntaxedAmountByLineItemType, POUtils, summaryContentByLineItemType } from "utils/POUtils";
+import { showError } from "utils/ToastUtils";
 import BaseButton from "../../../component/base/BaseButton";
 import { IconAddMultiple } from "../../../component/icon/IconAddMultiple";
+import PickManyProductModal from "../modal/pick-many-product.modal";
 import ProductItem from "./product-item";
-
-const PickManyProductModal = lazy(() => import("../modal/pick-many-product.modal"))
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
-  isCodeSeven?: boolean;
+  poLineItemType: POLineItemType;
 };
 var position = 0;
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
-  const { formMain, isEdit } = props;
+  const { formMain, isEdit, poLineItemType } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [data, setData] = useState<Array<VariantResponse>>([]);
+  const [resultSearch, setResultSearch] = useState<Array<VariantResponse>>([]);
   const [isPressed] = useKeyboardJs('f3');
-  const [isSortSku,setIsSortSku] = useState(false);
+  const [isSortSku, setIsSortSku] = useState(false);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    data.forEach((item: VariantResponse, index: number) => {
+    resultSearch.forEach((item: VariantResponse, index: number) => {
       options.push({
         label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
     return options;
-  }, [data]);
+  }, [resultSearch]);
   const onResultSearch = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
       setLoadingSearch(false);
       if (!result) {
-        setData([]);
+        setResultSearch([]);
       } else {
-        setData(result.items);
+        setResultSearch(result.items);
       }
     },
     []
   );
   const handleSelectProduct = (variantId: string) => {
-    const index = data.findIndex((item) => item.id.toString() === variantId);
-    if(index !== -1){
-      let lineItems = formMain.getFieldValue(POField.line_items);
-      let variants: Array<VariantResponse> = [data[index]];
-      let newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(variants, position)];
-      position = position + newItems.length;
-      let newLineItems = POUtils.addProduct(lineItems,newItems,false);
-      formMain.setFieldsValue({
-        line_items:newLineItems
-      });
-      const taxLines = POUtils.getVatList(formMain);
-      const untaxedAmount = POUtils.totalAmount(formMain);
-      formMain.setFieldsValue({
-        tax_lines: taxLines,
-        untaxed_amount: untaxedAmount
-      });
-      const total = POUtils.getTotalPayment(formMain);
-      formMain.setFieldsValue({
-        total: total,
-      });
-      //let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    if (poLineItemType === POLineItemType.SUPPLEMENT && lineItems.find(item => item.variant_id === +variantId && item.id)) {
+      showError("Sản phẩm bổ sung đã tồn tại trong đơn hàng");
+      return;
     }
-  } 
-  const handleDeleteLineItem = (index: number) => {
-      let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
-      const lineItem = lineItems[index];
-      lineItems.splice(index,1);
+
+    const index = resultSearch.findIndex((item) => item.id.toString() === variantId);
+    if (index !== -1) {
+      let variants: Array<VariantResponse> = [resultSearch[index]];
+      let newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(variants, position, poLineItemType)];
+      position = position + newItems.length;
+      let newLineItems = POUtils.addProduct(lineItems, newItems, false);
       formMain.setFieldsValue({
-        line_items: [...lineItems]
+        line_items: newLineItems
       });
-      const taxLines = POUtils.getVatList(formMain);
-      const untaxedAmount = POUtils.totalAmount(formMain);
-      formMain.setFieldsValue({
-        tax_lines: taxLines,
-        untaxed_amount: untaxedAmount
-      });
-      const total = POUtils.getTotalPayment(formMain);
-      formMain.setFieldsValue({
-        total: total,
-      });
-      let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
-      if(oldLineItems){
-        const indexOld = oldLineItems.findIndex((a) => a.sku === lineItem.sku);
-        if(indexOld !== -1){
-          oldLineItems.splice(indexOld,1);
-          formMain.setFieldsValue({
-            line_items_old: [...oldLineItems]
-          });
-        }
-      }
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
-      );
-      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
-        currentProcument,
-        lineItems
-      );
-      formMain.setFieldsValue({
-        procurements: newProcument,
-      });
+    }
   }
-  const handleChangePriceLineItem = (price: number, index : number) => {
+  const handleDeleteLineItem = (index: number) => {
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    const lineItem = lineItems[index];
+    lineItems.splice(index, 1);
+    formMain.setFieldsValue({
+      line_items: [...lineItems]
+    });
+   
+   
+    let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
+    if (oldLineItems) {
+      const indexOld = oldLineItems.findIndex((a) => a.sku === lineItem.sku);
+      if (indexOld !== -1) {
+        oldLineItems.splice(indexOld, 1);
+        formMain.setFieldsValue({
+          line_items_old: [...oldLineItems]
+        });
+      }
+    }
+    let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+      POField.procurements
+    );
+    let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+      currentProcument,
+      lineItems,
+      poLineItemType
+    );
+    formMain.setFieldsValue({
+      procurements: newProcument,
+    });
+  }
+  const handleChangePriceLineItem = (price: number, item: PurchaseOrderLineItem) => {
     let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
       POField.line_items
     );
-    if(lineItems[index]){
-      lineItems[index] = POUtils.updateLineItemByPrice(lineItems[index],price);
-      updateOldLineItem(lineItems[index]);
-      let untaxed_amount = POUtils.totalAmount(formMain);
+    const indexOfItem = lineItems.findIndex((a) => a.sku === item.sku);
+
+    if (lineItems[indexOfItem]) {
+      lineItems[indexOfItem] = POUtils.updateLineItemByPrice(lineItems[indexOfItem], price);
+      updateOldLineItem(lineItems[indexOfItem]);
       formMain.setFieldsValue({
-        line_items : [...lineItems],
-        untaxed_amount: untaxed_amount
+        line_items: [...lineItems],
       })
-      let total = POUtils.getTotalPayment(formMain);
-      let taxLines = POUtils.getVatList(formMain);
-      formMain.setFieldsValue({
-        total: total,
-        tax_lines: taxLines
-      })
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+   
+      const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
         POField.procurements
       );
-      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+      const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
-        lineItems
+        lineItems,
+        poLineItemType
       );
       formMain.setFieldsValue({
         procurements: newProcument,
@@ -170,181 +157,189 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     }
   }
   const handleChangeAllPriceLineItem = (price: number) => {
-    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
       POField.line_items
     );
-    if(lineItems.length > 0){
-      lineItems = lineItems.map((lineItem) => {
-        let newItem = POUtils.updateLineItemByPrice(lineItem,price);
-        updateOldLineItem(newItem);
-        return newItem;
-      })
+    if (lineItems.length > 0) {
+      lineItems.forEach((lineItem: PurchaseOrderLineItem, index: number) => {
+        if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.id) {
+          return;
+        } else if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.type === POLineItemType.SUPPLEMENT && !lineItem.id) {
+          const newItem = POUtils.updateLineItemByPrice(lineItem, price);
+          updateOldLineItem(newItem);
+          lineItems[index] = newItem;
+          return
+        } else if (poLineItemType !== POLineItemType.SUPPLEMENT && lineItem.type !== POLineItemType.SUPPLEMENT) {
+          const newItem = POUtils.updateLineItemByPrice(lineItem, price);
+          updateOldLineItem(newItem);
+          lineItems[index] = newItem;
+          return
+        }
+      });
+
       formMain.setFieldsValue({
-        line_items : [...lineItems]
+        line_items: [...lineItems]
       })
-      let untaxed_amount = POUtils.totalAmount(formMain);
-      formMain.setFieldsValue({
-        untaxed_amount: untaxed_amount
-      })
-      let total = POUtils.getTotalPayment(formMain);
-      let taxLines = POUtils.getVatList(formMain);
-      formMain.setFieldsValue({
-        total: total,
-        tax_lines: taxLines
-      })
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+
+      const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
         POField.procurements
       );
-      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+      const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
-        lineItems
+        lineItems,
+        poLineItemType
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
+
+    }
+  }
+
+  const handleChangeQuantityLineItem = (quantity: number, item: PurchaseOrderLineItem) => {
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items
+    );
+    const indexOfItem = lineItems.findIndex((a) => a.sku === item.sku);
+
+    if (lineItems[indexOfItem]) {
+      lineItems[indexOfItem] = POUtils.updateLineItemByQuantity(lineItems[indexOfItem], quantity);
+      updateOldLineItem(lineItems[indexOfItem]);
+      formMain.setFieldsValue({
+        line_items: [...lineItems],
+      })
+      const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems,
+        poLineItemType
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
   }
-  const handleChangeQuantityLineItem = (quantity: number,index: number) => {
+
+  const handleChangeTax = (taxRate: number, item: PurchaseOrderLineItem) => {
     let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
       POField.line_items
     );
-    if(lineItems[index]){
-      lineItems[index] = POUtils.updateLineItemByQuantity(lineItems[index],quantity);
-      updateOldLineItem(lineItems[index]);
-      let untaxed_amount = POUtils.totalAmount(formMain);
+    const indexOfItem = lineItems.findIndex((a) => a.sku === item.sku);
+    if (lineItems[indexOfItem]) {
+      lineItems[indexOfItem] = POUtils.updateLineItemByVat(lineItems[indexOfItem], taxRate);
+      updateOldLineItem(lineItems[indexOfItem]);
       formMain.setFieldsValue({
-        line_items : [...lineItems],
-        untaxed_amount: untaxed_amount
+        line_items: [...lineItems],
       })
-      let total = POUtils.getTotalPayment(formMain);
-      let taxLines = POUtils.getVatList(formMain);
-      formMain.setFieldsValue({
-        total: total,
-        tax_lines: taxLines
-      })
+       
       let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
         POField.procurements
       );
       let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
-        lineItems
+        lineItems,
+        poLineItemType
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
   }
-  const handleChangeTax = (taxRate: number,index: number) => {
-    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items
-    );
-    if(lineItems[index]){
-      lineItems[index] = POUtils.updateLineItemByVat(formMain,lineItems[index],taxRate);
-      updateOldLineItem(lineItems[index]);
-      formMain.setFieldsValue({
-        line_items : [...lineItems],
-      })
-      let taxLines = POUtils.getVatList(formMain);
-      formMain.setFieldsValue({
-        tax_lines: taxLines
-      })
-      let total = POUtils.getTotalPayment(formMain);
-      formMain.setFieldsValue({
-        total: total,
-      });
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
-      );
-      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
-        currentProcument,
-        lineItems
-      );
-      formMain.setFieldsValue({
-        procurements: newProcument,
-      });
-    }
-  }
+
   const handleChangeAllTax = (taxRate: number) => {
     let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
       POField.line_items
     );
-    if(lineItems.length > 0){
-      lineItems = lineItems.map((lineItem) => {
-        let newItem = POUtils.updateLineItemByVat(formMain,lineItem,taxRate);
-        updateOldLineItem(newItem);
-        return newItem;
+    if (lineItems.length > 0) {
+
+      lineItems.forEach((lineItem) => {
+        if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.id) {
+          return;
+        } else if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.type === POLineItemType.SUPPLEMENT && !lineItem.id) {
+          const newItem = POUtils.updateLineItemByVat(lineItem, taxRate);
+          updateOldLineItem(newItem);
+          return;
+        } else if (poLineItemType !== POLineItemType.SUPPLEMENT && lineItem.type !== POLineItemType.SUPPLEMENT) {
+          const newItem = POUtils.updateLineItemByVat(lineItem, taxRate);
+          updateOldLineItem(newItem);
+          return;
+        }
       })
+
       formMain.setFieldsValue({
-        line_items : [...lineItems],
+        line_items: [...lineItems],
       })
-      let taxLines = POUtils.getVatList(formMain);
-      formMain.setFieldsValue({
-        tax_lines: taxLines
-      })
-      let total = POUtils.getTotalPayment(formMain);
-      formMain.setFieldsValue({
-        total: total,
-      });
       let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
         POField.procurements
       );
       let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
-        lineItems
+        lineItems,
+        poLineItemType
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
   }
-  const updateOldLineItem = (lineItem: PurchaseOrderLineItem) =>{
-    let oldLineItems : Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+  const updateOldLineItem = (lineItem: PurchaseOrderLineItem) => {
+    let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
       POField.line_items_old
     );
-    if(oldLineItems && oldLineItems.length > 0){
+    if (oldLineItems && oldLineItems.length > 0) {
       const index = oldLineItems.findIndex((a) => a.sku === lineItem.sku);
-      if(index !== -1){
+      if (index !== -1) {
         oldLineItems[index] = lineItem;
         formMain.setFieldsValue({
-          line_items_old : oldLineItems,
+          line_items_old: oldLineItems,
         })
       }
     }
   }
   const handlePickManyProduct = (items: Array<VariantResponse>) => {
+    let numberOfExistItem = 0;
+    const variantsSelected = [...items];
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    if (poLineItemType === POLineItemType.SUPPLEMENT) {
+      items.forEach((item) => {
+        if (lineItems.find((line) => line.variant_id === item.id && line.id) ) {
+          variantsSelected.splice(variantsSelected.findIndex((a) => a.id === item.id), 1);
+          numberOfExistItem++;
+        }
+
+      })
+      numberOfExistItem && showError(`${numberOfExistItem} Sản phẩm bổ sung đã tồn tại trong đơn hàng`)
+    }
+
     setVisibleManyProduct(false);
-    const lineItems = formMain.getFieldValue(POField.line_items);
-    const newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(items,position)];
-    position = position +  newItems.length;
-    let newLineItems = POUtils.addProduct(lineItems,newItems,false);
-    if(isSortSku){
+    const newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(variantsSelected, position, poLineItemType)];
+    position = position + newItems.length;
+    let newLineItems = POUtils.addProduct(lineItems, newItems, false);
+    if (isSortSku) {
       newLineItems = handleSortLineItems(newLineItems);
     }
     formMain.setFieldsValue({
       line_items: newLineItems
     });
-    formMain.setFieldsValue({
-      untaxed_amount: POUtils.totalAmount(formMain)
-    });
-    formMain.setFieldsValue({
-      tax_lines: POUtils.getVatList(formMain)
-    });
-    formMain.setFieldsValue({
-      total: POUtils.getTotalPayment(formMain)
-    });
+  
     const oldLineItems = formMain.getFieldValue(POField.line_items_old);
-    if(oldLineItems){
-      const newOldLineItems =  POUtils.addProduct(oldLineItems,newItems,false);
+    if (oldLineItems) {
+      const newOldLineItems = POUtils.addProduct(oldLineItems, newItems, false);
       formMain.setFieldsValue({
         line_items_old: newOldLineItems
       })
     }
-    let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+
+    const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
       POField.procurements
     );
-    let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+    const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
       currentProcument,
-      newLineItems
+      newLineItems,
+      poLineItemType
     );
     formMain.setFieldsValue({
       procurements: newProcument,
@@ -382,7 +377,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onSearch = useCallback(
     (value: string) => {
-      if (value.trim() !== "" && value.length >= 3) {
+      if (value.trim() !== "") {
         setLoadingSearch(true);
         dispatch(
           searchVariantsRequestAction(
@@ -396,7 +391,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           )
         );
       } else {
-        setData([]);
+        setResultSearch([]);
       }
     },
     [dispatch, onResultSearch]
@@ -441,46 +436,46 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       index: 8
     }
   ]
- const handleSortLineItems = (items : Array<any> ) => {
-    if(items.length === 0)
+  const handleSortLineItems = (items: Array<any>) => {
+    if (items.length === 0)
       return items;
     let result: Array<any> = [];
-    let newItems = items.map((item : any) => {
-        let sku = item.sku;
-        if(sku){
-          let arrSku = sku.split('-');
-          item.sku_sku = arrSku[0] ? arrSku[0] : "";
-          item.sku_color = arrSku[1] ? arrSku[1] : "";
-          item.sku_size = arrSku[2] ? arrSku[2] : "";
-        }
-        else{
-          item.sku_sku = "";
-          item.sku_color = "";
-          item.sku_size = "";
-        }
-        return item;
+    let newItems = items.map((item: any) => {
+      let sku = item.sku;
+      if (sku) {
+        let arrSku = sku.split('-');
+        item.sku_sku = arrSku[0] ? arrSku[0] : "";
+        item.sku_color = arrSku[1] ? arrSku[1] : "";
+        item.sku_size = arrSku[2] ? arrSku[2] : "";
+      }
+      else {
+        item.sku_sku = "";
+        item.sku_color = "";
+        item.sku_size = "";
+      }
+      return item;
     })
-    newItems.sort((a,b) => (a.sku_sku > b.sku_sku) ? 1 : -1);
-    let itemsAfter = groupByProperty(newItems,"sku_sku");
-    for(let i = 0; i < itemsAfter.length; i++){
-      let subItem : Array<any> = itemsAfter[i];
-        subItem.sort((a,b) => (a.sku_color > b.sku_color) ? 1 : -1)
-        let subItemAfter = groupByProperty(subItem,"sku_color");
-        let itemsSortSize = [];
-        for(let k =0; k < subItemAfter.length; k++){
-          itemsSortSize.push(sortBySize(subItemAfter[k]));
-          itemsAfter[i] = itemsSortSize;
+    newItems.sort((a, b) => (a.sku_sku > b.sku_sku) ? 1 : -1);
+    let itemsAfter = groupByProperty(newItems, "sku_sku");
+    for (let i = 0; i < itemsAfter.length; i++) {
+      let subItem: Array<any> = itemsAfter[i];
+      subItem.sort((a, b) => (a.sku_color > b.sku_color) ? 1 : -1)
+      let subItemAfter = groupByProperty(subItem, "sku_color");
+      let itemsSortSize = [];
+      for (let k = 0; k < subItemAfter.length; k++) {
+        itemsSortSize.push(sortBySize(subItemAfter[k]));
+        itemsAfter[i] = itemsSortSize;
       }
     }
-    for(let i = 0; i < itemsAfter.length; i++){
-      for(let j = 0; j < itemsAfter[i].length; j++){
-        for(let k = 0; k < itemsAfter[i][j].length; k++){
-          if(Array.isArray(itemsAfter[i][j][k])){
-            for(let h = 0; h < itemsAfter[i][j][k].length; h++){
+    for (let i = 0; i < itemsAfter.length; i++) {
+      for (let j = 0; j < itemsAfter[i].length; j++) {
+        for (let k = 0; k < itemsAfter[i][j].length; k++) {
+          if (Array.isArray(itemsAfter[i][j][k])) {
+            for (let h = 0; h < itemsAfter[i][j][k].length; h++) {
               result.push(itemsAfter[i][j][k][h]);
             }
           }
-          else{
+          else {
             result.push(itemsAfter[i][j][k]);
           }
         }
@@ -488,555 +483,320 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     }
     return result;
   }
-  const groupByProperty = (collection: Array<any>,property: string) => {
-    let  val, index, values = [], result = [];
+  const groupByProperty = (collection: Array<any>, property: string) => {
+    let val, index, values = [], result = [];
     for (let i = 0; i < collection.length; i++) {
-        val = collection[i][property];
-        index = values.indexOf(val);
-        if (index > -1)
-            result[index].push(collection[i]);
-        else {
-            values.push(val);
-            result.push([collection[i]]);
-        }
+      val = collection[i][property];
+      index = values.indexOf(val);
+      if (index > -1)
+        result[index].push(collection[i]);
+      else {
+        values.push(val);
+        result.push([collection[i]]);
+      }
     }
     return result;
   }
-  const sortBySize = (collection : Array<any>) => {
-    for(let i = 0; i < collection.length; i++){
-      for(let j = i+1; j < collection.length; j++){
-        if(isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))){
+  const sortBySize = (collection: Array<any>) => {
+    for (let i = 0; i < collection.length; i++) {
+      for (let j = i + 1; j < collection.length; j++) {
+        if (isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))) {
           let sku_size1 = collection[i].sku_size ? collection[i].sku_size.split('/')[0] : "";
           let sku_size2 = collection[j].sku_size ? collection[j].sku_size.split('/')[0] : "";
           let size1 = sizeIndex.find(item => item.size === sku_size1);
           let size2 = sizeIndex.find(item => item.size === sku_size2);
-          if(size1 !== undefined && size2 !== undefined){
-            if(size2.index < size1.index){
-              [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+          if (size1 !== undefined && size2 !== undefined) {
+            if (size2.index < size1.index) {
+              [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
             }
           }
-          else if(size2 === undefined){
-            [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+          else if (size2 === undefined) {
+            [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
           }
         }
-        else if(!isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))){
-          [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+        else if (!isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))) {
+          [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
         }
-        else if(!isNaN(parseFloat(collection[i].sku_size)) && !isNaN(parseFloat(collection[j].sku_size))){
-          if(parseFloat(collection[i].sku_size) > parseFloat(collection[j].sku_size)){
-            [collection[i],collection[j]] = swapItem(collection[i],collection[j]);
+        else if (!isNaN(parseFloat(collection[i].sku_size)) && !isNaN(parseFloat(collection[j].sku_size))) {
+          if (parseFloat(collection[i].sku_size) > parseFloat(collection[j].sku_size)) {
+            [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
           }
         }
       }
     }
     return collection;
   }
-  const swapItem = (a: any,b: any) => {
+  const swapItem = (a: any, b: any) => {
     let temp = a;
-    a = {...b};
-    b = {...temp};
-    return [a,b]
+    a = { ...b };
+    b = { ...temp };
+    return [a, b]
   }
+
+  const isEditFormByType = () => {
+    if (!isEdit) {
+      return false;
+    }
+    const stt = formMain.getFieldValue(POField.status);
+    if (poLineItemType === POLineItemType.NORMAL && (!stt || stt === POStatus.DRAFT)) {
+      return true;
+    }
+    const receive_status = formMain.getFieldValue(POField.receive_status);
+    if (poLineItemType === POLineItemType.SUPPLEMENT && [POStatus.FINALIZED, POStatus.STORED].includes(stt) && receive_status !== ProcumentStatus.FINISHED) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   useEffect(() => {
-    if(isPressed) {
+    if (isPressed) {
       onSearchProduct()
     }
   }, [isPressed])
 
   return (
     <React.Fragment>
-      <>
-        <div>
-          <Form.Item
-            noStyle
-            shouldUpdate={(prev, current) => prev.status !== current.status}
-          >
-            {({ getFieldValue }) => {
-              let status = getFieldValue("status");
-              return (
-                !isEdit && (!status || status === POStatus.DRAFT) && (
-                  <Input.Group className="display-flex">
-                    <CustomAutoComplete
-                      loading={loadingSearch}
-                      id="#product_search"
-                      // disabled={!isCodeSeven}
-                      dropdownClassName="product"
-                      placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
-                      onSearch={onSearch}
-                      dropdownMatchSelectWidth={456}
-                      style={{ width: "100%" }}
-                      showAdd={true}
-                      textAdd="Thêm mới sản phẩm"
-                      onSelect={handleSelectProduct}
-                      options={renderResult}
-                      ref={productSearchRef}
-                      onClickAddNew={() => {
-                        window.open(
-                          `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                          "_blank"
-                        );
-                      }}
-                    />
-                    <BaseButton
-                      style={{ marginLeft: 10 }}
-                      onClick={() => setVisibleManyProduct(true)}
-                      icon={<IconAddMultiple width={12} height={12} />}
-                    >
-                      Chọn nhiều
-                    </BaseButton>
-                  </Input.Group>
-                )
-              );
-            }}
-          </Form.Item>
-          {}
+      <div>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prev, current) => prev.status !== current.status}
+        >
+          {() => {
+            return (
+              isEditFormByType() && (
+                <Input.Group className="display-flex margin-bottom-20">
+                  <CustomAutoComplete
+                    loading={loadingSearch}
+                    id="#product_search"
+                    dropdownClassName="product"
+                    placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
+                    onSearch={debounce(onSearch, AppConfig.TYPING_TIME_REQUEST)}
+                    dropdownMatchSelectWidth={456}
+                    style={{ width: "100%" }}
+                    showAdd={true}
+                    textAdd="Thêm mới sản phẩm"
+                    onSelect={handleSelectProduct}
+                    options={renderResult}
+                    ref={productSearchRef}
+                    onClickAddNew={() => {
+                      window.open(
+                        `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                        "_blank"
+                      );
+                    }}
+                  />
+                  <BaseButton
+                    style={{ marginLeft: 10 }}
+                    onClick={() => setVisibleManyProduct(true)}
+                    icon={<IconAddMultiple width={12} height={12} />}
+                  >
+                    Chọn nhiều
+                  </BaseButton>
+                </Input.Group>
+              )
+            );
+          }}
+        </Form.Item>
+        <Form.Item
+          style={{ padding: 0 }}
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues[POField.line_items] !== curValues[POField.line_items]
+          }
+        >
+          {({ getFieldValue }) => {
+            const lineItems: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items) || [];
+            const items = lineItems.filter((item: PurchaseOrderLineItem) => poLineItemType === POLineItemType.SUPPLEMENT ? item.type === POLineItemType.SUPPLEMENT : item.type !== POLineItemType.SUPPLEMENT);
 
-          <Form.Item noStyle name={POField.line_items} hidden>
-            <Input />
-          </Form.Item>
-          <Form.Item
-            style={{ padding: 0 }}
-            className="margin-top-20"
-            shouldUpdate={(prevValues, curValues) =>
-              prevValues[POField.line_items] !== curValues[POField.line_items]
-            }
-          >
-            {({ getFieldValue }) => {
-              let items = getFieldValue(POField.line_items)
-                ? getFieldValue(POField.line_items)
-                : [];
-              let status = getFieldValue(POField.status);
-              return !isEdit && (!status || status === POStatus.DRAFT) ? (
-                <Table
-                  className="product-table"
-                  locale={{
-                    emptyText: (
-                      <Empty
-                        description="Đơn hàng của bạn chưa có sản phẩm"
-                        image={<img src={emptyProduct} alt="" />}
+            return isEditFormByType() ? (
+              <Table
+                className="product-table"
+                locale={{
+                  emptyText: (
+                    <Empty
+                      description="Đơn hàng của bạn chưa có sản phẩm"
+                      image={<img src={emptyProduct} alt="" />}
+                    >
+                      <Button
+                        type="text"
+                        className="font-weight-500"
+                        style={{
+                          background: "rgba(42,42,134,0.05)",
+                        }}
+                        onClick={onSearchProduct}
                       >
-                        <Button
-                          type="text"
-                          className="font-weight-500"
-                          style={{
-                            background: "rgba(42,42,134,0.05)",
-                          }}
-                          onClick={onSearchProduct}
-                        >
-                          Thêm sản phẩm ngay (F3)
-                        </Button>
-                      </Empty>
-                    ),
-                  }}
-                  sortDirections={[ "descend", null]}
-                  onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
-                    if(sorter){
-                      if(sorter.order == null){
-                        setIsSortSku(false)
-                        let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-                          POField.line_items_old
-                        );
-                        formMain.setFieldsValue({
-                          line_items: [...data],
-                        });
-                      }
-                      else{
-                        setIsSortSku(true)
-                        let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-                          POField.line_items
-                        );
-                        formMain.setFieldsValue({
-                          line_items_old: [...data],
-                        });
-                        data = handleSortLineItems(data);
-                        formMain.setFieldsValue({
-                          line_items: [...data],
-                        });
-                      }
+                        Thêm sản phẩm ngay (F3)
+                      </Button>
+                    </Empty>
+                  ),
+                }}
+                sortDirections={["descend", null]}
+                onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
+                  if (sorter) {
+                    if (sorter.order == null) {
+                      setIsSortSku(false)
+                      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+                        POField.line_items_old
+                      );
+                      formMain.setFieldsValue({
+                        line_items: [...data],
+                      });
                     }
-                  }}
-                  rowKey={(record: PurchaseOrderLineItem) => record.temp_id}
-                  rowClassName="product-table-row"
-                  columns={[
-                    {
-                      title: "STT",
-                      align: "center",
-                      width: 60,
-                      render: (value, record, index) => index + 1,
-                    },
-                    {
-                      title: "Ảnh",
-                      width: 60,
-                      dataIndex: "variant_image",
-                      render: (value) => (
-                        <div className="product-item-image">
-                          <img
-                            src={value === null ? imgDefIcon : value}
-                            alt=""
-                            className=""
-                          />
-                        </div>
-                      ),
-                    },
-                    {
-                      title: "Sản phẩm",
-                      width: "99%",
-                      sorter: true,
-                      className: "ant-col-info",
-                      dataIndex: "variant",
-                      render: (
-                        value: string,
-                        item: PurchaseOrderLineItem,
-                        index: number
-                      ) => {
-                        return (
+                    else {
+                      setIsSortSku(true)
+                      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+                        POField.line_items
+                      );
+                      formMain.setFieldsValue({
+                        line_items_old: [...data],
+                      });
+                      data = handleSortLineItems(data);
+                      formMain.setFieldsValue({
+                        line_items: [...data],
+                      });
+                    }
+                  }
+                }}
+                rowKey={(record: PurchaseOrderLineItem) => record.sku}
+                rowClassName="product-table-row"
+                columns={[
+                  {
+                    title: "STT",
+                    align: "center",
+                    width: 60,
+                    render: (value, record, index) => index + 1,
+                  },
+                  {
+                    title: "Ảnh",
+                    width: 60,
+                    dataIndex: "variant_image",
+                    render: (value) => (
+                      <div className="product-item-image">
+                        <img
+                          src={value === null ? imgDefIcon : value}
+                          alt=""
+                          className=""
+                        />
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "Sản phẩm",
+                    width: "99%",
+                    sorter: true,
+                    className: "ant-col-info",
+                    dataIndex: "variant",
+                    render: (
+                      value: string,
+                      item: PurchaseOrderLineItem,
+                      index: number
+                    ) => {
+                      return (
+                        <div>
                           <div>
-                            <div>
-                              <div className="product-item-sku">
-                                <Link
-                                  target="_blank"
-                                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                                  className="text-truncate-1"
-                                >
-                                  {item.sku}
-                                </Link>
-                              </div>
-                              <div className="product-item-name text-truncate-1">
-                                <div className="product-item-name-detail">
-                                  {value}
-                                </div>
-                                {!item.showNote && (
-                                  <Button
-                                    onClick={() => {
-                                      onToggleNote(
-                                        `note_${item.temp_id}`,
-                                        true,
-                                        index
-                                      );
-                                    }}
-                                    className={classNames(
-                                      "product-item-name-note",
-                                      item.note === "" && "product-item-note"
-                                    )}
-                                    type="link"
-                                  >
-                                    <i> Thêm ghi chú</i>
-                                  </Button>
-                                )}
-                              </div>
+                            <div className="product-item-sku">
+                              <Link
+                                target="_blank"
+                                to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                className="text-truncate-1"
+                              >
+                                {item.sku}
+                              </Link>
                             </div>
-                            {item.showNote && (
-                              <Input
-                                id={`note_${item.temp_id}`}
-                                onBlur={(e) => {
-                                  if (e.target.value === "") {
+                            <div className="product-item-name text-truncate-1">
+                              <div className="product-item-name-detail">
+                                {value}
+                              </div>
+                              {!item.showNote && (
+                                <Button
+                                  onClick={() => {
                                     onToggleNote(
                                       `note_${item.temp_id}`,
-                                      false,
+                                      true,
                                       index
                                     );
-                                  }
-                                }}
-                                addonBefore={<EditOutlined />}
-                                placeholder="Nhập ghi chú"
-                                value={item.note}
-                                className="product-item-note-input"
-                                onChange={(e) =>
-                                  onNoteChange(e.target.value, index)
-                                }
-                              />
-                            )}
-                          </div>
-                        );
-                      },
-                    },
-                    {
-                      title: (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                            flexDirection: "column",
-                            display: "flex",
-                            padding: "7px 14px",
-                          }}
-                        >
-                          SL
-                          <div
-                            style={{ color: "#2A2A86", fontWeight: "normal" }}
-                          >
-                            ({formatCurrency(POUtils.totalQuantity(items),".")})
-                          </div>
-                        </div>
-                      ),
-                      width: 100,
-                      dataIndex: "quantity",
-                      render: (value, item, index) => (
-                        <NumberInput
-                          isFloat={false}
-                          value={value}
-                          min={1}
-                          default={1}
-                          maxLength={6}
-                          onChange={(quantity) => {
-                            handleChangeQuantityLineItem(quantity || 0, index);
-                            // applyChangeQtyForProcurement(quantity||0, item.variant_id);
-                          }}
-                        />
-                      ),
-                    },
-                    {
-                      title: (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                          }}
-                        >
-                          <div>
-                            Giá nhập
-                            <span
-                            style={{
-                              color: "#737373",
-                              fontSize: "12px",
-                              fontWeight: "normal",
-                              }}
-                            >
-                              {" "}
-                              ₫
-                            </span>
-                          </div>
-                          <NumberInput
-                            style={{ width: "80%" }}
-                            min={0}
-                            format={(a: string) => formatCurrency(a ? a : 0, '')}
-                            replace={(a: string) => replaceFormatString(a)}
-                            onPressEnter={(e) => {
-                              handleChangeAllPriceLineItem(e.target.value || 0)
-                            }}
-                          />
-                        </div>
-                      ),
-                      width: 175,
-                      dataIndex: "price",
-                      render: (value, item, index) => {
-                        return (
-                          <NumberInput
-                            className="hide-number-handle"
-                            min={0}
-                            format={(a: string) => formatCurrency(a ? a : 0)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            value={item.price > 0 ? item.price : value}
-                            onChange={(inputValue) => {
-                              handleChangePriceLineItem(inputValue || 0,index);
-                            }}
-                          />
-                        );
-                      },
-                    },
-                    {
-                      title: (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                          }}
-                        >
-                          <div>VAT</div>
-                          <NumberInput
-                            style={{ width: "100%" }}
-                            className="product-item-vat"
-                            prefix={<div>%</div>}
-                            isFloat
-                            onPressEnter={(e) => {
-                              handleChangeAllTax(e.target.value || 0);
-                            }}
-                          />
-                        </div>
-                      ),
-                      width: 100,
-                      dataIndex: "tax_rate",
-                      render: (value, item, index) => {
-                        return (
-                          <NumberInput
-                            className="product-item-vat"
-                            value={ item.tax_rate > 0 ? item.tax_rate : value}
-                            prefix={<div>%</div>}
-                            isFloat
-                            onChange={(inputValue) => {
-                              handleChangeTax(inputValue || 0,index);
-                            }}
-                            min={0}
-                            maxLength={3}
-                            max={100}
-                          />
-                        );
-                      },
-                    },
-                    {
-                      dataIndex: "line_amount_after_line_discount",
-                      title: (
-                        <Tooltip title="Thành tiền không bao gồm thuế VAT">
-                          <div
-                            style={{
-                              width: "100%",
-                              textAlign: "right",
-                            }}
-                          >
-                            Thành tiền
-                            <span
-                              style={{
-                                color: "#737373",
-                                fontSize: "12px",
-                                fontWeight: "normal",
-                              }}
-                            >
-                              {" "}
-                              ₫
-                            </span>
-                          </div>
-                        </Tooltip>
-                      ),
-                      align: "center",
-                      width: 130,
-                      render: (value: number) => (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatCurrency(Math.round(value||0))}
-                        </div>
-                      ),
-                    },
-                    {
-                      title: "",
-                      fixed: items.length !== 0 && "right",
-                      width: 40,
-                      render: (value: string, item, index: number) => (
-                        <Button
-                          onClick={() => handleDeleteLineItem(index)}
-                          className="product-item-delete"
-                          icon={<AiOutlineClose />}
-                        />
-                      ),
-                    },
-                  ]}
-                  dataSource={items}
-                  tableLayout="fixed"
-                  pagination={false}
-                  scroll={{ y: 515, x: 950 }}
-                />
-              ) : (
-                <Table
-                  className="product-table"
-                  rowKey={(record: PurchaseOrderLineItem) =>
-                    record.id ? record.id : record.temp_id
-                  }
-                  rowClassName="product-table-row"
-                  dataSource={items}
-                  tableLayout="fixed"
-                  scroll={{ y: 515, x: 1000 }}
-                  pagination={false}
-                  columns={[
-                    {
-                      title: "STT",
-                      align: "center",
-                      fixed: "left",
-                      width: 60,
-                      render: (value, record, index) => index + 1,
-                    },
-                    {
-                      title: "Ảnh",
-                      width: 60,
-                      fixed: "left",
-                      dataIndex: "variant_image",
-                      render: (value) => (
-                        <div className="product-item-image">
-                          <img
-                            src={value === null ? imgDefIcon : value}
-                            alt=""
-                            className=""
-                          />
-                        </div>
-                      ),
-                    },
-                    {
-                      title: "Sản phẩm",
-                      className: "ant-col-info",
-                      width: 250,
-                      fixed: "left",
-                      dataIndex: "variant",
-                      render: (
-                        value: string,
-                        item: PurchaseOrderLineItem,
-                        index: number
-                      ) => {
-                        return (
-                          <div>
-                            <div>
-                              <div className="product-item-sku">
-                                <Link
-                                  target="_blank"
-                                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                  }}
+                                  className={classNames(
+                                    "product-item-name-note",
+                                    item.note === "" && "product-item-note"
+                                  )}
+                                  type="link"
                                 >
-                                  {item.sku}
-                                </Link>
-                              </div>
-                              <div className="product-item-name text-truncate-1">
-                                <div className="product-item-name-detail">
-                                  {value}
-                                </div>
-                              </div>
-                              <div className="product-item-name text-truncate-1">
-                                <div className="product-item-name-detail">
-                                  {item.note}
-                                </div>
-                              </div>
+                                  <i> Thêm ghi chú</i>
+                                </Button>
+                              )}
                             </div>
                           </div>
-                        );
-                      },
-                    },
-                    {
-                      title: "Đơn vị",
-                      align: "center",
-                      width: 100,
-                      render: () => "Cái",
-                    },
-                    {
-                      title: (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                            flexDirection: "column",
-                            display: "flex",
-                          }}
-                        >
-                          SL
-                          <div
-                            style={{ color: "#2A2A86", fontWeight: "normal" }}
-                          >
-                            ({formatCurrency(POUtils.totalQuantity(items),".")})
-                          </div>
+                          {item.showNote && (
+                            <Input
+                              id={`note_${item.temp_id}`}
+                              onBlur={(e) => {
+                                if (e.target.value === "") {
+                                  onToggleNote(
+                                    `note_${item.temp_id}`,
+                                    false,
+                                    index
+                                  );
+                                }
+                              }}
+                              addonBefore={<EditOutlined />}
+                              placeholder="Nhập ghi chú"
+                              value={item.note}
+                              className="product-item-note-input"
+                              onChange={(e) =>
+                                onNoteChange(e.target.value, index)
+                              }
+                            />
+                          )}
                         </div>
-                      ),
-                      width: 100,
-                      dataIndex: "quantity",
-                      render: (value, item, index) => (
-                        <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
-                      ),
+                      );
                     },
-                    {
-                      title: (
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                          flexDirection: "column",
+                          display: "flex",
+                          padding: "7px 14px",
+                        }}
+                      >
+                        SL
                         <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                          }}
+                          style={{ color: "#2A2A86", fontWeight: "normal" }}
                         >
+                          ({formatCurrency(POUtils.totalQuantity(items), ".")})
+                        </div>
+                      </div>
+                    ),
+                    width: 100,
+                    dataIndex: "quantity",
+                    render: (value, item: PurchaseOrderLineItem, index) => {
+                      const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
+                      return <NumberInput
+                        isFloat={false}
+                        value={value}
+                        min={1}
+                        default={1}
+                        maxLength={6}
+                        onChange={(quantity) => {
+                          handleChangeQuantityLineItem(quantity || 0, item);
+                        }}
+                        disabled={disabled}
+                      />
+                    },
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        <div>
                           Giá nhập
                           <span
                             style={{
@@ -1049,213 +809,489 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             ₫
                           </span>
                         </div>
-                      ),
-                      width: 140,
-                      dataIndex: "price",
-                      render: (value, item, index) => {
-                        return (
-                          <div
+                        <NumberInput
+                          style={{ width: "80%" }}
+                          min={0}
+                          format={(a: string) => formatCurrency(a ? a : 0, '')}
+                          replace={(a: string) => replaceFormatString(a)}
+                          onPressEnter={(e) => {
+                            handleChangeAllPriceLineItem(e.target.value || 0)
+                          }}
+                        />
+                      </div>
+                    ),
+                    width: 175,
+                    dataIndex: "price",
+                    render: (value, item, index) => {
+                      const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
+                      return (
+                        <NumberInput
+                          className="hide-number-handle"
+                          min={0}
+                          format={(a: string) => formatCurrency(a ? a : 0)}
+                          replace={(a: string) => replaceFormatString(a)}
+                          value={item.price > 0 ? item.price : value}
+                          onChange={(inputValue) => {
+                            handleChangePriceLineItem(inputValue || 0, item);
+                          }}
+                          disabled={disabled}
+                        />
+                      );
+                    },
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        <div>VAT</div>
+                        <NumberInput
+                          style={{ width: "100%" }}
+                          className="product-item-vat"
+                          prefix={<div>%</div>}
+                          isFloat
+                          min={0}
+                          maxLength={3}
+                          max={100}
+                          onPressEnter={(e) => {
+                            let value = e.target.value ? Number(e.target.value) : 0;
+                            value = value > 100 ? 100 : value;
+                            value = value < 0 ? 0 : value;
+                            handleChangeAllTax(value);
+                          }}
+                        />
+                      </div>
+                    ),
+                    width: 100,
+                    dataIndex: "tax_rate",
+                    render: (value, item) => {
+                      const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
+                      return (
+                        <NumberInput
+                          className="product-item-vat"
+                          value={item.tax_rate > 0 ? item.tax_rate : value}
+                          prefix={<div>%</div>}
+                          isFloat
+                          onChange={(inputValue) => {
+                            handleChangeTax(inputValue || 0, item);
+                          }}
+                          min={0}
+                          maxLength={3}
+                          max={100}
+                          disabled={disabled}
+                        />
+                      );
+                    },
+                  },
+                  {
+                    dataIndex: "line_amount_after_line_discount",
+                    title: (
+                      <Tooltip title="Thành tiền không bao gồm thuế VAT">
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          Thành tiền
+                          <span
                             style={{
-                              width: "100%",
-                              textAlign: "right",
+                              color: "#737373",
+                              fontSize: "12px",
+                              fontWeight: "normal",
                             }}
                           >
-                            {formatCurrency(
-                              Math.round(
-                                POUtils.caculatePrice(
-                                  value,
-                                  item.discount_rate,
-                                  item.discount_value
-                                )
+                            {" "}
+                            ₫
+                          </span>
+                        </div>
+                      </Tooltip>
+                    ),
+                    align: "center",
+                    width: 130,
+                    render: (value: number) => (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        {formatCurrency(Math.round(value || 0))}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "",
+                    fixed: items.length !== 0 && "right",
+                    width: 40,
+                    render: (value: string, item, index: number) => {
+                      const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
+                      return <Button
+                        onClick={() => handleDeleteLineItem(index)}
+                        className="product-item-delete"
+                        icon={<AiOutlineClose />}
+                        disabled={disabled}
+                      />
+                    },
+                  },
+                ]}
+                dataSource={items}
+                tableLayout="fixed"
+                pagination={false}
+                scroll={{ y: 515, x: 950 }}
+              />
+            ) : (
+              <Table
+                className="product-table"
+                rowKey={(record: PurchaseOrderLineItem) =>
+                  record.sku
+                }
+                rowClassName="product-table-row"
+                dataSource={items}
+                tableLayout="fixed"
+                scroll={{ y: 515, x: 1000 }}
+                pagination={false}
+                columns={[
+                  {
+                    title: "STT",
+                    align: "center",
+                    fixed: "left",
+                    width: 60,
+                    render: (value, record, index) => index + 1,
+                  },
+                  {
+                    title: "Ảnh",
+                    width: 60,
+                    fixed: "left",
+                    dataIndex: "variant_image",
+                    render: (value) => (
+                      <div className="product-item-image">
+                        <img
+                          src={value === null ? imgDefIcon : value}
+                          alt=""
+                          className=""
+                        />
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "Sản phẩm",
+                    className: "ant-col-info",
+                    width: 250,
+                    fixed: "left",
+                    dataIndex: "variant",
+                    render: (
+                      value: string,
+                      item: PurchaseOrderLineItem,
+                      index: number
+                    ) => {
+                      return (
+                        <div>
+                          <div>
+                            <div className="product-item-sku">
+                              <Link
+                                target="_blank"
+                                to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                              >
+                                {item.sku}
+                              </Link>
+                            </div>
+                            <div className="product-item-name text-truncate-1">
+                              <div className="product-item-name-detail">
+                                {value}
+                              </div>
+                            </div>
+                            <div className="product-item-name text-truncate-1">
+                              <div className="product-item-name-detail">
+                                {item.note}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    },
+                  },
+                  {
+                    title: "Đơn vị",
+                    align: "center",
+                    width: 100,
+                    render: () => "Cái",
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                          flexDirection: "column",
+                          display: "flex",
+                        }}
+                      >
+                        SL
+                        <div
+                          style={{ color: "#2A2A86", fontWeight: "normal" }}
+                        >
+                          ({formatCurrency(POUtils.totalQuantity(items), ".")})
+                        </div>
+                      </div>
+                    ),
+                    width: 100,
+                    dataIndex: "quantity",
+                    render: (value, item, index) => (
+                      <div style={{ textAlign: "right" }}>{formatCurrency(value, ".")}</div>
+                    ),
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        Giá nhập
+                        <span
+                          style={{
+                            color: "#737373",
+                            fontSize: "12px",
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {" "}
+                          ₫
+                        </span>
+                      </div>
+                    ),
+                    width: 140,
+                    dataIndex: "price",
+                    render: (value, item, index) => {
+                      return (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          {formatCurrency(
+                            Math.round(
+                              POUtils.caculatePrice(
+                                value,
+                                item.discount_rate,
+                                item.discount_value
                               )
-                            )}
-                          </div>
-                        );
-                      },
+                            )
+                          )}
+                        </div>
+                      );
                     },
-                    {
-                      title: (
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        VAT (%)
+                      </div>
+                    ),
+                    width: 120,
+                    dataIndex: "tax_rate",
+                    render: (value, item, index) => {
+                      return (
                         <div
                           style={{
                             width: "100%",
                             textAlign: "right",
                           }}
                         >
-                          VAT (%)
+                          {value} %
                         </div>
-                      ),
-                      width: 120,
-                      dataIndex: "tax_rate",
-                      render: (value, item, index) => {
-                        return (
-                          <div
-                            style={{
-                              width: "100%",
-                              textAlign: "right",
-                            }}
-                          >
-                            {value} %
-                          </div>
-                        );
-                      },
+                      );
                     },
-                    {
-                      dataIndex: "line_amount_after_line_discount",
-                      title: (
-                        <Tooltip title="Thành tiền không bao gồm thuế VAT">
-                          <div
-                            style={{
-                              width: "100%",
-                              textAlign: "right",
-                            }}
-                          >
-                            Thành tiền
-                            <span
-                              style={{
-                                color: "#737373",
-                                fontSize: "12px",
-                                fontWeight: "normal",
-                              }}
-                            >
-                              {" "}
-                              ₫
-                            </span>
-                          </div>
-                        </Tooltip>
-                      ),
-                      align: "center",
-                      width: 130,
-                      render: (value: number) => (
+                  },
+                  {
+                    dataIndex: "line_amount_after_line_discount",
+                    title: (
+                      <Tooltip title="Thành tiền không bao gồm thuế VAT">
                         <div
                           style={{
                             width: "100%",
                             textAlign: "right",
                           }}
                         >
-                          {formatCurrency(Math.round(value))}
+                          Thành tiền
+                          <span
+                            style={{
+                              color: "#737373",
+                              fontSize: "12px",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {" "}
+                            ₫
+                          </span>
                         </div>
-                      ),
-                    },
-                    {
-                      title: "",
-                      width: 40,
-                      render: (value: string, item, index: number) => "",
-                    },
-                  ]}
-                />
-              );
-            }}
-          </Form.Item>
-          <Row gutter={24}>
-            <Col span={12} />
-            <Col span={12}>
-              <Form.Item
-                shouldUpdate={(prevValues, curValues) =>
-                  prevValues[POField.untaxed_amount] !==
-                  curValues[POField.untaxed_amount]
-                }
-                noStyle
-              >
-                {({ getFieldValue }) => {
-                  let untaxed_amount = getFieldValue(POField.untaxed_amount);
-                  return (
-                    <div className="po-payment-row">
-                      <div>Tổng tiền</div>
-                      <div className="po-payment-row-result">
-                        {untaxed_amount === 0
+                      </Tooltip>
+                    ),
+                    align: "center",
+                    width: 130,
+                    render: (value: number) => (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        {formatCurrency(Math.round(value))}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "",
+                    width: 40,
+                    render: (value: string, item, index: number) => "",
+                  },
+                ]}
+              />
+            );
+          }}
+        </Form.Item>
+        <Row gutter={24}>
+          <Col span={12} />
+          <Col span={12}>
+            <Form.Item
+              shouldUpdate={(prevValues, curValues) => prevValues[POField.line_items] !== curValues[POField.line_items]}
+              noStyle
+            >
+              {({ getFieldValue }) => {
+                const line_items = getFieldValue(POField.line_items);
+                const untaxedAmountSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.SUPPLEMENT);                
+                const untaxedAmountNotSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);                
+                const totalNotSupplement = getTotalAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);
+
+                return (
+                  <div>
+                    {poLineItemType === POLineItemType.SUPPLEMENT && <div className="po-payment-row">
+                      <div>(1):</div>
+                      <div className="po-payment-row-sub">
+                        {totalNotSupplement === 0
                           ? "-"
-                          : formatCurrency(Math.round(untaxed_amount||0))}
+                          : formatCurrency(Math.round(totalNotSupplement || 0))}
                       </div>
-                    </div>
-                  );
-                }}
-              </Form.Item>
-              <Form.Item name={POField.untaxed_amount} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.trade_discount_amount} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.trade_discount_rate} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.trade_discount_value} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.payment_discount_amount} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.payment_discount_rate} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.payment_discount_value} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item
-                shouldUpdate={(prevValues, curValues) =>
-                  prevValues.tax_lines !== curValues.tax_lines
-                }
-                noStyle
-              >
-                {({ getFieldValue }) => {
-                  let tax_lines = getFieldValue("tax_lines");
-                  return tax_lines.map((item: Vat) => (
-                    <div className="po-payment-row">
-                      <div>{`VAT (${item.rate}%)`}</div>
+                    </div>}
+
+                    {poLineItemType === POLineItemType.NORMAL ? <div className="po-payment-row">
+                      <div>Tổng tiền:</div>
                       <div className="po-payment-row-result">
-                        {formatCurrency(Math.round(item.amount))}
+                        {untaxedAmountNotSupplement === 0
+                          ? "-"
+                          : formatCurrency(Math.round(untaxedAmountNotSupplement || 0))}
                       </div>
                     </div>
-                  ));
-                }}
-              </Form.Item>
-              <Divider style={{marginTop: 5, marginBottom: 10}} />
-              <Form.Item name={POField.cost_lines} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.total_cost_line} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.total} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item name={POField.tax_lines} hidden noStyle>
-                <Input />
-              </Form.Item>
-              <Form.Item
-                shouldUpdate={(prevValues, curValues) =>
-                  prevValues[POField.total] !== curValues[POField.total]
-                }
-                noStyle
-              >
-                {({ getFieldValue }) => {
-                  let total = getFieldValue(POField.total);
-                  return (
+:
                     <div className="po-payment-row">
-                      <strong className="po-payment-row-title">
-                        Tiền cần trả
-                      </strong>
-                      <strong className="po-payment-row-success">
-                        {formatCurrency(Math.round(total||0))}
-                      </strong>
+                      <div>Tiền bổ sung:</div>
+                      <div className="po-payment-row-result">
+                        {untaxedAmountSupplement === 0
+                          ? "-"
+                          : formatCurrency(Math.round(untaxedAmountSupplement || 0))}
+                      </div>
+                    </div>}
+                  </div>
+                );
+              }}
+            </Form.Item>            
+            <Form.Item
+              shouldUpdate={(prevValues, curValues) => prevValues[POField.line_items] !== curValues[POField.line_items]}
+              noStyle
+            >
+              {() => {
+                const taxLines: Vat[] = POUtils.getVatList(formMain, poLineItemType === POLineItemType.SUPPLEMENT);
+                return taxLines.filter((tax: Vat)=> tax.rate !== 0).map((item: Vat, index: number) => (
+                  <div className="po-payment-row" key={index}>
+                    <div>VAT<span className="po-payment-row-error">{`(${item.rate}%)`}:</span></div>
+                    <div className="po-payment-row-result">
+                      {formatCurrency(Math.round(item.amount))}
                     </div>
-                  );
-                }}
-              </Form.Item>
-            </Col>
-          </Row>
-        </div>
-      </>
-      {
-        visibleManyProduct && (
-          <PickManyProductModal
-            onSave={handlePickManyProduct}
-            selected={[]}
-            onCancel={() => setVisibleManyProduct(false)}
-            visible={visibleManyProduct}
-          />
-        )
-      }
+                  </div>
+                ));
+              }}
+            </Form.Item>
+            <Divider style={{ marginTop: 5, marginBottom: 10 }} />
+            <Form.Item
+              shouldUpdate={(prevValues, curValues) => prevValues[POField.line_items] !== curValues[POField.line_items]}
+              noStyle
+            >
+              {() => {
+                const line_items = formMain.getFieldValue(POField.line_items);
+                const totalNotSupplement = getTotalAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);
+                const total = getTotalAmountByLineItemType(line_items, POLoadType.ALL);
+                return (
+                  <div className="po-payment-row">
+                    <strong className="po-payment-row-title">
+                      {summaryContentByLineItemType(formMain, poLineItemType)}
+                    </strong>
+                    {poLineItemType === POLineItemType.NORMAL ? <strong className="po-payment-row-success">
+                      {formatCurrency(Math.round(totalNotSupplement || 0))}
+                    </strong>
+                      :
+                      <strong className="po-payment-row-success">
+                        {formatCurrency(Math.round(total || 0))}
+                      </strong>}
+                  </div>
+                );
+              }}
+            </Form.Item>
+            <Form.Item noStyle name={POField.line_items} hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.untaxed_amount} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.trade_discount_amount} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.trade_discount_rate} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.trade_discount_value} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.payment_discount_amount} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.payment_discount_rate} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.payment_discount_value} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.cost_lines} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.total_cost_line} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.total} hidden noStyle>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.tax_lines} hidden noStyle>
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+      </div>
+      <PickManyProductModal
+        onSave={handlePickManyProduct}
+        selected={[]}
+        onCancel={() => setVisibleManyProduct(false)}
+        visible={visibleManyProduct}
+      />
     </React.Fragment>
   );
 };
