@@ -1,31 +1,31 @@
 import { FormInstance } from "antd";
 import { AppConfig } from "config/app.config";
-import { Type } from "config/type.config";
 import { isEmpty, uniqBy } from "lodash";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { CostLine } from "model/purchase-order/cost-line.model";
 import { POField } from "model/purchase-order/po-field";
 import {
-  PurchaseOrderLineItem,
-  Vat,
+  POLineItemType,
+  POLoadType,
+  PurchaseOrderLineItem, Vat
 } from "model/purchase-order/purchase-item.model";
 import { POLineItemColor, POLineItemGridSchema, POLineItemGridValue, POPairSizeColor, POPairSizeQuantity, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
-  PurchaseProcumentLineItem,
-  PurchaseProcument,
-  PurchaseProcurementViewDraft
+  PurchaseProcument, PurchaseProcumentLineItem, PurchaseProcurementViewDraft
 } from "model/purchase-order/purchase-procument";
 import { Dispatch } from "react";
 import { QUANTITY_PROCUREMENT_UNIT, QuickInputQtyProcurementLineItem } from "screens/purchase-order/provider/purchase-order.provider";
 import { productDetailApi } from "service/product/product.service";
 import { callApiNative } from "./ApiUtils";
 import { Products } from "./AppUtils";
+import { POStatus } from "./Constants";
 import { showError } from "./ToastUtils";
 
 const POUtils = {
   convertVariantToLineitem: (
     variants: Array<VariantResponse>,
-    position: number
+    position: number,
+    variantType: string,
   ): Array<PurchaseOrderLineItem> => {
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant, index) => {
@@ -48,7 +48,7 @@ const POUtils = {
         price: price ?? 0,
         amount: price,
         note: "",
-        type: Type.NORMAL,
+        type: variantType,
         variant_image: variant_image !== null ? variant_image.url : null,
         unit: variant.product.unit,
         tax: 0,
@@ -190,7 +190,6 @@ const POUtils = {
     };
   },
   updateLineItemByVat: (
-    formMain: FormInstance,
     lineItem: PurchaseOrderLineItem,
     tax_rate: number
   ): PurchaseOrderLineItem => {
@@ -211,14 +210,14 @@ const POUtils = {
     }
     return price;
   },
-  getVatList: (formMain: FormInstance): Array<Vat> => {
+  getVatList: (formMain: FormInstance, isSupplement?: Boolean): Array<Vat> => {
     let result: Array<Vat> = [];
     let lineItems : Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     let tradeDiscountRate = formMain.getFieldValue(POField.trade_discount_rate);
     let tradeDiscountValue = formMain.getFieldValue(POField.trade_discount_value);
     let total = POUtils.totalAmount(formMain);
     lineItems.forEach((item) => {
-      if (item.tax_rate > 0) {
+      if (item.tax_rate > 0 && isSupplement ? item.type === POLineItemType.SUPPLEMENT :  item.type !== POLineItemType.SUPPLEMENT) {
         let index = result.findIndex(
           (vatItem) => vatItem.rate === item.tax_rate
         );
@@ -263,18 +262,6 @@ const POUtils = {
       return value;
     }
     return 0;
-  },
-  getTotalPayment: (formMain: FormInstance): number => {
-    let total = formMain.getFieldValue(POField.untaxed_amount);
-    let trade_discount_total = POUtils.getTotalDiscount(formMain,total);
-    let total_after_tax = POUtils.getTotalAfterTax(formMain);
-    let payment_discount_total = POUtils.getTotalDiscount(formMain,total_after_tax);
-    let vats = POUtils.getVatList(formMain);
-    let sum = total - trade_discount_total - payment_discount_total + formMain.getFieldValue(POField.total_cost_line);
-    vats.forEach((item) => {
-      sum = sum + item.amount;
-    });
-    return sum;
   },
   getTotalAfterTax: (formMain : FormInstance) => {
     let total = formMain.getFieldValue(POField.untaxed_amount);
@@ -336,7 +323,8 @@ const POUtils = {
   },
   getNewProcument: (
     procuments: Array<PurchaseProcument>,
-    data: Array<PurchaseOrderLineItem>
+    data: Array<PurchaseOrderLineItem>,
+    poLineItemType: POLineItemType
   ) => {
     let newProcuments: Array<PurchaseProcument> = [];
     procuments?.forEach((item) => {
@@ -350,28 +338,29 @@ const POUtils = {
         }
       });
       data.forEach((lineItem) => {
-        let index = newProcumentLineItem.findIndex(
-          (procumentItem) => lineItem.sku === procumentItem.sku
-        );
-        if (index === -1) {
-          newProcumentLineItem.push({
-            barcode: lineItem.barcode,
-            line_item_id: lineItem.position,
-            code: lineItem.code,
-            sku: lineItem.sku,
-            variant: lineItem.variant,
-            variant_image: lineItem.variant_image,
-            ordered_quantity: lineItem.quantity,
-            planned_quantity: lineItem.planned_quantity,
-            accepted_quantity: lineItem.receipt_quantity,
-            quantity: procuments.length === 1 ? lineItem.quantity : 0,
-            real_quantity: 0,
-            note: "",
-          });
-        } else {
-          if (procuments.length === 1) {
+        if (poLineItemType !== POLineItemType.SUPPLEMENT) {
+          let index = newProcumentLineItem.findIndex(
+            (procumentItem) => lineItem.sku === procumentItem.sku
+          );
+          if (index === -1) {
+            newProcumentLineItem.push({
+              barcode: lineItem.barcode,
+              line_item_id: lineItem.position,
+              code: lineItem.code,
+              sku: lineItem.sku,
+              variant: lineItem.variant,
+              variant_image: lineItem.variant_image,
+              ordered_quantity: lineItem.quantity,
+              planned_quantity: lineItem.planned_quantity,
+              accepted_quantity: lineItem.receipt_quantity,
+              quantity: procuments.length === 1 ? lineItem.quantity : 0,
+              real_quantity: 0,
+              note: "",
+            });
+          } else if (procuments.length === 1) {
             newProcumentLineItem[index].quantity = lineItem.quantity;
             newProcumentLineItem[index].ordered_quantity = lineItem.quantity;
+
           }
         }
       });
@@ -381,7 +370,6 @@ const POUtils = {
     return newProcuments;
   },
 };
-
 
 /**
  * Bảng chọn sản phẩm dạng Grid
@@ -517,8 +505,8 @@ export const combineLineItemToSubmitData = (
   poLineItemGridValue: Array<Map<string, POLineItemGridValue>>,
   poLineItemGridChema: Array<POLineItemGridSchema>,
   taxRate: number
-) => {
-  const newDataItems: any = [];
+): any[] => {
+  const newDataItems: any[] = [];
   poLineItemGridValue.forEach((item: Map<string, POLineItemGridValue>, index: number) => {
     poLineItemGridChema[index].mappingColorAndSize.forEach((pair: POPairSizeColor) => {
       const value: POLineItemGridValue | undefined = item.get(pair.color);
@@ -536,7 +524,7 @@ export const combineLineItemToSubmitData = (
             sku: pair.sku,
             product: pair.product,
             barcode: pair.barcode,
-            variant_image: pair.variant_image,
+            variant_image: pair.variant_image || null,
 
             // Dữ liệu nhập liệu thì lấy thì value object
             quantity: qty,
@@ -618,7 +606,8 @@ export const fetchProductGridData = async (isGridMode: boolean,
   dispatch: Dispatch<any>,
   setPoLineItemGridSchema: (value: POLineItemGridSchema[]) => void,
   setPoLineItemGridValue: (value: Map<string, POLineItemGridValue>[])=> void,
-  setTaxRate: (value: number)=>void) => {
+  setTaxRate: (value: number)=>void
+  ) => {
   if (isGridMode) {
     /**
      *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
@@ -631,7 +620,12 @@ export const fetchProductGridData = async (isGridMode: boolean,
        * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
        */
       const newpoLineItemGridChema = [];
-      newpoLineItemGridChema.push(initSchemaLineItem(product, mode, poData.line_items));
+
+      /**
+       * Lọc line item không phải sản phẩm bổ sung
+       */
+      const notSupplementLineItems = poData.line_items.filter(item => item.type !== POLineItemType.SUPPLEMENT);
+      newpoLineItemGridChema.push(initSchemaLineItem(product, mode, notSupplementLineItems));
       setPoLineItemGridSchema(newpoLineItemGridChema);
 
       /**
@@ -639,7 +633,7 @@ export const fetchProductGridData = async (isGridMode: boolean,
       */
       const newpoLineItemGridValue: Map<string, POLineItemGridValue>[] = [];
       newpoLineItemGridChema.forEach(schema => {
-        newpoLineItemGridValue.push(initValueLineItem(schema, poData.line_items));
+        newpoLineItemGridValue.push(initValueLineItem(schema, notSupplementLineItems));
       })
       setPoLineItemGridValue(newpoLineItemGridValue);
 
@@ -649,6 +643,51 @@ export const fetchProductGridData = async (isGridMode: boolean,
        */
       setTaxRate(poData.line_items[0].tax_rate);
     }
+  }
+}
+
+export const getUntaxedAmountByLineItemType = (lineItem: PurchaseOrderLineItem[], type: POLoadType) => {
+  return Math.round(lineItem.reduce((prev: number, cur: PurchaseOrderLineItem) => {
+    const amount = prev + cur.quantity * cur.price ;
+    
+    if (type === POLoadType.SUPPLEMENT && cur.type === POLineItemType.SUPPLEMENT) {
+      return amount;
+    } else if (type === POLoadType.NOT_SUPPLEMENT && cur.type !== POLineItemType.SUPPLEMENT) {
+      return amount;
+    } else if (type === POLoadType.ALL) {
+      return amount;
+    } else {
+      return prev;
+    }
+  }, 0));
+}
+
+export const getTotalAmountByLineItemType = (lineItem: PurchaseOrderLineItem[], type: POLoadType) => {
+  return Math.round(lineItem.reduce((prev: number, cur: PurchaseOrderLineItem) => {
+    const curAmount = cur.quantity * cur.price;
+    const amount = prev + (curAmount + (curAmount * (cur.tax_rate / 100)));
+
+    if (type === POLoadType.SUPPLEMENT && cur.type === POLineItemType.SUPPLEMENT) {
+      return amount;
+    } else if (type === POLoadType.NOT_SUPPLEMENT && cur.type !== POLineItemType.SUPPLEMENT) {
+      return amount;
+    } else if (type === POLoadType.ALL) {
+      return amount;
+    } else {
+      return prev;
+    }
+     
+  }, 0));
+}
+
+export const summaryContentByLineItemType = (form: FormInstance, poLineItemType?: POLineItemType) => {
+  const status = form.getFieldValue(POField.status);
+  const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(POField.line_items);
+  const hasSupplement = lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT);
+  if (hasSupplement && [POStatus.FINALIZED, POStatus.STORED].includes(status) && poLineItemType !== POLineItemType.SUPPLEMENT) {
+    return "Thành tiền (1)";
+  } else {
+    return  "Tiền cần trả";
   }
 }
 export { POUtils };
