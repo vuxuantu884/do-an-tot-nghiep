@@ -1,7 +1,7 @@
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import tiktokIcon from "assets/icon/e-tiktok.svg";
 
 export const ECOMMERCE_CHANNEL = ["shopee", "lazada", "tiki", "sendo"];
 
@@ -16,7 +16,7 @@ export const ECOMMERCE_ICON: any = {
   shopee: shopeeIcon,
   lazada: lazadaIcon,
   tiki: tikiIcon,
-  sendo: sendoIcon,
+  tiktok: tiktokIcon,
 };
 
 export const ECOMMERCE_ID = {
@@ -48,13 +48,13 @@ export const ECOMMERCE_LIST = [
     ecommerce_id: 3,
     channel_id: 16
   },
+
   {
-    title: "Sàn Sendo",
-    icon: sendoIcon,
-    key: "sendo",
-    isActive: false,
+    title: "Sàn Tiktok",
+    icon: tiktokIcon,
+    key: "tiktok",
     ecommerce_id: 4,
-    channel_id: 17
+    channel_id: 20
   },
 ];
 
