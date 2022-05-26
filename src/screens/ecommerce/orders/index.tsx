@@ -208,7 +208,6 @@ const EcommerceOrders: React.FC = () => {
   const [showPreparationModal, setShowPreparationModal] = useState(false)
   const [conFirmPreparationShopeeProduct, setConfirmPreparationShopeeProduct] = useState(false);
   const [showButtonConfirm, setIsShowButtonConfirm] = useState(true);
-  const [isReportShopeeSelected, setReportShopeeSelected] = useState(true);
   const [isReportShopeeFilter, setReportShopeeFilter] = useState(true);
   const [ecommerceShopAddress, setEcommerceShopAddress] = useState<any>([]);
   const [ecommerceShopListByAddress, setEcommerceShopListByAddress] = useState<any>([]);
