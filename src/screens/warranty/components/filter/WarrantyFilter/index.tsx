@@ -45,12 +45,6 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
         ? params.store_ids.map((i) => Number(i))
         : Number(params.store_ids),
       type: params.type ? params.type : undefined,
-      created_date:
-        params.from_created_date === params.to_created_date ? params.from_created_date : undefined,
-      appointment_date:
-        params.from_appointment_date === params.to_appointment_date
-          ? params.from_appointment_date
-          : undefined,
     };
   }, [params]);
 
@@ -76,8 +70,8 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form form={formSearch} initialValues={initialValues} layout="inline" onFinish={onFinish}>
             <div style={{ width: "100%" }}>
-              <Row>
-                <Col span={6}>
+              <Row gutter={8}>
+                <Col span={4}>
                   <Form.Item name="store_ids">
                     <CustomSelect
                       className="select-with-search"
@@ -86,6 +80,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       placeholder="Chọn cửa hàng"
                       notFoundContent="Không tìm thấy kết quả"
+                      dropdownStyle={{minWidth: 180}}
                     >
                       {stores.map((item, index) => (
                         <Select.Option key={index} value={item.id}>
@@ -95,13 +90,13 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                     </CustomSelect>
                   </Form.Item>
                 </Col>
-                <Col span={6}>
-                  <Form.Item name="ids">
-                    <Input type="text" placeholder="ID" />
+                <Col span={3}>
+                  <Form.Item name="query">
+                    <Input type="text" placeholder="ID phiếu bảo hành, tên, SĐT khách hàng" />
                   </Form.Item>
                 </Col>
-                <Col span={4}>
-                  <Form.Item name="created_date">
+                <Col span={3} className="colSelectDate">
+                  <Form.Item name="from_created_date">
                     <CustomDatePicker
                       placeholder="Ngày tiếp nhận"
                       format={DATE_FORMAT.DD_MM_YYYY}
@@ -109,8 +104,17 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={4}>
-                  <Form.Item name="appointment_date">
+                <Col span={3} className="colSelectDate">
+                  <Form.Item name="to_created_date">
+                    <CustomDatePicker
+                      placeholder="Đến ngày"
+                      format={DATE_FORMAT.DD_MM_YYYY}
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={3} className="colSelectDate">
+                  <Form.Item name="from_appointment_date">
                     <CustomDatePicker
                       placeholder="Ngày hẹn trả"
                       format={DATE_FORMAT.DD_MM_YYYY}
@@ -118,7 +122,16 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={4}>
+                <Col span={3} className="colSelectDate">
+                  <Form.Item name="to_appointment_date">
+                    <CustomDatePicker
+                      placeholder="Đến ngày"
+                      format={DATE_FORMAT.DD_MM_YYYY}
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={3} className="colType">
                   <Form.Item name="type">
                     <CustomSelect
                       className="select-with-search"
@@ -127,6 +140,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       placeholder="Loại"
                       notFoundContent="Không tìm thấy kết quả"
+                      dropdownStyle={{minWidth: 170}}
                     >
                       {WARRANTY_TYPE.map((item, index) => (
                         <Select.Option key={index} value={item.code}>
