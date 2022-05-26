@@ -30,6 +30,7 @@ import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
 import UrlConfig from "config/url.config";
 import { convertFromStringToDate, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { getListOrderApi } from "service/order/order.service";
+import {  getFullfilmentPacked, getFullfilmentReturning } from "../pack-utils";
 // import { useHistory } from "react-router-dom";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
@@ -170,6 +171,17 @@ const AddReportHandOver: React.FC = () => {
       return;
     }
 
+    console.log(goodsReceipts.orders)
+    if (goodsReceipts.orders && goodsReceipts.orders.length > 0) {
+      let indexShipping = goodsReceipts.orders?.findIndex(p => p.fulfillment_status === FulFillmentStatus.SHIPPING);
+
+      console.log("indexShipping", indexShipping)
+      if (indexShipping !== -1) {
+        showError(`Không thể cập nhật biên bản, Đơn hàng ${goodsReceipts.orders[indexShipping].code} đã xuất kho`);
+        return;
+      }
+    }
+
     let selectOrderPackSuccess = orderPackSuccess?.filter((p) => isFulFillmentPack.some((single) => single === p.order_code));
     let notSelectOrderPackSuccess = orderPackSuccess?.filter((p) => !isFulFillmentPack.some((single) => single === p.order_code));
 
@@ -193,7 +205,7 @@ const AddReportHandOver: React.FC = () => {
               orderData.forEach((order) => {
                 if (order.fulfillments && order.fulfillments.length > 0) {
                   if (receiptsItem.receipt_type_id === 1) {
-                    let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+                    let fulfillments = getFullfilmentPacked(order.fulfillments);
                     if (fulfillments.length > 0) {
                       let indexFFM = fulfillments.length - 1;
                       let FFMCode: string | null = fulfillments[indexFFM].code;
@@ -201,7 +213,7 @@ const AddReportHandOver: React.FC = () => {
                     }
                   }
                   else if (receiptsItem.receipt_type_id === 2) {
-                    let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED && p.return_status=== FulFillmentStatus.RETURNING)
+                    let fulfillments = getFullfilmentReturning(order.fulfillments);
                     if (fulfillments.length > 0) {
                       let indexFFM = fulfillments.length - 1;
                       let FFMCode: string | null = fulfillments[indexFFM].code;
@@ -219,7 +231,7 @@ const AddReportHandOver: React.FC = () => {
             receiptsItem?.orders?.forEach((order) => {
               if (order.fulfillments && order.fulfillments.length > 0) {
                 if (receiptsItem.receipt_type_id === 1) {
-                  let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.PACKED)
+                  let fulfillments = getFullfilmentPacked(order.fulfillments);
                   if (fulfillments.length > 0) {
                     let indexFFM = fulfillments.length - 1;
                     let FFMCode: string | null = fulfillments[indexFFM].code;
@@ -227,7 +239,7 @@ const AddReportHandOver: React.FC = () => {
                   }
                 }
                 else if (receiptsItem.receipt_type_id === 2) {
-                  let fulfillments = order.fulfillments.filter(p => p.status === FulFillmentStatus.CANCELLED && p.return_status=== FulFillmentStatus.RETURNING)
+                  let fulfillments = getFullfilmentReturning(order.fulfillments);
                   if (fulfillments.length > 0) {
                     let indexFFM = fulfillments.length - 1;
                     let FFMCode: string | null = fulfillments[indexFFM].code;
@@ -299,8 +311,8 @@ const AddReportHandOver: React.FC = () => {
 
     dispatch(
       getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
-        let receiptsSucess = data.items.filter((p) => !p.orders?.some((p1) => p1.fulfillment_status !== FulFillmentStatus.PACKED && p1.fulfillment_status !== FulFillmentStatus.CANCELLED))
-        console.log("receiptsSucess", receiptsSucess)
+        // let receiptsSucess = data.items.filter((p) => p.orders?.some((p1) => p1.fulfillment_status === FulFillmentStatus.PACKED))
+        // console.log("receiptsSucess", receiptsSucess)
         setListGoodsReceipts(data.items);
       })
     );
