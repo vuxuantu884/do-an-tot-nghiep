@@ -13,7 +13,7 @@ import {
   actionOrderRefund,
   actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
-import { OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -27,11 +27,10 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getRefundInformationService } from "service/order/order.service";
 import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { findPaymentMethodByCode, isOrderDetailHasPointPayment } from "utils/OrderUtils";
+import { findPaymentMethodByCode } from "utils/OrderUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -190,8 +189,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   // tổng tiền trừ điểm
   const totalAmountReturnToCustomer = useMemo(() => {
-    return Math.ceil((OrderDetail?.total || 0) - refund.money);
-  }, [OrderDetail?.total, refund.money]);
+    return Math.ceil((OrderDetail?.money_amount || 0));
+  }, [OrderDetail?.money_amount]);
 
   const totalAmountHasPaidToCustomerWithoutPointRefund = useMemo(() => {
     let result = 0;
@@ -235,72 +234,85 @@ const ScreenReturnDetail = (props: PropTypes) => {
   //   return total >= Math.floor(OrderDetail?.money_refund || 0)
   // };
 
-  const calculateRefund= useCallback(
-    (response: OrderResponse, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
-      console.log('response', response);
-      let isUsingPoint = isOrderDetailHasPointPayment(response, listPaymentMethods);
-      console.log('isUsingPoint', isUsingPoint);
-      if(isUsingPoint) {
-        const orderReturns = response.order_returns;
-        const currentOrderReturn = orderReturns?.find(single => single.id === OrderDetail?.id);
-        console.log('currentOrderReturn', currentOrderReturn);
-        if(currentOrderReturn && OrderDetail?.customer_id && currentOrderReturn.items) {
-          getRefundInformationService(OrderDetail?.customer_id, response?.id).then(response => {
-            console.log('response', response);
-            const currentRefund = response.data.find(single => single.sub_order_id === OrderDetail.id);
-            if(currentRefund) {
-              setRefund({
-                money: currentRefund.money_point,
-                point: currentRefund.change_point,
-              })
-            }
-          }).catch((error) => {
-            setError(true);
-          }).finally(() => {
-            setLoadingData(false)
+  // const calculateRefund= useCallback(
+  //   (response: OrderResponse, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
+  //     console.log('response', response);
+  //     let isUsingPoint = isOrderDetailHasPointPayment(response, listPaymentMethods);
+  //     console.log('isUsingPoint', isUsingPoint);
+  //     if(isUsingPoint) {
+  //       const orderReturns = response.order_returns;
+  //       const currentOrderReturn = orderReturns?.find(single => single.id === OrderDetail?.id);
+  //       console.log('currentOrderReturn', currentOrderReturn);
+  //       if(currentOrderReturn && OrderDetail?.customer_id && currentOrderReturn.items) {
+  //         getRefundInformationService(OrderDetail?.customer_id, response?.id).then(response => {
+  //           console.log('response', response);
+  //           const currentRefund = response.data.find(single => single.sub_order_id === OrderDetail.id);
+  //           if(currentRefund) {
+  //             setRefund({
+  //               money: currentRefund.money_point,
+  //               point: currentRefund.change_point,
+  //             })
+  //           }
+  //         }).catch((error) => {
+  //           setError(true);
+  //         }).finally(() => {
+  //           setLoadingData(false)
 
-          })
-          // const refund_money = currentOrderReturn.total;
-          // const otherOrderReturnArr = orderReturns?.filter(single => single.id !== OrderDetail?.id) || []
-          // const currentOrderReturnArr:OrderResponse[] = [{
-          //   ...currentOrderReturn,
-          //   id: response.id,
-          //   money_refund: undefined,
-          //   point_refund :undefined,
-          // }];
-          // let return_items = [...otherOrderReturnArr, ...currentOrderReturnArr];
-          // const params: OrderReturnCalculateRefundRequestModel = {
-          //   customerId: OrderDetail?.customer_id,
-          //   items: response.items,
-          //   orderId: currentOrderReturn.id,
-          //   refund_money,
-          //   return_items,
-          // };
-          // dispatch(
-          //   actionGetOrderReturnCalculateRefund(params, (response) => {
-          //     console.log('response', response)
-          //   })
-          // );
-        }
-      } else {
-        setLoadingData(false)
+  //         })
+  //         // const refund_money = currentOrderReturn.total;
+  //         // const otherOrderReturnArr = orderReturns?.filter(single => single.id !== OrderDetail?.id) || []
+  //         // const currentOrderReturnArr:OrderResponse[] = [{
+  //         //   ...currentOrderReturn,
+  //         //   id: response.id,
+  //         //   money_refund: undefined,
+  //         //   point_refund :undefined,
+  //         // }];
+  //         // let return_items = [...otherOrderReturnArr, ...currentOrderReturnArr];
+  //         // const params: OrderReturnCalculateRefundRequestModel = {
+  //         //   customerId: OrderDetail?.customer_id,
+  //         //   items: response.items,
+  //         //   orderId: currentOrderReturn.id,
+  //         //   refund_money,
+  //         //   return_items,
+  //         // };
+  //         // dispatch(
+  //         //   actionGetOrderReturnCalculateRefund(params, (response) => {
+  //         //     console.log('response', response)
+  //         //   })
+  //         // );
+  //       }
+  //     } else {
+  //       setLoadingData(false)
+  //     }
+  //   },
+  //   [],
+  // )
+
+  // const handleOrderOriginId = useCallback(
+  //   (orderOriginId: number|undefined, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
+  //     if (orderOriginId) {
+  //       dispatch(OrderDetailAction(orderOriginId.toString(), (response) => {
+  //         calculateRefund(response, OrderDetail, listPaymentMethods);
+  //       }));
+  //     } else {
+  //       setLoadingData(false)
+  //     }
+  //   },
+  //   [calculateRefund, dispatch],
+  // )
+
+  const calculateRefund = useCallback(
+    (OrderDetail: OrderResponse | null) => {
+      if(OrderDetail?.point_refund) {
+        setRefund({
+          money: OrderDetail.money_amount || 0,
+          point: OrderDetail?.point_refund,
+        })
       }
     },
     [],
   )
-
-  const handleOrderOriginId = useCallback(
-    (orderOriginId: number|undefined, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
-      if (orderOriginId) {
-        dispatch(OrderDetailAction(orderOriginId.toString(), (response) => {
-          calculateRefund(response, OrderDetail, listPaymentMethods);
-        }));
-      } else {
-        setLoadingData(false)
-      }
-    },
-    [calculateRefund, dispatch],
-  )
+  
   
   useEffect(() => {
     dispatch(
@@ -343,14 +355,17 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   setPayments(_data.payments);
                 }
     
-                const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
-                handleOrderOriginId(orderOriginId, _data, response);
+                // const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
+                // lấy luôn trường money_amount, ko cần gọi loyalty nữa
+                // handleOrderOriginId(orderOriginId, _data, response);
+                calculateRefund(_data);
                 if(_data?.payment_status) {
                   setReturnPaymentStatus(_data.payment_status);
                   if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
                     setIsShowPaymentMethod(true)
                   }
                 }
+                setLoadingData(false)
               }
             })
           );
@@ -359,7 +374,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
         }
       })
     );
-  }, [dispatch, handleOrderOriginId, id]);
+  }, [calculateRefund, dispatch, id]);
 
   useEffect(() => {
     if (OrderDetail != null) {
