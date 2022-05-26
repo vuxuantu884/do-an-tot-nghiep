@@ -23,7 +23,6 @@ type PropType = {
   thirdPL: thirdPLModel | undefined;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
-	shippingFeeInformedToCustomer: number | null;
   renderButtonCreateActionHtml: () => JSX.Element | null;
 };
 
@@ -40,7 +39,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     thirdPL,
     setThirdPL,
     setShippingFeeInformedToCustomer,
-		shippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
   } = props;
 
@@ -112,34 +110,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                     : undefined
                 }
                 className="formInputAmount"
-                maxLength={999999999999}
-                minLength={0}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}
-           style={{padding: "0 10px 0 5px"}}
-          >
-            <Form.Item
-              className="form-input-deliver"
-              label="Phí ship báo khách:"
-            >
-              <NumberInput
-                style={{textAlign: "left"}}
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                placeholder="Phí ship báo khách"
-                className="formInputAmount"
-                maxLength={15}
-                minLength={0}
-                onChange={(value) => {
-                  if (value) {
-                    setShippingFeeInformedToCustomer(value);
-                  } else {
-                    setShippingFeeInformedToCustomer(0);
-                  }
-                }}
-								value={shippingFeeInformedToCustomer ?? ''}
+                max={999999999999}
+                min={0}
               />
             </Form.Item>
           </Col>

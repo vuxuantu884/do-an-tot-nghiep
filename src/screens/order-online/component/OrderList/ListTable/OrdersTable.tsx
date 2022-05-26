@@ -1,14 +1,15 @@
-import { DownOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Popover, Row, Select, Tooltip } from "antd";
+import { DownOutlined, EyeOutlined, PhoneOutlined, PictureOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Col, Image, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import iconPrint from "assets/icon/Print.svg";
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
+import iconPrint from "assets/icon/Print.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
 import search from "assets/img/search.svg";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getTrackingLogFulfillmentAction, updateOrderPartial
 } from "domain/actions/order/order.action";
@@ -30,10 +31,12 @@ import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
+import { getVariantApi } from "service/product/product.service";
 import {
   checkIfFulfillmentCanceled,
   checkIfOrderCanBeReturned,
   copyTextToClipboard,
+  findVariantAvatar,
   formatCurrency,
   getOrderTotalPaymentAmount,
   getTotalQuantity, handleFetchApiError,
@@ -52,9 +55,9 @@ import {
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS, ORDER_TYPES } from "utils/Order.constants";
+import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 import { fullTextSearch } from "utils/StringUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../edit-note";
 import TrackingLog from "../../TrackingLog/TrackingLog";
@@ -184,6 +187,11 @@ function OrdersTable(props: PropTypes) {
       tooltip: "Tiêu điểm",
     },
   ];
+
+  // ảnh hiển thị
+  const [isVisiblePreviewProduct, setIsVisiblePreviewProduct] = useState(false)
+  const [variantPreviewUrl, setVariantPreviewUrl] = useState("")
+
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
       console.log('itemResult', itemResult)
@@ -286,10 +294,10 @@ function OrdersTable(props: PropTypes) {
     html = orderDetail.payments.map((payment) => {
       let selectedPayment = paymentIcons.find(
         (single) => {
-          if(single.payment_method_code === "cod") {
+          if(single.payment_method_code === PaymentMethodCode.COD) {
             return single.payment_method_code === payment.payment_method
           } else if(!single.payment_method_code ){
-            return payment.payment_method=== "Hàng đổi"
+            return payment.payment_method=== PAYMENT_METHOD_ENUM.exchange.name
           } else {
             return single.payment_method_code === payment.payment_method_code
           }
@@ -517,6 +525,25 @@ function OrdersTable(props: PropTypes) {
     return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
   };
 
+  const handleShowVariantImage = (variantId: number) => {
+    dispatch(showLoading())
+    getVariantApi(variantId.toString()).then(response => {
+      if (isFetchApiSuccessful(response)) {
+        const defaultVariantImageUrl = findVariantAvatar(response.data.variant_images);
+        if(defaultVariantImageUrl) {
+          setVariantPreviewUrl(defaultVariantImageUrl)
+          setIsVisiblePreviewProduct(true);
+        } else {
+          showWarning("Không tìm thấy ảnh sản phẩm")
+        }
+      } else {
+        handleFetchApiError(response, "Tìm ảnh sản phẩm", dispatch)
+      }
+    }).finally(() => {
+      dispatch(hideLoading())
+    })
+  };
+
   const initColumnsDefault: ICustomTableColumTypeExtra = useMemo(() => {
     return [
       {
@@ -733,6 +760,7 @@ function OrdersTable(props: PropTypes) {
                   <div className="item custom-td" key={i}>
                     <div className="product productNameWidth 2">
                       <div className="inner">
+                        <PictureOutlined onClick={() =>handleShowVariantImage(item.variant_id)} className="previewImage" title="Click để hiển thị ảnh sản phẩm"/>
                         <Link
                           to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
                           {item.sku}
@@ -847,17 +875,6 @@ function OrdersTable(props: PropTypes) {
               </React.Fragment>
             );
           }
-          // if (
-          //   record?.fulfillments &&
-          //   record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED
-          // ) {
-          //   return (
-          //     <div className="single">
-          //       <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
-          //       Đã hủy vận chuyển
-          //     </div>
-          //   );
-          // }
           if (sortedFulfillments) {
             if (sortedFulfillments[0]?.shipment) {
               switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
@@ -881,12 +898,7 @@ function OrdersTable(props: PropTypes) {
                             <div className="single">
                               <img src={iconShippingFeeInformedToCustomer} alt="" />
                               <span>
-                                {formatCurrency(
-                                  sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
-                                    ? sortedFulfillments[0]?.shipment
-                                      .shipping_fee_informed_to_customer || 0
-                                    : 0
-                                )}
+                                {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                               </span>
                             </div>
                           </Tooltip>
@@ -998,10 +1010,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                              0
-                            )}
+                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1037,10 +1046,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                              0
-                            )}
+                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1069,10 +1075,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer ||
-                              0
-                            )}
+                          {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1100,9 +1103,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              sortedFulfillments[0]?.shipment.shipping_fee_informed_to_customer || 0
-                            )}
+                          {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1587,7 +1588,7 @@ function OrdersTable(props: PropTypes) {
       let returnAmount = 0;
       let pointAmount = 0;
       item.payments.forEach((single) => {
-        if(single.payment_method === "Hàng đổi") {
+        if(single.payment_method === PAYMENT_METHOD_ENUM.exchange.name) {
           returnAmount = returnAmount + single.amount;
         }
         if(single.payment_method_code === PaymentMethodCode.POINT) {
@@ -1604,7 +1605,7 @@ function OrdersTable(props: PropTypes) {
     data.items.forEach((item) => {
       const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
       if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
-        result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0);
+        result = result + (item.shipping_fee_informed_to_customer || 0);
       }
     });
     return result;
@@ -1797,6 +1798,22 @@ function OrdersTable(props: PropTypes) {
         toSubStatus={toSubStatusCode}
         setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
+      />
+      {/* hiển thị image ảnh sản phẩm */}
+      <Image
+        width={200}
+        style={{ display: 'none' }}
+        src={variantPreviewUrl}
+        preview={{
+          visible: isVisiblePreviewProduct,
+          src: variantPreviewUrl,
+          onVisibleChange: value => {
+            setIsVisiblePreviewProduct(value);
+            if(!value) {
+              setVariantPreviewUrl("")
+            }
+          },
+        }}
       />
     </StyledComponent>
   );

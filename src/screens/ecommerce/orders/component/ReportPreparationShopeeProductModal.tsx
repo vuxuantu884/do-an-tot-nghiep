@@ -18,7 +18,7 @@ export interface ReportPreparationShopeeProductModalProps {
     params: EcommerceOrderSearchQuery;
     total: number;
     showButtonConfirm: boolean;
-    isReportShopeeSelected: boolean;
+    selectedRowKeys: Array<any>;
     isReportShopeeFilter: boolean;
     setIsShowButtonConfirm: (item: any) => void;
     selectedRow: Array<OrderResponse>;
@@ -40,7 +40,7 @@ function ReportPreparationShopeeProductModal (props: ReportPreparationShopeeProd
     params,
     total,
     showButtonConfirm,
-    isReportShopeeSelected,
+      selectedRowKeys,
     isReportShopeeFilter,
     setIsShowButtonConfirm,
     selectedRow,
@@ -69,7 +69,7 @@ function ReportPreparationShopeeProductModal (props: ReportPreparationShopeeProd
     >
         <Radio.Group onChange={onChangeBatchShippingOption} value ={batchShippingType}>
         <Space direction="vertical">
-          <Radio disabled={isReportShopeeSelected} value={BATCHING_SHIPPING_TYPE.SELECTED} onClick={handleShowButtonConfirm}>Báo các đơn hàng đã chọn</Radio>
+          <Radio disabled={!selectedRowKeys.length} value={BATCHING_SHIPPING_TYPE.SELECTED} onClick={handleShowButtonConfirm}>Báo các đơn hàng đã chọn</Radio>
           <Radio disabled={isReportShopeeFilter || !params.ecommerce_shop_ids.length || total === 0} value={BATCHING_SHIPPING_TYPE.FILTERED} onClick={handleShowButtonConfirm}>
             Báo đơn <span style={{ fontWeight: 600 }}>{total}</span> hàng phù hợp với điều kiện lọc
           </Radio>

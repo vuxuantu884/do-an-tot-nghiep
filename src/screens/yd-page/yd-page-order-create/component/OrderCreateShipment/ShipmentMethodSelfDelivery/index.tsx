@@ -22,7 +22,6 @@ type PropType = {
   isCancelValidateDelivery: boolean;
   listExternalShippers: any;
   storeId?: number | null;
-  setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   form: FormInstance<any>;
@@ -35,7 +34,6 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     isCancelValidateDelivery,
     storeId,
     listExternalShippers,
-    setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
     setThirdPL,
     form,
@@ -99,7 +97,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
           setYodyAccountData(storeAccountData);
         } else {
           searchAccountPublicApi({
-            condition: fieldNameValue,
+            codes: fieldNameValue,
           })
             .then((response) => {
               if (isFetchApiSuccessful(response)) {
@@ -333,33 +331,6 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
           </Col>
 
-          <Col span={12} style={{padding: "0 10px 0 5px"}}>
-            <Form.Item
-              name="shipping_fee_informed_to_customer"
-              label="Phí ship báo khách"
-            >
-              <NumberInput
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                placeholder="Phí ship báo khách"
-                style={{
-                  textAlign: "right",
-                  width: "100%",
-                  color: "#222222",
-                }}
-                maxLength={15}
-                minLength={0}
-                onChange={(value) => {
-                  if (value) {
-                    setShippingFeeInformedToCustomer(value);
-                  } else {
-                    setShippingFeeInformedToCustomer(0);
-                  }
-                }}
-                disabled={levelOrder > 3}
-              />
-            </Form.Item>
-          </Col>
         </Row>
 
         {renderButtonCreateActionHtml && renderButtonCreateActionHtml()}

@@ -35,11 +35,11 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   FulFillmentResponse,
+  OrderDiscountResponse,
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
-  OrderResponse,
-  ReturnProductModel
+  OrderResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -429,6 +429,15 @@ export const findAvatar = (VariantImage: Array<VariantImage>): string => {
   return avatar;
 };
 
+export const findVariantAvatar = (variantImageArr: Array<VariantImage>): string => {
+  let result = "";
+  const defaultVariantImage = variantImageArr.find(single => single.variant_avatar && single.url);
+  if(defaultVariantImage) {
+    result = defaultVariantImage.url;
+  }
+  return result;
+};
+
 export const haveAccess = (
   storeId: number,
   accountStores: Array<AccountStoreResponse>
@@ -724,6 +733,14 @@ export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>
   let total = 0;
   payments.forEach((a) => {
     total = total + a.amount;
+  });
+  return total;
+};
+
+export const getOrderTotalPaymentAmountReturn = (payments: Array<OrderPaymentResponse>) => {
+  let total = 0;
+  payments.forEach((a) => {
+    total = total + a.paid_amount;
   });
   return total;
 };
@@ -1154,7 +1171,7 @@ export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.Mut
 	}, delayTime);
 };
 
-export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+export const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {
 	let discountPerProduct = 0;
 	product.discount_items.forEach((single) => {
 		discountPerProduct += single.value;
@@ -1162,7 +1179,7 @@ export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
 	return discountPerProduct;
 };
 
-export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: ReturnProductModel) => {
+export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
 	let discountPerOrder = 0;
 	let totalDiscountRatePerOrder = 0;
 	OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
@@ -1176,7 +1193,16 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	return discountPerOrder;
 }
 
-export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
+/**
+* tính toán tiền trả lại khách khi đổi trả
+*/
+export const getReturnPricePerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
+  const discountPerProduct = getProductDiscountPerProduct(product);
+  const discountPerOrder = getProductDiscountPerOrder(OrderDetail, product);
+	return Math.round(product.price - discountPerProduct - discountPerOrder);
+}
+
+export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {
   if(!discounts) {
     return 0;
   }
@@ -1491,7 +1517,10 @@ export const trimText = (text?: string) => {
   return text.replace(/(\s)+/g, '')
 }
 
-export const sortFulfillments = (fulfillments: FulFillmentResponse[]) => {
+export const sortFulfillments = (fulfillments: FulFillmentResponse[] | null | undefined) => {
+  if(!fulfillments) {
+    return []
+  }
   return fulfillments.sort((a, b) =>(b.id - a.id));
 }
 

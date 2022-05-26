@@ -208,7 +208,6 @@ const EcommerceOrders: React.FC = () => {
   const [showPreparationModal, setShowPreparationModal] = useState(false)
   const [conFirmPreparationShopeeProduct, setConfirmPreparationShopeeProduct] = useState(false);
   const [showButtonConfirm, setIsShowButtonConfirm] = useState(true);
-  const [isReportShopeeSelected, setReportShopeeSelected] = useState(true);
   const [isReportShopeeFilter, setReportShopeeFilter] = useState(true);
   const [ecommerceShopAddress, setEcommerceShopAddress] = useState<any>([]);
   const [ecommerceShopListByAddress, setEcommerceShopListByAddress] = useState<any>([]);
@@ -916,8 +915,8 @@ const EcommerceOrders: React.FC = () => {
         visible: true,
         width: 130,
         align: "center",
-        render: (item: any) => {
-          const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
+        render: (order: any) => {
+          const shipment = order.fulfillments && order.fulfillments[0] && order.fulfillments[0].shipment;
           return (
             <>
               {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
@@ -926,7 +925,7 @@ const EcommerceOrders: React.FC = () => {
                   <div>
                     <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
                     <NumberFormat
-                      value={shipment?.shipping_fee_informed_to_customer}
+                      value={order?.shipping_fee_informed_to_customer || 0}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
@@ -1057,7 +1056,6 @@ const EcommerceOrders: React.FC = () => {
   // handle set table columns
 
   const onSelectTableRow = useCallback((selectedRowTable) => {
-    setReportShopeeSelected(false)
     setSelectedRow(selectedRowTable);
     const newSelectedRow = selectedRowTable.filter((row: any) => {
       return row !== undefined;
@@ -1598,6 +1596,16 @@ const EcommerceOrders: React.FC = () => {
   };
   // end handle change order status
 
+  const handleDisablePreparationShopee = () => {
+    if (!params) {
+      if (!selectedRowKeys?.length) {
+        return true
+      }
+    }
+
+    return false
+  }
+
   // actions list
   const actions = [
     {
@@ -1659,7 +1667,7 @@ const EcommerceOrders: React.FC = () => {
       id: "shopee_ready_create_product",
       name: "Báo shopee chuẩn bị hàng",
       icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length && !params,
+      disabled: handleDisablePreparationShopee(),
       onClick: handlePreparationShopeeProduct
     }
   ]
@@ -2084,7 +2092,7 @@ const EcommerceOrders: React.FC = () => {
                 total={data.metadata.total}
                 showButtonConfirm={showButtonConfirm}
                 setIsShowButtonConfirm={setIsShowButtonConfirm}
-                isReportShopeeSelected={isReportShopeeSelected}
+                selectedRowKeys={selectedRowKeys}
                 isReportShopeeFilter={isReportShopeeFilter}
                 selectedRow={selectedRow}
                 BATCHING_SHIPPING_TYPE={BATCHING_SHIPPING_TYPE}

@@ -4,7 +4,6 @@ import {StyledComponent} from "component/order/OrderCreateShipment/ShipmentMetho
 
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { showSuccess } from "utils/ToastUtils";
-import { useEffect } from "react";
 import { SHIPPING_TYPE } from "utils/Constants";
 import NumberFormat from "react-number-format";
 
@@ -25,14 +24,10 @@ function ShipmentMethodEcommerce(props: PropType) {
     ecommerceShipment,
     OrderDetail,
     handleCreateShipment,
-    setShippingFeeInformedToCustomer,
     isLoading,
     isOrderUpdate,
   } = props;
 
-  useEffect(() => {
-    setShippingFeeInformedToCustomer(ecommerceShipment?.shipping_fee_informed_to_customer || 0);
-  }, [ecommerceShipment?.shipping_fee_informed_to_customer, setShippingFeeInformedToCustomer])
 
   // copy button
 	const copyOrderID = (e: any, data: string | null) => {
@@ -76,9 +71,9 @@ function ShipmentMethodEcommerce(props: PropType) {
             <div className="shipment-item">
               <span className="title">Phí ship báo khách: </span>
               <span className="content">
-                {ecommerceShipment ?
+                {OrderDetail?.shipping_fee_informed_to_customer ?
                   <NumberFormat
-                    value={ecommerceShipment.shipping_fee_informed_to_customer}
+                    value={OrderDetail.shipping_fee_informed_to_customer}
                     displayType={"text"}
                     thousandSeparator={true}
                   />

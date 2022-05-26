@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { Layout, Button, Badge, Avatar, Dropdown, Menu, Space } from "antd";
+import { Layout, Button, Badge, Avatar, Dropdown, Menu, Space, Tooltip } from "antd";
 import logo from "assets/img/logo.svg";
 import UrlConfig, { AccountUrl } from "config/url.config";
 import { Link } from "react-router-dom";
@@ -14,6 +14,7 @@ import logoDev from "assets/img/yody-logo-dev.svg";
 import logoUat from "assets/img/yody-logo-uat.svg";
 import devEnvMarkup from "assets/img/dev-env-markup.png";
 import uatEnvMarkup from "assets/img/uat-env-markup.png";
+import hotlineIcon from "assets/icon/hotline.svg";
 import { AppConfig } from "config/app.config";
 
 type HeaderContainerProps = {
@@ -21,6 +22,9 @@ type HeaderContainerProps = {
 	isShowHeader: boolean;
 	setIsShowHeader: (value: boolean) => void;
 };
+
+const hotlineNumber = "0888 464 258";
+const supportLink = "https://rd.zapps.vn/detail/1034167903642421755?id=d1838e6d3228db768239&pageId=317413297&zl3rd=815789662550058820";
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (
   props: HeaderContainerProps
@@ -32,6 +36,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
 
   const dispatch = useDispatch();
   const [isShowBtnDD, setIsShowBtnDD] = useState<boolean>(true);
+  const [isTabletMobileScreen, setIsTabletMobileScreen] = useState<boolean>(false);
 
   useEffect(() => {
     if(window.location.pathname.indexOf('YDpage') < 0) {
@@ -80,6 +85,21 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
     </Menu>
   );
 
+  const linkToSupportPage = () => {
+    window.open(supportLink, "_blank");
+  };
+
+  const  callHotlineSupport= () => {
+    window.location.href=`tel:${hotlineNumber}`;
+  };
+
+  useEffect(() => {
+    if (window.innerWidth <= 900 )  {
+      setIsTabletMobileScreen(true);
+    }
+  }, []);
+
+
   return (
     <StyledComponent>
       <Layout.Header className={props.isShowHeader ? 'show' : 'hide'}>
@@ -102,6 +122,25 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
             <DevAndUatMarkup/>
           </div>
           <Space size={15}>
+            {isTabletMobileScreen ?
+              <span>
+                <img onClick={callHotlineSupport} style={{ marginRight: 10 }} src={hotlineIcon} alt="hotline" />
+              </span>
+              :
+              <>
+                <div className="hotline-info">
+                  <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
+                  <span>
+                    {"Hotline: "}
+                    <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
+                      <span className="phone-number" onClick={callHotlineSupport}>{hotlineNumber}</span>
+                    </Tooltip>
+                  </span>
+                </div>
+                <span className="support-link" onClick={linkToSupportPage}>{"Hướng dẫn gửi yêu cầu »"}</span>
+              </>
+            }
+
             <Badge count={0} className="buttonNotifyWrapper">
               <Button
                 color={"#222222"}

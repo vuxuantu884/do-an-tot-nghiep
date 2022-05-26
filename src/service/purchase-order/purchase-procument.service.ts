@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { ImportProcument, ProcurementConfirm, ProcurementManual, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { ImportProcument, ProcurementConfirm, ProcurementItemsReceipt, ProcurementManual, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { generateQuery } from "utils/AppUtils";
 
 export const createPurchaseProcumentService = (
@@ -130,5 +130,14 @@ export const createPurchaseProcumentManualService = (
   return BaseAxios.post(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/create-manual`,
     data
+  );
+};
+
+export const getListProcurementItemsReceipt = (
+  query: ProcurementQuery
+): Promise<BaseResponse<PageResponse<ProcurementItemsReceipt>>> => {
+  const queryString = generateQuery(query); 
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements/items?${queryString}`
   );
 };

@@ -871,7 +871,7 @@ const OrderDuplicate: React.FC = () => {
             const newListExportFile = listExportFile.filter((item) => {
               return item !== fileCode;
             });
-            window.open(response.data.url);
+            window.open(response.data.url, "_self");
             setListExportFile(newListExportFile);
           }
           if (response.data && response.data.status === "ERROR") {

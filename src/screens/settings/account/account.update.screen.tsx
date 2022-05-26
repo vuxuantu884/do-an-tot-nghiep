@@ -32,6 +32,7 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
 import {
   AccountRequest,
@@ -140,15 +141,17 @@ const AccountUpdateScreen: React.FC = () => {
 
   const onUpdateSuccess = useCallback(
     (data: AccountResponse) => {
+      dispatch(hideLoading());
       showSuccess("Cập nhật thành công")
       history.push(UrlConfig.ACCOUNTS + "/" + userCode);
     },
-    [history, userCode]
+    [history, userCode, dispatch]
   );
 
   const onFinish = useCallback(
     (values: AccountRequest) => {
       if (idNumber.current !== 0) {
+        dispatch(showLoading())
         dispatch(AccountUpdateAction(idNumber.current, values, onUpdateSuccess));
       }
     },
@@ -343,7 +346,6 @@ const AccountUpdateScreen: React.FC = () => {
                 <Input.Password
                   className="r-5"
                   placeholder="Nhập mật khẩu"
-                  size="large"
                   allowClear
                   autoComplete="new-password"
                   iconRender={(visible) =>
@@ -374,6 +376,9 @@ const AccountUpdateScreen: React.FC = () => {
                   placeholder="Nhập lại mật khẩu"
                   allowClear
                   autoComplete="new-password"
+                  iconRender={(visible) =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                  }
                 />
               </Form.Item>
             </Col>

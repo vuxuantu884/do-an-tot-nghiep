@@ -83,15 +83,14 @@
   .wrap-text-name{
     overflow-wrap: break-word;
     text-align: center;
-    font-size: 12px;
   }
   .header-wrap-code{
-    width: 50x;
+    width: 40px;
   }
   .wrap-text-code {
     transform: rotate(-90deg);
     display:inline-block;
-    font-size: 10px;
+    width: 40px;
   }
   .cloth {
     overflow-wrap: break-word;
@@ -117,7 +116,7 @@
     border-collapse: collapse;
     border-spacing: 0;
     table-layout: fixed;
-    font-size: 12px;
+    font-size: 8px;
   }
 
   .tb-payment th{

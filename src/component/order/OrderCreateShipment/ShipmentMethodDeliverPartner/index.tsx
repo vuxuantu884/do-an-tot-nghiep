@@ -95,34 +95,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                     : 0
                 }
                 className="formInputAmount"
-                maxLength={999999999999}
-                minLength={0}
+                max={999999999999}
+                min={0}
 								disabled
               />
             </Form.Item>
           </Col>
-          <Col md={12}>
-            <Form.Item
-              label="Phí ship báo khách:"
-              name="shipping_fee_informed_to_customer"
-            >
-              <NumberInput
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                placeholder="0"
-                className="formInputAmount"
-                maxLength={15}
-                minLength={0}
-                onChange={(value) => {
-                  if (value) {
-                    setShippingFeeInformedToCustomer(value);
-                  } else {
-                    setShippingFeeInformedToCustomer(0);
-                  }
-                }}
-              />
-            </Form.Item>
-          </Col>
+          
         </Row>
         <div
           className="ant-table ant-table-bordered custom-table"

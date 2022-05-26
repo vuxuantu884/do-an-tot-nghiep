@@ -165,7 +165,9 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
     }, [metadata, dataQuery]);
     return (
         <>
-            <Button icon={<SettingOutlined />} onClick={() => setVisiblePropertiesModal(true)} danger={warningChooseColumn}  type="primary" ghost>Tuỳ chọn hiển thị </Button>
+            <Button icon={<SettingOutlined />} onClick={() => setVisiblePropertiesModal(true)} danger={warningChooseColumn}  type="primary" ghost> 
+                <span className="d-xs-none">Tuỳ chọn hiển thị</span>
+            </Button>
             <Modal
                 title="Thay đổi tuỳ chọn hiển thị"
                 visible={visiblePropertiesModal}

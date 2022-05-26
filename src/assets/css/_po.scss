@@ -360,6 +360,9 @@
   justify-content: space-between;
   align-items: center;
   margin-right: 30px;
+  &-sub{
+    font-weight: bold;
+  }
   &-result {
     font-weight: 500;
     &-discount {
@@ -373,6 +376,9 @@
   }
   &-success {
     color: $primary-color;
+  }
+  &-error {
+    color: $red;
   }
 }
 .modal-product-list {

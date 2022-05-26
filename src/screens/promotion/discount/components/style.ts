@@ -24,6 +24,11 @@ export const StyledComponent = styled.div`
     .ant-form-item:last-child {
             margin: 0 0px;
           }
+
+    .search-variant {
+			min-width: 200px;
+			width: 25%;
+		}
   }
 
   .order-filter-tags .ant-tag.tag {
@@ -31,6 +36,19 @@ export const StyledComponent = styled.div`
     margin-bottom: 20px;
     background: rgba(42, 42, 134, 0.05);
     border-radius: 50px;
+  }
+
+  .filter-tags {
+    .ant-tag {
+      margin-top: 0;
+    }
+    .tag {
+      padding: 10px 20px;
+      margin-bottom: 10px;
+      background: rgba(42, 42, 134, 0.05);
+      border-radius: 50px;
+      white-space: normal;
+    }
   }
   
 `;

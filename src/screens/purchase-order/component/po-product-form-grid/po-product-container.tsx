@@ -5,7 +5,7 @@ import { AppConfig } from "../../../../config/app.config";
 import { POField } from "../../../../model/purchase-order/po-field";
 
 type PoProductContainerProps = {
-  children: (value: boolean) => ReactNode;
+  children: ReactNode;
   isEditMode: boolean;
   isDisableSwitch: boolean;
   form: FormInstance;
@@ -77,7 +77,7 @@ const PoProductContainer = ({ children, isEditMode, isDisableSwitch, form }: PoP
           }}
         </Form.Item>
       }>
-      {children(isGridMode)}
+      {children}
     </Card>
   );
 };

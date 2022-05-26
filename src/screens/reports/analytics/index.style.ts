@@ -1,24 +1,43 @@
 import Color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 export const AnalyticsStyle = styled.div`
+.report-filter-wrapper {
+    .group-report-type {
+        display: flex;
+        align-items: flex-end;
+        justify-content: start;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .filter-btn {
+        margin-left: auto;
+    }
+    .report-filter-item {
+        margin: 0;
+    }
+    @media screen and (max-width: 768px) {
+        .group-report-type {
+            gap: 10px;
+        }
+        .filter-btn {
+            margin-left: 0;
+        }
+    }
+    @media screen and (max-width: 576px) {
+        margin-top: 8px;
+        .report-filter-item,
+        .input-width-sm {
+            width: 100%;
+        }
+    }
+}
 
 .ant-table-summary {
       display: table-header-group;
 }
  
-.group-report-type{
-    display: flex;
-    align-items: flex-end;
-    justify-content: start;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-.input-width{
+.input-width {
     width: 250px;
-}
-
-.filter-btn{
-    margin-left: auto;
 }
 
 .link {
@@ -48,11 +67,44 @@ export const AnalyticsStyle = styled.div`
         }
     }
 }
-
-.chart-filter-container {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+.chart-filter-wrapper {
+    .chart-filter-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    @media screen and (max-width: 768px) {
+        .ant-card-head-wrapper {
+            flex-direction: column;
+            .ant-card-extra {
+                float: none;
+                width: 100%;
+                .chart-filter-container {
+                    justify-content: space-between;
+                    .chart-filter-item {
+                        width: 45%;
+                        margin: 10px 0;
+                    }
+                }
+            }
+        }
+    }
+    @media screen and (max-width: 576px) {
+        .ant-card-head-wrapper {
+            flex-direction: column;
+            .ant-card-extra {
+                float: none;
+                width: 100%;
+                .chart-filter-container {
+                    flex-direction: column;
+                    .chart-filter-item {
+                        width: 100%;
+                        margin: 10px 0;
+                    }
+                }
+            }
+        }
+    }
 }
 
 .mr-20 {
@@ -130,8 +182,18 @@ export const ListAnalyticsStyle = styled.div`
             align-items: center;
             flex-wrap: wrap;
             gap: 20px;
+            @media screen and (max-width: 576px) {
+                flex-directions: row;
+                gap: 10px;
+                .w-sm-100 {
+                    width: 100%;
+                }
+            }
             .search {
                 width: 320px;
+                @media screen and (max-width: 576px) {
+                    width: 100%;
+                }
             }
         }
         .m-0 {
@@ -206,3 +268,54 @@ export const ActiveFiltersStyle = styled.div`
 }
 
 `;
+
+export const ReportBottomBarStyle = styled.div`
+    .report-bottom-bar-container {
+        flex-wrap: wrap;
+        height: auto !important;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        .bottom__left {
+            padding: 8px 0;
+            margin-right: 20px;
+        }
+        .bottom__right .report-actions {
+            flex-wrap: wrap;
+        }
+        .report-actions-collapse {
+            display: none;
+        }
+        @media screen and (max-width: 768px) {
+            flex-direction: column;
+            width: 100%;
+            padding: 0;
+            .report-actions-collapse {
+                display: block;
+                width: 100%;
+                text-align: center;
+            }
+            .report-actions {
+                display: none !important;
+            }
+            .bottom__right {
+                width: 100%;
+                .ant-collapse>.ant-collapse-item>.ant-collapse-header {
+                    padding: 8px 12px;
+                }
+                .function-buttons {
+                    width: 100%;
+                    display: flex !important;
+                    justify-content: space-around;
+                    column-gap: auto;
+                    gap: 10px !important;
+                    flex-wrap: wrap;
+                    button  {
+                        width: 45%;
+                        font-size: 12px;
+                        margin: 0 !important;
+                    }
+                }
+            }
+        }
+    }
+`

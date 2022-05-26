@@ -377,7 +377,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 onFinishFailed={handleFinishFailed}
                 form={form}
                 name="report-form-base">
-                <Card bodyStyle={{ paddingBottom: 0, paddingTop: 8 }}>
+                <Card bodyStyle={{ paddingBottom: 8, paddingTop: 8 }} className="report-filter-wrapper">
                     <div className="group-report-type">
                         {cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
                             <Form.Item
@@ -385,9 +385,10 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                 name={ReportifyFormFields.timeAtOption}
                                 labelCol={{ span: 24 }}
                                 help={false}
-                                className="input-width">
+                                className="input-width report-filter-item">
                                 <Select
                                     placeholder="Chọn giá trị ghi nhận theo"
+                                    className="input-width-sm"
                                     onChange={handleChangeTimeGroup}>
                                     {TIME_AT_OPTION.map(({ label, value }) => {
                                         return (
@@ -406,9 +407,9 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                             name={ReportifyFormFields.timeRange}
                             rules={[{ required: true, message: "Vui lòng chọn thời gian" }]}
                             labelCol={{ span: 24 }}
-                            className="input-width"
+                            className="input-width report-filter-item"
                             help={false}>
-                            <AnalyticsDatePicker onChange={pushSubmitAction} />
+                            <AnalyticsDatePicker className="input-width-sm" onChange={pushSubmitAction} />
                         </Form.Item>
                         {/* from */}
                         {/* <Form.Item label="Loại báo cáo" name={ReportifyFormFields.reportType} rules={[{ required: true, message: "Vui lòng chọn loại báo cáo" }]} labelCol={{ span: 24 }} className="input-width" help={false}>
@@ -423,10 +424,11 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                             label="Nhóm theo"
                             name={ReportifyFormFields.timeGroupBy}
                             labelCol={{ span: 24 }}
-                            help={false}>
+                            help={false}
+                            className="input-width report-filter-item">
                             <Select
                                 allowClear
-                                className="input-width"
+                                className="input-width-sm"
                                 placeholder="Chọn thời gian nhóm theo"
                                 onChange={handleChangeTimeGroup}>
                                 {TIME_GROUP_BY.map(({ label, value }) => {
@@ -440,19 +442,20 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                         </Form.Item>
                         {/* bộ lọc  */}
 
-                        <Form.Item label=" " labelCol={{ span: 24 }} colon={false} className="filter-btn">
+                        <Form.Item label=" " labelCol={{ span: 24, xs: 0, sm: 0 }} colon={false} className="filter-btn report-filter-item">
                             {metadata && <FilterResults properties={metadata.properties} form={form} />}
                         </Form.Item>
                     </div>
                 </Card>
                 <Card
+                    className="chart-filter-wrapper"
                     title="Biểu đồ"
                     extra={
                         <div className="chart-filter-container">
                             <Form.Item name={ReportifyFormFields.chartType} help={false} noStyle>
                                 <Select
                                     placeholder="Chọn loại biểu đồ"
-                                    className="input-width mr-20"
+                                    className="input-width mr-20 chart-filter-item"
                                     showArrow
                                     onChange={(value: ChartTypeValue) => setChartType(value)}
                                 >
@@ -473,7 +476,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                     <Select
                                         placeholder="Tuỳ chọn hiển thị"
                                         mode="multiple"
-                                        className="input-width"
+                                        className="input-width chart-filter-item"
                                         showArrow
                                         maxTagCount={"responsive"}
                                         onChange={_.debounce((value: [string]) => setChartColumnSelected(value), AppConfig.TYPING_TIME_REQUEST)}
@@ -642,7 +645,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                         <Table
                             dataSource={dataQuery.result.data}
                             loading={loadingTable}
-                            scroll={{ x: 1000 }}
+                            scroll={{ x: 'max-content' }}
                             sticky={{ offsetScroll: 55, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                             pagination={{
                                 defaultPageSize: 50,
@@ -684,7 +687,6 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                 const { format, field, type } = item;
                                 return (
                                     <Table.Column<any>
-                                        ellipsis
                                         width={180}
                                         align="center"
                                         title={

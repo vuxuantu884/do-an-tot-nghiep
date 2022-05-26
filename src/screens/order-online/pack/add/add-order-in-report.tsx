@@ -85,17 +85,17 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     if (orderListResponse.length > 0) {
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
       let receiptTypeId = goodsReceiptForm.getFieldValue('receipt_type_id');
-      orderListResponse.forEach(function (order, index) {
+      orderListResponse.forEach((order, index) => {
         let fulfillments = order.fulfillments?.filter(ffm => {
           if (receiptTypeId === 1) {
             return ffm.status === FulFillmentStatus.PACKED
           }
-          return ffm.status === FulFillmentStatus.CANCELLED && ffm.return_status === FulFillmentStatus.RETURNING
+          return ffm.status === FulFillmentStatus.SHIPPING && ffm.return_status === FulFillmentStatus.RETURNING
         });
 
-        console.log("fulfillments",fulfillments)
         if (fulfillments.length > 0) {
           let product: VariantModel[] = [];
+          // chỉ lấy ffm active cuối cùng
           let indexFFM = fulfillments.length - 1;
           let ship_price = fulfillments[indexFFM].shipment.shipping_fee_informed_to_customer || 0;
           let total_price = fulfillments[indexFFM].total || 0;

@@ -62,10 +62,13 @@ export interface ReturnRequest extends OrderRequest {
   store_phone_number:string;
   store_full_address:string;
   type: string;
+  money_refund: number;
 }
 
-export interface ExchangeRequest extends OrderRequest {
-  order_return_id: number;
+export interface ExchangeRequest {
+  origin_order_id: number;
+  order_return: OrderRequest;
+  order_exchange: OrderRequest;
 }
 
 export interface FulFillmentRequest {
@@ -162,7 +165,7 @@ export interface ShipmentRequest {
   fee_type: string | null;
   fee_base_on: string | null;
   delivery_fee: number | null;
-  shipping_fee_informed_to_customer: number | null;
+  shipping_fee_informed_to_customer?: number | null;
   shipping_fee_paid_to_three_pls: number | null;
   expected_received_date?: string | null;
   reference_status: string | null;

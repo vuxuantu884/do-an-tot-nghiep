@@ -68,6 +68,7 @@ import {
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, successColor, yellowColor } from "utils/global-styles/variables";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
@@ -92,6 +93,7 @@ type UpdateShipmentCardProps = {
 	orderConfig: OrderConfigResponseModel | null;
 	stepsStatusValue?: string;
 	totalPaid?: number;
+	customerNeedToPayValue? : number;
 	officeTime: boolean | undefined;
 	shipmentMethod: number;
 	isVisibleShipping: boolean | null;
@@ -123,6 +125,8 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		disabledBottomActions,
 		isEcommerceOrder,
 		orderConfig,
+		totalPaid = 0,
+		customerNeedToPayValue = 0,
 	} = props;
 
 	const history = useHistory();
@@ -143,7 +147,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
       const shipment = fulfillment.shipment;
       let newEcommerceShipment = {
         cod: shipment.cod,
-        shipping_fee_informed_to_customer: shipment.shipping_fee_informed_to_customer,
         shipping_fee_paid_to_three_pls: shipment.shipping_fee_paid_to_three_pls,
         delivery_service_provider_code: shipment.delivery_service_provider_code,
         delivery_service_provider_id: shipment.delivery_service_provider_id,
@@ -275,7 +278,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		return OrderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
 	}, [OrderDetail?.fulfillments])
 
-	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
+	// const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
 
 	//#region Update Fulfillment Status
 	// let timeout = 500;
@@ -633,9 +636,9 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		}
 		if (
 			props.OrderDetail?.status === "draft" &&
-			totalAmountCustomerNeedToPay === props.totalPaid
+			customerNeedToPayValue === props.totalPaid
 		) {
-			value.cod = totalAmountCustomerNeedToPay;
+			value.cod = customerNeedToPayValue;
 		}
 
 		FulFillmentRequest.shipment = (isEcommerceOrder && ecommerceShipment) ? ecommerceShipment : value;
@@ -713,41 +716,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		}
 	};
 	let takeHelperValue: any = takeHelper();
-	// const showTakeHelper = () => {
-	//   if (props.OrderDetail?.total_line_amount_after_line_discount) {
-	//     return (
-	//       props.OrderDetail?.total_line_amount_after_line_discount -
-	//         props.totalPaid! +
-	//         props.shippingFeeInformedCustomer -
-	//         (props.OrderDetail?.discounts &&
-	//         props.OrderDetail?.discounts.length > 0 &&
-	//         props.OrderDetail?.discounts[0].amount
-	//           ? props.OrderDetail?.discounts[0].amount
-	//           : 0) !==
-	//       0
-	//     );
-	//   } else if (paymentType === 1 && takeHelperValue !== 0) {
-	//     return true;
-	//   } else if (props.shippingFeeInformedCustomer) {
-	//     takeHelperValue = props.shippingFeeInformedCustomer;
-	//     return true;
-	//   } else if (takeHelperValue === 0) {
-	//     return false;
-	//   } else if (paymentType === 1) {
-	//     return true;
-	//   }
-	// };
-
-	// const isShowTakeHelper = showTakeHelper();
-	// khách cần trả
-	const totalAmountCustomerNeedToPay =
-		(props.OrderDetail?.total
-			? props.OrderDetail?.total
-			: 0) +
-		(props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
-		(props.totalPaid ? props.totalPaid : 0);
-	// totalAmountPaid() -
-	// (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
 
 	// Cancel fulfillments
 	const [isvibleCancelFullfilment, setIsvibleCancelFullfilment] =
@@ -1231,12 +1199,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 														</Col>
 														<Col span={14}>
 															<b className="text-field">
-																{formatCurrency(
-																	fulfillment.shipment?.shipping_fee_informed_to_customer
-																		? fulfillment.shipment
-																			?.shipping_fee_informed_to_customer
-																		: 0
-																)}
+																{formatCurrency(OrderDetail?.shipping_fee_informed_to_customer || 0)}
 															</b>
 														</Col>
 													</Row>
@@ -1813,7 +1776,8 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 								fulfillment.status !== FulFillmentStatus.RETURNING &&
 								fulfillment.status !== FulFillmentStatus.RETURNED &&
 								fulfillment?.shipment?.delivery_service_provider_type
-						) && (
+						) && OrderDetail?.sub_status_code !== ORDER_SUB_STATUS.returned // đã hoàn thì ẩn giao hàng
+						&& (
 							<Button
 								type="primary"
 								className="ant-btn-outline fixed-button text-right"
@@ -1859,7 +1823,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 								customer={props.customerDetail}
 								items={OrderDetail?.items}
 								isCancelValidateDelivery={false}
-								totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+								totalAmountCustomerNeedToPay={customerNeedToPayValue}
 								setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
 								onSelectShipment={setShipmentMethod}
 								thirdPL={thirdPL}

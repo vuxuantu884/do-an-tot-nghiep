@@ -491,7 +491,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
             <Input
               className="input-search"
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo ID phiếu, tên sản phẩm"
+              placeholder="Tìm kiếm theo ID phiếu, SKU"
               onBlur={(e) => {
                 formSearchRef?.current?.setFieldsValue({
                   condition: e.target.value.trim()

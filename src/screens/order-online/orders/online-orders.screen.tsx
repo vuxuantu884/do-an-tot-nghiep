@@ -2,7 +2,7 @@ import useGetChannels from "hook/order/useGetChannels";
 import { OrderSearchQuery } from "model/order/order.model";
 import React, { useMemo } from "react";
 import { withRouter } from "react-router-dom";
-import { ECOMMERCE_CHANNEL_CODES } from "utils/Constants";
+import { ECOMMERCE_CHANNEL_CODES, POS } from "utils/Constants";
 import { ORDER_TYPES } from "utils/Order.constants";
 import OrderList from "../component/OrderList/OrderList";
 
@@ -19,7 +19,7 @@ function OrdersScreen(props: PropTypes) {
     .filter((single) => {
       return !ECOMMERCE_CHANNEL_CODES.map((code) =>
         code.toLowerCase(),
-      ).includes(single.toLowerCase());
+      ).includes(single.toLowerCase()) &&  single.toLowerCase() !==POS.channel_code.toLowerCase()
     });
 
   const pageTitle = {
@@ -92,6 +92,7 @@ function OrdersScreen(props: PropTypes) {
       services: [],
       channel_codes: initChannelCodes,
       tracking_codes: [],
+      searched_product: "",
     };
   }, [initChannelCodes]);
 

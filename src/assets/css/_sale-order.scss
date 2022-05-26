@@ -440,6 +440,17 @@
       color: $primary-color !important;
     }
   }
+  .ant-card {
+    .shipping_fee_customer {
+      flex-direction: row;
+      margin: 0;
+      .ant-form-item-label {
+        padding: 0 10px 0 0;
+        align-items: center;
+        display: flex;
+      }
+    }
+  }
 }
 
 .ant-btn-custom {
