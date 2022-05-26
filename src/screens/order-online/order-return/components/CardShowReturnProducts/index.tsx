@@ -207,7 +207,7 @@ function CardShowReturnProducts(props: PropTypes) {
             title={renderPopOverPriceTitle(record.price)}
           >
             {formatCurrency(
-              Math.ceil(record.price - discountPerProduct - discountPerOrder)
+              Math.round(record.price - discountPerProduct - discountPerOrder)
             )}
           </Popover>
         );
@@ -232,7 +232,7 @@ function CardShowReturnProducts(props: PropTypes) {
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
-              Math.ceil((value.price - discountPerProduct - discountPerOrder) *
+              Math.round((value.price - discountPerProduct - discountPerOrder) *
                 value.quantity
             ))}
           </div>
@@ -294,7 +294,7 @@ function CardShowReturnProducts(props: PropTypes) {
               <strong className="font-size-text">Hoàn tiền:</strong>
               <strong>
                 {totalAmountReturnToCustomer
-                  ? formatCurrency(Math.ceil(totalAmountReturnToCustomer))
+                  ? formatCurrency(Math.round(totalAmountReturnToCustomer))
                   : 0}
               </strong>
             </Row>

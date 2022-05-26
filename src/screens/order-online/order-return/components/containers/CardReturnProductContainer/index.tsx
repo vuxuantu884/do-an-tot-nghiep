@@ -474,7 +474,7 @@ function CardReturnProductContainer(props: PropTypes) {
     }
 
     if (setTotalAmountReturnProducts) {
-      setTotalAmountReturnProducts(Math.ceil(result));
+      setTotalAmountReturnProducts(Math.round(result));
     }
   }, [OrderDetail, getTotalPrice, listPaymentMethods, listReturnProducts, refund?.moneyRefund, setTotalAmountReturnProducts]);
 

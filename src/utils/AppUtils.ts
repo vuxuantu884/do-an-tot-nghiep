@@ -1199,7 +1199,7 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 export const getReturnPricePerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
   const discountPerProduct = getProductDiscountPerProduct(product);
   const discountPerOrder = getProductDiscountPerOrder(OrderDetail, product);
-	return Math.ceil(product.price - discountPerProduct - discountPerOrder);
+	return Math.round(product.price - discountPerProduct - discountPerOrder);
 }
 
 export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {

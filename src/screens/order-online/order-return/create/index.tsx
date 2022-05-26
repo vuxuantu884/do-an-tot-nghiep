@@ -355,7 +355,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
 
   const totalAmountExchange = useMemo(() => {
-    return Math.ceil(getTotalPrice(listExchangeProducts));
+    return Math.round(getTotalPrice(listExchangeProducts));
   }, [listExchangeProducts]);
 
   const totalAmountExchangePlusShippingFee = useMemo(() => {
@@ -394,12 +394,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = Math.ceil(totalAmountOrder - totalAmountReturnProducts);
+    let result = Math.round(totalAmountOrder - totalAmountReturnProducts);
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
 
   let totalAmountOrderAfterPayments = useMemo(() => {
-    let result = Math.ceil(totalAmountCustomerNeedToPay - totalAmountPayment);
+    let result = Math.round(totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
@@ -497,7 +497,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     (itemsResult: any) => {
       return (
         OrderDetail?.discounts?.map((singleDiscount) => {
-          let value = Math.ceil(
+          let value = Math.round(
             ((singleDiscount?.rate || 0) / 100) * getTotalAmountAfterDiscount(itemsResult)
           );
           return {
@@ -599,7 +599,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const addReturnAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
       const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
-      const paidAmount = Math.ceil(totalAmountExchangeFinal);
+      const paidAmount = Math.round(totalAmountExchangeFinal);
       if (moneyPayment) {
         result.push({
           payment_method_id: PAYMENT_METHOD_ENUM.exchange.id,
@@ -635,7 +635,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const addReturnPaymentAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
       const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
-      const paidAmount = Math.ceil(totalAmountReturnProducts);
+      const paidAmount = Math.round(totalAmountReturnProducts);
       if (moneyPayment) {
         result.push({
           payment_method_id: PAYMENT_METHOD_ENUM.exchange.id,
@@ -833,11 +833,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_returns: [],
         automatic_discount: form.getFieldValue("automatic_discount"),
         discounts: discounts,
-        total: Math.ceil(
+        total: Math.round(
           getTotalAmountAfterDiscount(returnItems) - getTotalOrderDiscount(discounts)
         ),
-        total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
-        total_line_amount_after_line_discount: Math.ceil(getTotalAmountAfterDiscount(returnItems)),
+        total_discount: Math.round(getTotalOrderDiscount(discounts)),
+        total_line_amount_after_line_discount: Math.round(getTotalAmountAfterDiscount(returnItems)),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
@@ -1244,12 +1244,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
       isUserCanCreateOrder.current = false;
       let lstFulFillment = createFulFillmentRequest(values);
       let lstDiscount = createDiscountRequest();
-      let total_line_amount_after_line_discount = Math.ceil(
+      let total_line_amount_after_line_discount = Math.round(
         getTotalAmountAfterDiscount(listExchangeProducts)
       );
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.total = Math.ceil(totalAmountOrder);
+      values.total = Math.round(totalAmountOrder);
       if (
         values?.fulfillments &&
         values.fulfillments.length > 0 &&
@@ -1445,7 +1445,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         total: Math.floor(
           getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts)
         ),
-        total_discount: Math.ceil(getTotalOrderDiscount(discounts)),
+        total_discount: Math.round(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.floor(getTotalAmountAfterDiscount(itemsResult)),
         // clear giá trị
         reference_code: "",
@@ -1580,7 +1580,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   useEffect(() => {
     let initMoneyAmount =
-      totalAmountCustomerNeedToPay < 0 ? Math.ceil(Math.abs(totalAmountCustomerNeedToPay)) : 0;
+      totalAmountCustomerNeedToPay < 0 ? Math.round(Math.abs(totalAmountCustomerNeedToPay)) : 0;
 
     console.log("initMoneyAmount111", initMoneyAmount);
     form.setFieldsValue({
@@ -2159,11 +2159,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
     if (cash && !isPaymentAlreadyChanged) {
       setPayments([
         {
-          amount: Math.ceil(totalAmountCustomerNeedToPay),
+          amount: Math.round(totalAmountCustomerNeedToPay),
           customer_id: customer?.id || null,
           name: cash.name,
           note: "",
-          paid_amount: Math.ceil(totalAmountCustomerNeedToPay),
+          paid_amount: Math.round(totalAmountCustomerNeedToPay),
           payment_method: "Tiền mặt",
           payment_method_code: PaymentMethodCode.CASH,
           payment_method_id: cash.id,
