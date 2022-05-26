@@ -97,6 +97,18 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       formMain.setFieldsValue({
         line_items: newLineItems
       });
+
+      const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        newLineItems,
+        poLineItemType
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
     }
   }
   const handleDeleteLineItem = (index: number) => {

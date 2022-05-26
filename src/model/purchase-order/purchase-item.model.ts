@@ -29,7 +29,8 @@ export interface PurchaseOrderLineItem {
   showNote: boolean;
   receipt_quantity: number;
   planned_quantity: number;
-  variant_detail?: any
+  variant_detail?: any;
+  retail_price:number;
 }
 export interface PurchaseOrderLineReturnItem extends PurchaseOrderLineItem {
   quantity_return: number;

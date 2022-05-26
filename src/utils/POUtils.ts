@@ -36,6 +36,7 @@ const POUtils = {
       );
       let variant_image = Products.findAvatar(variant.variant_images);
       let price = price_response !== null ? price_response.import_price : 0;
+      const retailPrice = variant.variant_prices[0].retail_price;
       let newItem: PurchaseOrderLineItem = {
         sku: variant.sku,
         barcode: variant.barcode,
@@ -65,6 +66,7 @@ const POUtils = {
         showNote: false,
         planned_quantity: 0,
         receipt_quantity: 0,
+        retail_price: retailPrice
       };
       result.push(newItem);
     });
@@ -297,6 +299,8 @@ const POUtils = {
         quantity: 0,
         real_quantity: 0,
         note: "",
+        retail_price: item.price,
+        variant_id: item.variant_id,
       });
     });
     return result;
@@ -328,7 +332,7 @@ const POUtils = {
   ) => {
     let newProcuments: Array<PurchaseProcument> = [];
     procuments?.forEach((item) => {
-      let newProcumentLineItem = [...item.procurement_items];
+      let newProcumentLineItem: PurchaseProcumentLineItem[] = [...item.procurement_items];
       item.procurement_items.forEach((procumentItem, indexItem) => {
         let index = data.findIndex(
           (lineItem) => lineItem.sku === procumentItem.sku
@@ -356,6 +360,8 @@ const POUtils = {
               quantity: procuments.length === 1 ? lineItem.quantity : 0,
               real_quantity: 0,
               note: "",
+              variant_id: lineItem.variant_id,
+            retail_price: lineItem.retail_price,
             });
           } else if (procuments.length === 1) {
             newProcumentLineItem[index].quantity = lineItem.quantity;
@@ -433,6 +439,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
           url = item1.url;
         }
       });
+      const retailPrice = variant.variant_prices[0].retail_price;
     return {
       lineItemId: lineItemId,
       color: variant.color ?? variant.sku,
@@ -447,6 +454,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
       barcode: variant.barcode,
       product_type: product.product_type,
       unit: product.unit,
+      retailPrice: retailPrice
     }
   })
 
@@ -524,7 +532,9 @@ export const combineLineItemToSubmitData = (
             sku: pair.sku,
             product: pair.product,
             barcode: pair.barcode,
-            variant_image: pair.variant_image || null,
+            variant_image: pair.variant_image,
+            retail_price: pair.retailPrice,
+
 
             // Dữ liệu nhập liệu thì lấy thì value object
             quantity: qty,
