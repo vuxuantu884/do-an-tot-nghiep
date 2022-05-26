@@ -12,7 +12,7 @@ export const StyledComponent = styled.div`
           min-width: 100px;
         }
         .page-filter-right {
-          width: 88%;
+          width: 92%;
           padding-left: 20px;
           .ant-space.ant-space-horizontal {
             width: 100%;
@@ -51,6 +51,22 @@ export const StyledComponent = styled.div`
           }
         }
       }
+    }
+    .ant-form-inline .ant-form-item {
+      margin: 0 0 10px 0;
+    }
+    .ant-picker-suffix {
+      display: none;
+    }
+    .colSelectDate {
+      display: block;
+      flex: 0 0 15%;
+      max-width: 15%;
+    }
+    .colType {
+      display: block;
+      flex: 0 0 10.83333%;
+      max-width: 10.83333%;
     }
   }
 `;

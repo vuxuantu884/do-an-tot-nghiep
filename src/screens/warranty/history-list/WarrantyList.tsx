@@ -59,19 +59,19 @@ import {
 } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showError } from "utils/ToastUtils";
 import {
   WARRANTY_ITEM_STATUS,
   WARRANTY_RETURN_STATUS,
   WARRANTY_TYPE,
 } from "utils/Warranty.constants";
 import WarrantyFilter from "../components/filter/WarrantyFilter";
-import AppointmentDateModal from "./components/appointment-date-modal";
-import FeeModal from "./components/fee-modal";
-import NoteModal from "./components/note-modal";
-import ReasonModal from "./components/reason-modal";
-import WarrantyStatusModal from "./components/status-modal";
-import WarrantyCenterModal from "./components/warranty-center-modal";
+import AppointmentDateModal from "./components/AppointmentDateModal";
+import FeeModal from "./components/WarrantyReasonsPriceModal";
+import NoteModal from "./components/NoteModal";
+import ReasonModal from "./components/ReasonModal";
+import WarrantyStatusModal from "./components/WarrantyStatusModal";
+import WarrantyCenterModal from "./components/WarrantyCenterModal";
 import { StyledComponent } from "./WarrantyList.style";
 const { TabPane } = Tabs;
 
@@ -191,6 +191,7 @@ function WarrantyHistoryList(props: PropTypes) {
   };
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
+  const [selectedRows, setSelectedRows] = useState<WarrantyItemModel[]>([]);
 
   const [selectedData, setSelectedData] =
     useState<WarrantiesValueUpdateGetModel>({
@@ -228,11 +229,33 @@ function WarrantyHistoryList(props: PropTypes) {
       method.code !== PaymentMethodCode.COD,
   );
 
+  const checkIfInvalidFilter = (values: any) => {
+    console.log("values", values);
+    if (
+      moment(values.to_created_date, DATE_FORMAT.DDMMYY_HHmm).isBefore(
+        moment(values.from_created_date, DATE_FORMAT.DDMMYY_HHmm),
+      )
+    ) {
+      showError("Ngày tiếp nhận đang lọc không đúng");
+      return true;
+    }
+    if (
+      moment(values.to_appointment_date, DATE_FORMAT.DDMMYY_HHmm).isBefore(
+        moment(values.from_appointment_date, DATE_FORMAT.DDMMYY_HHmm),
+      )
+    ) {
+      showError("Ngày hẹn trả đang lọc không đúng");
+      return true;
+    }
+    return false;
+  };
+
   const getWarranties = useFetchWarranties(
     initQuery,
     location,
     countForceFetchData,
     setQuery,
+    checkIfInvalidFilter,
   );
   let { warranties, metadata } = getWarranties;
   const [data, setData] = useState<WarrantyItemModel[]>([]);
@@ -254,6 +277,8 @@ function WarrantyHistoryList(props: PropTypes) {
 
   const ACTION_ID = {
     delete: 1,
+    print_warranty: 2,
+    print_warranty_returns: 3,
   };
 
   const actions: Array<MenuAction> = useMemo(
@@ -264,15 +289,32 @@ function WarrantyHistoryList(props: PropTypes) {
         icon: <PrinterOutlined />,
         disabled: selectedRowKeys.length ? false : true,
       },
+      {
+        id: ACTION_ID.print_warranty,
+        name: "In phiếu tiếp nhận bảo hành",
+        icon: <PrinterOutlined />,
+        disabled: selectedRowKeys.length ? false : true,
+      },
+      {
+        id: ACTION_ID.print_warranty_returns,
+        name: "In phiếu trả bảo hành",
+        icon: <PrinterOutlined />,
+        disabled: selectedRowKeys.length ? false : true,
+      },
     ],
-    [ACTION_ID.delete, selectedRowKeys.length],
+    [
+      ACTION_ID.delete,
+      ACTION_ID.print_warranty,
+      ACTION_ID.print_warranty_returns,
+      selectedRowKeys.length,
+    ],
   );
 
   const onSelectedChange = (selectedRow: WarrantyItemModel[]) => {
     console.log("selectedRowKeys changed: ", selectedRow);
-    const selectedRowIds = selectedRow
-      .filter((row) => row)
-      .map((row) => row?.id);
+    const selectedRows = selectedRow.filter((row) => row);
+    const selectedRowIds = selectedRows.map((row) => row?.id);
+    setSelectedRows(selectedRows);
     setSelectedRowKeys(selectedRowIds);
   };
 
@@ -289,12 +331,51 @@ function WarrantyHistoryList(props: PropTypes) {
           );
           setIsDeleteConfirmModalVisible(true);
           break;
-
+        case ACTION_ID.print_warranty: {
+          let queryParamOrder = generateQuery({
+            "action": "print",
+            "ids": selectedRowKeys,
+            "print-type": "warranty",
+            "print-dialog": true,
+          });
+          const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParamOrder}`;
+          window.open(printPreviewOrderUrl);
+          break;
+        }
+        case ACTION_ID.print_warranty_returns: {
+          const selectedRowInvalid = selectedRows.filter(
+            (single) => single.status !== WarrantyItemStatus.FIXED,
+          );
+          const inValidateRowText = selectedRowInvalid
+            .map((single) => single.id)
+            .join(", ");
+          if (selectedRowInvalid.length > 0) {
+            if(selectedRowInvalid.length === 1) {
+              showError(
+                `Trạng thái phiếu ${selectedRowInvalid[0].id} không hợp lệ để in phiếu trả bảo hành`,
+              );
+            } else {
+              showError(
+                `Các phiếu đã chọn có chứa phiếu không hợp lệ : ${inValidateRowText}. Vui lòng chỉ chọn các phiếu ở trạng thái Đã sửa xong.`,
+              );
+            }
+          } else {
+            let queryParamOrder = generateQuery({
+              "action": "print",
+              "ids": selectedRowKeys,
+              "print-type": "warranty_returns",
+              "print-dialog": true,
+            });
+            const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParamOrder}`;
+            window.open(printPreviewOrderUrl);
+          }
+          break;
+        }
         default:
           break;
       }
     },
-    [ACTION_ID.delete],
+    [ACTION_ID.delete, ACTION_ID.print_warranty, ACTION_ID.print_warranty_returns, selectedRowKeys, selectedRows],
   );
 
   const handleUpdateWarrantyNote = (
@@ -720,16 +801,14 @@ function WarrantyHistoryList(props: PropTypes) {
 
   const onFilter = useCallback(
     (values) => {
-      values.from_created_date = values.created_date;
-      values.to_created_date = values.created_date;
-      values.from_appointment_date = values.appointment_date;
-      values.to_appointment_date = values.appointment_date;
+      let isError = checkIfInvalidFilter(values);
+      if (isError) {
+        return;
+      }
       let newParams = {
         ...query,
         ...values,
         page: 1,
-        created_date: undefined,
-        appointment_date: undefined,
       };
       setQuery(newParams);
       let currentParam = generateQuery(query);
@@ -1081,6 +1160,28 @@ function WarrantyHistoryList(props: PropTypes) {
                       }}
                     >
                       In hóa đơn bảo hành
+                    </Menu.Item>
+                    <Menu.Item
+                      icon={<CycleIcon width={20} height={30} />}
+                      key={"in"}
+                      onClick={() => {
+                        if (record.status === WarrantyItemStatus.FIXED) {
+                          let queryParamOrder = generateQuery({
+                            "action": "print",
+                            "ids": [record.id],
+                            "print-type": "warranty_returns",
+                            "print-dialog": true,
+                          });
+                          const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParamOrder}`;
+                          window.open(printPreviewOrderUrl);
+                        } else {
+                          showError(
+                            `Trạng thái phiếu ${record.id} không hợp lệ để in phiếu trả bảo hành`,
+                          );
+                        }
+                      }}
+                    >
+                      In phiếu trả bảo hành
                     </Menu.Item>
                     <Menu.Item
                       icon={<DeleteIcon height={30} />}

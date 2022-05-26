@@ -28,6 +28,7 @@ const printType = {
   orders: "orders",
   order_exchange: "order_exchange",
   warranty: "warranty",
+  warranty_returns: "warranty_returns",
 };
 
 type PropType = {};
@@ -115,8 +116,26 @@ function OrderPrint(props: PropType) {
           },
         );
       }
-      // default là order
+      
+    } else if (queryPrintType && queryPrintType === printType.warranty_returns) {
+      if (queryIds && queryIds.length > 0 && queryPrintType && handlePrint) {
+        getPrintFormByWarrantyIdsService(queryIds, queryPrintType).then(
+          (response) => {
+            if (isFetchApiSuccessful(response)) {
+              handlePrintIfGetData(response);
+            } else {
+              handleFetchApiError(
+                response,
+                "Lấy dữ liệu in bảo hành",
+                dispatch,
+              );
+            }
+            dispatch(hideLoading())
+          },
+        );
+      }
     } else {
+      // default là order
       const isValidatePrintType = () => {
         let result = false;
         let resultFilter = listPrinterTypes?.some((single) => {

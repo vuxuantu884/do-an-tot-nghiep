@@ -367,6 +367,10 @@
       "value": "warranty"
     },
     {
+      "name": "Hóa đơn trả bảo hành",
+      "value": "warranty_returns"
+    },
+    {
       "name": "Đơn mua hàng 1 mã 7",
       "value": "purchase_order_ma_7"
     },
