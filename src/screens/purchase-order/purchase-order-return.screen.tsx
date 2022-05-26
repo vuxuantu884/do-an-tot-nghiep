@@ -23,12 +23,16 @@ import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/
 import { VietNamId } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import { POProcumentField } from "model/purchase-order/purchase-procument";
+import moment from "moment";
 
 interface POReturnProps { }
 type PurchaseOrderReturnParams = {
   id: string;
 };
-
+const initFormValue = {
+  [POProcumentField.expect_receipt_date]: moment(),
+}
 const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -86,15 +90,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
 
       }));
   }, [formMain, onFinish]);
-  const listStoreFilter = useMemo(() => {
-    return listStore.filter((item) => {
-      if(poData == null) {
-        return false;
-      }
-      let index = poData.procurements.findIndex((item1) => item1.store_id === item.id);
-      return index !== -1;
-    })
-  }, [listStore, poData]);
+
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
       setLoading(false);
@@ -152,7 +148,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     >
       <Form
         form={formMain}
-        initialValues={{}}
+        initialValues={initFormValue}
         layout="vertical"
       // onFinish={onFinish}
       >
@@ -191,7 +187,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                         formMain={formMain}
                         totalVat={totalVat}
                         totalReturn={totalReturn}
-                        listStore={listStoreFilter}
+                        listStore={listStore}
                         poData={poData}
                       />
                       <POReturnPaymentForm

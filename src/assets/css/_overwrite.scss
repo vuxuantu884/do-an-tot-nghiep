@@ -608,7 +608,7 @@
     //Picker
     &-picker {
         height: 38px;
-        border-radius: $border-radius;
+        border-radius: 2px;
         &:hover,
         &-focused {
             box-shadow: unset;

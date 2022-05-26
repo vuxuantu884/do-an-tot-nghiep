@@ -36,6 +36,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
 
   const dispatch = useDispatch();
   const [isShowBtnDD, setIsShowBtnDD] = useState<boolean>(true);
+  const [isTabletMobileScreen, setIsTabletMobileScreen] = useState<boolean>(false);
 
   useEffect(() => {
     if(window.location.pathname.indexOf('YDpage') < 0) {
@@ -92,6 +93,13 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
     window.location.href=`tel:${hotlineNumber}`;
   };
 
+  useEffect(() => {
+    if (window.innerWidth <= 900 )  {
+      setIsTabletMobileScreen(true);
+    }
+  }, []);
+
+
   return (
     <StyledComponent>
       <Layout.Header className={props.isShowHeader ? 'show' : 'hide'}>
@@ -114,16 +122,25 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
             <DevAndUatMarkup/>
           </div>
           <Space size={15}>
-            <div className="hotline-info">
-              <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
+            {isTabletMobileScreen ?
               <span>
-                {"Hotline: "}
-                <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="right">
-                  <span className="phone-number" onClick={callHotlineSupport}>{hotlineNumber}</span>
-                </Tooltip>
+                <img onClick={callHotlineSupport} style={{ marginRight: 10 }} src={hotlineIcon} alt="hotline" />
               </span>
-            </div>
-            <span className="support-link" onClick={linkToSupportPage}>{"Hướng dẫn gửi yêu cầu »"}</span>
+              :
+              <>
+                <div className="hotline-info">
+                  <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
+                  <span>
+                    {"Hotline: "}
+                    <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
+                      <span className="phone-number" onClick={callHotlineSupport}>{hotlineNumber}</span>
+                    </Tooltip>
+                  </span>
+                </div>
+                <span className="support-link" onClick={linkToSupportPage}>{"Hướng dẫn gửi yêu cầu »"}</span>
+              </>
+            }
+
             <Badge count={0} className="buttonNotifyWrapper">
               <Button
                 color={"#222222"}
