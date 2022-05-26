@@ -81,6 +81,7 @@ export interface OrderResponse extends BaseObject {
   order_return_origin?: OrderReturnModel;
   point_refund?: number;
   money_refund?: number;
+  money_amount?: number;
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;

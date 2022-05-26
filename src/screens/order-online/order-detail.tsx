@@ -765,7 +765,7 @@ const OrderDetail = (props: PropType) => {
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
                   totalAmountReturnToCustomer={
-                    OrderDetail?.order_return_origin.money_refund
+                    OrderDetail?.order_return_origin.money_amount
                   }
                   OrderDetail={OrderDetail}
                 />
@@ -776,7 +776,7 @@ const OrderDetail = (props: PropType) => {
                 OrderDetail={OrderDetail}
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                 customerNeedToPayValue={customerNeedToPayValue}
-                totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_refund}
+                totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_amount}
               />
               {/*--- end product ---*/}
 
