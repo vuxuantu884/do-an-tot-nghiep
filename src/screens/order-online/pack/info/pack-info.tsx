@@ -186,7 +186,7 @@ const PackInfo: React.FC = () => {
         dispatch(
           getFulfillments(query, (data: PackFulFillmentResponse[]) => {
             if (data && data.length !== 0) {
-              let fMSuccess: PackFulFillmentResponse[] = data.filter((p) => p.status !== FulFillmentStatus.CANCELLED && p.status !== FulFillmentStatus.RETURNED && p.status !== FulFillmentStatus.RETURNING)
+              let fMSuccess: PackFulFillmentResponse[] = data.filter((p) => p.status === FulFillmentStatus.PICKED)
 
               let storeId: number | null | undefined = data[0]?.stock_location_id ?
                 listStoresDataCanAccess?.findIndex((p) => p.id === data[0]?.stock_location_id) !== -1

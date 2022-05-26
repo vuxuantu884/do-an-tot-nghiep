@@ -16,7 +16,8 @@ function useFetchWarranties(
   initQuery: GetWarrantiesParamModelExtra,
   location: any,
   countForceFetchData: number,
-  setQuery: (data: GetWarrantiesParamModelExtra) => void
+  setQuery: (data: GetWarrantiesParamModelExtra) => void,
+  checkIfInvalidFilter: (values: any) => boolean,
 ) {
   const [warranties, setWarranties] = useState<Array<WarrantyItemModel>>([]);
   const [metadata, setMetaData] = useState({
@@ -112,12 +113,17 @@ function useFetchWarranties(
   const fetchData = useCallback(
     () => {
       const fullQuery = getFullQuery();
+      let isError = checkIfInvalidFilter(fullQuery);
+      if(isError) {
+        return;
+      }
       let dataQuery = {
         ...initQuery,
         ...fullQuery,
         ...getQueryParamsFromQueryString(queryParamsParsed),
         ...findId(),
       };
+      
       
       let result = {
         ...dataQuery,
@@ -160,7 +166,7 @@ function useFetchWarranties(
           dispatch(hideLoading());
         });
     },
-    [dispatch, findId, getFullQuery, history, initQuery, location.pathname, queryParamsParsed, setQuery],
+    [checkIfInvalidFilter, dispatch, findId, getFullQuery, history, initQuery, location.pathname, queryParamsParsed, setQuery],
   )
 
   useEffect(() => {
