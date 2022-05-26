@@ -347,7 +347,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           showSuccess("Đã gửi yêu cầu xuất file");
           setListExportFile([...listExportFile, response.data.code]);
           if (response.data && response.data.status === "FINISH") {
-            window.open(response.data.url);
+            window.open(response.data.url, "_self");
             setStatusExport(3);
           }
         }
@@ -455,7 +455,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
             const newListExportFile = listExportFile.filter((item) => {
               return item !== fileCode;
             });
-            window.open(response.data.url);
+            window.open(response.data.url, "_self");
             setListExportFile(newListExportFile);
             setStatusExport(3);
           }
