@@ -100,7 +100,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
       width: 100,
       align: "center",
       dataIndex: "quantity",
-      render: (value, row, index) => value,
+      render: (value, row, index) => value ?? 0,
     },
     {
       title: <div>
@@ -113,7 +113,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
       width: 100,
       align: "center",
       dataIndex: "receipt_quantity",
-      render: (value, row, index) => value,
+      render: (value, row, index) => value ?? 0,
     },
     {
       title: <div>
