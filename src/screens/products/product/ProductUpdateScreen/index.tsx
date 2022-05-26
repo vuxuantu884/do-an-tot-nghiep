@@ -57,6 +57,7 @@ import {
   ProductRequest,
   ProductResponse,
   VariantImage,
+  VariantRequest,
   VariantResponse
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -318,9 +319,9 @@ const ProductDetailScreen: React.FC = () => {
     setData(newData);
   }, [data]);
 
-  const onChangePrice = useCallback(() => {
+  const onChangePrice =() => {
     setChangePrice(true);
-  }, []);
+  }
 
   const onResultUpdate = useCallback(
     (data) => {
@@ -782,6 +783,24 @@ const ProductDetailScreen: React.FC = () => {
       )
     );
   }, [dispatch, setCollections]);
+
+  const onChangeImportPrice = useCallback((e:any)=>{
+    setChangePrice(true);
+    
+    let variants = form.getFieldValue('variants');
+    if (!variants) return;
+    if (!dataOrigin || !dataOrigin.variants) return;
+    const costPrice = dataOrigin.variants.find((p: VariantRequest)=>p.sku === variants[active].sku)?.variant_prices[0].cost_price;
+
+    if (costPrice && costPrice !=null && costPrice !==0) {
+      return
+    }
+    variants[active].variant_prices[0].cost_price = e *1.08;
+    
+     form.setFieldsValue({
+      variants: variants,
+        });
+  },[form,active,dataOrigin]);
 
   useEffect(()=>{
     getCollections("",1);
@@ -1406,7 +1425,6 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChangePrice}
                                                       format={(a: string) =>
                                                         formatCurrencyForProduct(a)
                                                       }
@@ -1436,7 +1454,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChangePrice}
+                                                      onChange={onChangeImportPrice}
                                                       format={(a: string) =>
                                                         formatCurrencyForProduct(a)
                                                       }
@@ -1469,7 +1487,6 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChangePrice}
                                                       format={(a: string) =>
                                                         formatCurrencyForProduct(a)
                                                       }
@@ -1489,7 +1506,6 @@ const ProductDetailScreen: React.FC = () => {
                                                     fieldKey={[fieldKey, "tax_percent"]}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChangePrice}
                                                       placeholder="VD: 10"
                                                       suffix={<span>%</span>}
                                                       disabled={!canUpdateCost}
@@ -1514,7 +1530,6 @@ const ProductDetailScreen: React.FC = () => {
                                                     name={[name, "currency_code"]}
                                                   >
                                                     <CustomSelect
-                                                      onChange={onChangePrice}
                                                       placeholder="Đơn vị tiền tệ"
                                                       disabled={!canUpdateCost}
                                                     >
