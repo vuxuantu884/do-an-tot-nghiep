@@ -346,7 +346,6 @@ const AccountUpdateScreen: React.FC = () => {
                 <Input.Password
                   className="r-5"
                   placeholder="Nhập mật khẩu"
-                  size="large"
                   allowClear
                   autoComplete="new-password"
                   iconRender={(visible) =>
@@ -377,6 +376,9 @@ const AccountUpdateScreen: React.FC = () => {
                   placeholder="Nhập lại mật khẩu"
                   allowClear
                   autoComplete="new-password"
+                  iconRender={(visible) =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                  }
                 />
               </Form.Item>
             </Col>
