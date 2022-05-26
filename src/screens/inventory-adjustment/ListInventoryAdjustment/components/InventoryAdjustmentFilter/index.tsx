@@ -375,6 +375,17 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           initialValues={initialValues}
           layout="inline"
         >
+          <Item style={{flex: 1}} name="code" className="input-search">
+            <Input
+              prefix={<img src={search} alt="" />}
+              placeholder="Tìm kiếm theo mã phiếu kiểm"
+              onBlur={(e) => {
+                formSearchRef?.current?.setFieldsValue({
+                  code: e.target.value.trim(),
+                });
+              }}
+            />
+          </Item>
           <Item name="adjusted_store_id">
             <CustomSelect
               style={{
@@ -388,24 +399,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               onClear={() => formSearchRef?.current?.submit()}
             >
               {Array.isArray(stores) &&
-                stores.length > 0 &&
-                stores.map((item, index) => (
-                  <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
-                    {item.name}
-                  </Option>
-                ))}
+              stores.length > 0 &&
+              stores.map((item, index) => (
+                <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
+                  {item.name}
+                </Option>
+              ))}
             </CustomSelect>
-          </Item>
-          <Item style={{flex: 1}} name="code" className="input-search">
-            <Input
-              prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo mã phiếu kiểm"
-              onBlur={(e) => {
-                formSearchRef?.current?.setFieldsValue({
-                  code: e.target.value.trim(),
-                });
-              }}
-            />
           </Item>
           <Item>
             <Button type="primary" loading={loadingFilter} htmlType="submit">
