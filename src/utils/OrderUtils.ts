@@ -4,7 +4,9 @@ import {
   OrderResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { sortFulfillments } from "./AppUtils";
 import { PaymentMethodCode } from "./Constants";
+import { FulfillmentCancelStatus } from "./Order.constants";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -58,4 +60,21 @@ export const checkIfOrderHasPaidAllMoneyAmount = (
     return true;
   }
   return false;
+};
+
+export const checkIfOrderHasShipmentCod = (
+  OrderDetail: OrderResponse | null,
+) => {
+  const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+  return sortedFulfillments[0].shipment?.cod;
+};
+
+export const checkIfOrderCancelled = (
+  OrderDetail: OrderResponse | null,
+) => {
+  const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+  if(!sortedFulfillments[0].status) {
+    return false
+  }
+  return FulfillmentCancelStatus.includes(sortedFulfillments[0].status);
 };

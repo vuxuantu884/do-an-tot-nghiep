@@ -1,5 +1,6 @@
-import { Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag } from "antd";
+import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
+import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import ActionHistory from "component/order/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
@@ -12,26 +13,20 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-  cancelOrderRequest,
-  orderConfigSaga,
-  confirmDraftOrderAction,
-  OrderDetailAction,
+  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
   PaymentMethodGetList,
-  UpdatePaymentAction,
-  changeSelectedStoreBankAccountAction,
-  getStoreBankAccountNumbersAction,
-  changeShippingServiceConfigAction,
-  changeOrderCustomerAction,
-  changeStoreDetailAction,
+  UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 import {
   OrderPaymentRequest,
   UpdateOrderPaymentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderReasonModel, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
@@ -43,16 +38,12 @@ import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
 import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-  checkPaymentAll,
-  checkPaymentStatusToShow,
-  formatCurrency,
   generateQuery,
   getAmountPayment,
   handleFetchApiError,
   isFetchApiSuccessful,
   isOrderFromPOS,
-  sortFulfillments,
-  SumCOD
+  sortFulfillments
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -61,28 +52,20 @@ import {
   PaymentMethodOption,
   ShipmentMethodOption
 } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { yellowColor } from "utils/global-styles/variables";
-import { showSuccess, showError } from "utils/ToastUtils";
-import { getEcommerceStoreAddress, changeEcommerceOrderStatus } from "../../domain/actions/ecommerce/ecommerce.actions";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { changeEcommerceOrderStatus, getEcommerceStoreAddress } from "../../domain/actions/ecommerce/ecommerce.actions";
 import { EcommerceAddressQuery, EcommerceStoreAddress } from "../../model/ecommerce/ecommerce.model";
 import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
+import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
 import UpdateCustomerCard from "./component/update-customer-card";
-import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
-import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
-import CreateBillStep from "component/header/create-bill-step";
-import PaymentStatusTag from "./component/order-detail/PaymentStatusTag";
-import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
 
-const {Panel} = Collapse;
 
 type PropType = {
   id?: string;
@@ -241,9 +224,9 @@ const OrderDetail = (props: PropType) => {
     });
   };
 
-  const onPayments = (value: Array<OrderPaymentRequest>) => {
-    // setPayments(value);
-  };
+  // const onPayments = (value: Array<OrderPaymentRequest>) => {
+  //   // setPayments(value);
+  // };
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
@@ -585,7 +568,7 @@ const OrderDetail = (props: PropType) => {
       if (numberReloadGetTrackingCodeGHTK < maxNumberReloadGetTrackingCodeGHTK && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
         getOrderDetail(id).then(response => {
           numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
-          const sortedFulfillments = sortFulfillments(response.data?.fulfillments ? response.data?.fulfillments : []);
+          const sortedFulfillments = sortFulfillments(response.data?.fulfillments);
           if (sortedFulfillments && sortedFulfillments[0].shipment?.tracking_code) {
             onGetDetailSuccess(response.data);
             isRequest = false;
