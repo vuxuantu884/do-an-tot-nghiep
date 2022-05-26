@@ -109,7 +109,8 @@ const POProductForm = ({
           */
           procurements.forEach((procurement: any, index: number) => {
             procurement.procurement_items = data.variants.map((variant) => {
-              return { sku: variant.sku, quantity: 0, size: variant.size, id: variant.id };
+              const retailPrice = variant.variant_prices.length > 0 ? variant.variant_prices[0]?.retail_price : null;
+              return { sku: variant.sku, quantity: 0, size: variant.size, variant_id: variant.id, retail_price: retailPrice };
             });
           });
 

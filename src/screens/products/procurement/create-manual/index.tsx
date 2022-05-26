@@ -180,6 +180,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
         real_quantity: 0,
         fake_real_quantity: 0,
         note: "",
+        retail_price: item.retail_price,
       });
     });
     formMain.setFieldsValue({

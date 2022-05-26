@@ -120,6 +120,7 @@ export interface ProcumentLogQuery extends BaseQuery {
   product_type: string;
   unit: string;
   variant_image?: string;
+  retailPrice: number;
 }
 export interface POLineItemColor {
   clothCode: string;
