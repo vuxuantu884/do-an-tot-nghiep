@@ -14,6 +14,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
 import CreateBillStep from "component/header/create-bill-step";
 import UrlConfig from "config/url.config";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -326,26 +327,28 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   </Button>}
                 </AuthWrapper>
               ) : null}
-              <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
-                {(isPassed: boolean) => 
-                <Button
-                  type="primary"
-                  ghost
-                  style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                  onClick={() => orderActionsClick && orderActionsClick("update")}
-                  disabled={
-                    disabledBottomActions ||
-										// orderDetail?.status === OrderStatus.FINISHED ||
-										// orderDetail?.status === OrderStatus.COMPLETED ||
-                    // stepsStatusValue === OrderStatus.CANCELLED ||
-                    !isPassed
-                    || isLoadingDiscount
-                  }
-                  id="btn-order-edit"
-                >
-                  Sửa đơn hàng (F9)
-                </Button>}
-              </AuthWrapper>
+              {orderDetail?.sub_status_code && orderDetail.sub_status_code !== ORDER_SUB_STATUS.returned && ( // đơn đã hoàn thì tạm thời ko hiển thị sửa đơn hàng
+                <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
+                  {(isPassed: boolean) => 
+                  <Button
+                    type="primary"
+                    ghost
+                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                    onClick={() => orderActionsClick && orderActionsClick("update")}
+                    disabled={
+                      disabledBottomActions ||
+                      // orderDetail?.status === OrderStatus.FINISHED ||
+                      // orderDetail?.status === OrderStatus.COMPLETED ||
+                      // stepsStatusValue === OrderStatus.CANCELLED ||
+                      !isPassed
+                      || isLoadingDiscount
+                    }
+                    id="btn-order-edit"
+                  >
+                    Sửa đơn hàng (F9)
+                  </Button>}
+                </AuthWrapper>
+              )}
               {isShowConfirmOrderButton && (
                 <Button
                   type="primary"

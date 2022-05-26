@@ -68,6 +68,7 @@ import {
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, successColor, yellowColor } from "utils/global-styles/variables";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
@@ -1775,7 +1776,8 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 								fulfillment.status !== FulFillmentStatus.RETURNING &&
 								fulfillment.status !== FulFillmentStatus.RETURNED &&
 								fulfillment?.shipment?.delivery_service_provider_type
-						) && (
+						) && OrderDetail?.sub_status_code !== ORDER_SUB_STATUS.returned // đã hoàn thì ẩn giao hàng
+						&& (
 							<Button
 								type="primary"
 								className="ant-btn-outline fixed-button text-right"
