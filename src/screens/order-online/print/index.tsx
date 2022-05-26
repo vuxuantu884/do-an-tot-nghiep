@@ -154,7 +154,7 @@ function OrderPrint(props: PropType) {
         queryAction === "print" &&
         queryPrintDialog === "true" &&
         isValidatePrintType();
-      if (queryIds && isCanPrint && handlePrint && queryPrintType) {
+      if (queryIds && isCanPrint && queryPrintType) {
         const queryIdsFormatted = queryIds.map((single: any) => +single);
         switch (queryPrintType) {
           case printType.order_exchange:
