@@ -53,7 +53,7 @@ function ReturnMoneySelect(props: PropTypes) {
 
   // useEffect(() => {
   //   let result = totalAmountCustomerNeedToPay < 0
-  //   ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
+  //   ? (Math.round(Math.abs(totalAmountCustomerNeedToPay)))
   //   : 0
   //   setInitialReturnAmount(result)
 

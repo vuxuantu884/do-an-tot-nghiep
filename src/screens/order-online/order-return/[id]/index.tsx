@@ -130,9 +130,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
               payment_method: returnMoneyMethod.name,
               name: returnMoneyMethod.name,
               note: formValuePayment.returnMoneyNote || "",
-              amount: Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
+              amount: Math.round(formValuePayment?.returnMoneyAmount || 0) ,
               paid_amount:
-                Math.ceil(formValuePayment?.returnMoneyAmount || 0) ,
+                Math.round(formValuePayment?.returnMoneyAmount || 0) ,
               return_amount:0,
               customer_id: OrderDetail?.customer_id,
               payment_method_code: returnMoneyMethod.code,
@@ -189,7 +189,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   // tổng tiền trừ điểm
   const totalAmountReturnToCustomer = useMemo(() => {
-    return Math.ceil((OrderDetail?.money_amount || 0));
+    return Math.round((OrderDetail?.money_amount || 0));
   }, [OrderDetail?.money_amount]);
 
   const totalAmountHasPaidToCustomerWithoutPointRefund = useMemo(() => {

@@ -833,7 +833,7 @@ export default function Order(props: PropTypes) {
 	 * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
 	 */
 	const totalAmountOrder = useMemo(() => {
-		return Math.ceil(
+		return Math.round(
 			orderAmount +
 			(shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
 			(promotion?.value || 0)
