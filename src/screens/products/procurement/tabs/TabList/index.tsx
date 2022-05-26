@@ -2,7 +2,7 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   ApprovalPoProcumentAction,
@@ -767,7 +767,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   }, [dispatch, poId, visibleDraft, onDetail]);
 
   useEffect(() => {
-    search();
+    if (history.location.pathname === ProcurementTabUrl.ALL) {
+      search();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.location.search, dispatch, loadingData]);
 

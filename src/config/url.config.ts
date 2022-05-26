@@ -92,6 +92,7 @@ export const ProcurementTabUrl = {
   SEVEN_DAYS: UrlConfig.PROCUREMENT + "/seven-days",
   ALL: UrlConfig.PROCUREMENT,
   LOGS: UrlConfig.PROCUREMENT + "/logs",
+  PRODUCTS: UrlConfig.PROCUREMENT + "/products"
 };
 
 export const PurchaseOrderTabUrl = {

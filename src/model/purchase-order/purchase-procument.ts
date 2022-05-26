@@ -81,6 +81,11 @@ export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineIt
   variant_id?: number;
 }
 
+export interface ProcurementItemsReceipt extends PurchaseProcumentLineItem {
+  procurement: PurchaseProcument;
+  product_id?: number;
+}
+
 const POProcumentField = {
   id: "id",
   code: "code",
