@@ -64,17 +64,6 @@ const ProcurementCreateManualScreen: React.FC = () => {
     }
   }, [dispatch]);
 
-  const getPOBySupplier = useCallback(async (id) => {
-    setPOLoading(true)
-    const res = await callApiNative({ isShowLoading: false }, dispatch, listPurchaseOrderBySupplier, id);
-    if (res && res.length > 0) {
-      setListPO(res);
-      setPOLoading(false)
-    } else {
-      setPOLoading(false)
-    }
-  }, [dispatch])
-
   useEffect(() => {
     if (isSelectSupplier) setPODisable(false)
     else setPODisable(true)
@@ -147,7 +136,6 @@ const ProcurementCreateManualScreen: React.FC = () => {
   const onSelect = (value: string) => {
     let index = data.findIndex((item) => item.id === +value);
     let supplier = data[index];
-    getPOBySupplier(supplier.id)
 
     formMain.setFieldsValue({
       [POProcumentField.supplier_id]: value,
@@ -156,6 +144,22 @@ const ProcurementCreateManualScreen: React.FC = () => {
     });
     setIsSelectSupplier(true);
   };
+
+  const onSearchPO = debounce(async (value: string) => {
+    const id = formMain.getFieldValue([POProcumentField.supplier_id])
+    if (id) {
+      setPOLoading(true)
+      const res = await callApiNative({ isShowLoading: false }, dispatch, listPurchaseOrderBySupplier, id, { condition: value });
+      if (res && res.length > 0) {
+        setListPO(res);
+        setPOLoading(false)
+      } else {
+        setPOLoading(false)
+      }
+    } else {
+      showError('Bạn chưa chọn nhà cung cấp')
+    }
+  }, 300)
 
   const onSelectPO = useCallback((value: any) => {
     let index = listPO.findIndex((item) => item.id === +value);
@@ -270,6 +274,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
           removeSupplier={removeSupplier}
           removePOCode={removePOCode}
           listPO={listPO}
+          onSearchPO={onSearchPO}
           onSelectPO={onSelectPO}
           poLoading={poLoading}
           poDisable={poDisable}
