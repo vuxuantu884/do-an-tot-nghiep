@@ -148,7 +148,7 @@ function CardReturnProductContainer(props: PropTypes) {
           ...single,
           maxQuantityCanBeReturned: single.quantity,
           amount: single.quantity * single.price,
-          line_amount_after_line_discount: single.amount * (single.price - single.discount_value)
+          line_amount_after_line_discount: single.quantity * (single.price - single.discount_value)
         };
       });
       if (setListReturnProducts) {
