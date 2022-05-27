@@ -37,6 +37,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
   const dispatch = useDispatch();
   const [isShowBtnDD, setIsShowBtnDD] = useState<boolean>(true);
   const [isTabletMobileScreen, setIsTabletMobileScreen] = useState<boolean>(false);
+  const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {
     if(window.location.pathname.indexOf('YDpage') < 0) {
@@ -89,15 +90,21 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
     window.open(supportLink, "_blank");
   };
 
-  const  callHotlineSupport= () => {
+  const callHotlineSupport= () => {
     window.location.href=`tel:${hotlineNumber}`;
   };
 
+  window.onresize = () => {
+    setScreenWidth(window.innerWidth);
+  };
+
   useEffect(() => {
-    if (window.innerWidth <= 900 )  {
+    if (screenWidth < 900 || ((AppConfig.ENV === "DEV" || AppConfig.ENV === "UAT") && screenWidth < 1100))  {
       setIsTabletMobileScreen(true);
+    } else {
+      setIsTabletMobileScreen(false);
     }
-  }, []);
+  }, [screenWidth]);
 
 
   return (
