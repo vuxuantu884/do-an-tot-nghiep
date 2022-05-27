@@ -23,7 +23,7 @@ export interface ModalImportProps {
   cancelText?: string;
   loading?: boolean;
   dataTable?: Array<VariantResponse>
-};
+}
 
 type ImportProps = {
   barcode: string,
@@ -110,13 +110,13 @@ const ImportExcel: React.FC<ModalImportProps> = (
       let jsonData: any = XLSX.utils.sheet_to_json(workSheet);
 
       let range = XLSX.utils.sheet_to_json(workSheet,{range: workSheet["!ref"], blankrows: true });
-     
+
       if (range && range.length > 0) {
         jsonData = [];
         let lineNumber = 1;
         for (let i = 0; i < range.length; i++) {
           const item:any = range[i];
-          
+
           if (Object.values(item)[0]) {
             jsonData.push({
               barcode: Object.values(item)[0],
@@ -157,46 +157,71 @@ const ImportExcel: React.FC<ModalImportProps> = (
         if (convertData && convertData.length > 0) {
           for (let i = 0; i < convertData.length; i++) {
             const element = convertData[i];
-            const fi = data?.findIndex((e: VariantResponse) => e.barcode.toString() === element.barcode.toString());
-
             if (element.quantity && typeof element.quantity !== "number") {
-              error.push(`Dòng ${element.lineNumber}: Số lượng chỉ được nhập kiểu số nguyên`);  
+              error.push(`Dòng ${element.lineNumber}: Số lượng chỉ được nhập kiểu số nguyên`);
               process.error += 1;
-              continue;
             }
-            
-            //tìm kiếm sản phẩm đã có chưa có trên phiếu thì cập nhật số lượng không thì phải đi call api lấy thông tin
-            if (fi >= 0) {
-              data[fi].real_quantity = element.quantity;
-              process.success += 1;
-            } else {
-              //call api lấy sản phẩm vào phiếu
-              let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: element.barcode, store_ids: null });
-              if (res && res.items && res.items.length > 0) {
-                let newItem: VariantResponse = {
-                  ...res.items[0],
-                  id: null,
-                  variant_id: res.items[0].id,
-                  transfer_quantity: 0,
-                  real_quantity: null
-                }
+          }
 
-                const findIndex = convertData.findIndex(e => e.barcode && (e.barcode.toString() === newItem.barcode.toString()));
+          const barcodes: string[] = convertData.map((item) => item.barcode);
+          let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, { barcode: barcodes.join(','), store_ids: null, limit: 1000 });
 
-                if (findIndex >= 0) {
-                  newItem.real_quantity = convertData[findIndex].quantity;
-                }
-                data.push(newItem);
+          if (res.items.length === 0) return;
+
+          let dataTable = [...res.items];
+
+          for (let i = 0; i < convertData.length; i++) {
+            for (let j = 0; j < dataTable.length; j++) {
+              if (convertData[i].barcode.toString() === dataTable[j].barcode.toString()) {
                 process.success += 1;
-              }else{
-                 error.push(`${element.barcode}: Sản phẩm không tồn tại trên hệ thống`);  
-                 process.error += 1;
+                break;
+              }
+
+              if (j === dataTable.length - 1) {
+                error.push(`${convertData[i].barcode}: Sản phẩm không tồn tại trên hệ thống`);
+                process.error += 1;
               }
             }
           }
+
+          for (let i = 0; i < dataTable.length; i++) {
+
+            dataTable[i] = {
+              ...dataTable[i],
+              id: null,
+              variant_id: dataTable[i].id,
+              transfer_quantity: 0,
+              real_quantity: null
+            }
+            let real_quantity: any = null;
+
+            const findIndex = convertData.findIndex((e) => e.barcode.toString() === dataTable[i].barcode.toString());
+            if (findIndex >= 0) {
+              real_quantity = convertData[findIndex].quantity;
+            }
+
+            if (dataTable[i].reference_barcodes) {
+              const referenceBarcodes = dataTable[i].reference_barcodes.split(',');
+
+              referenceBarcodes.forEach((item: any) => {
+                let idx: number = convertData.findIndex((e) => e.barcode.toString() === item.toString());
+
+                if (idx >= 0) {
+                  real_quantity = real_quantity + convertData[idx].quantity;
+                }
+              });
+            }
+
+            dataTable[i].real_quantity = real_quantity;
+          }
+
+          setData([
+            ...data,
+            ...dataTable
+          ]);
         }
       }
-      
+
       setProgressData({...process});
       setErrorData([...error]);
     }, [data, dispatch])
