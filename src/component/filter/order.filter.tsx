@@ -491,8 +491,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "channel_codes":
           onFilter && onFilter({ ...params, channel_codes: [] });
           break;
-        case "discount_code":
-          onFilter && onFilter({ ...params, discount_code: [] });
+        case "discount_codes":
+          onFilter && onFilter({ ...params, discount_codes: [] });
           break;
         default:
           break;
@@ -514,12 +514,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const initialValues = useMemo(() => {
     let textDiscount= "";
-    if(Array.isArray(params.discount_code))
+    if(Array.isArray(params.discount_codes))
     {
-      if(params.discount_code && params.discount_code.length>0)
+      if(params.discount_codes && params.discount_codes.length>0)
       {
-        let indexExt=params.discount_code.length -1;
-        params.discount_code.forEach((value,index)=>{
+        let indexExt=params.discount_codes.length -1;
+        params.discount_codes.forEach((value,index)=>{
           if(indexExt === index)
             textDiscount=textDiscount+ value;
           else 
@@ -528,7 +528,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       }
     }else
     {
-      textDiscount =  params.discount_code || "";
+      textDiscount =  params.discount_codes || "";
     }
    
     return {
@@ -583,7 +583,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         ? params.delivery_types
         : [params.delivery_types],
       services: Array.isArray(params.services) ? params.services : [params.services],
-      discount_code:textDiscount,
+      discount_codes:textDiscount,
     };
   }, [params]);
 
@@ -669,12 +669,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           };
         }
         
-        let discount_code=[];
-        if(values.discount_code)
+        let discount_codes=[];
+        if(values.discount_codes)
         {
-          discount_code = values.discount_code.split(",").map((p:string)=>p?.trim());
+          discount_codes = values.discount_codes.split(",").map((p:string)=>p?.trim());
         }
-        onFilter && onFilter({...values, discount_code: discount_code});
+        onFilter && onFilter({...values, discount_codes: discount_codes});
         setRerender(false);
       }
     },
@@ -1266,23 +1266,23 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (initialValues.discount_code && initialValues.discount_code.length > 0) {
+    if (initialValues.discount_codes && initialValues.discount_codes.length > 0) {
       // let textDiscount= "";
-      // initialValues.discount_code.forEach((value,index)=>{
-      //   if((initialValues.discount_code?.length||0 - 1) === index)
+      // initialValues.discount_codes.forEach((value,index)=>{
+      //   if((initialValues.discount_codes?.length||0 - 1) === index)
       //     textDiscount=textDiscount+ value;
       //   else 
       //     textDiscount=textDiscount + `${value}, ` ;
       // })
 
       list.push({
-        key: "discount_code",
+        key: "discount_codes",
         name: "Mã giảm giá",
-        value:  <React.Fragment>{initialValues.discount_code}</React.Fragment>
+        value:  <React.Fragment>{initialValues.discount_codes}</React.Fragment>
       })
     }
     return list;
-  }, [initialValues?.discount_code, filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [initialValues?.discount_codes, filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -2109,7 +2109,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8}>
-                  <Item name="discount_code" label="Mã giảm giá">
+                  <Item name="discount_codes" label="Mã giảm giá">
                     <Input placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)" style={{ width: "100%" }} />
                     {/* <CustomSelect
                       mode="tags"
