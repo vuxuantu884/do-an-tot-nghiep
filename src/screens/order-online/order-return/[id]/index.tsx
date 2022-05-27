@@ -36,7 +36,7 @@ import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils
 import { FulFillmentStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import { findPaymentMethodByCode } from "utils/OrderUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError } from "utils/ToastUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -115,19 +115,6 @@ const ScreenReturnDetail = (props: PropTypes) => {
       })
     );
   };
-
-  console.log("orderDetail", OrderDetail)
-  const contentDeleteComfirm: React.ReactNode = useMemo(() => {
-    return (
-      <div style={{ display: "flex", lineHeight: "5px" }}>
-        Bạn có chắc chắn xóa:
-        <div style={{ marginLeft: 10, fontWeight: 500 }}>
-          <p>{OrderDetail?.code}</p>
-        </div>
-      </div>
-    );
-  }, [OrderDetail?.code]);
-  
 
   const hanldeDeleteOrderReturn = useCallback(() => {
     if (!OrderDetail) {

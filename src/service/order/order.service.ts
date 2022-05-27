@@ -481,6 +481,10 @@ BaseResponse<OrderReturnResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns/print_forms?${params}`);
 };
 
+export const deleteOrderService=(ids:number[]):Promise<BaseResponse<any>>=>{
+  let link =`${ApiConfig.ORDER}/orders?ids=${ids}`;
+  return BaseAxios.delete(link);
+}
 /**
 * lấy lại điểm hoàn và tiền hoàn
 */
