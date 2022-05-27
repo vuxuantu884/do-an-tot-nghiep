@@ -437,7 +437,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
           }),
         };
       });
-      console.log('returnProduct', returnProduct)
       setListReturnProducts(returnProduct);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
@@ -803,10 +802,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const handleSubmitFormReturn = useCallback(() => {
     if (OrderDetail && listReturnProducts) {
       // tính toán lại discount
-      console.log('returnItems', returnItems)
       let discounts = handleRecalculateOriginDiscount(returnItems);
-      console.log('getTotalAmountAfterDiscount(returnItems)', getTotalAmountAfterDiscount(returnItems))
-      console.log('getTotalOrderDiscount(discounts)', getTotalOrderDiscount(discounts))
 
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
@@ -1501,7 +1497,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_exchange,
       };
       console.log("valuesExchange", valuesExchange);
-      // return;
+      //  return;
       if (checkPointFocus(order_exchange)) {
         if (!order_exchange?.customer_id) {
           showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
