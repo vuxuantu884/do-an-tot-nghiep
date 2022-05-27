@@ -29,6 +29,7 @@ interface ProcurementManualFormProps {
   onSelect: (value: string) => void;
   removePOCode: () => void;
   onSelectPO: (value: any) => void;
+  onSearchPO: (value: string) => void;
 }
 
 const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManualFormProps) => {
@@ -45,7 +46,8 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
     removePOCode,
     onSelectPO,
     poLoading,
-    poDisable
+    poDisable,
+    onSearchPO
   } = props
 
   const renderResult = useMemo(() => {
@@ -193,9 +195,14 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
                           showSearch
                           showArrow
                           optionFilterProp="children"
-                          placeholder="Chọn đơn đặt hàng"
+                          placeholder="Tìm kiếm theo đơn đặt hàng hoặc mã tham chiếu"
                           loading={poLoading}
                           disabled={poDisable}
+                          onSearch={(value) => {
+                            if (value.length > 2) {
+                              onSearchPO(value)
+                            }
+                          }}
                           // onChange={(value) => formMain.setFieldsValue({ [POField.code]: value })}
                           onSelect={(value) => {
                             if (!value) return
@@ -204,7 +211,7 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
                         >
                           {!isEmpty(listPO) && listPO.map((item) => (
                             <Select.Option key={item.id} value={item.id || 0}>
-                              {item.code}
+                              {item.reference ? `${item.code} - ${item.reference}` : `${item.code}`}
                             </Select.Option>
                           ))}
                         </Select>
