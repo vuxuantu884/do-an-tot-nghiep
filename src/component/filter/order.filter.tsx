@@ -514,15 +514,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const initialValues = useMemo(() => {
     let textDiscount= "";
-    if(params.discount_code && params.discount_code.length>0)
+    if(Array.isArray(params.discount_code))
     {
-      let indexExt=params.discount_code.length -1;
-      params.discount_code.forEach((value,index)=>{
-        if(indexExt === index)
-          textDiscount=textDiscount+ value;
-        else 
-          textDiscount=textDiscount + `${value}, ` ;
-      })
+      if(params.discount_code && params.discount_code.length>0)
+      {
+        let indexExt=params.discount_code.length -1;
+        params.discount_code.forEach((value,index)=>{
+          if(indexExt === index)
+            textDiscount=textDiscount+ value;
+          else 
+            textDiscount=textDiscount + `${value}, ` ;
+        })
+      }
+    }else
+    {
+      textDiscount =  params.discount_code || "";
     }
    
     return {
@@ -2104,7 +2110,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 </Col>
                 <Col span={8} xxl={8}>
                   <Item name="discount_code" label="Mã giảm giá">
-                    <Input placeholder="Nhập mã giảm giá" style={{ width: "100%" }} />
+                    <Input placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)" style={{ width: "100%" }} />
                     {/* <CustomSelect
                       mode="tags"
                       optionFilterProp="children"
