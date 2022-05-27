@@ -620,3 +620,7 @@ export const changeIfPaymentAlreadyChangedAction = (
     }
   }
 };
+
+export const deleteOrderAction=(ids:number[], handleError:(value?:boolean)=>void)=>{
+  return BaseAction(OrderType.DELETE_ORDER_REQUEST, {ids, handleError});
+}

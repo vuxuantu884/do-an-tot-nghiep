@@ -27,7 +27,7 @@ import {
   confirmDraftOrderService,
   createDeliveryMappedStoreService,
   createShippingOrderService,
-  deleteDeliveryMappedStoreService, getAllSources,
+  deleteDeliveryMappedStoreService, deleteOrderService, getAllSources,
   getChannelApi,
   getChannelsService,
   getDeliveryMappedStoresService,
@@ -857,6 +857,28 @@ function* orderChangeStoreSaga(action: YodyAction) {
   }
 }
 
+function* deleteOrderSaga(action:YodyAction)
+{
+  const {ids, handleError} = action.payload;
+  yield put(showLoading())
+  try{
+    let response: BaseResponse<any> = yield call(deleteOrderService, ids);
+    if(isFetchApiSuccessful(response)){
+        handleError(true);
+    }
+    else{
+      yield put (fetchApiErrorAction(response,"Xóa đơn hàng"))
+    }
+  }
+  catch (error) {
+    console.log("error", error);
+    showError(`Có lỗi khi lấy chi tiết cửa hàng! Vui lòng thử lại sau!`);
+  }
+  finally{
+    yield put(hideLoading());
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_DETAIL_ORDER_REQUEST, getDetailOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
@@ -906,4 +928,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_CHANNELS, getChannelsSaga);
   yield takeLatest(OrderType.UPDATE_ORDER_PARTIAL_REQUEST, updateOrderPartial);
   yield takeLatest(OrderType.ORDER_CHANGE_STORE, orderChangeStoreSaga);
+  yield takeLatest(OrderType.DELETE_ORDER_REQUEST, deleteOrderSaga);
 }

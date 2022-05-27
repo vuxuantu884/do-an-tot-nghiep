@@ -1,10 +1,12 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import {
 	Badge, Card,
 	Col,
 	Collapse, Form,
 	FormInstance,
 	Input,
+	Modal,
 	Row,
 	Space,
 	Tag,
@@ -35,7 +37,7 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, DeliveryServicesGetList,
+	changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, deleteOrderAction, DeliveryServicesGetList,
 	getListSubStatusAction, getStoreBankAccountNumbersAction, getTrackingLogFulfillmentAction, orderConfigSaga, OrderDetailAction,
 	orderUpdateAction,
 	PaymentMethodGetList, setIsExportBillAction,
@@ -95,6 +97,7 @@ import {
 	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
+	POS,
 	ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
@@ -883,6 +886,51 @@ export default function Order(props: PropTypes) {
 		formRef.current?.setFieldsValue({ shipping_fee_informed_to_customer: value });
 		setShippingFeeInformedToCustomer(value);
 	};
+
+	
+  /**
+   * xóa đơn
+   */
+   const handleDeleteOrderClick = useCallback(() => {
+    if (!OrderDetail) {
+      showError("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
+      return;
+    }
+
+    const deleteOrderComfirm = () => {
+      let ids: number[] = [OrderDetail.id]
+      dispatch(deleteOrderAction(ids, (success) => {
+        if (success) {
+          history.push(`${OrderDetail.channel === POS.channel_code ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER}`)
+        }
+      }))
+    }
+
+	Modal.confirm({
+		title: "Xác nhận xóa",
+		icon: <ExclamationCircleOutlined />,
+		content: (
+		  <React.Fragment>
+			<div style={{ display: "flex", lineHeight: "5px" }}>
+			  Bạn có chắc chắn xóa:
+			  <div style={{ marginLeft: 10, fontWeight: 500 }}>
+				<p>{OrderDetail?.code}</p>
+			  </div>
+			</div>
+			<p style={{ textAlign: "justify" , color:"#ff4d4f" }}>
+			  Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá
+			  luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá
+			  đơn ở trạng thái Thành công
+			</p>
+		  </React.Fragment>
+		),
+		okText: "Xóa",
+		cancelText: "Hủy",
+		okType:"danger",
+		onOk: deleteOrderComfirm,
+	});
+	  
+  }, [OrderDetail, dispatch, history])
 
 
 	useEffect(() => {
@@ -2325,6 +2373,7 @@ export default function Order(props: PropTypes) {
 								updating={updating}
 								updatingConfirm={updatingConfirm}
 								isShow={!isShowBillStep}
+								deleteOrderClick={handleDeleteOrderClick}
 							/>
 						</Form>
 					)}
