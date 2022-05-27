@@ -252,22 +252,22 @@ export default function Order(props: PropTypes) {
 					OrderDetail.fulfillments !== null &&
 					OrderDetail.fulfillments.length > 0
 				) {
-					if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED
-						|| sortedFulfillments[0].status === FulFillmentStatus.CANCELLED
-						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNED
-						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNING) {
+					if (sortedFulfillments[0]?.status === FulFillmentStatus.UNSHIPPED
+						|| sortedFulfillments[0]?.status === FulFillmentStatus.CANCELLED
+						|| sortedFulfillments[0]?.status === FulFillmentStatus.RETURNED
+						|| sortedFulfillments[0]?.status === FulFillmentStatus.RETURNING) {
 						return OrderStatus.FINALIZED;
 					}
-					if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
+					if (sortedFulfillments[0]?.status === FulFillmentStatus.PICKED) {
 						return FulFillmentStatus.PICKED;
 					}
-					if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
+					if (sortedFulfillments[0]?.status === FulFillmentStatus.PACKED) {
 						return FulFillmentStatus.PACKED;
 					}
-					if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
+					if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING) {
 						return FulFillmentStatus.SHIPPING;
 					}
-					if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
+					if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED) {
 						return FulFillmentStatus.SHIPPED;
 					}
 				}
