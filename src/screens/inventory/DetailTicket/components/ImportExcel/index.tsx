@@ -219,8 +219,6 @@ const ImportExcel: React.FC<ModalImportProps> = (
             ...data,
             ...dataTable
           ]);
-
-          //newItem.real_quantity = convertData[findIndex].quantity;
         }
       }
 
