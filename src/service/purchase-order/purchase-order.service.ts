@@ -161,3 +161,12 @@ export const listPurchaseOrderBySupplier = (id: number): Promise<BaseResponse<Ar
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/list-by-supplier/${id}`
   );
 }
+
+export const printProcurementApi = (
+  id: number,
+  poId: number,
+): Promise<Array<PurchaseOrderPrint>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-procurement?id=${id}&poId=${poId}`
+  );
+};
