@@ -93,9 +93,9 @@ const isShortenFilterTag = true;
 const numberTagShorten = 2;
 
 const initQueryVariant: VariantSearchQuery = {
-	limit: 10,
-	page: 1,
-	saleable: true,
+  limit: 10,
+  page: 1,
+  saleable: true,
 };
 
 // async function searchVariants(input: any) {
@@ -151,30 +151,30 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const [services, setServices] = useState<any[]>([]);
 
-const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
-const status = bootstrapReducer.data?.order_main_status.filter(
-  (single) => single.value !== "splitted"
-);
+  const status = bootstrapReducer.data?.order_main_status.filter(
+    (single) => single.value !== "splitted"
+  );
 
   useEffect(() => {
     setSelectedSubStatusCodes(initSubStatus?.map(single => single.code) || []);
   }, [initSubStatus])
 
   // useEffect(() => {
-    //   setShowStatusCodes(status?.map(single => single.value) || []);
-    // }, [status])
+  //   setShowStatusCodes(status?.map(single => single.value) || []);
+  // }, [status])
 
-    const [keySearchVariant, setKeySearchVariant] = useState("");
+  const [keySearchVariant, setKeySearchVariant] = useState("");
   console.log('keySearchVariant', keySearchVariant)
-    const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
-		metadata: {
-			limit: 0,
-			page: 1,
-			total: 0,
-		},
-		items: [],
-	});
+  const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
+    metadata: {
+      limit: 0,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
 
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -204,21 +204,21 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   }, [dispatch]);
 
   const onChangeProductSearch = useCallback(
-		async (value: string) => {
-			setKeySearchVariant(value);
+    async (value: string) => {
+      setKeySearchVariant(value);
 
-			initQueryVariant.info = value;
-			if (value.length >= 3) {
-				setIsSearchingProducts(true);
-			} else {
-				setIsSearchingProducts(false);
-			}
-			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
-				handleSearchProduct(value)
-			);
-		},
-		[autoCompleteRef, handleSearchProduct]
-	);
+      initQueryVariant.info = value;
+      if (value.length >= 3) {
+        setIsSearchingProducts(true);
+      } else {
+        setIsSearchingProducts(false);
+      }
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+        handleSearchProduct(value)
+      );
+    },
+    [autoCompleteRef, handleSearchProduct]
+  );
 
   const fulfillmentStatus = useMemo(
     () => [
@@ -279,7 +279,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     },
   ];
 
- 
+
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
   const formRef = createRef<FormInstance>();
@@ -298,7 +298,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   const onShowSaveFilter = useCallback(() => {
     // setModalAction("create");
     let values = formRef.current?.getFieldsValue();
-    if(values) {
+    if (values) {
       values.services = services;
       if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
         values = {
@@ -323,21 +323,21 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
-  const [tagActive, setTagActive] = useState<number|null>();
+  const [tagActive, setTagActive] = useState<number | null>();
 
   const {
-    filterConfigs, 
-    onSaveFilter, 
-    configId, 
-    setConfigId, 
+    filterConfigs,
+    onSaveFilter,
+    configId,
+    setConfigId,
     handleDeleteFilter,
     onSelectFilterConfig,
   } = useHandleFilterConfigs(
-    filterConfigType, 
+    filterConfigType,
     formRef,
     {
       ...formSearchValuesToSave
-    }, 
+    },
     setTagActive,
     onHandleFilterTagSuccessCallback
   )
@@ -491,6 +491,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         case "channel_codes":
           onFilter && onFilter({ ...params, channel_codes: [] });
           break;
+        case "discount_code":
+          onFilter && onFilter({ ...params, discount_code: [] });
+          break;
         default:
           break;
       }
@@ -510,6 +513,24 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   }, [listSource]);
 
   const initialValues = useMemo(() => {
+    let textDiscount= "";
+    if(Array.isArray(params.discount_code))
+    {
+      if(params.discount_code && params.discount_code.length>0)
+      {
+        let indexExt=params.discount_code.length -1;
+        params.discount_code.forEach((value,index)=>{
+          if(indexExt === index)
+            textDiscount=textDiscount+ value;
+          else 
+            textDiscount=textDiscount + `${value}, ` ;
+        })
+      }
+    }else
+    {
+      textDiscount =  params.discount_code || "";
+    }
+   
     return {
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
@@ -562,6 +583,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         ? params.delivery_types
         : [params.delivery_types],
       services: Array.isArray(params.services) ? params.services : [params.services],
+      discount_code:textDiscount,
     };
   }, [params]);
 
@@ -579,34 +601,34 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.source_ids.length > numberTagShorten,
       },
-			order_status: {
+      order_status: {
         data: initialValues.order_status,
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.order_status.length > numberTagShorten,
       },
-			account_codes: {
+      account_codes: {
         data: initialValues.account_codes,
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.account_codes.length > numberTagShorten,
       },
-			assignee_codes: {
+      assignee_codes: {
         data: initialValues.assignee_codes,
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.assignee_codes.length > numberTagShorten,
       },
-			coordinator_codes: {
+      coordinator_codes: {
         data: initialValues.coordinator_codes,
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.coordinator_codes.length > numberTagShorten,
       },
-			marketer_codes: {
+      marketer_codes: {
         data: initialValues.marketer_codes,
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.marketer_codes.length > numberTagShorten,
       },
     });
   }, [initialValues]);
-  
+
   const onFinish = useCallback(
     (values) => {
       let error = false;
@@ -643,10 +665,16 @@ const status = bootstrapReducer.data?.order_main_status.filter(
             ...values,
             price_min: values?.price_max,
             price_max: values?.price_min,
-            
+
           };
         }
-        onFilter && onFilter(values);
+        
+        let discount_code=[];
+        if(values.discount_code)
+        {
+          discount_code = values.discount_code.split(",").map((p:string)=>p?.trim());
+        }
+        onFilter && onFilter({...values, discount_code: discount_code});
         setRerender(false);
       }
     },
@@ -731,14 +759,14 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         countHidden = _mappedArray.length - numberTagShorten;
       }
       if (type === "assignee_codes") {
-				result = mappedArrayResult.map((single, index) => {
-					return (
-						<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
-							{single.code} - {single.full_name}
-							{renderSplitCharacter(index, mappedArrayResult)}
-						</Link>
-					);
-				});
+        result = mappedArrayResult.map((single, index) => {
+          return (
+            <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+              {single.code} - {single.full_name}
+              {renderSplitCharacter(index, mappedArrayResult)}
+            </Link>
+          );
+        });
       } else if (type === "account_codes") {
         result = mappedArrayResult.map((single, index) => {
           return (
@@ -917,15 +945,15 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       let orderStatuses = status?.filter((status) =>
         initialValues.order_status?.some((item) => item === status.value.toString())
       );
-			let text = getFilterString(
-				orderStatuses,
-				"name",
-				undefined,
-				undefined,
-				"order_status",
-				filterTagFormatted.order_status.isCanShorten,
-				filterTagFormatted.order_status.isShorten
-			);
+      let text = getFilterString(
+        orderStatuses,
+        "name",
+        undefined,
+        undefined,
+        "order_status",
+        filterTagFormatted.order_status.isCanShorten,
+        filterTagFormatted.order_status.isShorten
+      );
       list.push({
         key: "order_status",
         name: "Trạng thái tiến trình đơn hàng",
@@ -960,11 +988,11 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       let mappedSubStatuses = subStatus?.filter((status) =>
         initialValues.sub_status_code?.some((item) => item === status.code.toString())
       );
-			let text = getFilterString(
+      let text = getFilterString(
         mappedSubStatuses,
         "sub_status",
         undefined,
-				undefined,
+        undefined,
         "sub_status_code",
         filterTagFormatted.sub_status_code.isCanShorten,
         filterTagFormatted.sub_status_code.isShorten
@@ -1030,7 +1058,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         UrlConfig.ACCOUNTS,
         "code",
         "assignee_codes",
-				filterTagFormatted.assignee_codes.isCanShorten,
+        filterTagFormatted.assignee_codes.isCanShorten,
         filterTagFormatted.assignee_codes.isShorten
       );
       list.push({
@@ -1064,7 +1092,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         UrlConfig.ACCOUNTS,
         "code",
         "account_codes",
-				filterTagFormatted.account_codes.isCanShorten,
+        filterTagFormatted.account_codes.isCanShorten,
         filterTagFormatted.account_codes.isShorten
       );
       list.push({
@@ -1081,7 +1109,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         UrlConfig.ACCOUNTS,
         "code",
         "coordinator_codes",
-				filterTagFormatted.coordinator_codes.isCanShorten,
+        filterTagFormatted.coordinator_codes.isCanShorten,
         filterTagFormatted.coordinator_codes.isShorten
       );
       list.push({
@@ -1098,7 +1126,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         UrlConfig.ACCOUNTS,
         "code",
         "marketer_codes",
-				filterTagFormatted.marketer_codes.isCanShorten,
+        filterTagFormatted.marketer_codes.isCanShorten,
         filterTagFormatted.marketer_codes.isShorten
       );
       list.push({
@@ -1171,7 +1199,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
       });
     }
 
-    if(initialValues.channel_codes.length && (!isEqual(initialValues.channel_codes, initChannelCodes || orderType !== ORDER_TYPES.online))) {
+    if (initialValues.channel_codes.length && (!isEqual(initialValues.channel_codes, initChannelCodes || orderType !== ORDER_TYPES.online))) {
       let mappedChannels = listChannel?.filter((channel) =>
         initialValues.channel_codes?.some((single) => single === channel.code.toString())
       );
@@ -1237,8 +1265,24 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         value: <React.Fragment>{initialValues.reference_code}</React.Fragment>,
       });
     }
+
+    if (initialValues.discount_code && initialValues.discount_code.length > 0) {
+      // let textDiscount= "";
+      // initialValues.discount_code.forEach((value,index)=>{
+      //   if((initialValues.discount_code?.length||0 - 1) === index)
+      //     textDiscount=textDiscount+ value;
+      //   else 
+      //     textDiscount=textDiscount + `${value}, ` ;
+      // })
+
+      list.push({
+        key: "discount_code",
+        name: "Mã giảm giá",
+        value:  <React.Fragment>{initialValues.discount_code}</React.Fragment>
+      })
+    }
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [initialValues?.discount_code, filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1285,7 +1329,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     // formRef.current?.resetFields(initialValues)
     let fields = formRef.current?.getFieldsValue(true);
     for (let key in fields) {
-      if(fields[key] instanceof Array) {
+      if (fields[key] instanceof Array) {
         fields[key] = [];
       } else {
         fields[key] = null;
@@ -1309,10 +1353,10 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   };
 
   const renderTabHeader = () => {
-    if(orderType === ORDER_TYPES.offline) {
+    if (orderType === ORDER_TYPES.offline) {
       return null
     }
-    if(!isHideTab) {
+    if (!isHideTab) {
       return (
         <div className="order-options">
           <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
@@ -1377,7 +1421,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   }, [formSearchRef, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids]);
 
   useEffect(() => {
-    if(params?.searched_product) {
+    if (params?.searched_product) {
       setKeySearchVariant(params?.searched_product);
     }
   }, [params?.searched_product])
@@ -1390,7 +1434,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
   useEffect(() => {
     setServices(initialValues.services);
-    if(!channels || channels?.length === 0) {
+    if (!channels || channels?.length === 0) {
       dispatch(getListChannelRequest(setListChannel));
     } else {
       setListChannel(channels)
@@ -1414,16 +1458,16 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   };
 
   const convertResultSearchVariant = useMemo(() => {
-		let options: any[] = [];
-		resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
-			options.push({
-				// label: renderSearchVariant(item),
-				label: <SearchedVariant item={item} />,
-				value: item.name ? item.name.toString() : "",
-			});
-		});
-		return options;
-	}, [resultSearchVariant]);
+    let options: any[] = [];
+    resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        // label: renderSearchVariant(item),
+        label: <SearchedVariant item={item} />,
+        value: item.name ? item.name.toString() : "",
+      });
+    });
+    return options;
+  }, [resultSearchVariant]);
 
   const onSearchVariantSelect = useCallback(
     (v, variant) => {
@@ -1435,9 +1479,9 @@ const status = bootstrapReducer.data?.order_main_status.filter(
         ...resultSearchVariant,
         items: []
       })
-   },
-   [autoCompleteRef, resultSearchVariant]
- );
+    },
+    [autoCompleteRef, resultSearchVariant]
+  );
 
   return (
     <StyledComponent>
@@ -1466,7 +1510,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                 </Col>
                 {orderType === ORDER_TYPES.offline ? null : (
                   <Col span={6}>
-                    <Item name="sub_status_code" style={{marginRight: 0}}>
+                    <Item name="sub_status_code" style={{ marginRight: 0 }}>
                       <CustomSelectWithButtonCheckAll
                         mode="multiple"
                         showArrow
@@ -1478,8 +1522,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                         optionFilterProp="children"
                         getPopupContainer={(trigger) => trigger.parentNode}
                         maxTagCount="responsive"
-                        onChangeAllSelect={(e: CheckboxChangeEvent)=>{
-                          if(e.target.checked) {
+                        onChangeAllSelect={(e: CheckboxChangeEvent) => {
+                          if (e.target.checked) {
                             formSearchRef.current?.setFieldsValue({
                               sub_status_code: selectedSubStatusCodes
                             })
@@ -1592,19 +1636,19 @@ const status = bootstrapReducer.data?.order_main_status.filter(
           width={widthScreen()}>
           {rerender && (
             <Form onFinish={onFinish} ref={formRef} initialValues={initialValues} layout="vertical">
-              {( filterConfigs && filterConfigs.length > 0) &&
+              {(filterConfigs && filterConfigs.length > 0) &&
                 <div style={{ marginBottom: 20 }}>
-                  {filterConfigs?.map((e, index)=>{
+                  {filterConfigs?.map((e, index) => {
                     return (
-                      <UserCustomFilterTag 
-                        key={index} 
-                        tagId={e.id} 
-                        name={e.name} 
-                        onSelectFilterConfig={ (tagId) =>{
+                      <UserCustomFilterTag
+                        key={index}
+                        tagId={e.id}
+                        name={e.name}
+                        onSelectFilterConfig={(tagId) => {
                           onSelectFilterConfig(tagId)
-                        }} 
-                        setConfigId={setConfigId} 
-                        setIsShowConfirmDelete={setIsShowConfirmDelete} 
+                        }}
+                        setConfigId={setConfigId}
+                        setIsShowConfirmDelete={setIsShowConfirmDelete}
                         tagActive={tagActive} />
                     )
                   })}
@@ -1894,7 +1938,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     formRef={formRef}
                   />
                 </Col>
-                
+
                 <Col span={8} xxl={8}>
                   <Item name="fulfillment_status" label="Trạng thái giao hàng">
                     <CustomSelect
@@ -1953,7 +1997,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     />
                   </Item>
                 </Col>
-                
+
                 <Col span={8} xxl={8}>
                   <Item name="shipper_codes" label="Đối tác giao hàng">
                     <CustomSelect
@@ -1981,7 +2025,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     <Input placeholder="Tìm kiếm theo mã tham chiếu" />
                   </Item>
                 </Col>
-                
+
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Tổng tiền</label>
@@ -2013,7 +2057,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     </Item>
                   </div>
                 </Col>
-                
+
                 <Col span={8} xxl={8}>
                   <Item label="Đơn tự giao hàng">
                     <div className="button-option-1">
@@ -2028,7 +2072,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     </div>
                   </Item>
                 </Col>
-                
+
                 <Col span={8} xxl={8}>
                   <Item name="channel_codes" label="Kênh bán hàng">
                     <CustomSelect
@@ -2064,14 +2108,28 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     />
                   </Item>
                 </Col>
+                <Col span={8} xxl={8}>
+                  <Item name="discount_code" label="Mã giảm giá">
+                    <Input placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)" style={{ width: "100%" }} />
+                    {/* <CustomSelect
+                      mode="tags"
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      allowClear
+                      placeholder="Điền 1 hoặc nhiều tag"
+                      style={{ width: "100%" }}
+                    /> */}
+                  </Item>
+                </Col>
               </Row>
             </Form>
           )}
         </BaseFilter>
 
-        <FilterConfigModal 
-          setVisible={setIsShowModalSaveFilter} 
-          visible={isShowModalSaveFilter} 
+        <FilterConfigModal
+          setVisible={setIsShowModalSaveFilter}
+          visible={isShowModalSaveFilter}
           onOk={(formValues) => {
             setIsShowModalSaveFilter(false);
             onSaveFilter(formValues)

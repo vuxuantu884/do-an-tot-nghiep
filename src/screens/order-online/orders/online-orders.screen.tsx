@@ -93,6 +93,7 @@ function OrdersScreen(props: PropTypes) {
       channel_codes: initChannelCodes,
       tracking_codes: [],
       searched_product: "",
+      discount_code:[],
     };
   }, [initChannelCodes]);
 
