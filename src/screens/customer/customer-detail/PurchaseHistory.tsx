@@ -18,7 +18,6 @@ import {
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
-  PoPaymentStatus,
   POS,
   ShipmentMethod,
 } from "utils/Constants";
@@ -46,7 +45,7 @@ import queryString from "query-string";
 import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
 import _ from "lodash";
 import {RootReducerType} from "../../../model/reducers/RootReducerType";
-import { PAYMENT_METHOD_ENUM } from "utils/Order.constants";
+import {ORDER_PAYMENT_STATUS, PAYMENT_METHOD_ENUM} from "utils/Order.constants";
 
 
 const PAYMENT_ICON = [
@@ -739,96 +738,89 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         className: "orderStatus",
         visible: true,
         align: "left",
-        width: 120,
+        width: 140,
         render: (record: any) => {
-          if (!record || !status_order) {
+          if (!record) {
             return null;
           }
-          const status = status_order.find((status) => status.value === record.status);
+          const status = status_order?.find((status) => status.value === record.status);
 
+          // handle returned order
           const received = {
             text: record.received ? "Đã nhận" : "Chưa nhận",
             color: record.received ? "#27AE60" : "#E24343",
           };
 
-          const payment_status = {
-            text: record.payment_status === PoPaymentStatus.PAID ? "Đã hoàn" : "Chưa hoàn",
-            color: record.payment_status === PoPaymentStatus.PAID ? "#27AE60" : "#E24343",
+          const paymentStatus = {
+            text: "",
+            color: "",
           };
+          switch (record.payment_status) {
+            case ORDER_PAYMENT_STATUS.unpaid:
+              paymentStatus.text = "Chưa hoàn"
+              paymentStatus.color = "#E24343"
+              break;
+            case ORDER_PAYMENT_STATUS.paid:
+              paymentStatus.text = "Đã hoàn"
+              paymentStatus.color = "#27AE60"
+              break;
+            case ORDER_PAYMENT_STATUS.partial_paid:
+              paymentStatus.text = "Hoàn 1 phần"
+              paymentStatus.color = "#FCAF17"
+              break;
+            default:
+              break;
+          }
 
           return (
             <>
+              {/*Đơn hàng*/}
               {!record.code_order_return &&
                 <div className="orderStatus">
                   <div className="inner">
                     <div className="single">
-                      <div>
-                        <strong>Xử lý đơn: </strong>
-                      </div>
+                      <div><strong>Xử lý đơn: </strong></div>
                       {record.sub_status ? record.sub_status : "-"}
                     </div>
 
                     <div className="single">
-                      <div>
-                        <strong>Đơn hàng: </strong>
-                      </div>
+                      <div><strong>Đơn hàng: </strong></div>
                       {record.status === OrderStatus.DRAFT && (
-                        <div
-                          style={{
-                            color: "#737373",
-                          }}>
-                          {status?.name}
-                        </div>
+                        <div style={{ color: "#737373" }}>{status?.name}</div>
                       )}
 
                       {record.status === OrderStatus.FINALIZED && (
-                        <div
-                          style={{
-                            color: "#FCAF17",
-                          }}>
-                          {status?.name}
-                        </div>
+                        <div style={{ color: "#FCAF17" }}>{status?.name}</div>
                       )}
 
                       {record.status === OrderStatus.FINISHED && (
-                        <div
-                          style={{
-                            color: "#27AE60",
-                          }}>
-                          {status?.name}
-                        </div>
+                        <div style={{ color: "#27AE60" }}>{status?.name}</div>
                       )}
 
                       {record.status === OrderStatus.CANCELLED && (
-                        <div
-                          style={{
-                            color: "#E24343",
-                          }}>
-                          {status?.name}
-                        </div>
+                        <div style={{ color: "#E24343" }}>{status?.name}</div>
                       )}
                     </div>
                   </div>
                 </div>
               }
 
+              {/*Đơn trả*/}
               {record.code_order_return &&
                 <div style={{ paddingLeft: 10 }}>
                   <div>
                     <div>
                       <strong>Hàng: </strong>
-                      <span style={{ color: `${received.color}` }}>{received.text}</span>
+                      <span style={{ color: received.color }}>{received.text}</span>
                     </div>
                     <div style={{ fontSize: "12px", color: "#666666" }}>
-                      {record.receive_date
-                        ? moment(record.receive_date).format(DATE_FORMAT.HHmm_DDMMYYYY)
-                        : ""}
+                      {record.receive_date ? moment(record.receive_date).format(DATE_FORMAT.HHmm_DDMMYYYY) : ""}
                     </div>
                   </div>
 
                   <div>
                     <strong>Tiền: </strong>
-                    <span style={{ color: `${payment_status.color}` }}>{payment_status.text}</span>
+                    <span style={{ color: paymentStatus.color }}>{paymentStatus.text}</span>
                   </div>
                 </div>
               }
