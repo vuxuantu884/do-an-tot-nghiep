@@ -48,7 +48,7 @@ export const StyledComponent = styled.div`
 
               .ant-form.ant-form-inline {
                 position: relative;
-                padding-right: 225px;
+                padding-right: 295px;
                 display: block;
                 .buttonGroup {
                   position: absolute;
