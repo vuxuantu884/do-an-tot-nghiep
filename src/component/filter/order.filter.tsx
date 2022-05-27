@@ -1,12 +1,10 @@
 import {
   ArrowLeftOutlined,
-  FilterOutlined,
-  LoadingOutlined, SettingOutlined,
+  FilterOutlined, SettingOutlined,
   SwapRightOutlined
 } from "@ant-design/icons";
-import { AutoComplete, Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { RefSelectProps } from "antd/lib/select";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
@@ -16,20 +14,16 @@ import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import SearchedVariant from "component/order/SearchedVariant";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
-import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
 import { isEqual } from "lodash";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -47,10 +41,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountApi } from "service/accounts/account.service";
-import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { ORDER_TYPES } from "utils/Order.constants";
-import { showError } from "utils/ToastUtils";
 import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
@@ -92,11 +84,11 @@ const { Item } = Form;
 const isShortenFilterTag = true;
 const numberTagShorten = 2;
 
-const initQueryVariant: VariantSearchQuery = {
-	limit: 10,
-	page: 1,
-	saleable: true,
-};
+// const initQueryVariant: VariantSearchQuery = {
+// 	limit: 10,
+// 	page: 1,
+// 	saleable: true,
+// };
 
 // async function searchVariants(input: any) {
 //   try {
@@ -167,58 +159,58 @@ const status = bootstrapReducer.data?.order_main_status.filter(
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
   console.log('keySearchVariant', keySearchVariant)
-    const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
-		metadata: {
-			limit: 0,
-			page: 1,
-			total: 0,
-		},
-		items: [],
-	});
-  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+  //   const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
+	// 	metadata: {
+	// 		limit: 0,
+	// 		page: 1,
+	// 		total: 0,
+	// 	},
+	// 	items: [],
+	// });
+  // const [isSearchingProducts, setIsSearchingProducts] = useState(false);
 
-  const autoCompleteRef = createRef<RefSelectProps>();
+  // const autoCompleteRef = createRef<RefSelectProps>();
 
-  const handleSearchProduct = useCallback((value: string) => {
-    if (value.trim()) {
-      (async () => {
-        try {
-          await dispatch(
-            searchVariantsOrderRequestAction(initQueryVariant, (data) => {
-              setResultSearchVariant(data);
-              setIsSearchingProducts(false);
-              if (data.items.length === 0) {
-                showError("Không tìm thấy sản phẩm!")
-              }
-            }, () => {
-              setIsSearchingProducts(false);
-            })
-          );
-        } catch {
-          setIsSearchingProducts(false);
-        }
-      })();
-    } else {
-      setIsSearchingProducts(false);
-    }
-  }, [dispatch]);
+  // const handleSearchProduct = useCallback((value: string) => {
+  //   if (value.trim()) {
+  //     (async () => {
+  //       try {
+  //         await dispatch(
+  //           searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+  //             setResultSearchVariant(data);
+  //             setIsSearchingProducts(false);
+  //             if (data.items.length === 0) {
+  //               showError("Không tìm thấy sản phẩm!")
+  //             }
+  //           }, () => {
+  //             setIsSearchingProducts(false);
+  //           })
+  //         );
+  //       } catch {
+  //         setIsSearchingProducts(false);
+  //       }
+  //     })();
+  //   } else {
+  //     setIsSearchingProducts(false);
+  //   }
+  // }, [dispatch]);
 
-  const onChangeProductSearch = useCallback(
-		async (value: string) => {
-			setKeySearchVariant(value);
+  // const onChangeProductSearch = useCallback(
+	// 	async (value: string) => {
+	// 		setKeySearchVariant(value);
 
-			initQueryVariant.info = value;
-			if (value.length >= 3) {
-				setIsSearchingProducts(true);
-			} else {
-				setIsSearchingProducts(false);
-			}
-			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
-				handleSearchProduct(value)
-			);
-		},
-		[autoCompleteRef, handleSearchProduct]
-	);
+	// 		initQueryVariant.info = value;
+	// 		if (value.length >= 3) {
+	// 			setIsSearchingProducts(true);
+	// 		} else {
+	// 			setIsSearchingProducts(false);
+	// 		}
+	// 		handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+	// 			handleSearchProduct(value)
+	// 		);
+	// 	},
+	// 	[autoCompleteRef, handleSearchProduct]
+	// );
 
   const fulfillmentStatus = useMemo(
     () => [
@@ -1379,6 +1371,8 @@ const status = bootstrapReducer.data?.order_main_status.filter(
   useEffect(() => {
     if(params?.searched_product) {
       setKeySearchVariant(params?.searched_product);
+    } else {
+      setKeySearchVariant("");
     }
   }, [params?.searched_product])
 
@@ -1413,31 +1407,31 @@ const status = bootstrapReducer.data?.order_main_status.filter(
     setIsShowConfirmDelete(false)
   };
 
-  const convertResultSearchVariant = useMemo(() => {
-		let options: any[] = [];
-		resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
-			options.push({
-				// label: renderSearchVariant(item),
-				label: <SearchedVariant item={item} />,
-				value: item.name ? item.name.toString() : "",
-			});
-		});
-		return options;
-	}, [resultSearchVariant]);
+//   const convertResultSearchVariant = useMemo(() => {
+// 		let options: any[] = [];
+// 		resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+// 			options.push({
+// 				// label: renderSearchVariant(item),
+// 				label: <SearchedVariant item={item} />,
+// 				value: item.name ? item.name.toString() : "",
+// 			});
+// 		});
+// 		return options;
+// 	}, [resultSearchVariant]);
 
-  const onSearchVariantSelect = useCallback(
-    (v, variant) => {
-      console.log('v', v)
-      console.log('variant', variant)
-      setKeySearchVariant(variant.value)
-      autoCompleteRef.current?.blur();
-      setResultSearchVariant({
-        ...resultSearchVariant,
-        items: []
-      })
-   },
-   [autoCompleteRef, resultSearchVariant]
- );
+//   const onSearchVariantSelect = useCallback(
+//     (v, variant) => {
+//       console.log('v', v)
+//       console.log('variant', variant)
+//       setKeySearchVariant(variant.value)
+//       autoCompleteRef.current?.blur();
+//       setResultSearchVariant({
+//         ...resultSearchVariant,
+//         items: []
+//       })
+//    },
+//    [autoCompleteRef, resultSearchVariant]
+//  );
 
   return (
     <StyledComponent>
@@ -1536,7 +1530,7 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     </Item>
                   )} */}
                   {/* không để trong form item vì mỗi lần thay đổi sẽ render lại */}
-                  <AutoComplete
+                  {/* <AutoComplete
                     notFoundContent={
                       keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
                     }
@@ -1553,19 +1547,21 @@ const status = bootstrapReducer.data?.order_main_status.filter(
                     maxLength={255}
                     defaultActiveFirstOption
                   >
-                    <Input
-                      size="middle"
-                      className="yody-search"
-                      placeholder="Tìm sản phẩm"
-                      prefix={
-                        isSearchingProducts ? (
-                          <LoadingOutlined style={{ color: "#2a2a86" }} />
-                        ) : (
-                          <img alt="" src={search} />
-                        )
-                      }
-                    />
-                  </AutoComplete>
+                  </AutoComplete> */}
+                  <Input
+                    size="middle"
+                    className="yody-search"
+                    placeholder="Tìm sản phẩm"
+                    value={keySearchVariant}
+                    onChange={(e) =>setKeySearchVariant(e.target.value)}
+                    // prefix={
+                    //   isSearchingProducts ? (
+                    //     <LoadingOutlined style={{ color: "#2a2a86" }} />
+                    //   ) : (
+                    //     <img alt="" src={search} />
+                    //   )
+                    // }
+                  />
                 </Col>
               </Row>
             </div>
