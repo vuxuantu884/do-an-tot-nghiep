@@ -10,7 +10,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo thời gian",
-    query: `SHOW orders, return_count, net_quantity, gross_sales, returns, discounts, ordered_point_payments, total_sales  
+    query: `SHOW orders, return_count, net_quantity, gross_sales, discounts, ordered_point_payments, returns, total_sales  
     OVER day 
     FROM offline_sales 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
