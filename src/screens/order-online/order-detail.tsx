@@ -274,19 +274,19 @@ const OrderDetail = (props: PropType) => {
           OrderDetail.fulfillments.length > 0
         ) {
           const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-          if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED || sortedFulfillments[0].status === FulFillmentStatus.CANCELLED) {
+          if (sortedFulfillments[0]?.status === FulFillmentStatus.UNSHIPPED || sortedFulfillments[0]?.status === FulFillmentStatus.CANCELLED) {
             return OrderStatus.FINALIZED;
           }
-          if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
+          if (sortedFulfillments[0]?.status === FulFillmentStatus.PICKED) {
             return FulFillmentStatus.PICKED;
           }
-          if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
+          if (sortedFulfillments[0]?.status === FulFillmentStatus.PACKED) {
             return FulFillmentStatus.PACKED;
           }
-          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
+          if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING) {
             return FulFillmentStatus.SHIPPING;
           }
-          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
+          if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED) {
             return FulFillmentStatus.SHIPPED;
           }
         }
@@ -557,14 +557,14 @@ const OrderDetail = (props: PropType) => {
     }
     
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-    const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
-    const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
+    const trackingCode =  sortedFulfillments[0]?.shipment?.tracking_code;
+    const pushingStatus =  sortedFulfillments[0]?.shipment?.pushing_status;
     let getTrackingCode = setInterval(()=> {
       if (numberReloadGetTrackingCodeGHTK < maxNumberReloadGetTrackingCodeGHTK && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
         getOrderDetail(id).then(response => {
           numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
           const sortedFulfillments = sortFulfillments(response.data?.fulfillments);
-          if (sortedFulfillments && sortedFulfillments[0].shipment?.tracking_code) {
+          if (sortedFulfillments && sortedFulfillments[0]?.shipment?.tracking_code) {
             onGetDetailSuccess(response.data);
             isRequest = false;
             showSuccess("Lấy mã vận đơn thành công!")
