@@ -3,6 +3,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
+import { showError } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -10,6 +11,8 @@ type PropTypes = {
   isShowButtonReturnMoney: boolean;
   listPaymentMethods: PaymentMethodResponse[];
   handleReturnMoney: () => void;
+  setReturnPaymentMethodCode: (value: string) => void;
+  returnPaymentMethodCode: string;
 };
 
 /**
@@ -20,23 +23,29 @@ function ReturnMoneySelect(props: PropTypes) {
   /**
    * payment method bỏ tiêu điểm và qr pay
    */
-  const exceptMethods = [
+   const exceptMethods = [
     PaymentMethodCode.QR_CODE,
     PaymentMethodCode.POINT,
   ];
 
   const {
-    // totalAmountCustomerNeedToPay,
+    totalAmountCustomerNeedToPay,
     isShowButtonReturnMoney,
     listPaymentMethods,
     handleReturnMoney,
+    // setReturnPaymentMethodCode,
+    returnPaymentMethodCode,
   } = props;
 
-  console.log('listPaymentMethods', listPaymentMethods)
-
+  console.log('returnPaymentMethodCode', returnPaymentMethodCode)
+  if(!(listPaymentMethods.length > 0)) {
+    return null;
+  }
+  
   let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
     return !exceptMethods.includes(single.code);
   });
+  console.log('listPaymentMethodsResult', listPaymentMethodsResult)
 
   // const [initialReturnAmount, setInitialReturnAmount] = useState(0)
 
@@ -44,7 +53,7 @@ function ReturnMoneySelect(props: PropTypes) {
 
   // useEffect(() => {
   //   let result = totalAmountCustomerNeedToPay < 0
-  //   ? (Math.ceil(Math.abs(totalAmountCustomerNeedToPay)))
+  //   ? (Math.round(Math.abs(totalAmountCustomerNeedToPay)))
   //   : 0
   //   setInitialReturnAmount(result)
 
@@ -54,97 +63,100 @@ function ReturnMoneySelect(props: PropTypes) {
   return (
     <StyledComponent>
       <div className="returnMoney 2">
-        <Form.List name="returnMoneyField">
-          {(fields, { add, remove }) => {
-            return (
-              <div>
-                {fields.map((field, index) => (
-                  <div key={field.key}>
-                    <Row gutter={30}>
-                      <Col span={12}>
-                        <Form.Item
-                          label="Phương thức thanh toán"
-                          name={[index, "returnMoneyMethod"]}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Vui lòng chọn phương thức thanh toán!",
-                            },
-                          ]}
-                        >
-                          <Select
-                            style={{ width: "100%" }}
-                            placeholder="Chọn hình thức thanh toán"
-                            notFoundContent="Không tìm thấy hình thức thanh toán"
-                          >
-                            {listPaymentMethodsResult &&
-                              listPaymentMethodsResult.map((single) => {
-                                return (
-                                  <Select.Option value={single.code} key={single.code}>
-                                    {single.name}
-                                  </Select.Option>
-                                );
-                              })}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          label="Số tiền"
-                          name={[index, "returnMoneyAmount"]}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Vui lòng nhập số tiền!",
-                            },
-                          ]}
-                        >
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            style={{
-                              textAlign: "right",
-                              width: "100%",
-                              fontWeight: 500,
-                              color: "#222222",
-                            }}
-                            maxLength={14}
-                            minLength={0}
-                            // value={initialReturnAmount}
-                            // onChange={(value) => {
-                            //   // setInitialReturnAmount(value || 0);
-                            // }}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          label="Nội dung"
-                          name={[index, "returnMoneyNote"]}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <Input placeholder="Nội dung" />
-                        </Form.Item>
-                      </Col>
-                      {isShowButtonReturnMoney && (
+        {listPaymentMethods.length > 0 && (
+          <Form.List name="returnMoneyField">
+            {(fields, { add, remove }) => {
+              return (
+                <div>
+                  {fields.map((field, index) => (
+                    <div key={field.key}>
+                      <Row gutter={30}>
                         <Col span={12}>
-                          <Button
-                            className="btnReturnMoney"
-                            onClick={() => {
-                              handleReturnMoney();
-                            }}
+                          <Form.Item
+                            label="Phương thức thanh toán"
+                            name={[index, "returnMoneyMethod"]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng chọn phương thức thanh toán!",
+                              },
+                            ]}
                           >
-                            Xác nhận hoàn tiền
-                          </Button>
+                            <Select
+                              style={{ width: "100%" }}
+                              placeholder="Chọn hình thức thanh toán"
+                              notFoundContent="Không tìm thấy hình thức thanh toán"
+                              // value= {returnPaymentMethodCode}
+                              // onChange={setReturnPaymentMethodCode}
+                            >
+                              {listPaymentMethodsResult &&
+                                listPaymentMethodsResult.map((single) => {
+                                  return (
+                                    <Select.Option value={single.code} key={single.code}>
+                                      {single.name}
+                                    </Select.Option>
+                                  );
+                                })}
+                            </Select>
+                          </Form.Item>
                         </Col>
-                      )}
-                    </Row>
-                  </div>
-                ))}
-              </div>
-            );
-          }}
-        </Form.List>
+                        <Col span={12}>
+                          <Form.Item
+                            label="Số tiền"
+                            name={[index, "returnMoneyAmount"]}
+                          >
+                            <NumberInput
+                              format={(a: string) => formatCurrency(a)}
+                              replace={(a: string) => replaceFormatString(a)}
+                              style={{
+                                textAlign: "right",
+                                width: "100%",
+                                fontWeight: 500,
+                                color: "#222222",
+                              }}
+                              maxLength={14}
+                              minLength={0}
+                              max={Math.abs(totalAmountCustomerNeedToPay)}
+                              // value={initialReturnAmount}
+                              onChange={(value) => {
+                                if(value &&value > Math.abs(totalAmountCustomerNeedToPay)) {
+                                  showError("Không nhập quá số tiền trả khách")
+                                }
+                                // setInitialReturnAmount(value || 0);
+                              }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item
+                            label="Nội dung"
+                            name={[index, "returnMoneyNote"]}
+                            style={{ marginBottom: 0 }}
+                          >
+                            <Input placeholder="Nội dung" />
+                          </Form.Item>
+                        </Col>
+                        {isShowButtonReturnMoney && (
+                          <Col span={12}>
+                            <Button
+                              className="btnReturnMoney"
+                              onClick={() => {
+                                handleReturnMoney();
+                              }}
+                            >
+                              Xác nhận hoàn tiền
+                            </Button>
+                          </Col>
+                        )}
+                      </Row>
+                    </div>
+                  ))}
+                </div>
+              );
+            }}
+          </Form.List>
+
+        )}
       </div>
     </StyledComponent>
   );

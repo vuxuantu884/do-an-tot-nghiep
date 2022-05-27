@@ -7,7 +7,7 @@ import { PODataSourceGrid, PODataSourceVariantItemGrid, POLineItemColor, POLineI
 import React, { createRef, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
-import { getTotalPriceOfAllLineItem, initSchemaLineItem, initValueLineItem } from "utils/POUtils";
+import { getTotalPriceOfAllLineItem, initSchemaLineItem, initValueLineItem, summaryContentByLineItemType } from "utils/POUtils";
 import { sortSizeProduct } from "utils/ProductUtils";
 import { showError } from "utils/ToastUtils";
 import BaseButton from "../../../../component/base/BaseButton";
@@ -35,7 +35,6 @@ type POProductFormProps = {
   formMain: FormInstance;
 };
 const POProductForm = ({
-
   formMain,
   isEditMode,
 }: POProductFormProps) => {
@@ -110,7 +109,8 @@ const POProductForm = ({
           */
           procurements.forEach((procurement: any, index: number) => {
             procurement.procurement_items = data.variants.map((variant) => {
-              return { sku: variant.sku, quantity: 0, size: variant.size, id: variant.id };
+              const retailPrice = variant.variant_prices.length > 0 ? variant.variant_prices[0]?.retail_price : null;
+              return { sku: variant.sku, quantity: 0, size: variant.size, variant_id: variant.id, retail_price: retailPrice };
             });
           });
 
@@ -551,14 +551,14 @@ const POProductForm = ({
                 <Col span={14} />
                 <Col span={10}>
                   <div className="po-payment-row">
-                    <div>Tổng tiền</div>
+                    <div>Tổng tiền:</div>
                     <div className="po-payment-row-result">
                       {formatCurrency(Math.round(amount))}
                     </div>
                   </div>
                   <div className="po-payment-row">
                     <div style={{ display: "flex", alignItems: "center" }}>
-                      <span>VAT</span>
+                      <span >VAT</span>
                       {(
                         isEditMode ? <NumberInput
                           value={taxRate}
@@ -570,7 +570,7 @@ const POProductForm = ({
                           onChange={(value: number | null) => {
                             setTaxRate(value || 0);
                           }}
-                        /> : `(${taxRate})%`
+                        /> : <span className="po-payment-row-error">{`(${taxRate})%`}:</span>
                       )}
                     </div>
                     <div className="po-payment-row-result">
@@ -579,7 +579,7 @@ const POProductForm = ({
                   </div>
                   <Divider />
                   <div className="po-payment-row">
-                    <strong className="po-payment-row-title">Tiền cần trả</strong>
+                    <strong className="po-payment-row-title">{summaryContentByLineItemType(formMain)}:</strong>
                     <strong className="po-payment-row-success">
                       {formatCurrency(
                         amount + (amount * taxRate) / 100

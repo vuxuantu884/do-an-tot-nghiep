@@ -17,7 +17,7 @@ import {
   InventoryResponse,
   InventoryVariantListQuery,
 } from "model/inventory";
-import { InventoryColumnField, InventoryExportField } from "model/inventory/field";
+import { InventoryColumnField } from "model/inventory/field";
 import { FilterConfig, FilterConfigRequest } from "model/other";
 import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -34,11 +34,6 @@ import AllInventoryFilter from "../filter/all.filter";
 import "./index.scss"
 import InventoryExport from "../component/InventoryExport";
 import { TYPE_EXPORT } from "screens/products/constants";
-import * as XLSX from 'xlsx';
-import moment from "moment";
-import { callApiNative } from "utils/ApiUtils";
-import { searchVariantsInventoriesApi } from "service/product/product.service";
-import FileSaver from "file-saver";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import InventoryExportModal from "../component/InventoryExportV2";
 
@@ -54,7 +49,6 @@ type ConfigColumnInventory = {
   ColumnDrill: Array<ICustomTableColumType<InventoryResponse>>
 }
 
-let firstLoad = true;
 export interface SummaryInventory {
   Sum_Total: number | 0;
   Sum_On_hand: number | 0;
@@ -73,7 +67,6 @@ const AllTab: React.FC<any> = (props) => {
   const history = useHistory();
   const pageSizeOptions: Array<string> =["50","100"];
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
-  const [totalItems, setTotalItems] = useState<number>(0);
 
   const query = useQuery();
 
@@ -103,6 +96,7 @@ const AllTab: React.FC<any> = (props) => {
   const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
@@ -508,10 +502,6 @@ const AllTab: React.FC<any> = (props) => {
       setInventiryVariant(new Map());
       setData(result);
       setExpandRow([]);
-      if (firstLoad) {
-        setTotalItems(result.metadata.total);
-      }
-      firstLoad = false;
     }
   }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
@@ -659,128 +649,61 @@ const AllTab: React.FC<any> = (props) => {
 
   }, [dispatch,account?.code, lstConfig]);
 
-  const convertItemExport = (item: InventoryResponse) => {
-      const objPrice = Products.findPrice(item.variant_prices, AppConfig.currency);
-      const price = formatCurrency(objPrice ? objPrice.retail_price : 0);
-
-    return {
-      [InventoryExportField[InventoryColumnField.sku]]: item.sku,
-      [InventoryExportField[InventoryColumnField.variant_name]]: item.name,
-      [InventoryExportField[InventoryColumnField.barcode]]: item.barcode,
-      [InventoryExportField[InventoryColumnField.variant_prices]]: price,
-      [InventoryExportField[InventoryColumnField.total_stock]]: item.total_stock ? item.total_stock : null,
-      [InventoryExportField[InventoryColumnField.on_hand]]: item.on_hand ? item.on_hand : null,
-      [InventoryExportField[InventoryColumnField.available]]: item.available ? item.available : null,
-      [InventoryExportField[InventoryColumnField.committed]]: item.committed ? item.committed : null,
-      [InventoryExportField[InventoryColumnField.on_hold]]: item.on_hold ? item.on_hold : null,
-      [InventoryExportField[InventoryColumnField.defect]]: item.defect ? item.defect : null,
-      [InventoryExportField[InventoryColumnField.in_coming]]: item.in_coming ? item.in_coming : null,
-      [InventoryExportField[InventoryColumnField.transferring]]: item.transferring ? item.transferring : null,
-      [InventoryExportField[InventoryColumnField.on_way]]: item.on_way ? item.on_way : null,
-      [InventoryExportField[InventoryColumnField.shipping]]: item.shipping ? item.shipping : null,
-    };
-  }
-
-  const getItemsByCondition = useCallback(async (type: string) => {
-    let res: any; 
-    let items: Array<InventoryResponse> = [];
-    const limit = 200;
-    let times = 0;
-    setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+  const getConditions = useCallback((type: string) => {
+    let conditions = {};
     switch (type) {
-      case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsInventoriesApi, {...params,limit: params.limit ?? 200});
-        if (res) {
-          items= items.concat(res.items);
-        }
-        break;
       case TYPE_EXPORT.selected:
-        items = selected;
+        let variant_ids = selected.map(e=>e.id).toString();
+        const store_ids =  params.store_ids;  
+
+        conditions = {store_ids: store_ids,
+          variant_ids:variant_ids};
+          
+        break;
+      case TYPE_EXPORT.page:
+        conditions = {...params,
+          limit: params.limit,
+          page: 1};
         break;
       case TYPE_EXPORT.all:
-       const roundAll = Math.round(data.metadata.total / limit);
-       times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
-
-        for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport"); 
-          if (output) output.innerHTML=items.length.toString();
-          
-          const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
-          if (res) {
-            items= items.concat(res.items);
-          }
-          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
-          setExportProgressDetail(percent);
-        }
-        
-        break;
-      case TYPE_EXPORT.allin:
-        if (!totalItems || totalItems===0) {
-          break;
-        }
-        const roundAllin = Math.round(totalItems / limit);
-        times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
-        for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport"); 
-          if (output) output.innerHTML=items.length.toString();
-          
-           const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsInventoriesApi, {...params,page: index,limit:limit});
-           if (res) {
-            items= items.concat(res.items);
-          }
-          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
-          setExportProgressDetail(percent);
-        }
-        break;
-      default:
+        conditions = {...params
+          ,page:undefined
+          ,limit:undefined};
         break;
     }
-    setExportProgressDetail(100);
-    return items;
-  },[dispatch,selected,params,data,totalItems])
+    return conditions;
+  },[params,selected])
 
   const actionExport = {
     Ok: async (typeExport: string) => {
-      setStatusExportDetail(STATUS_IMPORT_EXPORT.DEFAULT);
-      let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
         setStatusExportDetail(0);
         showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
         setVExportInventory(false);
         return;
       }
-
-      const res = await getItemsByCondition(typeExport);
-      if (res && res.length === 0) {
-        setStatusExportDetail(0);
-        showWarning("Không có sản phẩm nào đủ điều kiện");
-        return;
-      }
-      for (let i = 0; i < res.length; i++) {
-        const e = res[i];
-        const item = convertItemExport(e);
-        dataExport.push(item);
-      }
-      let worksheet = XLSX.utils.json_to_sheet(dataExport);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-      setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
-      const today = moment(new Date(), 'YYYY/MM/DD');
-
-      const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-      const month = today.format('M');
-      const day   = today.format('D');
-      const year  = today.format('YYYY');
-      //XLSX.writeFile(workbook, `inventory_${day}_${month}_${year}.xlsx`);
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const data = new Blob([excelBuffer], { type: fileType });
-      FileSaver.saveAs(data, `inventory_${day}_${month}_${year}.xlsx`);
-      setVExportInventory(false);
-      setExportProgressDetail(0);
-      setStatusExportDetail(0);
+      const conditions =  getConditions(typeExport);
+      
+      const queryParam = generateQuery({...conditions});
+      exportFileV2({
+        conditions: queryParam,
+        type: "TYPE_EXPORT_INVENTORY_DETAIL",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFileDetail([...listExportFile, response.data.code]);
+          }
+        })
+        .catch(() => {
+          setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
     },
     Cancel: () => {
       setVExportInventory(false);
+      setShowExportModal(false);
       setExportProgressDetail(0);
       setStatusExportDetail(0);
     },
@@ -847,6 +770,36 @@ const AllTab: React.FC<any> = (props) => {
     });
   }, [listExportFile]);
 
+  const checkExportFileDetail = useCallback(() => {
+    let getFilePromises = listExportFileDetail.map((code) => {
+      return getFileV2(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.total || response.data.total !== 0) {
+            const percent = Math.round(Number.parseFloat((response.data.num_of_record/response.data.total).toFixed(2))*100);
+            setExportProgressDetail(percent);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFileDetail.filter((item) => {
+              return item !== fileCode;
+            });
+            var downLoad = document.createElement("a");
+            downLoad.href = response.data.url;
+            downLoad.download = "download";
+
+            downLoad.click();
+            setListExportFileDetail(newListExportFile);
+            setExportProgressDetail(100);
+          }
+        }
+      });
+    });
+  }, [listExportFileDetail]);
+
   useEffect(() => {
     if (listExportFile.length === 0 || statusExport === 3) return;
     checkExportFile();
@@ -854,6 +807,14 @@ const AllTab: React.FC<any> = (props) => {
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
+
+  useEffect(() => {
+    if (listExportFileDetail.length === 0 || statusExportDetail === 3) return;
+    checkExportFileDetail();
+
+    const getFileInterval = setInterval(checkExportFileDetail, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFileDetail, checkExportFileDetail, statusExportDetail]);
 
   useEffect(()=>{
     getConfigColumnInventory();

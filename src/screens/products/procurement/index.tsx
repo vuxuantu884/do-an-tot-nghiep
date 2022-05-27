@@ -8,6 +8,7 @@ import { useHistory } from "react-router-dom";
 // import TabCurrent from "./tabs/TabCurrent";
 // import TabSevenDays from "./tabs/TabSevenDays";
 import TabList from "./tabs/TabList/index";
+import TabProducts from "./tabs/TabProducts/index"
 import TabLogs from "./tabs/TabLogs";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
@@ -100,6 +101,9 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
           </TabPane> */}
           <TabPane tab="Danh sách phiếu nhập kho" key={ProcurementTabUrl.ALL}>
             <TabList vExportDetailProcurement={vExportDetailProcurement} setVExportDetailProcurement={setVExportDetailProcurement}/>
+          </TabPane>
+          <TabPane tab="Danh sách sản phẩm nhập kho" key={ProcurementTabUrl.PRODUCTS}>
+            <TabProducts />
           </TabPane>
           <TabPane tab="Lịch sử phiếu nhập kho" key={ProcurementTabUrl.LOGS}>
             <TabLogs />

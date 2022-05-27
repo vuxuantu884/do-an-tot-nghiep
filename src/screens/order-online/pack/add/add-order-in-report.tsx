@@ -90,7 +90,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           if (receiptTypeId === 1) {
             return ffm.status === FulFillmentStatus.PACKED
           }
-          return ffm.status === FulFillmentStatus.CANCELLED && ffm.return_status === FulFillmentStatus.RETURNING
+          return ffm.status === FulFillmentStatus.SHIPPING && ffm.return_status === FulFillmentStatus.RETURNING
         });
 
         if (fulfillments.length > 0) {

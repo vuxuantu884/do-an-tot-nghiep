@@ -77,7 +77,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
   useEffect(() => {
     if(OrderDetail?.created_by) {
       searchAccountPublicApi({
-        condition: OrderDetail?.created_by,
+        codes: OrderDetail?.created_by,
         limit: undefined,
       })
         .then((response) => {

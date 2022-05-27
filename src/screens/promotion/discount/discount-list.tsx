@@ -6,10 +6,10 @@ import { MenuAction } from "component/table/ActionButton";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule } from "model/promotion/price-rules.model";
-import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
+import React, {Fragment, ReactNode, useCallback, useEffect, useMemo, useState} from "react";
 import { FiCheckCircle, RiDeleteBin2Fill } from "react-icons/all";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import {Link, useHistory, useLocation} from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import ContentContainer from "../../../component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "../../../component/table/CustomTable";
@@ -18,7 +18,7 @@ import { bulkDisablePriceRulesAction, bulkEnablePriceRulesAction, getListDiscoun
 import { PageResponse } from "../../../model/base/base-metadata.response";
 import { DiscountSearchQuery } from "../../../model/query/discount.query";
 import { showError, showSuccess } from "../../../utils/ToastUtils";
-import { getQueryParams, useQuery } from "../../../utils/useQuery";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
 import { ACTIONS_DISCOUNT, DISCOUNT_STATUS } from "../constants";
 import DatePromotionColumn from "../shared/date-column";
 import DiscountFilter from "./components/DiscountFilter";
@@ -27,6 +27,7 @@ import "./discount-style.ts";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { generateQuery } from "../../../utils/AppUtils";
+import queryString from "query-string";
 
 const DiscountPage = () => {
 
@@ -35,17 +36,27 @@ const DiscountPage = () => {
     page: 1,
     type: PROMO_TYPE.AUTOMATIC,
     request: "",
+    created_date: [],
     from_created_date: "",
     to_created_date: "",
     state: null,
+    query: "",
+    variant_id: null,
+    product_id: null,
     applied_shop: [],
-    applied_source: "",
-    customer_category: "",
-    discount_method: "",
+    applied_source: [],
+    customer_category: [],
+    discount_method: [],
+    status: [],
   };
+
   const dispatch = useDispatch();
-  const query = useQuery();
   const history = useHistory();
+  const location = useLocation()
+
+  const queryParamsParsed: any = queryString.parse(
+    location.search
+  );
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [discounts, setDiscounts] = useState<PageResponse<PriceRule>>({
@@ -56,11 +67,8 @@ const DiscountPage = () => {
     },
     items: [],
   });
-  let dataQuery: DiscountSearchQuery = {
-    ...initQuery,
-    ...getQueryParams(query),
-  };
-  const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
+  
+  const [params, setParams] = useState<DiscountSearchQuery>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   //phân quyền
@@ -69,15 +77,40 @@ const DiscountPage = () => {
   });
   const [allowUpdateDiscount] = useAuthorization({acceptPermissions:[PromoPermistion.UPDATE]})
 
-  useEffect(() => {
-    setTableLoading(true);
-    dispatch(getListDiscountAction(params, (result) => {
+  // handle get discount list
+  const getDiscountListCallback = useCallback(
+    (data: PageResponse<PriceRule> | null) => {
       setTableLoading(false);
-      if (result)
-        setDiscounts(result)
-    }));
+      if (data) {
+        setDiscounts(data);
+      }
+    },
+    []
+  );
+
+  const getDiscountList = useCallback(
+    (params) => {
+      window.scrollTo(0, 0);
+      setTableLoading(true);
+      dispatch(getListDiscountAction(params, getDiscountListCallback));
+    },
+    [dispatch, getDiscountListCallback]
+  );
+
+  useEffect(() => {
+    const dataQuery: any = {
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setParams(dataQuery);
+    getDiscountList(dataQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, location.search]);
+  // end handle get discount list
+  
+  useEffect(() => {
     dispatch(StoreGetListAction(setStore));
-  }, [dispatch, params]);
+  }, [dispatch]);
 
 
   const actionFilter: Array<MenuAction> = useMemo(() => {
@@ -239,14 +272,19 @@ const DiscountPage = () => {
 
   const onPageChange = (page: number, limit?: number) => {
     const newParams = { ...params, page, limit };
-    setParams(newParams);
-    let queryParam = generateQuery(newParams);
-    history.push(`${UrlConfig.PROMOTION}/discounts?${queryParam}`);
+    const queryParam = generateQuery(newParams);
+    history.push(`${location.pathname}?${queryParam}`);
   };
 
   const onFilter = (values: DiscountSearchQuery | Object) => {
-    let newParams = { ...params, ...values, page: 1 };
-    setParams({ ...newParams });
+    const newParams = { ...params, ...values, page: 1 };
+    const queryParam = generateQuery(newParams);
+    const currentParam = generateQuery(params);
+    if (currentParam === queryParam) {
+      getDiscountList(newParams);
+    } else {
+      history.push(`${location.pathname}?${queryParam}`);
+    }
   }
 
   const onMenuClick =
@@ -316,6 +354,7 @@ const DiscountPage = () => {
       >
         <DiscountFilter
           onMenuClick={onMenuClick}
+          initQuery={initQuery}
           params={params}
           actions={actionFilter}
           onFilter={onFilter}

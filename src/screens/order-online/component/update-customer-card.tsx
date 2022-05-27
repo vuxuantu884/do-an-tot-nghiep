@@ -67,17 +67,37 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         </div>
       }
       extra={
-        <div className="d-flex align-items-center form-group-with-search">
+        <div className="d-flex align-items-center form-group-with-search" style={{flexDirection: "row"}}>
           <span
             style={{
               float: "left",
               lineHeight: "40px",
             }}
           >
-            <span style={{ marginRight: "10px" }}>Nguồn:</span>
+            <span style={{ marginRight: "5px" }}>Nguồn:</span>
             <span className="text-error">
               <span style={{ color: "red" }}>
                 {renderOrderSourceName()}
+              </span>
+            </span>
+          </span>
+          <span 
+            style={{
+              float: "left",
+              lineHeight: "40px",
+              margin: "0 10px"
+            }}
+          > - </span>
+          <span
+            style={{
+              float: "left",
+              lineHeight: "40px",
+            }}
+          >
+            <span style={{ marginRight: "5px" }}>Kênh:</span>
+            <span className="text-error">
+              <span style={{ color: "red" }}>
+                {props.OrderDetail?.channel}
               </span>
             </span>
           </span>

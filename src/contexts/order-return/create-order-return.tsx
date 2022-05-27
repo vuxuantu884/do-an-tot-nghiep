@@ -1,4 +1,5 @@
 import { StoreResponse } from "model/core/store.model";
+import { RefundModel } from "model/order/return.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
   OrderLineItemResponse,
@@ -15,8 +16,8 @@ type CreateOrderReturnContextType = {
     listReturnProducts: ReturnProductModel[];
     setListReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
     setTotalAmountReturnProducts: (value: number) => void;
-    moneyRefund: number;
-    setMoneyRefund: (value: number) => void;
+    refund: RefundModel;
+    setRefund: (value: RefundModel) => void;
     totalAmountReturnProducts: number;
     totalAmountExchange: number;
     totalAmountCustomerNeedToPay: number;
@@ -25,7 +26,6 @@ type CreateOrderReturnContextType = {
 		listExchangeProducts: OrderLineItemRequest[];
   };
   isExchange: boolean;
-  isStepExchange: boolean;
   listStoreReturn:StoreResponse[];
 };
 // tạo context

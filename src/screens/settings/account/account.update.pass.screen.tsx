@@ -93,7 +93,6 @@ const AccountUpdatePassScreen: React.FC = () => {
                   <Item name="password" label="Mật khẩu" hasFeedback rules={PASSWORD_RULES}>
                     <Input.Password
                       placeholder="Nhập mật khẩu"
-                      size="large"
                       allowClear
                       autoComplete="new-password"
                       iconRender={(visible) =>
@@ -126,6 +125,9 @@ const AccountUpdatePassScreen: React.FC = () => {
                       placeholder="Nhập lại mật khẩu"
                       allowClear
                       autoComplete="new-password"
+                      iconRender={(visible) =>
+                        visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                      }
                     />
                   </Item>
                 </Col>

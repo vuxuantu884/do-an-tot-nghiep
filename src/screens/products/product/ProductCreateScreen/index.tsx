@@ -767,6 +767,16 @@ const ProductCreateScreen: React.FC = () => {
     );
   }, [dispatch, setCollections]);
 
+  const onChangeImportPrice = useCallback((e:any)=>{
+    let variant_prices = form.getFieldValue("variant_prices");
+    if (!variant_prices) return
+    variant_prices[0].cost_price = e *1.08;
+    
+     form.setFieldsValue({
+        variant_prices: variant_prices,
+        });
+  },[form])
+
   useEffect(()=>{
     getCollections("",1);
   },[getCollections]);
@@ -1327,6 +1337,7 @@ const ProductCreateScreen: React.FC = () => {
                                     replaceFormatString(a)
                                   }
                                   placeholder="VD: 100,000"
+                                  onChange={onChangeImportPrice}
                                 />
                               </Item>
                             </Col>
@@ -1349,6 +1360,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  disabled={true}
                                   maxLength={15}
                                   format={(a: string) => formatCurrencyForProduct(a)}
                                   replace={(a: string) =>
