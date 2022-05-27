@@ -68,7 +68,8 @@ import {
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, successColor, yellowColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS } from "utils/Order.constants";
+import { isDeliveryOrder } from "utils/OrderUtils";
+// import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
@@ -128,7 +129,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		totalPaid = 0,
 		customerNeedToPayValue = 0,
 	} = props;
-
+	console.log("OrderDetail",OrderDetail)
 	const history = useHistory();
 	// node dom
 	const [form] = Form.useForm();
@@ -880,6 +881,42 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		return false
 	};
 
+	const isCancelDeliveryOrder = (
+		fulfillment?: FulFillmentResponse[] | null,
+		shipmentMethod: string = ShipmentMethod.EMPLOYEE
+	  ) => {
+		let fulfillments = fulfillment?.filter((p) => p.shipment);
+		if (!fulfillments) return true;
+	  
+		if (fulfillments.some((p) => p.status === FulFillmentStatus.UNSHIPPED))
+		  return true;
+		if (fulfillments.some((p) => p.status === FulFillmentStatus.PICKED))
+		  return true;
+		if (fulfillments.some((p) => p.status === FulFillmentStatus.PACKED))
+		  return true;
+		if (
+		  fulfillments.some(
+			(p) =>
+			  p.status === FulFillmentStatus.SHIPPING &&
+			  p.shipment?.delivery_service_provider_type === shipmentMethod &&
+			  p.return_status !== FulFillmentStatus.RETURNING
+		  )
+		)
+		  return true;
+		return false;
+	};
+
+	// const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
+	// 	if (!fulfillment) return false;
+	// 	let success= false;
+	// 	if(!fulfillment.some((p)=>p.status !== FulFillmentStatus.CANCELLED && p.return_status !== FulFillmentStatus.RETURNED && p?.shipment?.delivery_service_provider_type)) success = true;
+		
+	// 	if(fulfillment.some((p)=>p.status_before_cancellation===FulFillmentStatus.SHIPPING)) success=false;
+	// 	console.log("fulfillment",fulfillment)
+		
+	// 	return success;
+	// };
+
 	return (
 		<div>
 			<Card
@@ -1543,7 +1580,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 											<div
 												style={{
 													display: "flex",
-													justifyContent: "flex-end",
+													justifyContent: "flex-start",
 													padding: "14px 0 7px 0",
 												}}
 											>
@@ -1571,6 +1608,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 					style={{
 						display: "flex",
 						justifyContent: "flex-end",
+						padding:"0px 15px"
 					}}
 				>
 					{props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
@@ -1635,11 +1673,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 					) : (
 						<React.Fragment>
 							{checkIfOrderHasReturnedAll(OrderDetail) ? null :
-								props.OrderDetail?.fulfillments &&
-									props.OrderDetail?.fulfillments.length > 0 &&
-									props.OrderDetail?.fulfillments[0].shipment &&
-									props.OrderDetail?.fulfillments[0].shipment
-										.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE && !checkIfOrderHasReturnedAll(OrderDetail) ? (
+								isCancelDeliveryOrder(props?.OrderDetailAllFullfilment?.fulfillments, ShipmentMethod.PICK_AT_STORE) && !checkIfOrderHasReturnedAll(OrderDetail) ? (
 									<Button
 										onClick={cancelFullfilment}
 										loading={cancelShipment}
@@ -1654,9 +1688,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 										Hủy
 									</Button>
 								) : (
-									props.OrderDetail?.fulfillments &&
-									props.OrderDetail?.fulfillments.length > 0 &&
-									props.OrderDetail?.fulfillments[0].shipment && (
+									isCancelDeliveryOrder(props?.OrderDetailAllFullfilment?.fulfillments) && (
 										<Button
 											onClick={cancelFullfilment}
 											loading={cancelShipment}
@@ -1741,7 +1773,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 					{props.stepsStatusValue === FulFillmentStatus.SHIPPING && (
 						<Button
 							type="primary"
-							style={{ marginLeft: "10px" }}
+							style={{ marginLeft: "10px" , backgroundColor:"#FCAF17", borderColor:"#FCAF17" }}
 							className="create-button-custom ant-btn-outline fixed-button"
 							onClick={() => setIsvibleShippedConfirm(true)}
 							loading={updateShipment}
@@ -1769,15 +1801,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 						)}
 
 					{isVisibleShipping === false &&
-						props.OrderDetailAllFullfilment?.fulfillments &&
-						!props.OrderDetailAllFullfilment?.fulfillments.some(
-							(fulfillment) =>
-								fulfillment.status !== FulFillmentStatus.CANCELLED &&
-								fulfillment.status !== FulFillmentStatus.RETURNING &&
-								fulfillment.status !== FulFillmentStatus.RETURNED &&
-								fulfillment?.shipment?.delivery_service_provider_type
-						) && OrderDetail?.sub_status_code !== ORDER_SUB_STATUS.returned // đã hoàn thì ẩn giao hàng
-						&& (
+						isDeliveryOrder(props?.OrderDetailAllFullfilment?.fulfillments) && (
 							<Button
 								type="primary"
 								className="ant-btn-outline fixed-button text-right"
