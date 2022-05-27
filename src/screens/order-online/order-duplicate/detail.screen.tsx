@@ -134,7 +134,7 @@ const initQuery: DuplicateOrderDetailQuery = {
   marketer_codes: [],
   channel_codes:[],
   created_by: [],
-  discount_code:[],
+  discount_codes:[],
   marketing_campaign:[],
 };
 
