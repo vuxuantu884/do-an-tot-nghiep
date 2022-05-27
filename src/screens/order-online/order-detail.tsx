@@ -1,4 +1,4 @@
-import { Col, Form, Row } from "antd";
+import { Alert, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
@@ -337,6 +337,7 @@ const OrderDetail = (props: PropType) => {
       }
     }
   }, [form]);
+  
 
   const handleUpdateSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
@@ -853,6 +854,25 @@ const OrderDetail = (props: PropType) => {
                   isDetailPage
                 />
               )}
+              {OrderDetailAllFulfillment?.fulfillments?.some((p)=>(p.status===FulFillmentStatus.SHIPPING && p.return_status===FulFillmentStatus.RETURNING) 
+              || (p.status===FulFillmentStatus.CANCELLED && p.return_status===FulFillmentStatus.RETURNED && p.status_before_cancellation===FulFillmentStatus.SHIPPING)) && (
+              <Alert
+                message={
+                  <React.Fragment>
+                    <div style={{lineHeight:"10px",fontWeight:"500", fontSize:"15px"}}>
+                      <p>Lưu ý : Đối với đơn ở trạng thái đang hoàn</p>
+                      <ul style={{lineHeight:"18px"}}>
+                        <li>Nếu chọn nhận hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành Đã hoàn và cộng tồn đã hoàn cho các sản phẩm thuộc đơn hàng về kho</li>
+                        <li>Nếu chọn đã giao hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành công</li>
+                      </ul>
+                    </div>
+                  </React.Fragment>
+                }
+                type="warning"
+                closable
+              />
+              )}
+              
             </Col>
 
             <Col md={6}>
