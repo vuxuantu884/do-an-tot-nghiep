@@ -32,7 +32,7 @@ import {
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ProductResponse } from "../../model/product/product.model";
-import { combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, POUtils, validateLineItem } from "../../utils/POUtils";
+import { combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, POUtils, validateLineItemQuantity } from "../../utils/POUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import PoProductContainer from "./component/po-product-form-grid/po-product-container";
@@ -144,33 +144,24 @@ const POCreateScreen: React.FC = () => {
 
   const onFinish = (value: PurchaseOrder) => {
     try {
-      //TH chọn 1 mã 7
       value.is_grid_mode = isGridMode;
       if (isGridMode) {
-        const isValid = validateLineItem(poLineItemGridValue);
-        if (!isValid) {
-          throw new Error("");
+        if (poLineItemGridValue.length === 0) {
+          throw new Error("Vui lòng thêm sản phẩm");
         }
         value.line_items = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
-      }
-
-      if (Array.isArray(value.line_items) && value.line_items.length === 0) {
+      } else if (Array.isArray(value.line_items) && value.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
         const y =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
-        showError("Vui lòng thêm sản phẩm");
-        throw new Error("");
+        throw new Error("Vui lòng thêm sản phẩm");
       }
 
-      // validate giá nhập     
-      const isNotValidPrice = value.line_items.some(item => {
-        return !item.price
-      })
-      if (isNotValidPrice) {
-        showError("Vui lòng nhập giá nhập cho sản phẩm")
-        throw new Error("");
+      const atLeastOneItem = validateLineItemQuantity(value.line_items);
+      if (!atLeastOneItem) {
+        throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
 
       const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL)
@@ -189,28 +180,25 @@ const POCreateScreen: React.FC = () => {
         return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100)
       }, 0))
       const dataClone = { ...value, status: statusAction };
-      if (dataClone.procurements.length > 0) {
-        switch (dataClone.status) {
-          case POStatus.DRAFT:
-            setLoadingDraftButton(true);
-            break;
-          case POStatus.FINALIZED:
-            setLoadingSaveButton(true);
-            break;
-        }
 
-        dispatch(PoCreateAction(dataClone, createCallback));
-      } else {
-        showError("Vui lòng chọn đầy đủ ngày nhận");
-        throw new Error("Vui lòng nhập đầy đủ thông tin sản phẩm");
+      switch (dataClone.status) {
+        case POStatus.DRAFT:
+          setLoadingDraftButton(true);
+          break;
+        case POStatus.FINALIZED:
+          setLoadingSaveButton(true);
+          break;
       }
-    } catch (error) {
+
+      dispatch(PoCreateAction(dataClone, createCallback));
+
+    } catch (error: any) {
+      showError(error.message);
       setLoadingSaveButton(false);
       setLoadingDraftButton(false);
     } finally {
     }
   };
-
 
   const onFinishFailed = ({ errorFields }: any) => {
     setStatusAction("");

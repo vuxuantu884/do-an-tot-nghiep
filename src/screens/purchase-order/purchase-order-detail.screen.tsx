@@ -44,7 +44,7 @@ import { getPrintContent } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
-import { combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, POUtils, validateLineItem } from "utils/POUtils";
+import { combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, POUtils, validateLineItemQuantity } from "utils/POUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
@@ -205,29 +205,23 @@ const PODetailScreen: React.FC = () => {
     try {
       value.is_grid_mode = isGridMode;
       if (isGridMode) {
-        const isValid = validateLineItem(poLineItemGridValue);
-        if (!isValid) {
-          throw new Error("");
+        if (poLineItemGridValue.length === 0) {
+          throw new Error("Vui lòng thêm sản phẩm");
         }
         const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
         const supplementLineItems = value?.line_items?.filter(e => e.type === POLineItemType.SUPPLEMENT) || [];
         value.line_items = [...gridLineItems, ...supplementLineItems];
-      }
-      if (poData?.line_items.length === 0) {
+      } else if (poData?.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
         const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
-        showError("Vui lòng thêm sản phẩm");
-        throw new Error("");
+        throw new Error("Vui lòng thêm sản phẩm");
       }
-      // validate giá nhập     
-      const isNotValidPrice = value.line_items.some(item => {
-        return !item.price
-      })
-      if (isNotValidPrice) {
-        showError("Vui lòng nhập giá nhập cho sản phẩm")
-        throw new Error("");
+      
+      const atLeastOneItem = validateLineItemQuantity(value.line_items);
+      if (!atLeastOneItem) {
+        throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
 
       const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL)
@@ -259,7 +253,8 @@ const PODetailScreen: React.FC = () => {
           dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           break;
       }
-    } catch {
+    } catch (error: any) {
+      showError(error.message);
       dispatch(hideLoading());
     }
   };
@@ -755,7 +750,7 @@ const PODetailScreen: React.FC = () => {
                   <POProductFormNew
                     formMain={formMain}
                     isEditMode={checkCanEditDraft()}
-                    
+
                   />
                 ) :
                   <POProductFormOld isEdit={isEditDetail} formMain={formMain} poLineItemType={POLineItemType.NORMAL} />
