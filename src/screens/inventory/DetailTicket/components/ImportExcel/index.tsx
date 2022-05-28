@@ -215,8 +215,20 @@ const ImportExcel: React.FC<ModalImportProps> = (
             dataTable[i].real_quantity = real_quantity;
           }
 
+          //handle duplicate barcode
+
+          const newData = [...data];
+
+          for (let i = 0; i < data.length; i++) {
+            let findIndex = dataTable.findIndex((e) => e.sku.toString() === data[i].sku.toString());
+            if (findIndex >= 0) {
+              newData[i].real_quantity = newData[i].real_quantity + dataTable[findIndex].real_quantity;
+              dataTable.splice(findIndex, 1);
+            }
+          }
+
           setData([
-            ...data,
+            ...newData,
             ...dataTable
           ]);
         }
