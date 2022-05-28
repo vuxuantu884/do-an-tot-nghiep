@@ -397,10 +397,12 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
       variant.size = variant.sku;
     }
   })
+
   const baseColor: Array<POLineItemColor> = uniqBy(tempVariant, "color").map((variant: VariantResponse) => {
+
     let price = 0;
     let lineItem: PurchaseOrderLineItem | undefined;
-
+    
     if (mode === "READ_UPDATE" && line_items && line_items.length > 0) {
       const variantSameColor = tempVariant.filter((variantItem: VariantResponse) => variantItem.color === variant.color);
       // get lineItem has variant_id in variantSameColor id
@@ -415,7 +417,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
 
     return {
       color: variant.color,
-      clothCode: variant.sku.split("-")[1],
+      color_code: variant.color_code ?? variant.sku,
       lineItemPrice: price,// giá nhập, không có thì mặc định là 0
     };
 

@@ -147,7 +147,7 @@ const POProductForm = ({
     const dataSrc: Array<PODataSourceGrid> = [];
     poLineItemGridChema.forEach((schema: POLineItemGridSchema, schemaIndex: number) => {
       schema.baseColor.forEach((c) => {
-        const { clothCode, color } = c;
+        const { color_code, color } = c;
         /**
           * Check nếu dòng không có variant nào được nhập quantity thì ẩn
           *DK : view mode           
@@ -161,7 +161,7 @@ const POProductForm = ({
           productId: schema.productId,
           productCode: schema.productCode,
           productName: schema.productName,
-          clothCode,
+          color_code,
           color,
           ...schema.baseSize.reduce((previousValue: any, currentValue: any) => {
             const mapping = schema.mappingColorAndSize.find(variant => variant.color === color && variant.size === currentValue);
@@ -370,7 +370,7 @@ const POProductForm = ({
     },
     {
       title: "Mã màu", width: 80,
-      dataIndex: "clothCode",
+      dataIndex: "color_code",
     },
     {
       title: "Màu",
@@ -391,6 +391,7 @@ const POProductForm = ({
           </div>,
           dataIndex: size,
           key: size,
+          className: "size-column",
           align: "center",
           width: 80,
           render: (v: PODataSourceVariantItemGrid, record: PODataSourceGrid) => {
@@ -455,12 +456,7 @@ const POProductForm = ({
 
     },
     {
-      title: <div style={{
-        position: "absolute",
-        bottom: "10px",
-        left: '4px',
-        right: '4px'
-      }}>
+      title: <div>
         <p>Giá nhập</p>
         {isEditMode &&
           <NumberInput min={0}
@@ -471,6 +467,7 @@ const POProductForm = ({
         }
       </div>,
       dataIndex: "color",
+      className: "price-column",
       width: 120,
       align: "center",
       render: (color: string, row: PODataSourceGrid) => {
@@ -534,7 +531,7 @@ const POProductForm = ({
       {!isEmpty(poLineItemGridChema) && !isEmpty(poLineItemGridValue) ? (
         <Table
           loading={isSelecttingProduct}
-          className="product-table-new"
+          className="product-table-grid"
           rowClassName="product-table-row"
           tableLayout="fixed"
           bordered
