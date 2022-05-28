@@ -19,7 +19,6 @@ import { productDetailApi } from "service/product/product.service";
 import { callApiNative } from "./ApiUtils";
 import { Products } from "./AppUtils";
 import { POStatus } from "./Constants";
-import { showError } from "./ToastUtils";
 
 const POUtils = {
   convertVariantToLineitem: (
@@ -554,29 +553,12 @@ export const combineLineItemToSubmitData = (
   return newDataItems;
 }
 
-export const validateLineItem = (poLineItemGridValue: Array<Map<string, POLineItemGridValue>>) => {
-  if (poLineItemGridValue.length === 0) {
-    showError("Vui lòng thêm sản phẩm");
+export const validateLineItemQuantity = (lineItems: PurchaseOrderLineItem[]) => {
+  if (lineItems.every(item => item.quantity === 0)) {
     return false;
+  }else{
+    return true;
   }
-  /**
-   * Validate xem đã nhập giá nhập chưa
-   * poLineItemGridValue : mảng các Map chưa số lượng sản phẩm của từng size theo màu
-   */
-  return !poLineItemGridValue.some(item => {
-    const mapIterator = item.values();
-    const length = item.size;
-    // Lọc theo độ dài của Map
-    for (let i = 0; i < length; i++) {
-      const value: POLineItemGridValue = mapIterator.next().value;
-      // với mỗi màu tương ứng 1 row trong grid, nếu giá nhập chưa có thì báo lỗi
-      if (!value.price && value.sizeValues.some(item => item.quantity > 0)) {
-        showError("Vui lòng nhập đơn giá sản phẩm");
-        return true;
-      }
-    }
-    return false;
-  })
 }
 
 export const setProcurementLineItemById =
