@@ -1,8 +1,8 @@
 import { OrderPaymentRequest } from "model/request/order.request";
-import { OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
+import { FulFillmentResponse, OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { sortFulfillments } from "./AppUtils";
-import { PaymentMethodCode } from "./Constants";
+import { FulFillmentStatus, PaymentMethodCode } from "./Constants";
 import { FulfillmentCancelStatus } from "./Order.constants";
 
 export const isOrderDetailHasPointPayment = (
@@ -75,3 +75,27 @@ export const checkIfOrderCancelled = (
   }
   return FulfillmentCancelStatus.includes(sortedFulfillments[0].status);
 };
+
+export const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
+  if (!fulfillment) return false;
+  let success = false;
+  if (// tạo giao hàng
+    !fulfillment.some(
+    (p) =>
+      p.status !== FulFillmentStatus.CANCELLED &&
+      p.return_status !== FulFillmentStatus.RETURNED &&
+      p?.shipment?.delivery_service_provider_type
+    )
+  )
+    success = true;
+  
+  if (//không tạo giao hàng nếu đã bàn giao sang hvc
+    fulfillment.some(
+    (p) => p.status_before_cancellation === FulFillmentStatus.SHIPPING
+    )
+  )
+    success = false;
+  console.log("fulfillment", fulfillment);
+  
+  return success;
+}

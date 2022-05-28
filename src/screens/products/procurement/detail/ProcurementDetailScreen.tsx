@@ -5,13 +5,13 @@ import ContentContainer from 'component/container/content.container';
 import RenderTabBar from 'component/table/StickyTabBar';
 import UrlConfig, { PurchaseOrderTabUrl } from 'config/url.config';
 import { isEmpty } from 'lodash';
-import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
+import { PurchaseOrder, PurchaseOrderPrint } from 'model/purchase-order/purchase-order.model';
 import { POProcumentField, POProcumentLineItemField, PurchaseProcument, PurchaseProcumentLineItem } from 'model/purchase-order/purchase-procument';
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import PurchaseOrderHistory from 'screens/purchase-order/tab/PurchaseOrderHistory';
-import { getPurchaseOrderApi } from 'service/purchase-order/purchase-order.service';
+import { getPurchaseOrderApi, printProcurementApi } from 'service/purchase-order/purchase-order.service';
 import { callApiNative } from 'utils/ApiUtils';
 import { OFFSET_HEADER_TABLE, ProcurementStatus, ProcurementStatusName } from 'utils/Constants';
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
@@ -25,9 +25,11 @@ import { primaryColor } from 'utils/global-styles/variables';
 import AuthWrapper from 'component/authorization/AuthWrapper';
 import { PurchaseOrderPermission } from 'config/permissions/purchase-order.permission';
 import { PoProcumentDeleteAction } from 'domain/actions/po/po-procument.action';
-import { showSuccess } from 'utils/ToastUtils';
+import { showError, showSuccess } from 'utils/ToastUtils';
 import { updatePurchaseProcumentNoteService } from 'service/purchase-order/purchase-procument.service';
 import { RootReducerType } from 'model/reducers/RootReducerType';
+import { useReactToPrint } from 'react-to-print';
+import purify from "dompurify";
 
 type ProcurementParam = {
   id: string;
@@ -49,6 +51,8 @@ const ProcurementDetailScreen: React.FC = () => {
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions
   );
+  const [printContent, setPrintContent] = useState<string>("");
+  const printElementRef = useRef(null);
 
   const getPODetail = useCallback(async () => {
     const res: PurchaseOrder = await callApiNative({ isShowError: true, isShowLoading: true }, dispatch, getPurchaseOrderApi, poID)
@@ -139,6 +143,29 @@ const ProcurementDetailScreen: React.FC = () => {
     });
     return hasPermission
   }
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+
+  const printContentCallback = useCallback(
+    (printContent: PurchaseOrderPrint) => {
+      if (!printContent) return;
+      setPrintContent(printContent.html_content);
+    },
+    []
+  );
+
+  const onPrint = useCallback(async () =>{
+    const res = await callApiNative({isShowLoading: true},dispatch,printProcurementApi,procurementData?.id ?? 0,poData?.id ?? 0);
+    if (res && res.data && res.data.errors) {
+      res.data.errors.forEach((e:string) => {
+        showError(e);
+      });
+    }else{
+      printContentCallback(res);
+      handlePrint && handlePrint();
+    }
+  },[dispatch, procurementData?.id, poData?.id, printContentCallback, handlePrint]);
 
   return (
     <ContentContainer
@@ -364,6 +391,16 @@ const ProcurementDetailScreen: React.FC = () => {
         </Tabs>
       </Card>
       <BottomBarContainer
+        rightComponent={
+          <div>
+            <Button
+              type="default"
+              onClick={onPrint}
+            >
+              In phiếu
+            </Button>
+          </div>
+        }
         leftComponent={
           <div
           >
@@ -414,6 +451,15 @@ const ProcurementDetailScreen: React.FC = () => {
           <strong className="margin-top-10">{confirmDeletePhrase}</strong>
         </Row>
       </Modal>
+      <div style={{ display: "none" }}>
+          <div className="printContent" ref={printElementRef}>
+              <div
+                  dangerouslySetInnerHTML={{
+                    __html: purify.sanitize(printContent),
+                  }}
+              />
+          </div>
+      </div>
     </ContentContainer>
   )
 }

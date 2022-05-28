@@ -183,6 +183,54 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       title: () => {
         return (
           <>
+            <div>Tổng tồn</div>
+            <div>({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "total_stock",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang giao</div>
+            <div>({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "shipping",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang chuyển đi</div>
+            <div>({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "on_way",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
             <div>Tồn trong kho</div>
             <div>({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
@@ -412,6 +460,10 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         style={{paddingTop: 16}}
         pagination={false}
         columns={defaultColumns}
+        sticky
+        scroll={{
+          x: 'max-content',
+        }}
         dataSource={dataLinesItem.items}
       />
       <CustomPagination

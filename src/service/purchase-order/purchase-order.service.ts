@@ -1,4 +1,4 @@
-import { ProcumentLogQuery, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
+import { ProcumentLogQuery, PurchaseOrderBySupplierQuery, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -156,8 +156,18 @@ export const listPurchaseOrderApi = (
   );
 };
 
-export const listPurchaseOrderBySupplier = (id: number): Promise<BaseResponse<Array<PurchaseOrder>>> => {
+export const listPurchaseOrderBySupplier = (id: number, query?: PurchaseOrderBySupplierQuery): Promise<BaseResponse<Array<PurchaseOrder>>> => {
+  const params = generateQuery(query)
   return BaseAxios.get(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/list-by-supplier/${id}`
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/list-by-supplier/${id}?${params}`
   );
 }
+
+export const printProcurementApi = (
+  id: number,
+  poId: number,
+): Promise<Array<PurchaseOrderPrint>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-procurement?id=${id}&poId=${poId}`
+  );
+};

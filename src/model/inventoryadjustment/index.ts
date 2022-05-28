@@ -66,6 +66,10 @@ export interface LineItemAdjustment {
   on_hand: number,
   real_on_hand: number,
   on_hand_adj: number | null,
+  total_stock: number,
+  shipping: number,
+  on_way: number,
+  transferring: number,
   on_hand_adj_dis: string | null,
   note: string|null,
   total_variant_deviant: number

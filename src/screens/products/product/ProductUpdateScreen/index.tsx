@@ -1400,7 +1400,6 @@ const ProductDetailScreen: React.FC = () => {
                                                         replaceFormatString(a)
                                                       }
                                                       placeholder="VD: 100,000"
-                                                      disabled={!canUpdateCost}
                                                       maxLength={15}
                                                     />
                                                   </Item>
@@ -1432,7 +1431,6 @@ const ProductDetailScreen: React.FC = () => {
                                                         replaceFormatString(a)
                                                       }
                                                       placeholder="VD: 100,000"
-                                                      disabled={!canUpdateCost}
                                                       maxLength={15}
                                                     />
                                                   </Item>
@@ -1462,7 +1460,6 @@ const ProductDetailScreen: React.FC = () => {
                                                         replaceFormatString(a)
                                                       }
                                                       placeholder="VD: 100,000"
-                                                      disabled={!canUpdateCost}
                                                       maxLength={15}
                                                     />
                                                   </Item>
@@ -1508,7 +1505,6 @@ const ProductDetailScreen: React.FC = () => {
                                                     <NumberInput
                                                       placeholder="VD: 10"
                                                       suffix={<span>%</span>}
-                                                      disabled={!canUpdateCost}
                                                       maxLength={15}
                                                     />
                                                   </Item>
@@ -1531,7 +1527,6 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <CustomSelect
                                                       placeholder="Đơn vị tiền tệ"
-                                                      disabled={!canUpdateCost}
                                                     >
                                                       {currencyList?.map((item) => (
                                                         <CustomSelect.Option

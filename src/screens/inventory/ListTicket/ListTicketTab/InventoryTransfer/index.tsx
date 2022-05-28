@@ -27,7 +27,7 @@ import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { Input, Modal, Tag, Form, Button, Row, Typography } from "antd";
 import {InventoryTransferTabWrapper} from "./styles";
-import {STATUS_INVENTORY_TRANSFER,STATUS_INVENTORY_TRANSFER_ARRAY} from "../../constants";
+import {STATUS_INVENTORY_TRANSFER,STATUS_INVENTORY_TRANSFER_ARRAY} from "../../../constants";
 
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {
@@ -682,9 +682,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYY_HHmm),
       [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
       [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYY_HHmm),
-      [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
       [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYY_HHmm),
-      [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
+      [TransferExportField.receive_by]: item.receive_date ? `${item.updated_by} - ${item.updated_name}`: null,
       [TransferExportField.note]: item.note,
     };
   }
@@ -709,7 +708,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYY_HHmm),
         [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
         [TransferExportField.transfer_date]: ConvertUtcToLocalDate(transfer.transfer_date,DATE_FORMAT.DDMMYY_HHmm),
-        [TransferExportField.updated_name]: `${item.updated_by} - ${item.updated_name}`,
         [TransferExportField.receive_date]: ConvertUtcToLocalDate(transfer.receive_date,DATE_FORMAT.DDMMYY_HHmm),
         [TransferExportField.receive_by]: transfer.receive_date ? `${item.updated_by} - ${item.updated_name}`: null,
         [TransferExportField.note]: transfer.note,
@@ -733,7 +731,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         }
         break;
       case TYPE_EXPORT.selected:
-        items = selectedRowData;
+        res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params, simple: false,limit: params.limit ?? 50});
+        if (res) {
+          for (let index = 0; index < selectedRowData.length; index++) {
+            const transfer = res.items.find((e:InventoryTransferDetailItem)=>e.code === selectedRowData[index].code);
+            if (transfer) {
+              items.push(transfer);
+            }
+          }
+        }
         break;
       case TYPE_EXPORT.all:
         const roundAll = Math.round(data.metadata.total / limit);

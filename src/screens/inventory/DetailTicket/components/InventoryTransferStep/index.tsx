@@ -4,7 +4,7 @@ import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { StyledWrapper } from "./styles";
 import { InventoryTransferDetailItem } from "model/inventory/transfer";
-import { STATUS_INVENTORY_TRANSFER } from "screens/inventory/ListTicket/constants";
+import { STATUS_INVENTORY_TRANSFER } from "screens/inventory/constants";
 
 type StepStatusProps = {
   status?: string | null | undefined;

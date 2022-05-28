@@ -216,17 +216,18 @@ function CardShowOrderPayments(props: PropTypes) {
           ghost
         >
           {OrderDetail?.payments
-            .filter((payment) => {
-              // nếu là đơn trả thì tính cả cod
-              // if (OrderDetail.order_return_origin) {
-              //   return true;
-              // }
-              return (
-                // payment.payment_method_code !== PaymentMethodCode.COD
-                payment.payment_method_code // hiển thị những payment có code
-                // && payment.amount
-              );
-            })
+          // hiển thị tất
+            // .filter((payment) => {
+            //   // nếu là đơn trả thì tính cả cod
+            //   // if (OrderDetail.order_return_origin) {
+            //   //   return true;
+            //   // }
+            //   return (
+            //     // payment.payment_method_code !== PaymentMethodCode.COD
+            //     payment.payment_method_code // hiển thị những payment có code
+            //     // && payment.amount
+            //   );
+            // })
             .map((payment: OrderPaymentResponse, index: number) => (
               <Panel
                 showArrow={false}

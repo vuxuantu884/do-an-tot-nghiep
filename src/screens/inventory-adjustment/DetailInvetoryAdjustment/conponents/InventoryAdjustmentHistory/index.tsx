@@ -179,8 +179,56 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       title: () => {
         return (
           <>
+            <div>Tổng tồn</div>
+            <div>({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "total_stock",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang giao</div>
+            <div>({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "shipping",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang chuyển đi</div>
+            <div>({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "on_way",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
             <div>Tồn trong kho</div>
-            <div>({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
+            <div>({objSummaryTableByAuditTotal.onHand ? formatCurrency(objSummaryTableByAuditTotal.onHand) : 0})</div>
           </>
         );
       },
@@ -399,7 +447,11 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
         rowClassName="product-table-row"
         style={{paddingTop: 16}}
         pagination={false}
+        sticky
         columns={defaultColumns}
+        scroll={{
+          x: 'max-content',
+        }}
         dataSource={dataLinesItem.items?.filter(e=>e.on_hand_adj !== 0)}
       />
        <CustomPagination
