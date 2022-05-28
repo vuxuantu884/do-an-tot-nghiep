@@ -13,11 +13,12 @@ import {
   Dropdown,
   Menu,
   TreeSelect,
+  AutoComplete,
+  Spin,
 } from "antd";
-import { FilterOutlined, DownOutlined } from "@ant-design/icons";
+import {FilterOutlined, DownOutlined, LoadingOutlined} from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
-import DebounceSelect from "component/filter/component/debounce-select";
 import CustomSelect from "component/custom/select.custom";
 import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import {fullTextSearch} from "utils/StringUtils";
@@ -29,7 +30,6 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
-import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 
 import { StyledOrderFilter } from "screens/ecommerce/orders/orderStyles";
 import 'component/filter/order.filter.scss'
@@ -42,7 +42,13 @@ import CustomSelectTags from "component/custom/custom-select-tag";
 import moment from "moment";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import {searchAccountApi} from "service/accounts/account.service";
-import {convertItemToArray} from "utils/AppUtils";
+import {convertItemToArray, handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
+import search from "assets/img/search.svg";
+import {PageResponse} from "model/base/base-metadata.response";
+import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import {RefSelectProps} from "antd/lib/select";
+import {searchVariantsOrderRequestAction} from "domain/actions/product/products.action";
+import {showError} from "utils/ToastUtils";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -65,19 +71,11 @@ type EcommerceOrderFilterProps = {
 const { Item } = Form;
 const { Option } = Select;
 
-async function searchVariants(input: any) {
-  try {
-    const result = await searchVariantsApi({info: input})
-    return result.data.items.map(item => {
-      return {
-        label: item.name,
-        value: item.id.toString()
-      }
-    })
-  } catch (error) {
-    console.log(error);
-  }
-}
+const initQueryVariant: VariantSearchQuery = {
+  limit: 10,
+  page: 1,
+  saleable: true,
+};
 
 
 const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
@@ -152,7 +150,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm()
-  const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string }[]>([]);
 
   const dispatch = useDispatch();
   const [ecommerceKeySelected, setEcommerceKeySelected] = useState<string>("");
@@ -178,6 +175,97 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
   }, [params.assignee_codes]);
 
+  // handle search product
+  const [keySearchVariant, setKeySearchVariant] = useState("");
+  const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
+    metadata: {
+      limit: 0,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+
+  const autoCompleteRef = createRef<RefSelectProps>();
+
+  const handleSearchProduct = useCallback((value: string) => {
+    if (value.trim()) {
+      (async () => {
+        try {
+          await dispatch(
+            searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+              setResultSearchVariant(data);
+              setIsSearchingProducts(false);
+              if (data.items.length === 0) {
+                showError("Không tìm thấy sản phẩm!")
+              }
+            }, () => {
+              setIsSearchingProducts(false);
+            })
+          );
+        } catch {
+          setIsSearchingProducts(false);
+        }
+      })();
+    } else {
+      setIsSearchingProducts(false);
+    }
+  }, [dispatch]);
+
+  const onChangeProductSearch = useCallback(
+    async (value: string) => {
+      initQueryVariant.info = value;
+      if (value.length >= 3) {
+        setIsSearchingProducts(true);
+        setResultSearchVariant({
+          ...resultSearchVariant,
+          items: []
+        })
+        handleSearchProduct(value);
+      } else {
+        setIsSearchingProducts(false);
+      }
+    },
+    [handleSearchProduct, resultSearchVariant]
+  );
+
+  const handleOnSearchProduct = useCallback((value: string) => {
+    setKeySearchVariant(value);
+    handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+      onChangeProductSearch(value)
+    );
+  }, [autoCompleteRef, onChangeProductSearch]);
+
+  const renderVariantOption = (item: VariantResponse) => {
+    return (
+      <div style={{ padding: "5px 10px" }}>
+        <div style={{ whiteSpace: "normal", lineHeight: "18px"}}>{item.name}</div>
+        <div style={{ color: '#95a1ac' }}>{item.sku}</div>
+      </div>
+    );
+  };
+  
+  const convertResultSearchVariant = useMemo(() => {
+    let options: any[] = [];
+    resultSearchVariant.items.forEach((item: VariantResponse) => {
+      options.push({
+        label: renderVariantOption(item),
+        value: item.name ? item.name.toString() : "",
+      });
+    });
+    return options;
+  }, [resultSearchVariant]);
+
+  const onSearchVariantSelect = useCallback(
+    (v, variant) => {
+      setKeySearchVariant(variant.value);
+      autoCompleteRef.current?.blur();
+    },
+    [autoCompleteRef]
+  );
+  // end handle search product
+
   //handle tag filter
 	const [tags, setTags] = useState<Array<any>>([]);
 
@@ -189,9 +277,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 	);
 
   const onFilterClick = useCallback(() => {
-    form.submit();
     formRef.current?.submit();
-  }, [form, formRef]);
+  }, [formRef]);
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -232,7 +319,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
   }}, [params])
@@ -254,6 +340,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
       if (!error) {
         setVisible(false);
+        values.searched_product = keySearchVariant;
         if (values?.price_min > values?.price_max) {
           values = {
             ...values,
@@ -265,7 +352,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         setRerender(false)
       }
     },
-    [formRef, onFilter, tags]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formRef, onFilter]
   );
 
   const widthScreen = () => {
@@ -279,43 +367,18 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   }
   const clearFilter = () => {
     onClearFilter && onClearFilter();
-    setIssuedClick('')
-    setCompletedClick('')
-    setCancelledClick('')
-    // setExpectedClick('')
-    setFinalizedClick('')
-  
+    setIssuedClick('');
+    setCompletedClick('');
+    setCancelledClick('');
+    setFinalizedClick('');
+    setKeySearchVariant('');
+
     setVisible(false);
     setRerender(false);
   };
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
   }, []);
-
-  useEffect(() => {
-    if (params.variant_ids.length) {
-      let variant_ids = Array.isArray(params.variant_ids)
-        ? params.variant_ids
-        : [params.variant_ids];
-
-      (async () => {
-        let variants: any = [];
-        await Promise.all(
-          variant_ids.map(async (variant_id) => {
-            try {
-              const result = await getVariantApi(variant_id)
-
-              variants.push({
-                label: result.data.name,
-                value: result.data.id.toString()
-              })
-            } catch {}
-          })
-        );
-        setOptionsVariant(variants)
-      })()
-    }
-  }, [params.variant_ids]);
 
   // handle Select Ecommerce
   const updateEcommerceShopList = useCallback((result) => {
@@ -564,16 +627,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       })
     }
 
-    if (initialValues.variant_ids.length) {
-      let textVariant = ""
-      optionsVariant.forEach(i => {
-        textVariant = textVariant + i.label + "; "
-      })
+    if (initialValues.searched_product) {
       list.push({
-        key: 'variant_ids',
-        name: 'Sản phẩm',
-        value: textVariant
-      })
+        key: "searched_product",
+        name: "Sản phẩm",
+        value: initialValues.searched_product,
+      });
     }
 
     if (initialValues.assignee_codes.length) {
@@ -729,7 +788,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     initialValues.sub_status_code,
     initialValues.fulfillment_status,
     initialValues.payment_status,
-    initialValues.variant_ids.length,
+    initialValues.searched_product,
     initialValues.assignee_codes,
     initialValues.account_codes,
     initialValues.price_min,
@@ -751,7 +810,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     subStatus,
     fulfillmentStatus,
     paymentStatus,
-    optionsVariant,
     accounts,
     assigneeFound,
     listPaymentMethod,
@@ -820,8 +878,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         case 'price':
           onFilter && onFilter({...params, price_min: null, price_max: null});
           break;
-        case 'variant_ids':
-          onFilter && onFilter({...params, variant_ids: []});
+        case "searched_product":
+          onFilter && onFilter({ ...params, searched_product: null });
           break;
         case 'payment_method':
           onFilter && onFilter({...params, payment_method_ids: []});
@@ -933,7 +991,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     formRef?.current?.setFieldsValue({
       store_ids: params.store_ids,
       source_ids: params.source_ids,
-      variant_ids: params.variant_ids,
       issued_on_min: params.issued_on_min,
       issued_on_max: params.issued_on_max,
       finalized_on_min: params.finalized_on_min,
@@ -978,6 +1035,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     if (checkChannelCode === "shopee") {
      setEcommerceKeySelected("shopee")   
     }
+
+    handleOnSearchProduct(params.searched_product || "");
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, params]);
@@ -1329,61 +1388,36 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               </Col>
             
               <Col span={8} xxl={6}>
-                {/*<p>Trạng thái xử lý đơn</p>*/}
-                {/*<Item name="sub_status_code">*/}
-                {/*  <CustomSelect*/}
-                {/*    mode="multiple"*/}
-                {/*    showArrow allowClear*/}
-                {/*    showSearch*/}
-                {/*    placeholder="Chọn trạng thái xử lý đơn"*/}
-                {/*    notFoundContent="Không tìm thấy kết quả"*/}
-                {/*    style={{width: '100%'}}*/}
-                {/*    optionFilterProp="children"*/}
-                {/*    getPopupContainer={trigger => trigger.parentNode}*/}
-                {/*    maxTagCount='responsive'*/}
-                {/*  >*/}
-                {/*    {subStatus?.map((item: any) => (*/}
-                {/*      <CustomSelect.Option key={item.id} value={item.code.toString()}>*/}
-                {/*        {item.sub_status}*/}
-                {/*      </CustomSelect.Option>*/}
-                {/*    ))}*/}
-                {/*  </CustomSelect>*/}
-                {/*</Item>*/}
-
                 <p>Sản phẩm</p>
-                <Item name="variant_ids">
-                  <DebounceSelect
-                    mode="multiple" showArrow maxTagCount='responsive'
-                    placeholder="Tìm kiếm sản phẩm" allowClear
-                    fetchOptions={searchVariants}
-                    optionsVariant={optionsVariant}
-                    style={{
-                      width: '100%',
-                    }}
-                  />
-                </Item>
-
-                {/* <p>Thanh toán</p>
-                <Item name="payment_status">
-                  <CustomSelect
-                    mode="multiple" showArrow allowClear
-                    showSearch placeholder="Chọn trạng thái thanh toán"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
+                <Item>
+                  <AutoComplete
+                    notFoundContent={isSearchingProducts ? <Spin size="small"/> : "Không tìm thấy sản phẩm"}
+                    id="search_product"
+                    ref={autoCompleteRef}
+                    value={keySearchVariant}
+                    onSelect={onSearchVariantSelect}
+                    dropdownClassName="search-layout dropdown-search-header"
+                    dropdownMatchSelectWidth={360}
+                    style={{ width: "100%" }}
+                    onSearch={handleOnSearchProduct}
+                    options={convertResultSearchVariant}
+                    maxLength={255}
                   >
-                    {paymentStatus.map((item, index) => (
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.value.toString()}
-                      >
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item> */}
+                    <Input
+                      size="middle"
+                      className="yody-search"
+                      placeholder="Tìm sản phẩm"
+                      allowClear
+                      prefix={
+                        isSearchingProducts ? (
+                          <LoadingOutlined style={{ color: "#2a2a86" }} />
+                        ) : (
+                          <img alt="" src={search} />
+                        )
+                      }
+                    />
+                  </AutoComplete>
+                </Item>
               </Col>
               <Col span={8} xxl={6}>
                 <p>Trả hàng</p>
@@ -1556,33 +1590,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 </Item>
               </Col>
 
-              {/* <Col span={8} xxl={6}>
-                <p>Sản phẩm</p>
-                <Item name="variant_ids">
-                  <DebounceSelect
-                    mode="multiple" showArrow maxTagCount='responsive'
-                    placeholder="Tìm kiếm sản phẩm" allowClear
-                    fetchOptions={searchVariants}
-                    optionsVariant={optionsVariant}
-                    style={{
-                      width: '100%',
-                    }}
-                  />
-                </Item>
-                
-              </Col> */}
-
               <Col span={8} xxl={6}>
                 <p>Tags</p>
                 <Item name="tags">
-                  {/* <CustomSelect
-                    mode="tags" optionFilterProp="children"
-                    showSearch showArrow allowClear
-                    placeholder="Điền 1 hoặc nhiều tag"
-                    style={{width: '100%'}}
-                  >
-
-                  </CustomSelect> */}
                  <CustomSelectTags onChangeTag={onChangeTag} tags={tags} />
                 </Item>
               </Col>
