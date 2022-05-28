@@ -8,6 +8,7 @@ const BaseSelectMerchans = ({
   merchans,
   fetchMerchans,
   isLoadingMerchans,
+  placeholder,
   ...props
 }: BaseSelectMerchandiserProps) => {
   return (
@@ -23,7 +24,7 @@ const BaseSelectMerchans = ({
         showArrow
         fetchData={fetchMerchans}
         loading={isLoadingMerchans}
-        placeholder="Chọn Merchandiser"
+        placeholder={placeholder ?? "Chọn Merchandiser"}
         {...props}
       />
     </>
