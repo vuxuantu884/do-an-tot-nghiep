@@ -790,7 +790,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       return <NumberInput
                         isFloat={false}
                         value={value}
-                        min={1}
+                        min={0}
                         default={1}
                         maxLength={6}
                         onChange={(quantity) => {
