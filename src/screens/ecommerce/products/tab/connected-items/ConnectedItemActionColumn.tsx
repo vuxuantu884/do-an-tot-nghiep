@@ -8,7 +8,12 @@ const productsUpdateStockPermission = [EcommerceProductPermission.products_updat
 const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
 
-const ConnectedItemActionColumn = (handleDeleteItem: any, handleSyncStock?: any, handleDisconnectItem?: any) => {
+const ConnectedItemActionColumn = (
+  handleDeleteItem: any, 
+  handleSyncStock?: any, 
+  handleDisconnectItem?: any, 
+  handleShowLogInventory?: any
+  ) => {
 
 
   const RenderActionColumn = (l: any, item: any, index: number) => {
@@ -27,9 +32,10 @@ const ConnectedItemActionColumn = (handleDeleteItem: any, handleSyncStock?: any,
       not: false,
     });
 
-    const isShowAction = (item.connect_status === "connected" && (allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect)) ||
-      (item.connect_status === "waiting" && allowProductsDelete)
 
+    const isShowAction = (item.connect_status === "connected" 
+     && (allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect)) 
+     || (item.connect_status === "waiting" && allowProductsDelete)
 
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
@@ -58,6 +64,14 @@ const ConnectedItemActionColumn = (handleDeleteItem: any, handleSyncStock?: any,
                   Hủy liên kết
                 </Button>
               </Menu.Item>
+            }
+
+            {item.connect_status === "connected" &&
+                <Menu.Item key="4">
+                  <Button type="text" onClick={() => handleShowLogInventory(item)}>
+                    Lịch sử đồng bộ tồn
+                  </Button>
+                </Menu.Item>
             }
           </>
         }

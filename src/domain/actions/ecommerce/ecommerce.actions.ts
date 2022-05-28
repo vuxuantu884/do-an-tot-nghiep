@@ -278,3 +278,14 @@ export const batchShippingAction = (
   })
 }
 
+
+export const getLogInventoryVariantAction = (
+  request: any,
+  callback:(data: any) => any
+) => {
+  return BaseAction(EcommerceType.GET_LOG_INVENTORY_VARIANT, {
+    request,
+    callback
+  })
+}
+

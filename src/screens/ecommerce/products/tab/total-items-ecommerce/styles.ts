@@ -19,6 +19,7 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  
 `
 
 export const StyledBaseFilter = styled.div`
@@ -49,3 +50,4 @@ export const StyledBaseFilter = styled.div`
 
   }
 `;
+

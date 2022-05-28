@@ -14,6 +14,7 @@ import {
   Radio,
   Select,
   Space,
+  Table,
   Tag,
   Tooltip,
   TreeSelect,
@@ -37,6 +38,7 @@ import {
   deleteEcommerceItem,
   disconnectEcommerceItem,
   exitEcommerceJobsAction,
+  getLogInventoryVariantAction,
   getProductEcommerceList,
   getShopEcommerceList,
   postSyncStockEcommerceProduct,
@@ -60,7 +62,7 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import {useHistory, useLocation} from "react-router";
 import {getQueryParamsFromQueryString} from "utils/useQuery";
 import queryString from "query-string";
-
+import './style.scss'
 
 const STATUS = {
   WAITING: "waiting",
@@ -103,6 +105,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
   const [idDisconnectItem, setIdDisconnectItem] = useState(null);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [isShowLogInventoryModal, setShowLogInventoryModal] = useState(false);
   const [isShowExportExcelModal, setIsShowExportExcelModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
@@ -114,6 +117,9 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   // process export modal
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
   const [exportProcessPercent, setExportProcessPercent] = useState<number>(0);
+
+  //inventory log
+  const [inventoryHistoryLog, setInventoryHistoryLog] = useState<Array<any>>([]);
 
   const [ecommerceIdSelected, setEcommerceIdSelected] = useState<number | null>(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -252,6 +258,41 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     );
   };
   //end handle disconnect item
+
+  //handle show log history inventory
+  const GetRequestResponseInventoryLog = (data: any) => {
+    setInventoryHistoryLog([data.items[0]])   
+  }
+
+  const handleShowLogInventory = (item: any) => {
+    dispatch(
+      getLogInventoryVariantAction(
+        item.ecommerce_variant_id,
+        GetRequestResponseInventoryLog
+      )
+    )
+    setInventoryHistoryLog([])
+  }
+
+  useEffect(() => {
+    if (inventoryHistoryLog.length) {
+      setShowLogInventoryModal(true)
+   }
+  }, [inventoryHistoryLog.length]); 
+
+  const OkShowHistoryLogInventory = () => {
+    setShowLogInventoryModal(false)
+    setInventoryHistoryLog([])
+  }
+
+  const CancelHistoryLogInventory = () => {
+    setShowLogInventoryModal(false)
+    setInventoryHistoryLog([])
+  }
+  //end handle show log history inventory
+  
+  
+  //end handle show log history inventory
 
   //handle convert date time
   const convertDateTimeFormat = (dateTimeData: any) => {
@@ -432,9 +473,28 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     TotalItemActionColumn(
       handleSyncStock,
       handleDeleteItem,
-      handleDisconnectItem
+      handleDisconnectItem,
+      handleShowLogInventory
     ),
   ]);
+
+
+  const [columnLogInventory] = useState<any>([
+    {
+      title: "Request",
+      dataIndex: "request_log",
+      className: `${inventoryHistoryLog.length && inventoryHistoryLog[0].status === 'done' ? "log-inventory-column-error" : "log-inventory-column-success"}`,
+      render: (request: any) => <div>{request}</div>
+    },
+
+    {
+      title: "Response",
+      dataIndex: "response_log",
+      className: `${inventoryHistoryLog.length && inventoryHistoryLog[0].status === 'done' ? "log-inventory-column-error" : "log-inventory-column-success"}`,
+      render: (response: any) => <div>{response}</div>
+    }
+  ])
+
 
   let initialValues = useMemo(() => {
     return {
@@ -1392,6 +1452,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           </div>
         </Modal>
 
+      {inventoryHistoryLog.length && 
+        <Modal
+          title="Chi tiết lịch sử đồng bộ"
+          centered
+          visible={isShowLogInventoryModal}
+          onOk={() => OkShowHistoryLogInventory()}
+          onCancel={() => CancelHistoryLogInventory()}
+          width={1000}
+        >
+          <Table columns={columnLogInventory} dataSource={inventoryHistoryLog} rowClassName="log-history-list" />
+        </Modal>
+      }
+      
       </div>
     </StyledComponent>
   );

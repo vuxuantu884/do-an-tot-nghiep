@@ -9,7 +9,12 @@ const productsUpdateStockPermission = [EcommerceProductPermission.products_updat
 const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
 
-const TotalItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, handleDisconnectItem: any) => {
+const TotalItemActionColumn = (
+  handleSyncStock: any, 
+  handleDeleteItem: any, 
+  handleDisconnectItem: any, 
+  handleShowLogInventory: any
+  ) => {
   const RenderActionColumn = (l: any, item: any, index: number) => {
     const [allowProductsDelete] = useAuthorization({
       acceptPermissions: productsDeletePermission,
@@ -56,6 +61,12 @@ const TotalItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, hand
                 </Button>
               </Menu.Item>
             }
+
+              <Menu.Item key="4">
+                <Button type="text" onClick={() => handleShowLogInventory(item)}>
+                  Lịch sử đồng bộ tồn
+                </Button>
+              </Menu.Item>
           </>
         }
 
