@@ -61,11 +61,10 @@ import EditNote from "screens/order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import statusDraft from 'assets/icon/status-draft-color.svg'
-import statusFinalized from 'assets/icon/status-finalized-color.svg'
-import statusStored from 'assets/icon/status-stored-color.svg'
-import statusCancelled from 'assets/icon/status-cancelled-color.svg'
-import TagStatus, { TagStatusType } from "component/tag/tag-status";
+import statusDraft from 'assets/icon/status-draft-new.svg'
+import statusFinalized from 'assets/icon/status-finalized-new.svg'
+import statusStored from 'assets/icon/status-stored-new.svg'
+import statusCancelled from 'assets/icon/status-cancelled-new.svg'
 
 const ProcumentConfirmModal = lazy(() => import("screens/purchase-order/modal/procument-confirm.modal"))
 // const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
@@ -394,39 +393,45 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         visible: true,
         render: (status: string, record) => {
           let icon = "";
-          let type = TagStatusType.normal;
+          let color = ""
+          // let type = TagStatusType.normal;
           if (!status) {
             return "";
           }
           switch (record.status) {
             case ProcurementStatus.draft:
               icon = statusDraft
+              color = "#666666"
               break;
             case ProcurementStatus.not_received:
               icon = statusFinalized
-              type = TagStatusType.primary;
+              color = "#2A2A86"
               break;
             case ProcurementStatus.received:
               icon = statusStored
-              type = TagStatusType.success;
+              color = "#FCAF17"
               break;
             case ProcurementStatus.cancelled:
               icon = statusCancelled
-              type = TagStatusType.danger
+              color = "#E24343"
               break;
           }
           return (
             <>
-              <div>
+              {/* <div> */}
                 {
-                  <TagStatus
-                    icon={icon}
-                    type={type}
-                  >
+                  // <TagStatus
+                  //   icon={icon}
+                  //   // type={type}
+                  // >
+                  //   {ProcurementStatusName[status]}
+                  // </TagStatus>
+                  <div style={{ color: color }} >
+                    {icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2}} />}
                     {ProcurementStatusName[status]}
-                  </TagStatus>
+                  </div>
                 }
-              </div>
+              {/* </div> */}
             </>
           );
         },

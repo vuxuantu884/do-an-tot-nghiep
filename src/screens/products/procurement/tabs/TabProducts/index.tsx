@@ -9,7 +9,6 @@ import CustomTable, {
 import { formatCurrency, generateQuery, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT, formatDateTimeFilter } from "utils/DateUtils";
-import { StyledComponent } from "./style";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { Image } from "antd";
 import ImageProduct from "screens/products/product/component/image-product.component";
@@ -66,7 +65,7 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
   const getTotalRealQuantity = useCallback((): string => {
     let total = 0
     const procurementItems = cloneDeep(data.items)
-    procurementItems.forEach((item: ProcurementItemsReceipt) => {
+    procurementItems?.forEach((item: ProcurementItemsReceipt) => {
       total += item.real_quantity
     })
     return formatCurrency(total, ".")
@@ -79,6 +78,7 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
         align: "center",
         dataIndex: "variant_image",
         width: 70,
+        fixed: 'left',
         render: (value: string) => {
           // let url = null;
           // value.variant_images?.forEach((item) => {
@@ -127,8 +127,6 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
       {
         title: "Mã phiếu nhập kho",
         dataIndex: "procurement",
-        fixed: "left",
-        width: 150,
         visible: true,
         render: (value, record, index) => {
           if (!value) return ""
@@ -156,7 +154,6 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
       {
         title: "Kho nhận",
         dataIndex: "procurement",
-        width: 200,
         align: 'center',
         render: (value, record, index) => {
           return (
@@ -194,7 +191,6 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
         align: "center",
         dataIndex: "real_quantity",
         visible: true,
-        width: 150,
         render: (value, record, index) => {
           return formatCurrency(value, ".");
         },
@@ -202,7 +198,6 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
       {
         title: "Người nhận",
         dataIndex: "procurement",
-        width: 200,
         align: 'center',
         visible: true,
         render: (value: PurchaseProcument, row) => {
@@ -259,45 +254,47 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
     );
   }, [paramsUrl, history]);
 
-  return <StyledComponent>
-    <div className="margin-top-20">
-      <TabProductsFilter paramsUrl={paramsUrl} onClickOpen={() => setShowSettingColumn(true)} />
-      <CustomTable
-        isRowSelection
-        // selectedRowKey={selected.map(e => e.id)}
-        isLoading={loading}
-        dataSource={data.items}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
-        columns={columnFinal}
-        rowKey={(item) => item.id}
-        // scroll={{ x: 2000 }}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        // onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-        isShowPaginationAtHeader
-        bordered
-      />
-      {
-        showSettingColumn && (
-          <ModalSettingColumn
-            visible={showSettingColumn}
-            onCancel={() => setShowSettingColumn(false)}
-            onOk={(data) => {
-              setShowSettingColumn(false);
-              setColumns(data);
-            }}
-            data={columns}
-          />
-        )
-      }
-    </div>
-  </StyledComponent>
+  return (
+    <>
+      <div className="margin-top-20">
+        <TabProductsFilter paramsUrl={paramsUrl} onClickOpen={() => setShowSettingColumn(true)} />
+        <CustomTable
+          isRowSelection
+          // selectedRowKey={selected.map(e => e.id)}
+          isLoading={loading}
+          dataSource={data.items}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+          columns={columnFinal}
+          rowKey={(item) => item.id}
+          // scroll={{ x: 2000 }}
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          // onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+          isShowPaginationAtHeader
+          bordered
+        />
+        {
+          showSettingColumn && (
+            <ModalSettingColumn
+              visible={showSettingColumn}
+              onCancel={() => setShowSettingColumn(false)}
+              onOk={(data) => {
+                setShowSettingColumn(false);
+                setColumns(data);
+              }}
+              data={columns}
+            />
+          )
+        }
+      </div>
+    </>
+  )
 }
 
 export default TabProducts
