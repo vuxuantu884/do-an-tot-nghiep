@@ -62,6 +62,9 @@ type SearchQueryVariant = {
 };
 
 export interface Summary {
+  TotalStock: number | 0,
+  TotalShipping: number | 0,
+  TotalOnWay: number | 0,
   TotalExcess: number | 0;
   TotalMiss: number | 0;
   TotalOnHand: number | 0;
@@ -100,6 +103,9 @@ const CreateInventoryAdjustment: FC = () => {
   const [isShowModalChangeStore, setIsShowModalChangeStore] = useState<boolean>(false);
 
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
+    TotalStock: 0,
+    TotalShipping: 0,
+    TotalOnWay: 0,
     TotalExcess: 0,
     TotalMiss: 0,
     TotalOnHand: 0,
@@ -159,6 +165,9 @@ const CreateInventoryAdjustment: FC = () => {
           on_hand: item.on_hand ?? 0,
           real_on_hand: item.real_on_hand,
           on_hand_adj: item.on_hand_adj,
+          shipping: item.shipping ?? 0,
+          total_stock: item.total_stock ?? 0,
+          on_way: item.on_way ?? 0,
         };
       });
     }
@@ -231,11 +240,17 @@ const CreateInventoryAdjustment: FC = () => {
   }, [resultSearch]);
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment>) => {
-    let totalExcess = 0,
+    let totalStock = 0,
+      totalShipping = 0,
+      totalOnWay = 0,
+      totalExcess = 0,
       totalMiss = 0,
       totalQuantity = 0,
       totalReal = 0;
     data?.forEach((element: LineItemAdjustment) => {
+      totalStock += element.total_stock;
+      totalShipping += element.shipping;
+      totalOnWay += element.on_way;
       totalQuantity += element.on_hand;
       totalReal += parseInt(element.real_on_hand?.toString()) ?? 0;
       let on_hand_adj = element.on_hand_adj ?? 0;
@@ -248,6 +263,9 @@ const CreateInventoryAdjustment: FC = () => {
     });
 
     setObjSummaryTable({
+      TotalStock: totalStock,
+      TotalShipping: totalShipping,
+      TotalOnWay: totalOnWay,
       TotalOnHand: totalQuantity,
       TotalExcess: totalExcess,
       TotalMiss: totalMiss,
@@ -269,6 +287,9 @@ const CreateInventoryAdjustment: FC = () => {
     const item = {...selectedItem,
       variant_name: selectedItem.name ?? selectedItem.variant_name,
       real_on_hand: 0,
+      on_way: selectedItem.on_way ?? 0,
+      shipping: selectedItem.shipping ?? 0,
+      total_stock: selectedItem.total_stock ?? 0,
       on_hand: selectedItem.on_hand ?? 0,
       price: variantPrice ?? 0,
     };
@@ -301,7 +322,10 @@ const CreateInventoryAdjustment: FC = () => {
         on_hand_adj: 0 - (item.on_hand ?? 0),
         on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
         on_hand: item.on_hand ?? 0,
-        price: variantPrice ?? 0
+        price: variantPrice ?? 0,
+        shipping: item.shipping ?? 0,
+        total_stock: item.total_stock ?? 0,
+        on_way: item.on_way ?? 0,
       };
     });
     const dataTemp = [...dataTable, ...newResult];
@@ -451,6 +475,54 @@ const CreateInventoryAdjustment: FC = () => {
             </div>
           </div>
         );
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Tổng tồn</div>
+            <div>({objSummaryTable.TotalStock ? formatCurrency(objSummaryTable.TotalStock) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "total_stock",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang giao</div>
+            <div>({objSummaryTable.TotalShipping ? formatCurrency(objSummaryTable.TotalShipping) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "shipping",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang chuyển đi</div>
+            <div>({objSummaryTable.TotalOnWay ? formatCurrency(objSummaryTable.TotalOnWay) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "on_way",
+      render: (value) => {
+        return value || 0;
       },
     },
     {
@@ -899,6 +971,10 @@ const CreateInventoryAdjustment: FC = () => {
                         columns={defaultColumns}
                         pagination={false}
                         loading={isLoadingTable}
+                        sticky
+                        scroll={{
+                          x: 1500,
+                        }}
                         dataSource={
                           searchVariant && (searchVariant.length > 0 || keySearch !== "")
                             ? searchVariant
