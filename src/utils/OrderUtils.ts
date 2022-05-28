@@ -59,6 +59,17 @@ export const checkIfOrderHasPaidAllMoneyAmount = (
   return false;
 };
 
+export const renderContentWithBreakLine = (content: string | null | undefined) => {
+  if (!content) {
+    return [""];
+  }
+  const lineBreak = "<br />";
+  // content= JSON.stringify(content);
+  let textReplace = content.replace(/\n/g, lineBreak);
+  let result = textReplace.split(lineBreak);
+  return result;
+};
+
 export const checkIfOrderHasShipmentCod = (
   OrderDetail: OrderResponse | null,
 ) => {
@@ -99,3 +110,4 @@ export const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
   
   return success;
 }
+
