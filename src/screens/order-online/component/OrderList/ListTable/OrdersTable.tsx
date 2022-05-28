@@ -59,7 +59,7 @@ import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
-import EditNote from "../../edit-note";
+import EditNote from "../../EditOrderNote";
 import TrackingLog from "../../TrackingLog/TrackingLog";
 import IconPaymentBank from "./images/chuyen-khoan.svg";
 import IconPaymentCod from "./images/cod.svg";
@@ -193,15 +193,12 @@ function OrdersTable(props: PropTypes) {
   const [variantPreviewUrl, setVariantPreviewUrl] = useState("")
 
   const onSuccessEditNote = useCallback(
-    (newNote, noteType, orderID) => {
+    (note, customer_note, orderID) => {
       console.log('itemResult', itemResult)
       const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
-        if (noteType === "note") {
-          itemResult[indexOrder].note = newNote;
-        } else if (noteType === "customer_note") {
-          itemResult[indexOrder].customer_note = newNote;
-        }
+        itemResult[indexOrder].note = note;
+        itemResult[indexOrder].customer_note = customer_note;
       }
       setItems(itemResult);
       setMetaData(metadataResult);
@@ -214,20 +211,13 @@ function OrdersTable(props: PropTypes) {
   );
 
   const editNote = useCallback(
-    (newNote, noteType, orderID, record: OrderModel) => {
-      let params: any = {};
-      if(newNote && newNote.length>255){
-        showError("độ dài kí tự phải từ 0 đến 255");
-        return;
-      }
-      if (noteType === "note") {
-        params.note = newNote;
-      }
-      if (noteType === "customer_note") {
-        params.customer_note = newNote;
-      }
+    (note, customer_note, orderID, record: OrderModel) => {
+      let params: any = {
+        note,
+        customer_note
+      };
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID, ))
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(note, customer_note, orderID))
       );
     },
     [dispatch, onSuccessEditNote]
@@ -1271,8 +1261,12 @@ function OrdersTable(props: PropTypes) {
                     note={record.customer_note}
                     title="Khách hàng: "
                     color={primaryColor}
-                    onOk={(newNote) => {
-                      editNote(newNote, "customer_note", record.id, record);
+                    onOk={(values) => {
+                      editNote(values.note, values.customer_note, record.id, record);
+                    }}
+                    noteFormValue={{
+                      note: record.note,
+                      customer_note: record.customer_note,
                     }}
                   // isDisable={record.status === OrderStatus.FINISHED}
                   />
@@ -1284,8 +1278,13 @@ function OrdersTable(props: PropTypes) {
                     note={record.note}
                     title="Nội bộ: "
                     color={primaryColor}
-                    onOk={(newNote) => {
-                      editNote(newNote, "note", record.id, record);
+                    onOk={(values) => {
+                      // editNote(newNote, "note", record.id, record);
+                      editNote(values.note, values.customer_note, record.id, record);
+                    }}
+                    noteFormValue={{
+                      note: record.note,
+                      customer_note: record.customer_note,
                     }}
                     // defaultNote={record.order_return_origin&&(
                     //   <React.Fragment>
