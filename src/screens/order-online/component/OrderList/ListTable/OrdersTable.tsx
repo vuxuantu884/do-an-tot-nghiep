@@ -216,10 +216,10 @@ function OrdersTable(props: PropTypes) {
   const editNote = useCallback(
     (newNote, noteType, orderID, record: OrderModel) => {
       let params: any = {};
-      if(newNote && newNote.length>255){
-        showError("độ dài kí tự phải từ 0 đến 255");
-        return;
-      }
+      // if(newNote && newNote.length>255){
+      //   showError("độ dài kí tự phải từ 0 đến 255");
+      //   return;
+      // }
       if (noteType === "note") {
         params.note = newNote;
       }
