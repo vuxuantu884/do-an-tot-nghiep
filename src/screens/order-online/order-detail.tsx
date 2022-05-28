@@ -870,7 +870,6 @@ const OrderDetail = (props: PropType) => {
                 customerDetail={customerDetail}
                 storeDetail={storeDetail}
                 stepsStatusValue={stepsStatusValue}
-                totalPaid={totalPaid}
                 customerNeedToPayValue={customerNeedToPayValue}
                 officeTime={officeTime}
                 shipmentMethod={shipmentMethod}
