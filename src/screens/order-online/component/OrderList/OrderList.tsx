@@ -300,9 +300,11 @@ function OrderList(props: PropTypes) {
   const onFilterPhoneCustomer = useCallback((phone: string) => {
     let paramCopy = { ...params, search_term: phone, page: 1  };
     setPrams(paramCopy);
-    let queryParam = generateQuery(paramCopy);
-    history.push(`${location.pathname}?${queryParam}`);
-  }, [history, location.pathname, params]);
+    const queryParam = generateQuery(paramCopy);
+    const path= `${location.pathname}?${queryParam}`
+    //history.push(`${location.pathname}?${queryParam}`);
+    window.open(path,"_blank")
+  }, [location.pathname, params]);
 
   const onMenuClick = useCallback(
     (index: number) => {
