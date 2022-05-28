@@ -39,21 +39,21 @@ const ACTIONS_STATUS = {
     value: 'UPDATE',
     name: 'Sửa phiếu chuyển kho',
   },
+  PENDING : {
+    value: 'PENDING',
+    name: 'Chờ xử lý',
+  },
   DELETE : {
     value: 'DELETE',
     name: 'Huỷ phiếu chuyển kho',
   },
-  CONFIRM_EXCEPTION : {
-    value: 'CONFIRM_EXCEPTION',
-    name: 'Xác nhận hàng thừa thiếu',
-  },
-  CREATE_SHIPMENT : {
-    value: 'CREATE_SHIPMENT',
-    name: 'Tạo mới đơn vận chuyển',
-  },
   CANCEL_SHIPMENT : {
     value: 'CANCEL_SHIPMENT',
-    name: 'Huỷ đơn vận chuyển',
+    name: 'Huỷ phiếu chuyển kho',
+  },
+  CONFIRM_EXCEPTION : {
+    value: 'CONFIRM_EXCEPTION',
+    name: 'Nhập lại tồn chênh lệch',
   },
   EXPORT_SHIPMENT : {
     value: 'EXPORT_SHIPMENT',
@@ -205,14 +205,14 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
           case ACTIONS_STATUS.DELETE.value:
             displayName = ACTIONS_STATUS.DELETE.name;
             break;
+          case ACTIONS_STATUS.CANCEL_SHIPMENT.value:
+            displayName = ACTIONS_STATUS.CANCEL_SHIPMENT.name;
+            break;
           case ACTIONS_STATUS.CONFIRM_EXCEPTION.value:
             displayName = ACTIONS_STATUS.CONFIRM_EXCEPTION.name;
             break;
-          case ACTIONS_STATUS.CREATE_SHIPMENT.value:
-            displayName = ACTIONS_STATUS.CREATE_SHIPMENT.name;
-            break;
-          case ACTIONS_STATUS.CANCEL_SHIPMENT.value:
-            displayName = ACTIONS_STATUS.CANCEL_SHIPMENT.name;
+            case ACTIONS_STATUS.PENDING.value:
+            displayName = ACTIONS_STATUS.PENDING.name;
             break;
           case ACTIONS_STATUS.EXPORT_SHIPMENT.value:
             displayName = ACTIONS_STATUS.EXPORT_SHIPMENT.name;
