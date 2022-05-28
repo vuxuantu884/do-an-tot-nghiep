@@ -1,5 +1,4 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Col, Form, Modal, Row } from "antd";
+import { Alert, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
@@ -14,7 +13,7 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, deleteOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
+  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
   PaymentMethodGetList,
   UpdatePaymentAction
 } from "domain/actions/order/order.action";
@@ -50,7 +49,6 @@ import {
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
-  POS,
   ShipmentMethodOption
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
@@ -67,6 +65,7 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
+
 
 type PropType = {
   id?: string;
@@ -124,9 +123,9 @@ const OrderDetail = (props: PropType) => {
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] = useState<
-    OrderReasonModel | null
+  OrderReasonModel|null
   >(null);
-
+  
   const orderCancelFulfillmentReasonArr = [
     {
       title: "Khách hàng hủy",
@@ -275,19 +274,19 @@ const OrderDetail = (props: PropType) => {
           OrderDetail.fulfillments.length > 0
         ) {
           const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.UNSHIPPED || sortedFulfillments[0]?.status === FulFillmentStatus.CANCELLED) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED || sortedFulfillments[0].status === FulFillmentStatus.CANCELLED) {
             return OrderStatus.FINALIZED;
           }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.PICKED) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
             return FulFillmentStatus.PICKED;
           }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.PACKED) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
             return FulFillmentStatus.PACKED;
           }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
             return FulFillmentStatus.SHIPPING;
           }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED) {
+          if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
             return FulFillmentStatus.SHIPPED;
           }
         }
@@ -338,6 +337,7 @@ const OrderDetail = (props: PropType) => {
       }
     }
   }, [form]);
+  
 
   const handleUpdateSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
@@ -355,7 +355,7 @@ const OrderDetail = (props: PropType) => {
 
   const handleCancelOrder = useCallback(
     (reason_id: string, sub_reason_id: string, reason: string) => {
-      if (!OrderDetail?.id) {
+      if(!OrderDetail?.id) {
         return;
       }
       dispatch(
@@ -433,7 +433,7 @@ const OrderDetail = (props: PropType) => {
   }
 
   const cancelFulfillmentAndUpdateFromRef = useCallback(() => {
-    if (updateShipmentCardRef.current) {
+    if(updateShipmentCardRef.current) {
       updateShipmentCardRef.current.handleCancelFulfillmentAndUpdate()
     }
   }, []);
@@ -461,7 +461,7 @@ const OrderDetail = (props: PropType) => {
             "print-type": "order",
             "print-dialog": true,
           };
-          if (OrderDetail?.order_return_origin?.id) {
+          if(OrderDetail?.order_return_origin?.id) {
             params = {
               action: "print",
               ids: [OrderDetail?.order_return_origin?.id],
@@ -482,7 +482,7 @@ const OrderDetail = (props: PropType) => {
         case "change_status_rts":
           changeLazadaOrderStatus(EcommerceOrderStatus.READY_TO_SHIP);
           break;
-        case "cancelFulfillmentAndUpdate":
+        case "cancelFulfillmentAndUpdate": 
           cancelFulfillmentAndUpdateFromRef();
           break;
         default:
@@ -512,49 +512,6 @@ const OrderDetail = (props: PropType) => {
       );
     }
   };
-
-  /**
-   * xóa đơn
-   */
-  const handleDeleteOrderClick = useCallback(() => {
-    if (!OrderDetail) {
-      showError("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
-      return;
-    }
-
-    const deleteOrderComfirm = () => {
-      let ids: number[] = [OrderDetail.id]
-      dispatch(deleteOrderAction(ids, (success) => {
-        if (success) {
-          history.push(`${OrderDetail.channel === POS.channel_code ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER}`)
-        }
-      }))
-    }
-
-    Modal.confirm({
-      title: "Xác nhận xóa",
-      icon: <ExclamationCircleOutlined />,
-      content: (
-        <React.Fragment>
-        <div style={{ display: "flex", lineHeight: "5px" }}>
-          Bạn có chắc chắn xóa:
-          <div style={{ marginLeft: 10, fontWeight: 500 }}>
-          <p>{OrderDetail?.code}</p>
-          </div>
-        </div>
-        <p style={{ textAlign: "justify", color:"#ff4d4f" }}>
-          Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá
-          luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá
-          đơn ở trạng thái Thành công
-        </p>
-        </React.Fragment>
-      ),
-      okText: "Xóa",
-      cancelText: "Hủy",
-      okType:"danger",
-      onOk: deleteOrderComfirm,
-    });
-  }, [OrderDetail, dispatch, history])
 
   const [disabledBottomActions, setDisabledBottomActions] = useState(false);
 
@@ -599,16 +556,16 @@ const OrderDetail = (props: PropType) => {
     if (!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
-
+    
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-    const trackingCode =  sortedFulfillments[0]?.shipment?.tracking_code;
-    const pushingStatus =  sortedFulfillments[0]?.shipment?.pushing_status;
+    const trackingCode =  sortedFulfillments[0].shipment?.tracking_code;
+    const pushingStatus =  sortedFulfillments[0].shipment?.pushing_status;
     let getTrackingCode = setInterval(()=> {
       if (numberReloadGetTrackingCodeGHTK < maxNumberReloadGetTrackingCodeGHTK && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
         getOrderDetail(id).then(response => {
           numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
           const sortedFulfillments = sortFulfillments(response.data?.fulfillments);
-          if (sortedFulfillments && sortedFulfillments[0]?.shipment?.tracking_code) {
+          if (sortedFulfillments && sortedFulfillments[0].shipment?.tracking_code) {
             onGetDetailSuccess(response.data);
             isRequest = false;
             showSuccess("Lấy mã vận đơn thành công!")
@@ -743,33 +700,34 @@ const OrderDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
-  const eventKeyboardFunction = useCallback((event: KeyboardEvent) => {
+  const eventKeyboardFunction=useCallback((event:KeyboardEvent)=>{
     console.log(event.key);
-    if (event.key === "F9") {
+    if(event.key==="F9")
+    {
       event.preventDefault();
       event.stopPropagation();
     }
-    switch (event.key) {
+    switch(event.key){
       case "F9":
-        const btnOrderUpdateElement: any = document.getElementById("btn-order-edit");
+        const btnOrderUpdateElement:any= document.getElementById("btn-order-edit");
         btnOrderUpdateElement?.click();
         break;
       default: break;
     }
-  }, [])
+  },[])
 
-  useEffect(() => {
-    window.addEventListener("keydown", eventKeyboardFunction)
-    return () => {
-      window.removeEventListener("keydown", eventKeyboardFunction)
+  useEffect(()=>{
+    window.addEventListener("keydown",eventKeyboardFunction)
+    return ()=>{
+      window.removeEventListener("keydown",eventKeyboardFunction)
     }
-  }, [eventKeyboardFunction])
+  },[eventKeyboardFunction])
 
   return (
     <ContentContainer
       isLoading={loadingData}
       isError={isError}
-      title={isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`}
+      title= {isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -777,7 +735,7 @@ const OrderDetail = (props: PropType) => {
         },
         {
           name: isOrderFromPOS(OrderDetail) ? `Danh sách đơn hàng offline` : `Danh sách đơn hàng online`,
-          path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+          path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
         },
         {
           name: OrderDetail?.code
@@ -870,6 +828,7 @@ const OrderDetail = (props: PropType) => {
                 customerDetail={customerDetail}
                 storeDetail={storeDetail}
                 stepsStatusValue={stepsStatusValue}
+                totalPaid={totalPaid}
                 customerNeedToPayValue={customerNeedToPayValue}
                 officeTime={officeTime}
                 shipmentMethod={shipmentMethod}
@@ -895,6 +854,25 @@ const OrderDetail = (props: PropType) => {
                   isDetailPage
                 />
               )}
+              {OrderDetailAllFulfillment?.fulfillments?.some((p)=>(p.status===FulFillmentStatus.SHIPPING && p.return_status===FulFillmentStatus.RETURNING) 
+              || (p.status===FulFillmentStatus.CANCELLED && p.return_status===FulFillmentStatus.RETURNED && p.status_before_cancellation===FulFillmentStatus.SHIPPING)) && (
+              <Alert
+                message={
+                  <React.Fragment>
+                    <div style={{lineHeight:"10px",fontWeight:"500", fontSize:"15px"}}>
+                      <p>Lưu ý : Đối với đơn ở trạng thái đang hoàn</p>
+                      <ul style={{lineHeight:"18px"}}>
+                        <li>Nếu chọn nhận hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành Đã hoàn và cộng tồn đã hoàn cho các sản phẩm thuộc đơn hàng về kho</li>
+                        <li>Nếu chọn đã giao hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành công</li>
+                      </ul>
+                    </div>
+                  </React.Fragment>
+                }
+                type="warning"
+                closable
+              />
+              )}
+              
             </Col>
 
             <Col md={6}>
@@ -928,7 +906,6 @@ const OrderDetail = (props: PropType) => {
             onConfirmOrder={onConfirmOrder}
             isShowConfirmOrderButton={isShowConfirmOrderButton}
             disabledBottomActions={disabledBottomActions}
-            deleteOrderClick={handleDeleteOrderClick}
           />
         </Form>
       </div>

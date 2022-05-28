@@ -127,13 +127,13 @@ function CardShowOrderPayments(props: PropTypes) {
   const renderCodWaiting = () => {
     if (
       sortedFulfillments &&
-      sortedFulfillments[0]?.shipment?.cod &&
-      sortedFulfillments[0]?.status !== FulFillmentStatus.SHIPPED
+      sortedFulfillments[0].shipment?.cod &&
+      sortedFulfillments[0].status !== FulFillmentStatus.SHIPPED
     ) {
       return (
         <Panel
           className={
-            sortedFulfillments[0]?.status !== FulFillmentStatus.SHIPPED
+            sortedFulfillments[0].status !== FulFillmentStatus.SHIPPED
               ? "orders-timeline-custom orders-dot-status"
               : "orders-timeline-custom "
           }
@@ -149,12 +149,12 @@ function CardShowOrderPayments(props: PropTypes) {
                 </b>
                 <span className="amount">
                   {OrderDetail !== null && OrderDetail?.fulfillments
-                    ? formatCurrency(sortedFulfillments[0]?.shipment?.cod)
+                    ? formatCurrency(sortedFulfillments[0].shipment?.cod)
                     : 0}
                 </span>
               </div>
               <div className={paymentClassName.right}>
-                {sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED && (
+                {sortedFulfillments[0].status === FulFillmentStatus.SHIPPED && (
                   <div>
                     <span className="date">
                       {ConvertUtcToLocalDate(
@@ -344,7 +344,7 @@ function CardShowOrderPayments(props: PropTypes) {
   const checkIfOrderHasPaidAllMoneyAmountIncludeCod = (
     OrderDetail: OrderResponse,
   ) => {
-    const codAmount = sortedFulfillments[0]?.shipment?.cod || 0;
+    const codAmount = sortedFulfillments[0].shipment?.cod || 0;
     return codAmount + totalPaid >= OrderDetail.total;
   };
 

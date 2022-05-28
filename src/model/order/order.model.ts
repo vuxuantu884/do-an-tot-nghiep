@@ -188,6 +188,7 @@ export interface OrderSearchQuery {
   channel_codes?: Array<any> | [];
   tracking_codes ?: Array<string> | [];
   searched_product?: string | null;
+  discount_codes?:string[]|null;
 }
 
 export interface OrderSearchQueryModel {

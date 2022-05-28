@@ -14,6 +14,7 @@ import {
   ImportOutlined,
   PaperClipOutlined,
   PrinterOutlined,
+  ExportOutlined
 } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -46,10 +47,10 @@ import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryStep from "./components/InventoryTransferStep";
-import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
+import { STATUS_INVENTORY_TRANSFER } from "../constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
@@ -72,6 +73,11 @@ import { searchVariantsApi } from "service/product/product.service";
 import ImportExcel from "./components/ImportExcel";
 import ActionButton, { MenuAction } from "../../../component/table/ActionButton";
 import useAuthorization from "../../../hook/useAuthorization";
+import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
+import { STATUS_INVENTORY_TRANSFER_ARRAY } from "../constants";
+import {DATE_FORMAT} from "utils/DateUtils";
+import * as XLSX from 'xlsx';
+import moment from "moment";
 export interface InventoryParams {
   id: string;
 }
@@ -244,6 +250,11 @@ const DetailTicket: FC = () => {
       name: "Tạo bản sao",
       icon: <CopyOutlined />,
       disabled: !allowClone,
+    },
+    {
+      id: 3,
+      name: "Xuất file",
+      icon: <ExportOutlined />,
     },
   ];
 
@@ -641,7 +652,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: <div>
-        <div>SL</div>
+        <div>SL Gửi</div>
         <div className="text-center">
           {data?.total_quantity}
         </div>
@@ -658,20 +669,6 @@ const DetailTicket: FC = () => {
       render: (value) => {
         return <NumberFormat
           value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
-      },
-    },
-    {
-      title: "Thành tiền",
-      dataIndex: "amount",
-      align: "center",
-      width: 100,
-      render: (value, row: LineItem) => {
-        return <NumberFormat
-          value={row.price * row.transfer_quantity}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -739,7 +736,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: <div>
-        <div>SL</div>
+        <div>SL Gửi</div>
         <div className="text-center">
           {data?.total_quantity}
         </div>
@@ -832,6 +829,7 @@ const DetailTicket: FC = () => {
   ];
 
   const deleteTicketResult = useCallback(result => {
+    setLoadingBtn(false);
     if (!result) {
       setError(true);
       return;
@@ -843,6 +841,7 @@ const DetailTicket: FC = () => {
   }, [])
 
   const onDeleteTicket = (value: string | undefined) => {
+    setLoadingBtn(true);
     dispatch(
       deleteInventoryTransferAction(
         idNumber,
@@ -940,6 +939,55 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const convertTransferDetailExport = (transfer:InventoryTransferDetailItem,arrItem: Array<LineItem>) => {
+    let arr = [];
+    for (let i = 0; i < arrItem.length; i++) {
+      const item = arrItem[i];
+
+      arr.push({
+        [TransferExportLineItemField.code]: transfer.code,
+        [TransferExportLineItemField.from_store]: `${transfer.from_store_name}`,
+        [TransferExportLineItemField.to_store]: `${transfer.to_store_name}`,
+        [TransferExportLineItemField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===transfer.status)?.name,
+        [TransferExportLineItemField.sku]: item.sku,
+        [TransferExportLineItemField.variant_name]: item.variant_name,
+        [TransferExportLineItemField.barcode]: item.barcode,
+        [TransferExportLineItemField.price]: item.price,
+        [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
+        [TransferExportLineItemField.total_amount]: (item.transfer_quantity ?? 0) * (item.price ?? 0),
+        [TransferExportLineItemField.real_quantity]: item.real_quantity === 0 ? null :item.real_quantity,
+        [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYY_HHmm),
+        [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
+        [TransferExportField.transfer_date]: ConvertUtcToLocalDate(transfer.transfer_date,DATE_FORMAT.DDMMYY_HHmm),
+        [TransferExportField.receive_date]: ConvertUtcToLocalDate(transfer.receive_date,DATE_FORMAT.DDMMYY_HHmm),
+        [TransferExportField.receive_by]: transfer.receive_date ? `${item.updated_by} - ${item.updated_name}`: null,
+        [TransferExportField.note]: transfer.note,
+      });
+    }
+    return arr;
+  }
+
+  const exportTransfer = (transfer: InventoryTransferDetailItem | null)=>{
+    setLoading(true);
+    if (transfer ==null || transfer.line_items ==null || transfer.line_items.length ===0) {
+      showWarning("Không có dữ liệu để xuất file");
+      setLoading(false);
+      return;
+    }
+
+    const workbook = XLSX.utils.book_new();
+    const item = convertTransferDetailExport(transfer,transfer.line_items);
+     const ws = XLSX.utils.json_to_sheet(item);
+
+     XLSX.utils.book_append_sheet(workbook, ws, 'data');
+     const today = moment(new Date(), 'YYYY/MM/DD');
+      const month = today.format('M');
+      const day   = today.format('D');
+      const year  = today.format('YYYY');
+      XLSX.writeFile(workbook, `${transfer.code}_${day}_${month}_${year}.xlsx`);
+     setLoading(false);
+  };
+
   const onMenuClick = React.useCallback(
     (menuId: number) => {
       switch (menuId) {
@@ -947,11 +995,15 @@ const DetailTicket: FC = () => {
           setIsDeleteTicket(true);
           break;
         case 2:
-          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update?cloneId=${data?.id}`)
+          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update?cloneId=${data?.id}`);
+          break;
+        case 3:
+          exportTransfer(data);
           break;
       }
     },
-    [data?.id, history]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, history]
   );
 
   return (
@@ -1047,16 +1099,6 @@ const DetailTicket: FC = () => {
                                   </Table.Summary.Cell>
                                   <Table.Summary.Cell align={"center"} index={3}>
                                     <b>{data.total_quantity}</b>
-                                  </Table.Summary.Cell>
-                                  <Table.Summary.Cell index={4}>
-                                  </Table.Summary.Cell>
-                                  <Table.Summary.Cell align={"center"} index={5}>
-                                    <b><NumberFormat
-                                        value={data.total_amount}
-                                        className="foo"
-                                        displayType={"text"}
-                                        thousandSeparator={true}
-                                      /></b>
                                   </Table.Summary.Cell>
                                 </Table.Summary.Row>
                               </Table.Summary>
@@ -1216,28 +1258,6 @@ const DetailTicket: FC = () => {
                   </Card>
                   )
                 }
-                <div className="inventory-transfer-action">
-                  {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
-                      <AuthWrapper
-                        acceptPermissions={[ShipmentInventoryTransferPermission.export]}
-                        acceptStoreIds={[data.from_store_id]}
-                      >
-                        <Button
-                          className="export-button"
-                          type="primary"
-                          onClick={() => {
-                            if(data) dispatch(exportInventoryAction(data?.id,
-                              onReload
-                            ));
-                          }}
-                        >
-                          Xuất kho
-                        </Button>
-                      </AuthWrapper>
-                    )
-                  }
-                </div>
               </Col>
               <Col span={6}>
                 <Card
@@ -1425,6 +1445,26 @@ const DetailTicket: FC = () => {
                       </Button>
                     </AuthWrapper>
                   }
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
+                      <AuthWrapper
+                        acceptPermissions={[ShipmentInventoryTransferPermission.export]}
+                        acceptStoreIds={[data.from_store_id]}
+                      >
+                        <Button
+                          className="export-button"
+                          type="primary"
+                          onClick={() => {
+                            if(data) dispatch(exportInventoryAction(data?.id,
+                              onReload
+                            ));
+                          }}
+                        >
+                          Xuất kho
+                        </Button>
+                      </AuthWrapper>
+                    )
+                  }
                 </Space>
               }
             />
@@ -1488,6 +1528,7 @@ const DetailTicket: FC = () => {
             visible={isDeleteTicket}
             icon={WarningRedIcon}
             textStore={data?.from_store_name}
+            loading={isLoadingBtn}
             okText="Đồng ý"
             cancelText="Thoát"
             title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${data?.code}`}

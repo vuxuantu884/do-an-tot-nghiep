@@ -70,8 +70,3 @@ export const getOrderReturnCalculateRefundService = (
     `${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/order/${orderId}/calculate-refund`, restQuery
   );
 };
-
-export const deleteOrderReturnService=(ids:number[]):Promise<BaseResponse<any>>=>{
-  let link = `${ApiConfig.ORDER}/orders/returns?ids=${ids}`;
-  return BaseAxios.delete(link);
-}

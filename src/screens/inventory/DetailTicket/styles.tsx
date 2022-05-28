@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
+import { STATUS_INVENTORY_TRANSFER } from "../constants";
 import { BG_COLOR_TAG } from "../ListTicket/ListTicketTab/InventoryTransfer/styles";
 
 export const StyledWrapper = styled.div`

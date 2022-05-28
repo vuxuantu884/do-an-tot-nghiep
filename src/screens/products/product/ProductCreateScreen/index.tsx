@@ -140,7 +140,8 @@ const initialRequest: ProductRequestView = {
   material: null,
 };
 
-const ProductCreateScreen: React.FC = () => {
+const ProductCreateScreen: React.FC = () => { 
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   //Hook
   const dispatch = useDispatch();
   const history = useHistory();
@@ -184,7 +185,8 @@ const ProductCreateScreen: React.FC = () => {
         ? lengthUnitList[0].value
         : null,
     product_type: "normal",
-    brand: DEFAULT_COMPANY.company.toLocaleLowerCase()
+    brand: DEFAULT_COMPANY.company.toLocaleLowerCase(),
+    merchandiser_code: userReducer && userReducer.account ? userReducer.account.code : null
   };
   //end init
 
@@ -1243,7 +1245,7 @@ const ProductCreateScreen: React.FC = () => {
                   label="Thiết kế"
                   tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
                 >
-                  <BaseSelectMerchans {...{isLoadingMerchans, fetchMerchans, merchans}} />
+                  <BaseSelectMerchans {...{isLoadingMerchans, fetchMerchans, merchans}} placeholder="Chọn thiết kế" />
                 </Item>
               </Card>
             </Col>

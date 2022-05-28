@@ -1,5 +1,6 @@
 import { Card, Col, Row, Tag } from "antd";
 import { OrderResponse } from "model/response/order/order.response";
+import TextWithLineBreak from "screens/order-online/component/TextWithLineBreak";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -18,7 +19,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
               {OrderDetail?.customer_note !== ""
-                ? OrderDetail?.customer_note
+                ? (<TextWithLineBreak note={OrderDetail?.customer_note} />)
                 : "Không có ghi chú"}
             </span>
           </Col>
@@ -31,7 +32,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
               {OrderDetail?.note !== ""
-                ? OrderDetail?.note
+                ? (<TextWithLineBreak note={OrderDetail?.note} />)
                 : "Không có ghi chú"}
             </span>
           </Col>

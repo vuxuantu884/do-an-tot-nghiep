@@ -473,7 +473,7 @@ const ShipmentDetail: React.FC = () => {
                   <div>Phí ship báo khách:</div>
                   <div>
                     <NumberFormat
-                      value={fulfillmentDetail?.order?.shipping_fee_informed_to_customer ? fulfillmentDetail.order.shipping_fee_informed_to_customer : 0}
+                      value={fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer ? fulfillmentDetail.shipment.shipping_fee_informed_to_customer : 0}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}

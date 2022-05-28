@@ -182,3 +182,7 @@ export interface PODataSourceSize {
 }
 
 export type PODataSourceGrid = PODataSourceProduct & PODataSourceSize;
+
+export interface PurchaseOrderBySupplierQuery extends BaseQuery {
+  condition?: string
+}

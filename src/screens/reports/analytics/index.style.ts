@@ -9,11 +9,11 @@ export const AnalyticsStyle = styled.div`
         gap: 20px;
         flex-wrap: wrap;
     }
-    .report-filter-item {
-        margin: 0;
-    }
     .filter-btn {
         margin-left: auto;
+    }
+    .report-filter-item {
+        margin: 0;
     }
     @media screen and (max-width: 768px) {
         .group-report-type {

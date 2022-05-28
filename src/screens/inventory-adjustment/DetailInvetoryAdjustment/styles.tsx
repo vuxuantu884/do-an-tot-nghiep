@@ -200,6 +200,9 @@ export const StyledWrapper = styled.div`
       &:hover {
         background-color: rgba($primary-color, 0.15);
       }
+    }
   }
+  .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th, .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
+    padding: 6px !important;
   }
 `;

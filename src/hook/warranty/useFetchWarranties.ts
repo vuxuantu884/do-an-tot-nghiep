@@ -84,7 +84,7 @@ function useFetchWarranties(
 
   const findId = useCallback(
     () => {
-      if (queryParamsParsed?.query) {
+      if (queryParamsParsed?.ids) {
         return {
           ...queryParamsParsed,
           warranty_status: undefined,
@@ -139,7 +139,7 @@ function useFetchWarranties(
           if (isFetchApiSuccessful(response)) {
             setWarranties(response.data.items);
             setMetaData(response.data.metadata);
-            if (queryParamsParsed?.query) {
+            if (queryParamsParsed?.ids) {
               let newPrams = {
                 ...queryParamsParsed,
                 tab: findTab(response.data.items[0]),

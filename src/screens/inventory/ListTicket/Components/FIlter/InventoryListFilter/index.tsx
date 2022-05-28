@@ -22,7 +22,7 @@ import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
 import { InventoryTransferSearchQuery, Store } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
-import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/ListTicket/constants";
+import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/constants";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { FormatTextMonney } from "utils/FormatMonney";

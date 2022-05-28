@@ -189,7 +189,6 @@ const TransferExportLineItemField = {
   [TransferLineItemField.created_date]: 'Ngày tạo',
   [TransferLineItemField.created_name]: 'Người tạo',
   [TransferLineItemField.transfer_date]: 'Ngày xuất kho',
-  [TransferLineItemField.updated_name]: 'Người xuất kho',
   [TransferLineItemField.receive_date]: 'Ngày nhận',
   [TransferLineItemField.updated_name]: 'Người nhận',
   [TransferLineItemField.note]: 'Ghi chú',

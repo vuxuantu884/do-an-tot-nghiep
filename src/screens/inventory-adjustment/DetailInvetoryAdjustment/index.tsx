@@ -175,6 +175,9 @@ const DetailInvetoryAdjustment: FC = () => {
   const [isPermissionAudit, setIsPermissionAudit] = useState(false);
 
   const [objSummaryTableByAuditTotal, setObjSummaryTableByAuditTotal] = useState<any>({
+    totalStock: 0,
+    totalShipping: 0,
+    totalOnWay: 0,
     onHand: 0,
     realOnHand: 0,
     totalExcess: 0,
@@ -312,7 +315,10 @@ const DetailInvetoryAdjustment: FC = () => {
       real_on_hand: 0,
       on_hand_adj: 0 - (value.on_hand ?? 0),
       price: variantPrice !== null ? variantPrice : value.price,
-      on_hand: value.on_hand ?? 0
+      on_hand: value.on_hand ?? 0,
+      on_way: value.on_way ?? 0,
+      shipping: value.shipping ?? 0,
+      total_stock: value.total_stock ?? 0
     }
   }
 
@@ -582,6 +588,54 @@ const DetailInvetoryAdjustment: FC = () => {
           </div>
         </div>
       ),
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Tổng tồn</div>
+            <div>({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "total_stock",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang giao</div>
+            <div>({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "shipping",
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Đang chuyển đi</div>
+            <div>({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
+          </>
+        );
+      },
+      width: 80,
+      align: "center",
+      dataIndex: "on_way",
+      render: (value) => {
+        return value || 0;
+      },
     },
     {
       title: () => {
@@ -1073,6 +1127,9 @@ const onChangeNote = useCallback(
       if (!res) return;
       setObjSummaryTableByAuditTotal({
         onHand: res.onHand || 0,
+        totalStock: res.totalStock || 0,
+        totalShipping: res.totalShipping || 0,
+        totalOnWay: res.totalOnWay || 0,
         realOnHand: res.realOnHand || 0,
         totalExcess: res.totalExcess || 0,
         totalMissing: res.totalMissing || 0,
@@ -1331,7 +1388,8 @@ const onChangeNote = useCallback(
                         style={{ paddingTop: 20 }}
                         columns={defaultColumns}
                         pagination={false}
-                        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                        sticky
+                        scroll={{ x: 'max-content' }}
                         dataSource={dataLinesItem.items}
                         rowKey={(item: LineItemAdjustment) => item.id}
                       />

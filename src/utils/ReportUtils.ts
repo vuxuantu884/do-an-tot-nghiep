@@ -1,7 +1,7 @@
 import { YodyAction } from "base/base.action";
 import { AppConfig } from "config/app.config";
 import { TIME_GROUP_BY } from "config/report";
-import { AnalyticConditions, AnalyticCube, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
+import { AnalyticConditions, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
@@ -279,7 +279,7 @@ export const getChartQuery = (queryObject: AnalyticQuery, chartColumnSelected: s
   if (conditions?.length) {
     mapperConditions = conditions.map(condition => {
       if (condition.findIndex(item => item === 'IN') !== -1) {
-        condition = [...condition.slice(0, 2), ...(condition.slice(2).map((item, index) => !(item === ',' && condition.slice(2)[index+1]?.length > 1) ? encodeURIComponent(item) : item).join("").split(",").map((item: string) => decodeURIComponent(`'${item}'`)).join(","))].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
+        condition = [...condition.slice(0, 2), ...(condition.slice(2).map(item => item !== ',' ? encodeURIComponent(item) : item).join("").split(",").map((item: string) => decodeURIComponent(`'${item}'`)).join(","))].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
       }
       return condition;
     })
@@ -316,21 +316,4 @@ export const formatDataToSetUrl = (data: string, field: string) => {
     }
   }
   return encodeURIComponent(formattedData);
-}
-
-export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
-  const { Sales, Payments, Costs, OfflineSales } = AnalyticCube;
-  const url = '/analytics/'
-  switch (cube) {
-    case Sales:
-      return `${url}sales-online`;    
-    case Payments:
-      return `${url}customers`;    
-    case OfflineSales:
-      return `${url}sales-offline`;   
-    case Costs:
-      return `${url}finance`;
-    default:
-      return `${url}${OfflineSales}`;
-  }
 }

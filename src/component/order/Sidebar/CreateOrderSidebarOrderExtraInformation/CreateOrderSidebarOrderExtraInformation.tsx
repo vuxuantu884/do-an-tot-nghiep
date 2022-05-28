@@ -36,7 +36,7 @@ function CreateOrderSidebarOrderExtraInformation(
       >
         <Input.TextArea
           placeholder="Điền ghi chú"
-          //maxLength={500}
+          maxLength={500}
           style={{ minHeight: "80px" }}
         />
       </Form.Item>
@@ -50,7 +50,7 @@ function CreateOrderSidebarOrderExtraInformation(
       >
         <Input.TextArea
           placeholder="Điền ghi chú"
-          //maxLength={500}
+          maxLength={500}
           style={{ minHeight: "80px" }}
         />
       </Form.Item>

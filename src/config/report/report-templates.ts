@@ -33,14 +33,18 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 1,
     type: "Báo cáo lợi nhuận",
     name: "theo nhân viên",
-    query: `SHOW orders, net_quantity, return_count, average_order_value, total_sales, gross_profit BY staff_name FROM costs 
+    query: `SHOW gross_sales,returns, net_sales, shipping,total_sales,gross_profit, average_order_value, orders, ordered_item_quantity, returned_item_quantity, net_quantity  
+    BY staff_name
+    FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
-    ORDER BY gross_profit DESC`,
-    chart_query: `SHOW gross_profit BY staff_name FROM costs 
+    ORDER BY net_sales DESC`,
+    chart_query: `SHOW gross_profit  
+    BY staff_name
+    FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
-    ORDER BY gross_profit DESC`,
+    ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_FINACE],
-    cube: AnalyticCube.Costs,
+    cube: "costs",
     iconImg: "nhan-vien.svg",
     chartColumnSelected: ['gross_profit'],
     timeAtOption: TimeAtOptionValue.CompletedAt,
@@ -48,43 +52,59 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo cửa hàng",
-    query: `SHOW orders, return_count, net_quantity, average_order_value, total_sales, gross_profit BY pos_location_name FROM costs WHERE channel_provider_name IN ('Bán lẻ') 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY gross_profit DESC`,
-    chart_query: `SHOW gross_margin BY pos_location_name FROM costs WHERE channel_provider_name IN ('Bán lẻ') 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY gross_profit DESC`,
+    query: `SHOW orders, gross_sales, returns, net_sales, shipping, total_sales, gross_profit, average_order_value   
+    BY pos_location_name  
+    FROM costs  
+    WHERE channel_provider_name IN ('POS') 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
+    chart_query: `SHOW gross_profit   
+    BY pos_location_name  
+    FROM costs  
+    WHERE channel_provider_name IN ('POS') 
+    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY net_sales DESC`,
     alias: [UrlConfig.ANALYTIC_FINACE],
-    cube: AnalyticCube.Costs,
+    cube: "costs",
     iconImg: "cua-hang.svg",
     id: 2,
-    chartColumnSelected: ['gross_margin'],
+    chartColumnSelected: ['gross_profit'],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
     type: "Báo cáo lợi nhuận",
     name: "theo nguồn bán hàng",
-    query: `SHOW pre_orders, orders, return_count, pre_total_sales, total_sales, gross_profit BY channel_provider_name,source_name FROM costs WHERE sale_area IN ('Khối KD Online') 
+    query: `SHOW orders, gross_sales, returns, net_sales, shipping, total_sales, gross_profit, average_order_value  
+    BY channel_provider_name, source_name  
+    FROM costs 
+    WHERE channel_provider_name IN ('web','Shopee','Lazada','Facebook','Admin') 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
-    ORDER BY gross_profit DESC `,
-    chart_query: `SHOW gross_margin BY channel_provider_name,source_name FROM costs WHERE sale_area IN ('Khối KD Online') 
+    ORDER BY net_sales DESC `,
+    chart_query: `SHOW gross_profit  
+    BY channel_provider_name, source_name  
+    FROM costs 
+    WHERE channel_provider_name IN ('web','Shopee','Lazada','Facebook','Admin') 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
-    ORDER BY gross_profit DESC `,
-    cube: AnalyticCube.Costs,
+    ORDER BY net_sales DESC `,
+    cube: "costs",
     alias: [UrlConfig.ANALYTIC_FINACE],
     iconImg: "nguon-ban-hang.svg",
     id: 3,
-    chartColumnSelected: ['gross_margin'],
-    timeAtOption: TimeAtOptionValue.CreatedAt,
+    chartColumnSelected: ['gross_profit'],
+    timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
     type: "Báo cáo lợi nhuận",
     name: "theo sản phẩm",
-    query: `SHOW ordered_item_quantity, returned_item_quantity, net_quantity, total_sales, gross_profit, gross_margin BY variant_sku3 FROM costs 
+    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales,gross_profit, average_order_value  
+    BY variant_sku
+    FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
-    ORDER BY gross_profit DESC `,
-    chart_query: `SHOW gross_profit BY variant_sku3 FROM costs 
+    ORDER BY net_sales DESC `,
+    chart_query: `SHOW gross_profit  
+    BY variant_sku
+    FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
-    ORDER BY gross_profit DESC `,
-    cube: AnalyticCube.Costs,
+    ORDER BY net_sales DESC `,
+    cube: "costs",
     alias: [UrlConfig.ANALYTIC_FINACE],
     iconImg: "san-pham.svg",
     id: 4,
@@ -94,13 +114,17 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo thời gian",
-    query: `SHOW orders, return_count, net_quantity, average_order_value, total_sales, gross_profit OVER day FROM costs 
+    query: `SHOW orders,gross_sales,returns, net_sales,shipping,total_sales,gross_profit, average_order_value  
+    BY day 
+    FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
-    `,
-    chart_query: `SHOW gross_profit OVER day FROM costs 
+    ORDER BY DAY DESC`,
+    chart_query: `SHOW gross_profit  
+    BY day 
+    FROM costs 
     SINCE ${START_OF_MONTH} UNTIL ${TODAY}
-    `,
-    cube: AnalyticCube.Costs,
+    ORDER BY DAY DESC`,
+    cube: "costs",
     alias: [UrlConfig.ANALYTIC_FINACE],
     iconImg: "thoi-gian.svg",
     id: 5,
@@ -110,13 +134,19 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo khách hàng",
-    query: `SHOW orders, net_quantity, return_count, average_order_value, total_sales, gross_profit BY customer_name,customer_phone_number FROM costs SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
-    ORDER BY gross_profit DESC `,
-    cube: AnalyticCube.Costs,
+    query: `SHOW orders,gross_sales,returns,shipping,total_sales,net_sales,gross_profit, average_order_value  
+    BY customer_name
+    FROM costs SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    ORDER BY net_sales DESC `,
+    chart_query: `SHOW gross_profit  
+    BY customer_name
+    FROM costs SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    ORDER BY net_sales DESC `,
+    cube: "costs",
     alias: [UrlConfig.ANALYTIC_FINACE],
     iconImg: "khach-hang.svg",
     id: 6,
-    chartColumnSelected: [],
+    chartColumnSelected: ['gross_profit'],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   //khách hàng
@@ -163,13 +193,17 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo nhóm khách hàng",
-    query: `SHOW orders, return_count, net_quantity, total_sales, average_order_value, gross_profit BY customer_group FROM costs 
+    query: `SHOW  orders,gross_sales, returns, net_sales,shipping,total_sales,gross_profit, average_order_value  
+    BY customer_group 
+    FROM costs 
     SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
-    ORDER BY gross_profit desc `,
-    chart_query: `SHOW gross_profit BY customer_group FROM costs 
+    ORDER BY net_sales desc `,
+    chart_query: `SHOW  gross_profit  
+    BY customer_group 
+    FROM costs 
     SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
-    ORDER BY gross_profit desc `,
-    cube: AnalyticCube.Costs,
+    ORDER BY net_sales desc `,
+    cube: "costs",
     iconImg: "ban-hang-nhom kh.png",
     alias: [UrlConfig.ANALYTIC_FINACE],
     id: 15,
@@ -198,18 +232,24 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   },
   {
     type: "Báo cáo lợi nhuận",
-    name: "theo địa chỉ giao hàng",
-    query: `SHOW orders, return_count, net_quantity, customers, average_order_value, total_sales, gross_profit, gross_margin BY shipping_city FROM costs WHERE sale_area IN ('Khối KD Online') 
+    name: "theo địa chỉ khách hàng",
+    query: `SHOW  orders, gross_sales, returns, net_sales, shipping, total_sales, gross_profit, average_order_value  
+      BY shipping_city  
+      FROM costs 
+      WHERE channel_provider_name IN ('Admin','Facebook','Lazada','Shopee','web') 
       SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
-      ORDER BY gross_profit desc `,
-    chart_query: `SHOW gross_profit, gross_margin BY shipping_city FROM costs WHERE sale_area IN ('Khối KD Online') 
+      ORDER BY net_sales desc `,
+    chart_query: `SHOW  gross_profit  
+      BY shipping_city  
+      FROM costs 
+      WHERE channel_provider_name IN ('Admin','Facebook','Lazada','Shopee','web') 
       SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
-      ORDER BY gross_profit desc `,
-    cube: AnalyticCube.Costs,
+      ORDER BY net_sales desc `,
+    cube: "costs",
     iconImg: "dia-chi-kh.png",
     alias: [UrlConfig.ANALYTIC_FINACE],
     id: 16,
-    chartColumnSelected: ['gross_profit', 'gross_margin'],
+    chartColumnSelected: ['gross_profit'],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   ...ONLINE_REPORT_TEMPLATES

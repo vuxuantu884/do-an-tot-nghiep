@@ -29,12 +29,11 @@ type PropType = {
   isSaveDraft?: boolean;
   updating?: boolean;
   updatingConfirm?: boolean;
-  isShow?: boolean;
+  isShow?:boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
   updateCancelClick?: () => void;
-  deleteOrderClick?: () => void;
   onConfirmOrder?: () => void;
 };
 
@@ -58,7 +57,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     orderActionsClick,
     updateCancelClick,
     onConfirmOrder,
-    deleteOrderClick,
   } = props;
 
   const isLoadingDiscount = useSelector(
@@ -94,28 +92,26 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
       return orderDetail?.status !== OrderStatus.FINALIZED
     };
     const checkIfOrderHasNoFFM = () => {
-      if (!orderDetail || !orderDetail?.fulfillments || orderDetail?.fulfillments.length === 0) {
+      if(!orderDetail || !orderDetail?.fulfillments || orderDetail?.fulfillments.length === 0) {
         return true
       }
-      if (sortedFulfillment[0].status === FulFillmentStatus.RETURNED || sortedFulfillment[0].status === FulFillmentStatus.CANCELLED || sortedFulfillment[0].status === FulFillmentStatus.RETURNING) {
+      if(sortedFulfillment[0].status === FulFillmentStatus.RETURNED || sortedFulfillment[0].status === FulFillmentStatus.CANCELLED || sortedFulfillment[0].status === FulFillmentStatus.RETURNING) {
         return true
       }
       return false
     };
     const checkIfOrderStepIsUnshipped = () => {
-      return orderDetail?.fulfillment_status === "unshipped"
+      return  orderDetail?.fulfillment_status === "unshipped"
     };
     const checkIfOrderFulfillmentHasNoShipment = () => {
-      return !sortedFulfillment[0]?.shipment
+      return  !sortedFulfillment[0]?.shipment
     };
-    if (checkIfOrderIsFinalized() || checkIfOrderHasNoFFM() || !checkIfOrderStepIsUnshipped() || checkIfOrderFulfillmentHasNoShipment()) {
+    if(checkIfOrderIsFinalized() || checkIfOrderHasNoFFM() || !checkIfOrderStepIsUnshipped() || checkIfOrderFulfillmentHasNoShipment()) {
       return false;
     }
     return true
   }, [orderDetail])
 
-  const checkIsFulfillmentShipping = useMemo(() => orderDetail?.fulfillments?.some((p) => p.status === FulFillmentStatus.SHIPPING), [orderDetail])
-  
   return (
     <StyledComponent>
       <div className="bottomBar" hidden={isShow}>
@@ -183,17 +179,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   >
                     Huỷ (F4)
                   </Button>
-                  {!checkIsFulfillmentShipping&&(
-                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_ORDER]} passThrough>
-                    <Button
-                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                      danger id="btn-order-delete"
-                      onClick={deleteOrderClick}
-                    >
-                      Xóa
-                    </Button>
-                  </AuthWrapper >
-                  )}
                   {stepsStatusValue === OrderStatus.DRAFT && <Button
                     style={{ padding: "0 25px", fontWeight: 400 }}
                     type="primary"
@@ -223,7 +208,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         disabled={!isPassed || isLoadingDiscount}
                       >
                         Cập nhật đơn hàng (F9)
-                      </Button>}
+                    </Button>}
                   </AuthWrapper>
 
                 </div>
@@ -249,7 +234,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           }
                         >
                           Huỷ đơn hàng
-                        </Menu.Item>}
+                      </Menu.Item>}
                     </AuthWrapper>
                     <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
                       {(isPassed: boolean) =>
@@ -266,18 +251,18 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           }
                         >
                           Sao chép đơn hàng
-                        </Menu.Item>}
+                      </Menu.Item>}
                     </AuthWrapper>
                     {orderDetail && orderDetail?.fulfillments?.length &&
                       !orderDetail?.fulfillments[0]?.shipment?.tracking_code &&
                       orderDetail.status === "finalized" && orderDetail.channel_id === EcommerceChannelId.SHOPEE ? (
-                      <Menu.Item
-                        key="confirm"
-                        onClick={() => orderActionsClick && orderActionsClick("confirm")}
-                      >
-                        Xác nhận đơn trên sàn
-                      </Menu.Item>
-                    ) : null}
+                        <Menu.Item
+                          key="confirm"
+                          onClick={() => orderActionsClick && orderActionsClick("confirm")}
+                        >
+                          Xác nhận đơn trên sàn
+                        </Menu.Item>
+                      ) : null}
                     {orderDetail && orderDetail?.channel_id === EcommerceChannelId.LAZADA && (
                       <Fragment>
                         <Menu.Item
@@ -285,13 +270,13 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           onClick={() => orderActionsClick && orderActionsClick("change_status_packed")}
                         >
                           Tạo gói hàng Lazada
-                        </Menu.Item>
+                      </Menu.Item>
                         <Menu.Item
                           key="change_status_rts"
                           onClick={() => orderActionsClick && orderActionsClick("change_status_rts")}
                         >
                           Báo Lazada sẵn sàng giao
-                        </Menu.Item>
+                      </Menu.Item>
                       </Fragment>
                     )}
                     {stepsStatusValue === FulFillmentStatus.SHIPPED ? (
@@ -302,7 +287,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         In lại hoá đơn
                       </Menu.Item>
                     ) : null}
-
+                    
                     <Menu.Item
                       key="warranty"
                       onClick={() => window.open(
@@ -311,8 +296,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                       )}
                       disabled={orderDetail?.status !== OrderStatus.FINISHED}
                     >
-                      Tạo bảo hành
-                    </Menu.Item>
+                     Tạo bảo hành
+                  </Menu.Item>
                   </Menu>
                 }
                 trigger={["click"]}
@@ -323,57 +308,45 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
               </Dropdown>
               {isShowButtonCancelFFMAndUpdate ? (
                 <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
-                  {(isPassed: boolean) =>
-                    <Button
-                      // type="primary"
-                      ghost
-                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                      onClick={() => orderActionsClick && orderActionsClick("cancelFulfillmentAndUpdate")}
-                      disabled={
-                        disabledBottomActions ||
-                        // orderDetail?.status === OrderStatus.FINISHED ||
-                        // orderDetail?.status === OrderStatus.COMPLETED ||
-                        // stepsStatusValue === OrderStatus.CANCELLED ||
-                        !isPassed
-                        || isLoadingDiscount
-                      }
-                    >
-                      Hủy đơn giao & sửa đơn hàng
-                    </Button>}
+                  {(isPassed: boolean) => 
+                  <Button
+                    // type="primary"
+                    ghost
+                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                    onClick={() => orderActionsClick && orderActionsClick("cancelFulfillmentAndUpdate")}
+                    disabled={
+                      disabledBottomActions ||
+                      // orderDetail?.status === OrderStatus.FINISHED ||
+                      // orderDetail?.status === OrderStatus.COMPLETED ||
+                      // stepsStatusValue === OrderStatus.CANCELLED ||
+                      !isPassed
+                      || isLoadingDiscount
+                    }
+                  >
+                    Hủy đơn giao & sửa đơn hàng
+                  </Button>}
                 </AuthWrapper>
               ) : null}
-              {!checkIsFulfillmentShipping && (
-                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_ORDER]} passThrough>
-                  <Button
-                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                    danger id="btn-order-delete"
-                    onClick={deleteOrderClick}
-                  >
-                    Xóa
-                  </Button>
-                </AuthWrapper >
-              )}
-
               {orderDetail?.sub_status_code && orderDetail.sub_status_code !== ORDER_SUB_STATUS.returned && ( // đơn đã hoàn thì tạm thời ko hiển thị sửa đơn hàng
                 <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
-                  {(isPassed: boolean) =>
-                    <Button
-                      type="primary"
-                      ghost
-                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                      onClick={() => orderActionsClick && orderActionsClick("update")}
-                      disabled={
-                        disabledBottomActions ||
-                        // orderDetail?.status === OrderStatus.FINISHED ||
-                        // orderDetail?.status === OrderStatus.COMPLETED ||
-                        // stepsStatusValue === OrderStatus.CANCELLED ||
-                        !isPassed
-                        || isLoadingDiscount
-                      }
-                      id="btn-order-edit"
-                    >
-                      Sửa đơn hàng (F9)
-                    </Button>}
+                  {(isPassed: boolean) => 
+                  <Button
+                    type="primary"
+                    ghost
+                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                    onClick={() => orderActionsClick && orderActionsClick("update")}
+                    disabled={
+                      disabledBottomActions ||
+                      // orderDetail?.status === OrderStatus.FINISHED ||
+                      // orderDetail?.status === OrderStatus.COMPLETED ||
+                      // stepsStatusValue === OrderStatus.CANCELLED ||
+                      !isPassed
+                      || isLoadingDiscount
+                    }
+                    id="btn-order-edit"
+                  >
+                    Sửa đơn hàng (F9)
+                  </Button>}
                 </AuthWrapper>
               )}
               {isShowConfirmOrderButton && (

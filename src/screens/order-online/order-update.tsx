@@ -1,12 +1,10 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import {
 	Badge, Card,
 	Col,
 	Collapse, Form,
 	FormInstance,
 	Input,
-	Modal,
 	Row,
 	Space,
 	Tag,
@@ -37,7 +35,7 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, deleteOrderAction, DeliveryServicesGetList,
+	changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, DeliveryServicesGetList,
 	getListSubStatusAction, getStoreBankAccountNumbersAction, getTrackingLogFulfillmentAction, orderConfigSaga, OrderDetailAction,
 	orderUpdateAction,
 	PaymentMethodGetList, setIsExportBillAction,
@@ -97,12 +95,13 @@ import {
 	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
-	POS,
 	ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+// import { yellowColor } from "utils/global-styles/variables";
+import { isDeliveryOrder } from "utils/OrderUtils";
 import { FulfillmentCancelStatus } from "utils/Order.constants";
 import { checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -255,22 +254,22 @@ export default function Order(props: PropTypes) {
 					OrderDetail.fulfillments !== null &&
 					OrderDetail.fulfillments.length > 0
 				) {
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.UNSHIPPED
-						|| sortedFulfillments[0]?.status === FulFillmentStatus.CANCELLED
-						|| sortedFulfillments[0]?.status === FulFillmentStatus.RETURNED
-						|| sortedFulfillments[0]?.status === FulFillmentStatus.RETURNING) {
+					if (sortedFulfillments[0].status === FulFillmentStatus.UNSHIPPED
+						|| sortedFulfillments[0].status === FulFillmentStatus.CANCELLED
+						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNED
+						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNING) {
 						return OrderStatus.FINALIZED;
 					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.PICKED) {
+					if (sortedFulfillments[0].status === FulFillmentStatus.PICKED) {
 						return FulFillmentStatus.PICKED;
 					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.PACKED) {
+					if (sortedFulfillments[0].status === FulFillmentStatus.PACKED) {
 						return FulFillmentStatus.PACKED;
 					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING) {
+					if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPING) {
 						return FulFillmentStatus.SHIPPING;
 					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED) {
+					if (sortedFulfillments[0].status === FulFillmentStatus.SHIPPED) {
 						return FulFillmentStatus.SHIPPED;
 					}
 				}
@@ -887,51 +886,6 @@ export default function Order(props: PropTypes) {
 		setShippingFeeInformedToCustomer(value);
 	};
 
-	
-  /**
-   * xóa đơn
-   */
-   const handleDeleteOrderClick = useCallback(() => {
-    if (!OrderDetail) {
-      showError("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
-      return;
-    }
-
-    const deleteOrderComfirm = () => {
-      let ids: number[] = [OrderDetail.id]
-      dispatch(deleteOrderAction(ids, (success) => {
-        if (success) {
-          history.push(`${OrderDetail.channel === POS.channel_code ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER}`)
-        }
-      }))
-    }
-
-	Modal.confirm({
-		title: "Xác nhận xóa",
-		icon: <ExclamationCircleOutlined />,
-		content: (
-		  <React.Fragment>
-			<div style={{ display: "flex", lineHeight: "5px" }}>
-			  Bạn có chắc chắn xóa:
-			  <div style={{ marginLeft: 10, fontWeight: 500 }}>
-				<p>{OrderDetail?.code}</p>
-			  </div>
-			</div>
-			<p style={{ textAlign: "justify" , color:"#ff4d4f" }}>
-			  Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá
-			  luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá
-			  đơn ở trạng thái Thành công
-			</p>
-		  </React.Fragment>
-		),
-		okText: "Xóa",
-		cancelText: "Hủy",
-		okType:"danger",
-		onOk: deleteOrderComfirm,
-	});
-	  
-  }, [OrderDetail, dispatch, history])
-
 
 	useEffect(() => {
 		if (storeId != null) {
@@ -1032,6 +986,30 @@ export default function Order(props: PropTypes) {
 		}
 	}
 	// end handle for ecommerce order
+
+	// const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
+	// 	if (!fulfillment) return false;
+	// 	let success = false;
+	// 	if (// tạo giao hàng
+	// 	  !fulfillment.some(
+	// 		(p) =>
+	// 		  p.status !== FulFillmentStatus.CANCELLED &&
+	// 		  p.return_status !== FulFillmentStatus.RETURNED &&
+	// 		  p?.shipment?.delivery_service_provider_type
+	// 	  )
+	// 	)
+	// 	  success = true;
+	  
+	// 	if (//không tạo giao hàng nếu đã bàn giao sang hvc
+	// 	  fulfillment.some(
+	// 		(p) => p.status_before_cancellation === FulFillmentStatus.SHIPPING
+	// 	  )
+	// 	)
+	// 	  success = false;
+	// 	console.log("fulfillment", fulfillment);
+	  
+	// 	return success;
+	// };
 
 	const fetchData = () => {
 		dispatch(
@@ -1142,11 +1120,17 @@ export default function Order(props: PropTypes) {
 						automatic_discount: response.automatic_discount,
 					});
 					setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
+
 					if (
-						response.fulfillments &&
-						response.fulfillments[0] &&
-						response?.fulfillments[0]?.shipment
-					) {
+						(response.fulfillments && response.fulfillments[0] && response?.fulfillments[0]?.shipment) 
+						||(response.fulfillments && !isDeliveryOrder(response.fulfillments))
+					)
+					// if (
+					// 	response.fulfillments &&
+					// 	response.fulfillments[0] &&
+					// 	response?.fulfillments[0]?.shipment
+					// ) 
+					{
 						setShipmentMethod(0);
 						const newFulfillments = [...response.fulfillments];
 						setFulfillments(newFulfillments.reverse());
@@ -2304,11 +2288,7 @@ export default function Order(props: PropTypes) {
 														</div>
 													)
 											)}
-										{OrderDetail?.fulfillments && (OrderDetail?.fulfillments?.length === 0
-											|| !OrderDetail?.fulfillments[0].shipment
-											|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNED
-											|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.CANCELLED
-											|| OrderDetail?.fulfillments[0].status === FulFillmentStatus.RETURNING) && (
+										{OrderDetail?.fulfillments && isDeliveryOrder(OrderDetail?.fulfillments) && (
 												<OrderCreateShipment
 													shipmentMethod={shipmentMethod}
 													orderPrice={orderAmount}
@@ -2373,7 +2353,6 @@ export default function Order(props: PropTypes) {
 								updating={updating}
 								updatingConfirm={updatingConfirm}
 								isShow={!isShowBillStep}
-								deleteOrderClick={handleDeleteOrderClick}
 							/>
 						</Form>
 					)}

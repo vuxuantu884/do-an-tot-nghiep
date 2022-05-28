@@ -1,6 +1,7 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Popover } from "antd";
 import React, { useEffect, useState } from "react";
+import TextWithLineBreak from "../TextWithLineBreak";
 import { StyledComponent } from "./styles";
 
 type FormValueType = {
@@ -46,6 +47,7 @@ function EditOrderNote(props: PropTypes) {
 
   const onSubmit = () => {
     form.validateFields().then((values) => {
+      console.log("values", values);
       onOk(values);
     });
   };
@@ -64,27 +66,19 @@ function EditOrderNote(props: PropTypes) {
         <Popover
           content={
             <StyledComponent>
-              <Form
-                form={form}
-                layout="vertical"
-                initialValues={initialFormValues}
-              >
+              <Form form={form} layout="vertical" initialValues={initialFormValues}>
                 <div className="formInner">
                   <Form.Item
                     name="customer_note"
                     label="Ghi chú của khách hàng"
-                    rules={[
-                      { max: 255, message: "Không được nhập quá 255 ký tự!" },
-                    ]}
+                    rules={[{ max: 255, message: "Không được nhập quá 255 ký tự!" }]}
                   >
                     <Input.TextArea disabled={isDisable} rows={3} />
                   </Form.Item>
                   <Form.Item
                     name="note"
                     label="Ghi chú nội bộ"
-                    rules={[
-                      { max: 255, message: "Không được nhập quá 255 ký tự!" },
-                    ]}
+                    rules={[{ max: 255, message: "Không được nhập quá 255 ký tự!" }]}
                   >
                     <Input.TextArea disabled={isDisable} rows={3} />
                   </Form.Item>
@@ -117,11 +111,7 @@ function EditOrderNote(props: PropTypes) {
           onVisibleChange={handleVisibleChange}
         >
           {!isGroupButton && isHaveEditPermission && (
-            <EditOutlined
-              className="iconEdit"
-              style={{ color: props.color }}
-              title="Sửa ghi chú"
-            />
+            <EditOutlined className="iconEdit" style={{ color: props.color }} title="Sửa ghi chú" />
           )}
 
           {isGroupButton && (
@@ -130,7 +120,9 @@ function EditOrderNote(props: PropTypes) {
                 <EditOutlined title="Sửa ghi chú" />
                 <span>
                   {title && <strong>{title}</strong>}
-                  <span className="noteText">{note}</span>
+                  <span className="noteText">
+                    <TextWithLineBreak note={note} />
+                  </span>
                 </span>
               </React.Fragment>
             </Button>
@@ -140,7 +132,9 @@ function EditOrderNote(props: PropTypes) {
         {!isGroupButton && (
           <span>
             {title && <strong>{title}</strong>}
-            <span className="noteText">{note}</span>
+            <span className="noteText">
+              <TextWithLineBreak note={note} />
+            </span>
           </span>
         )}
       </div>
