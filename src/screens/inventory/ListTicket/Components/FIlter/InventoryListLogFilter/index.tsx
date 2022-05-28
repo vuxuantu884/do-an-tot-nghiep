@@ -39,20 +39,16 @@ const ACTIONS_STATUS_ARRAY = [
     name: 'Sửa phiếu chuyển kho',
   },
   {
-    value: 'CANCEL',
+    value: 'PENDING',
+    name: 'Chờ xử lý',
+  },
+  {
+    value: 'DELETE,CANCEL_SHIPMENT',
     name: 'Huỷ phiếu chuyển kho',
   },
   {
     value: 'CONFIRM_EXCEPTION',
-    name: 'Xác nhận hàng thừa thiếu',
-  },
-  {
-    value: 'CREATE_SHIPMENT',
-    name: 'Tạo mới đơn vận chuyển',
-  },
-  {
-    value: 'CANCEL_SHIPMENT',
-    name: 'Huỷ đơn vận chuyển',
+    name: 'Nhập lại tồn chênh lệch',
   },
   {
     value: 'EXPORT_SHIPMENT',
@@ -133,6 +129,11 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
   }, [accountStoresSelected])
 
   useEffect(() => {
+    if (filterFromParams.action && filterFromParams.action.length === 2
+      && filterFromParams.action[0] === 'DELETE' && filterFromParams.action[1] === 'CANCEL_SHIPMENT') {
+      // @ts-ignore
+      filterFromParams.action = ['DELETE,CANCEL_SHIPMENT'];
+    }
     formAdv.setFieldsValue(filterFromParams);
   }, [filterFromParams, formAdv, formSearchRef, params]);
 
@@ -235,11 +236,17 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
       if (initialValues.action.length > 1) {
 
+        // @ts-ignore
+        if (initialValues.action.indexOf('DELETE') !== -1) {
+          initialValues.action = initialValues.action.filter((item) => item !== 'DELETE' && item !== 'CANCEL_SHIPMENT');
+          // @ts-ignore
+          initialValues.action.push('DELETE,CANCEL_SHIPMENT');
+        }
+
         initialValues.action.forEach(actionValue => {
           const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
           textAction = status ? textAction + status.name + "; " : textAction
         })
-
       } else if (initialValues.action.length === 1) {
 
         initialValues.action.forEach(actionValue => {
@@ -419,6 +426,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                     mode="multiple"
                     style={{ width: '100%'}}
                     showArrow
+                    maxTagCount={'responsive'}
                     placeholder="Chọn thao tác"
                     notFoundContent="Không tìm thấy kết quả"
                     optionFilterProp="children"
