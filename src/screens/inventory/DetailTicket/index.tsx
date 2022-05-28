@@ -843,6 +843,7 @@ const DetailTicket: FC = () => {
   ];
 
   const deleteTicketResult = useCallback(result => {
+    setLoadingBtn(false);
     if (!result) {
       setError(true);
       return;
@@ -854,6 +855,7 @@ const DetailTicket: FC = () => {
   }, [])
 
   const onDeleteTicket = (value: string | undefined) => {
+    setLoadingBtn(true);
     dispatch(
       deleteInventoryTransferAction(
         idNumber,
@@ -1552,6 +1554,7 @@ const DetailTicket: FC = () => {
             visible={isDeleteTicket}
             icon={WarningRedIcon}
             textStore={data?.from_store_name}
+            loading={isLoadingBtn}
             okText="Đồng ý"
             cancelText="Thoát"
             title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${data?.code}`}
