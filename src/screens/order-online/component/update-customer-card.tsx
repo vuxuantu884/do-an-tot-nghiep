@@ -63,7 +63,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
       className="card-block card-block-customer"
       title={
         <div className="d-flex">
-          <span className="title-card">THÔNG TIN KHÁCH HÀNG </span>
+          <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
         </div>
       }
       extra={
@@ -122,7 +122,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
             <span className="customer-detail-icon">
               <img src={callIcon} alt="" className="icon-customer-info" />
             </span>
-            <Link to={`${UrlConfig.ORDER}?search_term=${props.customerDetail?.phone}`} className="customer-detail-text">{props.customerDetail?.phone}</Link>
+            <Link to={`${UrlConfig.ORDER}?search_term=${props.customerDetail?.phone}`} className="customer-detail-text" target="_blank">{props.customerDetail?.phone}</Link>
           </Space>
 
           <Space className="customer-detail-point">
